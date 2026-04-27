@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v31</title>
+<title>Interaktiv tavle v39</title>
 <style>
 :root{--bar:#1f2937;--accent:#6d5dfc;--bg:linear-gradient(135deg,#edf6ff,#dff8e8);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#111827}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#111}button,input,textarea,select{font:inherit}.app{height:100%;background:var(--bg);position:relative;overflow:hidden;touch-action:none}.app.grid:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.055) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}.title{position:absolute;top:14px;left:16px;background:rgba(0,0,0,.68);color:white;padding:10px 16px;border-radius:9px;font-size:24px;font-weight:700;z-index:900;max-width:45vw}.topbar{position:absolute;top:14px;right:14px;background:rgba(17,24,39,.86);border-radius:12px;padding:8px;display:flex;gap:8px;z-index:1000;align-items:center;color:white}.topbar button,.tool button,.mini button,.modal button{border:0;border-radius:9px;padding:9px 12px;background:#4b5563;color:white;font-weight:700}.topbar button:disabled{opacity:.45}.toolbar{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.88);border-radius:16px;padding:10px 14px;display:flex;gap:13px;box-shadow:0 12px 28px rgba(0,0,0,.3)}.tool{display:flex;flex-direction:column;align-items:center;gap:3px;color:white;font-size:11px}.tool button{width:50px;height:50px;background:#fff;color:#111827;font-size:27px;padding:0}.widget{position:absolute;left:0;top:0;width:360px;height:240px;background:white;border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.22);transform-origin:center center;overflow:visible;touch-action:none}.widget.selected{outline:3px solid var(--accent)}.widget.locked{outline:2px dashed #6b7280}.widget:not(.selected) .chrome,.widget:not(.selected) .resize,.widget:not(.selected) .rotater{display:none}.chrome{height:34px;background:#30394a;color:white;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;cursor:move;font-weight:700;font-size:14px}.mini{display:flex;gap:5px}.mini button{padding:4px 8px;font-size:12px;background:#4b5563}.content{height:calc(100% - 34px);overflow:auto;background:rgba(255,255,255,.94);border-radius:0 0 12px 12px}.widget:not(.selected) .content{height:100%;border-radius:12px;background:transparent;overflow:hidden}.widget:not(.selected){box-shadow:0 8px 20px rgba(0,0,0,.12)}.widget.locked:not(.selected){outline:none}.widget.selected.locked{outline:3px dashed #6b7280}.resize{position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:white;border:3px solid var(--accent);cursor:nwse-resize}.rotater{position:absolute;left:50%;bottom:-40px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:white;border:3px solid var(--accent);display:grid;place-items:center;font-weight:bold;color:var(--accent);cursor:grab}.text{height:100%;display:flex;flex-direction:column}.textTools{display:flex;padding:6px 10px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;gap:8px;align-items:center;flex-wrap:wrap}.text textarea{width:100%;flex:1;border:0;padding:16px;font-size:var(--fs,24px);resize:none;background:white}.videoBox{height:100%;background:#222;color:white;display:grid;place-items:center;text-align:center;padding:18px}.videoBox iframe{width:100%;height:100%;border:0}.videoBox a{color:white;font-size:24px;font-weight:800}.timerBox{padding:18px;text-align:center}.timerBox .display{font-size:58px;font-weight:900;margin:18px}.timerBox input{width:70px;padding:6px}.timerBox button,.wheel button,.linkBox button,.modal button{background:var(--accent);color:white;border:0;border-radius:8px;padding:8px 12px;margin:3px}.wheel{height:100%;display:grid;gap:12px;padding:12px;overflow:hidden;box-sizing:border-box}.wheel:not(.editing){grid-template-columns:minmax(260px,58%) minmax(220px,42%)}.wheel.editing{grid-template-columns:minmax(260px,52%) minmax(260px,48%)}.wheelBox{min-width:0;min-height:0;height:100%;display:flex;align-items:center;justify-content:center}.wheelCanvas{width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:1/1;object-fit:contain;border-radius:50%;box-shadow:0 0 0 8px white,0 4px 12px #999}.wheelSide{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;align-content:start}.winner{font-size:clamp(28px,5vw,76px);font-weight:900;text-align:center;line-height:1}.wheelControls,.wheelTools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wheel .chosen{font-size:14px;min-height:0;overflow:auto;overflow-wrap:anywhere;background:#f3f4f6;padding:8px;border-radius:8px}.wheel textarea{width:100%;height:130px}.wheel .editArea{display:none;min-width:0;overflow:auto}.wheel.editing .editArea{display:block}.wheel.editing .wheelSide{grid-template-rows:auto auto minmax(80px,.7fr) auto}@media(max-width:700px){.wheel:not(.editing),.wheel.editing{grid-template-columns:1fr}.wheelBox{height:260px}}.linkBox{height:100%;display:grid;place-items:center;text-align:center;padding:20px}.linkBox a{font-size:30px;color:#1559d6;font-weight:800}.imageWidget img{width:100%;height:100%;object-fit:contain;display:block}.pdfBox{height:100%;display:grid;place-items:center;padding:20px;text-align:center}.pdfBox iframe,.pdfBox object{width:100%;height:100%;border:0}.drawLayer{position:absolute;inset:0;z-index:850;pointer-events:none}.drawLayer.active{pointer-events:auto;cursor:crosshair}.app.drawActive .widget{filter:saturate(.7) brightness(.9)}.app.drawActive:after{content:'TEGNETILSTAND – klik blyanten igen eller Luk for at stoppe';position:absolute;top:78px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(17,24,39,.9);color:white;border-radius:999px;padding:9px 16px;font-weight:900;pointer-events:none}.drawPanel{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:1001;background:rgba(255,255,255,.96);border-radius:14px;padding:10px;box-shadow:0 10px 24px #0004;display:none;gap:8px;align-items:center;max-width:92vw;overflow:auto}.drawPanel.show{display:flex}.drawPanel button.active{background:#6d5dfc;color:white}.modalBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:none;align-items:center;justify-content:center}.modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.modal h2{margin-top:0}.modal input,.modal textarea,.modal select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 12px}.hidden{display:none!important}.present .toolbar,.present .topbar,.present .chrome,.present .resize,.present .rotater,.present .drawPanel{display:none!important}.present .title{display:none}.present .widget{box-shadow:none;outline:none}.present .content{height:100%;border-radius:12px}.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#111827;color:white;padding:10px 16px;border-radius:999px;z-index:3000;opacity:0;transition:.2s}.toast.show{opacity:1}@media(max-width:800px){.toolbar{gap:8px;max-width:96vw;overflow-x:auto}.tool button{width:44px;height:44px}.title{font-size:18px}.topbar{scale:.9;transform-origin:top right}}
 
@@ -11,7 +11,7 @@
 .present .title{display:none!important}
 .present .topbar{display:flex!important;opacity:.55;transform:scale(.82);transform-origin:top right}
 .present:not(.drawActive) .topbar:hover{opacity:1}
-.present .topbar #prev,.present .topbar #next,.present .topbar #slideInfo,.present .topbar #slidesOverview,.present .topbar #addSlide,.present .topbar #clearSlide,.present .topbar #deleteSlide{display:none!important}
+.present .topbar #prev,.present .topbar #next,.present .topbar #slideInfo,.present .topbar #slidesOverview,.present .topbar #addSlide,.present .topbar #clearSlide{display:none!important}
 .present .widget .chrome,.present .widget .resize,.present .widget .rotater{display:none!important}
 .present .widget{outline:none!important;box-shadow:0 8px 20px rgba(0,0,0,.08)}
 .toolbar button.active,.topbar button.active{outline:4px solid #f59e0b;background:#7c3aed;color:white}
@@ -368,12 +368,43 @@
 .slideOverviewActions button{padding:8px 10px}
 .slideOverviewActions .danger{background:#fee2e2;color:#991b1b}
 
+
+/* v32: presentation should be clean */
+.present .toolbarPeek,
+.present .toolbarPinFloat{
+  display:none!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.present .toolbar{
+  display:none!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+
+/* v33: prevent accidental tap-through every time tools are opened */
+.app.toolbarBlocked .toolbar button{
+  pointer-events:none!important;
+}
+.app.toolbarBlocked .toolbar{
+  opacity:.88;
+}
+
+
+
+/* v38: hard hide multi-tavle controls at 1 slide */
+.onlyMultiHidden{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
 </style>
 </head>
 <body>
 <div id="app" class="app">
   <div id="title" class="title" contenteditable="true">Min undervisningstavle</div>
-  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide">🧹</button><button id="deleteSlide" title="Slet denne tavle">🗑 tavle</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="present">⛶</button></div>
+  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide">🧹</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="present">⛶</button></div>
   <canvas id="draw" class="drawLayer"></canvas>
   <div class="drawPanel" id="drawPanel"><b>Tegn</b><input id="penColor" type="color" value="#000000"><input id="penSize" type="range" min="2" max="40" value="6"><button data-drawmode="pen" class="active">Fri</button><button data-drawmode="line">Linje</button><button data-drawmode="rect">Firkant</button><button data-drawmode="circle">Cirkel</button><button data-drawmode="eraser">Viskelæder</button><button id="drawClear">Ryd</button><button id="drawOff">Luk</button></div>
   <div class="toolbar">
@@ -388,7 +419,8 @@
 (()=>{
 const app=document.getElementById('app'), titleEl=document.getElementById('title'), draw=document.getElementById('draw'), ctx=draw.getContext('2d');
 const modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal'), fileInput=document.getElementById('fileInput');
-const KEY='maans_interaktiv_tavle_v31'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
+const KEY='maans_interaktiv_tavle_v39'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
+let toolClickBlockUntil=0;
 let embeddedData=window.__TAVLE_DATA__||null;
 let state=(embeddedData&&embeddedData.state)||load()||{active:0,slides:[{title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]}]};
 if(embeddedData&&embeddedData.wheelLists){try{localStorage.setItem('maans_wheel_lists',JSON.stringify(embeddedData.wheelLists))}catch(e){}}
@@ -402,7 +434,17 @@ function applyBg(){const s=slide();app.style.background=s.bg||'linear-gradient(1
 function resizeCanvas(){const old=draw.toDataURL();draw.width=innerWidth*devicePixelRatio;draw.height=innerHeight*devicePixelRatio;draw.style.width=innerWidth+'px';draw.style.height=innerHeight+'px';ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);loadDraw(old)}
 function loadDraw(src){ctx.clearRect(0,0,innerWidth,innerHeight); if(!src)return; const im=new Image();im.onload=()=>ctx.drawImage(im,0,0,innerWidth,innerHeight); im.src=src}
 window.addEventListener('resize',resizeCanvas);
-function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;resizeCanvas();loadDraw(slide().draw);slide().widgets.forEach(w=>makeWidget(w));save()}
+
+function updateSlidesOverviewVisibility(){
+  const btn=document.getElementById('slidesOverview');
+  if(!btn) return;
+  const hide = !state || !state.slides || state.slides.length <= 1;
+  btn.hidden = hide;
+  btn.style.display = hide ? 'none' : '';
+  btn.classList.toggle('onlyMultiHidden', hide);
+}
+
+function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw);slide().widgets.forEach(w=>makeWidget(w));save()}
 function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:type==='wheel'?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='timer'?260: type==='link'?230:320),z:z++,rotation:0,locked:false,title:titles[type]||type,data};slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
 function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
@@ -607,7 +649,7 @@ function askLink(w){showModal(`<h2>Link</h2><input id="lt" placeholder="Tekst" v
 function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeholder="https://..." value="${esc(w.data.src||'')}"><p>Bemærk: Nogle billeder blokeres af hjemmesiden. Upload lokalt er mest stabilt offline.</p><button id="ok">Brug billede</button><button id="cancel">Luk</button>`);modal.querySelector('#ok').onclick=()=>{w.data.src=modal.querySelector('#iu').value.trim();closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
 function askPdfLink(w){showModal(`<h2>PDF-link</h2><input id="pt" placeholder="Tekst" value="${esc(w.data.text||'Åbn PDF')}"><input id="pu" placeholder="PDF URL" value="${esc(w.data.src||'')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#pt').value;w.data.src=modal.querySelector('#pu').value;closeModal();render()}}
 function bgModal(){showModal(`<h2>Baggrund</h2><div id="bgPreview" style="height:180px;border-radius:14px;border:1px solid #ddd;background:${slide().bgImage?'url('+slide().bgImage+') center/contain no-repeat':'#f3f4f6'};margin-bottom:12px"></div><button data-bg="linear-gradient(135deg,#edf6ff,#dff8e8)">Lys grøn/blå</button><button data-bg="linear-gradient(135deg,#0f172a,#064e3b)">Mørk</button><button data-bg="linear-gradient(135deg,#fef3c7,#fed7aa)">Varm</button><hr><button id="bgImg">Vælg baggrundsbillede</button><select id="fit"><option>cover</option><option>contain</option><option>auto</option></select><button id="clearBg">Fjern billede</button><button id="close">Luk</button>`);modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{slide().bg=b.dataset.bg;render()});modal.querySelector('#bgImg').onclick=()=>pickFile('image/*',src=>{slide().bgImage=src;render();closeModal()});modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render()};modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';render()};modal.querySelector('#close').onclick=closeModal}
-function exportJson(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='interaktiv-tavle-v31.json';a.click()}
+function exportJson(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='interaktiv-tavle-v33.json';a.click()}
 function importJson(){pickFile('application/json',src=>fetch(src).then(r=>r.json()).then(j=>{state=j;render();toast('Importeret')}))}
 
 function collectAllData(){
@@ -692,7 +734,7 @@ function slideOverviewModal(){
         <button data-go="${i}">Gå til</button>
         <button data-up="${i}" ${i===0?'disabled':''}>↑</button>
         <button data-down="${i}" ${i===state.slides.length-1?'disabled':''}>↓</button>
-        <button class="danger" data-del="${i}" ${state.slides.length<=1?'disabled':''}>Slet</button>
+        <button class="danger" data-del="${i}" ${state.slides.length<=1?'disabled':''}>🗑 Slet</button>
       </div>
     </div>`).join('');
   showModal(`<h2>Tavleoversigt</h2>
@@ -712,13 +754,23 @@ function slideOverviewModal(){
   modal.querySelector('#close').onclick=closeModal;
 }
 
-document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=e=>{if(app.classList.contains('toolbarBlocked')){e.preventDefault();e.stopPropagation();return}const t=b.dataset.tool;if(t==='text')addWidget('text',{text:'Skriv instruktion her…',fontSize:24});if(t==='video'){let w=addWidget('video',{url:''});askVideo(w)}if(t==='draw'){setDrawActive(!app.classList.contains('drawActive'))}if(t==='wheel')addWidget('wheel',{});if(t==='timer')addWidget('timer',{});if(t==='image')addWidget('image',{});if(t==='link'){let w=addWidget('link',{text:'Klikbart link',url:'https://'});askLink(w)}if(t==='pdf')addWidget('pdf',{});if(t==='bg')bgModal();if(t==='grid'){slide().grid=!slide().grid;render()}if(t==='save')saveModal()});
+
+document.querySelectorAll('.toolbar [data-tool], .toolbar button').forEach(btn=>{
+  btn.addEventListener('pointerdown',e=>{
+    if(Date.now()<toolClickBlockUntil){
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  },true);
+});
+
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=e=>{if(app.classList.contains('toolbarBlocked')||Date.now()<toolClickBlockUntil){e.preventDefault();e.stopPropagation();return}const t=b.dataset.tool;if(t==='text')addWidget('text',{text:'Skriv instruktion her…',fontSize:24});if(t==='video'){let w=addWidget('video',{url:''});askVideo(w)}if(t==='draw'){setDrawActive(!app.classList.contains('drawActive'))}if(t==='wheel')addWidget('wheel',{});if(t==='timer')addWidget('timer',{});if(t==='image')addWidget('image',{});if(t==='link'){let w=addWidget('link',{text:'Klikbart link',url:'https://'});askLink(w)}if(t==='pdf')addWidget('pdf',{});if(t==='bg')bgModal();if(t==='grid'){slide().grid=!slide().grid;render()}if(t==='save')saveModal()});
 
 app.addEventListener('pointerdown',e=>{
   if(e.target===app || e.target===titleEl){ select(null); }
 });
 
-document.getElementById('prev').onclick=()=>prevSlide();document.getElementById('next').onclick=()=>nextSlide();document.getElementById('slidesOverview').onclick=slideOverviewModal;document.getElementById('addSlide').onclick=()=>{state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});state.active=state.slides.length-1;render()};document.getElementById('clearSlide').onclick=()=>{if(confirm('Ryd denne tavle?')){slide().widgets=[];slide().draw='';render()}};document.getElementById('deleteSlide').onclick=()=>deleteSlideAt(state.active);document.getElementById('drawTop').onclick=()=>setDrawActive(!app.classList.contains('drawActive'));document.getElementById('present').onclick=()=>{app.classList.toggle('present');select(null);document.activeElement&&document.activeElement.blur();titleEl.contentEditable=app.classList.contains('present')?'false':'true'};
+document.getElementById('prev').onclick=()=>prevSlide();document.getElementById('next').onclick=()=>nextSlide();document.getElementById('slidesOverview').onclick=slideOverviewModal;document.getElementById('addSlide').onclick=()=>{state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});state.active=state.slides.length-1;render()};document.getElementById('clearSlide').onclick=()=>{if(confirm('Ryd denne tavle?')){slide().widgets=[];slide().draw='';render()}};document.getElementById('drawTop').onclick=()=>setDrawActive(!app.classList.contains('drawActive'));document.getElementById('present').onclick=()=>{app.classList.toggle('present');select(null);document.activeElement&&document.activeElement.blur();titleEl.contentEditable=app.classList.contains('present')?'false':'true'};
 
 ['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>ensureAudio(),{once:false,passive:true}));
 
@@ -777,6 +829,8 @@ let toolbarPinned=localStorage.getItem('maans_toolbar_pinned')==='1',
     toolbarTimer=null,
     toolbarDelay=Number(localStorage.getItem('maans_toolbar_delay')||5000);
 
+let toolbarBlockTimer=null;
+function blockToolbarClicks(ms=650){toolClickBlockUntil=Date.now()+ms;app.classList.add('toolbarBlocked');clearTimeout(toolbarBlockTimer);toolbarBlockTimer=setTimeout(()=>app.classList.remove('toolbarBlocked'),ms)}
 function setToolbarHidden(on){
   if(toolbarPinned) on=false;
   app.classList.toggle('toolbarHidden',on);
@@ -834,9 +888,9 @@ pinToolbar.onclick=e=>{
   clearTimeout(toolbarTimer);
   setToolbarHidden(true);
 };
-toolbarPinFloat.onclick=e=>{e.stopPropagation();toggleToolbarPin();showToolbarTemp();blockToolbarClicks(520)};
+toolbarPinFloat.onclick=e=>{e.preventDefault();e.stopPropagation();toggleToolbarPin();showToolbarTemp();blockToolbarClicks(750)};
 toolbarOpts.onclick=e=>{e.stopPropagation();toolbarSettingsModal()};
-toolbarPeek.onclick=e=>{e.stopPropagation();showToolbarTemp();blockToolbarClicks(520)};
+toolbarPeek.onclick=e=>{e.preventDefault();e.stopPropagation();showToolbarTemp();blockToolbarClicks(750)};
 app.addEventListener('pointermove',e=>{if(e.clientY>innerHeight-130)showToolbarTemp()});
 app.addEventListener('pointerdown',e=>{if(e.target.closest('.toolbar,.toolbarPeek,.toolbarPinFloat'))showToolbarTemp()});
 updatePinButtons();
@@ -848,7 +902,15 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-render();
+
+const __render_original = render;
+render = function(){
+  __render_original();
+  updateSlidesOverviewVisibility();
+};
+render();updateSlidesOverviewVisibility();
 })();
+
+
 </script>
 </body></html>
