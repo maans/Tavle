@@ -66,9 +66,11 @@ Gemmer en selvstændig HTML-fil med tavler, widgets, lister og indlejrede billed
 
 Det er den mest praktiske “alt-i-en”-backup.
 
-### Åbn fil
+### Importér JSON
 
-Indlæser en tidligere gemt tavlefil.
+Indlæser en tidligere gemt JSON-backup.
+
+Det er den anbefalede og mest stabile måde at flytte tavledata mellem browser/enheder.
 
 ### JSON-backup
 
