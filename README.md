@@ -56,7 +56,7 @@ Arbejdsgang:
 2. Vælg antal personer pr. gruppe
 3. Tryk **Dan grupper**
 4. Listen skjules automatisk, så grupperne får mest mulig plads
-5. Grupperne vises i kompakte kolonner, så hele overblikket lettere kan ses på én gang
+5. Grupperne vises i kolonner, og hjulet forbliver synligt i præsentationstilstand
 6. Tryk **Vis/rediger liste**, hvis listen skal ændres
 
 Formålet er, at eleverne tydeligt kan se, at grupperne dannes tilfældigt og fair.
@@ -69,6 +69,7 @@ Præsentationstilstand giver en renere visning til eleverne:
 - tekstfelter kan ikke redigeres
 - tavletitlen er stadig synlig
 - fokus på indholdet
+- gruppehjulet og gruppeoversigten kan stadig vises
 
 ## Værktøjslinje og pin
 
