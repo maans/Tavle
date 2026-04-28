@@ -37,7 +37,7 @@ Den er designet til undervisning, hvor materialer, aktiviteter og struktur kan s
 
 ## Gem og del
 
-Mindre tavler kan ofte gemmes som én samlet HTML-fil.
+Mindre tavler kan gemmes som én samlet HTML-fil.
 
 Ved store tavler med flere billeder eller PDF’er kan browseren dog have svært ved at gemme alt i én fil. Brug i stedet:
 
@@ -45,13 +45,9 @@ Ved store tavler med flere billeder eller PDF’er kan browseren dog have svært
 2. **Download indlejrede medier**
 3. Gem filerne samlet i en mappe
 
-JSON-backup indeholder tavlens struktur og data. Indlejrede medier kan hentes ud via backup-dialogen.
-
 ---
 
 ## Designprincipper
-
-Projektet er lavet med fokus på enkelhed og uafhængighed:
 
 - Kører direkte i browseren
 - Ingen installation
@@ -67,9 +63,3 @@ Projektet er lavet med fokus på enkelhed og uafhængighed:
 
 Online version:  
 https://maans.github.io/Tavle/
-
----
-
-## Note om PDF
-
-PDF-visning afhænger af browserens indbyggede PDF-fremviser, som kan opføre sig forskelligt på tværs af enheder og platforme.
