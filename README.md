@@ -39,11 +39,7 @@ Den er designet til undervisning, hvor materialer, aktiviteter og struktur kan s
 
 Mindre tavler kan gemmes som én samlet HTML-fil. Den gemte HTML-fil indeholder tavledata og kan åbnes igen i browseren.
 
-Ved store tavler med flere billeder eller PDF’er kan browseren dog have svært ved at gemme alt i én fil. Brug i stedet:
-
-1. **Eksportér projektfil JSON**
-2. **Download indlejrede medier**
-3. Gem filerne samlet i en mappe
+Ved store tavler med flere billeder eller PDF’er kan browseren have svært ved at gemme alt i én fil. Brug i stedet JSON-backup og download indlejrede medier.
 
 ---
 
