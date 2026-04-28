@@ -61,6 +61,12 @@ Derudover kan der laves JSON-backup til sikker lagring.
 
 ---
 
+## Indlejrede medier
+
+Lokale billeder, baggrundsbilleder og PDF’er kan indlejres i tavlen. De kan hentes ud igen via backup-dialogen, hvor de vises som en liste med downloadlinks.
+
+---
+
 ## Designprincipper
 
 Projektet er lavet med fokus på enkelhed og uafhængighed:
