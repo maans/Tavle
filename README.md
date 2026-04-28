@@ -1,136 +1,51 @@
 # Interaktiv Tavle
 
-Et enkelt, browserbaseret tavleværktøj til undervisning. Appen er lavet som én HTML-fil og kan bruges direkte fra GitHub Pages eller downloades til lokal/offline brug.
+Et enkelt, browserbaseret tavleværktøj til undervisning.
 
-Live-version:
+## Funktioner
 
-https://maans.github.io/Tavle/
+- Flere tavler
+- Tekst, video, tegning, timer, billeder, links og PDF
+- Lykkehjul til tilfældige valg
+- Gruppeværktøj med tilfældig gruppedannelse
+- Gemte lister til både hjul og grupper
+- Præsentationstilstand
+- JSON-backup og selvstændig HTML-kopi
 
-## Hvad kan appen?
+## Hjul og lister
 
-Appen giver en digital undervisningstavle med flere tavler og flytbare widgets.
-
-### Widgets
-
-- **Tekst** – skriv noter, spørgsmål og instruktioner
-- **Video** – indsæt video/YouTube-link
-- **Tegn** – tegn og annotér på tavlen
-- **Hjul** – lykkehjul til tilfældige valg
-- **Grupper** – lav tilfældige grupper fra en liste
-- **Timer** – nedtælling med alarm
-- **Billede** – indsæt billeder fra fil eller URL
-- **Link** – klikbare links
-- **PDF** – vis eller link til PDF-materiale
-- **Baggrund** – vælg farve eller billede
-- **Grid** – vis/skjul hjælpelinjer
-- **Linje** – geometriske linjer/markeringer
-- **Backup** – gem, hent og eksportér
-
-## Tavler
-
-- Opret nye tavler med **+ tavle**
-- Skift tavle med pile, tastatur eller swipe
-- Brug **Tavler**-oversigten, når der er flere tavler
-- Omarrangér og slet tavler i tavleoversigten
-
-## Hjul
-
-Lykkehjulet kan bruges til meget andet end elevnavne:
-
-- elever
-- emner
-- spørgsmål
-- grupper
-- fordybelsesområder
-- opgaver
-
-Du kan gemme og hente lister, så de kan genbruges.
+Gemte lister bruges både af lykkehjulet og gruppeværktøjet. JSON-backup indeholder nu også gemte lister, så de kan hentes igen efter import.
 
 ## Grupper
 
-Gruppeværktøjet bruger samme type lister som lykkehjulet.
-
-Arbejdsgang:
-
-1. Indsæt eller hent en liste
+1. Hent eller skriv en liste
 2. Vælg antal personer pr. gruppe
 3. Tryk **Dan grupper**
-4. Listen skjules automatisk, så grupperne får mest mulig plads
-5. Grupperne vises i kolonner, og hjulet forbliver synligt i præsentationstilstand
-6. Tryk **Vis/rediger liste**, hvis listen skal ændres
+4. Listen skjules automatisk, så grupperne får plads
+5. Hjulet forbliver synligt i præsentationstilstand
 
-Formålet er, at eleverne tydeligt kan se, at grupperne dannes tilfældigt og fair.
+## Timer
 
-## Præsentationstilstand
-
-Præsentationstilstand giver en renere visning til eleverne:
-
-- færre værktøjsknapper
-- tekstfelter kan ikke redigeres
-- tavletitlen er stadig synlig
-- fokus på indholdet
-- gruppehjulet og gruppeoversigten kan stadig vises
-
-## Værktøjslinje og pin
-
-Pinknappen nederst bruges som hurtigkontakt:
-
-- klik én gang: værktøjslinjen holdes synlig
-- klik igen: automatisk skjul slås til igen
-
-Kontrolpanelet kan stadig bruges til finere indstillinger, fx hvor længe værktøjslinjen skal være synlig før automatisk skjul.
+Timeren tæller ned uden at gemme hele projektet hvert sekund. Det forhindrer gentagne fejlbeskeder, hvis projektet er stort.
 
 ## Gem og backup
 
-Appen gemmer automatisk i browserens `localStorage`.
+Appen gemmer automatisk i browserens `localStorage`, men browserens lagerplads kan blive fyldt af store billeder.
 
-Det betyder, at data ligger lokalt i den browser/enhed, du bruger. Lav derfor backup, hvis du vil være sikker.
+Brug derfor:
 
-### Gem som fil
-
-Laver en selvstændig HTML-fil med tavler, widgets, lister og indlejrede billeder.
-
-Det er den praktiske “alt i én”-kopi.
-
-### JSON
-
-JSON er teknisk backup/import.
-
-Brug:
-
-- **Eksportér projektfil JSON**
-- **Importér JSON**
-
-`Åbn fil` er fjernet, fordi JSON-import er den mest stabile måde at hente tavledata ind igen.
-
-### Hent tom app
-
-Downloader nyeste ZIP fra GitHub:
-
-https://github.com/maans/Tavle/archive/refs/heads/main.zip
-
-## Lokal brug
-
-Download `index.html` og åbn filen i en browser.
-
-På iPad fungerer appen bedst i Safari eller Chrome. Appen kan også bruges via GitHub Pages.
+- **Gem som fil** til en selvstændig HTML-kopi
+- **Eksportér projektfil JSON** til backup
+- **Importér JSON** til at hente backup ind igen
 
 ## GitHub Pages
 
-For at udgive appen:
-
-1. Upload `index.html` til repository
-2. Gå til **Settings → Pages**
-3. Vælg branch `main`
-4. Vælg mappe `/root`
-5. Åbn GitHub Pages-linket
-
-GitHub Pages forventer normalt, at hovedfilen hedder:
+Hovedfilen skal hedde:
 
 ```text
 index.html
 ```
 
-## Status
+Live-version:
 
-Appen er i løbende udvikling og tilpasses praktisk undervisningsbrug.
+https://maans.github.io/Tavle/
