@@ -1,35 +1,87 @@
 # Interaktiv Tavle
 
-Browserbaseret tavleværktøj til undervisning.
+En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
+
+---
+
+## Quick start
+
+1. Åbn `index.html` i din browser  
+2. Klik på værktøjslinjen nederst for at tilføje indhold  
+3. Træk og tilpas widgets på tavlen  
+4. Skift til præsentationstilstand ved behov  
+5. Gem tavlen som HTML, hvis du vil bruge den igen  
+
+---
+
+## Hvad er det?
+
+Interaktiv Tavle er et fleksibelt arbejdsrum, der kører direkte i browseren uden installation eller login.
+
+Den er designet til undervisning, hvor materialer, aktiviteter og struktur kan samles ét sted og bruges live i klassen.
+
+---
 
 ## Funktioner
 
-- Flere tavler
-- Tekst, video, tegning, timer, billeder, links og PDF
-- Lokale PDF-filer og billeder kan indlejres i backup
-- Indlejrede PDF’er og billeder kan downloades igen
-- PDF-widgetten kan vælges, flyttes og skaleres efter import
-- Større resize-greb på widgets
-- Lykkehjul til tilfældige valg
-- Gruppeværktøj med tilfældig gruppedannelse
-- Gemte lister til både hjul og grupper
-- Præsentationstilstand
-- JSON-backup og selvstændig HTML-kopi
+- Flere tavler (fx emner eller lektioner)  
+- Tekst, video, tegning, timer, billeder, links og PDF  
+- Lykkehjul til tilfældige valg  
+- Gruppeværktøj til hurtig gruppedannelse  
+- Præsentationstilstand  
+- Gem som selvstændig HTML-fil  
+- JSON-backup og import  
 
-## PDF
+---
 
-PDF-widgetten bruger fit-to-page-parametre, så PDF’en følger widgettens størrelse bedre. Appen forsøger også at skjule browserens indbyggede PDF-værktøjslinje i præsentationstilstand. Browseres PDF-visere opfører sig dog ikke helt ens.
+## Brug i praksis
 
-## Backup
+Tavlen fungerer som et dynamisk undervisningsrum:
 
-Brug **Gem som fil** til en selvstændig HTML-kopi.
+- Planlæg og strukturer en lektion  
+- Saml materialer ét sted  
+- Arbejd interaktivt undervejs  
+- Vis indhold i præsentationstilstand  
 
-Brug **Eksportér projektfil JSON** til backup og **Importér JSON** til at hente den ind igen.
+Alt indhold kan flyttes, ændres og tilpasses direkte på tavlen.
 
-## GitHub Pages
+---
 
-Hovedfilen skal hedde `index.html`.
+## Gem og del
 
-Live-version:
+En tavle kan gemmes som én samlet HTML-fil.
 
-https://maans.github.io/Tavle/
+Det gør det muligt at:
+
+- åbne tavlen på andre enheder  
+- dele den med kolleger eller elever  
+- gemme forløb til senere brug  
+
+Derudover kan der laves JSON-backup til sikker lagring.
+
+---
+
+## Designprincipper
+
+Projektet er lavet med fokus på enkelhed og uafhængighed:
+
+- Kører direkte i browseren  
+- Ingen installation  
+- Ingen login  
+- Ingen afhængighed af eksterne services i brug  
+- Data gemmes lokalt  
+
+---
+
+## Kom i gang
+
+Åbn `index.html` i en browser.
+
+Eller brug den online version:  
+👉 https://maans.github.io/Tavle/
+
+---
+
+## Note om PDF
+
+PDF-visning afhænger af browserens indbyggede PDF-fremviser, som kan opføre sig forskelligt på tværs af enheder og platforme.
