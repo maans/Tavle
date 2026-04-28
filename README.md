@@ -56,7 +56,8 @@ Arbejdsgang:
 2. Vælg antal personer pr. gruppe
 3. Tryk **Dan grupper**
 4. Listen skjules automatisk, så grupperne får mest mulig plads
-5. Tryk **Vis/rediger liste**, hvis listen skal ændres
+5. Grupperne vises i kompakte kolonner, så hele overblikket lettere kan ses på én gang
+6. Tryk **Vis/rediger liste**, hvis listen skal ændres
 
 Formålet er, at eleverne tydeligt kan se, at grupperne dannes tilfældigt og fair.
 
