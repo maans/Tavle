@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v42</title>
+<title>Interaktiv tavle v45</title>
 <style>
 :root{--bar:#1f2937;--accent:#6d5dfc;--bg:linear-gradient(135deg,#edf6ff,#dff8e8);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#111827}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#111}button,input,textarea,select{font:inherit}.app{height:100%;background:var(--bg);position:relative;overflow:hidden;touch-action:none}.app.grid:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.055) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}.title{position:absolute;top:14px;left:16px;background:rgba(0,0,0,.68);color:white;padding:10px 16px;border-radius:9px;font-size:24px;font-weight:700;z-index:900;max-width:45vw}.topbar{position:absolute;top:14px;right:14px;background:rgba(17,24,39,.86);border-radius:12px;padding:8px;display:flex;gap:8px;z-index:1000;align-items:center;color:white}.topbar button,.tool button,.mini button,.modal button{border:0;border-radius:9px;padding:9px 12px;background:#4b5563;color:white;font-weight:700}.topbar button:disabled{opacity:.45}.toolbar{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.88);border-radius:16px;padding:10px 14px;display:flex;gap:13px;box-shadow:0 12px 28px rgba(0,0,0,.3)}.tool{display:flex;flex-direction:column;align-items:center;gap:3px;color:white;font-size:11px}.tool button{width:50px;height:50px;background:#fff;color:#111827;font-size:27px;padding:0}.widget{position:absolute;left:0;top:0;width:360px;height:240px;background:white;border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.22);transform-origin:center center;overflow:visible;touch-action:none}.widget.selected{outline:3px solid var(--accent)}.widget.locked{outline:2px dashed #6b7280}.widget:not(.selected) .chrome,.widget:not(.selected) .resize,.widget:not(.selected) .rotater{display:none}.chrome{height:34px;background:#30394a;color:white;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;cursor:move;font-weight:700;font-size:14px}.mini{display:flex;gap:5px}.mini button{padding:4px 8px;font-size:12px;background:#4b5563}.content{height:calc(100% - 34px);overflow:auto;background:rgba(255,255,255,.94);border-radius:0 0 12px 12px}.widget:not(.selected) .content{height:100%;border-radius:12px;background:transparent;overflow:hidden}.widget:not(.selected){box-shadow:0 8px 20px rgba(0,0,0,.12)}.widget.locked:not(.selected){outline:none}.widget.selected.locked{outline:3px dashed #6b7280}.resize{position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:white;border:3px solid var(--accent);cursor:nwse-resize}.rotater{position:absolute;left:50%;bottom:-40px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:white;border:3px solid var(--accent);display:grid;place-items:center;font-weight:bold;color:var(--accent);cursor:grab}.text{height:100%;display:flex;flex-direction:column}.textTools{display:flex;padding:6px 10px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;gap:8px;align-items:center;flex-wrap:wrap}.text textarea{width:100%;flex:1;border:0;padding:16px;font-size:var(--fs,24px);resize:none;background:white}.videoBox{height:100%;background:#222;color:white;display:grid;place-items:center;text-align:center;padding:18px}.videoBox iframe{width:100%;height:100%;border:0}.videoBox a{color:white;font-size:24px;font-weight:800}.timerBox{padding:18px;text-align:center}.timerBox .display{font-size:58px;font-weight:900;margin:18px}.timerBox input{width:70px;padding:6px}.timerBox button,.wheel button,.linkBox button,.modal button{background:var(--accent);color:white;border:0;border-radius:8px;padding:8px 12px;margin:3px}.wheel{height:100%;display:grid;gap:12px;padding:12px;overflow:hidden;box-sizing:border-box}.wheel:not(.editing){grid-template-columns:minmax(260px,58%) minmax(220px,42%)}.wheel.editing{grid-template-columns:minmax(260px,52%) minmax(260px,48%)}.wheelBox{min-width:0;min-height:0;height:100%;display:flex;align-items:center;justify-content:center}.wheelCanvas{width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:1/1;object-fit:contain;border-radius:50%;box-shadow:0 0 0 8px white,0 4px 12px #999}.wheelSide{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;align-content:start}.winner{font-size:clamp(28px,5vw,76px);font-weight:900;text-align:center;line-height:1}.wheelControls,.wheelTools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wheel .chosen{font-size:14px;min-height:0;overflow:auto;overflow-wrap:anywhere;background:#f3f4f6;padding:8px;border-radius:8px}.wheel textarea{width:100%;height:130px}.wheel .editArea{display:none;min-width:0;overflow:auto}.wheel.editing .editArea{display:block}.wheel.editing .wheelSide{grid-template-rows:auto auto minmax(80px,.7fr) auto}@media(max-width:700px){.wheel:not(.editing),.wheel.editing{grid-template-columns:1fr}.wheelBox{height:260px}}.linkBox{height:100%;display:grid;place-items:center;text-align:center;padding:20px}.linkBox a{font-size:30px;color:#1559d6;font-weight:800}.imageWidget img{width:100%;height:100%;object-fit:contain;display:block}.pdfBox{height:100%;display:grid;place-items:center;padding:20px;text-align:center}.pdfBox iframe,.pdfBox object{width:100%;height:100%;border:0}.drawLayer{position:absolute;inset:0;z-index:850;pointer-events:none}.drawLayer.active{pointer-events:auto;cursor:crosshair}.app.drawActive .widget{filter:saturate(.7) brightness(.9)}.app.drawActive:after{content:'TEGNETILSTAND – klik blyanten igen eller Luk for at stoppe';position:absolute;top:78px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(17,24,39,.9);color:white;border-radius:999px;padding:9px 16px;font-weight:900;pointer-events:none}.drawPanel{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:1001;background:rgba(255,255,255,.96);border-radius:14px;padding:10px;box-shadow:0 10px 24px #0004;display:none;gap:8px;align-items:center;max-width:92vw;overflow:auto}.drawPanel.show{display:flex}.drawPanel button.active{background:#6d5dfc;color:white}.modalBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:none;align-items:center;justify-content:center}.modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.modal h2{margin-top:0}.modal input,.modal textarea,.modal select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 12px}.hidden{display:none!important}.present .toolbar,.present .topbar,.present .chrome,.present .resize,.present .rotater,.present .drawPanel{display:none!important}.present .title{display:none}.present .widget{box-shadow:none;outline:none}.present .content{height:100%;border-radius:12px}.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#111827;color:white;padding:10px 16px;border-radius:999px;z-index:3000;opacity:0;transition:.2s}.toast.show{opacity:1}@media(max-width:800px){.toolbar{gap:8px;max-width:96vw;overflow-x:auto}.tool button{width:44px;height:44px}.title{font-size:18px}.topbar{scale:.9;transform-origin:top right}}
 
@@ -399,6 +399,86 @@
   visibility:hidden!important;
   pointer-events:none!important;
 }
+
+/* v43 group generator */
+.content.groups{background:white}
+.groupsBox{
+  height:100%;
+  display:grid;
+  grid-template-columns:minmax(260px,.85fr) minmax(260px,1.15fr);
+  gap:12px;
+  padding:12px;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+.groupsControls{
+  min-height:0;
+  display:grid;
+  grid-template-rows:auto auto auto minmax(0,1fr) auto;
+  gap:8px;
+  overflow:hidden;
+}
+.groupsControls textarea{
+  width:100%;
+  height:100%;
+  min-height:120px;
+  resize:none;
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+  padding:10px;
+  font-size:15px;
+}
+.groupsRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.groupsRow input{width:76px;border:1px solid #cbd5e1;border-radius:10px;padding:8px;font-size:17px}
+.groupsResult{
+  min-height:0;overflow:auto;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;
+  padding:12px;font-size:clamp(18px,2.2vw,30px);line-height:1.35;
+}
+.groupCard{background:white;border-radius:14px;padding:10px 12px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.groupCard b{display:block;margin-bottom:5px;color:#312e81}
+.groupSpin{position:relative;display:grid;place-items:center;min-height:0}
+.groupWheel{width:min(100%,52vh);height:auto;aspect-ratio:1/1;border-radius:50%;box-shadow:0 0 0 8px white,0 4px 12px #999}
+.groupSpinBtn{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:0;border-radius:999px;
+  padding:14px 18px;background:#6d5dfc;color:white;font-weight:900;font-size:clamp(16px,2.2vw,28px);
+  box-shadow:0 8px 20px rgba(0,0,0,.25)
+}
+.groupSpinBtn:disabled{opacity:.55}
+.groupsBox.flashGroups{animation:groupsFlash .55s ease}
+@keyframes groupsFlash{0%{filter:drop-shadow(0 0 0 rgba(109,93,252,0));transform:scale(1)}45%{filter:drop-shadow(0 0 16px rgba(109,93,252,.55));transform:scale(1.01)}100%{filter:drop-shadow(0 0 0 rgba(109,93,252,0));transform:scale(1)}}
+@media(max-width:760px){.groupsBox{grid-template-columns:1fr;grid-template-rows:auto 1fr}.groupSpin{min-height:230px}}
+.present .groupsControls textarea,.present .groupsControls .editOnly{display:none!important}
+.present .groupsBox{grid-template-columns:1fr}
+.present .groupSpin{display:none}
+
+
+/* v44: group list auto-hide after groups are made */
+.groupsBox.groupsListHidden .groupsControls{
+  grid-template-rows:auto minmax(0,1fr);
+}
+.groupsBox.groupsListHidden .groupsControls .editOnly,
+.groupsBox.groupsListHidden .groupsControls textarea{
+  display:none!important;
+}
+.groupsBox.groupsListHidden .groupsResult{
+  grid-row:1 / -1;
+  font-size:clamp(22px,2.8vw,38px);
+}
+.groupsBox.groupsListHidden{
+  grid-template-columns:minmax(260px,.75fr) minmax(320px,1.25fr);
+}
+.groupsBox.groupsListHidden .groupWheel{
+  width:min(100%,60vh);
+}
+
+
+/* v45: pin button is quick toggle for keeping toolbar visible */
+#pinBtn.pinned,.pinBtn.pinned,.pin.pinned{
+  background:#6d5dfc!important;
+  color:white!important;
+  box-shadow:0 0 0 3px rgba(109,93,252,.25),0 8px 20px rgba(0,0,0,.25);
+}
+
 </style>
 </head>
 <body>
@@ -408,7 +488,7 @@
   <canvas id="draw" class="drawLayer"></canvas>
   <div class="drawPanel" id="drawPanel"><b>Tegn</b><input id="penColor" type="color" value="#000000"><input id="penSize" type="range" min="2" max="40" value="6"><button data-drawmode="pen" class="active">Fri</button><button data-drawmode="line">Linje</button><button data-drawmode="rect">Firkant</button><button data-drawmode="circle">Cirkel</button><button data-drawmode="eraser">Viskelæder</button><button id="drawClear">Ryd</button><button id="drawOff">Luk</button></div>
   <div class="toolbar">
-    <div class="tool"><button data-tool="text">Aa</button><span>tekst</span></div><div class="tool"><button data-tool="video">▶</button><span>video</span></div><div class="tool"><button data-tool="draw" title="Tegn til/fra">✎</button><span>tegn</span></div><div class="tool"><button data-tool="wheel">🎲</button><span>hjul</span></div><div class="tool"><button data-tool="timer">⌛</button><span>timer</span></div><div class="tool"><button data-tool="image">🖼️</button><span>billede</span></div><div class="tool"><button data-tool="link">🔗</button><span>link</span></div><div class="tool"><button data-tool="pdf">PDF</button><span>pdf</span></div><div class="tool"><button data-tool="bg">🎨</button><span>baggrund</span></div><div class="tool"><button data-tool="grid">#</button><span>grid</span></div><div class="tool pinTool"><button id="pinToolbar" title="Skjul værktøjslinjen nu">📌</button><span>skjul</span></div><div class="tool"><button id="toolbarOpts" title="Indstillinger for værktøjslinje">⚙️</button><span>linje</span></div><div class="tool"><button data-tool="save">💾</button><span>backup</span></div>
+    <div class="tool"><button data-tool="text">Aa</button><span>tekst</span></div><div class="tool"><button data-tool="video">▶</button><span>video</span></div><div class="tool"><button data-tool="draw" title="Tegn til/fra">✎</button><span>tegn</span></div><div class="tool"><button data-tool="wheel">🎲</button><span>hjul</span></div><div class="tool"><button data-tool="groups">👥</button><span>grupper</span></div><div class="tool"><button data-tool="timer">⌛</button><span>timer</span></div><div class="tool"><button data-tool="image">🖼️</button><span>billede</span></div><div class="tool"><button data-tool="link">🔗</button><span>link</span></div><div class="tool"><button data-tool="pdf">PDF</button><span>pdf</span></div><div class="tool"><button data-tool="bg">🎨</button><span>baggrund</span></div><div class="tool"><button data-tool="grid">#</button><span>grid</span></div><div class="tool pinTool"><button id="pinToolbar" title="Skjul værktøjslinjen nu">📌</button><span>skjul</span></div><div class="tool"><button id="toolbarOpts" title="Indstillinger for værktøjslinje">⚙️</button><span>linje</span></div><div class="tool"><button data-tool="save">💾</button><span>backup</span></div>
   </div>
   <button id="toolbarPeek" class="toolbarPeek">værktøjer ▲</button><button id="toolbarPinFloat" class="toolbarPinFloat" title="Fastgør værktøjslinje">📌</button>
   <div id="modalBack" class="modalBackdrop"><div class="modal" id="modal"></div></div>
@@ -419,7 +499,7 @@
 (()=>{
 const app=document.getElementById('app'), titleEl=document.getElementById('title'), draw=document.getElementById('draw'), ctx=draw.getContext('2d');
 const modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal'), fileInput=document.getElementById('fileInput');
-const KEY='maans_interaktiv_tavle_v42'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
+const KEY='maans_interaktiv_tavle_v45'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
 let toolClickBlockUntil=0;
 let embeddedData=window.__TAVLE_DATA__||null;
 let state=(embeddedData&&embeddedData.state)||load()||{active:0,slides:[{title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]}]};
@@ -445,14 +525,22 @@ function updateSlidesOverviewVisibility(){
 }
 
 function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw);slide().widgets.forEach(w=>makeWidget(w));save()}
-function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:type==='wheel'?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='timer'?260: type==='link'?230:320),z:z++,rotation:0,locked:false,title:titles[type]||type,data};slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
-const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
+function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups')?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='groups'?520:(type==='timer'?260: type==='link'?230:320)),z:z++,rotation:0,locked:false,title:titles[type]||type,data};slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
+const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
 function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
 function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);el.innerHTML=`<div class="chrome"><span>${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button data-act="del">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+
+function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
+function renderGroups(groups){if(!groups||!groups.length)return '<p>Ingen grupper endnu.</p>';return groups.map((g,i)=>`<div class="groupCard"><b>Gruppe ${i+1}</b>${g.map(esc).join('<br>')}</div>`).join('')}
+function drawGroupWheel(canvas,names,rot=0){const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=Math.min(W,H)*.46;ctx.clearRect(0,0,W,H);const list=names&&names.length?names:['Grupper'];const cols=['#ff6b6b','#ffd93d','#4ade80','#60a5fa','#c084fc','#fb923c'];list.forEach((name,i)=>{const a1=rot+i*2*Math.PI/list.length,a2=rot+(i+1)*2*Math.PI/list.length;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a1,a2);ctx.closePath();ctx.fillStyle=cols[i%cols.length];ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate((a1+a2)/2);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#111827';ctx.font=`800 ${Math.max(18,Math.min(36,180/list.length+10))}px system-ui`;let label=String(name||'');if(label.length>18)label=label.slice(0,17)+'…';ctx.fillText(label,r-18,0);ctx.restore()});ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,.10)';ctx.lineWidth=Math.max(10,W*.018);ctx.stroke()}
+function wireGroups(c,w){const canvas=c.querySelector('.groupWheel');drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),w.data.rot||0);const textarea=c.querySelector('.groupNames'),sizeInput=c.querySelector('.groupSize');const showBtn=c.querySelector('.showGroupList');if(showBtn)showBtn.onclick=()=>{w.data.listHidden=false;fillContent(c.closest('.widget'),w);save()};c.querySelector('.toGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);w.data.groups=makeGroupsFromList(w.data.names,w.data.size);w.data.rot=0;w.data.listHidden=true;fillContent(c.closest('.widget'),w);save();toast('Grupper dannet')};c.querySelector('.newGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);if(!w.data.names.length){toast('Indsæt en liste først');return}const btn=c.querySelector('.groupSpinBtn');btn.disabled=true;const duration=1800+Math.random()*600,start=performance.now(),endRot=(5+Math.random()*2)*Math.PI*2;function frame(now){const p=Math.min(1,(now-start)/duration),rot=endRot*easeOutCubic(p);drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),rot);if(p<1)requestAnimationFrame(frame);else{w.data.rot=endRot;w.data.groups=makeGroupsFromList(w.data.names,w.data.size);w.data.listHidden=true;btn.disabled=false;wheelLand();fillContent(c.closest('.widget'),w);setTimeout(()=>{const nb=c.closest('.widget').querySelector('.groupsBox');if(nb){nb.classList.add('flashGroups');setTimeout(()=>nb.classList.remove('flashGroups'),650)}},60);save()}}requestAnimationFrame(frame)};c.querySelector('.loadGroupList').onclick=()=>{const bank=wheelListBank();const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));if(!keys.length){toast('Ingen gemte lister');return}showModal('<h2>Hent liste til grupper</h2><p>Vælg en liste – den sættes ind i gruppeværktøjet.</p>'+keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' ')+'<hr><button id="close">Luk</button>');modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.k;w.data.names=[...bank[pick]];w.data.groups=[];w.data.rot=0;w.data.listHidden=false;closeModal();fillContent(c.closest('.widget'),w);save();toast('Liste hentet')});modal.querySelector('#close').onclick=closeModal};c.querySelector('.saveGroupList').onclick=()=>openSaveListModal({data:{names:textarea.value.split('\n').map(x=>x.trim()).filter(Boolean),chosen:[]}})}
+
 function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type; if(w.type==='text'){c.innerHTML=`<textarea placeholder="Skriv her...">${esc(w.data.text||'')}</textarea>`;const ta=c.querySelector('textarea');ta.oninput=e=>{if(app.classList.contains('present'))return;w.data.text=e.target.value;save()};ta.onkeydown=e=>{if(e.key==='Escape'||(e.key==='Enter'&&!e.shiftKey)){e.preventDefault();ta.blur();select(null)}};ta.onfocus=()=>{if(app.classList.contains('present'))ta.blur()}}
  if(w.type==='video'){const id=ytId(w.data.url||''); c.innerHTML=`<div class="videoBox">${id?`<iframe src="https://www.youtube-nocookie.com/embed/${id}" allowfullscreen></iframe><div class="hidden"><a target="_blank" href="https://youtu.be/${id}">Åbn på YouTube</a></div>`:`<div><a href="#">Indsæt YouTube-link</a><p>Hvis indlejring blokeres på iPad, brug linket til YouTube.</p></div>`}</div>`;c.onclick=()=>askVideo(w)}
  if(w.type==='timer'){w.data.seconds??=180;w.data.left??=w.data.seconds; c.innerHTML=`<div class="timerBox"><div><input class="min" type="number" value="${Math.floor(w.data.seconds/60)}"> min <input class="sec" type="number" value="${w.data.seconds%60}"> sek <button class="set">Sæt</button></div><div class="display">${fmt(w.data.left)}</div><button class="start">Start</button><button class="pause">Pause</button><button class="reset">Reset</button></div>`;wireTimer(c,w)}
  if(w.type==='wheel'){w.data.names??=['Anna','Bertram','Caroline','Emil','Ida'];w.data.original??=[...w.data.names];w.data.chosen??=[];w.data.editing??=false;c.innerHTML=`<div class="wheel ${w.data.editing?'editing':''}"><div class="wheelBox"><canvas class="wheelCanvas" width="900" height="900"></canvas><button class="spin spinCenter">Drej</button></div><div class="wheelSide"><div class="winner"></div><div class="wheelControls"><button class="spin">Drej hjulet</button><button class="editNames">${w.data.editing?'Skjul liste':'Rediger liste'}</button></div><div class="chosen"><b>Valgte:</b><br>${w.data.chosen.join(', ')||'Ingen endnu'}</div><div class="editArea"><textarea>${w.data.names.join('\n')}</textarea><div class="wheelTools"><button class="names">Til hjul</button><button class="saveList">Gem liste</button><button class="loadList">Hent liste</button><button class="resetPool">Nulstil pulje</button></div></div></div></div>`;drawWheel(c.querySelector('canvas'),w,w.data.rot||0);wireWheel(c,w)}
+ if(w.type==='groups'){w.data.names??=[];w.data.size??=2;w.data.groups??=[];c.innerHTML=`<div class="groupsBox ${w.data.listHidden?'groupsListHidden':''}"><div class="groupSpin"><canvas class="groupWheel" width="700" height="700"></canvas><button class="groupSpinBtn newGroups">Dan grupper</button></div><div class="groupsControls"><div class="groupsRow"><button class="showGroupList">Vis/rediger liste</button></div><div class="groupsRow editOnly"><button class="loadGroupList">Hent liste</button><button class="saveGroupList">Gem liste</button></div><div class="groupsRow editOnly"><label>Personer pr. gruppe <input class="groupSize" type="number" min="1" max="12" value="${w.data.size}"></label><button class="toGroups">Til grupper</button></div><textarea class="groupNames editOnly" placeholder="Én person/ting pr. linje">${esc((w.data.names||[]).join('\n'))}</textarea><div class="groupsResult">${renderGroups(w.data.groups)}</div></div></div>`;wireGroups(c,w)}
  if(w.type==='link'){c.innerHTML=`<div class="linkBox"><a target="_blank" href="${esc(w.data.url||'#')}">${esc(w.data.text||'Klikbart link')}</a><button class="edit">Rediger link</button></div>`;c.querySelector('.edit').onclick=()=>askLink(w)}
  if(w.type==='image'){if(w.data.src){c.innerHTML=`<img src="${esc(w.data.src)}">`}else{c.innerHTML=`<div class="imageChoice"><button class="localImg">Vælg billede fra enhed</button><button class="urlImg">Indsæt billede fra URL</button></div>`;c.querySelector('.localImg').onclick=()=>pickFile('image/*',src=>{w.data.src=src;fillContent(el,w);save()});c.querySelector('.urlImg').onclick=()=>askImageUrl(w)}}
  if(w.type==='pdf'){c.innerHTML=w.data.src?`<div class="pdfBox"><object data="${w.data.src}" type="application/pdf"><a target="_blank" href="${w.data.src}">${esc(w.data.text||'Åbn PDF')}</a></object></div>`:`<div class="pdfBox"><button>Vælg lokal PDF</button><button class="linkpdf">Brug link</button><p>Google Drive kan blokere iframe. Lokal PDF er mest stabil.</p></div>`;c.onclick=e=>{if(e.target.className==='linkpdf')askPdfLink(w); else if(!w.data.src)pickFile('application/pdf',src=>{w.data.src=src;fillContent(el,w);save()})}}
@@ -649,7 +737,7 @@ function askLink(w){showModal(`<h2>Link</h2><input id="lt" placeholder="Tekst" v
 function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeholder="https://..." value="${esc(w.data.src||'')}"><p>Bemærk: Nogle billeder blokeres af hjemmesiden. Upload lokalt er mest stabilt offline.</p><button id="ok">Brug billede</button><button id="cancel">Luk</button>`);modal.querySelector('#ok').onclick=()=>{w.data.src=modal.querySelector('#iu').value.trim();closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
 function askPdfLink(w){showModal(`<h2>PDF-link</h2><input id="pt" placeholder="Tekst" value="${esc(w.data.text||'Åbn PDF')}"><input id="pu" placeholder="PDF URL" value="${esc(w.data.src||'')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#pt').value;w.data.src=modal.querySelector('#pu').value;closeModal();render()}}
 function bgModal(){showModal(`<h2>Baggrund</h2><div id="bgPreview" style="height:180px;border-radius:14px;border:1px solid #ddd;background:${slide().bgImage?'url('+slide().bgImage+') center/contain no-repeat':'#f3f4f6'};margin-bottom:12px"></div><button data-bg="linear-gradient(135deg,#edf6ff,#dff8e8)">Lys grøn/blå</button><button data-bg="linear-gradient(135deg,#0f172a,#064e3b)">Mørk</button><button data-bg="linear-gradient(135deg,#fef3c7,#fed7aa)">Varm</button><hr><button id="bgImg">Vælg baggrundsbillede</button><select id="fit"><option>cover</option><option>contain</option><option>auto</option></select><button id="clearBg">Fjern billede</button><button id="close">Luk</button>`);modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{slide().bg=b.dataset.bg;render()});modal.querySelector('#bgImg').onclick=()=>pickFile('image/*',src=>{slide().bgImage=src;render();closeModal()});modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render()};modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';render()};modal.querySelector('#close').onclick=closeModal}
-function exportJson(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='interaktiv-tavle-v33.json';a.click()}
+function exportJson(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='interaktiv-tavle-v45.json';a.click()}
 function importJson(){pickFile('application/json',src=>fetch(src).then(r=>r.json()).then(j=>{state=j;render();toast('Importeret')}))}
 
 function collectAllData(){
@@ -691,6 +779,70 @@ function downloadEmptyApp(){
   a.click();
   a.remove();
   toast('Henter nyeste tomme app fra GitHub');
+}
+
+
+
+function findPinButton(){
+  return document.getElementById('pinBtn') || document.getElementById('pin') || document.querySelector('[data-action="pin"],.pinBtn,.pin');
+}
+function findBottomToolbar(){
+  return document.querySelector('.toolbar,.bottomToolbar,#toolbar,#bottomToolbar');
+}
+function getToolbarKeepVisible(){
+  return localStorage.getItem('maans_tavle_toolbar_keep_visible')==='1';
+}
+function setToolbarKeepVisible(on){
+  localStorage.setItem('maans_tavle_toolbar_keep_visible',on?'1':'0');
+  const pin=findPinButton();
+  if(pin){
+    pin.classList.toggle('pinned',on);
+    pin.title=on?'Værktøjslinjen holdes synlig – klik for automatisk skjul':'Hold værktøjslinjen synlig';
+    pin.setAttribute('aria-pressed',on?'true':'false');
+  }
+  const tb=findBottomToolbar();
+  if(tb){
+    tb.classList.toggle('open',on);
+    tb.classList.toggle('show',on);
+    tb.classList.toggle('pinned',on);
+    tb.style.opacity=on?'1':'';
+    tb.style.pointerEvents=on?'auto':'';
+    if(on)tb.style.transform='translateX(-50%) translateY(0)';
+    else tb.style.transform='';
+  }
+  document.body.classList.toggle('toolbarPinned',on);
+}
+function wireQuickPinButton(){
+  const pin=findPinButton();
+  if(!pin||pin.dataset.quickPinWired==='1')return;
+  pin.dataset.quickPinWired='1';
+  pin.addEventListener('click',ev=>{
+    ev.preventDefault();
+    ev.stopPropagation();
+    setToolbarKeepVisible(!getToolbarKeepVisible());
+    toast(getToolbarKeepVisible()?'Værktøjslinjen holdes synlig':'Automatisk skjul er slået til');
+  },true);
+  setToolbarKeepVisible(getToolbarKeepVisible());
+}
+
+function showQuickHelp(){
+  showModal(`<h2>Hurtig guide</h2>
+  <p><b>Værktøjer:</b> tilføj tekst, video, hjul, grupper, timer, billeder, links og PDF.</p>
+  <p><b>Hjul:</b> hent eller skriv en liste og tryk Drej.</p>
+  <p><b>Grupper:</b> hent eller skriv en liste, vælg antal pr. gruppe og tryk Dan grupper.</p>
+  <p><b>Tavler:</b> brug + tavle og pilene. Ved flere tavler vises tavleoversigten.</p>
+  <p><b>Gem:</b> brug Gem som fil til én HTML-kopi med det hele. Brug JSON til backup/import.</p>
+  <button id="closeHelp">Luk</button>`);
+  modal.querySelector('#closeHelp').onclick=closeModal;
+}
+function maybeShowQuickHelp(){
+  try{
+    const k='maans_tavle_seen_quick_help_v45';
+    if(!localStorage.getItem(k)){
+      localStorage.setItem(k,'1');
+      setTimeout(showQuickHelp,700);
+    }
+  }catch(e){}
 }
 
 function saveModal(){showModal(`<h2>Gem / åbn</h2>
@@ -757,7 +909,7 @@ document.querySelectorAll('.toolbar [data-tool], .toolbar button').forEach(btn=>
   },true);
 });
 
-document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=e=>{if(app.classList.contains('toolbarBlocked')||Date.now()<toolClickBlockUntil){e.preventDefault();e.stopPropagation();return}const t=b.dataset.tool;if(t==='text')addWidget('text',{text:'Skriv instruktion her…',fontSize:24});if(t==='video'){let w=addWidget('video',{url:''});askVideo(w)}if(t==='draw'){setDrawActive(!app.classList.contains('drawActive'))}if(t==='wheel')addWidget('wheel',{});if(t==='timer')addWidget('timer',{});if(t==='image')addWidget('image',{});if(t==='link'){let w=addWidget('link',{text:'Klikbart link',url:'https://'});askLink(w)}if(t==='pdf')addWidget('pdf',{});if(t==='bg')bgModal();if(t==='grid'){slide().grid=!slide().grid;render()}if(t==='save')saveModal()});
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=e=>{if(app.classList.contains('toolbarBlocked')||Date.now()<toolClickBlockUntil){e.preventDefault();e.stopPropagation();return}const t=b.dataset.tool;if(t==='text')addWidget('text',{text:'Skriv instruktion her…',fontSize:24});if(t==='video'){let w=addWidget('video',{url:''});askVideo(w)}if(t==='draw'){setDrawActive(!app.classList.contains('drawActive'))}if(t==='wheel')addWidget('wheel',{});if(t==='groups')addWidget('groups',{});if(t==='timer')addWidget('timer',{});if(t==='image')addWidget('image',{});if(t==='link'){let w=addWidget('link',{text:'Klikbart link',url:'https://'});askLink(w)}if(t==='pdf')addWidget('pdf',{});if(t==='bg')bgModal();if(t==='grid'){slide().grid=!slide().grid;render()}if(t==='save')saveModal()});
 
 app.addEventListener('pointerdown',e=>{
   if(e.target===app || e.target===titleEl){ select(null); }
@@ -901,7 +1053,7 @@ render = function(){
   __render_original();
   updateSlidesOverviewVisibility();
 };
-render();updateSlidesOverviewVisibility();
+render();updateSlidesOverviewVisibility();maybeShowQuickHelp();wireQuickPinButton();
 })();
 
 
