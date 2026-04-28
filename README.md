@@ -57,6 +57,8 @@ Det gør det muligt at:
 - dele den med kolleger eller elever  
 - gemme forløb til senere brug  
 
+Store indlejrede billeder og PDF’er kan gøre filen større, så download kan tage et øjeblik.
+
 Derudover kan der laves JSON-backup til sikker lagring.
 
 ---
