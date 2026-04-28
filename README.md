@@ -14,9 +14,9 @@ Browserbaseret tavleværktøj til undervisning.
 
 ## Backup
 
-Brug **Eksportér projektfil JSON** til backup og **Importér JSON** til at hente den ind igen.
+Brug **Gem som fil** til en selvstændig HTML-kopi.
 
-JSON-backup indeholder både tavledata og gemte hjul-/gruppelister.
+Brug **Eksportér projektfil JSON** til backup og **Importér JSON** til at hente den ind igen. JSON-backup indeholder både tavledata og gemte hjul-/gruppelister.
 
 ## GitHub Pages
 
