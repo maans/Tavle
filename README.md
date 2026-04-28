@@ -37,7 +37,7 @@ Den er designet til undervisning, hvor materialer, aktiviteter og struktur kan s
 
 ## Gem og del
 
-Mindre tavler kan gemmes som én samlet HTML-fil.
+Mindre tavler kan gemmes som én samlet HTML-fil. Den gemte HTML-fil indeholder tavledata og kan åbnes igen i browseren.
 
 Ved store tavler med flere billeder eller PDF’er kan browseren dog have svært ved at gemme alt i én fil. Brug i stedet:
 
