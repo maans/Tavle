@@ -10,7 +10,7 @@ En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
 2. Klik på værktøjslinjen nederst for at tilføje indhold  
 3. Træk og tilpas widgets på tavlen  
 4. Skift til præsentationstilstand ved behov  
-5. Gem tavlen som HTML, hvis du vil bruge den igen  
+5. Gem tavlen som HTML eller JSON-backup  
 
 ---
 
@@ -24,48 +24,28 @@ Den er designet til undervisning, hvor materialer, aktiviteter og struktur kan s
 
 ## Funktioner
 
-- Flere tavler (fx emner eller lektioner)  
-- Tekst, video, tegning, timer, billeder, links og PDF  
-- Lykkehjul til tilfældige valg  
-- Gruppeværktøj til hurtig gruppedannelse  
-- Præsentationstilstand  
-- Gem som selvstændig HTML-fil  
-- JSON-backup og import  
-
----
-
-## Brug i praksis
-
-Tavlen fungerer som et dynamisk undervisningsrum:
-
-- Planlæg og strukturer en lektion  
-- Saml materialer ét sted  
-- Arbejd interaktivt undervejs  
-- Vis indhold i præsentationstilstand  
-
-Alt indhold kan flyttes, ændres og tilpasses direkte på tavlen.
+- Flere tavler
+- Tekst, video, tegning, timer, billeder, links og PDF
+- Lykkehjul til tilfældige valg
+- Gruppeværktøj til hurtig gruppedannelse
+- Præsentationstilstand
+- Gem som HTML-fil
+- JSON-backup og import
+- Download af indlejrede medier
 
 ---
 
 ## Gem og del
 
-En tavle kan gemmes som én samlet HTML-fil.
+Mindre tavler kan ofte gemmes som én samlet HTML-fil.
 
-Det gør det muligt at:
+Ved store tavler med flere billeder eller PDF’er kan browseren dog have svært ved at gemme alt i én fil. Brug i stedet:
 
-- åbne tavlen på andre enheder  
-- dele den med kolleger eller elever  
-- gemme forløb til senere brug  
+1. **Eksportér projektfil JSON**
+2. **Download indlejrede medier**
+3. Gem filerne samlet i en mappe
 
-Store indlejrede billeder og PDF’er kan gøre filen større, så download kan tage et øjeblik.
-
-Derudover kan der laves JSON-backup til sikker lagring.
-
----
-
-## Indlejrede medier
-
-Lokale billeder, baggrundsbilleder og PDF’er kan indlejres i tavlen. De kan hentes ud igen via backup-dialogen, hvor de vises som en liste med downloadlinks.
+JSON-backup indeholder tavlens struktur og data. Indlejrede medier kan hentes ud via backup-dialogen.
 
 ---
 
@@ -73,11 +53,11 @@ Lokale billeder, baggrundsbilleder og PDF’er kan indlejres i tavlen. De kan he
 
 Projektet er lavet med fokus på enkelhed og uafhængighed:
 
-- Kører direkte i browseren  
-- Ingen installation  
-- Ingen login  
-- Ingen afhængighed af eksterne services i brug  
-- Data gemmes lokalt  
+- Kører direkte i browseren
+- Ingen installation
+- Ingen login
+- Ingen afhængighed af eksterne services i brug
+- Data gemmes lokalt
 
 ---
 
@@ -85,8 +65,8 @@ Projektet er lavet med fokus på enkelhed og uafhængighed:
 
 Åbn `index.html` i en browser.
 
-Eller brug den online version:  
-👉 https://maans.github.io/Tavle/
+Online version:  
+https://maans.github.io/Tavle/
 
 ---
 
