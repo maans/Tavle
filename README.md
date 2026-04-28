@@ -8,6 +8,7 @@ Browserbaseret tavleværktøj til undervisning.
 - Tekst, video, tegning, timer, billeder, links og PDF
 - Lokale PDF-filer og billeder kan indlejres i backup
 - Indlejrede PDF’er og billeder kan downloades igen
+- PDF-widgetten skalerer efter widgettens størrelse
 - Lykkehjul til tilfældige valg
 - Gruppeværktøj med tilfældig gruppedannelse
 - Gemte lister til både hjul og grupper
@@ -18,7 +19,7 @@ Browserbaseret tavleværktøj til undervisning.
 
 Lokale billeder og lokale PDF-filer kan indlejres i tavledata som data-URL. De følger med i **Gem som fil** og i JSON-backup.
 
-Download-knapper for PDF/billeder vises kun i redigeringstilstand, når widgetten er valgt. De skjules i præsentationstilstand.
+PDF’en fylder automatisk widgettens område. PDF-/medieknapper vises kun i redigering, når widgetten er valgt, og skjules i præsentationstilstand.
 
 ## Backup
 
