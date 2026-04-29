@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v96-test</title>
+<title>Interaktiv tavle v101-test</title>
 <style>
 :root{--bar:#1f2937;--accent:#6d5dfc;--bg:linear-gradient(135deg,#edf6ff,#dff8e8);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#111827}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#111}button,input,textarea,select{font:inherit}.app{height:100%;background:var(--bg);position:relative;overflow:hidden;touch-action:none}.app.grid:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.055) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}.title{position:absolute;top:14px;left:16px;background:rgba(0,0,0,.68);color:white;padding:10px 16px;border-radius:9px;font-size:24px;font-weight:700;z-index:900;max-width:45vw}.topbar{position:absolute;top:14px;right:14px;background:rgba(17,24,39,.86);border-radius:12px;padding:8px;display:flex;gap:8px;z-index:1000;align-items:center;color:white}.topbar button,.tool button,.mini button,.modal button{border:0;border-radius:9px;padding:9px 12px;background:#4b5563;color:white;font-weight:700}.topbar button:disabled{opacity:.45}.toolbar{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.88);border-radius:16px;padding:10px 14px;display:flex;gap:13px;box-shadow:0 12px 28px rgba(0,0,0,.3)}.tool{display:flex;flex-direction:column;align-items:center;gap:3px;color:white;font-size:11px}.tool button{width:50px;height:50px;background:#fff;color:#111827;font-size:27px;padding:0}.widget{position:absolute;left:0;top:0;width:360px;height:240px;background:white;border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.22);transform-origin:center center;overflow:visible;touch-action:none}.widget.selected{outline:3px solid var(--accent)}.widget.locked{outline:2px dashed #6b7280}.widget:not(.selected) .chrome,.widget:not(.selected) .resize,.widget:not(.selected) .rotater{display:none}.chrome{height:34px;background:#30394a;color:white;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;cursor:move;font-weight:700;font-size:14px}.mini{display:flex;gap:5px}.mini button{padding:4px 8px;font-size:12px;background:#4b5563}.content{height:calc(100% - 34px);overflow:auto;background:rgba(255,255,255,.94);border-radius:0 0 12px 12px}.widget:not(.selected) .content{height:100%;border-radius:12px;background:transparent;overflow:hidden}.widget:not(.selected){box-shadow:0 8px 20px rgba(0,0,0,.12)}.widget.locked:not(.selected){outline:none}.widget.selected.locked{outline:3px dashed #6b7280}.resize{position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:white;border:3px solid var(--accent);cursor:nwse-resize}.rotater{position:absolute;left:50%;bottom:-40px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:white;border:3px solid var(--accent);display:grid;place-items:center;font-weight:bold;color:var(--accent);cursor:grab}.text{height:100%;display:flex;flex-direction:column}.textTools{display:flex;padding:6px 10px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;gap:8px;align-items:center;flex-wrap:wrap}.text textarea{width:100%;flex:1;border:0;padding:16px;font-size:var(--fs,24px);resize:none;background:white}.videoBox{height:100%;background:#222;color:white;display:grid;place-items:center;text-align:center;padding:18px}.videoBox iframe{width:100%;height:100%;border:0}.videoBox a{color:white;font-size:24px;font-weight:800}.timerBox{padding:18px;text-align:center}.timerBox .display{font-size:58px;font-weight:900;margin:18px}.timerBox input{width:70px;padding:6px}.timerBox button,.wheel button,.linkBox button,.modal button{background:var(--accent);color:white;border:0;border-radius:8px;padding:8px 12px;margin:3px}.wheel{height:100%;display:grid;gap:12px;padding:12px;overflow:hidden;box-sizing:border-box}.wheel:not(.editing){grid-template-columns:minmax(260px,58%) minmax(220px,42%)}.wheel.editing{grid-template-columns:minmax(260px,52%) minmax(260px,48%)}.wheelBox{min-width:0;min-height:0;height:100%;display:flex;align-items:center;justify-content:center}.wheelCanvas{width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:1/1;object-fit:contain;border-radius:50%;box-shadow:0 0 0 8px white,0 4px 12px #999}.wheelSide{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;align-content:start}.winner{font-size:clamp(28px,5vw,76px);font-weight:900;text-align:center;line-height:1}.wheelControls,.wheelTools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wheel .chosen{font-size:14px;min-height:0;overflow:auto;overflow-wrap:anywhere;background:#f3f4f6;padding:8px;border-radius:8px}.wheel textarea{width:100%;height:130px}.wheel .editArea{display:none;min-width:0;overflow:auto}.wheel.editing .editArea{display:block}.wheel.editing .wheelSide{grid-template-rows:auto auto minmax(80px,.7fr) auto}@media(max-width:700px){.wheel:not(.editing),.wheel.editing{grid-template-columns:1fr}.wheelBox{height:260px}}.linkBox{height:100%;display:grid;place-items:center;text-align:center;padding:20px}.linkBox a{font-size:30px;color:#1559d6;font-weight:800}.imageWidget img{width:100%;height:100%;object-fit:contain;display:block}.pdfBox{height:100%;display:grid;place-items:center;padding:20px;text-align:center}.pdfBox iframe,.pdfBox object{width:100%;height:100%;border:0}.drawLayer{position:absolute;inset:0;z-index:850;pointer-events:none}.drawLayer.active{pointer-events:auto;cursor:crosshair}.app.drawActive .widget{filter:saturate(.7) brightness(.9)}.app.drawActive:after{content:'TEGNETILSTAND – klik blyanten igen eller Luk for at stoppe';position:absolute;top:78px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(17,24,39,.9);color:white;border-radius:999px;padding:9px 16px;font-weight:900;pointer-events:none}.drawPanel{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:1001;background:rgba(255,255,255,.96);border-radius:14px;padding:10px;box-shadow:0 10px 24px #0004;display:none;gap:8px;align-items:center;max-width:92vw;overflow:auto}.drawPanel.show{display:flex}.drawPanel button.active{background:#6d5dfc;color:white}.modalBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:none;align-items:center;justify-content:center}.modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.modal h2{margin-top:0}.modal input,.modal textarea,.modal select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 12px}.hidden{display:none!important}.present .toolbar,.present .topbar,.present .chrome,.present .resize,.present .rotater,.present .drawPanel{display:none!important}.present .title{display:none}.present .widget{box-shadow:none;outline:none}.present .content{height:100%;border-radius:12px}.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#111827;color:white;padding:10px 16px;border-radius:999px;z-index:3000;opacity:0;transition:.2s}.toast.show{opacity:1}@media(max-width:800px){.toolbar{gap:8px;max-width:96vw;overflow-x:auto}.tool button{width:44px;height:44px}.title{font-size:18px}.topbar{scale:.9;transform-origin:top right}}
 
@@ -2043,6 +2043,268 @@
   background-size:auto!important;
 }
 
+
+/* v97 TEST: robust image/background preview rendering */
+.widget[data-type="image"] .content{
+  display:block!important;
+  overflow:hidden!important;
+  padding:0!important;
+  background:rgba(255,255,255,.94)!important;
+}
+.widget[data-type="image"] .imageFrame{
+  width:100%!important;
+  height:100%!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+.widget[data-type="image"] .imageFrame img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  display:block!important;
+}
+.bgPreviewFrame{
+  height:240px!important;
+  width:100%!important;
+  border-radius:14px!important;
+  border:1px solid #ddd!important;
+  background:#f3f4f6!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  margin-bottom:12px!important;
+  box-sizing:border-box!important;
+}
+.bgPreviewFrame img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  display:block!important;
+}
+.bgPreviewFrame.cover img{object-fit:cover!important}
+.bgPreviewFrame.auto img{width:auto!important;height:auto!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important}
+
+
+/* v98 TEST: no intermediate background preview in modal */
+#bgPreview,
+.bgPreviewFrame{
+  display:none!important;
+}
+
+
+/* v99 TEST: global classroom clock */
+.globalClock{
+  position:absolute;
+  right:22px;
+  bottom:112px;
+  z-index:880;
+  min-width:118px;
+  padding:10px 14px;
+  border-radius:18px;
+  background:rgba(17,24,39,.82);
+  color:white;
+  box-shadow:0 12px 28px rgba(0,0,0,.26);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  font-weight:900;
+  text-align:center;
+  user-select:none;
+  cursor:pointer;
+}
+.globalClock.hiddenClock{display:none}
+.globalClock .clockTime{font-size:30px;line-height:1;letter-spacing:-.04em}
+.globalClock .clockDate{font-size:12px;opacity:.72;margin-top:4px}
+.globalClock.minimal{
+  background:transparent;
+  color:#111827;
+  box-shadow:none;
+  text-shadow:0 2px 10px rgba(255,255,255,.85);
+}
+.globalClock.stage{
+  left:50%;
+  right:auto;
+  bottom:38px;
+  transform:translateX(-50%);
+  min-width:260px;
+  padding:18px 26px;
+  border-radius:28px;
+}
+.globalClock.stage .clockTime{font-size:72px}
+.globalClock.stage .clockDate{font-size:18px}
+.globalClock.analog{
+  width:126px;
+  height:126px;
+  min-width:126px;
+  padding:0;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+}
+.clockFace{
+  position:relative;
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  background:rgba(255,255,255,.94);
+  box-shadow:inset 0 0 0 4px rgba(17,24,39,.12);
+}
+.clockHand{
+  position:absolute;
+  left:50%;
+  bottom:50%;
+  width:4px;
+  transform-origin:bottom center;
+  border-radius:999px;
+  background:#111827;
+}
+.clockHand.hour{height:28px}
+.clockHand.min{height:39px;width:3px}
+.clockHand.sec{height:43px;width:2px;background:#ef4444}
+.clockDot{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:10px;
+  height:10px;
+  margin-left:-5px;
+  margin-top:-5px;
+  border-radius:50%;
+  background:#111827;
+}
+.present .globalClock{
+  z-index:950;
+}
+.clockModalGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.clockModalGrid button{
+  font-weight:900;
+}
+@media(max-width:700px){
+  .globalClock{right:12px;bottom:92px;transform:scale(.86);transform-origin:bottom right}
+  .globalClock.stage{left:50%;bottom:24px;right:auto;transform:translateX(-50%) scale(.72)}
+}
+
+
+/* v100 TEST: clean clock modal + fixed stage clock */
+.globalClock.stage{
+  left:50%!important;
+  right:auto!important;
+  bottom:38px!important;
+  transform:translateX(-50%)!important;
+}
+.clockSection{
+  margin:12px 0 16px;
+}
+.clockSectionTitle{
+  font-weight:900;
+  font-size:14px;
+  opacity:.72;
+  margin:0 0 8px;
+}
+.clockRow{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  font-weight:900!important;
+  margin:10px 0!important;
+  line-height:1.2!important;
+  white-space:normal!important;
+}
+.clockRow input{
+  flex:0 0 auto!important;
+  width:22px!important;
+  height:22px!important;
+}
+.clockStyleGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:8px 0 12px;
+}
+.clockStyleBtn{
+  position:relative;
+  min-height:64px;
+  text-align:left!important;
+  padding:12px 14px!important;
+  border-radius:14px!important;
+}
+.clockStyleBtn b{
+  display:block;
+  font-size:18px;
+}
+.clockStyleBtn small{
+  display:block;
+  opacity:.78;
+  margin-top:3px;
+  font-weight:800;
+}
+.clockStyleBtn.active::after{
+  content:"✓";
+  position:absolute;
+  right:14px;
+  top:12px;
+  font-size:22px;
+}
+.clockPreview{
+  min-height:86px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#eef2ff,#ecfeff);
+  display:grid;
+  place-items:center;
+  margin:8px 0 14px;
+  box-shadow:inset 0 0 0 1px rgba(109,93,252,.12);
+}
+.clockPreview .globalClock{
+  position:static!important;
+  transform:none!important;
+  right:auto!important;
+  bottom:auto!important;
+}
+.clockPreview .globalClock.stage{
+  position:static!important;
+  transform:scale(.55)!important;
+}
+.clockPreview .globalClock.analog{
+  transform:scale(.72)!important;
+}
+@media(max-width:700px){
+  .clockStyleGrid{grid-template-columns:1fr}
+}
+
+
+/* v101 TEST: stage clock placement + tools in More menu */
+.globalClock.stage{
+  left:50%!important;
+  right:auto!important;
+  bottom:132px!important;
+  transform:translateX(-50%)!important;
+  z-index:870!important;
+}
+.present .globalClock.stage{
+  bottom:48px!important;
+  z-index:940!important;
+}
+@media(max-width:700px){
+  .globalClock.stage{
+    bottom:112px!important;
+    transform:translateX(-50%) scale(.72)!important;
+  }
+  .present .globalClock.stage{
+    bottom:32px!important;
+    transform:translateX(-50%) scale(.72)!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2064,6 +2326,7 @@
     <div class="tool"><button data-tool="save">💾</button><span>backup</span></div>
   </div>
   <button id="toolbarPeek" class="toolbarPeek">værktøjer ▲</button><button id="toolbarPinFloat" class="toolbarPinFloat" title="Fastgør værktøjslinje">📌</button>
+  <div id="globalClock" class="globalClock hiddenClock" title="Klik for ur-indstillinger"></div>
   <div id="modalBack" class="modalBackdrop"><div class="modal" id="modal"></div></div>
   <div id="toast" class="toast"></div>
 </div>
@@ -2072,12 +2335,114 @@
 (()=>{
 const app=document.getElementById('app'), titleEl=document.getElementById('title'), draw=document.getElementById('draw'), ctx=draw.getContext('2d');
 const modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal'), fileInput=document.getElementById('fileInput');
-const KEY='maans_interaktiv_tavle_v96_test'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
+const KEY='maans_interaktiv_tavle_v101_test'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
 let toolClickBlockUntil=0;
 let embeddedData=window.__TAVLE_DATA__||null;
 let state=(embeddedData&&embeddedData.state)||load()||{active:0,slides:[{title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]}]};
 if(embeddedData&&embeddedData.wheelLists){try{localStorage.setItem('maans_wheel_lists',JSON.stringify(embeddedData.wheelLists))}catch(e){}}
 if(embeddedData&&embeddedData.settings){try{Object.entries(embeddedData.settings).forEach(([k,v])=>localStorage.setItem(k,v))}catch(e){}}
+
+const clockEl=document.getElementById('globalClock');
+const CLOCK_KEY='maans_tavle_clock_settings_v101';
+function clockSettings(){
+  try{return JSON.parse(localStorage.getItem(CLOCK_KEY)||'{}')}catch(e){return{}}
+}
+function saveClockSettings(s){
+  localStorage.setItem(CLOCK_KEY,JSON.stringify(s));
+  renderClock();
+}
+function renderClock(){
+  if(!clockEl)return;
+  const s=Object.assign({enabled:false,style:'glass',date:true,seconds:false,format24:true},clockSettings());
+  clockEl.className='globalClock '+(s.enabled?'':'hiddenClock')+' '+(s.style||'glass');
+  if(!s.enabled)return;
+  const now=new Date();
+  if(s.style==='analog'){
+    const h=now.getHours()%12, m=now.getMinutes(), sec=now.getSeconds();
+    const hr=(h*30)+(m/2), mn=m*6, sc=sec*6;
+    clockEl.innerHTML=`<div class="clockFace"><div class="clockHand hour" style="transform:rotate(${hr}deg)"></div><div class="clockHand min" style="transform:rotate(${mn}deg)"></div><div class="clockHand sec" style="transform:rotate(${sc}deg)"></div><div class="clockDot"></div></div>`;
+    return;
+  }
+  const opts={hour:'2-digit',minute:'2-digit',hour12:!s.format24};
+  if(s.seconds)opts.second='2-digit';
+  const time=now.toLocaleTimeString('da-DK',opts);
+  const date=s.date?now.toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'short'}):'';
+  clockEl.innerHTML=`<div class="clockTime">${time}</div>${date?`<div class="clockDate">${date}</div>`:''}`;
+}
+setInterval(renderClock,1000);
+setTimeout(renderClock,80);
+
+try{
+  if(localStorage.getItem('maans_tavle_toolbar_pinned')==='1')app.classList.add('toolbarPinned');
+  const peek=document.getElementById('toolbarPeek');
+  if(peek)peek.onclick=()=>setToolbarHidden(false);
+  const pinFloat=document.getElementById('toolbarPinFloat');
+  if(pinFloat)pinFloat.onclick=()=>toggleToolbarPinned();
+}catch(e){}
+
+if(clockEl)clockEl.onclick=(e)=>{e.preventDefault();e.stopPropagation();clockModal()};
+
+function clockPreviewHTML(s){
+  const tmp=Object.assign({enabled:true,style:'glass',date:true,seconds:false,format24:true},s||{});
+  const now=new Date();
+  if(tmp.style==='analog'){
+    const h=now.getHours()%12, m=now.getMinutes(), sec=now.getSeconds();
+    const hr=(h*30)+(m/2), mn=m*6, sc=sec*6;
+    return `<div class="globalClock analog"><div class="clockFace"><div class="clockHand hour" style="transform:rotate(${hr}deg)"></div><div class="clockHand min" style="transform:rotate(${mn}deg)"></div><div class="clockHand sec" style="transform:rotate(${sc}deg)"></div><div class="clockDot"></div></div></div>`;
+  }
+  const opts={hour:'2-digit',minute:'2-digit',hour12:!tmp.format24};
+  if(tmp.seconds)opts.second='2-digit';
+  const time=now.toLocaleTimeString('da-DK',opts);
+  const date=tmp.date?now.toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'short'}):'';
+  return `<div class="globalClock ${tmp.style}"><div class="clockTime">${time}</div>${date?`<div class="clockDate">${date}</div>`:''}</div>`;
+}
+
+function clockModal(){
+  const s=Object.assign({enabled:false,style:'glass',date:true,seconds:false,format24:true},clockSettings());
+  showModal(`<h2>Ur</h2>
+    <p style="margin-top:0;opacity:.75;font-weight:800">Globalt ur – vises på alle tavler.</p>
+
+    <div class="clockSection">
+      <label class="clockRow"><input id="clockEnabled" type="checkbox" ${s.enabled?'checked':''}><span>Vis ur</span></label>
+    </div>
+
+    <div class="clockPreview" id="clockPreview">${clockPreviewHTML({...s,enabled:true})}</div>
+
+    <div class="clockSection">
+      <div class="clockSectionTitle">Design</div>
+      <div class="clockStyleGrid">
+        <button class="clockStyleBtn ${s.style==='glass'?'active':''}" data-clock-style="glass"><b>Glas</b><small>Diskret overlay</small></button>
+        <button class="clockStyleBtn ${s.style==='minimal'?'active':''}" data-clock-style="minimal"><b>Minimal</b><small>Kun tid og dato</small></button>
+        <button class="clockStyleBtn ${s.style==='stage'?'active':''}" data-clock-style="stage"><b>Scene</b><small>Stort ur til projektor</small></button>
+        <button class="clockStyleBtn ${s.style==='analog'?'active':''}" data-clock-style="analog"><b>Analog</b><small>Klassisk urskive</small></button>
+      </div>
+    </div>
+
+    <div class="clockSection">
+      <div class="clockSectionTitle">Indstillinger</div>
+      <label class="clockRow"><input id="clockDate" type="checkbox" ${s.date?'checked':''}><span>Vis dato</span></label>
+      <label class="clockRow"><input id="clockSeconds" type="checkbox" ${s.seconds?'checked':''}><span>Vis sekunder</span></label>
+      <label class="clockRow"><input id="clock24" type="checkbox" ${s.format24?'checked':''}><span>24-timers ur</span></label>
+    </div>
+
+    <hr>
+    <button id="clockClose">Luk</button>`);
+
+  const refreshPreview=()=>{
+    const current=Object.assign({enabled:true,style:'glass',date:true,seconds:false,format24:true},clockSettings());
+    const p=modal.querySelector('#clockPreview');
+    if(p)p.innerHTML=clockPreviewHTML({...current,enabled:true});
+    modal.querySelectorAll('[data-clock-style]').forEach(b=>b.classList.toggle('active',b.dataset.clockStyle===(current.style||'glass')));
+  };
+
+  modal.querySelector('#clockEnabled').onchange=e=>saveClockSettings({...clockSettings(),enabled:e.target.checked});
+  modal.querySelector('#clockDate').onchange=e=>{saveClockSettings({...clockSettings(),date:e.target.checked});refreshPreview()};
+  modal.querySelector('#clockSeconds').onchange=e=>{saveClockSettings({...clockSettings(),seconds:e.target.checked});refreshPreview()};
+  modal.querySelector('#clock24').onchange=e=>{saveClockSettings({...clockSettings(),format24:e.target.checked});refreshPreview()};
+  modal.querySelectorAll('[data-clock-style]').forEach(b=>b.onclick=()=>{saveClockSettings({...clockSettings(),style:b.dataset.clockStyle,enabled:true});const en=modal.querySelector('#clockEnabled');if(en)en.checked=true;refreshPreview()});
+  modal.querySelector('#clockClose').onclick=closeModal;
+}
+
 function uid(){return Math.random().toString(36).slice(2,10)}
 function slide(){return state.slides[state.active]}
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1600)}
@@ -2252,7 +2617,8 @@ function showMoreTools(){
     ['bg','🎨','baggrund'],
     ['grid','#','grid'],
     ['pin','📌','skjul'],
-    ['line','⚙️','linje']
+    ['line','⚙️','linje'],
+    ['clock','🕒','ur']
   ];
   menu.innerHTML=tools.map(t=>`<button data-more-tool="${t[0]}"><span class="ico">${t[1]}</span><span class="txt">${t[2]}</span></button>`).join('');
   document.body.appendChild(bd);
@@ -2268,6 +2634,37 @@ function showMoreTools(){
   });
 }
 
+
+
+function setToolbarHidden(on){
+  try{
+    app.classList.toggle('toolbarHidden',!!on);
+    const btn=document.getElementById('toolbarPinFloat');
+    if(btn)btn.classList.toggle('pinned',app.classList.contains('toolbarPinned'));
+  }catch(e){}
+}
+function toggleToolbarPinned(){
+  app.classList.toggle('toolbarPinned');
+  if(app.classList.contains('toolbarPinned'))app.classList.remove('toolbarHidden');
+  const btn=document.getElementById('toolbarPinFloat');
+  if(btn)btn.classList.toggle('pinned',app.classList.contains('toolbarPinned'));
+  try{localStorage.setItem('maans_tavle_toolbar_pinned',app.classList.contains('toolbarPinned')?'1':'0')}catch(e){}
+}
+function lineModal(){
+  const cur=localStorage.getItem('maans_tavle_line_width')||'5';
+  showModal(`<h2>Linje / tegning</h2>
+    <div class="toolbarSettings">
+      <label><span>Linjetykkelse</span><input id="lineWidthModal" type="range" min="1" max="24" value="${cur}"></label>
+      <p style="opacity:.72;font-weight:800">Brug blyanten for at tegne. Linjetykkelsen gemmes til næste gang.</p>
+    </div>
+    <button id="close">Luk</button>`);
+  const inp=modal.querySelector('#lineWidthModal');
+  inp.oninput=e=>{
+    localStorage.setItem('maans_tavle_line_width',e.target.value);
+    try{const existing=document.getElementById('drawWidth');if(existing)existing.value=e.target.value}catch(err){}
+  };
+  modal.querySelector('#close').onclick=closeModal;
+}
 
 function updateGridOverlay(){
   try{
@@ -2290,8 +2687,9 @@ function handleTool(t){
   if(t==='pdf')addWidget('pdf',{});
   if(t==='background'||t==='bg')bgModal();
   if(t==='grid'){slide().grid=!slide().grid;render();updateGridOverlay();save()}
-  if(t==='pin'){try{toggleToolbarPinned()}catch(e){lineModal()}}
+  if(t==='pin')toggleToolbarPinned();
   if(t==='line')lineModal();
+  if(t==='clock')clockModal();
   if(t==='backup'||t==='save')saveModal();
 }
 
@@ -2500,11 +2898,11 @@ if(w.type==='poll'){
  if(w.type==='image'){
   if(w.data.src){
     const embedded=String(w.data.src).startsWith('data:');
-    c.innerHTML=`${embedded?`<div class="mediaActions widget-control"><button class="downloadImg">Download billede</button></div>`:''}<img src="${esc(w.data.src)}">`;
+    c.innerHTML=`${embedded?`<div class="mediaActions widget-control"><button class="downloadImg">Download billede</button></div>`:''}<div class="imageFrame"><img src="${esc(w.data.src)}" alt=""></div>`;
     const dl=c.querySelector('.downloadImg');
     if(dl)dl.onclick=(e)=>{e.stopPropagation();downloadDataUrl(w.data.src,w.data.name||'billede')};
   }else{
-    c.innerHTML=`<div class="imageChoice"><button class="localImg">Vælg billede fra enhed</button><button class="urlImg">Indsæt billede fra URL</button></div>`;
+    c.innerHTML=`<div class="imageChoice"><button class="localImg">Indsæt billede fra enhed</button><button class="urlImg">Indsæt billede fra URL</button></div>`;
     c.querySelector('.localImg').onclick=()=>pickFile('image/*',(src,file)=>{w.data.src=src;w.data.name=(file&&file.name)||'billede';fillContent(el,w);save()});
     c.querySelector('.urlImg').onclick=()=>askImageUrl(w);
   }
@@ -2848,8 +3246,9 @@ function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeh
 function askPdfLink(w){showModal(`<h2>PDF-link</h2><input id="pt" placeholder="Tekst" value="${esc(w.data.text||'Åbn PDF')}"><input id="pu" placeholder="PDF URL" value="${esc(w.data.src||'')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#pt').value;w.data.src=modal.querySelector('#pu').value;closeModal();render()}}
 function bgModal(){
   const fit=slide().bgFit||'contain';
+  const hasImg=!!slide().bgImage;
   showModal(`<h2>Baggrund</h2>
-    <div id="bgPreview" class="${slide().bgImage?'bgHasImage':''} ${fit==='cover'?'bgCover':fit==='auto'?'bgAuto':''}" style="${slide().bgImage?'background-image:url('+slide().bgImage+')':''}"></div>
+    <p style="margin-top:0;opacity:.75;font-weight:800">${hasImg?'Baggrundsbillede er valgt. Justér visning eller fjern billedet.':'Vælg en farve eller et baggrundsbillede.'}</p>
     <button data-bg="linear-gradient(135deg,#edf6ff,#dff8e8)">Lys grøn/blå</button>
     <button data-bg="linear-gradient(135deg,#0f172a,#064e3b)">Mørk</button>
     <button data-bg="linear-gradient(135deg,#fef3c7,#fed7aa)">Varm</button>
@@ -2862,26 +3261,18 @@ function bgModal(){
     </select>
     <button id="clearBg">Fjern billede</button>
     <button id="close">Luk</button>`);
-  const preview=modal.querySelector('#bgPreview');
-  const updatePreview=()=>{
-    const f=slide().bgFit||'contain';
-    preview.classList.toggle('bgHasImage',!!slide().bgImage);
-    preview.classList.toggle('bgCover',f==='cover');
-    preview.classList.toggle('bgAuto',f==='auto');
-    preview.style.backgroundImage=slide().bgImage?`url(${slide().bgImage})`:'';
-  };
-  modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{slide().bg=b.dataset.bg;render();save();updatePreview()});
+  modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{slide().bg=b.dataset.bg;render();save()});
   modal.querySelector('#bgImg').onclick=()=>pickFile('image/*',(src,file)=>{
     slide().bgImage=src;
     slide().bgImageName=(file&&file.name)||'baggrundsbillede';
     if(!slide().bgFit)slide().bgFit='contain';
     render();
     save();
-    updatePreview();
     toast('Baggrundsbillede valgt');
+    bgModal();
   });
-  modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render();save();updatePreview()};
-  modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';render();save();updatePreview()};
+  modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render();save()};
+  modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';render();save();bgModal()};
   modal.querySelector('#close').onclick=closeModal;
 }
 
@@ -2954,7 +3345,7 @@ function showQuickHelp(){
 }
 function maybeShowQuickHelp(){
   try{
-    const k='maans_tavle_seen_quick_help_v96_test';
+    const k='maans_tavle_seen_quick_help_v101_test';
     if(!localStorage.getItem(k)){
       localStorage.setItem(k,'1');
       setTimeout(showQuickHelp,700);
@@ -3142,7 +3533,7 @@ function makeStandaloneHtml(){
   htmlDoc=cleanHtmlForStandalone(htmlDoc);
 
   // Boot-scriptet skal ligge før appens hovedscript, så den gemte fil starter med de rigtige tavler.
-  const boot=`<script id="embeddedTavleBoot">(function(){try{localStorage.setItem('maans_interaktiv_tavle_v96_test', ${JSON.stringify(payload)});}catch(e){}})();<\/script>`;
+  const boot=`<script id="embeddedTavleBoot">(function(){try{localStorage.setItem('maans_interaktiv_tavle_v101_test', ${JSON.stringify(payload)});}catch(e){}})();<\/script>`;
 
   const firstScript=htmlDoc.indexOf('<script>');
   if(firstScript!==-1)htmlDoc=htmlDoc.slice(0,firstScript)+boot+htmlDoc.slice(firstScript);

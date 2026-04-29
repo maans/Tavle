@@ -105,3 +105,23 @@ Billed-preview i billedwidgets skaleres til widgettens størrelse, så lokale bi
 ## Baggrundsbilleder
 
 Preview af baggrundsbilleder skaleres nu korrekt i baggrundsdialogen, så billedet fylder preview-ruden i stedet for at blive vist som en lille thumbnail.
+
+
+## Preview
+
+Billed- og baggrunds-preview bruger nu egentlige billedrammer, så billeder skaleres korrekt på både iPad og computer.
+
+
+## Preview-fri arbejdsgang
+
+Billeder indsættes direkte i billedwidgetten efter valg. Baggrundsbilleder går direkte til baggrundsindstillinger uden et stort previewfelt i appens dialog.
+
+
+## Globalt ur
+
+Appen har et globalt ur, der kan vises på alle tavler. Uret kan skifte mellem glas, minimal, scene og analog visning samt vise dato og sekunder.
+
+
+## Ur
+
+Urmodalen er ryddet op med tydelige rækker, designvalg og preview. Scene-uret er rettet, så det placeres korrekt på tavlen.
