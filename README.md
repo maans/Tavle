@@ -1,79 +1,74 @@
 # Interaktiv Tavle
 
-En enkel, fleksibel og browserbaseret tavle til undervisning – samlet ét sted.
+En fleksibel, browserbaseret undervisningstavle – samlet i én HTML-fil.
 
-Appen gør det nemt at bygge en interaktiv undervisningstavle med tekst, medier og små værktøjer, der kan aktiveres direkte i klassen.
-
----
-
-## Hvad kan den?
-
-Du kan oprette og kombinere forskellige elementer på tavlen:
-
-- 📝 tekst og noter  
-- 🎥 video  
-- ✏️ tegning  
-- 🎲 lykkehjul  
-- 👥 gruppegenerator  
-- ☁️ ordsky  
-- 🙂 afstemninger  
-- ⏱️ timer  
-- 🖼️ billeder og baggrunde  
-- 🔗 links  
-- 📄 PDF-visning  
-
-Alle elementer kan flyttes, skaleres, roteres og låses – så tavlen kan tilpasses præcis til situationen.
+Appen er lavet til hurtig brug i undervisning, hvor man kan samle præsentation, aktiviteter, spørgsmål, medier og små interaktive værktøjer på én tavle.
 
 ---
 
-## Hvad kan den bruges til?
+## Hvad kan appen?
 
-- aktivere elever hurtigt i timerne  
-- lave afstemninger og temperaturmålinger  
-- trække navne eller emner tilfældigt  
-- danne grupper  
-- arbejde med begreber og ord (ordsky)  
-- samle materiale til gennemgang  
-- bygge undervisningsforløb som kan genbruges  
+Du kan opbygge tavler med forskellige interaktive elementer:
+
+- 📝 Tekst og noter
+- 🎥 Video
+- ✏️ Tegning
+- 🎲 Lykkehjulet
+- 👥 Gruppegenerator
+- ☁️ Ordsky
+- 🙂 Afstemning med emojis og resultatvisning
+- ⏱️ Timer
+- 🖼️ Billeder og baggrunde
+- 🔗 Links
+- 📄 PDF-visning
+
+Widgets kan flyttes, skaleres, roteres, låses og placeres frit på tavlen.
+
+---
+
+## Lykkehjulet
+
+Lykkehjulet kan både bruges til klassisk udtrækning, hvor valgte navne/emner fjernes fra puljen, og til opsamling, hvor valg bliver stående i puljen.  
+Det gør det muligt at bruge hjulet som input til en ordsky, hvor hyppige valg vises større.
+
+---
+
+## Typiske anvendelser
+
+- elevaktivering
+- hurtige afstemninger
+- brainstorm og begrebsarbejde
+- gruppedannelse
+- emneudvælgelse med lykkehjul
+- præsentationer i klassen
+- undervisningsskabeloner, der kan genbruges
 
 ---
 
 ## Gem og åbn
 
-Du kan gemme din tavle som en fil og åbne den igen senere.
+Appen bruger tavlefiler til backup og genbrug.
 
-**Fuld tavle**  
-Gemmer hele tavlen med indhold, medier og lister.
-
-**Kun skabelon**  
-Gemmer layout og opsætning – uden indhold.  
-Perfekt til at genbruge en tavle i flere klasser.
-
----
-
-## Lister
-
-Lister bruges på tværs af flere værktøjer (lykkehjul, grupper, ordsky).
-
-Det gør det nemt at genbruge de samme data flere steder.
-
----
-
-## Præsentationstilstand
-
-Tavlen kan vises i en rolig præsentationstilstand, hvor redigering er skjult, og fokus er på indholdet.
-
----
-
-## Teknisk
-
-- kører direkte i browseren  
-- kræver ingen login  
-- ingen server eller installation  
-- kan bruges både online og som lokal fil  
+**Fuld tavle** gemmer tavler, widgets, indhold, medier og lister.  
+**Kun skabelon** gemmer layout og åbne widgets, men rydder eksempelindhold.
 
 ---
 
 ## Online version
 
 https://maans.github.io/Tavle/
+
+
+## Lister fra lykkehjulet
+
+Valgte resultater fra lykkehjulet kan gemmes som en liste og derefter hentes i fx ordsky, grupper eller andre lykkehjul.
+
+
+## Ordsky / tagcloud
+
+Ordskyvisninger bruger størrelse og vægt til at vise gentagelser. Visningen er designet til at fungere på tavle/projektor, så de vigtigste ord eller valg hurtigt kan aflæses.
+
+
+## Lykkehjulet og ordskyvisning
+
+I lykkehjulet kan man skifte mellem hjulvisning og ordskyvisning ved at klikke på widgettens titel. I ordskyvisning vises kun selve ordskyen, så den egner sig bedre til præsentation.
