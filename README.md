@@ -13,8 +13,9 @@ En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
 
 ## Ordsky
 
-Ordskyen bruger én linje pr. ord eller sætning. Gentagelser vises større.  
-Indstillingen **Ignorér store/små** tæller fx `Musik`, `musik` og `MUSIK` som samme ord.
+Ordskyen bruger gentagelser til at gøre ord eller svar større.  
+Man kan skrive én linje pr. ord/sætning. Korte svar som emojis kan også stå kompakt på samme linje.  
+Ordskyens redigeringsfelt og knapper vises kun, når widgetten er aktiv.
 
 ## Afstemning
 
