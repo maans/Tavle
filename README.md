@@ -130,3 +130,8 @@ Urmodalen er ryddet op med tydelige rækker, designvalg og preview. Scene-uret e
 ## Værktøjslinjen
 
 Skjul og linje er samlet i én synlig pin-knap på hovedværktøjslinjen. Herfra indstilles fastgjort værktøjslinje, automatisk skjul og hvor mange sekunder linjen skal blive stående. Når linjen er skjult, hentes den frem med en særskilt “værktøjer ▲”-knap, så man ikke rammer et værktøj ved et uheld.
+
+
+## v103
+
+Automatisk skjul af værktøjslinjen er gjort mere stabilt med pointer-, mus- og touch-events. Den særskilte “værktøjer ▲”-knap viser linjen uden at aktivere et værktøj.
