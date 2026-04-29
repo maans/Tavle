@@ -1,76 +1,79 @@
 # Interaktiv Tavle
 
-En fleksibel, browserbaseret undervisningstavle – samlet i én fil.
+En enkel, fleksibel og browserbaseret tavle til undervisning – samlet ét sted.
 
-Designet til hurtig brug i undervisning, præsentationer og fælles aktiviteter.
-
----
-
-## ✨ Hvad kan appen?
-
-Du kan opbygge tavler med forskellige interaktive elementer:
-
-- 📝 Tekst og noter
-- 🎥 Video (YouTube m.m.)
-- 🎡 Lykkehju (navne, emner osv.)
-- 👥 Gruppegenerator
-- ☁️ Ordsky (fra lister eller afstemninger)
-- 🙂 Afstemninger med live-resultater
-- ⏱️ Timer
-- 🖼️ Billeder og baggrunde
-- 🔗 Links og PDF-visning
-
-Alt kan placeres frit, skaleres og roteres direkte på tavlen.
+Appen gør det nemt at bygge en interaktiv undervisningstavle med tekst, medier og små værktøjer, der kan aktiveres direkte i klassen.
 
 ---
 
-## 🎯 Typiske anvendelser
+## Hvad kan den?
 
-- Hurtig elevaktivering (hjul, grupper)
-- Feedback (afstemninger + ordsky)
-- Brainstorm / begrebsarbejde
-- Strukturering af undervisningsforløb
-- Præsentationer i klassen
+Du kan oprette og kombinere forskellige elementer på tavlen:
 
----
+- 📝 tekst og noter  
+- 🎥 video  
+- ✏️ tegning  
+- 🎲 lykkehjul  
+- 👥 gruppegenerator  
+- ☁️ ordsky  
+- 🙂 afstemninger  
+- ⏱️ timer  
+- 🖼️ billeder og baggrunde  
+- 🔗 links  
+- 📄 PDF-visning  
 
-## 💾 Gem og åbn
-
-Appen bruger én samlet filtype til tavler:
-
-- **Fuld tavle**
-  → indeholder alt: indhold, widgets og lister  
-  → bruges til backup og genåbning
-
-- **Kun skabelon**
-  → gemmer layout og widgets  
-  → rydder alt indhold (billeder, tekst, data osv.)  
-  → perfekt til genbrug som undervisningsskabelon
+Alle elementer kan flyttes, skaleres, roteres og låses – så tavlen kan tilpasses præcis til situationen.
 
 ---
 
-## 🧠 Lister og data
+## Hvad kan den bruges til?
 
-- Lister (fx til hjul, grupper og ordsky) gemmes automatisk i **fuld tavle**
-- Skabeloner indeholder **ikke data**, kun struktur
+- aktivere elever hurtigt i timerne  
+- lave afstemninger og temperaturmålinger  
+- trække navne eller emner tilfældigt  
+- danne grupper  
+- arbejde med begreber og ord (ordsky)  
+- samle materiale til gennemgang  
+- bygge undervisningsforløb som kan genbruges  
 
 ---
 
-## 🚀 Kom i gang
+## Gem og åbn
 
-Online version:  
+Du kan gemme din tavle som en fil og åbne den igen senere.
+
+**Fuld tavle**  
+Gemmer hele tavlen med indhold, medier og lister.
+
+**Kun skabelon**  
+Gemmer layout og opsætning – uden indhold.  
+Perfekt til at genbruge en tavle i flere klasser.
+
+---
+
+## Lister
+
+Lister bruges på tværs af flere værktøjer (lykkehjul, grupper, ordsky).
+
+Det gør det nemt at genbruge de samme data flere steder.
+
+---
+
+## Præsentationstilstand
+
+Tavlen kan vises i en rolig præsentationstilstand, hvor redigering er skjult, og fokus er på indholdet.
+
+---
+
+## Teknisk
+
+- kører direkte i browseren  
+- kræver ingen login  
+- ingen server eller installation  
+- kan bruges både online og som lokal fil  
+
+---
+
+## Online version
+
 https://maans.github.io/Tavle/
-
----
-
-## 🧩 Teknisk
-
-- Kører 100% i browser (ingen server)
-- Data gemmes lokalt eller som fil
-- Kan bruges offline (download HTML)
-
----
-
-## 📦 Version
-
-Se ændringer i commit-historik eller releases.
