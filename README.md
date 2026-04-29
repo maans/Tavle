@@ -1,24 +1,76 @@
 # Interaktiv Tavle
 
-En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
+En fleksibel, browserbaseret undervisningstavle – samlet i én fil.
 
-## v83
+Designet til hurtig brug i undervisning, præsentationer og fælles aktiviteter.
 
-- **Kun skabelon** rydder nu indhold rigtigt:
-  - billeder, baggrundsbilleder og PDF’er fjernes
-  - videoer og links nulstilles
-  - tekstfelter tømmes
-  - hjul-, gruppe- og ordsky-lister tømmes
-  - afstemningsresultater nulstilles
-- Widgetternes placering, størrelse, rotation og type bevares.
-- Fuld tavlefil gemmer fortsat lister sammen med tavledata.
+---
 
-## Gem og åbn
+## ✨ Hvad kan appen?
 
-- **Fuld tavle** er backup af tavlen med indhold og lister.
-- **Kun skabelon** er layout og åbne widgets uden eksempelindhold.
+Du kan opbygge tavler med forskellige interaktive elementer:
 
-## Kom i gang
+- 📝 Tekst og noter
+- 🎥 Video (YouTube m.m.)
+- 🎡 Lykkehju (navne, emner osv.)
+- 👥 Gruppegenerator
+- ☁️ Ordsky (fra lister eller afstemninger)
+- 🙂 Afstemninger med live-resultater
+- ⏱️ Timer
+- 🖼️ Billeder og baggrunde
+- 🔗 Links og PDF-visning
+
+Alt kan placeres frit, skaleres og roteres direkte på tavlen.
+
+---
+
+## 🎯 Typiske anvendelser
+
+- Hurtig elevaktivering (hjul, grupper)
+- Feedback (afstemninger + ordsky)
+- Brainstorm / begrebsarbejde
+- Strukturering af undervisningsforløb
+- Præsentationer i klassen
+
+---
+
+## 💾 Gem og åbn
+
+Appen bruger én samlet filtype til tavler:
+
+- **Fuld tavle**
+  → indeholder alt: indhold, widgets og lister  
+  → bruges til backup og genåbning
+
+- **Kun skabelon**
+  → gemmer layout og widgets  
+  → rydder alt indhold (billeder, tekst, data osv.)  
+  → perfekt til genbrug som undervisningsskabelon
+
+---
+
+## 🧠 Lister og data
+
+- Lister (fx til hjul, grupper og ordsky) gemmes automatisk i **fuld tavle**
+- Skabeloner indeholder **ikke data**, kun struktur
+
+---
+
+## 🚀 Kom i gang
 
 Online version:  
 https://maans.github.io/Tavle/
+
+---
+
+## 🧩 Teknisk
+
+- Kører 100% i browser (ingen server)
+- Data gemmes lokalt eller som fil
+- Kan bruges offline (download HTML)
+
+---
+
+## 📦 Version
+
+Se ændringer i commit-historik eller releases.
