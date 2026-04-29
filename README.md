@@ -100,3 +100,8 @@ Baggrundsværktøjet og widget-knapper oven på indlejrede medier er strammet op
 ## Billeder
 
 Billed-preview i billedwidgets skaleres til widgettens størrelse, så lokale billeder ikke vises som små thumbnails.
+
+
+## Baggrundsbilleder
+
+Preview af baggrundsbilleder skaleres nu korrekt i baggrundsdialogen, så billedet fylder preview-ruden i stedet for at blive vist som en lille thumbnail.
