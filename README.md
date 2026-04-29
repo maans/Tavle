@@ -2,45 +2,26 @@
 
 En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
 
-## Quick start
-
-1. Åbn `index.html` i din browser
-2. Klik på værktøjslinjen nederst for at tilføje indhold
-3. Træk og tilpas widgets på tavlen
-4. Skift til præsentationstilstand ved behov
-5. Gem tavlen som tavlefil
-
 ## Funktioner
 
-- Flere tavler
 - Tekst, video, tegning, timer, billeder, links og PDF
-- Lykkehjul til tilfældige valg
-- Gruppeværktøj til hurtig gruppedannelse
-- Ordsky ud fra gemte lister
-- Afstemningswidget med emojis og resultatvisning
-- Præsentationstilstand
+- Lykkehjul, grupper, ordsky og afstemning
+- Ordsky kan bruge/redigere samme lister som lykkehjulet
+- Afstemning kan omdannes til ordsky
 - Tavlefiler til backup og deling
 - Skabelonfiler uden eksempelindhold
-- Download af indlejrede medier
 
-## Gem og åbn
+## Ordsky
 
-Gemme-dialogen har to hovedvalg:
+Ordskyen bruger én linje pr. ord eller sætning. Gentagelser vises større.  
+Indstillingen **Ignorér store/små** tæller fx `Musik`, `musik` og `MUSIK` som samme ord.
 
-- **Fuld tavle**
-- **Kun skabelon**
+## Afstemning
 
-## Designprincipper
-
-- Kører direkte i browseren
-- Ingen installation
-- Ingen login
-- Ingen afhængighed af eksterne services i brug
-- Data gemmes lokalt
+Afstemningswidgetten bruger emojis/svarmuligheder og viser samlet resultat.  
+Knappen **Lav ordsky** laver en ordsky ud fra stemmerne.
 
 ## Kom i gang
-
-Åbn `index.html` i en browser.
 
 Online version:  
 https://maans.github.io/Tavle/
