@@ -55,3 +55,8 @@ https://maans.github.io/Tavle/
 ## Teknisk note
 
 v73 SAFE fjerner den eksperimentelle mobilskalering, så widgets ikke flyttes ved ændring af vinduesstørrelse. Tavlefiler kan stadig gemmes med opstartsvalget **Åbn i præsentationstilstand**.
+
+
+## Teknisk note
+
+v74 SAFE retter opstart i præsentationstilstand efter import af tavlefil. Rettelsen bruger samme præsentationsklasse som den normale fuldskærmsknap.
