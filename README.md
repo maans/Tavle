@@ -2,25 +2,17 @@
 
 En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
 
----
-
 ## Quick start
 
-1. Åbn `index.html` i din browser  
-2. Klik på værktøjslinjen nederst for at tilføje indhold  
-3. Træk og tilpas widgets på tavlen  
-4. Skift til præsentationstilstand ved behov  
-5. Gem tavledata som JSON-backup  
-
----
+1. Åbn `index.html` i din browser
+2. Klik på værktøjslinjen nederst for at tilføje indhold
+3. Træk og tilpas widgets på tavlen
+4. Skift til præsentationstilstand ved behov
+5. Gem tavlen som tavlefil
 
 ## Hvad er det?
 
 Interaktiv Tavle er et fleksibelt arbejdsrum, der kører direkte i browseren uden installation eller login.
-
-Den er designet til undervisning, hvor materialer, aktiviteter og struktur kan samles ét sted og bruges live i klassen.
-
----
 
 ## Funktioner
 
@@ -29,20 +21,27 @@ Den er designet til undervisning, hvor materialer, aktiviteter og struktur kan s
 - Lykkehjul til tilfældige valg
 - Gruppeværktøj til hurtig gruppedannelse
 - Præsentationstilstand
-- JSON-backup og import
+- Tavlefiler til backup og deling
+- Skabelonfiler uden eksempelindhold
 - Download af indlejrede medier
 
----
+## Gem og åbn
 
-## Gem og del
+Appen bruger tavlefiler til at gemme og åbne undervisningstavler.
 
-Brug **Eksportér projektfil JSON** til at gemme tavledata.
+I gemme-dialogen kan man vælge:
 
-Ved tavler med billeder eller PDF’er kan de indlejrede medier hentes separat via **Download indlejrede medier**.
+- **Åbn i præsentationstilstand**  
+  Tavlen åbner direkte i præsentationsvisning efter import.
 
-Forsøget med én samlet HTML-fil med alle tavledata er midlertidigt slået fra, fordi det gav ustabil adfærd i nogle browsere.
+- **Kun skabelon**  
+  Gemmer tavler, widgets, størrelser og placeringer, men fjerner eksempelindhold som billeder, PDF’er, videoer, links, lister og tekst.
 
----
+- **Gem tavlefil**  
+  Gemmer tavlens data som en JSON-baseret tavlefil.
+
+- **Download indlejrede medier**  
+  Henter indlejrede billeder, baggrundsbilleder og PDF’er ud som separate filer.
 
 ## Designprincipper
 
@@ -52,16 +51,9 @@ Forsøget med én samlet HTML-fil med alle tavledata er midlertidigt slået fra,
 - Ingen afhængighed af eksterne services i brug
 - Data gemmes lokalt
 
----
-
 ## Kom i gang
 
 Åbn `index.html` i en browser.
 
 Online version:  
 https://maans.github.io/Tavle/
-
-
-## Teknisk note
-
-v66 SAFE retter klik på widgettens luk-knap i desktop-browsere uden at ændre backup-/eksportlogikken.
