@@ -77,3 +77,8 @@ I lykkehjulet kan man skifte mellem hjulvisning og ordskyvisning ved at klikke p
 ## Lykkehjulets visninger
 
 Klik på højre panel med valgte resultater for at skifte til ordskyvisning. Klik på ordskyen for at skifte tilbage til hjulet.
+
+
+## Lykkehjulets tagcloud
+
+I hjulvisning bruges den lille **tagcloud >**-knap nederst i listen til at skifte visning. I tagcloudvisning bruges **< hjul** til at komme tilbage.
