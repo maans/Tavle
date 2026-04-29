@@ -2,34 +2,21 @@
 
 En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
 
-## v82
+## v83
 
-Værktøjslinjen er gjort smallere.
+- **Kun skabelon** rydder nu indhold rigtigt:
+  - billeder, baggrundsbilleder og PDF’er fjernes
+  - videoer og links nulstilles
+  - tekstfelter tømmes
+  - hjul-, gruppe- og ordsky-lister tømmes
+  - afstemningsresultater nulstilles
+- Widgetternes placering, størrelse, rotation og type bevares.
+- Fuld tavlefil gemmer fortsat lister sammen med tavledata.
 
-Direkte på værktøjslinjen:
+## Gem og åbn
 
-- Tekst
-- Video
-- Tegn
-- Hjul
-- Grupper
-- Ordsky
-- Afstemning
-- Timer
-- Mere
-- Backup
-
-Under **Mere**:
-
-- Billede
-- Link
-- PDF
-- Baggrund
-- Grid
-- Skjul
-- Linje
-
-Derudover vises teksten **Resultater skjult** ikke i præsentationstilstand.
+- **Fuld tavle** er backup af tavlen med indhold og lister.
+- **Kun skabelon** er layout og åbne widgets uden eksempelindhold.
 
 ## Kom i gang
 
