@@ -72,3 +72,8 @@ Ordskyvisninger bruger størrelse og vægt til at vise gentagelser. Visningen er
 ## Lykkehjulet og ordskyvisning
 
 I lykkehjulet kan man skifte mellem hjulvisning og ordskyvisning ved at klikke på widgettens titel. I ordskyvisning vises kun selve ordskyen, så den egner sig bedre til præsentation.
+
+
+## Lykkehjulets visninger
+
+Klik på højre panel med valgte resultater for at skifte til ordskyvisning. Klik på ordskyen for at skifte tilbage til hjulet.
