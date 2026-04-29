@@ -50,3 +50,8 @@ I gemme-dialogen vælger man mellem:
 
 Online version:  
 https://maans.github.io/Tavle/
+
+
+## Mobil og præsentation
+
+Tavlefiler kan gemmes med opstartsvalget **Åbn i præsentationstilstand**. På smalle skærme forsøger appen at skalere tavlens widgets, så layoutet bedre kan ses på telefon.
