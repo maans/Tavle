@@ -8,18 +8,15 @@ En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
 - Lykkehjul, grupper, ordsky og afstemning
 - Ordsky kan bruge/redigere samme lister som lykkehjulet
 - Afstemning kan vises som almindeligt resultat eller ordskyvisning
+- “Mere”-menu til mindre brugte værktøjer
 - Tavlefiler til backup og deling
-- Skabelonfiler uden eksempelindhold
 
-## Ordsky
+## v79
 
-Ordskyen bruger gentagelser til at gøre ord eller svar større.  
-Ordskyens redigeringsfelt og knapper vises kun, når widgetten er aktiv.
-
-## Afstemning
-
-Afstemningswidgetten bruger emojis/svarmuligheder og viser samlet resultat.  
-Knappen **Ordskyvisning** skifter samme widget til en visuel sky af stemmerne.
+- Klik på ord/emojis i ordskyvisning viser antal
+- Blødere ordsky-animation
+- Fælles listevælger genbruges af ordsky
+- Enkel “Mere”-menu uden at skjule lykkehjul, grupper eller afstemning fra værktøjslinjen
 
 ## Kom i gang
 
