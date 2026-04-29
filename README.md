@@ -10,16 +10,14 @@ En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
 4. Skift til præsentationstilstand ved behov
 5. Gem tavlen som tavlefil
 
-## Hvad er det?
-
-Interaktiv Tavle er et fleksibelt arbejdsrum, der kører direkte i browseren uden installation eller login.
-
 ## Funktioner
 
 - Flere tavler
 - Tekst, video, tegning, timer, billeder, links og PDF
 - Lykkehjul til tilfældige valg
 - Gruppeværktøj til hurtig gruppedannelse
+- Ordsky ud fra gemte lister
+- Afstemningswidget med emojis og resultatvisning
 - Præsentationstilstand
 - Tavlefiler til backup og deling
 - Skabelonfiler uden eksempelindhold
@@ -27,14 +25,10 @@ Interaktiv Tavle er et fleksibelt arbejdsrum, der kører direkte i browseren ude
 
 ## Gem og åbn
 
-Appen bruger tavlefiler til at gemme og åbne undervisningstavler.
+Gemme-dialogen har to hovedvalg:
 
-I gemme-dialogen vælger man mellem:
-
-- **Fuld tavle** – gemmer tavler, widgets, tekst, lister og indlejrede medier.
-- **Kun skabelon** – gemmer layout, tavler, widgets, størrelser og placeringer uden eksempelindhold.
-- **Åbn i præsentationstilstand** – tavlen åbner direkte i præsentationsvisning efter import.
-
+- **Fuld tavle**
+- **Kun skabelon**
 
 ## Designprincipper
 
@@ -50,13 +44,3 @@ I gemme-dialogen vælger man mellem:
 
 Online version:  
 https://maans.github.io/Tavle/
-
-
-## Teknisk note
-
-v73 SAFE fjerner den eksperimentelle mobilskalering, så widgets ikke flyttes ved ændring af vinduesstørrelse. Tavlefiler kan stadig gemmes med opstartsvalget **Åbn i præsentationstilstand**.
-
-
-## Teknisk note
-
-v74 SAFE retter opstart i præsentationstilstand efter import af tavlefil. Rettelsen bruger samme præsentationsklasse som den normale fuldskærmsknap.
