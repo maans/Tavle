@@ -2,16 +2,34 @@
 
 En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
 
-## v81
+## v82
 
-- Afstemning har nu indstillinger for **Vis resultater** og **Ordsky i præsentation**
-- Resultater kan skjules, så elever ikke påvirkes under afstemning
-- Mere-menuen viser kun værktøjer, der ikke allerede ligger direkte på værktøjslinjen
+Værktøjslinjen er gjort smallere.
 
-## Afstemning
+Direkte på værktøjslinjen:
 
-Afstemningswidgetten kan bruges neutralt ved at slå **Vis resultater** fra.  
-Hvis **Ordsky i præsentation** er slået fra, kan spørgsmålsteksten ikke bruges til at skifte til ordskyvisning i præsentationstilstand.
+- Tekst
+- Video
+- Tegn
+- Hjul
+- Grupper
+- Ordsky
+- Afstemning
+- Timer
+- Mere
+- Backup
+
+Under **Mere**:
+
+- Billede
+- Link
+- PDF
+- Baggrund
+- Grid
+- Skjul
+- Linje
+
+Derudover vises teksten **Resultater skjult** ikke i præsentationstilstand.
 
 ## Kom i gang
 
