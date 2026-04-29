@@ -2,20 +2,16 @@
 
 En enkel, browserbaseret tavle til undervisning – samlet i én HTML-fil.
 
-## Funktioner
+## v81
 
-- Tekst, video, tegning, timer, billeder, links og PDF
-- Lykkehjul, grupper, ordsky og afstemning
-- Afstemning kan vises som almindeligt resultat eller ordskyvisning
-- Klik på afstemningens spørgsmål skifter mellem afstemning og ordskyvisning
-- “Mere”-menu til mindre brugte værktøjer
-- Tavlefiler til backup og deling
+- Afstemning har nu indstillinger for **Vis resultater** og **Ordsky i præsentation**
+- Resultater kan skjules, så elever ikke påvirkes under afstemning
+- Mere-menuen viser kun værktøjer, der ikke allerede ligger direkte på værktøjslinjen
 
 ## Afstemning
 
-Afstemningswidgetten bruger emojis/svarmuligheder og viser samlet resultat.  
-Knappen **Ordskyvisning** skifter samme widget til en visuel sky af stemmerne.  
-I præsentationstilstand kan man skifte visning ved at klikke på spørgsmålsteksten.
+Afstemningswidgetten kan bruges neutralt ved at slå **Vis resultater** fra.  
+Hvis **Ordsky i præsentation** er slået fra, kan spørgsmålsteksten ikke bruges til at skifte til ordskyvisning i præsentationstilstand.
 
 ## Kom i gang
 
