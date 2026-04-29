@@ -90,3 +90,13 @@ Tagcloud-visningen fordeler ordene mere frit i fladen, så den ikke opfører sig
 
 
 Tagcloud-layoutet er justeret, så ordene fordeles korrekt i fladen.
+
+
+## Stabilitet
+
+Baggrundsværktøjet og widget-knapper oven på indlejrede medier er strammet op, så videoer og PDF’er ikke blokerer for luk/slet-knapper.
+
+
+## Billeder
+
+Billed-preview i billedwidgets skaleres til widgettens størrelse, så lokale billeder ikke vises som små thumbnails.

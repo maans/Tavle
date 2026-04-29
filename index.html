@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v93-test</title>
+<title>Interaktiv tavle v95-test</title>
 <style>
 :root{--bar:#1f2937;--accent:#6d5dfc;--bg:linear-gradient(135deg,#edf6ff,#dff8e8);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#111827}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#111}button,input,textarea,select{font:inherit}.app{height:100%;background:var(--bg);position:relative;overflow:hidden;touch-action:none}.app.grid:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.055) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}.title{position:absolute;top:14px;left:16px;background:rgba(0,0,0,.68);color:white;padding:10px 16px;border-radius:9px;font-size:24px;font-weight:700;z-index:900;max-width:45vw}.topbar{position:absolute;top:14px;right:14px;background:rgba(17,24,39,.86);border-radius:12px;padding:8px;display:flex;gap:8px;z-index:1000;align-items:center;color:white}.topbar button,.tool button,.mini button,.modal button{border:0;border-radius:9px;padding:9px 12px;background:#4b5563;color:white;font-weight:700}.topbar button:disabled{opacity:.45}.toolbar{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.88);border-radius:16px;padding:10px 14px;display:flex;gap:13px;box-shadow:0 12px 28px rgba(0,0,0,.3)}.tool{display:flex;flex-direction:column;align-items:center;gap:3px;color:white;font-size:11px}.tool button{width:50px;height:50px;background:#fff;color:#111827;font-size:27px;padding:0}.widget{position:absolute;left:0;top:0;width:360px;height:240px;background:white;border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.22);transform-origin:center center;overflow:visible;touch-action:none}.widget.selected{outline:3px solid var(--accent)}.widget.locked{outline:2px dashed #6b7280}.widget:not(.selected) .chrome,.widget:not(.selected) .resize,.widget:not(.selected) .rotater{display:none}.chrome{height:34px;background:#30394a;color:white;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;cursor:move;font-weight:700;font-size:14px}.mini{display:flex;gap:5px}.mini button{padding:4px 8px;font-size:12px;background:#4b5563}.content{height:calc(100% - 34px);overflow:auto;background:rgba(255,255,255,.94);border-radius:0 0 12px 12px}.widget:not(.selected) .content{height:100%;border-radius:12px;background:transparent;overflow:hidden}.widget:not(.selected){box-shadow:0 8px 20px rgba(0,0,0,.12)}.widget.locked:not(.selected){outline:none}.widget.selected.locked{outline:3px dashed #6b7280}.resize{position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:white;border:3px solid var(--accent);cursor:nwse-resize}.rotater{position:absolute;left:50%;bottom:-40px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:white;border:3px solid var(--accent);display:grid;place-items:center;font-weight:bold;color:var(--accent);cursor:grab}.text{height:100%;display:flex;flex-direction:column}.textTools{display:flex;padding:6px 10px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;gap:8px;align-items:center;flex-wrap:wrap}.text textarea{width:100%;flex:1;border:0;padding:16px;font-size:var(--fs,24px);resize:none;background:white}.videoBox{height:100%;background:#222;color:white;display:grid;place-items:center;text-align:center;padding:18px}.videoBox iframe{width:100%;height:100%;border:0}.videoBox a{color:white;font-size:24px;font-weight:800}.timerBox{padding:18px;text-align:center}.timerBox .display{font-size:58px;font-weight:900;margin:18px}.timerBox input{width:70px;padding:6px}.timerBox button,.wheel button,.linkBox button,.modal button{background:var(--accent);color:white;border:0;border-radius:8px;padding:8px 12px;margin:3px}.wheel{height:100%;display:grid;gap:12px;padding:12px;overflow:hidden;box-sizing:border-box}.wheel:not(.editing){grid-template-columns:minmax(260px,58%) minmax(220px,42%)}.wheel.editing{grid-template-columns:minmax(260px,52%) minmax(260px,48%)}.wheelBox{min-width:0;min-height:0;height:100%;display:flex;align-items:center;justify-content:center}.wheelCanvas{width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:1/1;object-fit:contain;border-radius:50%;box-shadow:0 0 0 8px white,0 4px 12px #999}.wheelSide{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;align-content:start}.winner{font-size:clamp(28px,5vw,76px);font-weight:900;text-align:center;line-height:1}.wheelControls,.wheelTools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wheel .chosen{font-size:14px;min-height:0;overflow:auto;overflow-wrap:anywhere;background:#f3f4f6;padding:8px;border-radius:8px}.wheel textarea{width:100%;height:130px}.wheel .editArea{display:none;min-width:0;overflow:auto}.wheel.editing .editArea{display:block}.wheel.editing .wheelSide{grid-template-rows:auto auto minmax(80px,.7fr) auto}@media(max-width:700px){.wheel:not(.editing),.wheel.editing{grid-template-columns:1fr}.wheelBox{height:260px}}.linkBox{height:100%;display:grid;place-items:center;text-align:center;padding:20px}.linkBox a{font-size:30px;color:#1559d6;font-weight:800}.imageWidget img{width:100%;height:100%;object-fit:contain;display:block}.pdfBox{height:100%;display:grid;place-items:center;padding:20px;text-align:center}.pdfBox iframe,.pdfBox object{width:100%;height:100%;border:0}.drawLayer{position:absolute;inset:0;z-index:850;pointer-events:none}.drawLayer.active{pointer-events:auto;cursor:crosshair}.app.drawActive .widget{filter:saturate(.7) brightness(.9)}.app.drawActive:after{content:'TEGNETILSTAND – klik blyanten igen eller Luk for at stoppe';position:absolute;top:78px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(17,24,39,.9);color:white;border-radius:999px;padding:9px 16px;font-weight:900;pointer-events:none}.drawPanel{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:1001;background:rgba(255,255,255,.96);border-radius:14px;padding:10px;box-shadow:0 10px 24px #0004;display:none;gap:8px;align-items:center;max-width:92vw;overflow:auto}.drawPanel.show{display:flex}.drawPanel button.active{background:#6d5dfc;color:white}.modalBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:none;align-items:center;justify-content:center}.modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.modal h2{margin-top:0}.modal input,.modal textarea,.modal select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 12px}.hidden{display:none!important}.present .toolbar,.present .topbar,.present .chrome,.present .resize,.present .rotater,.present .drawPanel{display:none!important}.present .title{display:none}.present .widget{box-shadow:none;outline:none}.present .content{height:100%;border-radius:12px}.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#111827;color:white;padding:10px 16px;border-radius:999px;z-index:3000;opacity:0;transition:.2s}.toast.show{opacity:1}@media(max-width:800px){.toolbar{gap:8px;max-width:96vw;overflow-x:auto}.tool button{width:44px;height:44px}.title{font-size:18px}.topbar{scale:.9;transform-origin:top right}}
 
@@ -1947,6 +1947,77 @@
   opacity:1!important;
 }
 
+
+/* v94 TEST: restore widget controls above embeds + background tool fix */
+.widget{
+  overflow:visible!important;
+}
+.widget .chrome{
+  position:relative!important;
+  z-index:500!important;
+  pointer-events:auto!important;
+}
+.widget .chrome .mini,
+.widget .chrome .mini button,
+.widget button[data-act]{
+  pointer-events:auto!important;
+  position:relative!important;
+  z-index:550!important;
+}
+.widget .content{
+  position:relative!important;
+  z-index:1!important;
+}
+.widget[data-type="video"] .content,
+.widget[data-type="pdf"] .content,
+.videoBox,
+.pdfBox{
+  pointer-events:auto!important;
+}
+.widget[data-type="video"] iframe,
+.widget[data-type="pdf"] iframe,
+.videoBox iframe,
+.pdfBox iframe{
+  position:relative!important;
+  z-index:1!important;
+}
+.widget[data-type="video"] .chrome,
+.widget[data-type="pdf"] .chrome{
+  z-index:700!important;
+}
+
+
+/* v95 TEST: image preview fills widget instead of tiny thumbnail */
+.widget[data-type="image"] .content{
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  padding:0!important;
+}
+.widget[data-type="image"] .content > img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  display:block!important;
+}
+.widget[data-type="image"] .mediaActions{
+  position:absolute;
+  top:42px;
+  right:10px;
+  z-index:30;
+}
+.widget[data-type="image"]:not(.selected) .mediaActions,
+.present .widget[data-type="image"] .mediaActions{
+  display:none!important;
+}
+.widget[data-type="image"] .imageChoice{
+  width:100%;
+  height:100%;
+  box-sizing:border-box;
+}
+
 </style>
 </head>
 <body>
@@ -1976,7 +2047,7 @@
 (()=>{
 const app=document.getElementById('app'), titleEl=document.getElementById('title'), draw=document.getElementById('draw'), ctx=draw.getContext('2d');
 const modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal'), fileInput=document.getElementById('fileInput');
-const KEY='maans_interaktiv_tavle_v93_test'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
+const KEY='maans_interaktiv_tavle_v95_test'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
 let toolClickBlockUntil=0;
 let embeddedData=window.__TAVLE_DATA__||null;
 let state=(embeddedData&&embeddedData.state)||load()||{active:0,slides:[{title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]}]};
@@ -2032,6 +2103,7 @@ function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());ap
 function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll')?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='timer'?260: type==='link'?230:320)))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
 function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
+function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
 function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button data-act="del">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -2161,10 +2233,12 @@ function showMoreTools(){
   document.body.appendChild(bd);
   document.body.appendChild(menu);
   menu.querySelectorAll('button[data-more-tool]').forEach(btn=>{
-    btn.onclick=()=>{
+    btn.onclick=(e)=>{
+      e.preventDefault();
+      e.stopPropagation();
       const t=btn.dataset.moreTool;
-      bd.remove();menu.remove();
       handleTool(t);
+      setTimeout(()=>{bd.remove();menu.remove()},0);
     };
   });
 }
@@ -2189,7 +2263,7 @@ function handleTool(t){
   if(t==='image')addWidget('image',{});
   if(t==='link')addWidget('link',{text:'Link',url:'https://'});
   if(t==='pdf')addWidget('pdf',{});
-  if(t==='background'||t==='bg')backgroundModal();
+  if(t==='background'||t==='bg')bgModal();
   if(t==='grid'){slide().grid=!slide().grid;render();updateGridOverlay();save()}
   if(t==='pin'){try{toggleToolbarPinned()}catch(e){lineModal()}}
   if(t==='line')lineModal();
@@ -2204,6 +2278,27 @@ document.addEventListener('click',e=>{
   e.stopPropagation();
   if(e.stopImmediatePropagation)e.stopImmediatePropagation();
   showMoreTools();
+},true);
+
+/* v94 TEST widget chrome fallback */
+
+document.addEventListener('click',function(e){
+  const btn=e.target.closest&&e.target.closest('.widget .chrome button[data-act]');
+  if(!btn)return;
+  const el=btn.closest('.widget');
+  if(!el)return;
+  const w=findWidget(el.dataset.id);
+  if(!w)return;
+  const act=btn.dataset.act;
+  if(act==='del'){
+    e.preventDefault();e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    slide().widgets=slide().widgets.filter(x=>x.id!==w.id);
+    selected=null;
+    render();
+    save();
+    return;
+  }
 },true);
 
 function buildWordCloudItems(names,caseInsensitive=true){
@@ -2385,7 +2480,7 @@ if(w.type==='poll'){
     if(dl)dl.onclick=(e)=>{e.stopPropagation();downloadDataUrl(w.data.src,w.data.name||'billede')};
   }else{
     c.innerHTML=`<div class="imageChoice"><button class="localImg">Vælg billede fra enhed</button><button class="urlImg">Indsæt billede fra URL</button></div>`;
-    c.querySelector('.localImg').onclick=()=>pickFile('image/*',src=>{w.data.src=src;w.data.name='billede';fillContent(el,w);save()});
+    c.querySelector('.localImg').onclick=()=>pickFile('image/*',(src,file)=>{w.data.src=src;w.data.name=(file&&file.name)||'billede';fillContent(el,w);save()});
     c.querySelector('.urlImg').onclick=()=>askImageUrl(w);
   }
 }
@@ -2720,13 +2815,13 @@ function wireWheel(c,w){
  const loadList=c.querySelector('.loadList'); if(loadList)loadList.onclick=()=>{const bank=JSON.parse(localStorage.getItem('maans_wheel_lists')||'{}');const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da')); if(!keys.length){toast('Ingen gemte lister');return} showModal('<h2>Hent liste</h2><p>Vælg en liste – den overføres direkte til hjulet.</p>'+keys.map(k=>`<button class="pickList" data-k="${k}">${k}</button>`).join(' ')+'<hr><button id="close">Luk</button>');modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.k;w.data.names=[...bank[pick]];w.data.original=[...bank[pick]];w.data.chosen=[];w.data.winner='';w.data.rot=0;closeModal();fillContent(el,w);toast('Listen er indlæst i hjulet');setTimeout(()=>flashWheel(el.querySelector('.content')),50);save()});modal.querySelector('#close').onclick=closeModal};
  const spin=c.querySelector('.spin'); if(spin)spin.onclick=()=>{let btn=c.querySelector('.spin');let names=[...(w.data.names||[])];if(!names.length){toast('Puljen er tom');return}btn.disabled=true;const idx=Math.floor(Math.random()*names.length),winner=names[idx];const duration=2600+Math.random()*700,startTime=performance.now(),endRot=targetRotationForIndex(idx,names.length,6+Math.floor(Math.random()*3));let lastTick=0;function frame(now){const p=Math.min(1,(now-startTime)/duration),rot=endRot*easeOutCubic(p);drawWheel(canv,w,rot);if(now-lastTick>95 && p<.94){wheelTick();lastTick=now}if(p<1){requestAnimationFrame(frame)}else{drawWheel(canv,w,endRot);btn.disabled=false;wheelLand();setTimeout(wheelLand,80);animateWinner(c,winner);w.data.chosen.push(winner);if(!w.data.keepPool){if(confirm(winner+' blev valgt. Fjern fra puljen?')){w.data.names=w.data.names.filter(n=>n!==winner)}}w.data.winner='';w.data.rot=0;fillContent(el,w);save()}}requestAnimationFrame(frame)}
 }
-function pickFile(accept,cb){fileInput.accept=accept;fileInput.onchange=()=>{const f=fileInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result);r.readAsDataURL(f);fileInput.value=''};fileInput.click()}
+function pickFile(accept,cb){fileInput.accept=accept;fileInput.onchange=()=>{const f=fileInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result,f);r.readAsDataURL(f);fileInput.value=''};fileInput.click()}
 function showModal(html){modal.innerHTML=html;modalBack.style.display='flex'} function closeModal(){modalBack.style.display='none'} modalBack.onclick=e=>{if(e.target===modalBack)closeModal()}
 function askVideo(w){showModal(`<h2>Video</h2><input id="vurl" placeholder="YouTube-link" value="${esc(w.data.url||'')}"><button id="ok">Gem</button><button id="cancel">Luk</button><p>Hvis YouTube blokerer embed, vises link/åbn eksternt.</p>`);modal.querySelector('#ok').onclick=()=>{w.data.url=modal.querySelector('#vurl').value;closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
 function askLink(w){showModal(`<h2>Link</h2><input id="lt" placeholder="Tekst" value="${esc(w.data.text||'Klikbart link')}"><input id="lu" placeholder="URL" value="${esc(w.data.url||'https://')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#lt').value;w.data.url=modal.querySelector('#lu').value;closeModal();render()}}
 function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeholder="https://..." value="${esc(w.data.src||'')}"><p>Bemærk: Nogle billeder blokeres af hjemmesiden. Upload lokalt er mest stabilt offline.</p><button id="ok">Brug billede</button><button id="cancel">Luk</button>`);modal.querySelector('#ok').onclick=()=>{w.data.src=modal.querySelector('#iu').value.trim();closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
 function askPdfLink(w){showModal(`<h2>PDF-link</h2><input id="pt" placeholder="Tekst" value="${esc(w.data.text||'Åbn PDF')}"><input id="pu" placeholder="PDF URL" value="${esc(w.data.src||'')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#pt').value;w.data.src=modal.querySelector('#pu').value;closeModal();render()}}
-function bgModal(){showModal(`<h2>Baggrund</h2><div id="bgPreview" style="height:180px;border-radius:14px;border:1px solid #ddd;background:${slide().bgImage?'url('+slide().bgImage+') center/contain no-repeat':'#f3f4f6'};margin-bottom:12px"></div><button data-bg="linear-gradient(135deg,#edf6ff,#dff8e8)">Lys grøn/blå</button><button data-bg="linear-gradient(135deg,#0f172a,#064e3b)">Mørk</button><button data-bg="linear-gradient(135deg,#fef3c7,#fed7aa)">Varm</button><hr><button id="bgImg">Vælg baggrundsbillede</button><select id="fit"><option>cover</option><option>contain</option><option>auto</option></select><button id="clearBg">Fjern billede</button><button id="close">Luk</button>`);modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{slide().bg=b.dataset.bg;render()});modal.querySelector('#bgImg').onclick=()=>pickFile('image/*',src=>{slide().bgImage=src;render();closeModal()});modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render()};modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';render()};modal.querySelector('#close').onclick=closeModal}
+function bgModal(){showModal(`<h2>Baggrund</h2><div id="bgPreview" style="height:180px;border-radius:14px;border:1px solid #ddd;background:${slide().bgImage?'url('+slide().bgImage+') center/contain no-repeat':'#f3f4f6'};margin-bottom:12px"></div><button data-bg="linear-gradient(135deg,#edf6ff,#dff8e8)">Lys grøn/blå</button><button data-bg="linear-gradient(135deg,#0f172a,#064e3b)">Mørk</button><button data-bg="linear-gradient(135deg,#fef3c7,#fed7aa)">Varm</button><hr><button id="bgImg">Vælg baggrundsbillede</button><select id="fit"><option>cover</option><option>contain</option><option>auto</option></select><button id="clearBg">Fjern billede</button><button id="close">Luk</button>`);modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{slide().bg=b.dataset.bg;render();save()});modal.querySelector('#bgImg').onclick=()=>pickFile('image/*',src=>{slide().bgImage=src;render();closeModal()});modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render();save()};modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';render();save()};modal.querySelector('#close').onclick=closeModal}
 
 
 function downloadEmptyApp(){
@@ -2797,7 +2892,7 @@ function showQuickHelp(){
 }
 function maybeShowQuickHelp(){
   try{
-    const k='maans_tavle_seen_quick_help_v93_test';
+    const k='maans_tavle_seen_quick_help_v95_test';
     if(!localStorage.getItem(k)){
       localStorage.setItem(k,'1');
       setTimeout(showQuickHelp,700);
@@ -2985,7 +3080,7 @@ function makeStandaloneHtml(){
   htmlDoc=cleanHtmlForStandalone(htmlDoc);
 
   // Boot-scriptet skal ligge før appens hovedscript, så den gemte fil starter med de rigtige tavler.
-  const boot=`<script id="embeddedTavleBoot">(function(){try{localStorage.setItem('maans_interaktiv_tavle_v93_test', ${JSON.stringify(payload)});}catch(e){}})();<\/script>`;
+  const boot=`<script id="embeddedTavleBoot">(function(){try{localStorage.setItem('maans_interaktiv_tavle_v95_test', ${JSON.stringify(payload)});}catch(e){}})();<\/script>`;
 
   const firstScript=htmlDoc.indexOf('<script>');
   if(firstScript!==-1)htmlDoc=htmlDoc.slice(0,firstScript)+boot+htmlDoc.slice(firstScript);
