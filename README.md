@@ -132,6 +132,16 @@ Urmodalen er ryddet op med tydelige rækker, designvalg og preview. Scene-uret e
 Skjul og linje er samlet i én synlig pin-knap på hovedværktøjslinjen. Herfra indstilles fastgjort værktøjslinje, automatisk skjul og hvor mange sekunder linjen skal blive stående. Når linjen er skjult, hentes den frem med en særskilt “værktøjer ▲”-knap, så man ikke rammer et værktøj ved et uheld.
 
 
-## v108
+## v110
 
 Automatisk skjul af værktøjslinjen er gjort mere stabilt med pointer-, mus- og touch-events. Den særskilte “værktøjer ▲”-knap viser linjen uden at aktivere et værktøj.
+
+
+## Fokus-mode
+
+Fokus-mode skjuler navigation og værktøjslinje, dæmper tavlen og lader dig fremhæve én widget. Funktionen er touch-first: tap vælger fokus, træk ignoreres, og på iPad afsluttes fokus med den synlige “✕ fokus”-knap.
+
+
+## Værktøjslinje-fallback
+
+Hvis værktøjslinjen er skjult, kan den hentes frem med knappen “værktøjer ▲”. Som ekstra fallback kan man holde fingeren/musen nede i nederste kant i ca. ét sekund. På computer virker Ctrl/Cmd + punktum også.
