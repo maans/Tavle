@@ -82,3 +82,11 @@ Klik på højre panel med valgte resultater for at skifte til ordskyvisning. Kli
 ## Lykkehjulets tagcloud
 
 I hjulvisning bruges den lille **tagcloud >**-knap nederst i listen til at skifte visning. I tagcloudvisning bruges **< hjul** til at komme tilbage.
+
+
+## Tagcloud
+
+Tagcloud-visningen fordeler ordene mere frit i fladen, så den ikke opfører sig som en almindelig liste.
+
+
+Tagcloud-layoutet er justeret, så ordene fordeles korrekt i fladen.
