@@ -60,3 +60,8 @@ Forsøget med én samlet HTML-fil med alle tavledata er midlertidigt slået fra,
 
 Online version:  
 https://maans.github.io/Tavle/
+
+
+## Teknisk note
+
+v66 SAFE retter klik på widgettens luk-knap i desktop-browsere uden at ændre backup-/eksportlogikken.
