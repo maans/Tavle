@@ -29,19 +29,12 @@ Interaktiv Tavle er et fleksibelt arbejdsrum, der kører direkte i browseren ude
 
 Appen bruger tavlefiler til at gemme og åbne undervisningstavler.
 
-I gemme-dialogen kan man vælge:
+I gemme-dialogen vælger man mellem:
 
-- **Åbn i præsentationstilstand**  
-  Tavlen åbner direkte i præsentationsvisning efter import.
+- **Fuld tavle** – gemmer tavler, widgets, tekst, lister og indlejrede medier.
+- **Kun skabelon** – gemmer layout, tavler, widgets, størrelser og placeringer uden eksempelindhold.
+- **Åbn i præsentationstilstand** – tavlen åbner direkte i præsentationsvisning efter import.
 
-- **Kun skabelon**  
-  Gemmer tavler, widgets, størrelser og placeringer, men fjerner eksempelindhold som billeder, PDF’er, videoer, links, lister og tekst.
-
-- **Gem tavlefil**  
-  Gemmer tavlens data som en JSON-baseret tavlefil.
-
-- **Download indlejrede medier**  
-  Henter indlejrede billeder, baggrundsbilleder og PDF’er ud som separate filer.
 
 ## Designprincipper
 
