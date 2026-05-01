@@ -132,7 +132,7 @@ Urmodalen er ryddet op med tydelige rækker, designvalg og preview. Scene-uret e
 Skjul og linje er samlet i én synlig pin-knap på hovedværktøjslinjen. Herfra indstilles fastgjort værktøjslinje, automatisk skjul og hvor mange sekunder linjen skal blive stående. Når linjen er skjult, hentes den frem med en særskilt “værktøjer ▲”-knap, så man ikke rammer et værktøj ved et uheld.
 
 
-## v110
+## v122
 
 Automatisk skjul af værktøjslinjen er gjort mere stabilt med pointer-, mus- og touch-events. Den særskilte “værktøjer ▲”-knap viser linjen uden at aktivere et værktøj.
 
@@ -145,3 +145,38 @@ Fokus-mode skjuler navigation og værktøjslinje, dæmper tavlen og lader dig fr
 ## Værktøjslinje-fallback
 
 Hvis værktøjslinjen er skjult, kan den hentes frem med knappen “værktøjer ▲”. Som ekstra fallback kan man holde fingeren/musen nede i nederste kant i ca. ét sekund. På computer virker Ctrl/Cmd + punktum også.
+
+
+## v122
+
+Rollback til v110-basen før forsøgene med at skjule/redde afstemningsredigering i fokus-mode. Denne version ændrer kun fallbacken for skjult værktøjslinje: “værktøjer ▲” og nederste hold-zone holdes mere robust tilgængelige, når værktøjslinjen er skjult.
+
+
+## v122
+
+Fokus er opdelt i to tilstande: arbejdsfokus fra værktøjslinjen og præsentationsfokus fra topbaren. Præsentationsfokus bruger præsentationstilstandens eksisterende regler, så widget-redigering ikke skjules med sær-hacks. Tap/klik på en widget fremhæver den, og tap på baggrunden rydder fokus.
+
+
+## v122
+
+Topbarens tegneknap og præsentationsfokus vises kun, når tavlen er i præsentationstilstand. Redigeringsværktøjerne forbliver på værktøjslinjen.
+
+
+## v122
+
+Præsentationsfokus tillader nu, at alle widgets kan tappes/klikkes for at blive fokusmål. Den tidligere pointer-blockering af ikke-fokuserede widgets er overstyret, mens redigeringschrome stadig skjules i præsentationsfokus.
+
+
+## v122
+
+Lagstyring er gjort intention-baseret: et kort klik/tap på en widget bringer den forrest, mens træk, resize og rotation bevarer widgettens nuværende lag. Lagknapperne op/ned er skjult fra widget-chromen, men den interne z-index bevares.
+
+
+## v122
+
+Tegnelaget skjules og deaktiveres i fokus-tilstand, så det ikke blokerer for valg af widgets.
+
+
+## v122
+
+Ny intern zoom bygget fra v120-basen. Widgetters rotation bevarer centrum som omdrejningspunkt. Cmd/Ctrl + plus/minus zoomer, Cmd/Ctrl + 0 nulstiller, og iPad pinch-zoom håndteres via pointer-events. Drag, resize, rotation og tegning korrigeres for zoom.

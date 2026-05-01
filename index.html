@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v110-test</title>
+<title>Interaktiv tavle v122-test</title>
 <style>
 :root{--bar:#1f2937;--accent:#6d5dfc;--bg:linear-gradient(135deg,#edf6ff,#dff8e8);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#111827}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#111}button,input,textarea,select{font:inherit}.app{height:100%;background:var(--bg);position:relative;overflow:hidden;touch-action:none}.app.grid:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.055) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}.title{position:absolute;top:14px;left:16px;background:rgba(0,0,0,.68);color:white;padding:10px 16px;border-radius:9px;font-size:24px;font-weight:700;z-index:900;max-width:45vw}.topbar{position:absolute;top:14px;right:14px;background:rgba(17,24,39,.86);border-radius:12px;padding:8px;display:flex;gap:8px;z-index:1000;align-items:center;color:white}.topbar button,.tool button,.mini button,.modal button{border:0;border-radius:9px;padding:9px 12px;background:#4b5563;color:white;font-weight:700}.topbar button:disabled{opacity:.45}.toolbar{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.88);border-radius:16px;padding:10px 14px;display:flex;gap:13px;box-shadow:0 12px 28px rgba(0,0,0,.3)}.tool{display:flex;flex-direction:column;align-items:center;gap:3px;color:white;font-size:11px}.tool button{width:50px;height:50px;background:#fff;color:#111827;font-size:27px;padding:0}.widget{position:absolute;left:0;top:0;width:360px;height:240px;background:white;border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.22);transform-origin:center center;overflow:visible;touch-action:none}.widget.selected{outline:3px solid var(--accent)}.widget.locked{outline:2px dashed #6b7280}.widget:not(.selected) .chrome,.widget:not(.selected) .resize,.widget:not(.selected) .rotater{display:none}.chrome{height:34px;background:#30394a;color:white;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;cursor:move;font-weight:700;font-size:14px}.mini{display:flex;gap:5px}.mini button{padding:4px 8px;font-size:12px;background:#4b5563}.content{height:calc(100% - 34px);overflow:auto;background:rgba(255,255,255,.94);border-radius:0 0 12px 12px}.widget:not(.selected) .content{height:100%;border-radius:12px;background:transparent;overflow:hidden}.widget:not(.selected){box-shadow:0 8px 20px rgba(0,0,0,.12)}.widget.locked:not(.selected){outline:none}.widget.selected.locked{outline:3px dashed #6b7280}.resize{position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:white;border:3px solid var(--accent);cursor:nwse-resize}.rotater{position:absolute;left:50%;bottom:-40px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:white;border:3px solid var(--accent);display:grid;place-items:center;font-weight:bold;color:var(--accent);cursor:grab}.text{height:100%;display:flex;flex-direction:column}.textTools{display:flex;padding:6px 10px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;gap:8px;align-items:center;flex-wrap:wrap}.text textarea{width:100%;flex:1;border:0;padding:16px;font-size:var(--fs,24px);resize:none;background:white}.videoBox{height:100%;background:#222;color:white;display:grid;place-items:center;text-align:center;padding:18px}.videoBox iframe{width:100%;height:100%;border:0}.videoBox a{color:white;font-size:24px;font-weight:800}.timerBox{padding:18px;text-align:center}.timerBox .display{font-size:58px;font-weight:900;margin:18px}.timerBox input{width:70px;padding:6px}.timerBox button,.wheel button,.linkBox button,.modal button{background:var(--accent);color:white;border:0;border-radius:8px;padding:8px 12px;margin:3px}.wheel{height:100%;display:grid;gap:12px;padding:12px;overflow:hidden;box-sizing:border-box}.wheel:not(.editing){grid-template-columns:minmax(260px,58%) minmax(220px,42%)}.wheel.editing{grid-template-columns:minmax(260px,52%) minmax(260px,48%)}.wheelBox{min-width:0;min-height:0;height:100%;display:flex;align-items:center;justify-content:center}.wheelCanvas{width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:1/1;object-fit:contain;border-radius:50%;box-shadow:0 0 0 8px white,0 4px 12px #999}.wheelSide{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;align-content:start}.winner{font-size:clamp(28px,5vw,76px);font-weight:900;text-align:center;line-height:1}.wheelControls,.wheelTools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wheel .chosen{font-size:14px;min-height:0;overflow:auto;overflow-wrap:anywhere;background:#f3f4f6;padding:8px;border-radius:8px}.wheel textarea{width:100%;height:130px}.wheel .editArea{display:none;min-width:0;overflow:auto}.wheel.editing .editArea{display:block}.wheel.editing .wheelSide{grid-template-rows:auto auto minmax(80px,.7fr) auto}@media(max-width:700px){.wheel:not(.editing),.wheel.editing{grid-template-columns:1fr}.wheelBox{height:260px}}.linkBox{height:100%;display:grid;place-items:center;text-align:center;padding:20px}.linkBox a{font-size:30px;color:#1559d6;font-weight:800}.imageWidget img{width:100%;height:100%;object-fit:contain;display:block}.pdfBox{height:100%;display:grid;place-items:center;padding:20px;text-align:center}.pdfBox iframe,.pdfBox object{width:100%;height:100%;border:0}.drawLayer{position:absolute;inset:0;z-index:850;pointer-events:none}.drawLayer.active{pointer-events:auto;cursor:crosshair}.app.drawActive .widget{filter:saturate(.7) brightness(.9)}.app.drawActive:after{content:'TEGNETILSTAND – klik blyanten igen eller Luk for at stoppe';position:absolute;top:78px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(17,24,39,.9);color:white;border-radius:999px;padding:9px 16px;font-weight:900;pointer-events:none}.drawPanel{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:1001;background:rgba(255,255,255,.96);border-radius:14px;padding:10px;box-shadow:0 10px 24px #0004;display:none;gap:8px;align-items:center;max-width:92vw;overflow:auto}.drawPanel.show{display:flex}.drawPanel button.active{background:#6d5dfc;color:white}.modalBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:none;align-items:center;justify-content:center}.modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.modal h2{margin-top:0}.modal input,.modal textarea,.modal select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 12px}.hidden{display:none!important}.present .toolbar,.present .topbar,.present .chrome,.present .resize,.present .rotater,.present .drawPanel{display:none!important}.present .title{display:none}.present .widget{box-shadow:none;outline:none}.present .content{height:100%;border-radius:12px}.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#111827;color:white;padding:10px 16px;border-radius:999px;z-index:3000;opacity:0;transition:.2s}.toast.show{opacity:1}@media(max-width:800px){.toolbar{gap:8px;max-width:96vw;overflow-x:auto}.tool button{width:44px;height:44px}.title{font-size:18px}.topbar{scale:.9;transform-origin:top right}}
 
@@ -2511,14 +2511,225 @@ body.focus-mode #toolbarPeek{
   display:none!important;
 }
 
+
+/* v114 TEST: robust toolbar fallback only */
+#toolbarPeek,
+.toolbarPeek{
+  min-width:150px!important;
+  min-height:44px!important;
+  padding:10px 18px!important;
+  z-index:999999!important;
+  pointer-events:auto!important;
+}
+
+body.toolbar-is-hidden #toolbarPeek,
+.app.toolbarHidden #toolbarPeek,
+body.toolbar-is-hidden .toolbarPeek,
+.app.toolbarHidden .toolbarPeek{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  position:absolute!important;
+  left:50%!important;
+  bottom:10px!important;
+  transform:translateX(-50%)!important;
+}
+
+body.focus-mode #toolbarPeek,
+body.focus-mode .toolbarPeek,
+body.focus-mode #toolbarWakeZone{
+  display:none!important;
+}
+
+#toolbarWakeZone{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:88px;
+  z-index:999998;
+  pointer-events:auto;
+  background:transparent;
+}
+
+body:not(.toolbar-is-hidden):not(.toolbarHidden) #toolbarWakeZone{
+  display:none!important;
+}
+
+body.toolbar-is-hidden #toolbarWakeZone,
+.app.toolbarHidden #toolbarWakeZone{
+  display:block!important;
+}
+
+body.focus-mode #toolbarWakeZone{
+  display:none!important;
+}
+
+
+/* v115 TEST: two focus modes */
+body.focus-edit .widget:not(.focusTarget),
+body.focus-presentation .widget:not(.focusTarget){
+  opacity:.22;
+  filter:grayscale(.25) blur(1.2px);
+  transition:opacity .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+body.focus-edit .widget.focusTarget,
+body.focus-presentation .widget.focusTarget{
+  opacity:1!important;
+  filter:none!important;
+  box-shadow:0 0 0 5px rgba(109,93,252,.70),0 18px 45px rgba(0,0,0,.35)!important;
+  z-index:9990!important;
+}
+
+/* Neutralize old v109 focus-mode hiding for work focus */
+body.focus-edit .toolbar,
+body.focus-edit .topbar,
+body.focus-edit #title{
+  display:flex!important;
+}
+body.focus-edit #toolbarPeek,
+body.focus-edit #toolbarWakeZone{
+  display:none!important;
+}
+
+/* Presentation focus: presentation-clean widget chrome, no toolbar */
+body.focus-presentation .toolbar,
+body.focus-presentation #toolbarPeek,
+body.focus-presentation #toolbarPinFloat,
+body.focus-presentation #toolbarWakeZone{
+  display:none!important;
+}
+body.focus-presentation .topbar{
+  display:flex!important;
+}
+body.focus-presentation .widget:not(.focusTarget){
+  pointer-events:none!important;
+}
+body.focus-presentation .widget.focusTarget{
+  pointer-events:auto!important;
+}
+body.focus-presentation .widget .chrome,
+body.focus-presentation .widget .resize,
+body.focus-presentation .widget .rotater{
+  display:none!important;
+}
+#presentFocus.active,
+[data-tool="focus"].active{
+  background:#6d5dfc!important;
+  color:white!important;
+}
+
+
+/* v117 TEST: topbar draw/focus only in presentation mode */
+#drawTop,
+#presentFocus{
+  display:none!important;
+}
+.app.present #drawTop,
+.app.present #presentFocus{
+  display:inline-flex!important;
+}
+.app.present #drawTop,
+.app.present #presentFocus{
+  opacity:.72;
+  transition:opacity .18s ease;
+}
+.app.present #drawTop:hover,
+.app.present #presentFocus:hover,
+.app.present #drawTop.active,
+.app.present #presentFocus.active{
+  opacity:1;
+}
+
+
+/* v118 TEST: presentation focus must allow choosing any widget */
+body.focus-presentation .widget,
+body.focus-presentation .widget:not(.focusTarget),
+body.focus-presentation .widget.focusTarget{
+  pointer-events:auto!important;
+}
+
+/* Keep edit chrome hidden in presentation focus, but do not block content taps */
+body.focus-presentation .widget .chrome,
+body.focus-presentation .widget .resize,
+body.focus-presentation .widget .rotater{
+  display:none!important;
+  pointer-events:none!important;
+}
+body.focus-presentation .widget .content{
+  pointer-events:auto!important;
+}
+
+/* Avoid accidental overlay click-blocking if any focus overlay exists */
+body.focus-presentation .focus-overlay,
+body.focus-edit .focus-overlay{
+  pointer-events:none!important;
+}
+
+
+/* v118 TEST: keep presentation topbar usable during presentation focus */
+body.focus-presentation .topbar{
+  display:flex!important;
+  pointer-events:auto!important;
+}
+body.focus-presentation #presentFocus{
+  display:inline-flex!important;
+}
+
+
+/* v119 TEST: intention-based layering */
+.widget .mini [data-act="up"],
+.widget .mini [data-act="down"]{
+  display:none!important;
+}
+
+
+/* v120 TEST: drawing layer must not block focus selection */
+body.focus-mode #draw,
+body.focus-edit #draw,
+body.focus-presentation #draw,
+body.focus-mode .drawLayer,
+body.focus-edit .drawLayer,
+body.focus-presentation .drawLayer,
+body.focus-mode .drawPanel,
+body.focus-edit .drawPanel,
+body.focus-presentation .drawPanel{
+  display:none!important;
+  pointer-events:none!important;
+}
+
+
+/* v122 TEST: internal zoom, keep widget rotation around center */
+:root{--board-zoom:1}
+.zoomHud{
+  position:absolute;
+  left:50%;
+  bottom:72px;
+  transform:translateX(-50%);
+  z-index:1002;
+  background:rgba(17,24,39,.84);
+  color:white;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:900;
+  font-size:13px;
+  box-shadow:0 8px 20px rgba(0,0,0,.24);
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .18s ease;
+}
+.zoomHud.show{opacity:1}
+
 </style>
 </head>
 <body>
 <div id="app" class="app">
   <div id="title" class="title" contenteditable="true">Min undervisningstavle</div>
-  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide">🧹</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="present">⛶</button></div>
+  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide">🧹</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="presentFocus" title="Fokus i præsentation">🎯</button><button id="present">⛶</button></div>
   <canvas id="draw" class="drawLayer"></canvas>
   <div class="drawPanel" id="drawPanel"><b>Tegn</b><input id="penColor" type="color" value="#000000"><input id="penSize" type="range" min="2" max="40" value="6"><button data-drawmode="pen" class="active">Fri</button><button data-drawmode="line">Linje</button><button data-drawmode="rect">Firkant</button><button data-drawmode="circle">Cirkel</button><button data-drawmode="eraser">Viskelæder</button><button id="drawClear">Ryd</button><button id="drawOff">Luk</button></div>
+  <div id="zoomHud" class="zoomHud">100%</div>
   <div class="toolbar">
     <div class="tool"><button data-tool="text">Aa</button><span>tekst</span></div>
     <div class="tool"><button data-tool="video">▶</button><span>video</span></div>
@@ -2543,7 +2754,7 @@ body.focus-mode #toolbarPeek{
 (()=>{
 const app=document.getElementById('app'), titleEl=document.getElementById('title'), draw=document.getElementById('draw'), ctx=draw.getContext('2d');
 const modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal'), fileInput=document.getElementById('fileInput');
-const KEY='maans_interaktiv_tavle_v110_test'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
+const KEY='maans_interaktiv_tavle_v122_test'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
 let toolClickBlockUntil=0;
 let embeddedData=window.__TAVLE_DATA__||null;
 let state=(embeddedData&&embeddedData.state)||load()||{active:0,slides:[{title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]}]};
@@ -2551,7 +2762,7 @@ if(embeddedData&&embeddedData.wheelLists){try{localStorage.setItem('maans_wheel_
 if(embeddedData&&embeddedData.settings){try{Object.entries(embeddedData.settings).forEach(([k,v])=>localStorage.setItem(k,v))}catch(e){}}
 
 const clockEl=document.getElementById('globalClock');
-const CLOCK_KEY='maans_tavle_clock_settings_v110';
+const CLOCK_KEY='maans_tavle_clock_settings_v122';
 function clockSettings(){
   try{return JSON.parse(localStorage.getItem(CLOCK_KEY)||'{}')}catch(e){return{}}
 }
@@ -2707,7 +2918,52 @@ function updateSlidesOverviewVisibility(){
 function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw);slide().widgets.forEach(w=>makeWidget(w));save()}
 function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll')?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='timer'?260: type==='link'?230:320)))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
-function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
+
+/* v122 TEST: internal board zoom */
+const ZOOM_KEY='maans_tavle_board_zoom_v122';
+let boardZoom=Number(localStorage.getItem(ZOOM_KEY)||1)||1;
+boardZoom=Math.min(2.5,Math.max(.35,boardZoom));
+
+function zoomedTransformFor(w){
+  const bz=(typeof boardZoom==='number'?boardZoom:1);
+  const x=(Number(w.x)||0)*bz;
+  const y=(Number(w.y)||0)*bz;
+  const ww=(Number(w.w)||0);
+  const hh=(Number(w.h)||0);
+  /*
+    Widgets keep transform-origin:center.
+    When scaling from center, compensate so stored x/y still behaves like the visual top-left.
+  */
+  const ox=(ww*(bz-1))/2;
+  const oy=(hh*(bz-1))/2;
+  return `translate(${x+ox}px,${y+oy}px) rotate(${w.rotation||0}deg) scale(${bz})`;
+}
+
+function setBoardZoom(v,show=true){
+  boardZoom=Math.min(2.5,Math.max(.35,Number(v)||1));
+  localStorage.setItem(ZOOM_KEY,String(boardZoom));
+  document.documentElement.style.setProperty('--board-zoom',boardZoom);
+  document.querySelectorAll('.widget').forEach(el=>{
+    const w=findWidget(el.dataset.id);
+    if(w)el.style.transform=transformFor(w);
+  });
+  const hud=document.getElementById('zoomHud');
+  if(hud){
+    hud.textContent=Math.round(boardZoom*100)+'%';
+    if(show){
+      hud.classList.add('show');
+      clearTimeout(window.__zoomHudTimer);
+      window.__zoomHudTimer=setTimeout(()=>hud.classList.remove('show'),950);
+    }
+  }
+}
+function zoomDelta(dir){setBoardZoom(boardZoom*(dir>0?1.12:1/1.12),true)}
+function screenDeltaToBoard(v){return v/boardZoom}
+function screenPointToBoard(e){
+  return {x:e.clientX/boardZoom,y:e.clientY/boardZoom};
+}
+
+function transformFor(w){return zoomedTransformFor(w)}
 function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
 function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button data-act="del">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
@@ -2851,11 +3107,11 @@ function showMoreTools(){
 
 
 function toolbarSettings(){
-  try{return Object.assign({autoHide:false,delay:4,pinned:false},JSON.parse(localStorage.getItem('maans_tavle_toolbar_settings_v110')||'{}'))}
+  try{return Object.assign({autoHide:false,delay:4,pinned:false},JSON.parse(localStorage.getItem('maans_tavle_toolbar_settings_v122')||'{}'))}
   catch(e){return {autoHide:false,delay:4,pinned:false}}
 }
 function saveToolbarSettings(s){
-  localStorage.setItem('maans_tavle_toolbar_settings_v110',JSON.stringify(Object.assign(toolbarSettings(),s)));
+  localStorage.setItem('maans_tavle_toolbar_settings_v122',JSON.stringify(Object.assign(toolbarSettings(),s)));
   applyToolbarSettings();
 }
 let toolbarHideTimer=null;
@@ -2995,8 +3251,8 @@ window.forceHideToolbar=hideToolbar;
 window.forceShowToolbar=showToolbar;
 
 
-/* v109 TEST: iPad-ready focus mode */
-let focusMode=false;
+/* v115 TEST: two focus modes: edit focus + presentation focus */
+let focusMode=null; // null | 'edit' | 'presentation'
 let focusPointer={x:0,y:0,moved:false,t:0};
 
 function clearFocusTarget(){
@@ -3007,15 +3263,39 @@ function setFocusTarget(el){
   clearFocusTarget();
   el.classList.add('focusTarget');
 }
-function setFocusMode(on){
-  focusMode=!!on;
-  document.body.classList.toggle('focus-mode',focusMode);
+function updateFocusButtons(){
+  const editBtn=document.querySelector('[data-tool="focus"]');
+  const presBtn=document.getElementById('presentFocus');
+  if(editBtn)editBtn.classList.toggle('active',focusMode==='edit');
+  if(presBtn)presBtn.classList.toggle('active',focusMode==='presentation');
+}
+function setFocusMode(mode){
+  focusMode=mode;
+  if(focusMode){
+    try{setDrawActive(false)}catch(e){}
+    try{app.classList.remove('drawActive')}catch(e){}
+  }
+  document.body.classList.toggle('focus-mode',!!focusMode); // legacy, only used for exit button
+  document.body.classList.toggle('focus-edit',focusMode==='edit');
+  document.body.classList.toggle('focus-presentation',focusMode==='presentation');
   const btn=document.getElementById('focusExit');
   if(btn)btn.classList.toggle('hidden',!focusMode);
   if(!focusMode)clearFocusTarget();
-  try{if(focusMode){setToolbarHidden(true)}else{setToolbarHidden(false)}}catch(e){}
+  updateFocusButtons();
+  try{
+    if(focusMode==='presentation'){
+      if(!app.classList.contains('present')){
+        app.classList.add('present');
+        if(typeof render==='function')render();
+      }
+      setToolbarHidden(true);
+    }else{
+      setToolbarHidden(false);
+    }
+  }catch(e){}
 }
-function toggleFocusMode(){setFocusMode(!focusMode)}
+function toggleFocusMode(){setFocusMode(focusMode==='edit'?null:'edit')}
+function togglePresentationFocus(){setFocusMode(focusMode==='presentation'?null:'presentation')}
 
 document.addEventListener('pointerdown',e=>{
   if(!focusMode)return;
@@ -3036,11 +3316,27 @@ document.addEventListener('pointerup',e=>{
 },{passive:true});
 
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape' && focusMode)setFocusMode(false);
+  if(e.key==='Escape' && focusMode)setFocusMode(null);
 });
 
 const focusExitBtn=document.getElementById('focusExit');
-if(focusExitBtn)focusExitBtn.onclick=e=>{e.preventDefault();e.stopPropagation();setFocusMode(false)};
+if(focusExitBtn)focusExitBtn.onclick=e=>{e.preventDefault();e.stopPropagation();setFocusMode(null)};
+
+
+/* v118 TEST: capture widget choice in presentation focus before other handlers can swallow the tap */
+document.addEventListener('pointerup',function(e){
+  if(focusMode!=='presentation')return;
+  if(Date.now()-focusPointer.t>450 || focusPointer.moved)return;
+  const w=e.target.closest&&e.target.closest('.widget');
+  if(w){
+    setFocusTarget(w);
+  }else{
+    clearFocusTarget();
+  }
+},true);
+
+const presentFocusBtn=document.getElementById('presentFocus');
+if(presentFocusBtn)presentFocusBtn.onclick=e=>{e.preventDefault();e.stopPropagation();togglePresentationFocus()};
 
 function buildWordCloudItems(names,caseInsensitive=true){
   const counts=new Map();
@@ -3324,7 +3620,41 @@ function widgetMoveModal(w){
   modal.querySelector('#close').onclick=closeModal;
 }
 
-function wireWidget(el,w){el.addEventListener('pointerdown',e=>{select(w.id);});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
+
+/* v119 TEST: tap brings widget to front, drag keeps current layer */
+function normalizeWidgetLayers(){
+  const ws=slide().widgets||[];
+  ws.forEach(w=>{
+    if(typeof w.z!=='number' || !isFinite(w.z))w.z=1;
+  });
+}
+function bringWidgetToFront(w,el){
+  if(!w || app.classList.contains('present') || document.body.classList.contains('focus-mode'))return;
+  normalizeWidgetLayers();
+  const maxZ=Math.max(1,...(slide().widgets||[]).map(x=>Number(x.z)||1));
+  if((Number(w.z)||1)>=maxZ)return;
+  w.z=maxZ+1;
+  z=Math.max(z,w.z);
+  if(el)el.style.zIndex=w.z;
+  save();
+}
+
+function wireWidget(el,w){
+ let layerTap={x:0,y:0,t:0,moved:false,ignore:false};
+ el.addEventListener('pointerdown',e=>{
+   select(w.id);
+   layerTap={x:e.clientX,y:e.clientY,t:Date.now(),moved:false,ignore:!!(e.target.closest&&e.target.closest('.chrome,.resize,.rotater,.mini,button,input,textarea,select,label'))};
+ },{passive:true});
+ el.addEventListener('pointermove',e=>{
+   if(!layerTap.t)return;
+   if(Math.abs(e.clientX-layerTap.x)>7||Math.abs(e.clientY-layerTap.y)>7)layerTap.moved=true;
+ },{passive:true});
+ el.addEventListener('pointerup',e=>{
+   if(!layerTap.t)return;
+   const isTap=!layerTap.moved && Date.now()-layerTap.t<320;
+   if(isTap && !layerTap.ignore)bringWidgetToFront(w,el);
+   layerTap.t=0;
+ },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
  let drag=false,rot=false,res=false,start={}; const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
  chrome.addEventListener('pointerdown',e=>{
    if(w.locked)return;
@@ -3343,29 +3673,30 @@ function wireWidget(el,w){el.addEventListener('pointerdown',e=>{select(w.id);});
     select(w.id);
     rot=true;
     const cx=w.x+w.w/2, cy=w.y+w.h/2;
+    const p0=screenPointToBoard(e);
     start={
       cx,cy,
-      startAngle:Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI,
+      startAngle:Math.atan2(p0.y-cy,p0.x-cx)*180/Math.PI,
       startRotation:Number(w.rotation||0)
     };
     rh.setPointerCapture(e.pointerId);
   });
  el.addEventListener('pointermove',e=>{
     if(drag){
-      w.x=start.wx+e.clientX-start.x;
-      w.y=start.wy+e.clientY-start.y;
+      w.x=start.wx+(e.clientX-start.x)/boardZoom;
+      w.y=start.wy+(e.clientY-start.y)/boardZoom;
       el.style.transform=transformFor(w);
     }
     if(res){
-      w.w=Math.max(120,start.ww+e.clientX-start.x);
-      w.h=Math.max(90,start.wh+e.clientY-start.y);
+      w.w=Math.max(120,start.ww+(e.clientX-start.x)/boardZoom);
+      w.h=Math.max(90,start.wh+(e.clientY-start.y)/boardZoom);
       el.style.width=w.w+'px';
       el.style.height=w.h+'px';
       el.style.setProperty('--widget-w',w.w+'px');
       el.style.setProperty('--widget-h',w.h+'px');
     }
     if(rot){
-      const nowAngle=Math.atan2(e.clientY-start.cy,e.clientX-start.cx)*180/Math.PI;
+      const pNow=screenPointToBoard(e); const nowAngle=Math.atan2(pNow.y-start.cy,pNow.x-start.cx)*180/Math.PI;
       let delta=nowAngle-start.startAngle;
       if(delta>180)delta-=360;
       if(delta<-180)delta+=360;
@@ -3663,7 +3994,7 @@ function showQuickHelp(){
 }
 function maybeShowQuickHelp(){
   try{
-    const k='maans_tavle_seen_quick_help_v110_test';
+    const k='maans_tavle_seen_quick_help_v122_test';
     if(!localStorage.getItem(k)){
       localStorage.setItem(k,'1');
       setTimeout(showQuickHelp,700);
@@ -3851,7 +4182,7 @@ function makeStandaloneHtml(){
   htmlDoc=cleanHtmlForStandalone(htmlDoc);
 
   // Boot-scriptet skal ligge før appens hovedscript, så den gemte fil starter med de rigtige tavler.
-  const boot=`<script id="embeddedTavleBoot">(function(){try{localStorage.setItem('maans_interaktiv_tavle_v110_test', ${JSON.stringify(payload)});}catch(e){}})();<\/script>`;
+  const boot=`<script id="embeddedTavleBoot">(function(){try{localStorage.setItem('maans_interaktiv_tavle_v122_test', ${JSON.stringify(payload)});}catch(e){}})();<\/script>`;
 
   const firstScript=htmlDoc.indexOf('<script>');
   if(firstScript!==-1)htmlDoc=htmlDoc.slice(0,firstScript)+boot+htmlDoc.slice(firstScript);
@@ -4212,7 +4543,7 @@ app.addEventListener('pointerdown',e=>{
   if(e.target===app || e.target===titleEl){ select(null); }
 });
 
-document.getElementById('prev').onclick=()=>prevSlide();document.getElementById('next').onclick=()=>nextSlide();document.getElementById('slidesOverview').onclick=slideOverviewModal;document.getElementById('addSlide').onclick=()=>{state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});state.active=state.slides.length-1;render()};document.getElementById('clearSlide').onclick=()=>{if(confirm('Ryd denne tavle?')){slide().widgets=[];slide().draw='';render()}};document.getElementById('drawTop').onclick=()=>setDrawActive(!app.classList.contains('drawActive'));document.getElementById('present').onclick=()=>{app.classList.toggle('present');select(null);document.activeElement&&document.activeElement.blur();titleEl.contentEditable=app.classList.contains('present')?'false':'true'};
+document.getElementById('prev').onclick=()=>prevSlide();document.getElementById('next').onclick=()=>nextSlide();document.getElementById('slidesOverview').onclick=slideOverviewModal;document.getElementById('addSlide').onclick=()=>{state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});state.active=state.slides.length-1;render()};document.getElementById('clearSlide').onclick=()=>{if(confirm('Ryd denne tavle?')){slide().widgets=[];slide().draw='';render()}};document.getElementById('drawTop').onclick=()=>setDrawActive(!app.classList.contains('drawActive'));document.getElementById('present').onclick=()=>{app.classList.toggle('present');if(!app.classList.contains('present')&&focusMode==='presentation')setFocusMode(null);select(null);document.activeElement&&document.activeElement.blur();titleEl.contentEditable=app.classList.contains('present')?'false':'true'};
 
 ['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>ensureAudio(),{once:false,passive:true}));
 
@@ -4244,7 +4575,7 @@ app.addEventListener('pointerup',e=>{
   swipeStart=null;
 });
 titleEl.oninput=()=>{slide().title=titleEl.textContent;save()};titleEl.onkeydown=e=>{if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();titleEl.blur();save()}};
-function drawPt(e){const r=draw.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function drawPt(e){const r=draw.getBoundingClientRect();return{x:(e.clientX-r.left)/boardZoom,y:(e.clientY-r.top)/boardZoom}}
 let drawStart=null, drawSnapshot=null;
 function setDrawActive(on){draw.classList.toggle('active',on);app.classList.toggle('drawActive',on);document.getElementById('drawPanel').classList.toggle('show',on);document.querySelectorAll('[data-tool="draw"],#drawTop').forEach(b=>b&&b.classList.toggle('active',on));if(on)select(null)}
 function setDrawTool(mode){drawMode=mode;document.querySelectorAll('[data-drawmode]').forEach(b=>b.classList.toggle('active',b.dataset.drawmode===mode))}
@@ -4351,7 +4682,52 @@ render = function(){
   __render_original();
   updateSlidesOverviewVisibility();
 };
-wireRobustWidgetClose();render();updateSlidesOverviewVisibility();maybeShowQuickHelp();wireQuickPinButton();
+
+/* v122 TEST: keyboard zoom + pointer pinch zoom */
+window.addEventListener('keydown',e=>{
+  if(!(e.ctrlKey||e.metaKey))return;
+  const k=e.key;
+  if(k==='+' || k==='=' || e.code==='NumpadAdd'){
+    e.preventDefault(); e.stopPropagation(); zoomDelta(1);
+  }else if(k==='-' || e.code==='NumpadSubtract'){
+    e.preventDefault(); e.stopPropagation(); zoomDelta(-1);
+  }else if(k==='0' || e.code==='Digit0' || e.code==='Numpad0'){
+    e.preventDefault(); e.stopPropagation(); setBoardZoom(1,true);
+  }
+},true);
+
+const __pinchPointers=new Map();
+let __pinchStartDist=0, __pinchStartZoom=1;
+app.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='touch'){
+    __pinchPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(__pinchPointers.size===2){
+      const pts=[...__pinchPointers.values()];
+      __pinchStartDist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+      __pinchStartZoom=boardZoom;
+    }
+  }
+},{passive:true});
+app.addEventListener('pointermove',e=>{
+  if(e.pointerType==='touch' && __pinchPointers.has(e.pointerId)){
+    __pinchPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(__pinchPointers.size===2 && __pinchStartDist>0){
+      e.preventDefault();
+      const pts=[...__pinchPointers.values()];
+      const dist=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+      setBoardZoom(__pinchStartZoom*(dist/__pinchStartDist),true);
+    }
+  }
+},{passive:false});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>{
+  app.addEventListener(ev,e=>{
+    if(__pinchPointers.has(e.pointerId))__pinchPointers.delete(e.pointerId);
+    if(__pinchPointers.size<2)__pinchStartDist=0;
+  },{passive:true});
+});
+setTimeout(()=>setBoardZoom(boardZoom,false),0);
+
+wireRobustWidgetClose();render();setBoardZoom(boardZoom,false);updateSlidesOverviewVisibility();maybeShowQuickHelp();wireQuickPinButton();
 })();
 
 
