@@ -132,7 +132,7 @@ Urmodalen er ryddet op med tydelige rækker, designvalg og preview. Scene-uret e
 Skjul og linje er samlet i én synlig pin-knap på hovedværktøjslinjen. Herfra indstilles fastgjort værktøjslinje, automatisk skjul og hvor mange sekunder linjen skal blive stående. Når linjen er skjult, hentes den frem med en særskilt “værktøjer ▲”-knap, så man ikke rammer et værktøj ved et uheld.
 
 
-## v123
+## v131
 
 Automatisk skjul af værktøjslinjen er gjort mere stabilt med pointer-, mus- og touch-events. Den særskilte “værktøjer ▲”-knap viser linjen uden at aktivere et værktøj.
 
@@ -147,41 +147,51 @@ Fokus-mode skjuler navigation og værktøjslinje, dæmper tavlen og lader dig fr
 Hvis værktøjslinjen er skjult, kan den hentes frem med knappen “værktøjer ▲”. Som ekstra fallback kan man holde fingeren/musen nede i nederste kant i ca. ét sekund. På computer virker Ctrl/Cmd + punktum også.
 
 
-## v123
+## v131
 
 Rollback til v110-basen før forsøgene med at skjule/redde afstemningsredigering i fokus-mode. Denne version ændrer kun fallbacken for skjult værktøjslinje: “værktøjer ▲” og nederste hold-zone holdes mere robust tilgængelige, når værktøjslinjen er skjult.
 
 
-## v123
+## v131
 
 Fokus er opdelt i to tilstande: arbejdsfokus fra værktøjslinjen og præsentationsfokus fra topbaren. Præsentationsfokus bruger præsentationstilstandens eksisterende regler, så widget-redigering ikke skjules med sær-hacks. Tap/klik på en widget fremhæver den, og tap på baggrunden rydder fokus.
 
 
-## v123
+## v131
 
 Topbarens tegneknap og præsentationsfokus vises kun, når tavlen er i præsentationstilstand. Redigeringsværktøjerne forbliver på værktøjslinjen.
 
 
-## v123
+## v131
 
 Præsentationsfokus tillader nu, at alle widgets kan tappes/klikkes for at blive fokusmål. Den tidligere pointer-blockering af ikke-fokuserede widgets er overstyret, mens redigeringschrome stadig skjules i præsentationsfokus.
 
 
-## v123
+## v131
 
 Lagstyring er gjort intention-baseret: et kort klik/tap på en widget bringer den forrest, mens træk, resize og rotation bevarer widgettens nuværende lag. Lagknapperne op/ned er skjult fra widget-chromen, men den interne z-index bevares.
 
 
-## v123
+## v131
 
 Tegnelaget skjules og deaktiveres i fokus-tilstand, så det ikke blokerer for valg af widgets.
 
 
-## v123
+## v131
 
-Ny intern zoom bygget fra v120-basen. Widgetters rotation bevarer centrum som omdrejningspunkt. Cmd/Ctrl + plus/minus zoomer, Cmd/Ctrl + 0 nulstiller, og iPad pinch-zoom håndteres via pointer-events. Drag, resize, rotation og tegning korrigeres for zoom.
+Ren rollback til v120 før zoomforsøgene. Ingen zoomkode og ingen automatisk oprydning af script/CSS. Formålet er at få knapper og widgets tilbage til stabil funktion.
 
 
-## v123
+## v131
 
-Tilføjer en synlig zoomkontrol på tavlen: minus, procent/nulstil og plus. Formålet er at teste selve interne zoom-motor direkte uden at være afhængig af tastaturgenveje eller pinch.
+Retter lagproblemet med YouTube/video-iframe: widgetters DOM-rækkefølge holdes nu i sync med z-index, og video-iframe isoleres, så tekstwidgets kan lægges ovenpå video ved klik/tap.
+
+
+## v131
+
+Retter tekstwidget-lag: klik/tap i selve tekstfeltet tæller nu som widgetvalg og bringer tekstwidgetten forrest. Tidligere blev textarea behandlet som et input, der ikke måtte ændre lag.
+
+
+## v131
+
+Videowidgetten kan nu vælges/bringes forrest ved klik/tap på selve videofladen. URL-dialogen åbner ikke længere ved almindeligt klik; tomme videowidgets har en separat linkknap, og eksisterende video kan redigeres med dobbeltklik i redigeringstilstand.
