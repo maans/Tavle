@@ -2989,7 +2989,7 @@ body.focus-mode .pollModeLabel{
 }
 
 
-/* v162.2: stabil toolbar-model - ingen auto-hide/pin/peek, kun fast fallback-toggle */
+/* v162.3: stabil toolbar-model - ingen auto-hide/pin/peek, kun fast fallback-toggle */
 #toolbarPeek, .toolbarPeek, #toolbarPinFloat, .toolbarPinFloat, .toolbar .pinTool, .toolbar [data-tool="pin"]{
   display:none !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important;
 }
@@ -4656,7 +4656,11 @@ function wireRobustWidgetClose(){
   };
 
   const handler=(e)=>{
-    const btn=e.target.closest?.('button,.close,.x,.del,.delete,.remove,[data-action],[data-act],[aria-label],[title]');
+    let btn=e.target.closest?.('button,.close,.x,.del,.delete,.remove,[data-action],[data-act],[aria-label],[title],[role=button]');
+    if(!btn && (e.clientX||e.clientY)){
+      const hit=document.elementFromPoint(e.clientX,e.clientY);
+      btn=hit&&hit.closest?.('button,.close,.x,.del,.delete,.remove,[data-action],[data-act],[aria-label],[title],[role=button]');
+    }
     if(!btn||!isCloseButton(btn))return;
     const widget=btn.closest?.('.widget');
     if(!widget)return;
@@ -4666,6 +4670,9 @@ function wireRobustWidgetClose(){
     if(e.stopImmediatePropagation)e.stopImmediatePropagation();
 
     const id=widget.dataset.id || widget.dataset.widgetId || widget.id;
+    const now=Date.now();
+    if(widget.__closeActivatedAt && now-widget.__closeActivatedAt<700)return;
+    widget.__closeActivatedAt=now;
     try{
       if(typeof removeWidget==='function'){
         removeWidget(id);
@@ -5154,7 +5161,9 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
 })();
 
 
-/* v162.2 clean: fast fallback-knap nederst til højre - eneste toolbar-toggle, oprettes i document.body */
+/* v162.3 clean: fast fallback-knap nederst til højre - EN stabil toggle, oprettes i document.body
+   Vigtigt: pointerdown/mousedown/touchstart stopper kun propagation. Selve togglen sker på pointerup
+   (eller click som fallback), så mus/touch ikke toggler flere gange på samme tryk. */
 (function(){
   function toolbar(){ return document.querySelector('.toolbar'); }
   function peek(){ return document.getElementById('toolbarPeek') || document.querySelector('.toolbarPeek'); }
@@ -5185,9 +5194,10 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
     if(pk){
       pk.classList.remove('forceVisible','show');
       pk.style.display = 'none';
+      pk.style.pointerEvents = 'none';
     }
     try{ clearTimeout(toolbarHideTimer); }catch(e){}
-    try{ if(typeof showToolbar === 'function') showToolbar(); }catch(e){}
+    try{ clearTimeout(toolbarTimer); }catch(e){}
   }
   function hardHide(){
     const tb = toolbar();
@@ -5198,21 +5208,35 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
       tb.classList.add('hidden');
       tb.style.pointerEvents = 'none';
       tb.style.visibility = 'hidden';
+      tb.style.opacity = '0';
     }
     if(pk){
       pk.style.display = 'none';
       pk.style.pointerEvents = 'none';
     }
   }
-  function toggleToolbarFallback(e){
-    if(e){
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-    }
+  let lastActivation = 0;
+  function stopOnly(e){
+    if(!e) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+  }
+  function activate(e){
+    stopOnly(e);
+    const now = Date.now();
+    if(now - lastActivation < 450) return;
+    lastActivation = now;
     const tb = toolbar();
     if(visibleToolbar(tb)) hardHide();
     else clearHiddenState();
+  }
+  function clickFallback(e){
+    stopOnly(e);
+    const now = Date.now();
+    // Click kommer ofte efter pointerup/mouseup. Brug det kun som fallback, ikke som anden toggle.
+    if(now - lastActivation < 650) return;
+    activate(e);
   }
   function ensureButton(){
     let b = document.getElementById('toolbarFallback') || document.getElementById('toolbarPinFallback');
@@ -5226,16 +5250,24 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
     b.textContent = '☰';
     b.title = 'Vis/skjul værktøjslinje';
     b.setAttribute('aria-label','Vis/skjul værktøjslinje');
-    if(!b.__toolbarFallbackWired){
-      ['pointerdown','mousedown','touchstart','click'].forEach(ev=>{
-        b.addEventListener(ev, toggleToolbarFallback, {capture:true, passive:false});
+    b.style.pointerEvents = 'auto';
+    b.style.touchAction = 'manipulation';
+    if(!b.__toolbarFallbackWired_v162_3){
+      ['pointerdown','mousedown','touchstart'].forEach(ev=>{
+        b.addEventListener(ev, stopOnly, {capture:true, passive:false});
       });
-      b.__toolbarFallbackWired = true;
+      ['pointerup','mouseup','touchend'].forEach(ev=>{
+        b.addEventListener(ev, activate, {capture:true, passive:false});
+      });
+      b.addEventListener('click', clickFallback, {capture:true, passive:false});
+      b.__toolbarFallbackWired_v162_3 = true;
     }
   }
   ensureButton();
   setInterval(ensureButton, 1000);
   window.showToolbarNow = clearHiddenState;
+  window.hideToolbarNow = hardHide;
+  window.toggleToolbarNow = function(){ const tb=toolbar(); visibleToolbar(tb) ? hardHide() : clearHiddenState(); };
 })();
 
 })();
