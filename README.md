@@ -72,12 +72,4 @@ Klar til daglig brug i undervisning
 
 ---
 
-## 💡 Bemærk
-
-- Appen fungerer bedst i moderne browsere (Safari, Chrome)
-- Alle data gemmes lokalt i browseren
-- Backup kan laves ved at gemme ZIP-versionen
-
----
-
 God fornøjelse 🙂
