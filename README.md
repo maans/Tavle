@@ -1,57 +1,83 @@
 # Interaktiv tavle v1.0
 
-![Interaktiv tavle v1.0](README_infografik.png)
+![Interaktiv tavle – oversigt](a_clean_promotional_release_graphic_screenshot_c.png)
 
-En enkel, lokal webapp til at bygge interaktive undervisningstavler direkte i browseren.
+En enkel og stabil undervisningstavle, der kører direkte i browseren.  
+Designet til praksis: hurtigt, lokalt og uden login.
 
-Appen kan bruges til korte oplæg, klasseaktiviteter, gruppearbejde, afstemninger, lodtrækning, ordskyer, timere og visuelle tavler med tekst, billeder, video, links og PDF.
+---
 
-## Udgivelse
+## ▶️ Brug appen
 
-**Version:** 1.0  
-**Status:** stabil første udgivelse  
-**Format:** single-file webapp med lokale ikoner/manifest
+Åbn direkte i browser:
 
-## Sådan bruges appen
+https://maansm.github.io/liste
 
-Åbn `index.html` i en browser, eller læg filerne på GitHub Pages.
+---
 
-Alt arbejde foregår lokalt i browseren. Der kræves ingen login, server eller database.
+## 📦 Download (offline brug)
 
-## Værktøjer
+Vil du have en lokal kopi med alle ikoner og filer:
 
-Du kan indsætte tekst, YouTube-video, tegning, hjul, grupper, ordsky, afstemning, timer, billede, link, PDF, baggrund og ur.
+👉 https://github.com/maans/Tavle/archive/refs/heads/main.zip
 
-## Lister
+1. Download ZIP  
+2. Pak den ud  
+3. Åbn `index.html` i din browser  
 
-`Hent liste` kan bruges i hjul, grupper og ordsky. Det kan hente gemte lister og importere tekst-/CSV-/TSV-/regnearksfiler.
+---
 
-Tekstwidgetten er bevidst holdt enkel og har ikke listeimport i v1.0.
+## 📱 Installer som app (iPad / Mac)
 
-## Tavler
+1. Åbn appen i Safari  
+2. Tryk på “Del”  
+3. Vælg “Føj til hjemmeskærm”  
 
-Du kan have flere tavler i samme fil og skifte mellem dem med pilene.
+---
 
-## Redigering, præsentation og fokus
+## ✨ Funktioner
 
-I redigering kan du flytte, rotere, ændre og oprette widgets.
+- Widgets (tekst, grupper, hjul, m.m.)
+- Tegnecanvas
+- Drag / resize / rotate
+- Præsentation og fokus-tilstande
+- Lokal lagring (ingen data forlader enheden)
+- Import af lister til udvalgte widgets
 
-I præsentation skjules redigeringsgrej, så tavlen er roligere foran elever.
+---
 
-Fokus kan fremhæve én widget og dæmpe resten.
+## 🎯 Designprincip
 
-## Toolbar
+Appen er bygget med fokus på:
 
-Værktøjslinjen styres med den faste vis/skjul-knap nederst til højre. Auto-hide og pin-funktion er fjernet for at gøre appen mere stabil på Mac, iPad, touch og mus.
+- Stabilitet frem for features  
+- Lokal brug frem for cloud  
+- Enkle handlinger frem for skjult logik  
 
-## Browserapp / iPad
+---
 
-Releasepakken indeholder app-ikoner og `manifest.webmanifest`, så appen fungerer bedre som browserapp / “Føj til hjemmeskærm”.
+## 🧩 Teknisk
 
-## Backup
+- Single-file app (`index.html`)
+- Kører på GitHub Pages
+- Bruger `localStorage`
+- Ingen backend
 
-Brug `Mere → backup` til at gemme eller åbne tavlefiler.
+---
 
-## Privat og lokalt
+## 🏷 Version
 
-Appen gemmer som udgangspunkt data i browserens localStorage. Indholdet sendes ikke til en server.
+**v1.0** – første stabile udgivelse  
+Klar til daglig brug i undervisning
+
+---
+
+## 💡 Bemærk
+
+- Appen fungerer bedst i moderne browsere (Safari, Chrome)
+- Alle data gemmes lokalt i browseren
+- Backup kan laves ved at gemme ZIP-versionen
+
+---
+
+God fornøjelse 🙂
