@@ -1,6 +1,6 @@
-# Interaktiv tavle v1.0
+# Interaktiv tavle v1.0.2
 
-![Interaktiv tavle v1.0](README_infografik.png)
+![Interaktiv tavle v1.0.2](README_infografik.png)
 
 En enkel, lokal webapp til at bygge interaktive undervisningstavler direkte i browseren.
 

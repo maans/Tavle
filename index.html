@@ -3058,6 +3058,70 @@ body.focus-presentation #toolbarFallback{
   .slideMoveRow button{width:100%;}
 }
 
+
+
+/* v1.0.2: clock placement + stable numeric width */
+.globalClock{
+  font-variant-numeric:tabular-nums!important;
+  font-feature-settings:"tnum" 1!important;
+}
+.globalClock .clockTime{
+  font-variant-numeric:tabular-nums!important;
+  font-feature-settings:"tnum" 1!important;
+  min-width:5.7ch;
+}
+.globalClock.clockHasSeconds .clockTime{min-width:8.4ch}
+.globalClock.clockPos-bottomRight{
+  left:auto!important;right:22px!important;top:auto!important;bottom:112px!important;
+  transform:none!important;
+}
+.globalClock.clockPos-bottomLeft{
+  left:22px!important;right:auto!important;top:auto!important;bottom:112px!important;
+  transform:none!important;
+}
+.globalClock.clockPos-topCenter{
+  left:50%!important;right:auto!important;top:18px!important;bottom:auto!important;
+  transform:translateX(-50%)!important;
+}
+.globalClock.clockPos-bottomCenter{
+  left:50%!important;right:auto!important;top:auto!important;bottom:132px!important;
+  transform:translateX(-50%)!important;
+}
+.globalClock.clockPos-bottomCenter.stage{bottom:132px!important}
+.present .globalClock.clockPos-bottomCenter{bottom:48px!important}
+.clockPositionGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:8px 0 12px;
+}
+.clockPosBtn{
+  position:relative;
+  min-height:52px;
+  text-align:left!important;
+  padding:10px 12px!important;
+  border-radius:14px!important;
+}
+.clockPosBtn b{display:block;font-size:15px}
+.clockPosBtn small{display:block;opacity:.78;margin-top:3px;font-weight:800}
+.clockPosBtn.active::after{content:"✓";position:absolute;right:12px;top:9px;font-size:20px}
+.clockSettingsLayout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(220px,.9fr);
+  gap:18px;
+  align-items:start;
+}
+.clockSettingsLayout .clockSection{margin-top:0}
+@media(max-width:700px){
+  .globalClock.clockPos-bottomRight{right:12px!important;bottom:92px!important;transform:scale(.86)!important;transform-origin:bottom right!important}
+  .globalClock.clockPos-bottomLeft{left:12px!important;bottom:92px!important;transform:scale(.86)!important;transform-origin:bottom left!important}
+  .globalClock.clockPos-topCenter{top:12px!important;transform:translateX(-50%) scale(.86)!important;transform-origin:top center!important}
+  .globalClock.clockPos-bottomCenter{bottom:112px!important;transform:translateX(-50%) scale(.72)!important;transform-origin:bottom center!important}
+  .present .globalClock.clockPos-bottomCenter{bottom:32px!important}
+  .clockSettingsLayout{grid-template-columns:1fr}
+  .clockPositionGrid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -3108,8 +3172,8 @@ function saveClockSettings(s){
 }
 function renderClock(){
   if(!clockEl)return;
-  const s=Object.assign({enabled:false,style:'glass',date:true,seconds:false,format24:true},clockSettings());
-  clockEl.className='globalClock '+(s.enabled?'':'hiddenClock')+' '+(s.style||'glass');
+  const s=Object.assign({enabled:false,style:'glass',position:'bottomRight',date:true,seconds:false,format24:true},clockSettings());
+  clockEl.className='globalClock '+(s.enabled?'':'hiddenClock')+' '+(s.style||'glass')+' clockPos-'+(s.position||'bottomRight')+(s.seconds?' clockHasSeconds':'');
   if(!s.enabled)return;
   const now=new Date();
   if(s.style==='analog'){
@@ -3145,7 +3209,7 @@ try{
 if(clockEl)clockEl.onclick=(e)=>{e.preventDefault();e.stopPropagation();clockModal()};
 
 function clockPreviewHTML(s){
-  const tmp=Object.assign({enabled:true,style:'glass',date:true,seconds:false,format24:true},s||{});
+  const tmp=Object.assign({enabled:true,style:'glass',position:'bottomRight',date:true,seconds:false,format24:true},s||{});
   const now=new Date();
   if(tmp.style==='analog'){
     const h=now.getHours()%12, m=now.getMinutes(), sec=now.getSeconds();
@@ -3156,11 +3220,11 @@ function clockPreviewHTML(s){
   if(tmp.seconds)opts.second='2-digit';
   const time=now.toLocaleTimeString('da-DK',opts);
   const date=tmp.date?now.toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'short'}):'';
-  return `<div class="globalClock ${tmp.style}"><div class="clockTime">${time}</div>${date?`<div class="clockDate">${date}</div>`:''}</div>`;
+  return `<div class="globalClock ${tmp.style} clockPos-${tmp.position||'bottomRight'}${tmp.seconds?' clockHasSeconds':''}"><div class="clockTime">${time}</div>${date?`<div class="clockDate">${date}</div>`:''}</div>`;
 }
 
 function clockModal(){
-  const s=Object.assign({enabled:false,style:'glass',date:true,seconds:false,format24:true},clockSettings());
+  const s=Object.assign({enabled:false,style:'glass',position:'bottomRight',date:true,seconds:false,format24:true},clockSettings());
   showModal(`<h2>Ur</h2>
     <p style="margin-top:0;opacity:.75;font-weight:800">Globalt ur – vises på alle tavler.</p>
 
@@ -3180,21 +3244,33 @@ function clockModal(){
       </div>
     </div>
 
-    <div class="clockSection">
-      <div class="clockSectionTitle">Indstillinger</div>
-      <label class="clockRow"><input id="clockDate" type="checkbox" ${s.date?'checked':''}><span>Vis dato</span></label>
-      <label class="clockRow"><input id="clockSeconds" type="checkbox" ${s.seconds?'checked':''}><span>Vis sekunder</span></label>
-      <label class="clockRow"><input id="clock24" type="checkbox" ${s.format24?'checked':''}><span>24-timers ur</span></label>
+    <div class="clockSettingsLayout">
+      <div class="clockSection">
+        <div class="clockSectionTitle">Indstillinger</div>
+        <label class="clockRow"><input id="clockDate" type="checkbox" ${s.date?'checked':''}><span>Vis dato</span></label>
+        <label class="clockRow"><input id="clockSeconds" type="checkbox" ${s.seconds?'checked':''}><span>Vis sekunder</span></label>
+        <label class="clockRow"><input id="clock24" type="checkbox" ${s.format24?'checked':''}><span>24-timers ur</span></label>
+      </div>
+      <div class="clockSection">
+        <div class="clockSectionTitle">Placering</div>
+        <div class="clockPositionGrid">
+          <button class="clockPosBtn ${s.position==='bottomRight'?'active':''}" data-clock-position="bottomRight"><b>Nederst højre</b><small>Ved siden af værktøjslinjen</small></button>
+          <button class="clockPosBtn ${s.position==='bottomLeft'?'active':''}" data-clock-position="bottomLeft"><b>Nederst venstre</b><small>Ved siden af værktøjslinjen</small></button>
+          <button class="clockPosBtn ${s.position==='topCenter'?'active':''}" data-clock-position="topCenter"><b>Øverst</b><small>Mellem titel og topmenu</small></button>
+          <button class="clockPosBtn ${s.position==='bottomCenter'?'active':''}" data-clock-position="bottomCenter"><b>Nederst midt</b><small>Lige over værktøjslinjen</small></button>
+        </div>
+      </div>
     </div>
 
     <hr>
     <button id="clockClose">Luk</button>`);
 
   const refreshPreview=()=>{
-    const current=Object.assign({enabled:true,style:'glass',date:true,seconds:false,format24:true},clockSettings());
+    const current=Object.assign({enabled:true,style:'glass',position:'bottomRight',date:true,seconds:false,format24:true},clockSettings());
     const p=modal.querySelector('#clockPreview');
     if(p)p.innerHTML=clockPreviewHTML({...current,enabled:true});
     modal.querySelectorAll('[data-clock-style]').forEach(b=>b.classList.toggle('active',b.dataset.clockStyle===(current.style||'glass')));
+    modal.querySelectorAll('[data-clock-position]').forEach(b=>b.classList.toggle('active',b.dataset.clockPosition===(current.position||'bottomRight')));
   };
 
   modal.querySelector('#clockEnabled').onchange=e=>saveClockSettings({...clockSettings(),enabled:e.target.checked});
@@ -3202,6 +3278,7 @@ function clockModal(){
   modal.querySelector('#clockSeconds').onchange=e=>{saveClockSettings({...clockSettings(),seconds:e.target.checked});refreshPreview()};
   modal.querySelector('#clock24').onchange=e=>{saveClockSettings({...clockSettings(),format24:e.target.checked});refreshPreview()};
   modal.querySelectorAll('[data-clock-style]').forEach(b=>b.onclick=()=>{saveClockSettings({...clockSettings(),style:b.dataset.clockStyle,enabled:true});const en=modal.querySelector('#clockEnabled');if(en)en.checked=true;refreshPreview()});
+  modal.querySelectorAll('[data-clock-position]').forEach(b=>b.onclick=()=>{saveClockSettings({...clockSettings(),position:b.dataset.clockPosition,enabled:true});const en=modal.querySelector('#clockEnabled');if(en)en.checked=true;refreshPreview()});
   modal.querySelector('#clockClose').onclick=closeModal;
 }
 
