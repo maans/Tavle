@@ -2994,7 +2994,13 @@ body.focus-mode .pollModeLabel{
   display:none !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important;
 }
 #toolbarFallback{
-  display:block !important; visibility:visible !important; opacity:1 !important; pointer-events:auto !important;
+  display:flex !important; visibility:visible !important; opacity:1 !important; pointer-events:auto !important;
+}
+/* v162.4: fallback-toggle skjules i præsentation/fokustilstande; gammel peek/pin fjernes helt */
+body.focus-mode #toolbarFallback,
+body.focus-edit #toolbarFallback,
+body.focus-presentation #toolbarFallback{
+  display:none !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important;
 }
 </style>
 </head>
@@ -3018,7 +3024,6 @@ body.focus-mode .pollModeLabel{
     <div class="tool"><button data-tool="more">⋯</button><span>mere</span></div>
     <div class="tool"><button data-tool="save">💾</button><span>backup</span></div>
   </div>
-  <button id="toolbarPeek" class="toolbarPeek">værktøjer ▲</button><button id="toolbarPinFloat" class="toolbarPinFloat" title="Fastgør værktøjslinje">📌</button>
   <button id="focusExit" class="focusExit hidden" title="Afslut fokus">✕ fokus</button>
   <div id="globalClock" class="globalClock hiddenClock" title="Klik for ur-indstillinger"></div>
   <div id="modalBack" class="modalBackdrop"><div class="modal" id="modal"></div></div>
@@ -5161,12 +5166,25 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
 })();
 
 
-/* v162.3 clean: fast fallback-knap nederst til højre - EN stabil toggle, oprettes i document.body
-   Vigtigt: pointerdown/mousedown/touchstart stopper kun propagation. Selve togglen sker på pointerup
-   (eller click som fallback), så mus/touch ikke toggler flere gange på samme tryk. */
+/* v162.4 clean: fast fallback-knap nederst til højre - EN stabil toggle, oprettes i document.body
+   Gammel "værktøjer ▲" og pin fjernes fra DOM. Toggle-knappen skjules i præsentation/fokus. */
 (function(){
   function toolbar(){ return document.querySelector('.toolbar'); }
-  function peek(){ return document.getElementById('toolbarPeek') || document.querySelector('.toolbarPeek'); }
+  function appIsPresentationOrFocus(){
+    return app.classList.contains('present') ||
+           document.body.classList.contains('focus-mode') ||
+           document.body.classList.contains('focus-edit') ||
+           document.body.classList.contains('focus-presentation');
+  }
+  function removeOldPeekAndPin(){
+    ['toolbarPeek','toolbarPinFloat','toolbarPinFallback'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el && el.parentNode) el.parentNode.removeChild(el);
+    });
+    document.querySelectorAll('.toolbarPeek,.toolbarPinFloat,.pinTool,.toolbar [data-tool="pin"]').forEach(el=>{
+      if(el && el.parentNode) el.parentNode.removeChild(el);
+    });
+  }
   function visibleToolbar(tb){
     if(!tb) return false;
     const cs = getComputedStyle(tb);
@@ -5178,11 +5196,27 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
            !tb.classList.contains('hidden') &&
            cs.pointerEvents !== 'none';
   }
+  function updateFallbackVisual(){
+    const b = document.getElementById('toolbarFallback');
+    if(!b) return;
+    if(appIsPresentationOrFocus()){
+      b.style.setProperty('display','none','important');
+      b.style.setProperty('visibility','hidden','important');
+      b.style.setProperty('pointer-events','none','important');
+      return;
+    }
+    b.style.setProperty('display','flex','important');
+    b.style.setProperty('visibility','visible','important');
+    b.style.setProperty('pointer-events','auto','important');
+    const isVisible = visibleToolbar(toolbar());
+    b.textContent = isVisible ? '⌄' : '⌃';
+    b.title = isVisible ? 'Skjul værktøjslinje' : 'Vis værktøjslinje';
+    b.setAttribute('aria-label', b.title);
+  }
   function clearHiddenState(){
     document.body.classList.remove('toolbar-is-hidden');
     app.classList.remove('toolbarHidden');
     const tb = toolbar();
-    const pk = peek();
     if(tb){
       tb.classList.remove('hidden','toolbarHidden','forceHidden');
       tb.style.removeProperty('display');
@@ -5191,17 +5225,12 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
       tb.style.visibility = 'visible';
       tb.style.transform = 'translateX(-50%)';
     }
-    if(pk){
-      pk.classList.remove('forceVisible','show');
-      pk.style.display = 'none';
-      pk.style.pointerEvents = 'none';
-    }
     try{ clearTimeout(toolbarHideTimer); }catch(e){}
     try{ clearTimeout(toolbarTimer); }catch(e){}
+    updateFallbackVisual();
   }
   function hardHide(){
     const tb = toolbar();
-    const pk = peek();
     document.body.classList.add('toolbar-is-hidden');
     app.classList.add('toolbarHidden');
     if(tb){
@@ -5210,10 +5239,7 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
       tb.style.visibility = 'hidden';
       tb.style.opacity = '0';
     }
-    if(pk){
-      pk.style.display = 'none';
-      pk.style.pointerEvents = 'none';
-    }
+    updateFallbackVisual();
   }
   let lastActivation = 0;
   function stopOnly(e){
@@ -5224,6 +5250,7 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
   }
   function activate(e){
     stopOnly(e);
+    if(appIsPresentationOrFocus()) return;
     const now = Date.now();
     if(now - lastActivation < 450) return;
     lastActivation = now;
@@ -5233,26 +5260,23 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
   }
   function clickFallback(e){
     stopOnly(e);
+    if(appIsPresentationOrFocus()) return;
     const now = Date.now();
-    // Click kommer ofte efter pointerup/mouseup. Brug det kun som fallback, ikke som anden toggle.
     if(now - lastActivation < 650) return;
     activate(e);
   }
   function ensureButton(){
-    let b = document.getElementById('toolbarFallback') || document.getElementById('toolbarPinFallback');
+    removeOldPeekAndPin();
+    let b = document.getElementById('toolbarFallback');
     if(!b){
       b = document.createElement('button');
       b.type = 'button';
-      b.textContent = '☰';
       document.body.appendChild(b);
     }
     b.id = 'toolbarFallback';
-    b.textContent = '☰';
-    b.title = 'Vis/skjul værktøjslinje';
-    b.setAttribute('aria-label','Vis/skjul værktøjslinje');
     b.style.pointerEvents = 'auto';
     b.style.touchAction = 'manipulation';
-    if(!b.__toolbarFallbackWired_v162_3){
+    if(!b.__toolbarFallbackWired_v162_4){
       ['pointerdown','mousedown','touchstart'].forEach(ev=>{
         b.addEventListener(ev, stopOnly, {capture:true, passive:false});
       });
@@ -5260,14 +5284,15 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
         b.addEventListener(ev, activate, {capture:true, passive:false});
       });
       b.addEventListener('click', clickFallback, {capture:true, passive:false});
-      b.__toolbarFallbackWired_v162_3 = true;
+      b.__toolbarFallbackWired_v162_4 = true;
     }
+    updateFallbackVisual();
   }
   ensureButton();
   setInterval(ensureButton, 1000);
   window.showToolbarNow = clearHiddenState;
   window.hideToolbarNow = hardHide;
-  window.toggleToolbarNow = function(){ const tb=toolbar(); visibleToolbar(tb) ? hardHide() : clearHiddenState(); };
+  window.toggleToolbarNow = function(){ if(appIsPresentationOrFocus()) return; const tb=toolbar(); visibleToolbar(tb) ? hardHide() : clearHiddenState(); };
 })();
 
 })();
