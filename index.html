@@ -3010,6 +3010,54 @@ body.focus-edit #toolbarFallback,
 body.focus-presentation #toolbarFallback{
   display:none !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important;
 }
+
+
+/* v1.0.1: responsiv Flyt widget-dialog – gælder alle widgettyper */
+.modal.moveWidgetModal{
+  width:min(720px, calc(100vw - 32px)) !important;
+  max-width:calc(100vw - 32px) !important;
+  max-height:calc(100vh - 32px) !important;
+  overflow:auto !important;
+  box-sizing:border-box !important;
+}
+.moveWidgetDialog{max-width:100%;overflow:hidden;box-sizing:border-box;}
+.moveWidgetDialog h2{margin:0 0 12px;line-height:1.1;}
+.moveWidgetDialog .moveWidgetTitle{margin:0 0 12px;overflow-wrap:anywhere;}
+.moveWidgetCopyRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#f3f4f6;
+  border-radius:12px;
+  padding:10px;
+  margin:10px 0;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.moveWidgetCopyRow input{width:auto!important;flex:0 0 auto;margin:0!important;}
+.moveWidgetCopyRow span{min-width:0;overflow-wrap:anywhere;line-height:1.25;}
+.slideList{display:grid;gap:8px;max-width:100%;}
+.slideMoveRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:#f3f4f6;
+  border-radius:12px;
+  padding:10px;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.slideMoveRow b{min-width:0;overflow-wrap:anywhere;line-height:1.25;}
+.slideMoveRow .actions{flex:0 0 auto;}
+.moveWidgetActions{border-top:1px solid #9ca3af;margin-top:12px;padding-top:10px;display:flex;gap:8px;flex-wrap:wrap;}
+@media(max-width:560px){
+  .modal.moveWidgetModal{width:calc(100vw - 18px)!important;max-width:calc(100vw - 18px)!important;padding:16px!important;}
+  .slideMoveRow{align-items:stretch;flex-direction:column;}
+  .slideMoveRow .actions{width:100%;}
+  .slideMoveRow button{width:100%;}
+}
+
 </style>
 </head>
 <body>
@@ -4025,15 +4073,16 @@ function widgetMoveModal(w){
         <button data-target="${i}" ${i===state.active?'disabled':''}>Vælg</button>
       </div>
     </div>`).join('');
-  showModal(`<h2>Flyt widget</h2>
-    <p><b>${esc(w.title||titles[w.type]||'Widget')}</b></p>
-    <label style="display:flex;gap:10px;align-items:center;background:#f3f4f6;border-radius:12px;padding:10px;margin:10px 0">
-      <input id="keepCopy" type="checkbox"> Behold kopi på denne tavle
+  showModal(`<div class="moveWidgetDialog"><h2>Flyt widget</h2>
+    <p class="moveWidgetTitle"><b>${esc(w.title||titles[w.type]||'Widget')}</b></p>
+    <label class="moveWidgetCopyRow">
+      <input id="keepCopy" type="checkbox"><span>Behold kopi på denne tavle</span>
     </label>
     <div class="slideList">${rows}</div>
-    <hr>
-    <button id="moveNew">Flyt til ny tavle</button>
-    <button id="close">Luk</button>`);
+    <div class="moveWidgetActions">
+      <button id="moveNew">Flyt til ny tavle</button>
+      <button id="close">Luk</button>
+    </div></div>`);
   const useCopy=()=>modal.querySelector('#keepCopy').checked;
   modal.querySelectorAll('[data-target]').forEach(b=>b.onclick=()=>{const i=+b.dataset.target;closeModal();useCopy()?copyWidgetToSlide(w.id,i):moveWidgetToSlide(w.id,i)});
   modal.querySelector('#moveNew').onclick=()=>{closeModal();newSlideForWidget(w.id,useCopy())};
@@ -4318,7 +4367,7 @@ function wireWheel(c,w){
  const spin=c.querySelector('.spin'); if(spin)spin.onclick=()=>{let btn=c.querySelector('.spin');let names=[...(w.data.names||[])];if(!names.length){toast('Puljen er tom');return}btn.disabled=true;const idx=Math.floor(Math.random()*names.length),winner=names[idx];const duration=2600+Math.random()*700,startTime=performance.now(),endRot=targetRotationForIndex(idx,names.length,6+Math.floor(Math.random()*3));let lastTick=0;function frame(now){const p=Math.min(1,(now-startTime)/duration),rot=endRot*easeOutCubic(p);drawWheel(canv,w,rot);if(now-lastTick>95 && p<.94){wheelTick();lastTick=now}if(p<1){requestAnimationFrame(frame)}else{drawWheel(canv,w,endRot);btn.disabled=false;wheelLand();setTimeout(wheelLand,80);animateWinner(c,winner);w.data.chosen.push(winner);if(!w.data.keepPool){if(confirm(winner+' blev valgt. Fjern fra puljen?')){w.data.names=w.data.names.filter(n=>n!==winner)}}w.data.winner='';w.data.rot=0;fillContent(el,w);save()}}requestAnimationFrame(frame)}
 }
 function pickFile(accept,cb){fileInput.accept=accept;fileInput.onchange=()=>{const f=fileInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result,f);r.readAsDataURL(f);fileInput.value=''};fileInput.click()}
-function showModal(html){modal.innerHTML=html;modalBack.style.display='flex'} function closeModal(){modalBack.style.display='none'} modalBack.onclick=e=>{if(e.target===modalBack)closeModal()}
+function showModal(html){modal.classList.toggle('moveWidgetModal',String(html).includes('moveWidgetDialog'));modal.innerHTML=html;modalBack.style.display='flex'} function closeModal(){modal.classList.remove('moveWidgetModal');modalBack.style.display='none'} modalBack.onclick=e=>{if(e.target===modalBack)closeModal()}
 function askVideo(w){showModal(`<h2>Video</h2><input id="vurl" placeholder="YouTube-link" value="${esc(w.data.url||'')}"><button id="ok">Gem</button><button id="cancel">Luk</button><p>Hvis YouTube blokerer embed, vises link/åbn eksternt.</p>`);modal.querySelector('#ok').onclick=()=>{w.data.url=modal.querySelector('#vurl').value;closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
 function askLink(w){showModal(`<h2>Link</h2><input id="lt" placeholder="Tekst" value="${esc(w.data.text||'Klikbart link')}"><input id="lu" placeholder="URL" value="${esc(w.data.url||'https://')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#lt').value;w.data.url=modal.querySelector('#lu').value;closeModal();render()}}
 function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeholder="https://..." value="${esc(w.data.src||'')}"><p>Bemærk: Nogle billeder blokeres af hjemmesiden. Upload lokalt er mest stabilt offline.</p><button id="ok">Brug billede</button><button id="cancel">Luk</button>`);modal.querySelector('#ok').onclick=()=>{w.data.src=modal.querySelector('#iu').value.trim();closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
