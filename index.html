@@ -3122,6 +3122,31 @@ body.focus-presentation #toolbarFallback{
   .clockPositionGrid{grid-template-columns:1fr}
 }
 
+
+/* v1.0.3: Scene/projektor-uret må kun være stort i nederst-midten.
+   Når Scene placeres øverst/side, bruges kompakt ur-boks, så det ikke dækker tavlen i præsentation. */
+.globalClock.clockSceneCompact{
+  width:auto!important;
+  height:auto!important;
+  min-width:118px!important;
+  max-width:min(360px,calc(100vw - 32px))!important;
+  padding:10px 16px!important;
+  border-radius:18px!important;
+}
+.globalClock.clockSceneCompact .clockTime{
+  font-size:30px!important;
+  line-height:1!important;
+}
+.globalClock.clockSceneCompact .clockDate{
+  font-size:12px!important;
+}
+.globalClock.stage.clockSceneCompact{
+  bottom:auto;
+}
+.present .globalClock.clockSceneCompact{
+  z-index:940!important;
+}
+
 </style>
 </head>
 <body>
@@ -3173,7 +3198,10 @@ function saveClockSettings(s){
 function renderClock(){
   if(!clockEl)return;
   const s=Object.assign({enabled:false,style:'glass',position:'bottomRight',date:true,seconds:false,format24:true},clockSettings());
-  clockEl.className='globalClock '+(s.enabled?'':'hiddenClock')+' '+(s.style||'glass')+' clockPos-'+(s.position||'bottomRight')+(s.seconds?' clockHasSeconds':'');
+  const clockStyle=s.style||'glass';
+  const clockPos=s.position||'bottomRight';
+  const sceneCompact=(clockStyle==='stage' && clockPos!=='bottomCenter');
+  clockEl.className='globalClock '+(s.enabled?'':'hiddenClock')+' '+clockStyle+' clockPos-'+clockPos+(s.seconds?' clockHasSeconds':'')+(sceneCompact?' clockSceneCompact':'');
   if(!s.enabled)return;
   const now=new Date();
   if(s.style==='analog'){
@@ -3220,7 +3248,10 @@ function clockPreviewHTML(s){
   if(tmp.seconds)opts.second='2-digit';
   const time=now.toLocaleTimeString('da-DK',opts);
   const date=tmp.date?now.toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'short'}):'';
-  return `<div class="globalClock ${tmp.style} clockPos-${tmp.position||'bottomRight'}${tmp.seconds?' clockHasSeconds':''}"><div class="clockTime">${time}</div>${date?`<div class="clockDate">${date}</div>`:''}</div>`;
+  const previewStyle=tmp.style||'glass';
+  const previewPos=tmp.position||'bottomRight';
+  const previewCompact=(previewStyle==='stage' && previewPos!=='bottomCenter');
+  return `<div class="globalClock ${previewStyle} clockPos-${previewPos}${tmp.seconds?' clockHasSeconds':''}${previewCompact?' clockSceneCompact':''}"><div class="clockTime">${time}</div>${date?`<div class="clockDate">${date}</div>`:''}</div>`;
 }
 
 function clockModal(){
