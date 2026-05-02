@@ -2988,6 +2988,14 @@ body.focus-mode .pollModeLabel{
   transform:scale(.95)!important;
 }
 
+
+/* v162.2: stabil toolbar-model - ingen auto-hide/pin/peek, kun fast fallback-toggle */
+#toolbarPeek, .toolbarPeek, #toolbarPinFloat, .toolbarPinFloat, .toolbar .pinTool, .toolbar [data-tool="pin"]{
+  display:none !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important;
+}
+#toolbarFallback{
+  display:block !important; visibility:visible !important; opacity:1 !important; pointer-events:auto !important;
+}
 </style>
 </head>
 <body>
@@ -3262,7 +3270,7 @@ function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y
 const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
 function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
 function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
-function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button data-act="del">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -3428,18 +3436,17 @@ function applyToolbarSettings(){
   }
 }
 function hideToolbar(){
-  const s=toolbarSettings();
-  if(!s.autoHide || s.pinned)return;
-  document.body.classList.add('toolbar-is-hidden');
+  /* v162.2: auto-hide er slået fra. Toolbar skjules kun af fallback-knappen. */
+  return;
 }
 function showToolbar(){
   document.body.classList.remove('toolbar-is-hidden');
+  app.classList.remove('toolbarHidden');
 }
 function scheduleToolbarHide(){
+  /* v162.2: ingen ventende auto-hide. */
   clearTimeout(toolbarHideTimer);
-  const s=toolbarSettings();
-  if(!s.autoHide || s.pinned){showToolbar();return}
-  toolbarHideTimer=setTimeout(hideToolbar, Math.max(1,Number(s.delay)||4)*1000);
+  return;
 }
 function wakeToolbar(e){
   const target=e&&e.target;
@@ -3450,9 +3457,10 @@ function wakeToolbar(e){
   scheduleToolbarHide();
 }
 function setToolbarHidden(on){
-  if(on)hideToolbar(); else showToolbar();
+  /* v162.2: drag/resize må ikke skjule toolbar automatisk. */
+  if(!on)showToolbar();
 }
-function toggleToolbarPinned(){toolbarModal()}
+function toggleToolbarPinned(){showToolbar()}
 
 function toolbarModal(){
   const s=toolbarSettings();
@@ -4641,7 +4649,9 @@ function wireRobustWidgetClose(){
   const isCloseButton=(el)=>{
     if(!el)return false;
     const txt=(el.textContent||'').trim();
-    return el.matches?.('.close,.x,.del,.delete,.remove,[data-action="close"],[data-act="close"],[aria-label="Luk"],[title="Luk"]')
+    const act=(el.getAttribute?.('data-act')||el.getAttribute?.('data-action')||'').toLowerCase();
+    return act==='del' || act==='delete' || act==='close' ||
+      el.matches?.('.close,.x,.del,.delete,.remove,[aria-label="Luk"],[title="Luk"]')
       || txt==='×' || txt==='✕' || txt==='x' || txt==='X';
   };
 
@@ -4677,9 +4687,9 @@ function wireRobustWidgetClose(){
     try{save({silent:true})}catch(err){}
   };
 
-  document.addEventListener('pointerdown',handler,true);
-  document.addEventListener('mousedown',handler,true);
-  document.addEventListener('click',handler,true);
+  ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','click'].forEach(ev=>{
+    document.addEventListener(ev,handler,{capture:true,passive:false});
+  });
 }
 
 
@@ -5028,14 +5038,11 @@ let toolbarPinned=localStorage.getItem('maans_toolbar_pinned')==='1',
 let toolbarBlockTimer=null;
 function blockToolbarClicks(ms=650){toolClickBlockUntil=Date.now()+ms;app.classList.add('toolbarBlocked');clearTimeout(toolbarBlockTimer);toolbarBlockTimer=setTimeout(()=>app.classList.remove('toolbarBlocked'),ms)}
 function setToolbarHidden(on){
-  /* v162.1: respekter ny toolbar-indstilling; drag må ikke skjule fast toolbar */
-  let s={autoHide:false,pinned:false};
-  try{ if(typeof toolbarSettings==='function') s=toolbarSettings(); }catch(e){}
-  const mayHide = !!s.autoHide && !s.pinned && !toolbarPinned;
-  if(on && !mayHide) on=false;
-  app.classList.toggle('toolbarHidden',!!on);
-  document.body.classList.toggle('toolbar-is-hidden',!!on);
-  if(toolbarPinFloat) toolbarPinFloat.classList.toggle('pinned',!!(s.pinned||toolbarPinned));
+  /* v162.2: auto-hide/pin-modellen er neutraliseret.
+     Almindelige drag/resize-kald med true ignoreres; fallback-knappen skjuler/viser direkte. */
+  if(on) return;
+  app.classList.remove('toolbarHidden');
+  document.body.classList.remove('toolbar-is-hidden');
 }
 function updatePinButtons(){
   if(pinToolbar) pinToolbar.textContent=toolbarPinned?'📍':'📌';
@@ -5045,15 +5052,9 @@ function updatePinButtons(){
   }
 }
 function showToolbarTemp(){
-  setToolbarHidden(false);
+  /* v162.2: ingen auto-åbning/auto-lukning. Fallback-knappen styrer toolbaren alene. */
   clearTimeout(toolbarTimer);
-  if(!toolbarPinned) toolbarTimer=setTimeout(()=>setToolbarHidden(true),toolbarDelay);
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape' && app.classList.contains('toolbarHidden')){
-    showToolbarTemp();
-  }
-});
-
+  return;
 }
 function toggleToolbarPin(){
   toolbarPinned=!toolbarPinned;
@@ -5153,7 +5154,7 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
 })();
 
 
-/* v162.1 clean: fast fallback-knap nederst til højre - oprettes i document.body */
+/* v162.2 clean: fast fallback-knap nederst til højre - eneste toolbar-toggle, oprettes i document.body */
 (function(){
   function toolbar(){ return document.querySelector('.toolbar'); }
   function peek(){ return document.getElementById('toolbarPeek') || document.querySelector('.toolbarPeek'); }
@@ -5199,8 +5200,8 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
       tb.style.visibility = 'hidden';
     }
     if(pk){
-      pk.style.display = 'block';
-      pk.style.pointerEvents = 'auto';
+      pk.style.display = 'none';
+      pk.style.pointerEvents = 'none';
     }
   }
   function toggleToolbarFallback(e){
@@ -5218,10 +5219,11 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
     if(!b){
       b = document.createElement('button');
       b.type = 'button';
-      b.textContent = '⚙';
+      b.textContent = '☰';
       document.body.appendChild(b);
     }
     b.id = 'toolbarFallback';
+    b.textContent = '☰';
     b.title = 'Vis/skjul værktøjslinje';
     b.setAttribute('aria-label','Vis/skjul værktøjslinje');
     if(!b.__toolbarFallbackWired){
