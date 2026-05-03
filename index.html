@@ -4746,17 +4746,41 @@ function wirePoll(c,w,el){
 }
 
 function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type; if(w.type==='text'){c.innerHTML=`<div class="text"><textarea placeholder="Skriv her...">${esc(w.data.text||'')}</textarea></div>`;const ta=c.querySelector('textarea');
-  // Keep normal text editing stable. The textarea should select its widget,
-  // but its pointer/click events must not bubble up as drag/tap/focus actions.
+  // Keep normal text editing stable in edit mode, but allow text widgets
+  // to become the focus target when the board is in focus mode.
+  function focusThisTextWidgetFromTextarea(e){
+    const widgetEl = ta.closest('.widget');
+    if((typeof focusMode!=='undefined' && focusMode) || document.body.classList.contains('focus-mode')){
+      if(widgetEl && typeof setFocusTarget==='function') setFocusTarget(widgetEl);
+      // In focus mode the tap means "focus this widget", not "edit text".
+      e.preventDefault();
+      e.stopPropagation();
+      return true;
+    }
+    return false;
+  }
+
   ta.addEventListener('pointerdown',e=>{
+    if(focusThisTextWidgetFromTextarea(e)) return;
     if(!app.classList.contains('present')) select(w.id);
     e.stopPropagation();
   });
   ta.addEventListener('touchstart',e=>{
+    if(focusThisTextWidgetFromTextarea(e)) return;
     if(!app.classList.contains('present')) select(w.id);
     e.stopPropagation();
-  },{passive:true});
-  ['pointerup','click','dblclick','touchend'].forEach(ev=>ta.addEventListener(ev,e=>{e.stopPropagation();}));
+  },{passive:false});
+
+  ['pointerup','click','dblclick','touchend'].forEach(ev=>ta.addEventListener(ev,e=>{
+    // In focus mode, let our pointerdown/touchstart handler own the action.
+    if((typeof focusMode!=='undefined' && focusMode) || document.body.classList.contains('focus-mode')){
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    e.stopPropagation();
+  }));
+
   ta.oninput=e=>{if(app.classList.contains('present'))return;w.data.text=e.target.value;save()};
   ta.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ta.blur();select(null)}};
   ta.onfocus=()=>{if(app.classList.contains('present'))ta.blur()}}
@@ -5001,9 +5025,29 @@ function isTextEditingTarget(target){
   return !!(target && target.closest && target.closest('.text textarea, textarea'));
 }
 
+function chooseFocusTargetFromTextWidget(target,e){
+  if(!((typeof focusMode!=='undefined' && focusMode) || document.body.classList.contains('focus-mode'))) return false;
+  const widgetEl = target && target.closest && target.closest('.widget');
+  if(widgetEl && widgetEl.dataset && widgetEl.dataset.type==='text'){
+    if(typeof setFocusTarget==='function') setFocusTarget(widgetEl);
+    if(e){
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    return true;
+  }
+  return false;
+}
+
+
 function wireWidget(el,w){
  let layerTap={x:0,y:0,t:0,moved:false,ignore:false};
  el.addEventListener('pointerdown',e=>{
+   // In focus mode, tapping a text widget should select it as focus target.
+   if(chooseFocusTargetFromTextWidget(e.target,e)){
+     layerTap={x:e.clientX,y:e.clientY,t:0,moved:false,ignore:true};
+     return;
+   }
    // Text editing should behave like a normal textarea. Do not let the
    // widget-level tap/selection logic steal focus/cursor from the textarea.
    if(isTextEditingTarget(e.target)){
