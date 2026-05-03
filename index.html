@@ -3855,13 +3855,29 @@ body.focus-maximized .widget.selected{
 }
 
 
-/* v1.0.40-fix: only one close button in maximized widget */
+/* REPAIR minimal: single top-right focus/max exit */
+body.focus-mode #focusExit,
+body.focus-edit #focusExit,
+body.focus-presentation #focusExit,
 body.focus-maximized #focusExit,
+body.focus-mode .focusExit,
+body.focus-edit .focusExit,
+body.focus-presentation .focusExit,
 body.focus-maximized .focusExit{
   display:none!important;
 }
+
+body.focus-mode #maxEmergencyExit,
+body.focus-edit #maxEmergencyExit,
+body.focus-presentation #maxEmergencyExit,
 body.focus-maximized #maxEmergencyExit{
+  position:fixed!important;
+  top:14px!important;
+  right:14px!important;
+  left:auto!important;
+  bottom:auto!important;
   display:flex!important;
+  z-index:2147483647!important;
 }
 
 </style>
@@ -5006,12 +5022,22 @@ function toggleFocusMaximized(){
   setFocusMaximized(true);
 }
 function syncEmergencyExit(){
-  const b=document.getElementById('maxEmergencyExit');
-  if(!b)return;
-  const on=!!focusMode || !!focusMaximized || document.body.classList.contains('focus-maximized') || document.body.classList.contains('focus-mode');
-  b.classList.toggle('hidden',!on);
-  b.textContent=document.body.classList.contains('focus-maximized') || focusMaximized ? '× maksimeret' : '× fokus';
-  b.title=b.textContent.includes('maksimeret')?'Afslut maksimeret visning':'Afslut fokus';
+  const focusBtn=document.getElementById('focusExit');
+  const maxBtn=document.getElementById('maxEmergencyExit');
+
+  const isMax=!!focusMaximized || document.body.classList.contains('focus-maximized');
+  const isFocus=!!focusMode || document.body.classList.contains('focus-mode') || document.body.classList.contains('focus-edit') || document.body.classList.contains('focus-presentation');
+  const show=!!(isFocus || isMax);
+
+  if(focusBtn){
+    focusBtn.classList.add('hidden');
+  }
+
+  if(maxBtn){
+    maxBtn.classList.toggle('hidden', !show);
+    maxBtn.textContent=isMax?'× maksimeret':'× fokus';
+    maxBtn.title=isMax?'Afslut maksimeret visning':'Afslut fokus';
+  }
 }
 function hardExitMaximized(){
   setTimeout(()=>{try{syncFocusBodyClasses();}catch(_e){}},0);
@@ -7455,6 +7481,25 @@ document.addEventListener('click',function(e){
   if(!b)return;
   setTimeout(normalizePollsForPresentation,30);
 },true);
+
+
+/* REPAIR minimal: right exit exits focus or max */
+(function wireRightExitMinimal(){
+  const b=document.getElementById('maxEmergencyExit');
+  if(!b || b.__rightExitMinimal)return;
+  b.__rightExitMinimal=true;
+  b.addEventListener('click',function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    if(document.body.classList.contains('focus-maximized') || focusMaximized){
+      hardExitMaximized();
+    }else{
+      setFocusMode(null);
+    }
+    try{applyUIState();}catch(_e){}
+    try{syncEmergencyExit();}catch(_e){}
+  });
+})();
 
 </script>
 <!-- v1.0.16-dev: updated shortcut map -->
