@@ -3562,6 +3562,29 @@ body.maximized-from-edit:not(.focus-mode):not(.focus-edit):not(.focus-presentati
   pointer-events:auto!important;
 }
 
+
+/* v1.0.29-fix: gruppe-låse i maksimeret redigering
+   body.focus-mode bruges også teknisk ved maksimering fra redigering.
+   Derfor må focus-mode ikke alene skjule låsene, når maximized-from-edit er aktiv.
+   Præsentation og egentlig fokus vinder stadig. */
+body.maximized-from-edit:not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.focusTarget .groupLock,
+body.maximized-from-edit:not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.selected .groupLock{
+  display:grid!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+  filter:none!important;
+  z-index:10090!important;
+}
+
+body.focus-edit .groupLock,
+body.focus-presentation .groupLock,
+.app.present .groupLock,
+.app.present .widget.focusTarget .groupLock,
+.app.present .widget.selected .groupLock{
+  display:none!important;
+  pointer-events:none!important;
+}
+
 </style>
 </head>
 <body>
