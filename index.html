@@ -3973,37 +3973,79 @@ body.focus-maximized #maxEmergencyExit{
       }
       if(window.showPresentationModeIndicator) setTimeout(window.showPresentationModeIndicator,20);
     }
+    // Keyboard shortcuts are kept in one table so functionality and help text stay in sync.
+    const TAVLE_SHORTCUTS = {
+      plain: {
+        p: {label:'Skift redigering/præsentation', run:()=>togglePresentationFromShortcut()},
+        r: {label:'Skift redigering/præsentation', run:()=>togglePresentationFromShortcut()},
+        f: {label:'Fokus på valgt widget', run:api=>api.toggleFocusShortcut&&api.toggleFocusShortcut()}
+      },
+      shift: {
+        f: {label:'Maksimer valgt/fokuseret widget', run:api=>api.toggleMaximizedFocusShortcut&&api.toggleMaximizedFocusShortcut()},
+        a: {label:'Tekst', widget:'a'},
+        p: {label:'PDF', widget:'p'},
+        i: {label:'Billede', widget:'i'},
+        l: {label:'Link', widget:'l'},
+        t: {label:'Timer', widget:'t'},
+        u: {label:'Ur', widget:'u'},
+        h: {label:'Hjul', widget:'h'},
+        r: {label:'Grupper', widget:'r'},
+        s: {label:'Ordsky', widget:'s'},
+        v: {label:'Afstemning', widget:'v'},
+        m: {label:'Baggrund', widget:'m'},
+        g: {label:'Grid', widget:'g'},
+        b: {label:'Backup', widget:'b'},
+        o: {label:'Hints til/fra', widget:'o'},
+        n: {label:'Værktøjslinje til/fra', run:()=>{
+          const hidden=document.body.classList.contains('toolbar-is-hidden') || appEl.classList.contains('toolbarHidden');
+          document.body.classList.toggle('toolbar-is-hidden', !hidden);
+          appEl.classList.toggle('toolbarHidden', !hidden);
+          try{
+            if(window.UIState) window.UIState.toolbarVisible = hidden;
+          }catch(_e){}
+        }},
+        '?': {label:'Hjælp', widget:'?'}
+      }
+    };
+    window.TAVLE_SHORTCUTS = TAVLE_SHORTCUTS;
+
+    function normalizeShortcutKey(e){
+      const key=(e.key||'').toLowerCase();
+      return (key==='?' || key==='/') ? '?' : key;
+    }
+    function runShortcut(e, entry, api){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+      if(entry.run){
+        entry.run(api);
+        return true;
+      }
+      if(entry.widget && api.createShortcutWidget){
+        api.createShortcutWidget(entry.widget);
+        return true;
+      }
+      return false;
+    }
+
     document.addEventListener('keydown',function(e){
       if(e.defaultPrevented) return;
       if(isTyping(e) || modalOpen()) return;
-      const key=(e.key||'').toLowerCase();
-      if((key==='p'||key==='r') && !e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey){
-        e.preventDefault();
-        e.stopPropagation();
-        if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-        togglePresentationFromShortcut();
+      if(e.metaKey || e.ctrlKey || e.altKey) return;
+
+      const key=normalizeShortcutKey(e);
+      const api=window.tavleShortcutAPI;
+
+      if(!e.shiftKey && TAVLE_SHORTCUTS.plain[key]){
+        runShortcut(e,TAVLE_SHORTCUTS.plain[key],api||{});
         return;
       }
-      const shiftShortcutKey = (key==='?' || key==='/') ? '?' : key;
-      if(((key==='f') && !e.metaKey && !e.ctrlKey && !e.altKey) ||
-         (e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey && ['p','a','v','i','b','g','r','h','s','t','l','u','m','n','o','?'].includes(shiftShortcutKey))){
-        const api=window.tavleShortcutAPI;
-        if(!api) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-        if(key==='f' && e.shiftKey) api.toggleMaximizedFocusShortcut&&api.toggleMaximizedFocusShortcut();
-        else if(key==='f') api.toggleFocusShortcut&&api.toggleFocusShortcut();
-        else if(shiftShortcutKey==='n'){
-          try{ Toolbar.toggle(); }catch(_e){
-            try{
-              const hidden=document.body.classList.contains('toolbar-is-hidden')||app.classList.contains('toolbarHidden');
-              if(hidden){document.body.classList.remove('toolbar-is-hidden');app.classList.remove('toolbarHidden');}
-              else{document.body.classList.add('toolbar-is-hidden');app.classList.add('toolbarHidden');}
-            }catch(__e){}
-          }
-        }
-        else api.createShortcutWidget&&api.createShortcutWidget(shiftShortcutKey);
+
+      if(e.shiftKey && TAVLE_SHORTCUTS.shift[key]){
+        if(!api && TAVLE_SHORTCUTS.shift[key].widget) return;
+        runShortcut(e,TAVLE_SHORTCUTS.shift[key],api||{});
+        return;
       }
     },true);
     const presentBtn=document.getElementById('present');
@@ -6468,15 +6510,15 @@ function showQuickHelp(){
           <li><b>F</b> går ind/ud af fokus på den valgte widget.</li>
           <li><b>Shift + F</b> maksimerer den valgte/fokuserede widget. Tryk <b>Shift + F</b> igen for at vende tilbage til den forrige visning.</li>
           <li><b>Esc</b> går altid helt tilbage til normal visning, også fra maksimeret fokus. På touch kan du bruge <b>× fokus</b>/<b>× maksimeret</b> øverst til højre.</li>
-          <li><b>Shift + A</b> tekst, <b>Shift + P</b> PDF, <b>Shift + I</b> billede.</li>
-          <li><b>Shift + B</b> backup, <b>Shift + G</b> grid, <b>Shift + R</b> grupper.</li>
-          <li><b>Shift + H</b> hjul, <b>Shift + S</b> ordsky, <b>Shift + T</b> timer.</li>
-          <li><b>Shift + M</b> baggrund, <b>Shift + O</b> hints til/fra, <b>Shift + V</b> afstemning, <b>Shift + L</b> link, <b>Shift + U</b> ur, <b>Shift + ?</b> hjælp.</li>
+          <li><b>Shift + A</b> tekst, <b>Shift + P</b> PDF, <b>Shift + I</b> billede, <b>Shift + L</b> link.</li>
+          <li><b>Shift + T</b> timer, <b>Shift + U</b> ur, <b>Shift + H</b> hjul, <b>Shift + R</b> grupper, <b>Shift + S</b> ordsky.</li>
+          <li><b>Shift + V</b> afstemning, <b>Shift + M</b> baggrund, <b>Shift + G</b> grid, <b>Shift + B</b> backup.</li>
+          <li><b>Shift + N</b> viser/skjuler værktøjslinjen, <b>Shift + O</b> hints til/fra, <b>Shift + ?</b> hjælp.</li>
           <li><b>←</b> og <b>→</b> skifter tavle – men skifter PDF-side, når en PDF-widget er aktiv eller i fokus.</li>
           <li><b>↑</b> og <b>↓</b> scroller PDF’en, når en PDF-widget er aktiv eller i fokus.</li>
           <li><b>1–9</b> går direkte til tavle 1–9. <b>0</b> går til tavle 10.</li>
         </ul>
-        <p>Genvejene virker ikke, mens du skriver i et tekstfelt. I redigering kan værktøjslinjeknappen nederst til højre også bruges til at forlade en direkte maksimeret widget.</p>
+        <p>Genvejene virker ikke, mens du skriver i et tekstfelt eller en modal er åben. Brug <b>Shift + N</b> eller knappen nederst til højre til at vise/skjule værktøjslinjen.</p>
       </div>
     </details>
 
