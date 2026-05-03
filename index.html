@@ -455,8 +455,12 @@
   box-shadow:0 2px 8px rgba(0,0,0,.08);cursor:pointer
 }
 .groupLock.isLocked{background:#312e81;color:white}
-.present .groupLock,.focusMode .groupLock,.presentation .groupLock{display:none!important}
-body.focus-mode .groupLock,body.focus-edit .groupLock,body.focus-presentation .groupLock,.app.present .groupLock{display:none!important}
+/* Gruppe-låse skal kun skjules i egentlige visningstilstande.
+   Når en grupper-widget maksimeres direkte fra redigering med Shift+F,
+   skal låsene stadig kunne bruges. */
+.present .groupLock,.presentation .groupLock{display:none!important}
+body.focus-edit .groupLock,body.focus-presentation .groupLock,.app.present .groupLock{display:none!important}
+/* removed stale groupLock override; see v1.0.28 rules */
 .groupSpin{position:relative;display:grid;place-items:center;min-height:0}
 .groupWheel{width:min(100%,52vh);height:auto;aspect-ratio:1/1;border-radius:50%;box-shadow:0 0 0 8px white,0 4px 12px #999}
 .groupSpinBtn{
@@ -3393,6 +3397,171 @@ body.focus-presentation .widget.focusTarget{
   box-shadow:0 0 0 6px rgba(109,93,252,.85),0 24px 70px rgba(0,0,0,.55)!important;
 }
 
+
+/* v1.0.23-dev: tydelig valgt-ramme uden fokus-pin */
+.widget.selected,
+.app.present .widget.selected{
+  outline:4px solid rgba(109,93,252,.95)!important;
+  box-shadow:0 0 0 7px rgba(109,93,252,.24),0 18px 45px rgba(0,0,0,.32)!important;
+}
+.app.present .widget.selected .chrome,
+.app.present .widget.selected .resize,
+.app.present .widget.selected .rotater{
+  display:none!important;
+}
+
+
+/* v1.0.24-dev: behold gruppe-låse ved maksimering fra redigering */
+body.focus-maximized:not(.focus-edit):not(.focus-presentation) .widget.focusTarget .groupLock{
+  display:grid!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+  filter:none!important;
+  z-index:10090!important;
+}
+
+
+/* v1.0.25-dev: gruppe-låse vises kun i redigering.
+   Præsentation og fokus skal altid skjule dem - også hvis widgetten er maksimeret. */
+body.focus-presentation .groupLock,
+body.focus-edit .groupLock,
+.app.present .groupLock,
+body.focus-mode .groupLock{
+  display:none!important;
+}
+
+/* Kun når vi er maksimeret fra normal redigering - ikke fokus, ikke præsentation -
+   må gruppe-låsene vises og bruges. */
+/* removed stale groupLock override; see v1.0.28 rules */
+
+/* Hvis appen er i præsentation, skal den regel ovenfor overstyres. */
+.app.present .widget.focusTarget .groupLock,
+.app.present .widget.selected .groupLock{
+  display:none!important;
+}
+
+
+/* v1.0.26-dev: endelig regel for gruppe-låse
+   - synlige i redigering og maksimeret-fra-redigering
+   - skjulte i præsentation og fokus, også hvis widgetten er maksimeret */
+body.focus-mode .groupLock,
+body.focus-edit .groupLock,
+body.focus-presentation .groupLock,
+.app.present .groupLock,
+.app.present .widget.focusTarget .groupLock,
+.app.present .widget.selected .groupLock{
+  display:none!important;
+}
+
+body.maximized-from-edit:not(.focus-mode) .widget.focusTarget .groupLock,
+body.maximized-from-edit:not(.focus-mode) .widget.selected .groupLock{
+  display:grid!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+  filter:none!important;
+  z-index:10090!important;
+}
+
+body.maximized-from-edit .app.present .groupLock,
+.app.present body.maximized-from-edit .groupLock{
+  display:none!important;
+}
+
+
+/* v1.0.27-dev: præsentation/fokus vinder ALTID over maksimering for gruppelåse */
+body .app.present .widget .groupLock,
+body .app.present .widget.focusTarget .groupLock,
+body .app.present .widget.selected .groupLock,
+body.focus-mode .app .widget .groupLock,
+body.focus-edit .app .widget .groupLock,
+body.focus-presentation .app .widget .groupLock{
+  display:none!important;
+  pointer-events:none!important;
+}
+
+/* Kun normal redigeringsmaksimering må vise gruppelåse. */
+body.maximized-from-edit:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.focusTarget .groupLock,
+body.maximized-from-edit:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.selected .groupLock{
+  display:grid!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+  filter:none!important;
+  z-index:10090!important;
+}
+
+/* Nødudgang skal altid være klikbar i maksimeret/fokus */
+body.focus-maximized #focusExit,
+body.focus-mode #focusExit,
+body.focus-edit #focusExit,
+body.focus-presentation #focusExit{
+  display:block!important;
+  pointer-events:auto!important;
+  z-index:214748364799!important;
+}
+
+
+/* v1.0.28-stabilisering: uafhængig nødudgang fra maksimeret/fokus */
+.maxEmergencyExit{
+  position:fixed!important;
+  right:18px!important;
+  top:18px!important;
+  z-index:2147483647!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:rgba(17,24,39,.94)!important;
+  color:white!important;
+  padding:12px 16px!important;
+  font-weight:900!important;
+  font-size:18px!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.35)!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
+.maxEmergencyExit.hidden{display:none!important}
+body.focus-maximized .maxEmergencyExit,
+body.focus-mode .maxEmergencyExit{
+  display:block!important;
+}
+
+/* v1.0.28-stabilisering: endelig regel for gruppe-låse.
+   Præsentation og fokus skjuler låse. Kun normal redigering og
+   maksimeret-fra-redigering må vise dem. */
+body.focus-mode .groupLock,
+body.focus-edit .groupLock,
+body.focus-presentation .groupLock,
+.app.present .groupLock,
+.app.present .widget .groupLock,
+.app.present .widget.focusTarget .groupLock,
+.app.present .widget.selected .groupLock{
+  display:none!important;
+  pointer-events:none!important;
+}
+
+body.maximized-from-edit:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.focusTarget .groupLock,
+body.maximized-from-edit:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.selected .groupLock{
+  display:grid!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+  filter:none!important;
+  z-index:10090!important;
+}
+
+
+/* v1.0.28-final-lock-rule: placed last intentionally */
+body .app.present .groupLock,
+body.focus-mode .groupLock,
+body.focus-edit .groupLock,
+body.focus-presentation .groupLock{
+  display:none!important;
+  pointer-events:none!important;
+}
+body.maximized-from-edit:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.focusTarget .groupLock,
+body.maximized-from-edit:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.selected .groupLock{
+  display:grid!important;
+  pointer-events:auto!important;
+}
+
 </style>
 </head>
 <body>
@@ -3417,6 +3586,7 @@ body.focus-presentation .widget.focusTarget{
   </div>
   <button id="focusExit" class="focusExit hidden" title="Afslut fokus">✕ fokus</button>
   <div id="globalClock" class="globalClock hiddenClock" title="Klik for ur-indstillinger"></div>
+  <button id="maxEmergencyExit" class="maxEmergencyExit hidden" type="button">× maksimeret</button>
   <div id="modalBack" class="modalBackdrop"><div class="modal" id="modal"></div></div>
   <div id="toast" class="toast"></div>
 </div>
@@ -4475,6 +4645,9 @@ function setFocusMaximized(on){
     focusMaximized=true;
     UIState.focusMaximized=true;
     document.body.classList.add('focus-maximized');
+    // Gruppe-låse må kun blive ved med at være synlige, hvis maksimering
+    // startede direkte fra normal redigering - ikke fra præsentation/fokus.
+    document.body.classList.toggle('maximized-from-edit', !app.classList.contains('present') && !focusMode);
     // update central state: the maximized widget is our focus target
     try{
       const maxEl=document.querySelector('.widget.focusTarget');
@@ -4484,6 +4657,7 @@ function setFocusMaximized(on){
     const btn=document.getElementById('focusExit');
     if(btn)btn.classList.remove('hidden');
     updateFocusExitLabel();
+    syncEmergencyExit();
     try{setToolbarHidden(true)}catch(e){}
     try{toast('Maksimeret')}catch(e){}
     return;
@@ -4491,6 +4665,7 @@ function setFocusMaximized(on){
   focusMaximized=false;
   UIState.focusMaximized=false;
   document.body.classList.remove('focus-maximized');
+  document.body.classList.remove('maximized-from-edit');
   // clear maximized id in central state and reapply UI
   UIState.maximizedWidgetId=null;
   try{applyUIState();}catch(_e){}
@@ -4508,11 +4683,38 @@ function setFocusMaximized(on){
   focusMaxReturnMode=null;
 }
 function toggleFocusMaximized(){
-  if(focusMaximized){
-    setFocusMaximized(false);
+  if(focusMaximized || document.body.classList.contains('focus-maximized')){
+    hardExitMaximized();
     return;
   }
   setFocusMaximized(true);
+}
+function syncEmergencyExit(){
+  const b=document.getElementById('maxEmergencyExit');
+  if(!b)return;
+  const on=!!focusMode || !!focusMaximized || document.body.classList.contains('focus-maximized') || document.body.classList.contains('focus-mode');
+  b.classList.toggle('hidden',!on);
+  b.textContent=document.body.classList.contains('focus-maximized') || focusMaximized ? '× maksimeret' : '× fokus';
+  b.title=b.textContent.includes('maksimeret')?'Afslut maksimeret visning':'Afslut fokus';
+}
+function hardExitMaximized(){
+  // Robust nødudgang: virker også hvis appen har været i baggrunden og
+  // JS-state/CSS-klasser ikke længere er helt synkroniserede.
+  focusMaximized=false;
+  focusMaxReturnMode=null;
+  UIState.focusMaximized=false;
+  UIState.maximizedWidgetId=null;
+  document.body.classList.remove('focus-maximized','maximized-from-edit');
+  // Hvis vi ikke er i egentlig fokusmode, skal focus-mode også væk.
+  if(!focusMode){
+    document.body.classList.remove('focus-mode','focus-edit','focus-presentation');
+  }
+  const btn=document.getElementById('focusExit');
+  if(btn)btn.classList.add('hidden');
+  updateFocusExitLabel();
+  syncEmergencyExit();
+  try{applyUIState();}catch(_e){}
+  try{setToolbarHidden(false)}catch(_e){}
 }
 function setFocusMode(mode){
   focusMode=mode;
@@ -4539,10 +4741,12 @@ function setFocusMode(mode){
     UIState.focusMaximized=false;
     UIState.maximizedWidgetId=null;
     document.body.classList.remove('focus-maximized');
+    document.body.classList.remove('maximized-from-edit');
   }
   const btn=document.getElementById('focusExit');
   if(btn)btn.classList.toggle('hidden',!focusMode && !focusMaximized);
   updateFocusExitLabel();
+  syncEmergencyExit();
   if(!focusMode && !focusMaximized)clearFocusTarget();
   updateFocusButtons();
   try{
@@ -4583,13 +4787,9 @@ document.addEventListener('pointerup',e=>{
 },{passive:true});
 
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape' && (focusMode||focusMaximized)){
+  if(e.key==='Escape' && (focusMode||focusMaximized||document.body.classList.contains('focus-maximized'))){
     e.preventDefault();
-    focusMaximized=false;
-    focusMaxReturnMode=null;
-    UIState.focusMaximized=false;
-    UIState.maximizedWidgetId=null;
-    document.body.classList.remove('focus-maximized');
+    if(document.body.classList.contains('focus-maximized')) hardExitMaximized();
     setFocusMode(null);
     try{applyUIState();}catch(_e){}
   }
@@ -4599,15 +4799,68 @@ const focusExitBtn=document.getElementById('focusExit');
 if(focusExitBtn)focusExitBtn.onclick=e=>{
   e.preventDefault();
   e.stopPropagation();
-  focusMaximized=false;
-  focusMaxReturnMode=null;
-  UIState.focusMaximized=false;
-  UIState.maximizedWidgetId=null;
-  document.body.classList.remove('focus-maximized');
-  setFocusMode(null);
+  if(document.body.classList.contains('focus-maximized')) hardExitMaximized();
+  else setFocusMode(null);
   try{applyUIState();}catch(_e){}
 };
+// Capture fallback: the exit button must work even if another layer intercepts clicks/taps.
+document.addEventListener('pointerdown',e=>{
+  const exit=e.target&&e.target.closest&&e.target.closest('#focusExit,.focusExit');
+  if(!exit)return;
+  e.preventDefault();
+  e.stopPropagation();
+  if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  if(document.body.classList.contains('focus-maximized')) hardExitMaximized();
+  else setFocusMode(null);
+},true);
 
+
+
+function clearStuckInteractionState(){
+  // Some iPad/browser resume cases leave pointer capture or gesture flags stale.
+  // We cannot reach the local drag/res/rot variables here, but a synthetic
+  // pointercancel plus toolbar/app cleanup prevents most stuck UI states.
+  try{
+    document.querySelectorAll('.widget,.chrome,.resize,.rotater').forEach(el=>{
+      try{ el.releasePointerCapture && [...(el.__activePointers||[])].forEach(id=>el.releasePointerCapture(id)); }catch(_e){}
+    });
+  }catch(_e){}
+  document.body.classList.remove('toolbar-is-hidden');
+  try{app.classList.remove('toolbarHidden')}catch(_e){}
+}
+function repairAfterResume(){
+  clearStuckInteractionState();
+  // Keep emergency exit available if visual classes say we are focused/maximized,
+  // even when the JS booleans did not survive cleanly.
+  if(document.body.classList.contains('focus-maximized')){
+    focusMaximized=true;
+    UIState.focusMaximized=true;
+  }
+  if(app.classList.contains('present')){
+    document.body.classList.remove('maximized-from-edit');
+  }
+  syncEmergencyExit();
+  try{applyUIState();}catch(_e){}
+  try{updateFocusExitLabel();}catch(_e){}
+  try{setToolbarHidden(false)}catch(_e){}
+}
+['pageshow','focus'].forEach(ev=>window.addEventListener(ev,repairAfterResume,{passive:true}));
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) setTimeout(repairAfterResume,30); });
+window.addEventListener('pagehide',clearStuckInteractionState,{passive:true});
+
+// Independent emergency button outside #app. Must work on touch even when
+// widget/app layers swallow normal clicks.
+const maxEmergencyExit=document.getElementById('maxEmergencyExit');
+if(maxEmergencyExit){
+  ['pointerdown','touchstart','click'].forEach(ev=>maxEmergencyExit.addEventListener(ev,e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    if(document.body.classList.contains('focus-maximized') || focusMaximized) hardExitMaximized();
+    else setFocusMode(null);
+    syncEmergencyExit();
+  },{capture:true,passive:false}));
+}
 
 /* v118 TEST: capture widget choice in presentation focus before other handlers can swallow the tap */
 document.addEventListener('pointerup',function(e){
@@ -4834,12 +5087,12 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
 
   ta.addEventListener('pointerdown',e=>{
     if(focusThisTextWidgetFromTextarea(e)) return;
-    if(!app.classList.contains('present')) select(w.id);
+    if(!app.classList.contains('present')) select(w.id,{editText:false});
     e.stopPropagation();
   });
   ta.addEventListener('touchstart',e=>{
     if(focusThisTextWidgetFromTextarea(e)) return;
-    if(!app.classList.contains('present')) select(w.id);
+    if(!app.classList.contains('present')) select(w.id,{editText:false});
     e.stopPropagation();
   },{passive:false});
 
@@ -4854,7 +5107,7 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
   }));
 
   ta.oninput=e=>{if(app.classList.contains('present'))return;w.data.text=e.target.value;save()};
-  ta.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ta.blur();select(null)}};
+  ta.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ta.blur();select(w.id,{editText:false})}};
   ta.onfocus=()=>{if(app.classList.contains('present'))ta.blur()}}
  if(w.type==='video'){
   const id=ytId(w.data.url||'');
@@ -5175,7 +5428,8 @@ function wireWidget(el,w){
    const isTap=!layerTap.moved && Date.now()-layerTap.t<320;
    if(isTap && (!layerTap.ignore || w.type==='text'))bringWidgetToFront(w,el);
    layerTap.t=0;
- },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
+ },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
+el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
  let drag=false,rot=false,res=false,start={}; let rotHoldTimer=null, rotHoldStart=null, rotHoldDidReset=false; const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
  if(rh){
    rh.title='Dobbeltklik / hold inde for at nulstille rotation';
@@ -5184,7 +5438,13 @@ function wireWidget(el,w){
  }
  chrome.addEventListener('pointerdown',e=>{
    if(w.locked)return;
-   
+   // Klik på bjælken betyder vælg/flyt widget - ikke skriv i tekstfeltet.
+   try{
+     if(document.activeElement && document.activeElement.closest && document.activeElement.closest('.widget')===el){
+       document.activeElement.blur();
+     }
+   }catch(_e){}
+   select(w.id,{editText:false});
    setToolbarHidden(true);
    drag=true;
    start={x:e.clientX,y:e.clientY,wx:w.x,wy:w.y};
@@ -5267,9 +5527,8 @@ function focusTextWidgetEditor(id,selectAll=false){
     }catch(_e){}
   },50);
 }
-function select(id){
+function select(id,options={}){
   const previous=selected;
-  // Update both legacy variable and central UI state
   selected=id;
   UIState.selectedWidgetId=id;
   let selectedWidget=null;
@@ -5282,10 +5541,12 @@ function select(id){
       if(on)selectedWidget=w;
     }
   });
-  if(id && id!==previous && selectedWidget && selectedWidget.type==='text'){
-    focusTextWidgetEditor(id,false);
+  // Textwidgets must not automatically steal cursor focus just because the
+  // widget is selected. Text editing is started only from the textarea itself
+  // or explicit creation of a new text widget.
+  if(id && options.editText && selectedWidget && selectedWidget.type==='text'){
+    focusTextWidgetEditor(id,!!options.selectAll);
   }
-  // Reapply UI state to reflect the new selection
   try{applyUIState();}catch(_e){}
 }
 function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
@@ -6281,13 +6542,22 @@ document.getElementById('clearSlide').onclick=()=>{
 };
 document.getElementById('drawTop').onclick=()=>setDrawActive(!app.classList.contains('drawActive'));
 document.getElementById('present').onclick=()=>{
-  // Toggle presentation mode and update central state accordingly
+  // Toggle presentation mode and keep the current widget selection.
   const wasPresent = app.classList.contains('present');
   app.classList.toggle('present');
   UIState.mode = wasPresent ? 'editing' : 'presentation';
+  // Hvis man skifter til præsentation mens noget er maksimeret, skal
+  // præsentationsreglerne vinde: ingen gruppe-låse.
+  if(app.classList.contains('present')){
+    document.body.classList.remove('maximized-from-edit');
+  }else if(focusMaximized && !focusMode){
+    document.body.classList.add('maximized-from-edit');
+  }
   try{ applyUIState(); }catch(_e){}
+  syncEmergencyExit();
   if(!app.classList.contains('present') && focusMode==='presentation') setFocusMode(null);
-  select(null);
+  // Do not clear selection when entering presentation.
+  // This makes it possible to select in editing → switch to presentation → focus.
   document.activeElement && document.activeElement.blur();
   titleEl.contentEditable = app.classList.contains('present') ? 'false' : 'true';
 };
