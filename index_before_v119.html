@@ -3272,10 +3272,11 @@ body.focus-mode:not(.clock-focus-visible) .globalClock{
 
 
 
-/* v1.0.20-dev: maximized focus layer */
+/* v1.0.18-dev: maximized focus layer */
 body.focus-maximized .toolbar,
 body.focus-maximized .topbar,
 body.focus-maximized #title,
+body.focus-maximized #toolbarFallback,
 body.focus-maximized #toolbarPeek,
 body.focus-maximized #toolbarWakeZone,
 body.focus-maximized #toolbarPinFloat{
@@ -3314,15 +3315,6 @@ body.focus-maximized .widget.focusTarget .content.pdf .pdfJsViewer{
 }
 body.focus-maximized #focusExit{
   display:block!important;
-}
-body.focus-maximized .groupLock{
-  display:none!important;
-}
-body.focus-maximized:not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback{
-  display:flex!important;
-  visibility:visible!important;
-  pointer-events:auto!important;
-  z-index:10090!important;
 }
 
 /* v1.0.9-dev: presentation shortcut visual indicator */
@@ -3730,14 +3722,6 @@ function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());ap
 function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll')?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='timer'?260: type==='link'?230:320)))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
 function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
-
-function resetWidgetRotation(w,el){
-  if(!w||!el)return;
-  w.rotation=0;
-  el.style.transform=transformFor(w);
-  save();
-  if(typeof toast==='function')toast('Rotation nulstillet');
-}
 function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
 function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button><button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
@@ -4236,7 +4220,7 @@ window.forceShowToolbar=showToolbar;
 
 /* v115 TEST: two focus modes: edit focus + presentation focus */
 let focusMode=null; // null | 'edit' | 'presentation'
-let focusMaximized=false; // v1.0.20-dev: temporary maximized widget/focus
+let focusMaximized=false; // v1.0.18-dev: temporary maximized widget/focus
 let focusMaxReturnMode=null; // null | 'edit' | 'presentation'
 let focusPointer={x:0,y:0,moved:false,t:0};
 
@@ -4254,19 +4238,6 @@ function updateFocusButtons(){
   if(editBtn)editBtn.classList.toggle('active',focusMode==='edit');
   if(presBtn)presBtn.classList.toggle('active',focusMode==='presentation');
 }
-function updateFocusExitLabel(){
-  const btn=document.getElementById('focusExit');
-  if(!btn)return;
-  if(focusMaximized){
-    btn.textContent='× maksimeret';
-    btn.title='Afslut maksimeret visning';
-    btn.setAttribute('aria-label','Afslut maksimeret visning');
-  }else{
-    btn.textContent='× fokus';
-    btn.title='Afslut fokus';
-    btn.setAttribute('aria-label','Afslut fokus');
-  }
-}
 function setFocusMaximized(on){
   if(on){
     let target=document.querySelector('.widget.focusTarget');
@@ -4283,7 +4254,6 @@ function setFocusMaximized(on){
     document.body.classList.add('focus-maximized');
     const btn=document.getElementById('focusExit');
     if(btn)btn.classList.remove('hidden');
-    updateFocusExitLabel();
     try{setToolbarHidden(true)}catch(e){}
     try{toast('Maksimeret')}catch(e){}
     return;
@@ -4294,11 +4264,9 @@ function setFocusMaximized(on){
     clearFocusTarget();
     const btn=document.getElementById('focusExit');
     if(btn && !focusMode)btn.classList.add('hidden');
-    updateFocusExitLabel();
     try{setToolbarHidden(false)}catch(e){}
     try{toast('Gendannet')}catch(e){}
   }else{
-    updateFocusExitLabel();
     try{toast('Fokus')}catch(e){}
   }
   focusMaxReturnMode=null;
@@ -4321,9 +4289,8 @@ function setFocusMode(mode){
   document.body.classList.toggle('focus-presentation',focusMode==='presentation');
   if(!focusMode){focusMaximized=false;focusMaxReturnMode=null;document.body.classList.remove('focus-maximized');}
   const btn=document.getElementById('focusExit');
-  if(btn)btn.classList.toggle('hidden',!focusMode && !focusMaximized);
-  updateFocusExitLabel();
-  if(!focusMode && !focusMaximized)clearFocusTarget();
+  if(btn)btn.classList.toggle('hidden',!focusMode);
+  if(!focusMode)clearFocusTarget();
   updateFocusButtons();
   try{
     if(focusMode==='presentation'){
@@ -4832,12 +4799,7 @@ function wireWidget(el,w){
    if(isTap && (!layerTap.ignore || w.type==='text'))bringWidgetToFront(w,el);
    layerTap.t=0;
  },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
- let drag=false,rot=false,res=false,start={}; let rotHoldTimer=null, rotHoldStart=null, rotHoldDidReset=false; const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
- if(rh){
-   rh.title='Dobbeltklik / hold inde for at nulstille rotation';
-   rh.addEventListener('dblclick',e=>{e.preventDefault();e.stopPropagation();rot=false;rotHoldDidReset=true;resetWidgetRotation(w,el)});
-   rh.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation()});
- }
+ let drag=false,rot=false,res=false,start={}; const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
  chrome.addEventListener('pointerdown',e=>{
    if(w.locked)return;
    
@@ -4854,15 +4816,6 @@ function wireWidget(el,w){
     e.stopPropagation();
     select(w.id);
     rot=true;
-    rotHoldDidReset=false;
-    rotHoldStart={x:e.clientX,y:e.clientY};
-    clearTimeout(rotHoldTimer);
-    rotHoldTimer=setTimeout(()=>{
-      rot=false;
-      rotHoldDidReset=true;
-      resetWidgetRotation(w,el);
-      try{rh.releasePointerCapture(e.pointerId)}catch(_e){}
-    },650);
     const cx=w.x+w.w/2, cy=w.y+w.h/2;
     start={
       cx,cy,
@@ -4886,10 +4839,6 @@ function wireWidget(el,w){
       el.style.setProperty('--widget-h',w.h+'px');
     }
     if(rot){
-      if(rotHoldStart && (Math.abs(e.clientX-rotHoldStart.x)>6 || Math.abs(e.clientY-rotHoldStart.y)>6)){
-        clearTimeout(rotHoldTimer);
-        rotHoldTimer=null;
-      }
       const nowAngle=Math.atan2(e.clientY-start.cy,e.clientX-start.cx)*180/Math.PI;
       let delta=nowAngle-start.startAngle;
       if(delta>180)delta-=360;
@@ -4900,11 +4849,7 @@ function wireWidget(el,w){
       el.style.transform=transformFor(w);
     }
   });
- ['pointerup','pointercancel'].forEach(ev=>el.addEventListener(ev,()=>{
-    clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
-    if(drag||res||rot)save();
-    drag=res=rot=false; rotHoldDidReset=false;
-  }));}
+ ['pointerup','pointercancel'].forEach(ev=>el.addEventListener(ev,()=>{if(drag||res||rot)save();drag=res=rot=false}));}
 function focusTextWidgetEditor(id,selectAll=false){
   setTimeout(()=>{
     try{
@@ -5285,9 +5230,7 @@ function showQuickHelp(){
       <div class="answer">
         <ul>
           <li><b>P</b> eller <b>R</b> skifter mellem redigering og præsentation.</li>
-          <li><b>F</b> går ind/ud af fokus på den valgte widget.</li>
-          <li><b>Shift + F</b> maksimerer den valgte/fokuserede widget. Tryk <b>Shift + F</b> igen for at vende tilbage til den forrige visning.</li>
-          <li><b>Esc</b> går altid helt tilbage til normal visning, også fra maksimeret fokus. På touch kan du bruge <b>× fokus</b>/<b>× maksimeret</b> øverst til højre.</li>
+          <li><b>F</b> går ind/ud af fokus på den valgte widget. <b>Shift + F</b> maksimerer/normaliserer fokus. <b>Esc</b> går helt ud af fokus.</li>
           <li><b>Shift + A</b> tekst, <b>Shift + P</b> PDF, <b>Shift + I</b> billede.</li>
           <li><b>Shift + B</b> backup, <b>Shift + G</b> grid, <b>Shift + R</b> grupper.</li>
           <li><b>Shift + H</b> hjul, <b>Shift + S</b> ordsky, <b>Shift + T</b> timer.</li>
@@ -5296,7 +5239,7 @@ function showQuickHelp(){
           <li><b>↑</b> og <b>↓</b> scroller PDF’en, når en PDF-widget er aktiv eller i fokus.</li>
           <li><b>1–9</b> går direkte til tavle 1–9. <b>0</b> går til tavle 10.</li>
         </ul>
-        <p>Genvejene virker ikke, mens du skriver i et tekstfelt. I redigering kan værktøjslinjeknappen nederst til højre også bruges til at forlade en direkte maksimeret widget.</p>
+        <p>Genvejene virker ikke, mens du skriver i et tekstfelt.</p>
       </div>
     </details>
 
@@ -6118,12 +6061,7 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
   function updateFallbackVisual(){
     const b = document.getElementById('toolbarFallback');
     if(!b) return;
-    const directMaximized = document.body.classList.contains('focus-maximized') &&
-      !document.body.classList.contains('focus-mode') &&
-      !document.body.classList.contains('focus-edit') &&
-      !document.body.classList.contains('focus-presentation') &&
-      !app.classList.contains('present');
-    if(appIsPresentationOrFocus() && !directMaximized){
+    if(appIsPresentationOrFocus()){
       b.style.setProperty('display','none','important');
       b.style.setProperty('visibility','hidden','important');
       b.style.setProperty('pointer-events','none','important');
@@ -6132,14 +6070,9 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
     b.style.setProperty('display','flex','important');
     b.style.setProperty('visibility','visible','important');
     b.style.setProperty('pointer-events','auto','important');
-    if(directMaximized){
-      b.textContent = '⌃';
-      b.title = 'Afslut maksimeret visning og vis værktøjslinje';
-    }else{
-      const isVisible = visibleToolbar(toolbar());
-      b.textContent = isVisible ? '⌄' : '⌃';
-      b.title = isVisible ? 'Skjul værktøjslinje' : 'Vis værktøjslinje';
-    }
+    const isVisible = visibleToolbar(toolbar());
+    b.textContent = isVisible ? '⌄' : '⌃';
+    b.title = isVisible ? 'Skjul værktøjslinje' : 'Vis værktøjslinje';
     b.setAttribute('aria-label', b.title);
   }
   function clearHiddenState(){
@@ -6179,11 +6112,6 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
   }
   function activate(e){
     stopOnly(e);
-    if(document.body.classList.contains('focus-maximized') && !app.classList.contains('present') && !document.body.classList.contains('focus-mode') && !document.body.classList.contains('focus-edit') && !document.body.classList.contains('focus-presentation')){
-      if(typeof setFocusMaximized==='function') setFocusMaximized(false);
-      clearHiddenState();
-      return;
-    }
     if(appIsPresentationOrFocus()) return;
     const now = Date.now();
     if(now - lastActivation < 450) return;
@@ -6194,11 +6122,6 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
   }
   function clickFallback(e){
     stopOnly(e);
-    if(document.body.classList.contains('focus-maximized') && !app.classList.contains('present') && !document.body.classList.contains('focus-mode') && !document.body.classList.contains('focus-edit') && !document.body.classList.contains('focus-presentation')){
-      if(typeof setFocusMaximized==='function') setFocusMaximized(false);
-      clearHiddenState();
-      return;
-    }
     if(appIsPresentationOrFocus()) return;
     const now = Date.now();
     if(now - lastActivation < 650) return;
