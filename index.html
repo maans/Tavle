@@ -3803,6 +3803,57 @@ body.focus-presentation .widget:not(.focusTarget){
   filter:grayscale(.45) blur(2.2px) brightness(.62)!important;
 }
 
+
+/* v1.0.39-dev: Link-widgettens interne redigeringsknap skjules.
+   Link redigeres via widgetkontroller/menu - ikke som synlig knap i indholdet. */
+.linkBox .edit,
+.linkBox .widget-control,
+.widget.link .linkBox button.edit{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+
+/* v1.0.40-dev: link-redigering via topbjælken, ikke inde i widgetten */
+.app.present [data-act="editLink"],
+body.focus-mode [data-act="editLink"],
+body.focus-edit [data-act="editLink"],
+body.focus-presentation [data-act="editLink"],
+body.focus-maximized [data-act="editLink"]{
+  display:none!important;
+}
+
+
+/* v1.0.40-fix: focus dims slide background images on every board */
+body.focus-mode #app::before,
+body.focus-maximized #app::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:rgba(255,255,255,.58);
+  backdrop-filter:brightness(.72) saturate(.72);
+  -webkit-backdrop-filter:brightness(.72) saturate(.72);
+}
+body.focus-mode #app > *,
+body.focus-maximized #app > *{
+  position:relative;
+}
+body.focus-mode .widget,
+body.focus-maximized .widget{
+  z-index:20;
+}
+body.focus-mode .widget.focused,
+body.focus-mode .widget.focusTarget,
+body.focus-mode .widget.selected,
+body.focus-maximized .widget.focused,
+body.focus-maximized .widget.focusTarget,
+body.focus-maximized .widget.selected{
+  z-index:30;
+}
+
 </style>
 </head>
 <body>
@@ -3909,7 +3960,7 @@ body.focus-presentation .widget:not(.focusTarget){
       }
       const shiftShortcutKey = (key==='?' || key==='/') ? '?' : key;
       if(((key==='f') && !e.metaKey && !e.ctrlKey && !e.altKey) ||
-         (e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey && ['p','a','v','i','b','g','r','h','s','t','l','u','m','o','?'].includes(shiftShortcutKey))){
+         (e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey && ['p','a','v','i','b','g','r','h','s','t','l','u','m','n','o','?'].includes(shiftShortcutKey))){
         const api=window.tavleShortcutAPI;
         if(!api) return;
         e.preventDefault();
@@ -3917,6 +3968,15 @@ body.focus-presentation .widget:not(.focusTarget){
         if(e.stopImmediatePropagation) e.stopImmediatePropagation();
         if(key==='f' && e.shiftKey) api.toggleMaximizedFocusShortcut&&api.toggleMaximizedFocusShortcut();
         else if(key==='f') api.toggleFocusShortcut&&api.toggleFocusShortcut();
+        else if(shiftShortcutKey==='n'){
+          try{ Toolbar.toggle(); }catch(_e){
+            try{
+              const hidden=document.body.classList.contains('toolbar-is-hidden')||app.classList.contains('toolbarHidden');
+              if(hidden){document.body.classList.remove('toolbar-is-hidden');app.classList.remove('toolbarHidden');}
+              else{document.body.classList.add('toolbar-is-hidden');app.classList.add('toolbarHidden');}
+            }catch(__e){}
+          }
+        }
         else api.createShortcutWidget&&api.createShortcutWidget(shiftShortcutKey);
       }
     },true);
@@ -4015,6 +4075,7 @@ const KEY='maans_interaktiv_tavle_v162_test'; let selected=null, z=20, drawMode=
    * this after mutating `UIState`.
    */
   function applyUIState(){
+  try{syncFocusBodyClasses();}catch(_e){}
     // update overall mode
     app.classList.toggle('present', UIState.mode === 'presentation');
     // focus-mode must only be active when the user has explicitly entered
@@ -4336,7 +4397,7 @@ function resetWidgetRotation(w,el){
   if(typeof toast==='function')toast('Rotation nulstillet');
 }
 function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
-function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button><button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?'<button data-act="editLink" title="Rediger link">✎</button>':'';el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -4765,7 +4826,7 @@ function handleTool(t){
   if(t==='poll')addWidget('poll',{});
   if(t==='timer')addWidget('timer',{});
   if(t==='image')addWidget('image',{});
-  if(t==='link')addWidget('link',{text:'Link',url:'https://'});
+  if(t==='link'){const w=addWidget('link',{text:'Link',url:'https://'});setTimeout(()=>askLink(w),0);return;}
   if(t==='pdf')addWidget('pdf',{});
   if(t==='background'||t==='bg')bgModal();
   if(t==='grid'){slide().grid=!slide().grid;
@@ -4943,6 +5004,7 @@ function syncEmergencyExit(){
   b.title=b.textContent.includes('maksimeret')?'Afslut maksimeret visning':'Afslut fokus';
 }
 function hardExitMaximized(){
+  setTimeout(()=>{try{syncFocusBodyClasses();}catch(_e){}},0);
   // Robust nødudgang: virker også hvis appen har været i baggrunden og
   // JS-state/CSS-klasser ikke længere er helt synkroniserede.
   focusMaximized=false;
@@ -4962,7 +5024,17 @@ function hardExitMaximized(){
   try{setToolbarHidden(false)}catch(_e){}
   try{updateContextHints('exit-max')}catch(_e){}
 }
+
+/* v1.0.40-fix: sync focus body classes for global background dim */
+function syncFocusBodyClasses(){
+  const focusOn=!!focusMode;
+  const maxOn=!!focusMaximized || document.body.classList.contains('focus-maximized');
+  document.body.classList.toggle('focus-mode', focusOn);
+  document.body.classList.toggle('focus-maximized', maxOn);
+}
+
 function setFocusMode(mode){
+  setTimeout(()=>{try{syncFocusBodyClasses();}catch(_e){}},0);
   focusMode=mode;
   UIState.focusMode=mode||null;
   // set global mode for central UI state
@@ -5197,7 +5269,7 @@ window.tavleShortcutAPI={
     if(!spec)return;
     const w=addWidget(spec[0],spec[1]);
     if(spec[0]==='text')focusTextWidgetEditor(w.id,true);
-    if(spec[0]==='link')askLink(w);
+    if(spec[0]==='link')setTimeout(()=>askLink(w),0);
     try{toast((titles[spec[0]]||spec[0])+' tilføjet')}catch(e){}
     return w;
   }
@@ -5437,7 +5509,10 @@ if(w.type==='poll'){
   }
   wirePoll(c,w,el);
 }
- if(w.type==='link'){c.innerHTML=`<div class="linkBox"><a target="_blank" href="${esc(w.data.url||'#')}">${esc(w.data.text||'Klikbart link')}</a><button class="edit widget-control">Rediger link</button></div>`;c.querySelector('.edit').onclick=()=>askLink(w)}
+ if(w.type==='link'){
+  c.innerHTML=`<div class="linkBox"><a target="_blank" href="${esc(w.data.url||'#')}">${esc(w.data.text||'Klikbart link')}</a></div>`;
+  c.ondblclick=e=>{if(!canEditWidgets())return;e.preventDefault();e.stopPropagation();select(w.id,{editText:false});askLink(w)};
+}
  if(w.type==='image'){
   if(w.data.src){
     const embedded=String(w.data.src).startsWith('data:');
@@ -5681,6 +5756,14 @@ function wireWidget(el,w){
    if(isTap && (!layerTap.ignore || w.type==='text'))bringWidgetToFront(w,el);
    layerTap.t=0;
  },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
+ const editLinkBtn=el.querySelector('[data-act=editLink]');
+ if(editLinkBtn)editLinkBtn.onclick=e=>{
+   e.preventDefault();
+   e.stopPropagation();
+   if(!canEditWidgets())return;
+   select(w.id,{editText:false});
+   askLink(w);
+ };
 el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
  let drag=false,rot=false,res=false,start={}; let rotHoldTimer=null, rotHoldStart=null, rotHoldDidReset=false; const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
  if(rh){
@@ -6094,7 +6177,50 @@ function wireWheel(c,w){
 function pickFile(accept,cb){fileInput.accept=accept;fileInput.onchange=()=>{const f=fileInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result,f);r.readAsDataURL(f);fileInput.value=''};fileInput.click()}
 function showModal(html){modal.classList.toggle('moveWidgetModal',String(html).includes('moveWidgetDialog'));modal.innerHTML=html;modalBack.style.display='flex'} function closeModal(){modal.classList.remove('moveWidgetModal');modalBack.style.display='none'} modalBack.onclick=e=>{if(e.target===modalBack)closeModal()}
 function askVideo(w){showModal(`<h2>Video</h2><input id="vurl" placeholder="YouTube-link" value="${esc(w.data.url||'')}"><button id="ok">Gem</button><button id="cancel">Luk</button><p>Hvis YouTube blokerer embed, vises link/åbn eksternt.</p>`);modal.querySelector('#ok').onclick=()=>{w.data.url=modal.querySelector('#vurl').value;closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
-function askLink(w){showModal(`<h2>Link</h2><input id="lt" placeholder="Tekst" value="${esc(w.data.text||'Klikbart link')}"><input id="lu" placeholder="URL" value="${esc(w.data.url||'https://')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#lt').value;w.data.url=modal.querySelector('#lu').value;closeModal();render()}}
+function canEditWidgets(){
+  return !app.classList.contains('present') &&
+         !focusMode &&
+         !focusMaximized &&
+         !document.body.classList.contains('focus-maximized');
+}
+function askLink(w){
+  if(!canEditWidgets())return;
+
+  showModal(`<h2>Link</h2>
+    <label>Titel
+      <input id="lt" placeholder="Tekst" value="${esc(w.data.text||'Klikbart link')}">
+    </label>
+    <label>Adresse
+      <input id="lu" placeholder="URL" value="${esc(w.data.url||'https://')}">
+    </label>
+    <button id="ok">Gem</button>
+    <button id="cancel">Luk</button>`);
+
+  const titleInput=modal.querySelector('#lt');
+  const urlInput=modal.querySelector('#lu');
+
+  function saveLink(){
+    w.data.text=titleInput.value.trim()||'Klikbart link';
+    w.data.url=urlInput.value.trim()||'https://';
+    closeModal();
+    render();
+    save();
+  }
+
+  modal.querySelector('#ok').onclick=saveLink;
+  modal.querySelector('#cancel').onclick=closeModal;
+
+  [titleInput,urlInput].forEach(input=>{
+    input.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        saveLink();
+      }
+    });
+  });
+
+  setTimeout(()=>titleInput.focus(),0);
+}
 function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeholder="https://..." value="${esc(w.data.src||'')}"><p>Bemærk: Nogle billeder blokeres af hjemmesiden. Upload lokalt er mest stabilt offline.</p><button id="ok">Brug billede</button><button id="cancel">Luk</button>`);modal.querySelector('#ok').onclick=()=>{w.data.src=modal.querySelector('#iu').value.trim();closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
 function askPdfLink(w){showModal(`<h2>PDF-link</h2><input id="pt" placeholder="Tekst" value="${esc(w.data.text||'Åbn PDF')}"><input id="pu" placeholder="PDF URL" value="${esc(w.data.src||'')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#pt').value;w.data.src=modal.querySelector('#pu').value;closeModal();render()}}
 function bgModal(){
@@ -7102,6 +7228,7 @@ document.addEventListener('keydown',e=>{
 
 const __render_original = render;
 render = function(){
+  try{syncFocusBodyClasses();}catch(_e){}
   __render_original();
   normalizeDomLayerOrder();
   updateSlidesOverviewVisibility();
