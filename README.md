@@ -65,3 +65,19 @@ Brug `Mere → backup` til at gemme eller åbne tavlefiler.
 ## Privat og lokalt
 
 Appen gemmer som udgangspunkt data i browserens localStorage. Indholdet sendes ikke til en server.
+
+## Nyt: kontekstuelle hints
+
+Appen viser nu små, diskrete hints nederst på tavlen i stedet for et tungt grafisk hjælpelag.
+
+Hints skifter automatisk efter situationen:
+
+- Når ingen widget er valgt: klik på en widget eller tilføj nyt indhold.
+- Når en widget er valgt: `F` for fokus og `Shift + F` for maksimering.
+- Når du skriver i tekst: `Esc` stopper skrivning og beholder widgetten valgt.
+- I præsentation: hints viser hvordan du vælger, fokuserer og vender tilbage.
+
+Hints er lavet som let HTML/CSS og forstørrer derfor ikke `index.html` med indlejrede billeder.
+
+
+Hints kan slås til/fra med `Shift + O`. De vises i redigering, men skjules som udgangspunkt i præsentation, så elevvisningen forbliver rolig.

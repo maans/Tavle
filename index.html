@@ -3585,12 +3585,189 @@ body.focus-presentation .groupLock,
   pointer-events:none!important;
 }
 
+
+/* v1.0.31-dev: let kontekstuelt hint-system */
+.hintBar{
+  position:absolute;
+  left:50%;
+  bottom:92px;
+  transform:translateX(-50%);
+  z-index:2147483000;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  max-width:min(92vw,980px);
+  padding:8px 10px;
+  border-radius:999px;
+  background:rgba(17,24,39,.88);
+  color:white;
+  font-weight:900;
+  font-size:14px;
+  line-height:1;
+  box-shadow:0 12px 28px rgba(0,0,0,.28);
+  pointer-events:none;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.hintBar.hidden{display:none!important}
+.hintBar .hintChip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.13);
+  white-space:nowrap;
+}
+.hintBar .hintMain{
+  background:rgba(109,93,252,.95);
+}
+.hintBar .hintWarn{
+  background:rgba(245,158,11,.95);
+}
+.app.present .hintBar{
+  bottom:22px;
+  opacity:.92;
+}
+body.focus-mode .hintBar,
+body.focus-maximized .hintBar{
+  bottom:18px;
+}
+@media (max-width:700px){
+  .hintBar{
+    bottom:76px;
+    font-size:12px;
+    border-radius:18px;
+  }
+}
+
+
+/* v1.0.32-dev: hintbar kan slås fra/til */
+.hintClose{
+  border:0;
+  border-radius:999px;
+  background:rgba(255,255,255,.18);
+  color:white;
+  font-weight:900;
+  min-width:26px;
+  height:26px;
+  padding:0 8px;
+  cursor:pointer;
+  pointer-events:auto;
+  touch-action:manipulation;
+}
+.hintClose:active{transform:translateY(1px)}
+body.toolbar-is-hidden .hintBar,
+.app.toolbarHidden .hintBar{
+  bottom:22px;
+}
+
+
+/* v1.0.33-dev: bedre hintbar-layout + korrekt x-knap */
+.hintBar{
+  width:min(96vw,1180px)!important;
+  max-width:min(96vw,1180px)!important;
+  justify-content:center!important;
+  flex-wrap:nowrap!important;
+  border-radius:999px!important;
+  padding:8px 44px 8px 12px!important;
+  overflow:visible!important;
+}
+.hintBar .hintChip{
+  flex:0 0 auto!important;
+}
+.hintClose{
+  position:absolute!important;
+  right:8px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  z-index:2!important;
+}
+@media (max-width:760px){
+  .hintBar{
+    width:min(96vw,760px)!important;
+    max-width:min(96vw,760px)!important;
+    flex-wrap:wrap!important;
+    border-radius:22px!important;
+    padding:8px 38px 8px 10px!important;
+  }
+}
+
+/* v1.0.33-dev: hjælpemodalens checkbox må ikke skubbe tekst ud til højre */
+.helpHintToggleRow{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  margin-top:14px!important;
+  font-weight:900!important;
+  max-width:100%!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  line-height:1.25!important;
+}
+.helpHintToggleRow input{
+  flex:0 0 auto!important;
+  width:22px!important;
+  height:22px!important;
+  margin:0!important;
+}
+.helpHintToggleRow span{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow-wrap:anywhere!important;
+}
+
+
+/* v1.0.34-dev: hintbar matcher værktøjslinjens bredde og undgår peek-knappen */
+.hintBar{
+  width:auto!important;
+  max-width:min(82vw,860px)!important;
+  padding:8px 42px 8px 12px!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+}
+.hintBar .hintChip{
+  flex:0 1 auto!important;
+}
+body.toolbar-is-hidden .hintBar,
+.app.toolbarHidden .hintBar{
+  max-width:min(76vw,820px)!important;
+  bottom:22px!important;
+}
+.hintClose{
+  right:8px!important;
+}
+@media (max-width:760px){
+  .hintBar{
+    max-width:calc(100vw - 104px)!important;
+    flex-wrap:wrap!important;
+    border-radius:20px!important;
+    padding:8px 38px 8px 10px!important;
+  }
+}
+
+
+/* v1.0.35-dev: hintbar bliver i toolbar-space indtil toolbar vises aktivt igen */
+body.hints-in-toolbar-space .hintBar{
+  bottom:22px!important;
+  max-width:min(76vw,820px)!important;
+}
+body.hints-in-toolbar-space .hintBar .hintClose{
+  right:8px!important;
+}
+
 </style>
 </head>
 <body>
 <div id="app" class="app">
   <div id="title" class="title" contenteditable="true">Min undervisningstavle</div>
   <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide">🧹</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="presentFocus" title="Fokus i præsentation">🎯</button><button id="present">🎬</button></div>
+  <div id="hintBar" class="hintBar hidden" aria-live="polite"></div>
   <canvas id="draw" class="drawLayer"></canvas>
   <div class="drawPanel" id="drawPanel"><b>Tegn</b><input id="penColor" type="color" value="#000000"><input id="penSize" type="range" min="2" max="40" value="6"><button data-drawmode="pen" class="active">Fri</button><button data-drawmode="line">Linje</button><button data-drawmode="rect">Firkant</button><button data-drawmode="circle">Cirkel</button><button data-drawmode="eraser">Viskelæder</button><button id="drawClear">Ryd</button><button id="drawOff">Luk</button></div>
   <div class="toolbar">
@@ -3690,7 +3867,7 @@ body.focus-presentation .groupLock,
       }
       const shiftShortcutKey = (key==='?' || key==='/') ? '?' : key;
       if(((key==='f') && !e.metaKey && !e.ctrlKey && !e.altKey) ||
-         (e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey && ['p','a','v','i','b','g','r','h','s','t','l','u','m','?'].includes(shiftShortcutKey))){
+         (e.shiftKey && !e.metaKey && !e.ctrlKey && !e.altKey && ['p','a','v','i','b','g','r','h','s','t','l','u','m','o','?'].includes(shiftShortcutKey))){
         const api=window.tavleShortcutAPI;
         if(!api) return;
         e.preventDefault();
@@ -3763,6 +3940,7 @@ const KEY='maans_interaktiv_tavle_v162_test'; let selected=null, z=20, drawMode=
     },
     hide(){
       document.body.classList.add('toolbar-is-hidden');
+      document.body.classList.add('hints-in-toolbar-space');
       app.classList.add('toolbarHidden');
       UIState.toolbarVisible = false;
     },
@@ -3771,6 +3949,7 @@ const KEY='maans_interaktiv_tavle_v162_test'; let selected=null, z=20, drawMode=
     },
     pin(){
       UIState.toolbarPinned = true;
+      document.body.classList.remove('hints-in-toolbar-space');
       this.show();
       try{ localStorage.setItem('maans_toolbar_pinned','1'); }catch(_e){}
       if(typeof updatePinButtons==='function') updatePinButtons();
@@ -3860,7 +4039,7 @@ setTimeout(renderClock,80);
 try{
   applyToolbarSettings();
   const peek=document.getElementById('toolbarPeek');
-  if(peek)peek.onclick=(e)=>{e.preventDefault();e.stopPropagation();showToolbar();scheduleToolbarHide()};
+  if(peek)peek.onclick=(e)=>{e.preventDefault();e.stopPropagation();document.body.classList.remove('hints-in-toolbar-space');showToolbar();scheduleToolbarHide()};
   const pinFloat=document.getElementById('toolbarPinFloat');
   if(pinFloat)pinFloat.style.display='none';
   const tb=document.querySelector('.toolbar');
@@ -4102,7 +4281,7 @@ function initDrawLayerAfterRender(){
   }catch(e){}
 }
 
-function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender)}
+function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
 function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll')?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='timer'?260: type==='link'?230:320)))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
 function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
@@ -4682,6 +4861,7 @@ function setFocusMaximized(on){
     updateFocusExitLabel();
     syncEmergencyExit();
     try{setToolbarHidden(true)}catch(e){}
+    try{updateContextHints('maximized')}catch(_e){}
     try{toast('Maksimeret')}catch(e){}
     return;
   }
@@ -4738,6 +4918,7 @@ function hardExitMaximized(){
   syncEmergencyExit();
   try{applyUIState();}catch(_e){}
   try{setToolbarHidden(false)}catch(_e){}
+  try{updateContextHints('exit-max')}catch(_e){}
 }
 function setFocusMode(mode){
   focusMode=mode;
@@ -4866,6 +5047,7 @@ function repairAfterResume(){
   try{applyUIState();}catch(_e){}
   try{updateFocusExitLabel();}catch(_e){}
   try{setToolbarHidden(false)}catch(_e){}
+  try{updateContextHints('resume')}catch(_e){}
 }
 ['pageshow','focus'].forEach(ev=>window.addEventListener(ev,repairAfterResume,{passive:true}));
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) setTimeout(repairAfterResume,30); });
@@ -4936,6 +5118,10 @@ window.tavleShortcutAPI={
     if(key==='m'){
       bgModal();
       try{toast('Baggrund')}catch(e){}
+      return;
+    }
+    if(key==='o'){
+      toggleHints();
       return;
     }
     if(key==='g'){
@@ -5130,8 +5316,9 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
   }));
 
   ta.oninput=e=>{if(app.classList.contains('present'))return;w.data.text=e.target.value;save()};
-  ta.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ta.blur();select(w.id,{editText:false})}};
-  ta.onfocus=()=>{if(app.classList.contains('present'))ta.blur()}}
+  ta.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ta.blur();select(w.id,{editText:false});updateContextHints('text-esc')}};
+  ta.onfocus=()=>{if(app.classList.contains('present'))ta.blur();else updateContextHints('text-focus')};
+  ta.onblur=()=>setTimeout(()=>updateContextHints('text-blur'),30)}
  if(w.type==='video'){
   const id=ytId(w.data.url||'');
   c.innerHTML=`<div class="videoBox">${id?`<iframe src="https://www.youtube-nocookie.com/embed/${id}" allowfullscreen></iframe><div class="hidden"><a target="_blank" href="https://youtu.be/${id}">Åbn på YouTube</a></div>`:`<div><button class="videoEditBtn">Indsæt YouTube-link</button><p>Hvis indlejring blokeres på iPad, brug linket til YouTube.</p></div>`}</div>`;
@@ -5532,6 +5719,113 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
     if(drag||res||rot)save();
     drag=res=rot=false; rotHoldDidReset=false;
   }));}
+
+let hintTimer=null;
+let hintsEnabled=localStorage.getItem('maans_tavle_hints_enabled')!=='0';
+function widgetById(id){
+  try{return slide().widgets.find(w=>String(w.id)===String(id))||null}catch(_e){return null}
+}
+function setHintChips(chips,timeout=0){
+  const bar=document.getElementById('hintBar');
+  if(!bar)return;
+  clearTimeout(hintTimer);
+  if(!hintsEnabled || !chips || !chips.length){
+    bar.classList.add('hidden');
+    bar.innerHTML='';
+    return;
+  }
+  bar.innerHTML=chips.map(c=>{
+    const cls=c.kind==='main'?' hintMain':(c.kind==='warn'?' hintWarn':'');
+    return `<span class="hintChip${cls}">${esc(c.text||c)}</span>`;
+  }).join('') + '<button class="hintClose" id="hintClose" title="Skjul hints (Shift+O)" aria-label="Skjul hints">×</button>';
+  const close=bar.querySelector('#hintClose');
+  if(close)close.onclick=e=>{e.preventDefault();e.stopPropagation();setHintsEnabled(false)};
+  bar.classList.remove('hidden');
+  if(timeout){
+    hintTimer=setTimeout(()=>setHintChips([]),timeout);
+  }
+}
+function setHintsEnabled(on){
+  hintsEnabled=!!on;
+  try{localStorage.setItem('maans_tavle_hints_enabled',hintsEnabled?'1':'0')}catch(_e){}
+  if(!hintsEnabled){
+    setHintChips([]);
+    try{toast('Hints skjult – Shift+O viser dem igen')}catch(_e){}
+  }else{
+    updateContextHints('hints-on');
+    try{toast('Hints vist')}catch(_e){}
+  }
+}
+function toggleHints(){
+  setHintsEnabled(!hintsEnabled);
+}
+function updateContextHints(reason=''){
+  try{
+    const activeEl=document.activeElement;
+    const typing=activeEl && activeEl.closest && activeEl.closest('.text textarea,textarea,input,[contenteditable="true"]');
+    const w=widgetById(selected);
+    if(document.body.classList.contains('focus-maximized') || focusMaximized){
+      const mode=app.classList.contains('present')?'Præsentation':'Redigering';
+      setHintChips([
+        {text:'× maksimeret: tilbage',kind:'main'},
+        {text:'Esc: tilbage'},
+        {text:mode}
+      ]);
+      return;
+    }
+    if(focusMode){
+      setHintChips([
+        {text:'× fokus: tilbage',kind:'main'},
+        {text:'Esc: normal visning'},
+        {text:'Klik anden widget for nyt fokus'}
+      ]);
+      return;
+    }
+    if(typing){
+      setHintChips([
+        {text:'Esc: stop skrivning',kind:'main'},
+        {text:'Widget beholdes valgt'},
+        {text:'Klik bjælke/ramme: vælg/flyt'}
+      ]);
+      return;
+    }
+    if(app.classList.contains('present')){
+      // Præsentation skal være ren og elevvendt. Hints vises kun i
+      // fokus/maksimering, hvor de fungerer som nød-/brugertip.
+      setHintChips([]);
+      return;
+    }
+    if(w){
+      const typeName=titles[w.type]||w.type||'Widget';
+      const chips=[
+        {text:`Valgt: ${typeName}`,kind:'main'},
+        {text:'F: fokus'},
+        {text:'⇧F: maksimer'},
+        {text:'P/R: præsentation'}
+      ];
+      if(w.type==='text')chips.push({text:'Klik i teksten: skriv'});
+      if(w.type==='groups')chips.push({text:'Låse virker i redigering'});
+      setHintChips(chips);
+      return;
+    }
+    const count=(slide().widgets||[]).length;
+    if(count){
+      setHintChips([
+        {text:'Klik en widget for at vælge',kind:'main'},
+        {text:'? viser hjælp'},
+        {text:'P/R: præsentation'}
+      ]);
+    }else{
+      setHintChips([
+        {text:'Tilføj en widget nederst',kind:'main'},
+        {text:'Aa tekst'},
+        {text:'▶ video'},
+        {text:'⋯ flere'}
+      ]);
+    }
+  }catch(_e){}
+}
+
 function focusTextWidgetEditor(id,selectAll=false){
   setTimeout(()=>{
     try{
@@ -5571,6 +5865,7 @@ function select(id,options={}){
     focusTextWidgetEditor(id,!!options.selectAll);
   }
   try{applyUIState();}catch(_e){}
+  try{updateContextHints('select')}catch(_e){}
 }
 function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function ytId(url){let m=String(url).match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);return m?m[1]:''}
@@ -5892,6 +6187,10 @@ function showQuickHelp(){
   showModal(`<h2>Hjælp</h2>
   <div class="helpIntro">
     <p><b>Brug tavlen som et arbejdsbord med widgets.</b> Tilføj indhold nederst, flyt det rundt, og skift til præsentation, når eleverne skal se tavlen.</p>
+    <label class="helpHintToggleRow">
+      <input id="helpHintsToggle" type="checkbox" ${hintsEnabled?'checked':''}>
+      <span>Vis kontekstuelle hints i redigering</span>
+    </label>
   </div>
 
   <div class="helpFAQ">
@@ -5965,7 +6264,7 @@ function showQuickHelp(){
           <li><b>Shift + A</b> tekst, <b>Shift + P</b> PDF, <b>Shift + I</b> billede.</li>
           <li><b>Shift + B</b> backup, <b>Shift + G</b> grid, <b>Shift + R</b> grupper.</li>
           <li><b>Shift + H</b> hjul, <b>Shift + S</b> ordsky, <b>Shift + T</b> timer.</li>
-          <li><b>Shift + M</b> baggrund, <b>Shift + V</b> afstemning, <b>Shift + L</b> link, <b>Shift + U</b> ur, <b>Shift + ?</b> hjælp.</li>
+          <li><b>Shift + M</b> baggrund, <b>Shift + O</b> hints til/fra, <b>Shift + V</b> afstemning, <b>Shift + L</b> link, <b>Shift + U</b> ur, <b>Shift + ?</b> hjælp.</li>
           <li><b>←</b> og <b>→</b> skifter tavle – men skifter PDF-side, når en PDF-widget er aktiv eller i fokus.</li>
           <li><b>↑</b> og <b>↓</b> scroller PDF’en, når en PDF-widget er aktiv eller i fokus.</li>
           <li><b>1–9</b> går direkte til tavle 1–9. <b>0</b> går til tavle 10.</li>
@@ -5987,6 +6286,8 @@ function showQuickHelp(){
     <button id="closeHelp">Luk</button>
   </div>`);
   modal.querySelector('#closeHelp').onclick=closeModal;
+  const ht=modal.querySelector('#helpHintsToggle');
+  if(ht)ht.onchange=e=>setHintsEnabled(e.target.checked);
 }
 function maybeShowQuickHelp(){
   try{
@@ -6583,6 +6884,7 @@ document.getElementById('present').onclick=()=>{
   // This makes it possible to select in editing → switch to presentation → focus.
   document.activeElement && document.activeElement.blur();
   titleEl.contentEditable = app.classList.contains('present') ? 'false' : 'true';
+  try{updateContextHints('present')}catch(_e){}
 };
 
 ['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>ensureAudio(),{once:false,passive:true}));
