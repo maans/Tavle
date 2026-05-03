@@ -3349,6 +3349,50 @@ body.focus-maximized:not(.focus-mode):not(.focus-edit):not(.focus-presentation) 
 .presentationModeToast.edit{background:rgba(55,65,81,.94)}
 .presentationModeToast.present{background:rgba(109,93,252,.95)}
 
+
+/* v1.0.21-dev: stærkere dæmpning af tavlebaggrund i fokus/maksimering */
+body.focus-mode #app::after,
+body.focus-edit #app::after,
+body.focus-presentation #app::after,
+body.focus-maximized #app::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:9900;
+  pointer-events:none;
+  background:rgba(15,23,42,.48);
+  backdrop-filter:brightness(.58) saturate(.72);
+  -webkit-backdrop-filter:brightness(.58) saturate(.72);
+}
+body.focus-maximized #app::after{
+  background:rgba(15,23,42,.56);
+}
+body.focus-mode .widget,
+body.focus-edit .widget,
+body.focus-presentation .widget,
+body.focus-maximized .widget,
+body.focus-mode .focusExit,
+body.focus-edit .focusExit,
+body.focus-presentation .focusExit,
+body.focus-maximized .focusExit{
+  position:absolute;
+  z-index:10010;
+}
+body.focus-mode .widget:not(.focusTarget),
+body.focus-edit .widget:not(.focusTarget),
+body.focus-presentation .widget:not(.focusTarget){
+  opacity:.14!important;
+  filter:grayscale(.45) blur(2.2px) brightness(.62)!important;
+}
+body.focus-mode .widget.focusTarget,
+body.focus-edit .widget.focusTarget,
+body.focus-presentation .widget.focusTarget{
+  z-index:10060!important;
+  opacity:1!important;
+  filter:none!important;
+  box-shadow:0 0 0 6px rgba(109,93,252,.85),0 24px 70px rgba(0,0,0,.55)!important;
+}
+
 </style>
 </head>
 <body>
@@ -5449,7 +5493,16 @@ function bgModal(){
     </select>
     <button id="clearBg">Fjern billede</button>
     <button id="close">Luk</button>`);
-  modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{slide().bg=b.dataset.bg;render();save()});
+  modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{
+    slide().bg=b.dataset.bg;
+    // Farvevalg skal slå billedbaggrund/infografik fra.
+    slide().bgImage='';
+    slide().bgImageName='';
+    slide().bgImageSource='';
+    render();
+    save();
+    bgModal();
+  });
   modal.querySelector('#bgInfo').onclick=()=>{
     slide().bgImage=BUILTIN_INFOGRAFIK_BG;
     slide().bgImageName='README_infografik.png';
