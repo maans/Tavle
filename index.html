@@ -3761,6 +3761,48 @@ body.hints-in-toolbar-space .hintBar .hintClose{
   right:8px!important;
 }
 
+
+/* v1.0.36-dev: hints skjules hårdt i almindelig præsentation */
+.app.present:not(.focus-mode) .hintBar,
+body:not(.focus-mode):not(.focus-maximized) .app.present .hintBar{
+  display:none!important;
+}
+
+/* v1.0.36-dev: robust fokus-dæmpning på alle tavler/nye tavler */
+body.focus-mode #app::after,
+body.focus-edit #app::after,
+body.focus-presentation #app::after,
+body.focus-maximized #app::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:9900!important;
+  pointer-events:none!important;
+  background:rgba(15,23,42,.56)!important;
+  backdrop-filter:brightness(.52) saturate(.70)!important;
+  -webkit-backdrop-filter:brightness(.52) saturate(.70)!important;
+}
+body.focus-mode .widget,
+body.focus-edit .widget,
+body.focus-presentation .widget,
+body.focus-maximized .widget{
+  position:absolute!important;
+}
+body.focus-mode .widget.focusTarget,
+body.focus-edit .widget.focusTarget,
+body.focus-presentation .widget.focusTarget,
+body.focus-maximized .widget.focusTarget{
+  z-index:10060!important;
+  opacity:1!important;
+  filter:none!important;
+}
+body.focus-mode .widget:not(.focusTarget),
+body.focus-edit .widget:not(.focusTarget),
+body.focus-presentation .widget:not(.focusTarget){
+  opacity:.14!important;
+  filter:grayscale(.45) blur(2.2px) brightness(.62)!important;
+}
+
 </style>
 </head>
 <body>
@@ -5729,7 +5771,10 @@ function setHintChips(chips,timeout=0){
   const bar=document.getElementById('hintBar');
   if(!bar)return;
   clearTimeout(hintTimer);
-  if(!hintsEnabled || !chips || !chips.length){
+  // Almindelig præsentation skal altid være ren. Hints må kun vises
+  // i præsentation, hvis der samtidig er fokus eller maksimering.
+  const ordinaryPresentation=app.classList.contains('present') && !focusMode && !focusMaximized && !document.body.classList.contains('focus-maximized');
+  if(ordinaryPresentation || !hintsEnabled || !chips || !chips.length){
     bar.classList.add('hidden');
     bar.innerHTML='';
     return;
