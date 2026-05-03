@@ -3428,8 +3428,16 @@ body.focus-maximized:not(.focus-mode):not(.focus-edit):not(.focus-presentation) 
     };
     function togglePresentationFromShortcut(){
       const btn=document.getElementById('present');
-      if(btn){ btn.click(); }
-      else if(appEl){ appEl.classList.toggle('present'); }
+      if(btn){
+        // rely on the normal present button handler which updates UIState
+        btn.click();
+      } else if(appEl){
+        // toggle the present class directly and update UIState accordingly
+        const wasPresent=appEl.classList.contains('present');
+        appEl.classList.toggle('present');
+        UIState.mode = wasPresent ? 'editing' : 'presentation';
+        try{ applyUIState(); }catch(_e){}
+      }
       if(window.showPresentationModeIndicator) setTimeout(window.showPresentationModeIndicator,20);
     }
     document.addEventListener('keydown',function(e){
@@ -3469,6 +3477,108 @@ body.focus-maximized:not(.focus-mode):not(.focus-edit):not(.focus-presentation) 
 const app=document.getElementById('app'), titleEl=document.getElementById('title'), draw=document.getElementById('draw'), ctx=draw.getContext('2d');
 const modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal'), fileInput=document.getElementById('fileInput');
 const KEY='maans_interaktiv_tavle_v162_test'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
+
+  /*
+   * Central UI state
+   *
+   * The board has grown to support multiple modes (editing vs presentation),
+   * selection, focus and maximized widgets, and toolbar pinning/visibility.  In
+   * older versions these pieces of state were scattered across a handful of
+   * globals and DOM classes.  Here we introduce a single `UIState` object
+   * which holds the authoritative values for these flags.  Whenever UI
+   * behaviour changes (selecting a widget, entering focus/presentation, pinning
+   * the toolbar), update this object and call `applyUIState()` to
+   * synchronise the DOM.  This makes it much easier to reason about the
+   * current mode of the application.
+   */
+  const UIState = {
+    // 'editing' or 'presentation'
+    mode: 'editing',
+    // id of the currently selected widget (string), or null
+    selectedWidgetId: null,
+    // id of the widget in focus mode (string), or null
+    focusedWidgetId: null,
+    // id of the maximized widget in focus mode (string), or null
+    maximizedWidgetId: null,
+    // whether the toolbar is pinned (persisted to localStorage)
+    toolbarPinned: (localStorage.getItem('maans_toolbar_pinned') === '1'),
+    // whether the toolbar is visible at the moment
+    toolbarVisible: true,
+    // current focus mode: null | 'edit' | 'presentation'
+    focusMode: null,
+    // true while a widget is temporarily maximized
+    focusMaximized: false
+  };
+
+  /**
+   * Toolbar controller
+   *
+   * All toolbar-related operations funnel through this object.  Calling
+   * `Toolbar.show()` or `Toolbar.hide()` updates both the DOM and
+   * `UIState.toolbarVisible`.  Pinning/unpinning persists to
+   * localStorage.
+   */
+  const Toolbar = {
+    show(){
+      document.body.classList.remove('toolbar-is-hidden');
+      app.classList.remove('toolbarHidden');
+      UIState.toolbarVisible = true;
+    },
+    hide(){
+      document.body.classList.add('toolbar-is-hidden');
+      app.classList.add('toolbarHidden');
+      UIState.toolbarVisible = false;
+    },
+    toggle(){
+      if(UIState.toolbarVisible) this.hide(); else this.show();
+    },
+    pin(){
+      UIState.toolbarPinned = true;
+      this.show();
+      try{ localStorage.setItem('maans_toolbar_pinned','1'); }catch(_e){}
+      if(typeof updatePinButtons==='function') updatePinButtons();
+    },
+    unpin(){
+      UIState.toolbarPinned = false;
+      try{ localStorage.removeItem('maans_toolbar_pinned'); }catch(_e){}
+      if(typeof updatePinButtons==='function') updatePinButtons();
+    },
+    togglePin(){
+      UIState.toolbarPinned ? this.unpin() : this.pin();
+    }
+  };
+
+  /**
+   * Apply UI state to the DOM.
+   *
+   * This function synchronises the CSS classes of the application with the
+   * current `UIState` values.  It updates selection highlighting,
+   * focus/maximized widgets, presentation mode, and pinned toolbars.  Call
+   * this after mutating `UIState`.
+   */
+  function applyUIState(){
+    // update overall mode
+    app.classList.toggle('present', UIState.mode === 'presentation');
+    // focus-mode must only be active when the user has explicitly entered
+    // focus mode or maximized a widget. A remembered focusedWidgetId alone
+    // must NOT keep the whole board in focus mode.
+    const hasFocus = !!UIState.focusMode || !!UIState.focusMaximized;
+    document.body.classList.toggle('focus-mode', hasFocus);
+    // update widget classes
+    document.querySelectorAll('.widget').forEach(el=>{
+      const id = String(el.dataset.id||'');
+      el.classList.toggle('selected', id && id===String(UIState.selectedWidgetId));
+      el.classList.toggle('focusTarget', id && id===String(UIState.focusedWidgetId));
+      el.classList.toggle('maximized', id && id===String(UIState.maximizedWidgetId));
+    });
+    // update toolbar pin visual state.  Apply both the legacy
+    // `toolbarPinned` class on the app element and a newer
+    // `toolbar-pinned` class on the body for clarity.
+    document.body.classList.toggle('toolbar-pinned', !!UIState.toolbarPinned);
+    try{
+      app.classList.toggle('toolbarPinned', !!UIState.toolbarPinned);
+    }catch(_e){}
+  }
 let toolClickBlockUntil=0;
 let embeddedData=window.__TAVLE_DATA__||null;
 let state=(embeddedData&&embeddedData.state)||load()||{active:0,slides:[{title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]}]};
@@ -3523,6 +3633,12 @@ try{
   /* v108: toolbar vækkes kun via værktøjer-knappen, ikke globale klik */
   scheduleToolbarHide();
 }catch(e){}
+
+  // synchronise initial UI state with the DOM.  Without this call the page
+  // might start in a stale state (e.g. lingering classes from previous
+  // sessions or server-side rendering).  It runs outside the try/catch so
+  // that failures in toolbar setup don't prevent UI state from being applied.
+  try{applyUIState();}catch(_e){}
 
 if(clockEl)clockEl.onclick=(e)=>{e.preventDefault();e.stopPropagation();clockModal()};
 
@@ -4093,32 +4209,30 @@ function applyToolbarSettings(){
     scheduleToolbarHide();
   }
 }
+// Toolbar helpers now delegate into the central Toolbar controller.  See
+// definition of Toolbar above for details.
 function hideToolbar(){
-  /* v162.2: auto-hide er slået fra. Toolbar skjules kun af fallback-knappen. */
-  return;
+  Toolbar.hide();
 }
 function showToolbar(){
-  document.body.classList.remove('toolbar-is-hidden');
-  app.classList.remove('toolbarHidden');
+  Toolbar.show();
 }
 function scheduleToolbarHide(){
-  /* v162.2: ingen ventende auto-hide. */
+  // auto-hide disabled
   clearTimeout(toolbarHideTimer);
   return;
 }
 function wakeToolbar(e){
   const target=e&&e.target;
   if(target && target.closest && target.closest('.modal'))return;
-  const s=toolbarSettings();
-  if(!s.autoHide || s.pinned)return;
-  showToolbar();
-  scheduleToolbarHide();
+  Toolbar.show();
 }
 function setToolbarHidden(on){
-  /* v162.2: drag/resize må ikke skjule toolbar automatisk. */
-  if(!on)showToolbar();
+  if(on) Toolbar.hide(); else Toolbar.show();
 }
-function toggleToolbarPinned(){showToolbar()}
+function toggleToolbarPinned(){
+  Toolbar.togglePin();
+}
 
 function toolbarModal(){
   const s=toolbarSettings();
@@ -4222,7 +4336,10 @@ document.addEventListener('click',function(e){
     e.preventDefault();e.stopPropagation();
     if(e.stopImmediatePropagation)e.stopImmediatePropagation();
     slide().widgets=slide().widgets.filter(x=>x.id!==w.id);
+    // clear selection in both legacy and new state
     selected=null;
+    UIState.selectedWidgetId=null;
+    try{applyUIState();}catch(_e){}
     render();
     save();
     return;
@@ -4242,11 +4359,20 @@ let focusPointer={x:0,y:0,moved:false,t:0};
 
 function clearFocusTarget(){
   document.querySelectorAll('.widget.focusTarget').forEach(el=>el.classList.remove('focusTarget'));
+  // update central state when focus target cleared
+  UIState.focusedWidgetId=null;
+  try{applyUIState();}catch(_e){}
 }
 function setFocusTarget(el){
-  if(!el)return;
+  if(!el){
+    clearFocusTarget();
+    return;
+  }
   clearFocusTarget();
   el.classList.add('focusTarget');
+  // capture id in central state and sync DOM
+  try{UIState.focusedWidgetId=String(el.dataset.id||null);}catch(_e){UIState.focusedWidgetId=null;}
+  try{applyUIState();}catch(_e){}
 }
 function updateFocusButtons(){
   const editBtn=document.querySelector('[data-tool="focus"]');
@@ -4280,7 +4406,14 @@ function setFocusMaximized(on){
     }
     focusMaxReturnMode=focusMode||null;
     focusMaximized=true;
+    UIState.focusMaximized=true;
     document.body.classList.add('focus-maximized');
+    // update central state: the maximized widget is our focus target
+    try{
+      const maxEl=document.querySelector('.widget.focusTarget');
+      UIState.maximizedWidgetId=maxEl?String(maxEl.dataset.id||null):null;
+      applyUIState();
+    }catch(_e){}
     const btn=document.getElementById('focusExit');
     if(btn)btn.classList.remove('hidden');
     updateFocusExitLabel();
@@ -4289,7 +4422,11 @@ function setFocusMaximized(on){
     return;
   }
   focusMaximized=false;
+  UIState.focusMaximized=false;
   document.body.classList.remove('focus-maximized');
+  // clear maximized id in central state and reapply UI
+  UIState.maximizedWidgetId=null;
+  try{applyUIState();}catch(_e){}
   if(!focusMaxReturnMode){
     clearFocusTarget();
     const btn=document.getElementById('focusExit');
@@ -4312,14 +4449,30 @@ function toggleFocusMaximized(){
 }
 function setFocusMode(mode){
   focusMode=mode;
+  UIState.focusMode=mode||null;
+  // set global mode for central UI state
+  if(mode==='presentation'){
+    UIState.mode='presentation';
+  }else{
+    UIState.mode='editing';
+  }
+  try{applyUIState();}catch(_e){}
   if(focusMode){
     try{setDrawActive(false)}catch(e){}
     try{app.classList.remove('drawActive')}catch(e){}
   }
-  document.body.classList.toggle('focus-mode',!!focusMode); // legacy, only used for exit button
+  // Keep legacy focus classes in sync through the central state model.
+  // Important: focus-mode may also be true during temporary maximized mode.
+  document.body.classList.toggle('focus-mode',!!focusMode || !!focusMaximized);
   document.body.classList.toggle('focus-edit',focusMode==='edit');
   document.body.classList.toggle('focus-presentation',focusMode==='presentation');
-  if(!focusMode){focusMaximized=false;focusMaxReturnMode=null;document.body.classList.remove('focus-maximized');}
+  if(!focusMode){
+    focusMaximized=false;
+    focusMaxReturnMode=null;
+    UIState.focusMaximized=false;
+    UIState.maximizedWidgetId=null;
+    document.body.classList.remove('focus-maximized');
+  }
   const btn=document.getElementById('focusExit');
   if(btn)btn.classList.toggle('hidden',!focusMode && !focusMaximized);
   updateFocusExitLabel();
@@ -4367,13 +4520,26 @@ document.addEventListener('keydown',e=>{
     e.preventDefault();
     focusMaximized=false;
     focusMaxReturnMode=null;
+    UIState.focusMaximized=false;
+    UIState.maximizedWidgetId=null;
     document.body.classList.remove('focus-maximized');
     setFocusMode(null);
+    try{applyUIState();}catch(_e){}
   }
 });
 
 const focusExitBtn=document.getElementById('focusExit');
-if(focusExitBtn)focusExitBtn.onclick=e=>{e.preventDefault();e.stopPropagation();focusMaximized=false;focusMaxReturnMode=null;document.body.classList.remove('focus-maximized');setFocusMode(null)};
+if(focusExitBtn)focusExitBtn.onclick=e=>{
+  e.preventDefault();
+  e.stopPropagation();
+  focusMaximized=false;
+  focusMaxReturnMode=null;
+  UIState.focusMaximized=false;
+  UIState.maximizedWidgetId=null;
+  document.body.classList.remove('focus-maximized');
+  setFocusMode(null);
+  try{applyUIState();}catch(_e){}
+};
 
 
 /* v118 TEST: capture widget choice in presentation focus before other handlers can swallow the tap */
@@ -4579,7 +4745,21 @@ function wirePoll(c,w,el){
   };
 }
 
-function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type; if(w.type==='text'){c.innerHTML=`<div class="text"><textarea placeholder="Skriv her...">${esc(w.data.text||'')}</textarea></div>`;const ta=c.querySelector('textarea');ta.oninput=e=>{if(app.classList.contains('present'))return;w.data.text=e.target.value;save()};ta.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ta.blur();select(null)}};ta.onfocus=()=>{if(app.classList.contains('present'))ta.blur()}}
+function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type; if(w.type==='text'){c.innerHTML=`<div class="text"><textarea placeholder="Skriv her...">${esc(w.data.text||'')}</textarea></div>`;const ta=c.querySelector('textarea');
+  // Keep normal text editing stable. The textarea should select its widget,
+  // but its pointer/click events must not bubble up as drag/tap/focus actions.
+  ta.addEventListener('pointerdown',e=>{
+    if(!app.classList.contains('present')) select(w.id);
+    e.stopPropagation();
+  });
+  ta.addEventListener('touchstart',e=>{
+    if(!app.classList.contains('present')) select(w.id);
+    e.stopPropagation();
+  },{passive:true});
+  ['pointerup','click','dblclick','touchend'].forEach(ev=>ta.addEventListener(ev,e=>{e.stopPropagation();}));
+  ta.oninput=e=>{if(app.classList.contains('present'))return;w.data.text=e.target.value;save()};
+  ta.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ta.blur();select(null)}};
+  ta.onfocus=()=>{if(app.classList.contains('present'))ta.blur()}}
  if(w.type==='video'){
   const id=ytId(w.data.url||'');
   c.innerHTML=`<div class="videoBox">${id?`<iframe src="https://www.youtube-nocookie.com/embed/${id}" allowfullscreen></iframe><div class="hidden"><a target="_blank" href="https://youtu.be/${id}">Åbn på YouTube</a></div>`:`<div><button class="videoEditBtn">Indsæt YouTube-link</button><p>Hvis indlejring blokeres på iPad, brug linket til YouTube.</p></div>`}</div>`;
@@ -4816,17 +4996,33 @@ function normalizeDomLayerOrder(){
   widgets.forEach(el=>el.parentElement&&el.parentElement.appendChild(el));
 }
 
+
+function isTextEditingTarget(target){
+  return !!(target && target.closest && target.closest('.text textarea, textarea'));
+}
+
 function wireWidget(el,w){
  let layerTap={x:0,y:0,t:0,moved:false,ignore:false};
  el.addEventListener('pointerdown',e=>{
+   // Text editing should behave like a normal textarea. Do not let the
+   // widget-level tap/selection logic steal focus/cursor from the textarea.
+   if(isTextEditingTarget(e.target)){
+     if(selected!==w.id) select(w.id);
+     layerTap={x:e.clientX,y:e.clientY,t:0,moved:false,ignore:true};
+     return;
+   }
    select(w.id);
-   layerTap={x:e.clientX,y:e.clientY,t:Date.now(),moved:false,ignore:!!(e.target.closest&&e.target.closest('.chrome,.resize,.rotater,.mini,button,input,select,label'))};
+   layerTap={x:e.clientX,y:e.clientY,t:Date.now(),moved:false,ignore:!!(e.target.closest&&e.target.closest('.chrome,.resize,.rotater,.mini,button,input,select,label,textarea,[contenteditable="true"]'))};
  },{passive:true});
  el.addEventListener('pointermove',e=>{
    if(!layerTap.t)return;
    if(Math.abs(e.clientX-layerTap.x)>7||Math.abs(e.clientY-layerTap.y)>7)layerTap.moved=true;
  },{passive:true});
  el.addEventListener('pointerup',e=>{
+   if(isTextEditingTarget(e.target)){
+     layerTap.t=0;
+     return;
+   }
    if(!layerTap.t)return;
    const isTap=!layerTap.moved && Date.now()-layerTap.t<320;
    if(isTap && (!layerTap.ignore || w.type==='text'))bringWidgetToFront(w,el);
@@ -4925,7 +5121,9 @@ function focusTextWidgetEditor(id,selectAll=false){
 }
 function select(id){
   const previous=selected;
+  // Update both legacy variable and central UI state
   selected=id;
+  UIState.selectedWidgetId=id;
   let selectedWidget=null;
   document.querySelectorAll('.widget').forEach(e=>{
     let on=id&&e.dataset.id===id;
@@ -4939,6 +5137,8 @@ function select(id){
   if(id && id!==previous && selectedWidget && selectedWidget.type==='text'){
     focusTextWidgetEditor(id,false);
   }
+  // Reapply UI state to reflect the new selection
+  try{applyUIState();}catch(_e){}
 }
 function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function ytId(url){let m=String(url).match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);return m?m[1]:''}
@@ -5874,7 +6074,33 @@ app.addEventListener('pointerdown',e=>{
   if(e.target===app || e.target===titleEl){ select(null); }
 });
 
-document.getElementById('prev').onclick=()=>prevSlide();document.getElementById('next').onclick=()=>nextSlide();document.getElementById('slidesOverview').onclick=slideOverviewModal;document.getElementById('addSlide').onclick=()=>{state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});state.active=state.slides.length-1;render()};document.getElementById('clearSlide').onclick=()=>{if(confirm('Ryd denne tavle?')){slide().widgets=[];slide().draw='';render()}};document.getElementById('drawTop').onclick=()=>setDrawActive(!app.classList.contains('drawActive'));document.getElementById('present').onclick=()=>{app.classList.toggle('present');if(!app.classList.contains('present')&&focusMode==='presentation')setFocusMode(null);select(null);document.activeElement&&document.activeElement.blur();titleEl.contentEditable=app.classList.contains('present')?'false':'true'};
+document.getElementById('prev').onclick=()=>prevSlide();
+document.getElementById('next').onclick=()=>nextSlide();
+document.getElementById('slidesOverview').onclick=slideOverviewModal;
+document.getElementById('addSlide').onclick=()=>{
+  state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});
+  state.active=state.slides.length-1;
+  render();
+};
+document.getElementById('clearSlide').onclick=()=>{
+  if(confirm('Ryd denne tavle?')){
+    slide().widgets=[];
+    slide().draw='';
+    render();
+  }
+};
+document.getElementById('drawTop').onclick=()=>setDrawActive(!app.classList.contains('drawActive'));
+document.getElementById('present').onclick=()=>{
+  // Toggle presentation mode and update central state accordingly
+  const wasPresent = app.classList.contains('present');
+  app.classList.toggle('present');
+  UIState.mode = wasPresent ? 'editing' : 'presentation';
+  try{ applyUIState(); }catch(_e){}
+  if(!app.classList.contains('present') && focusMode==='presentation') setFocusMode(null);
+  select(null);
+  document.activeElement && document.activeElement.blur();
+  titleEl.contentEditable = app.classList.contains('present') ? 'false' : 'true';
+};
 
 ['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>ensureAudio(),{once:false,passive:true}));
 
@@ -5962,66 +6188,68 @@ const toolbarEl=document.querySelector('.toolbar'),
       toolbarPinFloat=document.getElementById('toolbarPinFloat'),
       toolbarOpts=(document.getElementById('toolbarOpts')||document.querySelector('[data-tool="more"]'));
 
-let toolbarPinned=localStorage.getItem('maans_toolbar_pinned')==='1',
+// initial pinned state comes from central UI state
+let toolbarPinned=UIState.toolbarPinned,
     toolbarTimer=null,
     toolbarDelay=Number(localStorage.getItem('maans_toolbar_delay')||5000);
 
 let toolbarBlockTimer=null;
 function blockToolbarClicks(ms=650){toolClickBlockUntil=Date.now()+ms;app.classList.add('toolbarBlocked');clearTimeout(toolbarBlockTimer);toolbarBlockTimer=setTimeout(()=>app.classList.remove('toolbarBlocked'),ms)}
 function setToolbarHidden(on){
-  /* v162.2: auto-hide/pin-modellen er neutraliseret.
-     Almindelige drag/resize-kald med true ignoreres; fallback-knappen skjuler/viser direkte. */
-  if(on) return;
-  app.classList.remove('toolbarHidden');
-  document.body.classList.remove('toolbar-is-hidden');
+  // Delegate to the central Toolbar controller
+  if(on) Toolbar.hide(); else Toolbar.show();
 }
 function updatePinButtons(){
-  if(pinToolbar) pinToolbar.textContent=toolbarPinned?'📍':'📌';
+  // reflect pin state stored in UIState
+  const pinned=UIState.toolbarPinned;
+  if(pinToolbar) pinToolbar.textContent=pinned?'📍':'📌';
   if(toolbarPinFloat){
-    toolbarPinFloat.textContent=toolbarPinned?'📍':'📌';
-    toolbarPinFloat.title=toolbarPinned?'Frigør værktøjslinje':'Fastgør værktøjslinje';
+    toolbarPinFloat.textContent=pinned?'📍':'📌';
+    toolbarPinFloat.title=pinned?'Frigør værktøjslinje':'Fastgør værktøjslinje';
   }
 }
 function showToolbarTemp(){
-  /* v162.2: ingen auto-åbning/auto-lukning. Fallback-knappen styrer toolbaren alene. */
+  // Always show toolbar immediately (auto-hide disabled)
   clearTimeout(toolbarTimer);
+  Toolbar.show();
   return;
 }
 function toggleToolbarPin(){
-  toolbarPinned=!toolbarPinned;
-  localStorage.setItem('maans_toolbar_pinned',toolbarPinned?'1':'0');
-  app.classList.toggle('toolbarPinned',toolbarPinned);
+  // Delegate to central Toolbar pin toggler and sync local flag
+  Toolbar.togglePin();
+  toolbarPinned=UIState.toolbarPinned;
   updatePinButtons();
-  showToolbarTemp();
+  Toolbar.show();
 }
 function toolbarSettingsModal(){
   showModal(`<h2>Værktøjslinje</h2>
     <div class="toolbarSettings">
       <label><span>Auto-skjul efter sekunder</span><input id="tbDelay" type="number" min="1" max="30" value="${Math.round(toolbarDelay/1000)}"></label>
-      <label><span>Fastgør værktøjslinjen</span><input id="tbPinned" type="checkbox" ${toolbarPinned?'checked':''}></label>
+      <label><span>Fastgør værktøjslinjen</span><input id="tbPinned" type="checkbox" ${UIState.toolbarPinned?'checked':''}></label>
     </div>
     <p>Standard er 5 sekunder.</p>
     <button id="ok">Gem</button><button id="close">Luk</button>`);
   modal.querySelector('#ok').onclick=()=>{
     toolbarDelay=Math.max(1,Math.min(30,Number(modal.querySelector('#tbDelay').value||5)))*1000;
-    toolbarPinned=modal.querySelector('#tbPinned').checked;
-    localStorage.setItem('maans_toolbar_delay',String(toolbarDelay));
-    localStorage.setItem('maans_toolbar_pinned',toolbarPinned?'1':'0');
-    app.classList.toggle('toolbarPinned',toolbarPinned);
+    const pinned = modal.querySelector('#tbPinned').checked;
+    try{ localStorage.setItem('maans_toolbar_delay',String(toolbarDelay)); }catch(_e){}
+    // Use Toolbar controller to persist pinned state and update UIState
+    if(pinned){ Toolbar.pin(); } else { Toolbar.unpin(); }
+    toolbarPinned = UIState.toolbarPinned;
     updatePinButtons();
     closeModal();
-    showToolbarTemp();
+    Toolbar.show();
   };
   modal.querySelector('#close').onclick=closeModal;
 }
 if(pinToolbar) pinToolbar.onclick=e=>{
   e.stopPropagation();
-  toolbarPinned=false;
-  localStorage.setItem('maans_toolbar_pinned','0');
-  app.classList.remove('toolbarPinned');
+  // Toggle the pinned state via the Toolbar controller
+  Toolbar.togglePin();
+  toolbarPinned = UIState.toolbarPinned;
   updatePinButtons();
   clearTimeout(toolbarTimer);
-  setToolbarHidden(true);
+  Toolbar.show();
 };
 if(toolbarPinFloat) toolbarPinFloat.onclick=e=>{e.preventDefault();e.stopPropagation();toggleToolbarPin();showToolbarTemp();blockToolbarClicks(750)};
 if(toolbarOpts) toolbarOpts.onclick=e=>{e.stopPropagation();toolbarSettingsModal()};
@@ -6029,8 +6257,12 @@ if(toolbarPeek) toolbarPeek.onclick=e=>{e.preventDefault();e.stopPropagation();s
 app.addEventListener('pointermove',e=>{if(e.clientY>innerHeight-130)showToolbarTemp()});
 app.addEventListener('pointerdown',e=>{if(e.target&&e.target.closest&&e.target.closest('.toolbar,.toolbarPeek,.toolbarPinFloat,#toolbarFallback,#toolbarPinFallback'))showToolbarTemp()});
 updatePinButtons();
-app.classList.toggle('toolbarPinned',toolbarPinned);
-setTimeout(()=>setToolbarHidden(true),toolbarDelay);
+// sync pinned class from central state
+app.classList.toggle('toolbarPinned',UIState.toolbarPinned);
+// hide the toolbar after delay using the central controller
+setTimeout(()=>{
+  try{ Toolbar.hide(); }catch(_e){}
+}, toolbarDelay);
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape' && app.classList.contains('toolbarHidden')){
     showToolbarTemp();
