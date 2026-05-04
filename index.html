@@ -4343,7 +4343,18 @@ window.clearIframeControl=clearIframeControl;
     }catch(_e){}
   }
 let toolClickBlockUntil=0;
-const BUILTIN_INFOGRAFIK_BG='https://maans.github.io/Tavle/README_infografik.png';
+
+const TAVLE_ASSET_BASE='https://maans.github.io/Tavle/';
+const RUNNING_FROM_FILE=location.protocol==='file:';
+function resolveAssetPath(path){
+  path=String(path||'').trim();
+  if(!path)return '';
+  if(/^data:/i.test(path) || /^blob:/i.test(path) || /^https?:\/\//i.test(path))return path;
+  path=path.replace(/^\.\//,'');
+  return RUNNING_FROM_FILE ? (TAVLE_ASSET_BASE + path) : path;
+}
+
+const BUILTIN_INFOGRAFIK_BG=resolveAssetPath('README_infografik.png');
 const TAVLE_BACKGROUNDS=[
   {
     "title": "Klassisk tavle",
@@ -4639,7 +4650,7 @@ function applyBg(){
   app.style.background=baseBg;
   app.style.filter='none';
   if(s.bgImage){
-    const imgUrl=cssBgUrl(s.bgImage);
+    const imgUrl=cssBgUrl(resolveAssetPath(s.bgImage));
     if(overlay){
       app.style.backgroundImage=`${overlay}, ${imgUrl}, ${baseBg}`;
       app.style.backgroundSize=`cover, ${s.bgFit||'cover'}, cover`;
@@ -6679,10 +6690,11 @@ function bgModal(){
   }).join('');
 
   const bgCards=(TAVLE_BACKGROUNDS||[]).map((bg,idx)=>{
-    const active=currentBg===bg.src || slide().bgImageName===bg.name || slide().bgImageTitle===bg.title;
+    const resolvedSrc=resolveAssetPath(bg.src);
+    const active=currentBg===bg.src || currentBg===resolvedSrc || slide().bgImageName===bg.name || slide().bgImageTitle===bg.title;
     return `<button class="bgChoice ${active?'active':''}" data-bg-index="${idx}" title="${esc(bg.title+' — '+bg.desc)}">
       <span class="bgChoicePreview">
-        <img src="${esc(bg.src)}" alt="${esc(bg.title)}" loading="lazy" style="filter:${esc(previewCss)}" onerror="this.classList.add('bgImgMissing')">
+        <img src="${esc(resolvedSrc)}" alt="${esc(bg.title)}" loading="lazy" style="filter:${esc(previewCss)}" onerror="this.classList.add('bgImgMissing')">
         <span class="bgChoiceOverlay" style="background:${esc(previewOverlay)}"></span>
       </span>
       <span class="bgChoiceTitle">${esc(bg.title)}</span>
