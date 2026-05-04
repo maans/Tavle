@@ -3917,7 +3917,116 @@ body.focus-maximized #maxEmergencyExit{
 .bgChoice img{aspect-ratio:auto;border-radius:0}
 .bgLibraryHead p .filterName{font-weight:950;color:#111827}
 
+
+/* v1.0.40: Link-widget iframe/webvisning */
+.linkModeToggle{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  border-radius:10px;
+  font-weight:950;
+  font-size:.9rem;
+}
+.linkModeToggle[data-mode="iframe"]{
+  background:#6c5cff;
+  color:#fff;
+}
+.linkIframeBox{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  background:#0f172a;
+  color:white;
+}
+.linkIframeControls{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px;
+  background:rgba(15,23,42,.92);
+  border-bottom:1px solid rgba(255,255,255,.12);
+  font-size:.82rem;
+}
+.linkIframeControls button{
+  border:0;
+  border-radius:10px;
+  padding:7px 10px;
+  font-weight:900;
+  cursor:pointer;
+  background:#f8fafc;
+  color:#111827;
+}
+.linkIframeUrl{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  opacity:.85;
+  min-width:0;
+  flex:1;
+}
+.linkIframeFrame{
+  position:relative;
+  flex:1;
+  min-height:0;
+  background:#e5e7eb;
+}
+.linkIframeFrame iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:white;
+}
+.linkIframeShield{
+  position:absolute;
+  inset:0;
+  background:rgba(15,23,42,.04);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:950;
+  text-shadow:0 2px 10px rgba(0,0,0,.7);
+  pointer-events:auto;
+}
+.linkIframeShield::after{
+  content:'Flyt/ændr widget i redigering – brug præsentation/fokus for at interagere';
+  background:rgba(15,23,42,.72);
+  padding:10px 14px;
+  border-radius:999px;
+  opacity:0;
+  transition:opacity .15s ease;
+}
+.linkIframeFrame:hover .linkIframeShield::after{opacity:1}
+.app.present .linkIframeShield,
+body.focus-mode .linkIframeShield,
+body.focus-edit .linkIframeShield,
+body.focus-presentation .linkIframeShield,
+body.focus-maximized .linkIframeShield{
+  display:none;
+}
+
+
+/* v1.0.40: aktiv iframe/webstyring for Link-widget */
+.widget.linkIframeActive .linkIframeShield{
+  display:none!important;
+}
+.widget.linkIframeActive{
+  outline:4px solid rgba(108,92,255,.55);
+  box-shadow:0 0 0 7px rgba(108,92,255,.18),0 18px 42px rgba(15,23,42,.22);
+}
+body.iframe-control-active .toolbar,
+body.iframe-control-active .topbar{
+  opacity:.55;
+}
+.linkIframeControls .linkActivate.active{
+  background:#6c5cff;
+  color:#fff;
+}
+
 </style>
+<link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
 <body>
 <div id="app" class="app">
@@ -4067,6 +4176,13 @@ body.focus-maximized #maxEmergencyExit{
     }
 
     document.addEventListener('keydown',function(e){
+      if(window.isIframeControlActive && window.isIframeControlActive()){
+        if(e.key==='Escape' && window.clearIframeControl){
+          e.preventDefault();
+          window.clearIframeControl();
+        }
+        return;
+      }
       if(e.defaultPrevented) return;
       if(isTyping(e) || modalOpen()) return;
       if(e.metaKey || e.ctrlKey || e.altKey) return;
@@ -4098,6 +4214,29 @@ body.focus-maximized #maxEmergencyExit{
 const app=document.getElementById('app'), titleEl=document.getElementById('title'), draw=document.getElementById('draw'), ctx=draw.getContext('2d');
 const modalBack=document.getElementById('modalBack'), modal=document.getElementById('modal'), fileInput=document.getElementById('fileInput');
 const KEY='maans_interaktiv_tavle_v162_test'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
+let activeIframeWidgetId=null;
+function isIframeControlActive(){
+  return !!activeIframeWidgetId;
+}
+function setIframeControl(id,on){
+  activeIframeWidgetId=on?String(id):null;
+  document.body.classList.toggle('iframe-control-active',!!activeIframeWidgetId);
+  document.querySelectorAll('.widget').forEach(el=>{
+    el.classList.toggle('linkIframeActive',!!activeIframeWidgetId && String(el.dataset.id)===activeIframeWidgetId);
+  });
+}
+function clearIframeControl(){
+  setIframeControl(null,false);
+}
+function syncIframeControl(){
+  if(!activeIframeWidgetId)return;
+  const el=document.querySelector('.widget[data-id="'+CSS.escape(activeIframeWidgetId)+'"]');
+  if(!el)clearIframeControl();
+  else setIframeControl(activeIframeWidgetId,true);
+}
+window.isIframeControlActive=isIframeControlActive;
+window.clearIframeControl=clearIframeControl;
+
 
   /*
    * Central UI state
@@ -4625,7 +4764,7 @@ function resetWidgetRotation(w,el){
   if(typeof toast==='function')toast('Rotation nulstillet');
 }
 function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
-function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?'<button data-act="editLink" title="Rediger link">✎</button>':'';el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="'+((w.data&&w.data.view)==='iframe'?'iframe':'link')+'" title="Skift mellem link og iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>':'';el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -5343,6 +5482,11 @@ document.addEventListener('pointerup',e=>{
 },{passive:true});
 
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && isIframeControlActive()){
+    e.preventDefault();
+    clearIframeControl();
+    return;
+  }
   if(e.key==='Escape' && (focusMode||focusMaximized||document.body.classList.contains('focus-maximized'))){
     e.preventDefault();
     if(document.body.classList.contains('focus-maximized')) hardExitMaximized();
@@ -5748,7 +5892,44 @@ if(w.type==='poll'){
   wirePoll(c,w,el);
 }
  if(w.type==='link'){
-  c.innerHTML=`<div class="linkBox"><a target="_blank" href="${esc(w.data.url||'#')}">${esc(w.data.text||'Klikbart link')}</a></div>`;
+  const url=normalizeLinkUrl(w.data.url||'');
+  const view=w.data.view||'link';
+  if(view==='iframe' && url){
+    c.innerHTML=`<div class="linkIframeBox">
+      <div class="linkIframeControls widget-control">
+        <button class="linkActivate">Aktivér webside</button>
+        <button class="linkEdit">Rediger</button>
+        <button class="linkReload">Genindlæs</button>
+        <button class="linkOpen">Åbn</button>
+        <span class="linkIframeUrl">${esc(url)}</span>
+      </div>
+      <div class="linkIframeFrame">
+        <iframe src="${esc(url)}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <div class="linkIframeShield"></div>
+      </div>
+    </div>`;
+    const iframe=c.querySelector('iframe');
+    const activate=c.querySelector('.linkActivate');
+    const edit=c.querySelector('.linkEdit');
+    const reload=c.querySelector('.linkReload');
+    const open=c.querySelector('.linkOpen');
+    if(activate){
+      activate.classList.toggle('active',activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id));
+      activate.textContent=(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))?'Afslut webstyring':'Aktivér webside';
+      activate.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        const isActive=activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id);
+        setIframeControl(w.id,!isActive);
+        fillContent(el,w);
+      };
+    }
+    if(edit)edit.onclick=e=>{e.preventDefault();e.stopPropagation();if(canEditWidgets())askLink(w)};
+    if(reload)reload.onclick=e=>{e.preventDefault();e.stopPropagation();if(iframe)iframe.src=url};
+    if(open)open.onclick=e=>{e.preventDefault();e.stopPropagation();window.open(url,'_blank','noopener')};
+  }else{
+    c.innerHTML=`<div class="linkBox"><a target="_blank" href="${esc(url||'#')}">${esc(w.data.text||'Klikbart link')}</a></div>`;
+  }
   c.ondblclick=e=>{if(!canEditWidgets())return;e.preventDefault();e.stopPropagation();select(w.id,{editText:false});askLink(w)};
 }
  if(w.type==='image'){
@@ -5993,7 +6174,20 @@ function wireWidget(el,w){
    const isTap=!layerTap.moved && Date.now()-layerTap.t<320;
    if(isTap && (!layerTap.ignore || w.type==='text'))bringWidgetToFront(w,el);
    layerTap.t=0;
- },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
+ },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
+ const toggleLinkViewBtn=el.querySelector('[data-act=toggleLinkView]');
+ if(toggleLinkViewBtn)toggleLinkViewBtn.onclick=e=>{
+   e.preventDefault();
+   e.stopPropagation();
+   if(!canEditWidgets())return;
+   select(w.id,{editText:false});
+   w.data=w.data||{};
+   w.data.url=normalizeLinkUrl(w.data.url||'');
+   w.data.view=(w.data.view==='iframe')?'link':'iframe';
+   if(w.data.view!=='iframe' && activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();
+   render();
+   save();
+ };
  const editLinkBtn=el.querySelector('[data-act=editLink]');
  if(editLinkBtn)editLinkBtn.onclick=e=>{
    e.preventDefault();
@@ -6421,10 +6615,17 @@ function canEditWidgets(){
          !focusMaximized &&
          !document.body.classList.contains('focus-maximized');
 }
+function normalizeLinkUrl(url){
+  url=String(url||'').trim();
+  if(!url)return '';
+  if(!/^https?:\/\//i.test(url))url='https://'+url;
+  return url;
+}
 function askLink(w){
   if(!canEditWidgets())return;
 
   showModal(`<h2>Link</h2>
+    <p style="margin-top:0;opacity:.75;font-weight:800">Samme adresse kan vises som almindeligt link eller som indlejret webside/iframe via knappen i widgetens topbjælke.</p>
     <label>Titel
       <input id="lt" placeholder="Tekst" value="${esc(w.data.text||'Klikbart link')}">
     </label>
@@ -6439,7 +6640,8 @@ function askLink(w){
 
   function saveLink(){
     w.data.text=titleInput.value.trim()||'Klikbart link';
-    w.data.url=urlInput.value.trim()||'https://';
+    w.data.url=normalizeLinkUrl(urlInput.value)||'https://';
+    if(!w.data.view)w.data.view='link';
     closeModal();
     render();
     save();
@@ -7405,6 +7607,7 @@ function handlePdfArrowKey(e){
   return true;
 }
 document.addEventListener('keydown',e=>{
+  if(isIframeControlActive())return;
   const t=e.target;
   if(t && (t.matches('input,textarea,select') || t.isContentEditable)) return;
   if(app.classList.contains('drawActive')) return;
@@ -7443,7 +7646,7 @@ draw.addEventListener('pointercancel',()=>{isDrawing=false;drawSnapshot=null;ctx
 document.querySelectorAll('[data-drawmode]').forEach(b=>b.onclick=()=>setDrawTool(b.dataset.drawmode));
 document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,innerHeight);slide().draw='';save()};
 document.getElementById('drawOff').onclick=()=>setDrawActive(false);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')setDrawActive(false)});
+document.addEventListener('keydown',e=>{if(isIframeControlActive())return;if(e.key==='Escape')setDrawActive(false)});
 
 
 
@@ -7529,6 +7732,7 @@ setTimeout(()=>{
   try{ Toolbar.hide(); }catch(_e){}
 }, toolbarDelay);
 document.addEventListener('keydown',e=>{
+  if(isIframeControlActive())return;
   if(e.key==='Escape' && app.classList.contains('toolbarHidden')){
     showToolbarTemp();
   }
@@ -7541,6 +7745,7 @@ render = function(){
   __render_original();
   normalizeDomLayerOrder();
   updateSlidesOverviewVisibility();
+  try{syncIframeControl();}catch(_e){}
 };
 wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVisibility();maybeShowQuickHelp();wireQuickPinButton();
 
