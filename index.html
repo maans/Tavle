@@ -3880,6 +3880,31 @@ body.focus-maximized #maxEmergencyExit{
   z-index:2147483647!important;
 }
 
+
+/* v1.0.40: professionel baggrundsvælger */
+.bgLibraryWrap{margin:16px 0 12px 0}
+.bgLibraryHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 0 10px 0}
+.bgLibraryHead h3{margin:0;font-size:1.05rem;line-height:1.1;color:#111827}
+.bgLibraryHead p{margin:4px 0 0 0;opacity:.72;font-weight:700;font-size:.9rem}
+.bgGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;max-height:min(52vh,520px);overflow:auto;padding:4px 4px 8px 4px}
+.bgChoice{appearance:none;border:0;background:#fff;border-radius:16px;padding:8px;text-align:left;box-shadow:0 2px 10px rgba(15,23,42,.16);cursor:pointer;display:flex;flex-direction:column;gap:7px;transition:transform .12s ease, box-shadow .12s ease, outline-color .12s ease;outline:3px solid transparent}
+.bgChoice:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,23,42,.22)}
+.bgChoice.active{outline-color:#6c5cff;box-shadow:0 0 0 4px rgba(108,92,255,.18),0 8px 22px rgba(15,23,42,.22)}
+.bgChoice img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:11px;display:block;background:#e5e7eb}
+.bgChoiceTitle{font-weight:950;font-size:.86rem;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bgChoiceDesc{font-size:.74rem;color:#4b5563;line-height:1.15;font-weight:750}
+.bgChoice.active .bgChoiceTitle::before{content:'✓ ';color:#6c5cff}
+.bgActions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.bgActions select{min-width:170px}
+@media (max-width:700px){.bgGrid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:48vh}.bgChoice{border-radius:13px;padding:7px}.bgChoiceDesc{display:none}}
+
+
+/* FINAL bg selector polish */
+.bgChoice img.bgImgMissing{opacity:.22;background:repeating-linear-gradient(45deg,#e5e7eb,#e5e7eb 8px,#f3f4f6 8px,#f3f4f6 16px)}
+.bgChoice img.bgImgMissing + .bgChoiceTitle::after{content:' (mangler)';font-weight:800;color:#7f1d1d}
+.bgChoice{background:#fff!important}
+.bgChoice.active{background:#f8f7ff!important}
+
 </style>
 </head>
 <body>
@@ -4168,6 +4193,99 @@ const KEY='maans_interaktiv_tavle_v162_test'; let selected=null, z=20, drawMode=
   }
 let toolClickBlockUntil=0;
 const BUILTIN_INFOGRAFIK_BG='https://maans.github.io/Tavle/README_infografik.png';
+const TAVLE_BACKGROUNDS=[
+  {
+    "title": "Klassisk tavle",
+    "desc": "Neutral grøn tavle",
+    "src": "backgrounds/bg1.png",
+    "name": "bg1.png"
+  },
+  {
+    "title": "Matematik",
+    "desc": "Tal og formler",
+    "src": "backgrounds/bg2.png",
+    "name": "bg2.png"
+  },
+  {
+    "title": "Naturfag",
+    "desc": "Undersøgelse og forsøg",
+    "src": "backgrounds/bg3.png",
+    "name": "bg3.png"
+  },
+  {
+    "title": "Historie",
+    "desc": "Tidslinjer og fortællinger",
+    "src": "backgrounds/bg4.png",
+    "name": "bg4.png"
+  },
+  {
+    "title": "Geografi",
+    "desc": "Kort og verden",
+    "src": "backgrounds/bg5.png",
+    "name": "bg5.png"
+  },
+  {
+    "title": "Noter",
+    "desc": "Skrivefelt med ro",
+    "src": "backgrounds/bg6.png",
+    "name": "bg6.png"
+  },
+  {
+    "title": "Priknet",
+    "desc": "Idéer og struktur",
+    "src": "backgrounds/bg7.png",
+    "name": "bg7.png"
+  },
+  {
+    "title": "Kvadreret",
+    "desc": "Overblik og system",
+    "src": "backgrounds/bg8.png",
+    "name": "bg8.png"
+  },
+  {
+    "title": "Musik",
+    "desc": "Noder og rytme",
+    "src": "backgrounds/bg9.png",
+    "name": "bg9.png"
+  },
+  {
+    "title": "Sprog",
+    "desc": "Ord og kommunikation",
+    "src": "backgrounds/bg10.png",
+    "name": "bg10.png"
+  },
+  {
+    "title": "Astronomi",
+    "desc": "Rum og perspektiv",
+    "src": "backgrounds/bg11.png",
+    "name": "bg11.png"
+  },
+  {
+    "title": "Natur & Miljø",
+    "desc": "Bæredygtighed",
+    "src": "backgrounds/bg12.png",
+    "name": "bg12.png"
+  },
+  {
+    "title": "Kreativ",
+    "desc": "Skabende arbejde",
+    "src": "backgrounds/bg13.png",
+    "name": "bg13.png"
+  },
+  {
+    "title": "Kunst",
+    "desc": "Farve og form",
+    "src": "backgrounds/bg14.png",
+    "name": "bg14.png"
+  },
+  {
+    "title": "Rolig",
+    "desc": "Fokus og fordybelse",
+    "src": "backgrounds/bg15.png",
+    "name": "bg15.png"
+  }
+];
+const BACKGROUND_LIBRARY=TAVLE_BACKGROUNDS;
 let embeddedData=window.__TAVLE_DATA__||null;
 let state=(embeddedData&&embeddedData.state)||load()||{active:0,slides:[{title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]}]};
 if(embeddedData&&embeddedData.wheelLists){try{localStorage.setItem('maans_wheel_lists',JSON.stringify(embeddedData.wheelLists))}catch(e){}}
@@ -6302,35 +6420,75 @@ function askLink(w){
 function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeholder="https://..." value="${esc(w.data.src||'')}"><p>Bemærk: Nogle billeder blokeres af hjemmesiden. Upload lokalt er mest stabilt offline.</p><button id="ok">Brug billede</button><button id="cancel">Luk</button>`);modal.querySelector('#ok').onclick=()=>{w.data.src=modal.querySelector('#iu').value.trim();closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
 function askPdfLink(w){showModal(`<h2>PDF-link</h2><input id="pt" placeholder="Tekst" value="${esc(w.data.text||'Åbn PDF')}"><input id="pu" placeholder="PDF URL" value="${esc(w.data.src||'')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#pt').value;w.data.src=modal.querySelector('#pu').value;closeModal();render()}}
 function bgModal(){
-  const fit=slide().bgFit||'contain';
+  const fit=slide().bgFit||'cover';
   const hasImg=!!slide().bgImage;
+  const currentBg=String(slide().bgImage||'');
   const isInfoBg=slide().bgImageSource==='builtin' || slide().bgImageSource==='builtin-url' || slide().bgImage===BUILTIN_INFOGRAFIK_BG || slide().bgImageName==='README_infografik.png';
+  const bgCards=(TAVLE_BACKGROUNDS||[]).map((bg,idx)=>{
+    const active=currentBg===bg.src || slide().bgImageName===bg.name || slide().bgImageTitle===bg.title;
+    return `<button class="bgChoice ${active?'active':''}" data-bg-index="${idx}" title="${esc(bg.title+' — '+bg.desc)}">
+      <img src="${esc(bg.src)}" alt="${esc(bg.title)}" loading="lazy" onerror="this.classList.add('bgImgMissing')">
+      <span class="bgChoiceTitle">${esc(bg.title)}</span>
+      <span class="bgChoiceDesc">${esc(bg.desc)}</span>
+    </button>`;
+  }).join('');
+
   showModal(`<h2>Baggrund</h2>
-    <p style="margin-top:0;opacity:.75;font-weight:800">${hasImg?'Baggrundsbillede er valgt. Justér visning eller fjern billedet.':'Vælg en farve, vælg et lokalt billede, brug infografikken eller indsæt en billed-URL.'}</p>
+    <p style="margin-top:0;opacity:.75;font-weight:800">${hasImg?'Baggrundsbillede er valgt. Justér visning eller fjern billedet.':'Vælg en farve, vælg en tavlebaggrund, vælg et lokalt billede eller indsæt en billed-URL.'}</p>
     <button data-bg="linear-gradient(135deg,#edf6ff,#dff8e8)">Lys grøn/blå</button>
     <button data-bg="linear-gradient(135deg,#0f172a,#064e3b)">Mørk</button>
     <button data-bg="linear-gradient(135deg,#fef3c7,#fed7aa)">Varm</button>
     <hr>
-    <button id="bgInfo">${isInfoBg?'✓ Online-infografik som baggrund':'Brug online-infografik som baggrund'}</button>
-    <button id="bgImg">Vælg lokalt baggrundsbillede</button>
-    <button id="bgUrl">Indsæt billed-URL</button>
-    <select id="fit">
-      <option value="contain" ${fit==='contain'?'selected':''}>contain</option>
-      <option value="cover" ${fit==='cover'?'selected':''}>cover</option>
-      <option value="auto" ${fit==='auto'?'selected':''}>auto</option>
-    </select>
-    <button id="clearBg">Fjern billede</button>
-    <button id="close">Luk</button>`);
+    <div class="bgLibraryWrap">
+      <div class="bgLibraryHead">
+        <div>
+          <h3>Tavlebaggrunde</h3>
+          <p>Klik på en thumbnail for at vælge baggrund med det samme.</p>
+        </div>
+      </div>
+      <div class="bgGrid">${bgCards}</div>
+    </div>
+    <hr>
+    <div class="bgActions">
+      <button id="bgInfo">${isInfoBg?'✓ Online-infografik som baggrund':'Brug online-infografik som baggrund'}</button>
+      <button id="bgImg">Vælg lokalt baggrundsbillede</button>
+      <button id="bgUrl">Indsæt billed-URL</button>
+      <select id="fit" title="Hvordan baggrundsbilledet vises på tavlen">
+        <option value="cover" ${fit==='cover'?'selected':''}>cover – fyld tavlen</option>
+        <option value="contain" ${fit==='contain'?'selected':''}>contain – vis hele billedet</option>
+        <option value="auto" ${fit==='auto'?'selected':''}>auto – original størrelse</option>
+      </select>
+      <button id="clearBg">Fjern billede</button>
+      <button id="close">Luk</button>
+    </div>`);
+
   modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{
     slide().bg=b.dataset.bg;
-    // Farvevalg skal slå billedbaggrund/infografik fra.
     slide().bgImage='';
     slide().bgImageName='';
     slide().bgImageSource='';
+    delete slide().bgImageTitle;
     render();
     save();
     bgModal();
   });
+
+  modal.querySelectorAll('[data-bg-index]').forEach(btn=>btn.onclick=()=>{
+    const item=(TAVLE_BACKGROUNDS||[])[Number(btn.dataset.bgIndex)];
+    if(!item)return;
+    // Thumbnails are already the proof-of-load in normal use.  Set the background directly
+    // so file:// previews and GitHub Pages behave the same way without false error toasts.
+    slide().bgImage=item.src;
+    slide().bgImageName=item.name || item.src.split('/').pop();
+    slide().bgImageTitle=item.title;
+    slide().bgImageSource='library';
+    slide().bgFit='cover';
+    render();
+    save();
+    toast(item.title+' valgt som baggrund');
+    bgModal();
+  });
+
   modal.querySelector('#bgInfo').onclick=()=>{
     const img=new Image();
     img.onload=()=>{
@@ -6352,6 +6510,7 @@ function bgModal(){
     slide().bgImage=src;
     slide().bgImageName=(file&&file.name)||'baggrundsbillede';
     slide().bgImageSource='local';
+    delete slide().bgImageTitle;
     if(!slide().bgFit)slide().bgFit='contain';
     render();
     save();
@@ -6371,6 +6530,7 @@ function bgModal(){
     slide().bgImage=trimmed;
     slide().bgImageName='eksternt baggrundsbillede';
     slide().bgImageSource='url';
+    delete slide().bgImageTitle;
     if(!slide().bgFit)slide().bgFit='cover';
     render();
     save();
@@ -6378,10 +6538,9 @@ function bgModal(){
     bgModal();
   };
   modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render();save()};
-  modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';slide().bgImageName='';slide().bgImageSource='';render();save();bgModal()};
+  modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';slide().bgImageName='';slide().bgImageSource='';delete slide().bgImageTitle;render();save();bgModal()};
   modal.querySelector('#close').onclick=closeModal;
 }
-
 
 function downloadEmptyApp(){
   const a=document.createElement('a');
