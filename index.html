@@ -4031,6 +4031,72 @@ body.widget-transform-active .linkIframeFrame iframe,
   pointer-events:none!important;
 }
 
+
+/* v1.0.43: Stabil valg/fokus af link- og iframe-widgets.
+   Iframes sluger ellers pointer-events. Wrapperen får derfor en usynlig klikflade,
+   som fungerer som tekstwidgettens ydre klikflade. */
+.widget.link-widget,
+.widget.iframe-widget,
+.widget[data-type="link"],
+.widget[data-type="iframe"] {
+  position: absolute;
+}
+
+.widget.link-widget iframe,
+.widget.iframe-widget iframe,
+.widget[data-type="link"] iframe,
+.widget[data-type="iframe"] iframe {
+  pointer-events: none;
+}
+
+/* Når brugeren aktivt har åbnet/aktiveret websiden, må iframe igen modtage klik. */
+.widget.link-widget.iframe-interaction-enabled iframe,
+.widget.iframe-widget.iframe-interaction-enabled iframe,
+.widget[data-type="link"].iframe-interaction-enabled iframe,
+.widget[data-type="iframe"].iframe-interaction-enabled iframe,
+.widget.link-widget.is-iframe-active iframe,
+.widget.iframe-widget.is-iframe-active iframe,
+.widget[data-type="link"].is-iframe-active iframe,
+.widget[data-type="iframe"].is-iframe-active iframe {
+  pointer-events: auto;
+}
+
+/* I redigerings-/præsentationsvalg er der altid en ydre klikflade over iframe'en.
+   Den må ikke forstyrre knapper i widget-headeren, fordi headeren ligger med højere z-index. */
+.widget.link-widget::after,
+.widget.iframe-widget::after,
+.widget[data-type="link"]::after,
+.widget[data-type="iframe"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: transparent;
+  pointer-events: auto;
+}
+
+/* Når iframe aktivt bruges som webside, fjernes overlayet. */
+.widget.link-widget.iframe-interaction-enabled::after,
+.widget.iframe-widget.iframe-interaction-enabled::after,
+.widget[data-type="link"].iframe-interaction-enabled::after,
+.widget[data-type="iframe"].iframe-interaction-enabled::after,
+.widget.link-widget.is-iframe-active::after,
+.widget.iframe-widget.is-iframe-active::after,
+.widget[data-type="link"].is-iframe-active::after,
+.widget[data-type="iframe"].is-iframe-active::after {
+  pointer-events: none;
+}
+
+/* Sikrer at widgetens egne knapper stadig ligger over selection-overlayet. */
+.widget .widget-header,
+.widget .widget-toolbar,
+.widget .widget-controls,
+.widget .resize-handle,
+.widget .rotate-handle {
+  position: relative;
+  z-index: 5;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
@@ -8093,4 +8159,89 @@ document.addEventListener('click',function(e){
 
 </script>
 <!-- v1.0.16-dev: updated shortcut map -->
+
+<script>
+/* v1.0.43: Link/iframe-widget selection guard.
+   Formål:
+   - Et klik/tap på iframe-widgettens flade skal vælge widgetten ligesom en tekstwidget.
+   - Iframe-indhold må ikke stjæle klik, når man vil fokusere, rotere eller vælge widgetten.
+   - Dobbeltklik/tap eller knapper som "Åbn/Aktiver webside" kan aktivere egentlig iframe-interaktion.
+*/
+(function(){
+  if (window.__tavleIframeSelectionGuardV43) return;
+  window.__tavleIframeSelectionGuardV43 = true;
+
+  function isIframeWidget(el) {
+    if (!el || !el.matches) return false;
+    return el.matches('.link-widget, .iframe-widget, [data-type="link"], [data-type="iframe"]') || !!el.querySelector('iframe');
+  }
+
+  function closestIframeWidget(target) {
+    if (!target || !target.closest) return null;
+    const w = target.closest('.widget, .link-widget, .iframe-widget, [data-type="link"], [data-type="iframe"]');
+    return isIframeWidget(w) ? w : null;
+  }
+
+  function isControl(target) {
+    return !!(target && target.closest && target.closest(
+      'button, a, input, textarea, select, .widget-header, .widget-toolbar, .widget-controls, .resize-handle, .rotate-handle, [data-action], .no-drag'
+    ));
+  }
+
+  function selectWidget(widget, ev) {
+    try { widget.dispatchEvent(new PointerEvent('pointerdown', {bubbles:true, pointerId: ev.pointerId || 1, clientX: ev.clientX || 0, clientY: ev.clientY || 0})); } catch(e) {}
+    try { widget.dispatchEvent(new MouseEvent('mousedown', {bubbles:true, clientX: ev.clientX || 0, clientY: ev.clientY || 0})); } catch(e) {}
+    try { widget.click(); } catch(e) {}
+    try { widget.focus && widget.focus(); } catch(e) {}
+
+    widget.classList.add('selected');
+    widget.setAttribute('data-selected', 'true');
+
+    window.__lastSelectedIframeWidget = widget;
+  }
+
+  // First click selects widget. It does not activate the embedded page.
+  document.addEventListener('pointerdown', function(ev){
+    const widget = closestIframeWidget(ev.target);
+    if (!widget) return;
+    if (isControl(ev.target)) return;
+    if (widget.classList.contains('iframe-interaction-enabled') || widget.classList.contains('is-iframe-active')) return;
+
+    selectWidget(widget, ev);
+  }, true);
+
+  // Double-click/tap can activate the embedded web page temporarily.
+  document.addEventListener('dblclick', function(ev){
+    const widget = closestIframeWidget(ev.target);
+    if (!widget || isControl(ev.target)) return;
+    widget.classList.add('iframe-interaction-enabled', 'is-iframe-active');
+    const iframe = widget.querySelector('iframe');
+    if (iframe) iframe.style.pointerEvents = 'auto';
+  }, true);
+
+  // Escape returns iframe to safe/selectable mode.
+  document.addEventListener('keydown', function(ev){
+    if (ev.key !== 'Escape') return;
+    document.querySelectorAll('.iframe-interaction-enabled, .is-iframe-active').forEach(function(widget){
+      widget.classList.remove('iframe-interaction-enabled', 'is-iframe-active');
+      const iframe = widget.querySelector && widget.querySelector('iframe');
+      if (iframe) iframe.style.pointerEvents = 'none';
+    });
+  }, true);
+
+  // If app has buttons with these labels, let them activate iframe interaction.
+  document.addEventListener('click', function(ev){
+    const btn = ev.target && ev.target.closest && ev.target.closest('button, a, [role="button"]');
+    if (!btn) return;
+    const label = (btn.textContent || btn.title || btn.getAttribute('aria-label') || '').trim().toLowerCase();
+    if (!/(aktivér webside|aktiver webside|åbn|open|interager|brug webside)/.test(label)) return;
+    const widget = closestIframeWidget(btn);
+    if (!widget) return;
+    widget.classList.add('iframe-interaction-enabled', 'is-iframe-active');
+    const iframe = widget.querySelector('iframe');
+    if (iframe) iframe.style.pointerEvents = 'auto';
+  }, true);
+})();
+</script>
+
 </body></html>
