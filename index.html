@@ -4025,6 +4025,12 @@ body.iframe-control-active .topbar{
   color:#fff;
 }
 
+/* v1.0.42: Når en link/iframe-widget roteres, må den indlejrede webside ikke fange touch/pointer-events. */
+body.widget-transform-active .linkIframeFrame iframe,
+.widget.widgetTransforming .linkIframeFrame iframe{
+  pointer-events:none!important;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
@@ -4237,6 +4243,60 @@ function syncIframeControl(){
 window.isIframeControlActive=isIframeControlActive;
 window.clearIframeControl=clearIframeControl;
 
+
+
+/* v1.0.41: Isoler localStorage når Tavle kører inde i en Link-widget/iframe.
+   Problemet var, at en iframe med samme origin (fx maans.github.io/Tavle inde i Tavle)
+   læste de samme maans_* localStorage-nøgler som hovedappen og derfor viste samme tavle.
+   Løsning: Når appen er embedded, får alle maans_* nøgler automatisk et separat scope.
+   Link-widgetten tilføjer selv ?tavle_embed_scope=<widget-id> til Tavle-links, så flere
+   indlejrede tavler også får hver sin lille "sandkasse". */
+(function(){
+  try{
+    if(window.self===window.top) return;
+    const params=new URLSearchParams(window.location.search||'');
+    const rawScope=params.get('tavle_embed_scope') || params.get('tavleStorageScope') || 'embedded';
+    const safeScope=String(rawScope).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,48) || 'embedded';
+    const prefix='maans_iframe_'+safeScope+'__';
+    const proto=Storage.prototype;
+    if(proto.__maansTavleScopedStoragePatched) return;
+    const nativeGet=proto.getItem;
+    const nativeSet=proto.setItem;
+    const nativeRemove=proto.removeItem;
+    const nativeKey=proto.key;
+    const mapKey=function(k){
+      k=String(k||'');
+      return /^maans_/.test(k) ? prefix+k : k;
+    };
+    proto.getItem=function(k){return nativeGet.call(this,mapKey(k));};
+    proto.setItem=function(k,v){return nativeSet.call(this,mapKey(k),v);};
+    proto.removeItem=function(k){return nativeRemove.call(this,mapKey(k));};
+    proto.key=function(i){return nativeKey.call(this,i);};
+    Object.defineProperty(proto,'__maansTavleScopedStoragePatched',{value:true,configurable:false});
+    window.__TAVLE_IFRAME_STORAGE_SCOPE__=safeScope;
+  }catch(e){
+    console.warn('Tavle iframe storage-scope kunne ikke aktiveres',e);
+  }
+})();
+
+function tavleIsSameAppUrl(url){
+  try{
+    const u=new URL(String(url||''),window.location.href);
+    const here=new URL(window.location.href);
+    const norm=p=>String(p||'/').replace(/\/index\.html$/,'/').replace(/\/+$/,'/');
+    return u.origin===here.origin && norm(u.pathname)===norm(here.pathname);
+  }catch(e){return false}
+}
+function tavleIframeSrc(url,w){
+  try{
+    const u=new URL(String(url||''),window.location.href);
+    if(tavleIsSameAppUrl(u.href)){
+      u.searchParams.set('tavle_embed_scope',(w&&w.id)?String(w.id):('widget_'+Date.now()));
+      return u.href;
+    }
+  }catch(e){}
+  return url;
+}
 
   /*
    * Central UI state
@@ -5915,7 +5975,7 @@ if(w.type==='poll'){
         <span class="linkIframeUrl">${esc(url)}</span>
       </div>
       <div class="linkIframeFrame">
-        <iframe src="${esc(url)}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <iframe src="${esc(tavleIframeSrc(url,w))}" allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
         <div class="linkIframeShield"></div>
       </div>
     </div>`;
@@ -6252,6 +6312,44 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
       startRotation:Number(w.rotation||0)
     };
     rh.setPointerCapture(e.pointerId);
+
+    // v1.0.42: robust rotation fallback for iPad/Safari and iframe widgets.
+    // Some embedded iframes can steal pointer/touch movement even when the rotate handle
+    // has started the gesture. While rotating, temporarily disable iframe hit-testing and
+    // listen on document as well as the widget element.
+    document.body.classList.add('widget-transform-active');
+    el.classList.add('widgetTransforming');
+    const docRotateMove=(ev)=>{
+      if(!rot)return;
+      if(rotHoldStart && (Math.abs(ev.clientX-rotHoldStart.x)>6 || Math.abs(ev.clientY-rotHoldStart.y)>6)){
+        clearTimeout(rotHoldTimer);
+        rotHoldTimer=null;
+      }
+      const nowAngle=Math.atan2(ev.clientY-start.cy,ev.clientX-start.cx)*180/Math.PI;
+      let delta=nowAngle-start.startAngle;
+      if(delta>180)delta-=360;
+      if(delta<-180)delta+=360;
+      let deg=start.startRotation+delta;
+      if(ev.shiftKey)deg=Math.round(deg/15)*15;
+      w.rotation=deg;
+      el.style.transform=transformFor(w);
+      if(ev.cancelable)ev.preventDefault();
+      ev.stopPropagation();
+    };
+    const docRotateEnd=(ev)=>{
+      clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
+      if(rot)save();
+      rot=false; rotHoldDidReset=false;
+      document.body.classList.remove('widget-transform-active');
+      el.classList.remove('widgetTransforming');
+      document.removeEventListener('pointermove',docRotateMove,true);
+      document.removeEventListener('pointerup',docRotateEnd,true);
+      document.removeEventListener('pointercancel',docRotateEnd,true);
+      if(ev){ev.stopPropagation();}
+    };
+    document.addEventListener('pointermove',docRotateMove,{capture:true,passive:false});
+    document.addEventListener('pointerup',docRotateEnd,{capture:true,passive:false});
+    document.addEventListener('pointercancel',docRotateEnd,{capture:true,passive:false});
   });
  el.addEventListener('pointermove',e=>{
     if(drag){
@@ -6286,6 +6384,8 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
     clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
     if(drag||res||rot)save();
     drag=res=rot=false; rotHoldDidReset=false;
+    document.body.classList.remove('widget-transform-active');
+    el.classList.remove('widgetTransforming');
   }));}
 
 let hintTimer=null;

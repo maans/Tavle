@@ -89,6 +89,10 @@ v1.0.39: Den interne knap “Rediger link” i link-widgetten er skjult. Link ka
 v1.0.40: Link-widgetten har nu en lille rediger-knap i topbjælken i redigeringstilstand, mens den store interne “Rediger link”-knap fortsat er skjult.
 
 
-## Baggrunde opdateret
+## v1.0.41 fix
+- Baggrunde er udskiftet fra PNG til optimeret WebP.
+- Link-widget/iframe får separat localStorage-scope, når Tavle indlejres i Tavle, så en iframe ikke overtager hovedappens tavledata.
 
-Denne pakke bruger optimerede WebP-baggrunde i `backgrounds/` (`bg1.webp` – `bg15.webp`) i stedet for de tidligere PNG-filer. `index.html` er kun ændret i baggrundsbibliotekets `src`/`name`-felter, så appens øvrige funktioner er bevaret.
+
+## v1.0.42
+- Fix: rotation af link/iframe-widgets på iPad/Safari ved midlertidigt at slå iframe pointer-events fra under rotation.
