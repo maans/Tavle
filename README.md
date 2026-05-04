@@ -87,3 +87,8 @@ v1.0.39: Den interne knap “Rediger link” i link-widgetten er skjult. Link ka
 
 
 v1.0.40: Link-widgetten har nu en lille rediger-knap i topbjælken i redigeringstilstand, mens den store interne “Rediger link”-knap fortsat er skjult.
+
+
+## Baggrunde opdateret
+
+Denne pakke bruger optimerede WebP-baggrunde i `backgrounds/` (`bg1.webp` – `bg15.webp`) i stedet for de tidligere PNG-filer. `index.html` er kun ændret i baggrundsbibliotekets `src`/`name`-felter, så appens øvrige funktioner er bevaret.
