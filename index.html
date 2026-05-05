@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.0.83</title>
+<title>Interaktiv tavle v1.0.84</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -5709,6 +5709,55 @@ select,
   contain:layout paint!important;
 }
 
+
+/* v1.0.84 rescue unlock CSS */
+#rescueWidgets,
+#rescueWidgets:focus,
+#rescueWidgets:active,
+#rescueWidgets.active,
+#rescueWidgets[aria-pressed="true"]{
+  background:#4b5563!important;
+  color:#fff!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+#rescueWidgets.rescueFlash{
+  background:#6d5dfc!important;
+  animation:rescueFlash .36s ease both!important;
+}
+
+/* Efter redning: valgte widgets må stadig have ramme, men controls skal være klikbare. */
+.widget.selected .chrome,
+.widget.selected .mini,
+.widget.selected .mini button,
+.widget.selected .resize,
+.widget.selected .rotater{
+  pointer-events:auto!important;
+}
+
+.widget.selected::after{
+  pointer-events:none!important;
+}
+
+/* Link/iframe overlay må aldrig ligge over chrome og mini-knapper. */
+.widget[data-type="link"] .chrome,
+.widget[data-type="link"] .mini,
+.widget[data-type="link"] .mini button{
+  pointer-events:auto!important;
+  z-index:2147482990!important;
+}
+
+/* Appen skal kunne modtage tastaturgenveje efter rescue. */
+.app,
+body{
+  -webkit-user-select:none;
+  user-select:none;
+}
+input,textarea,select,[contenteditable="true"],.textEditor,.textEditor *{
+  -webkit-user-select:text!important;
+  user-select:text!important;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
@@ -10888,8 +10937,43 @@ document.addEventListener('click',function(e){
 </script>
 <script>
 
-/* v1.0.82 viewport rescue – clear focus and text selection */
+/* v1.0.84 rescue state unlock
+   Redningsbæltet må ikke efterlade iframe/fokus/selection/transform states, der blokerer appen. */
 (function(){
+  let rescueInProgress=false;
+
+  function hardUnlockUi(){
+    try{ if(window.clearIframeControl)window.clearIframeControl(); }catch(e){}
+    document.body.classList.remove(
+      'iframe-control-active',
+      'widget-transform-active',
+      'textSelecting',
+      'isSelectingText',
+      'dragging',
+      'resizing',
+      'rotating'
+    );
+    document.querySelectorAll('.widget').forEach(el=>{
+      el.classList.remove(
+        'linkIframeActive',
+        'iframe-interaction-enabled',
+        'is-iframe-active',
+        'widgetTransforming',
+        'dragging',
+        'resizing',
+        'rotating'
+      );
+      el.style.pointerEvents='';
+    });
+    document.querySelectorAll('.linkIframeShield').forEach(el=>{
+      el.style.display='';
+      el.style.pointerEvents='';
+    });
+    document.querySelectorAll('iframe').forEach(el=>{
+      el.style.pointerEvents='';
+    });
+  }
+
   function clearUiFocusAndSelection(){
     try{
       if(document.activeElement && document.activeElement.blur)document.activeElement.blur();
@@ -10898,29 +10982,45 @@ document.addEventListener('click',function(e){
       const sel=window.getSelection&&window.getSelection();
       if(sel)sel.removeAllRanges();
     }catch(e){}
-    document.body.classList.remove('textSelecting','isSelectingText');
+  }
+
+  function finishRescue(btn){
+    hardUnlockUi();
+    clearUiFocusAndSelection();
+    if(btn){
+      btn.blur&&btn.blur();
+      btn.classList.remove('active');
+      btn.removeAttribute('aria-pressed');
+      btn.classList.remove('rescueFlash');
+    }
+    rescueInProgress=false;
   }
 
   function rescueAll(btn){
+    if(rescueInProgress)return;
+    rescueInProgress=true;
     try{
+      hardUnlockUi();
       clearUiFocusAndSelection();
       if(btn){
         btn.classList.remove('rescueFlash');
         void btn.offsetWidth;
         btn.classList.add('rescueFlash');
-        setTimeout(()=>btn.classList.remove('rescueFlash'),500);
       }
-      if(window.clearIframeControl)window.clearIframeControl();
       if(window.rescueWidgetsToViewport)window.rescueWidgetsToViewport({toast:true,arrange:true,resetRotation:true});
-      setTimeout(clearUiFocusAndSelection,50);
-    }catch(e){console.error('Kunne ikke samle widgets',e)}
+      setTimeout(()=>finishRescue(btn),80);
+      setTimeout(()=>finishRescue(btn),320);
+    }catch(e){
+      console.error('Kunne ikke samle widgets',e);
+      finishRescue(btn);
+    }
   }
 
   function rescueSelected(){
     try{
-      if(window.clearIframeControl)window.clearIframeControl();
+      hardUnlockUi();
       if(window.rescueSelectedWidgetToViewport)window.rescueSelectedWidgetToViewport();
-      setTimeout(clearUiFocusAndSelection,50);
+      setTimeout(()=>{hardUnlockUi();clearUiFocusAndSelection();},80);
     }catch(e){}
   }
 
@@ -10939,43 +11039,13 @@ document.addEventListener('click',function(e){
     ev.preventDefault();
     ev.stopPropagation();
     if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
-    clearUiFocusAndSelection();
+    finishRescue(btn);
   },true);
 
-  // Når man begynder at flytte/resizere/rotere en widget, ryd tekstmarkering.
   document.addEventListener('pointerdown',function(ev){
-    const handle=ev.target&&ev.target.closest&&ev.target.closest('.chrome,.resize,.rotater,.widget');
-    if(!handle)return;
     if(ev.target.closest && ev.target.closest('input,textarea,select,[contenteditable="true"],.textEditor'))return;
-    clearUiFocusAndSelection();
-  },true);
-
-  window.addEventListener('resize',()=>setTimeout(rescueSelected,150),{passive:true});
-  window.addEventListener('orientationchange',()=>setTimeout(rescueSelected,300),{passive:true});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>rescueAll(null),180)});
-  window.addEventListener('pageshow',()=>setTimeout(()=>rescueAll(null),180),{passive:true});
-})();
-
-</script>
-<script>
-
-/* v1.0.83 rescue button focus + link min-size data guard */
-(function(){
-  function clearRescueVisual(btn){
-    if(!btn)return;
-    btn.blur&&btn.blur();
-    btn.classList.remove('active');
-    btn.removeAttribute('aria-pressed');
-    setTimeout(()=>btn.classList.remove('rescueFlash'),420);
-  }
-
-  document.addEventListener('pointerup',function(ev){
-    const btn=ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
-    if(btn)clearRescueVisual(btn);
-  },true);
-  document.addEventListener('click',function(ev){
-    const btn=ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
-    if(btn)clearRescueVisual(btn);
+    const handle=ev.target&&ev.target.closest&&ev.target.closest('.chrome,.mini button,.resize,.rotater,.widget');
+    if(handle)clearUiFocusAndSelection();
   },true);
 
   function enforceLinkMinSize(){
@@ -10994,17 +11064,17 @@ document.addEventListener('click',function(e){
         document.querySelectorAll('.widget[data-type="link"]').forEach(el=>{
           const id=el.dataset.id;
           const w=sl.widgets.find(x=>String(x.id)===String(id));
-          if(w){
-            el.style.width=w.w+'px';
-            el.style.height=w.h+'px';
-          }
+          if(w){el.style.width=w.w+'px';el.style.height=w.h+'px';}
         });
       }
     }catch(e){}
   }
 
   document.addEventListener('pointerup',()=>setTimeout(enforceLinkMinSize,20),true);
-  window.addEventListener('resize',()=>setTimeout(enforceLinkMinSize,80),{passive:true});
+  window.addEventListener('resize',()=>setTimeout(rescueSelected,150),{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(rescueSelected,300),{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>rescueAll(null),180)});
+  window.addEventListener('pageshow',()=>setTimeout(()=>rescueAll(null),180),{passive:true});
   setTimeout(enforceLinkMinSize,150);
 })();
 
