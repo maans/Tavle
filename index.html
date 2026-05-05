@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.0.4-dev</title>
+<title>Interaktiv tavle v1.0.73</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -4775,6 +4775,500 @@ body.maximized-from-edit.focus-maximized:not(.focus-edit):not(.focus-presentatio
   }
 }
 
+
+/* v1.0.66 toolbar responsive cleanup
+   Telefonregler må ikke ramme smal iPad/Safari.
+   - Telefon: toolbar får højre luft og toggle kan ligge over/ved siden af.
+   - iPad/desktop/smal Safari: toolbar normal bredde, ingen tom højre no-go-zone, toggle i hjørnet.
+*/
+
+/* Reset for tablet/desktop, including iPad Safari split/narrow. */
+@media (min-width: 641px){
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar{
+    max-width:none!important;
+    left:50%!important;
+    right:auto!important;
+    transform:translateX(-50%)!important;
+    padding-right:12px!important;
+    padding-left:12px!important;
+    overflow-x:visible!important;
+    gap:10px;
+  }
+
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarPinFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    right:16px!important;
+    bottom:16px!important;
+    transform:none!important;
+  }
+}
+
+/* Kun rigtig smal telefon: reserver plads til toggle, så Mere-knappen kan trykkes. */
+@media (max-width: 640px){
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar{
+    max-width:calc(100vw - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))!important;
+    left:12px!important;
+    right:auto!important;
+    transform:none!important;
+    padding-left:12px!important;
+    padding-right:76px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    box-sizing:border-box!important;
+  }
+
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar::-webkit-scrollbar{
+    display:none!important;
+  }
+
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarPinFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    width:52px!important;
+    height:52px!important;
+    min-width:52px!important;
+    min-height:52px!important;
+    right:max(12px, env(safe-area-inset-right,0px) + 12px)!important;
+    bottom:calc(82px + env(safe-area-inset-bottom,0px))!important;
+    transform:none!important;
+  }
+}
+
+/* Smal landskab med meget lav højde: toggle i hjørnet så den ikke dækker scenen. */
+@media (max-width: 760px) and (orientation: landscape) and (max-height: 480px){
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarPinFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+
+
+/* v1.0.67 poll focus/view toggle cleanup */
+.pollHeader{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:4px 8px;
+}
+.pollHeader .pollQuestion{
+  flex:1;
+  min-width:0;
+}
+.pollModeToggle{
+  border:0;
+  border-radius:999px;
+  padding:7px 12px;
+  font-weight:900;
+  background:#e5e7eb;
+  color:#111827;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.pollModeToggle:active{transform:scale(.96)}
+.widget[data-type="poll"] .pollModeToggle{
+  pointer-events:auto!important;
+}
+
+/* Redigeringsknapper/indstillinger væk i præsentation og alle fokusformer. */
+.present .pollTools,
+.present .pollSettings,
+body.focus-mode .pollTools,
+body.focus-mode .pollSettings,
+body.focus-edit .pollTools,
+body.focus-edit .pollSettings,
+body.focus-presentation .pollTools,
+body.focus-presentation .pollSettings,
+body.focus-maximized .pollTools,
+body.focus-maximized .pollSettings{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Men selve visningsskiftet må være tilgængeligt i fokus/præsentation. */
+.present .pollModeToggle,
+body.focus-mode .pollModeToggle,
+body.focus-edit .pollModeToggle,
+body.focus-presentation .pollModeToggle,
+body.focus-maximized .pollModeToggle{
+  display:inline-flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+}
+
+/* I præsentation/fokus skal afstemningswidgetten bruge pladsen rent. */
+.present .pollBox,
+body.focus-mode .pollBox,
+body.focus-edit .pollBox,
+body.focus-presentation .pollBox,
+body.focus-maximized .pollBox{
+  grid-template-rows:auto 1fr auto!important;
+}
+
+
+/* v1.0.68 poll edit tools in maximized-from-edit
+   Afstemning skal kunne redigeres, når widgetten maksimeres direkte fra redigering.
+   Men redigeringsværktøjer skal stadig skjules i præsentation og almindelig fokus. */
+
+/* Grundregel: skjul redigering i præsentation/fokus. */
+.app.present .widget[data-type="poll"] .pollTools,
+.app.present .widget[data-type="poll"] .pollSettings,
+.present .widget[data-type="poll"] .pollTools,
+.present .widget[data-type="poll"] .pollSettings,
+body.focus-mode:not(.maximized-from-edit) .widget[data-type="poll"] .pollTools,
+body.focus-mode:not(.maximized-from-edit) .widget[data-type="poll"] .pollSettings,
+body.focus-edit .widget[data-type="poll"] .pollTools,
+body.focus-edit .widget[data-type="poll"] .pollSettings,
+body.focus-presentation .widget[data-type="poll"] .pollTools,
+body.focus-presentation .widget[data-type="poll"] .pollSettings{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Maksimeret fra redigering: vis afstemningens redigeringsværktøjer igen. */
+body.maximized-from-edit.focus-maximized:not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget[data-type="poll"].focusTarget .pollTools,
+body.maximized-from-edit.focus-maximized:not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget[data-type="poll"].focusTarget .pollSettings,
+body.maximized-from-edit.focus-maximized:not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget[data-type="poll"].selected .pollTools,
+body.maximized-from-edit.focus-maximized:not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget[data-type="poll"].selected .pollSettings{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+}
+
+/* I maksimeret-redigering må pollTools gerne ligge som tydelig kontrol nederst. */
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollTools{
+  justify-content:center!important;
+  gap:10px!important;
+  flex-wrap:wrap!important;
+}
+
+/* Skift-knappen mellem ordsky/afstemning skal altid kunne ses i maksimeret redigering. */
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollModeToggle{
+  display:inline-flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+
+
+/* v1.0.69 poll maximized edit layout fix
+   Flueben/checkboxes må ikke blive til groteske store felter.
+   Knapper nederst skal have tekstplads. */
+
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollBox{
+  grid-template-rows:auto auto minmax(0,1fr) auto auto!important;
+  gap:12px!important;
+  padding:18px!important;
+  align-content:stretch!important;
+}
+
+/* Indstillinger: kompakt række under spørgsmålet. */
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollSettings{
+  display:flex!important;
+  flex-direction:row!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:16px!important;
+  flex-wrap:wrap!important;
+  width:auto!important;
+  max-width:100%!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:0!important;
+  margin:0 auto!important;
+  background:transparent!important;
+}
+
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollSettings label{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  min-width:0!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:6px 10px!important;
+  margin:0!important;
+  border-radius:999px!important;
+  background:rgba(243,244,246,.9)!important;
+  font-size:14px!important;
+  line-height:1.1!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+
+/* Selve checkboxen skal være normal størrelse. */
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollSettings input[type="checkbox"]{
+  width:16px!important;
+  height:16px!important;
+  min-width:16px!important;
+  min-height:16px!important;
+  max-width:16px!important;
+  max-height:16px!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  appearance:auto!important;
+  -webkit-appearance:checkbox!important;
+  accent-color:#3b82f6;
+}
+
+/* Emoji-knapper må bruge pladsen, men ikke skubbe settings til gigantiske felter. */
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollChoices{
+  min-height:0!important;
+  align-items:stretch!important;
+}
+
+/* Bundværktøjer: tydelig tekst, ingen mikroskopisk tredjeknap. */
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollTools{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:10px!important;
+  flex-wrap:wrap!important;
+  width:100%!important;
+  padding:4px 0 0!important;
+  margin:0!important;
+}
+
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollTools button,
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollModeToggle{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:96px!important;
+  width:auto!important;
+  max-width:none!important;
+  min-height:34px!important;
+  padding:8px 14px!important;
+  border-radius:999px!important;
+  font-size:14px!important;
+  line-height:1.1!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+
+/* Hvis der kun står en label inde i knappen, skal den ikke krympe. */
+body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollTools button .pollModeLabel{
+  display:inline!important;
+  white-space:nowrap!important;
+  min-width:max-content!important;
+}
+
+/* Små højder: endnu mere kompakt, men stadig læsbart. */
+@media (max-height:760px){
+  body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollBox{
+    gap:8px!important;
+    padding:12px!important;
+  }
+  body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollSettings label{
+    font-size:12px!important;
+    padding:5px 8px!important;
+  }
+  body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollTools button,
+  body.maximized-from-edit.focus-maximized .widget[data-type="poll"] .pollModeToggle{
+    font-size:12px!important;
+    min-height:30px!important;
+    padding:6px 10px!important;
+  }
+}
+
+
+/* v1.0.70 poll title as toggle button */
+.widget[data-type="poll"] .pollHeader{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  padding:4px 8px 8px!important;
+}
+
+.widget[data-type="poll"] .pollTitleToggle{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  border:0!important;
+  background:transparent!important;
+  color:#111827!important;
+  font:inherit!important;
+  font-weight:950!important;
+  font-size:clamp(20px,2.4vw,34px)!important;
+  line-height:1.1!important;
+  text-align:center!important;
+  padding:8px 16px!important;
+  border-radius:999px!important;
+  cursor:pointer!important;
+  pointer-events:auto!important;
+  max-width:100%!important;
+  transition:transform .16s ease, background .16s ease, box-shadow .16s ease, color .16s ease!important;
+}
+
+.widget[data-type="poll"] .pollTitleToggle:hover{
+  background:rgba(109,93,252,.10)!important;
+}
+
+.widget[data-type="poll"] .pollTitleToggle.active{
+  background:#6d5dfc!important;
+  color:white!important;
+  box-shadow:0 8px 22px rgba(109,93,252,.25)!important;
+}
+
+.widget[data-type="poll"] .pollTitleToggle.pollTitlePop{
+  animation:pollTitlePop .22s ease both!important;
+}
+
+@keyframes pollTitlePop{
+  0%{transform:scale(1)}
+  45%{transform:scale(.94)}
+  100%{transform:scale(1)}
+}
+
+/* Fjern den separate Ordsky/Afstemning-knap fra v67. */
+.widget[data-type="poll"] .pollModeToggle{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Den gamle bundknap i pollTools kan stadig bruges i redigering, men titel er primær. */
+.widget[data-type="poll"] .pollTools .pollCloud{
+  display:inline-flex;
+}
+
+
+/* v1.0.72 poll maximized current edit state
+   Hvis en maksimeret afstemning aktuelt er i redigeringstilstand,
+   skal redigeringsværktøjerne vises – uanset om den blev maksimeret fra præsentation eller redigering. */
+
+/* Maksimeret + app ikke i præsentation = redigerbar poll. */
+body.focus-maximized .app:not(.present) .widget[data-type="poll"].focusTarget .pollTools,
+body.focus-maximized .app:not(.present) .widget[data-type="poll"].focusTarget .pollSettings,
+body.focus-maximized .app:not(.present) .widget[data-type="poll"].selected .pollTools,
+body.focus-maximized .app:not(.present) .widget[data-type="poll"].selected .pollSettings{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+}
+
+/* Maksimeret + præsentation = ingen redigeringsværktøjer. */
+body.focus-maximized .app.present .widget[data-type="poll"] .pollTools,
+body.focus-maximized .app.present .widget[data-type="poll"] .pollSettings,
+.app.present .widget[data-type="poll"] .pollTools,
+.app.present .widget[data-type="poll"] .pollSettings{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  opacity:0!important;
+}
+
+
+/* v1.0.73 poll maximized state cleanup
+   Fjerner behovet for flere MutationObserver-patches.
+   Reglen er enkel:
+   - Præsentation: ingen poll-redigering.
+   - Fokus: ingen poll-redigering.
+   - Maksimeret + app aktuelt i redigering: poll-redigering vises.
+   - Maksimeret + app aktuelt i præsentation: poll-redigering skjules.
+*/
+
+/* Først: skjul redigeringslag i præsentation/fokus. */
+.app.present .widget[data-type="poll"] .pollTools,
+.app.present .widget[data-type="poll"] .pollSettings,
+body.focus-mode:not(.focus-maximized) .widget[data-type="poll"] .pollTools,
+body.focus-mode:not(.focus-maximized) .widget[data-type="poll"] .pollSettings,
+body.focus-edit:not(.focus-maximized) .widget[data-type="poll"] .pollTools,
+body.focus-edit:not(.focus-maximized) .widget[data-type="poll"] .pollSettings,
+body.focus-presentation:not(.focus-maximized) .widget[data-type="poll"] .pollTools,
+body.focus-presentation:not(.focus-maximized) .widget[data-type="poll"] .pollSettings{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  opacity:0!important;
+}
+
+/* Maksimeret og appen er IKKE i præsentation: vis poll-redigering. */
+body.focus-maximized .app:not(.present) .widget[data-type="poll"].focusTarget .pollTools,
+body.focus-maximized .app:not(.present) .widget[data-type="poll"].focusTarget .pollSettings,
+body.focus-maximized .app:not(.present) .widget[data-type="poll"].selected .pollTools,
+body.focus-maximized .app:not(.present) .widget[data-type="poll"].selected .pollSettings{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+}
+
+/* Maksimeret og appen er i præsentation: skjul poll-redigering. */
+body.focus-maximized .app.present .widget[data-type="poll"] .pollTools,
+body.focus-maximized .app.present .widget[data-type="poll"] .pollSettings{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  opacity:0!important;
+}
+
+/* Kompakt og stabilt layout når poll er maksimeret og redigerbar. */
+body.focus-maximized .app:not(.present) .widget[data-type="poll"] .pollSettings{
+  flex-direction:row!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:14px!important;
+  flex-wrap:wrap!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0 auto!important;
+  background:transparent!important;
+}
+body.focus-maximized .app:not(.present) .widget[data-type="poll"] .pollSettings label{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  min-width:0!important;
+  width:auto!important;
+  height:auto!important;
+  padding:6px 10px!important;
+  border-radius:999px!important;
+  background:rgba(243,244,246,.9)!important;
+  font-size:14px!important;
+  line-height:1.1!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+body.focus-maximized .app:not(.present) .widget[data-type="poll"] .pollSettings input[type="checkbox"]{
+  width:16px!important;
+  height:16px!important;
+  min-width:16px!important;
+  min-height:16px!important;
+  transform:none!important;
+  appearance:auto!important;
+  -webkit-appearance:checkbox!important;
+}
+body.focus-maximized .app:not(.present) .widget[data-type="poll"] .pollTools{
+  justify-content:center!important;
+  align-items:center!important;
+  gap:10px!important;
+  flex-wrap:wrap!important;
+  width:100%!important;
+}
+body.focus-maximized .app:not(.present) .widget[data-type="poll"] .pollTools button{
+  min-width:96px!important;
+  width:auto!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
@@ -7057,6 +7551,14 @@ function togglePollCloudView(w,el){
   fillContent(el,w);
   save();
 }
+// v1.0.71: global bro til titelknap-event, fordi hjælpe-script udenfor closure ikke kan nå lokale funktioner.
+window.tavleTogglePollCloudByWidgetId=function(id){
+  const w=findWidget(id);
+  if(!w || w.type!=='poll')return false;
+  const el=document.querySelector('.widget[data-id="'+CSS.escape(String(id))+'"]');
+  togglePollCloudView(w,el);
+  return true;
+};
 
 function pollTotal(w){return (w.data.votes||[]).reduce((a,b)=>a+(Number(b)||0),0)}
 function renderPollResults(w){
@@ -7075,23 +7577,27 @@ function wirePoll(c,w,el){
     w.data.votes[i]=(Number(w.data.votes[i]||0)+1);
     fillContent(el,w);save();
   });
-  c.querySelector('.pollReset').onclick=()=>{if(confirm('Nulstil stemmer?')){w.data.votes=(w.data.options||[]).map(()=>0);fillContent(el,w);save()}};
-  const q=c.querySelector('.pollQuestion'); if(q)q.onclick=(e)=>{
-    e.preventDefault();e.stopPropagation();
-    const inPresent=(document.getElementById('app')||document.body).classList.contains('present')||document.body.classList.contains('present');
-    if(inPresent&&!w.data.allowCloudInPresent){
-      if(w.data.cloudView){w.data.cloudView=false;fillContent(el,w);save();return}
-      return;
-    }
+  const resetBtn=c.querySelector('.pollReset');
+  if(resetBtn)resetBtn.onclick=()=>{if(confirm('Nulstil stemmer?')){w.data.votes=(w.data.options||[]).map(()=>0);fillContent(el,w);save()}};
+  const q=c.querySelector('.pollQuestion');
+  if(q)q.onclick=(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    q.classList.remove('pollTitlePop');
+    void q.offsetWidth;
+    q.classList.add('pollTitlePop');
     togglePollCloudView(w,el);
   };
   const showCb=c.querySelector('.pollShowResults');
   if(showCb)showCb.onchange=()=>{w.data.showResults=showCb.checked;fillContent(el,w);save()};
   const cloudCb=c.querySelector('.pollAllowCloud');
   if(cloudCb)cloudCb.onchange=()=>{w.data.allowCloudInPresent=cloudCb.checked;save()};
-  const cloudBtn=c.querySelector('.pollCloud'); if(cloudBtn)cloudBtn.onclick=()=>togglePollCloudView(w,el);
+  c.querySelectorAll('.pollModeToggle,.pollCloud').forEach(btn=>{
+    btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();togglePollCloudView(w,el)};
+  });
   c.querySelectorAll('.pollCloudView span').forEach(sp=>sp.onclick=()=>cloudInfo(sp.dataset.label,sp.dataset.count+' stemmer'));
-  c.querySelector('.pollEdit').onclick=()=>{
+  const editBtn=c.querySelector('.pollEdit');
+  if(editBtn)editBtn.onclick=()=>{
     showModal(`<h2>Rediger afstemning</h2>
       <label>Spørgsmål<br><input id="pollQ" value="${esc(w.data.question||'Hvordan går det?')}" style="width:100%"></label>
       <label>Smilies / svarmuligheder<br><input id="pollOpts" value="${esc((w.data.options||['😀','🙂','😐','🙁','😡']).join(' '))}" style="width:100%"></label>
@@ -7206,16 +7712,16 @@ if(w.type==='poll'){
   const pollCanShowCloud=!(pollInPresentation && !w.data.allowCloudInPresent);
   if(w.data.cloudView && pollCanShowCloud){
     const items=pollCloudItems(w);
-    c.innerHTML=`<div class="pollBox">
-      <div class="pollQuestion" title="Klik for at skifte visning">${esc(w.data.question)}</div><div class="pollQuestionHint"><span class="pollHint">Klik på spørgsmålet for at skifte visning</span></div>
+    c.innerHTML=`<div class="pollBox pollCloudMode">
+      <div class="pollHeader"><button type="button" class="pollQuestion pollTitleToggle active" title="Klik for at skifte mellem ordsky og afstemning">${esc(w.data.question)}</button></div>
       ${settingsHtml}
       <div class="pollCloudView">${items.length?items.map(it=>`<span data-label="${esc(it.label)}" data-count="${esc(it.count)}" title="${esc(it.count+' stemmer')}" style="--x:${it.x||50}%;--y:${it.y||50}%;font-size:${it.size}px;opacity:${it.opacity};--rot:${it.rot||0}deg">${esc(it.label)}</span>`).join(''):`<div style="opacity:.65;font-weight:800">Ingen stemmer endnu</div>`}</div>
       <div class="pollModeBadge"><span class="pollModeLabel">Ordskyvisning</span></div>
       <div class="pollTools"><button class="pollEdit">Rediger</button><button class="pollReset">Nulstil stemmer</button><button class="pollCloud"><span class="pollModeLabel">Afstemningsvisning</span></button></div>
     </div>`;
   }else{
-    c.innerHTML=`<div class="pollBox">
-      <div class="pollQuestion" title="Klik for at skifte visning">${esc(w.data.question)}</div><div class="pollQuestionHint"><span class="pollHint">Klik på spørgsmålet for at skifte visning</span></div>
+    c.innerHTML=`<div class="pollBox pollVoteMode">
+      <div class="pollHeader"><button type="button" class="pollQuestion pollTitleToggle" title="Klik for at skifte mellem afstemning og ordsky">${esc(w.data.question)}</button></div>
       ${settingsHtml}
       <div class="pollChoices ${w.data.showResults?'':'resultsHidden'}">${(w.data.options||[]).map((o,i)=>`<button class="pollChoice" data-i="${i}">${esc(o)}</button>`).join('')}</div>
       ${w.data.showResults?`<div class="pollResults">${renderPollResults(w)}</div>`:`<div class="pollNoResultsNote">Resultater skjult</div>`}
@@ -9537,77 +10043,6 @@ document.addEventListener('click',function(e){
 </script>
 <script>
 
-/* v1.0.62 focus label and group lock sync */
-(function(){
-  function syncV62(){
-    try{
-      // Hvis vi ikke reelt er i maksimeret JS-state, må klassen ikke blive hængende.
-      if(typeof focusMaximized !== 'undefined' && !focusMaximized){
-        document.body.classList.remove('focus-maximized','maximized-from-edit');
-        if(window.UIState){
-          UIState.focusMaximized=false;
-          UIState.maximizedWidgetId=null;
-        }
-      }
-    }catch(e){}
-
-    try{
-      const btn=document.getElementById('focusExit');
-      if(btn){
-        const isMax=(typeof focusMaximized!=='undefined' && !!focusMaximized);
-        const isFocus=(typeof focusMode!=='undefined' && !!focusMode) ||
-          document.body.classList.contains('focus-mode') ||
-          document.body.classList.contains('focus-edit') ||
-          document.body.classList.contains('focus-presentation');
-        if(isFocus || isMax){
-          btn.textContent=isMax?'× maksimeret':'× fokus';
-          btn.title=isMax?'Afslut maksimeret visning':'Afslut fokus';
-          btn.setAttribute('aria-label',btn.title);
-          btn.classList.remove('hidden');
-          if(typeof positionFocusExitPrimary==='function') positionFocusExitPrimary();
-        }
-      }
-    }catch(e){}
-
-    try{
-      const hideLocks=document.body.classList.contains('focus-mode') ||
-        document.body.classList.contains('focus-edit') ||
-        document.body.classList.contains('focus-presentation') ||
-        document.body.classList.contains('focus-maximized') ||
-        (document.getElementById('app') && document.getElementById('app').classList.contains('present'));
-      document.querySelectorAll('.groupLock').forEach(el=>{
-        if(hideLocks){
-          el.style.display='none';
-          el.style.visibility='hidden';
-          el.style.pointerEvents='none';
-          el.style.opacity='0';
-        }else{
-          el.style.display='';
-          el.style.visibility='';
-          el.style.pointerEvents='';
-          el.style.opacity='';
-        }
-      });
-      document.querySelectorAll('#maxEmergencyExit,.maxEmergencyExit').forEach(el=>{
-        el.style.display='none';
-        el.style.visibility='hidden';
-        el.style.pointerEvents='none';
-      });
-    }catch(e){}
-  }
-
-  new MutationObserver(()=>setTimeout(syncV62,0)).observe(document.body,{attributes:true,attributeFilter:['class']});
-  const app=document.getElementById('app')||document.body;
-  new MutationObserver(()=>setTimeout(syncV62,0)).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
-  window.addEventListener('resize',()=>setTimeout(syncV62,50),{passive:true});
-  window.addEventListener('orientationchange',()=>setTimeout(syncV62,150),{passive:true});
-  setInterval(syncV62,700);
-  setTimeout(syncV62,100);
-})();
-
-</script>
-<script>
-
 /* v1.0.63 touch-exit controller */
 (function(){
   function state(){
@@ -9782,6 +10217,97 @@ document.addEventListener('click',function(e){
       setTimeout(()=>selectInput(input),0);
     }
   },true);
+})();
+
+</script>
+<script>
+
+/* v1.0.66 viewport class for debugging/responsive behavior */
+(function(){
+  function syncViewportClass(){
+    const w=window.innerWidth || document.documentElement.clientWidth || 0;
+    document.body.classList.toggle('phone-width', w<=640);
+    document.body.classList.toggle('tablet-or-desktop-width', w>640);
+  }
+  window.addEventListener('resize',syncViewportClass,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(syncViewportClass,80),{passive:true});
+  syncViewportClass();
+})();
+
+</script>
+<script>
+
+/* v1.0.67 poll toggle delegation */
+(function(){
+  document.addEventListener('click',function(ev){
+    const btn=ev.target && ev.target.closest && ev.target.closest('.pollModeToggle');
+    if(!btn)return;
+    const widget=btn.closest('.widget[data-type="poll"]');
+    if(!widget)return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    try{
+      const w=findWidget(widget.dataset.id);
+      if(w)togglePollCloudView(w,widget);
+    }catch(e){}
+  },true);
+})();
+
+</script>
+<script>
+/* v1.0.71 poll title toggle delegation – bruger global bro fra appens closure */
+(function(){
+  document.addEventListener('click',function(ev){
+    const btn=ev.target && ev.target.closest && ev.target.closest('.widget[data-type="poll"] .pollTitleToggle');
+    if(!btn)return;
+    const widget=btn.closest('.widget[data-type="poll"]');
+    if(!widget)return;
+
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+
+    btn.classList.remove('pollTitlePop');
+    void btn.offsetWidth;
+    btn.classList.add('pollTitlePop');
+
+    try{
+      if(window.tavleTogglePollCloudByWidgetId){
+        window.tavleTogglePollCloudByWidgetId(widget.dataset.id);
+      }
+    }catch(e){
+      console.error('Kunne ikke skifte afstemningsvisning',e);
+    }
+  },true);
+})();
+</script>
+<script>
+
+/* v1.0.73 poll inline-style cleanup on mode changes only */
+(function(){
+  function clearPollInlineTools(){
+    document.querySelectorAll('.widget[data-type="poll"] .pollTools,.widget[data-type="poll"] .pollSettings').forEach(el=>{
+      el.style.display='';
+      el.style.visibility='';
+      el.style.pointerEvents='';
+      el.style.opacity='';
+    });
+    document.querySelectorAll('.widget[data-type="poll"] .pollSettings input[type="checkbox"]').forEach(cb=>{
+      cb.style.width='';
+      cb.style.height='';
+      cb.style.minWidth='';
+      cb.style.minHeight='';
+      cb.style.transform='';
+    });
+  }
+  const app=document.getElementById('app');
+  if(app){
+    new MutationObserver(()=>requestAnimationFrame(clearPollInlineTools)).observe(app,{attributes:true,attributeFilter:['class']});
+  }
+  new MutationObserver(()=>requestAnimationFrame(clearPollInlineTools)).observe(document.body,{attributes:true,attributeFilter:['class']});
+  window.tavleClearPollInlineTools=clearPollInlineTools;
+  setTimeout(clearPollInlineTools,100);
 })();
 
 </script>
