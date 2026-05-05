@@ -4165,6 +4165,616 @@ body.widget-transform-active .linkIframeFrame iframe,
   .bgSelectorTools input{min-width:100%}
 }
 
+
+/* v1.0.51 mobile polish – kun små skærme/touch. Desktop påvirkes ikke. */
+@media (max-width: 760px), (pointer: coarse) and (max-width: 900px){
+  :root{
+    --mobile-toolbar-clearance: 78px;
+    --mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar{
+    max-width: calc(100vw - 92px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    left: calc(50% - 34px);
+    right: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-right: 12px;
+    padding-left: 12px;
+    touch-action: pan-x;
+  }
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar::-webkit-scrollbar{
+    display:none;
+  }
+
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar button,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar .tool,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar [data-tool]{
+    min-width:44px;
+    min-height:44px;
+    flex:0 0 auto;
+  }
+
+  #toolbarFallback,
+  #toolbarPinFallback,
+  .toolbarFallback,
+  .toolbar-toggle,
+  .toolbarToggle{
+    right: max(12px, env(safe-area-inset-right, 0px) + 12px) !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 9999;
+  }
+
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    transform: translateY(-2px);
+  }
+
+  .widget.selected{
+    outline: 3px solid rgba(108,92,231,.85);
+    outline-offset: 2px;
+  }
+
+  .modal{
+    max-width: min(92vw, 720px);
+    max-height: calc(100dvh - 34px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  }
+
+  .topbar{
+    max-width: calc(100vw - 18px);
+  }
+}
+
+/* Meget smal portræt: gør toolbaren endnu mere kompakt og undgå højre toggle. */
+@media (max-width: 480px) and (orientation: portrait){
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar{
+    max-width: calc(100vw - 86px);
+    left: calc(50% - 36px);
+    gap: 8px;
+  }
+}
+
+
+/* v1.0.52 mobile toolbar overlap fix
+   Løser at den faste toggle-knap dækker Mere-knappen på smal mobilskærm. */
+@media (max-width: 760px), (pointer: coarse) and (max-width: 900px){
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar{
+    max-width: calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    left: 12px !important;
+    right: auto !important;
+    transform: none !important;
+    padding-right: 82px !important; /* permanent no-go-zone til toggle-knappen */
+    box-sizing: border-box;
+  }
+
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    right: max(12px, env(safe-area-inset-right, 0px) + 12px) !important;
+    bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important; /* over toolbaren, ikke ovenpå */
+    z-index: 10001 !important;
+  }
+
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar button:last-child,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar [data-tool]:last-child{
+    margin-right: 10px;
+  }
+}
+
+/* I landskab er der ofte plads nok: hold toggle i hjørnet, men toolbar har stadig højre luft. */
+@media (max-width: 900px) and (orientation: landscape){
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+
+
+/* On narrow mobile screens a little less blur is safer, because widgets are already small. */
+@media (max-width:760px), (pointer:coarse) and (max-width:900px){
+  body.focus-mode .widget:not(.focusTarget),
+  body.focus-edit .widget:not(.focusTarget),
+  body.focus-presentation .widget:not(.focusTarget){
+    opacity:.46!important;
+    filter:grayscale(.12) blur(.2px) brightness(.92)!important;
+  }
+}
+
+/* True maximized focus should still hide everything except the target. */
+body.focus-maximized .widget:not(.focusTarget){
+  display:none!important;
+}
+
+
+
+/* Sørg for at appens mørke fokuslag ikke lægger sig over widgets. */
+body.focus-mode #app::before,
+body.focus-edit #app::before,
+body.focus-presentation #app::before,
+body.focus-mode #app::after,
+body.focus-edit #app::after,
+body.focus-presentation #app::after,
+body.focus-mode .focusBackdrop,
+body.focus-edit .focusBackdrop,
+body.focus-presentation .focusBackdrop,
+body.focus-mode .focusOverlay,
+body.focus-edit .focusOverlay,
+body.focus-presentation .focusOverlay{
+  background:rgba(15,23,42,.24)!important;
+  opacity:1!important;
+  backdrop-filter:blur(1.5px)!important;
+  -webkit-backdrop-filter:blur(1.5px)!important;
+  pointer-events:none!important;
+  z-index:9000!important;
+}
+
+/* Alle widgets ligger over fokuslag. */
+body.focus-mode .widget,
+body.focus-edit .widget,
+body.focus-presentation .widget{
+  display:block!important;
+  visibility:visible!important;
+  position:absolute!important;
+  z-index:10020!important;
+}
+
+/* Passive widgets: tydeligt dæmpede, men synlige. */
+body.focus-mode .widget:not(.focusTarget),
+body.focus-edit .widget:not(.focusTarget),
+body.focus-presentation .widget:not(.focusTarget){
+  display:block!important;
+  visibility:visible!important;
+  opacity:.56!important;
+  filter:grayscale(.10) blur(.15px) brightness(.96)!important;
+  transform-origin:center center!important;
+  pointer-events:auto!important;
+}
+
+/* Aktiv fokus-widget: tydelig forgrund. */
+body.focus-mode .widget.focusTarget,
+body.focus-edit .widget.focusTarget,
+body.focus-presentation .widget.focusTarget{
+  display:block!important;
+  visibility:visible!important;
+  z-index:10080!important;
+  opacity:1!important;
+  filter:none!important;
+  box-shadow:0 0 0 6px rgba(109,93,252,.85),0 24px 70px rgba(0,0,0,.45)!important;
+}
+
+/* Maksimeret fokus må stadig skjule de andre. */
+body.focus-maximized .widget:not(.focusTarget){
+  display:none!important;
+}
+
+/* Fokus exit: altid øverst, fixed og notch/safe-area-kompatibel. */
+.focusExit,
+#focusExit,
+body.focus-mode .focusExit,
+body.focus-edit .focusExit,
+body.focus-presentation .focusExit,
+body.focus-maximized .focusExit{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:fixed!important;
+  top:max(12px, env(safe-area-inset-top, 0px) + 8px)!important;
+  right:max(12px, env(safe-area-inset-right, 0px) + 8px)!important;
+  z-index:2147483647!important;
+  pointer-events:auto!important;
+  transform:none!important;
+  filter:none!important;
+}
+
+/* På små telefoner: endnu mildere passiv effekt, så man kan se hvor widgetten er. */
+@media (max-width:760px), (pointer:coarse) and (max-width:900px){
+  body.focus-mode .widget:not(.focusTarget),
+  body.focus-edit .widget:not(.focusTarget),
+  body.focus-presentation .widget:not(.focusTarget){
+    opacity:.64!important;
+    filter:grayscale(.06) blur(0px) brightness(1)!important;
+  }
+
+  .focusExit,
+  #focusExit,
+  body.focus-mode .focusExit,
+  body.focus-edit .focusExit,
+  body.focus-presentation .focusExit,
+  body.focus-maximized .focusExit{
+    font-size:clamp(18px,5vw,30px)!important;
+    padding:10px 14px!important;
+    border-radius:999px!important;
+  }
+}
+
+
+
+/* Almindelig fokus: passive widgets synlige, uanset ældre regler. */
+body.focus-mode:not(.focus-maximized) .widget:not(.focusTarget),
+body.focus-edit:not(.focus-maximized) .widget:not(.focusTarget),
+body.focus-presentation:not(.focus-maximized) .widget:not(.focusTarget){
+  display:block!important;
+  visibility:visible!important;
+  opacity:.62!important;
+  filter:grayscale(.08) blur(0px) brightness(1)!important;
+  z-index:10030!important;
+  pointer-events:auto!important;
+}
+
+/* Hvis mobil tilfældigt har focus-maximized-klasse uden at brugeren er i rigtig maksimering,
+   må passive widgets stadig ikke blive helt væk. */
+@media (max-width:760px), (pointer:coarse) and (max-width:900px){
+  body.focus-mode .widget:not(.focusTarget),
+  body.focus-edit .widget:not(.focusTarget),
+  body.focus-presentation .widget:not(.focusTarget){
+    display:block!important;
+    visibility:visible!important;
+    opacity:.66!important;
+    filter:grayscale(.05) blur(0px) brightness(1)!important;
+    z-index:10030!important;
+  }
+}
+
+/* Fokusknap: CSS fallback. JS nedenfor placerer den mere præcist via visualViewport. */
+#focusExit,
+.focusExit{
+  position:fixed!important;
+  top:12px!important;
+  right:12px!important;
+  left:auto!important;
+  bottom:auto!important;
+  max-width:calc(100vw - 24px)!important;
+  white-space:nowrap!important;
+  z-index:2147483647!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+  visibility:visible!important;
+  transform:none!important;
+}
+
+/* På smal mobil må knappen gerne blive lidt mindre, men ikke forsvinde. */
+@media (max-width:480px){
+  #focusExit,
+  .focusExit{
+    font-size:22px!important;
+    padding:8px 12px!important;
+    border-radius:999px!important;
+  }
+}
+
+
+
+
+
+
+/* Mildt fokuslag. Hvis gamle pseudo/overlay-lag findes, må de ikke gøre tavlen sort. */
+body.focus-mode #app::before,
+body.focus-edit #app::before,
+body.focus-presentation #app::before,
+body.focus-mode #app::after,
+body.focus-edit #app::after,
+body.focus-presentation #app::after,
+body.focus-mode .focusBackdrop,
+body.focus-edit .focusBackdrop,
+body.focus-presentation .focusBackdrop,
+body.focus-mode .focusOverlay,
+body.focus-edit .focusOverlay,
+body.focus-presentation .focusOverlay{
+  background:rgba(15,23,42,.18)!important;
+  opacity:1!important;
+  filter:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  pointer-events:none!important;
+  z-index:9000!important;
+}
+
+/* Almindelig fokus: ingen widgets må være usynlige. */
+body.focus-mode:not(.focus-maximized) .widget,
+body.focus-edit:not(.focus-maximized) .widget,
+body.focus-presentation:not(.focus-maximized) .widget{
+  display:block!important;
+  visibility:visible!important;
+  position:absolute!important;
+}
+
+/* Passive widgets: synlige som kontekst. Ingen blur, ingen hård brightness. */
+body.focus-mode:not(.focus-maximized) .widget:not(.focusTarget),
+body.focus-edit:not(.focus-maximized) .widget:not(.focusTarget),
+body.focus-presentation:not(.focus-maximized) .widget:not(.focusTarget),
+body.focus-mode .app .widget:not(.focusTarget),
+body.focus-edit .app .widget:not(.focusTarget),
+body.focus-presentation .app .widget:not(.focusTarget){
+  display:block!important;
+  visibility:visible!important;
+  opacity:.72!important;
+  filter:none!important;
+  z-index:10030!important;
+  pointer-events:auto!important;
+}
+
+/* Aktiv widget står tydeligt forrest. */
+body.focus-mode .widget.focusTarget,
+body.focus-edit .widget.focusTarget,
+body.focus-presentation .widget.focusTarget{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  filter:none!important;
+  z-index:10090!important;
+  box-shadow:0 0 0 6px rgba(109,93,252,.85),0 24px 70px rgba(0,0,0,.45)!important;
+}
+
+/* Kun egentlig maksimeret fokus må skjule andre widgets. */
+body.focus-maximized:not(.focus-edit):not(.focus-presentation) .widget:not(.focusTarget){
+  display:none!important;
+}
+
+/* Mobil: passive widgets skal være endnu mere synlige, fordi skærmen er lille. */
+@media (max-width:760px), (pointer:coarse) and (max-width:900px){
+  body.focus-mode .app .widget:not(.focusTarget),
+  body.focus-edit .app .widget:not(.focusTarget),
+  body.focus-presentation .app .widget:not(.focusTarget){
+    opacity:.82!important;
+    filter:none!important;
+  }
+
+  body.focus-mode #app::before,
+  body.focus-edit #app::before,
+  body.focus-presentation #app::before,
+  body.focus-mode #app::after,
+  body.focus-edit #app::after,
+  body.focus-presentation #app::after,
+  body.focus-mode .focusBackdrop,
+  body.focus-edit .focusBackdrop,
+  body.focus-presentation .focusBackdrop,
+  body.focus-mode .focusOverlay,
+  body.focus-edit .focusOverlay,
+  body.focus-presentation .focusOverlay{
+    background:rgba(15,23,42,.12)!important;
+  }
+}
+
+
+/* v1.0.60 cleanup: samlet fokuslag og fokusknap */
+#maxEmergencyExit{display:none!important}
+#focusExit.focusExit,.focusExit#focusExit{
+  position:fixed!important;
+  z-index:2147483647!important;
+  min-height:52px!important;
+  min-width:126px!important;
+  padding:10px 18px!important;
+  border-radius:999px!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+#focusExit.focusExit.hidden{display:none!important}
+
+/* Fokuslag skal ligge under widgets og kun dæmpe let. */
+body.focus-mode #app::before,
+body.focus-edit #app::before,
+body.focus-presentation #app::before,
+body.focus-mode #app::after,
+body.focus-edit #app::after,
+body.focus-presentation #app::after,
+body.focus-mode .focusBackdrop,
+body.focus-edit .focusBackdrop,
+body.focus-presentation .focusBackdrop,
+body.focus-mode .focusOverlay,
+body.focus-edit .focusOverlay,
+body.focus-presentation .focusOverlay{
+  background:rgba(15,23,42,.14)!important;
+  opacity:1!important;
+  filter:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  pointer-events:none!important;
+  z-index:9000!important;
+}
+
+body.focus-mode:not(.focus-maximized) .widget,
+body.focus-edit:not(.focus-maximized) .widget,
+body.focus-presentation:not(.focus-maximized) .widget{
+  display:block!important;
+  visibility:visible!important;
+  position:absolute!important;
+}
+
+body.focus-mode .widget:not(.focusTarget),
+body.focus-edit .widget:not(.focusTarget),
+body.focus-presentation .widget:not(.focusTarget){
+  display:block!important;
+  visibility:visible!important;
+  opacity:.78!important;
+  filter:none!important;
+  z-index:10030!important;
+  pointer-events:auto!important;
+}
+
+body.focus-mode .widget.focusTarget,
+body.focus-edit .widget.focusTarget,
+body.focus-presentation .widget.focusTarget{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  filter:none!important;
+  z-index:10090!important;
+  box-shadow:0 0 0 6px rgba(109,93,252,.85),0 24px 70px rgba(0,0,0,.45)!important;
+}
+
+/* Kun ægte maksimeret fokus skjuler andre widgets. */
+body.focus-maximized:not(.focus-edit):not(.focus-presentation) .widget:not(.focusTarget){
+  display:none!important;
+}
+
+
+/* v1.0.61 timer + focus state cleanup */
+.present .timerEditControls,
+body.focus-mode .timerEditControls,
+body.focus-edit .timerEditControls,
+body.focus-presentation .timerEditControls,
+body.focus-maximized .timerEditControls{
+  display:none!important;
+}
+
+.present .timerBox,
+body.focus-mode .timerBox,
+body.focus-edit .timerBox,
+body.focus-presentation .timerBox,
+body.focus-maximized .timerBox{
+  display:grid!important;
+  place-items:center!important;
+  align-content:center!important;
+  height:100%!important;
+  box-sizing:border-box!important;
+}
+
+.present .timerBox .display,
+body.focus-mode .timerBox .display,
+body.focus-edit .timerBox .display,
+body.focus-presentation .timerBox .display,
+body.focus-maximized .timerBox .display{
+  margin:10px 0 14px 0!important;
+}
+
+/* Normal fokus må ikke opføre sig som maksimeret. */
+body.focus-mode:not(.focus-maximized) .widget.focusTarget,
+body.focus-edit:not(.focus-maximized) .widget.focusTarget,
+body.focus-presentation:not(.focus-maximized) .widget.focusTarget{
+  left:auto!important;
+  top:auto!important;
+  width:var(--widget-w)!important;
+  height:var(--widget-h)!important;
+  transform:inherit;
+}
+
+
+/* v1.0.62 focus label + group lock final authority */
+#maxEmergencyExit,
+.maxEmergencyExit{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Gruppe-hængelåse er redigeringsværktøj.
+   De må aldrig ses i præsentation, fokus eller maksimeret fokus. */
+.app.present .groupLock,
+.present .groupLock,
+.presentation .groupLock,
+body.focus-mode .groupLock,
+body.focus-edit .groupLock,
+body.focus-presentation .groupLock,
+body.focus-maximized .groupLock,
+body.focus-maximized .app .groupLock,
+body.focus-mode .app .groupLock,
+body.focus-edit .app .groupLock,
+body.focus-presentation .app .groupLock{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  opacity:0!important;
+}
+
+/* Kun normal redigering må vise gruppe-låse. */
+body:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized) .app:not(.present) .groupLock{
+  display:grid;
+  visibility:visible;
+  pointer-events:auto;
+  opacity:1;
+}
+
+
+/* v1.0.63 touch-exit + group-lock balance
+   Genskaber en synlig touch-udgang i fokus/maksimeret tilstand.
+   Hængelåse skjules i præsentation/fokus, men vises igen ved maksimering direkte fra redigering. */
+
+/* Den gamle maxEmergencyExit bruges igen som stabil touch-knap. */
+#maxEmergencyExit,
+.maxEmergencyExit{
+  position:fixed!important;
+  top:max(18px, env(safe-area-inset-top, 0px) + 12px)!important;
+  right:max(18px, env(safe-area-inset-right, 0px) + 12px)!important;
+  z-index:2147483647!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:rgba(17,24,39,.94)!important;
+  color:white!important;
+  padding:12px 18px!important;
+  font-weight:900!important;
+  font-size:18px!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.35)!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
+
+#maxEmergencyExit.hidden,
+.maxEmergencyExit.hidden{
+  display:none!important;
+}
+
+/* Når fokus/maksimering er aktiv, skal touch-exit kunne ses. */
+body.focus-mode #maxEmergencyExit,
+body.focus-edit #maxEmergencyExit,
+body.focus-presentation #maxEmergencyExit,
+body.focus-maximized #maxEmergencyExit,
+body.focus-mode .maxEmergencyExit,
+body.focus-edit .maxEmergencyExit,
+body.focus-presentation .maxEmergencyExit,
+body.focus-maximized .maxEmergencyExit{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+/* focusExit må ikke konkurrere visuelt på touch; maxEmergencyExit er primær touch-exit. */
+#focusExit.focusExit{
+  display:none!important;
+}
+
+/* Gruppe-hængelåse skjules i præsentation og almindelig fokus. */
+.app.present .groupLock,
+.present .groupLock,
+.presentation .groupLock,
+body.focus-mode:not(.maximized-from-edit) .groupLock,
+body.focus-edit .groupLock,
+body.focus-presentation .groupLock{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  opacity:0!important;
+}
+
+/* Hvis en grupper-widget maksimeres direkte fra redigering, er hængelåsene redigeringsværktøj og skal vises. */
+body.maximized-from-edit.focus-maximized:not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.focusTarget .groupLock,
+body.maximized-from-edit.focus-maximized:not(.focus-edit):not(.focus-presentation) .app:not(.present) .widget.selected .groupLock{
+  display:grid!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+  filter:none!important;
+  z-index:10090!important;
+}
+
+@media (max-width:760px), (pointer:coarse) and (max-width:900px){
+  #maxEmergencyExit,
+  .maxEmergencyExit{
+    top:calc(env(safe-area-inset-top, 0px) + 58px)!important;
+    right:max(12px, env(safe-area-inset-right, 0px) + 12px)!important;
+    min-height:52px!important;
+    padding:10px 16px!important;
+    font-size:18px!important;
+  }
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
@@ -4264,10 +4874,21 @@ body.widget-transform-active .linkIframeFrame iframe,
       plain: {
         p: {label:'Skift redigering/præsentation', run:()=>togglePresentationFromShortcut()},
         r: {label:'Skift redigering/præsentation', run:()=>togglePresentationFromShortcut()},
-        f: {label:'Fokus på valgt widget', run:api=>api.toggleFocusShortcut&&api.toggleFocusShortcut()}
+        f: {label:'Fokus på valgt widget', run:api=>api.toggleFocusShortcut&&api.toggleFocusShortcut()},
+        n: {label:'Ny tavle', run:api=>api.newSlideShortcut&&api.newSlideShortcut()},
+        t: {label:'Værktøjslinje til/fra', run:api=>{
+          if(api.toggleToolbarShortcut) api.toggleToolbarShortcut();
+          else {
+            const hidden=document.body.classList.contains('toolbar-is-hidden') || appEl.classList.contains('toolbarHidden');
+            document.body.classList.toggle('toolbar-is-hidden', !hidden);
+            appEl.classList.toggle('toolbarHidden', !hidden);
+            try{ if(window.UIState) window.UIState.toolbarVisible = hidden; }catch(_e){}
+          }
+        }}
       },
       shift: {
         f: {label:'Maksimer valgt/fokuseret widget', run:api=>api.toggleMaximizedFocusShortcut&&api.toggleMaximizedFocusShortcut()},
+        d: {label:'Duplikér aktiv tavle', run:api=>api.duplicateSlideShortcut&&api.duplicateSlideShortcut()},
         a: {label:'Tekst', widget:'a'},
         p: {label:'PDF', widget:'p'},
         i: {label:'Billede', widget:'i'},
@@ -4282,7 +4903,7 @@ body.widget-transform-active .linkIframeFrame iframe,
         g: {label:'Grid', widget:'g'},
         b: {label:'Backup', widget:'b'},
         o: {label:'Hints til/fra', widget:'o'},
-        n: {label:'Værktøjslinje til/fra', run:()=>{
+        n: {label:'Værktøjslinje til/fra (gammel)', run:()=>{
           const hidden=document.body.classList.contains('toolbar-is-hidden') || appEl.classList.contains('toolbarHidden');
           document.body.classList.toggle('toolbar-is-hidden', !hidden);
           appEl.classList.toggle('toolbarHidden', !hidden);
@@ -4325,7 +4946,22 @@ body.widget-transform-active .linkIframeFrame iframe,
       }
       if(e.defaultPrevented) return;
       if(isTyping(e) || modalOpen()) return;
-      if(e.metaKey || e.ctrlKey || e.altKey) return;
+      if((e.metaKey || e.ctrlKey) && !e.altKey){
+        const modKey=normalizeShortcutKey(e);
+        const api=window.tavleShortcutAPI||{};
+        if(modKey==='d' && api.duplicateSelectedWidgetShortcut){
+          e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+          api.duplicateSelectedWidgetShortcut();
+          return;
+        }
+        if(modKey==='s' && api.saveShortcut){
+          e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+          api.saveShortcut();
+          return;
+        }
+        return;
+      }
+      if(e.altKey) return;
 
       const key=normalizeShortcutKey(e);
       const api=window.tavleShortcutAPI;
@@ -5752,7 +6388,11 @@ function handleTool(t){
 
   if(t==='draw'){setDrawActive(!app.classList.contains('drawActive'));return}
   if(t==='focus'){toggleFocusMode();return}
-  if(t==='text')addWidget('text',{text:'Skriv her...'});
+  if(t==='text'){
+    const w=addWidget('text',{text:'Skriv instruktion her…',fontSize:24});
+    setTimeout(()=>focusTextWidgetEditor(w.id,true),0);
+    return;
+  }
   if(t==='video')addWidget('video',{});
   if(t==='wheel')addWidget('wheel',{});
   if(t==='groups')addWidget('groups',{});
@@ -5760,7 +6400,7 @@ function handleTool(t){
   if(t==='poll')addWidget('poll',{});
   if(t==='timer')addWidget('timer',{});
   if(t==='image')addWidget('image',{});
-  if(t==='link'){const w=addWidget('link',{text:'Link',url:'https://'});setTimeout(()=>askLink(w),0);return;}
+  if(t==='link'){const w=addWidget('link',{text:'Link',url:''});setTimeout(()=>askLink(w),0);return;}
   if(t==='pdf')addWidget('pdf',{});
   if(t==='background'||t==='bg')bgModal();
   if(t==='grid'){slide().grid=!slide().grid;
@@ -5856,10 +6496,61 @@ function updateFocusButtons(){
   if(editBtn)editBtn.classList.toggle('active',focusMode==='edit');
   if(presBtn)presBtn.classList.toggle('active',focusMode==='presentation');
 }
+
+
+function positionFocusExitPrimary(){
+  const btn=document.getElementById('focusExit');
+  if(!btn)return;
+
+  const isMax=!!focusMaximized;
+  const isFocus=!!focusMode || document.body.classList.contains('focus-mode') || document.body.classList.contains('focus-edit') || document.body.classList.contains('focus-presentation');
+  const show=!!(isMax || isFocus);
+
+  btn.classList.toggle('hidden', !show);
+  if(!show){
+    btn.style.display='none';
+    return;
+  }
+
+  if(btn.parentElement!==document.body)document.body.appendChild(btn);
+
+  btn.style.position='fixed';
+  btn.style.display='block';
+  btn.style.visibility='visible';
+  btn.style.opacity='1';
+  btn.style.pointerEvents='auto';
+  btn.style.zIndex='2147483647';
+  btn.style.right='auto';
+  btn.style.bottom='auto';
+  btn.style.transform='none';
+  btn.style.filter='none';
+
+  const vv=window.visualViewport;
+  const vw=vv?vv.width:window.innerWidth;
+  const ox=vv?vv.offsetLeft:0;
+  const oy=vv?vv.offsetTop:0;
+  const mobile=window.matchMedia && (matchMedia('(max-width:760px)').matches || matchMedia('(pointer:coarse) and (max-width:900px)').matches);
+
+  // iPhone/statusbar: nok til at knappen kan rammes, men ikke så langt nede at den dækker meget.
+  const topOffset=mobile?72:18;
+  const rightOffset=14;
+
+  const rect=btn.getBoundingClientRect();
+  const bw=rect.width||150;
+  let left=ox+vw-bw-rightOffset;
+  if(left<ox+10)left=ox+10;
+
+  btn.style.left=Math.round(left)+'px';
+  btn.style.top=Math.round(oy+topOffset)+'px';
+}
+
 function updateFocusExitLabel(){
   const btn=document.getElementById('focusExit');
   if(!btn)return;
-  if(focusMaximized){
+  // v1.0.62: Kun den rigtige JS-state focusMaximized må give teksten "maksimeret".
+  // En gammel CSS-klasse må ikke bestemme label.
+  const isMax=!!focusMaximized;
+  if(isMax){
     btn.textContent='× maksimeret';
     btn.title='Afslut maksimeret visning';
     btn.setAttribute('aria-label','Afslut maksimeret visning');
@@ -5929,22 +6620,26 @@ function toggleFocusMaximized(){
   }
   setFocusMaximized(true);
 }
+
 function syncEmergencyExit(){
   const focusBtn=document.getElementById('focusExit');
   const maxBtn=document.getElementById('maxEmergencyExit');
 
-  const isMax=!!focusMaximized || document.body.classList.contains('focus-maximized');
+  const isMax=!!focusMaximized;
   const isFocus=!!focusMode || document.body.classList.contains('focus-mode') || document.body.classList.contains('focus-edit') || document.body.classList.contains('focus-presentation');
   const show=!!(isFocus || isMax);
 
-  if(focusBtn){
-    focusBtn.classList.add('hidden');
+  if(maxBtn){
+    maxBtn.classList.add('hidden');
+    maxBtn.style.display='none';
   }
 
-  if(maxBtn){
-    maxBtn.classList.toggle('hidden', !show);
-    maxBtn.textContent=isMax?'× maksimeret':'× fokus';
-    maxBtn.title=isMax?'Afslut maksimeret visning':'Afslut fokus';
+  if(focusBtn){
+    focusBtn.classList.toggle('hidden', !show);
+    focusBtn.textContent=isMax?'× maksimeret':'× fokus';
+    focusBtn.title=isMax?'Afslut maksimeret visning':'Afslut fokus';
+    focusBtn.setAttribute('aria-label',focusBtn.title);
+    try{positionFocusExitPrimary();}catch(_e){}
   }
 }
 function hardExitMaximized(){
@@ -5964,6 +6659,7 @@ function hardExitMaximized(){
   if(btn)btn.classList.add('hidden');
   updateFocusExitLabel();
   syncEmergencyExit();
+  try{positionFocusExitPrimary();}catch(_e){}
   try{applyUIState();}catch(_e){}
   try{setToolbarHidden(false)}catch(_e){}
   try{updateContextHints('exit-max')}catch(_e){}
@@ -5972,7 +6668,7 @@ function hardExitMaximized(){
 /* v1.0.40-fix: sync focus body classes for global background dim */
 function syncFocusBodyClasses(){
   const focusOn=!!focusMode;
-  const maxOn=!!focusMaximized || document.body.classList.contains('focus-maximized');
+  const maxOn=!!focusMaximized;
   document.body.classList.toggle('focus-mode', focusOn);
   document.body.classList.toggle('focus-maximized', maxOn);
 }
@@ -5981,6 +6677,14 @@ function setFocusMode(mode){
   setTimeout(()=>{try{syncFocusBodyClasses();}catch(_e){}},0);
   focusMode=mode;
   UIState.focusMode=mode||null;
+  // Normal fokus må aldrig arve maksimeret tilstand.
+  if(mode){
+    focusMaximized=false;
+    focusMaxReturnMode=null;
+    UIState.focusMaximized=false;
+    UIState.maximizedWidgetId=null;
+    document.body.classList.remove('focus-maximized','maximized-from-edit');
+  }
   // set global mode for central UI state
   if(mode==='presentation'){
     UIState.mode='presentation';
@@ -6009,6 +6713,8 @@ function setFocusMode(mode){
   if(btn)btn.classList.toggle('hidden',!focusMode && !focusMaximized);
   updateFocusExitLabel();
   syncEmergencyExit();
+  try{positionFocusExitPrimary();}catch(_e){}
+  try{ positionFocusExitPrimary && positionFocusExitPrimary(); }catch(_e){}
   if(!focusMode && !focusMaximized)clearFocusTarget();
   updateFocusButtons();
   try{
@@ -6147,6 +6853,61 @@ if(presentFocusBtn)presentFocusBtn.onclick=e=>{e.preventDefault();e.stopPropagat
 
 /* v1.0.10-dev: shared shortcut API used by the early capture keydown listener */
 window.tavleShortcutAPI={
+  newSlideShortcut(){
+    state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});
+    state.active=state.slides.length-1;
+    render();
+    save();
+    try{toast('Ny tavle')}catch(e){}
+  },
+  duplicateSlideShortcut(){
+    const src=state.slides[state.active];
+    if(!src)return;
+    const copy=JSON.parse(JSON.stringify(src));
+    copy.title=(copy.title||'Tavle')+' kopi';
+    copy.widgets=(copy.widgets||[]).map(w=>{
+      const nw=JSON.parse(JSON.stringify(w));
+      nw.id=uid();
+      nw.z=++z;
+      return nw;
+    });
+    state.slides.splice(state.active+1,0,copy);
+    state.active=state.active+1;
+    render();
+    save();
+    try{toast('Tavle duplikeret')}catch(e){}
+  },
+  duplicateSelectedWidgetShortcut(){
+    if(!selected){try{toast('Vælg en widget først')}catch(e){};return;}
+    const found=findWidgetOnSlide(state.active,selected);
+    if(!found.widget){try{toast('Vælg en widget først')}catch(e){};return;}
+    const copy=cloneWidgetForSlide(found.widget);
+    slide().widgets.push(copy);
+    render();
+    select(copy.id);
+    save();
+    try{toast('Widget kopieret')}catch(e){}
+  },
+  deleteSelectedWidgetShortcut(){
+    if(!selected){try{toast('Vælg en widget først')}catch(e){};return;}
+    const id=selected;
+    slide().widgets=slide().widgets.filter(w=>String(w.id)!==String(id));
+    selected=null;
+    UIState.selectedWidgetId=null;
+    render();
+    save();
+    try{toast('Widget slettet')}catch(e){}
+  },
+  saveShortcut(){
+    try{saveModal();toast('Backup')}catch(e){try{save();toast('Gemt')}catch(_e){}}
+  },
+  toggleToolbarShortcut(){
+    const hidden=document.body.classList.contains('toolbar-is-hidden') || app.classList.contains('toolbarHidden');
+    document.body.classList.toggle('toolbar-is-hidden', !hidden);
+    app.classList.toggle('toolbarHidden', !hidden);
+    try{ if(window.UIState) window.UIState.toolbarVisible = hidden; }catch(_e){}
+    try{toast(hidden?'Værktøjslinje vist':'Værktøjslinje skjult')}catch(e){}
+  },
   toggleFocusShortcut(){
     if(focusMode){
       setFocusMode(null);
@@ -6163,8 +6924,13 @@ window.tavleShortcutAPI={
       return;
     }
     const mode=app.classList.contains('present')?'presentation':'edit';
+    focusMaximized=false;
+    focusMaxReturnMode=null;
+    UIState.focusMaximized=false;
+    UIState.maximizedWidgetId=null;
+    document.body.classList.remove('focus-maximized','maximized-from-edit');
     setFocusMode(mode);
-    setTimeout(()=>setFocusTarget(el),0);
+    setTimeout(()=>{setFocusTarget(el);try{positionFocusExitPrimary&&positionFocusExitPrimary()}catch(_e){}},0);
     try{toast('Fokus')}catch(e){}
   },
   toggleMaximizedFocusShortcut(){
@@ -6212,7 +6978,7 @@ window.tavleShortcutAPI={
       h:['wheel',{}],
       s:['wordcloud',{}],
       t:['timer',{}],
-      l:['link',{text:'Klikbart link',url:'https://'}]
+      l:['link',{text:'Link',url:''}]
     };
     const spec=map[key];
     if(!spec)return;
@@ -6389,7 +7155,7 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
   if(editBtn)editBtn.onclick=e=>{e.preventDefault();e.stopPropagation();askVideo(w)};
   c.ondblclick=e=>{if(app.classList.contains('present'))return;e.preventDefault();e.stopPropagation();askVideo(w)};
 }
- if(w.type==='timer'){w.data.seconds??=180;w.data.left??=w.data.seconds; c.innerHTML=`<div class="timerBox"><div><input class="min" type="number" value="${Math.floor(w.data.seconds/60)}"> min <input class="sec" type="number" value="${w.data.seconds%60}"> sek <button class="set">Sæt</button></div><div class="display">${fmt(w.data.left)}</div><button class="start">Start</button><button class="pause">Pause</button><button class="reset">Reset</button></div>`;wireTimer(c,w)}
+ if(w.type==='timer'){w.data.seconds??=180;w.data.left??=w.data.seconds; c.innerHTML=`<div class="timerBox"><div class="timerEditControls"><input class="min" type="number" value="${Math.floor(w.data.seconds/60)}"> min <input class="sec" type="number" value="${w.data.seconds%60}"> sek <button class="set">Sæt</button></div><div class="display">${fmt(w.data.left)}</div><div class="timerRunControls"><button class="start">Start</button><button class="pause">Pause</button><button class="reset">Reset</button></div></div>`;wireTimer(c,w)}
  if(w.type==='wheel'){
   w.data.names??=['Anna','Bertram','Caroline','Emil','Ida'];
   w.data.original??=[...w.data.names];
@@ -7231,13 +7997,18 @@ function normalizeLinkUrl(url){
 function askLink(w){
   if(!canEditWidgets())return;
 
+  const defaultTitle='Link';
+  const currentTitle=String(w.data.text||'').trim();
+  const titleValue=(currentTitle && currentTitle!=='Klikbart link') ? currentTitle : defaultTitle;
+  const urlValue=String(w.data.url||'').trim();
+
   showModal(`<h2>Link</h2>
     <p style="margin-top:0;opacity:.75;font-weight:800">Samme adresse kan vises som almindeligt link eller som indlejret webside/iframe via knappen i widgetens topbjælke.</p>
     <label>Titel
-      <input id="lt" placeholder="Tekst" value="${esc(w.data.text||'Klikbart link')}">
+      <input id="lt" placeholder="Link" value="${esc(titleValue)}">
     </label>
     <label>Adresse
-      <input id="lu" placeholder="URL" value="${esc(w.data.url||'https://')}">
+      <input id="lu" placeholder="Indsæt URL" value="${esc(urlValue)}">
     </label>
     <button id="ok">Gem</button>
     <button id="cancel">Luk</button>`);
@@ -7245,9 +8016,34 @@ function askLink(w){
   const titleInput=modal.querySelector('#lt');
   const urlInput=modal.querySelector('#lu');
 
+  function selectAllOnFocus(input){
+    if(!input)return;
+    let selectedOnce=false;
+    const doSelect=()=>{
+      try{
+        input.focus({preventScroll:true});
+        input.setSelectionRange(0,String(input.value||'').length);
+        selectedOnce=true;
+      }catch(e){
+        try{input.select();selectedOnce=true;}catch(_e){}
+      }
+    };
+    input.addEventListener('focus',()=>setTimeout(doSelect,0));
+    input.addEventListener('pointerdown',()=>{
+      if(!selectedOnce)setTimeout(doSelect,0);
+    });
+    input.addEventListener('click',()=>{
+      if(!selectedOnce)setTimeout(doSelect,0);
+    });
+    input.addEventListener('blur',()=>{selectedOnce=false;});
+  }
+
+  selectAllOnFocus(titleInput);
+  selectAllOnFocus(urlInput);
+
   function saveLink(){
-    w.data.text=titleInput.value.trim()||'Klikbart link';
-    w.data.url=normalizeLinkUrl(urlInput.value)||'https://';
+    w.data.text=titleInput.value.trim()||defaultTitle;
+    w.data.url=normalizeLinkUrl(urlInput.value);
     if(!w.data.view)w.data.view='link';
     closeModal();
     render();
@@ -7266,7 +8062,12 @@ function askLink(w){
     });
   });
 
-  setTimeout(()=>titleInput.focus(),0);
+  setTimeout(()=>{
+    try{
+      titleInput.focus({preventScroll:true});
+      titleInput.setSelectionRange(0,String(titleInput.value||'').length);
+    }catch(e){try{titleInput.select()}catch(_e){}}
+  },60);
 }
 function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeholder="https://..." value="${esc(w.data.src||'')}"><p>Bemærk: Nogle billeder blokeres af hjemmesiden. Upload lokalt er mest stabilt offline.</p><button id="ok">Brug billede</button><button id="cancel">Luk</button>`);modal.querySelector('#ok').onclick=()=>{w.data.src=modal.querySelector('#iu').value.trim();closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
 function askPdfLink(w){showModal(`<h2>PDF-link</h2><input id="pt" placeholder="Tekst" value="${esc(w.data.text||'Åbn PDF')}"><input id="pu" placeholder="PDF URL" value="${esc(w.data.src||'')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#pt').value;w.data.src=modal.querySelector('#pu').value;closeModal();render()}}
@@ -7520,19 +8321,25 @@ function showQuickHelp(){
       <summary>Hvilke genvejstaster findes der?</summary>
       <div class="answer">
         <ul>
+          <li><b>N</b> opretter en ny tavle.</li>
+          <li><b>Cmd/Ctrl + D</b> kopierer den valgte widget.</li>
+          <li><b>Delete</b> eller <b>Backspace</b> sletter den valgte widget.</li>
+          <li><b>Shift + D</b> duplikerer den aktive tavle.</li>
+          <li><b>T</b> viser/skjuler værktøjslinjen. <b>Shift + N</b> virker stadig som gammel genvej.</li>
+          <li><b>Cmd/Ctrl + S</b> åbner backup/gem.</li>
           <li><b>P</b> eller <b>R</b> skifter mellem redigering og præsentation.</li>
           <li><b>F</b> går ind/ud af fokus på den valgte widget.</li>
-          <li><b>Shift + F</b> maksimerer den valgte/fokuserede widget. Tryk <b>Shift + F</b> igen for at vende tilbage til den forrige visning.</li>
-          <li><b>Esc</b> går altid helt tilbage til normal visning, også fra maksimeret fokus. På touch kan du bruge <b>× fokus</b>/<b>× maksimeret</b> øverst til højre.</li>
+          <li><b>Shift + F</b> maksimerer den valgte/fokuserede widget. Tryk <b>Shift + F</b> igen for at vende tilbage.</li>
+          <li><b>Esc</b> går tilbage fra fokus/maksimeret, lukker iframe-kontrol og slår tegning fra.</li>
           <li><b>Shift + A</b> tekst, <b>Shift + P</b> PDF, <b>Shift + I</b> billede, <b>Shift + L</b> link.</li>
           <li><b>Shift + T</b> timer, <b>Shift + U</b> ur, <b>Shift + H</b> hjul, <b>Shift + R</b> grupper, <b>Shift + S</b> ordsky.</li>
           <li><b>Shift + V</b> afstemning, <b>Shift + M</b> baggrund, <b>Shift + G</b> grid, <b>Shift + B</b> backup.</li>
-          <li><b>Shift + N</b> viser/skjuler værktøjslinjen, <b>Shift + O</b> hints til/fra, <b>Shift + ?</b> hjælp.</li>
+          <li><b>Shift + O</b> hints til/fra, <b>Shift + ?</b> hjælp.</li>
           <li><b>←</b> og <b>→</b> skifter tavle – men skifter PDF-side, når en PDF-widget er aktiv eller i fokus.</li>
           <li><b>↑</b> og <b>↓</b> scroller PDF’en, når en PDF-widget er aktiv eller i fokus.</li>
           <li><b>1–9</b> går direkte til tavle 1–9. <b>0</b> går til tavle 10.</li>
         </ul>
-        <p>Genvejene virker ikke, mens du skriver i et tekstfelt eller en modal er åben. Brug <b>Shift + N</b> eller knappen nederst til højre til at vise/skjule værktøjslinjen.</p>
+        <p>Genvejene virker ikke, mens du skriver i et tekstfelt eller en modal er åben.</p>
       </div>
     </details>
 
@@ -7544,7 +8351,7 @@ function showQuickHelp(){
     </details>
   </div>
 
-  <div class="helpPager">
+    <div class="helpPager">
     <span>Tip: Lav én tavle pr. aktivitet, og brug pilene til at skifte mellem dem.</span>
     <button id="closeHelp">Luk</button>
   </div>`);
@@ -8192,6 +8999,17 @@ document.addEventListener('keydown',e=>{
   const t=e.target;
   if(t && (t.matches('input,textarea,select') || t.isContentEditable)) return;
   if(app.classList.contains('drawActive')) return;
+
+  if((e.key==='Delete'||e.key==='Backspace') && selected){
+    e.preventDefault();
+    e.stopPropagation();
+    try{
+      const api=window.tavleShortcutAPI||{};
+      if(api.deleteSelectedWidgetShortcut) api.deleteSelectedWidgetShortcut();
+    }catch(_e){}
+    return;
+  }
+
   if(handlePdfArrowKey(e)) return;
   if(e.key==='ArrowRight'){e.preventDefault();nextSlide()}
   if(e.key==='ArrowLeft'){e.preventDefault();prevSlide()}
@@ -8647,4 +9465,324 @@ document.addEventListener('click',function(e){
 })();
 </script>
 
+<!-- v1.0.49 keyboard system: N, T, Shift+D, Cmd/Ctrl+D, Delete, Cmd/Ctrl+S -->
+<script>
+
+/* v1.0.51 mobile polish runtime */
+(function(){
+  function isMobileish(){
+    return (window.matchMedia && (matchMedia('(max-width: 760px)').matches || matchMedia('(pointer: coarse) and (max-width: 900px)').matches));
+  }
+  function toolbarVisible(tb){
+    if(!tb)return false;
+    const cs=getComputedStyle(tb);
+    return cs.display!=='none' && cs.visibility!=='hidden' && parseFloat(cs.opacity||'1')>.15;
+  }
+  function nudgeToolbarForMobile(){
+    if(!isMobileish())return;
+    const tb=document.querySelector('.toolbar');
+    if(!toolbarVisible(tb))return;
+    // Make sure the toolbar starts scrolled to the left, but allows horizontal swipe.
+    // If the user has manually scrolled, do not fight them.
+    if(!tb.dataset.mobilePolishTouched){
+      tb.scrollLeft=0;
+    }
+  }
+  document.addEventListener('pointerdown',function(ev){
+    const tb=ev.target&&ev.target.closest&&ev.target.closest('.toolbar');
+    if(tb)tb.dataset.mobilePolishTouched='1';
+  },true);
+  ['resize','orientationchange'].forEach(ev=>window.addEventListener(ev,()=>setTimeout(nudgeToolbarForMobile,150),{passive:true}));
+  const mo=new MutationObserver(()=>setTimeout(nudgeToolbarForMobile,40));
+  mo.observe(document.body,{attributes:true,attributeFilter:['class'],subtree:false});
+  setTimeout(nudgeToolbarForMobile,300);
+})();
+
+</script>
+<script>
+
+/* v1.0.52: find toolbar fallback button even if older markup changes class/id */
+(function(){
+  function markToolbarFallback(){
+    const candidates=[...document.querySelectorAll('button, .toolbarFallback, #toolbarFallback')];
+    candidates.forEach(btn=>{
+      const txt=(btn.textContent||btn.title||btn.getAttribute('aria-label')||'').trim();
+      if(txt==='⌄' || txt==='⌃' || txt==='∨' || txt==='∧' || txt==='▼' || txt==='▲'){
+        if(!btn.closest('.toolbar')){
+          btn.classList.add('toolbarFallback');
+          btn.id = btn.id || 'toolbarFallback';
+        }
+      }
+    });
+  }
+  markToolbarFallback();
+  new MutationObserver(markToolbarFallback).observe(document.body,{childList:true,subtree:true});
+})();
+
+</script>
+<script>
+
+/* v1.0.60 cleanup: focus resize hook */
+(function(){
+  function p(){try{ if(typeof positionFocusExitPrimary==='function') positionFocusExitPrimary(); }catch(e){}}
+  window.addEventListener('resize',()=>{setTimeout(p,0);setTimeout(p,180);},{passive:true});
+  window.addEventListener('orientationchange',()=>{setTimeout(p,80);setTimeout(p,300);},{passive:true});
+  if(window.visualViewport){
+    visualViewport.addEventListener('resize',p,{passive:true});
+    visualViewport.addEventListener('scroll',p,{passive:true});
+  }
+  new MutationObserver(()=>setTimeout(p,0)).observe(document.body,{attributes:true,attributeFilter:['class']});
+})();
+
+</script>
+<script>
+
+/* v1.0.62 focus label and group lock sync */
+(function(){
+  function syncV62(){
+    try{
+      // Hvis vi ikke reelt er i maksimeret JS-state, må klassen ikke blive hængende.
+      if(typeof focusMaximized !== 'undefined' && !focusMaximized){
+        document.body.classList.remove('focus-maximized','maximized-from-edit');
+        if(window.UIState){
+          UIState.focusMaximized=false;
+          UIState.maximizedWidgetId=null;
+        }
+      }
+    }catch(e){}
+
+    try{
+      const btn=document.getElementById('focusExit');
+      if(btn){
+        const isMax=(typeof focusMaximized!=='undefined' && !!focusMaximized);
+        const isFocus=(typeof focusMode!=='undefined' && !!focusMode) ||
+          document.body.classList.contains('focus-mode') ||
+          document.body.classList.contains('focus-edit') ||
+          document.body.classList.contains('focus-presentation');
+        if(isFocus || isMax){
+          btn.textContent=isMax?'× maksimeret':'× fokus';
+          btn.title=isMax?'Afslut maksimeret visning':'Afslut fokus';
+          btn.setAttribute('aria-label',btn.title);
+          btn.classList.remove('hidden');
+          if(typeof positionFocusExitPrimary==='function') positionFocusExitPrimary();
+        }
+      }
+    }catch(e){}
+
+    try{
+      const hideLocks=document.body.classList.contains('focus-mode') ||
+        document.body.classList.contains('focus-edit') ||
+        document.body.classList.contains('focus-presentation') ||
+        document.body.classList.contains('focus-maximized') ||
+        (document.getElementById('app') && document.getElementById('app').classList.contains('present'));
+      document.querySelectorAll('.groupLock').forEach(el=>{
+        if(hideLocks){
+          el.style.display='none';
+          el.style.visibility='hidden';
+          el.style.pointerEvents='none';
+          el.style.opacity='0';
+        }else{
+          el.style.display='';
+          el.style.visibility='';
+          el.style.pointerEvents='';
+          el.style.opacity='';
+        }
+      });
+      document.querySelectorAll('#maxEmergencyExit,.maxEmergencyExit').forEach(el=>{
+        el.style.display='none';
+        el.style.visibility='hidden';
+        el.style.pointerEvents='none';
+      });
+    }catch(e){}
+  }
+
+  new MutationObserver(()=>setTimeout(syncV62,0)).observe(document.body,{attributes:true,attributeFilter:['class']});
+  const app=document.getElementById('app')||document.body;
+  new MutationObserver(()=>setTimeout(syncV62,0)).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
+  window.addEventListener('resize',()=>setTimeout(syncV62,50),{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(syncV62,150),{passive:true});
+  setInterval(syncV62,700);
+  setTimeout(syncV62,100);
+})();
+
+</script>
+<script>
+
+/* v1.0.63 touch-exit controller */
+(function(){
+  function state(){
+    const isMax = (typeof focusMaximized !== 'undefined' && !!focusMaximized) ||
+      document.body.classList.contains('focus-maximized');
+    const isFocus = (typeof focusMode !== 'undefined' && !!focusMode) ||
+      document.body.classList.contains('focus-mode') ||
+      document.body.classList.contains('focus-edit') ||
+      document.body.classList.contains('focus-presentation');
+    return {isMax,isFocus,show:isMax||isFocus};
+  }
+
+  function ensureTouchExit(){
+    let btn=document.getElementById('maxEmergencyExit') || document.querySelector('.maxEmergencyExit');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id='maxEmergencyExit';
+      btn.className='maxEmergencyExit hidden';
+      btn.type='button';
+      document.body.appendChild(btn);
+    }else if(btn.parentElement!==document.body){
+      document.body.appendChild(btn);
+    }
+
+    if(!btn.__v63Wired){
+      btn.__v63Wired=true;
+      btn.addEventListener('click',function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+
+        const s=state();
+        if(s.isMax){
+          try{ if(typeof hardExitMaximized==='function') hardExitMaximized(); }catch(e){}
+          // Hvis maksimering kom fra almindelig fokus, behold fokus. Ellers luk kun maksimering.
+          try{ if(typeof focusMode !== 'undefined' && focusMode) setFocusMode(focusMode); }catch(e){}
+        }else{
+          try{ if(typeof setFocusMode==='function') setFocusMode(null); }catch(e){}
+          document.body.classList.remove('focus-mode','focus-edit','focus-presentation');
+        }
+        setTimeout(syncTouchExit,20);
+      },true);
+    }
+    return btn;
+  }
+
+  function syncGroupLocks(){
+    const app=document.getElementById('app');
+    const inPresent=!!(app && app.classList.contains('present'));
+    const inFocus=document.body.classList.contains('focus-mode') ||
+      document.body.classList.contains('focus-edit') ||
+      document.body.classList.contains('focus-presentation');
+    const maxFromEdit=document.body.classList.contains('focus-maximized') &&
+      document.body.classList.contains('maximized-from-edit') &&
+      !document.body.classList.contains('focus-edit') &&
+      !document.body.classList.contains('focus-presentation') &&
+      !inPresent;
+
+    document.querySelectorAll('.groupLock').forEach(el=>{
+      if(maxFromEdit){
+        el.style.display='grid';
+        el.style.visibility='visible';
+        el.style.pointerEvents='auto';
+        el.style.opacity='1';
+      }else if(inPresent || inFocus || document.body.classList.contains('focus-maximized')){
+        el.style.display='none';
+        el.style.visibility='hidden';
+        el.style.pointerEvents='none';
+        el.style.opacity='0';
+      }else{
+        el.style.display='';
+        el.style.visibility='';
+        el.style.pointerEvents='';
+        el.style.opacity='';
+      }
+    });
+  }
+
+  function syncTouchExit(){
+    const btn=ensureTouchExit();
+    const s=state();
+    btn.classList.toggle('hidden',!s.show);
+    btn.style.display=s.show?'block':'none';
+    btn.style.visibility=s.show?'visible':'hidden';
+    btn.style.opacity=s.show?'1':'0';
+    btn.style.pointerEvents=s.show?'auto':'none';
+
+    if(s.show){
+      const label=s.isMax?'× maksimeret':'× fokus';
+      btn.textContent=label;
+      btn.title=s.isMax?'Afslut maksimeret visning':'Afslut fokus';
+      btn.setAttribute('aria-label',btn.title);
+    }
+
+    const focusBtn=document.getElementById('focusExit');
+    if(focusBtn)focusBtn.style.display='none';
+
+    syncGroupLocks();
+  }
+
+  new MutationObserver(()=>setTimeout(syncTouchExit,0)).observe(document.body,{attributes:true,attributeFilter:['class']});
+  const app=document.getElementById('app')||document.body;
+  new MutationObserver(()=>setTimeout(syncTouchExit,0)).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
+  window.addEventListener('resize',()=>setTimeout(syncTouchExit,50),{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(syncTouchExit,150),{passive:true});
+  setInterval(syncTouchExit,700);
+  setTimeout(syncTouchExit,100);
+})();
+
+</script>
+<script>
+
+/* v1.0.64 text tool autofocus fallback */
+(function(){
+  function isDefaultText(s){
+    s=String(s||'').trim();
+    return s==='Skriv her...' || s==='Skriv instruktion her…' || s==='Skriv instruktion her...';
+  }
+  document.addEventListener('click',function(ev){
+    const btn=ev.target && ev.target.closest && ev.target.closest('button[data-tool="text"]');
+    if(!btn)return;
+    // handleTool creates the widget. This delayed fallback ensures editor focus/select also works on touch/iPad.
+    setTimeout(function(){
+      try{
+        const widgets=[...document.querySelectorAll('.widget[data-type="text"]')];
+        const last=widgets[widgets.length-1];
+        if(!last)return;
+        const id=last.dataset.id;
+        const ta=last.querySelector('textarea');
+        if(ta && isDefaultText(ta.value)){
+          ta.focus({preventScroll:true});
+          ta.select();
+        }else if(typeof focusTextWidgetEditor==='function'){
+          focusTextWidgetEditor(id,true);
+        }
+      }catch(e){}
+    },120);
+  },true);
+})();
+
+</script>
+<script>
+
+/* v1.0.65 modal text auto-select */
+(function(){
+  const DEFAULTS=new Set(['Link','Klikbart link','https://','http://','Skriv her...','Skriv instruktion her…','Skriv instruktion her...','Åbn PDF']);
+  function shouldAutoSelect(input){
+    if(!input || input.dataset.noAutoSelect)return false;
+    const type=(input.getAttribute('type')||'text').toLowerCase();
+    if(!['text','url','search','number',''].includes(type))return false;
+    const val=String(input.value||'').trim();
+    return !val || DEFAULTS.has(val) || input.id==='lu' || input.id==='vurl' || input.id==='iu' || input.id==='pu';
+  }
+  function selectInput(input){
+    if(!shouldAutoSelect(input))return;
+    try{
+      input.focus({preventScroll:true});
+      input.setSelectionRange(0,String(input.value||'').length);
+    }catch(e){
+      try{input.select()}catch(_e){}
+    }
+  }
+  document.addEventListener('focusin',function(ev){
+    const input=ev.target;
+    if(input && input.matches && input.matches('.modal input')){
+      setTimeout(()=>selectInput(input),0);
+    }
+  },true);
+  document.addEventListener('pointerdown',function(ev){
+    const input=ev.target;
+    if(input && input.matches && input.matches('.modal input')){
+      setTimeout(()=>selectInput(input),0);
+    }
+  },true);
+})();
+
+</script>
 </body></html>
