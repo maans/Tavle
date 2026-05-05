@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.0.73</title>
+<title>Interaktiv tavle v1.0.74</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -5269,6 +5269,112 @@ body.focus-maximized .app:not(.present) .widget[data-type="poll"] .pollTools but
   overflow:visible!important;
 }
 
+
+/* v1.0.74 phase 2 cleanup: samlet state-model
+   Princip:
+   - JS sætter kun state-classes.
+   - CSS afgør synlighed af controls.
+   - Ingen interval-loops for focus/poll/toolbar state.
+*/
+
+/* Touch exit: én nødudgang i fokus/maksimering. */
+#maxEmergencyExit,
+.maxEmergencyExit{
+  position:fixed!important;
+  top:max(18px, env(safe-area-inset-top,0px) + 12px)!important;
+  right:max(18px, env(safe-area-inset-right,0px) + 12px)!important;
+  z-index:2147483647!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:rgba(17,24,39,.94)!important;
+  color:white!important;
+  padding:12px 18px!important;
+  font-weight:900!important;
+  font-size:18px!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.35)!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
+#maxEmergencyExit.hidden,
+.maxEmergencyExit.hidden{
+  display:none!important;
+}
+body.focus-mode #maxEmergencyExit,
+body.focus-edit #maxEmergencyExit,
+body.focus-presentation #maxEmergencyExit,
+body.focus-maximized #maxEmergencyExit{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+#focusExit.focusExit{display:none!important}
+
+/* Generel widget-control model. */
+.app.present .widget-control,
+body.focus-mode:not(.focus-maximized) .widget-control,
+body.focus-edit:not(.focus-maximized) .widget-control,
+body.focus-presentation:not(.focus-maximized) .widget-control{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Maksimeret + redigering: controls må vises. */
+body.focus-maximized .app:not(.present) .widget.focusTarget .widget-control,
+body.focus-maximized .app:not(.present) .widget.selected .widget-control{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+
+/* Kendte widget-specifikke controls følger samme model. */
+.app.present .groupLock,
+.app.present .timerEditControls,
+.app.present .pollTools,
+.app.present .pollSettings,
+.app.present .wordCloudTools,
+.app.present .wordCloudEditorWrap,
+body.focus-mode:not(.focus-maximized) .groupLock,
+body.focus-mode:not(.focus-maximized) .timerEditControls,
+body.focus-mode:not(.focus-maximized) .pollTools,
+body.focus-mode:not(.focus-maximized) .pollSettings,
+body.focus-mode:not(.focus-maximized) .wordCloudTools,
+body.focus-mode:not(.focus-maximized) .wordCloudEditorWrap{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Maksimeret redigering: gruppelåse og poll/wordcloud controls kan vises. */
+body.focus-maximized .app:not(.present) .widget.focusTarget .groupLock,
+body.focus-maximized .app:not(.present) .widget.selected .groupLock{
+  display:grid!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+}
+body.focus-maximized .app:not(.present) .widget.focusTarget .pollTools,
+body.focus-maximized .app:not(.present) .widget.focusTarget .pollSettings,
+body.focus-maximized .app:not(.present) .widget.selected .pollTools,
+body.focus-maximized .app:not(.present) .widget.selected .pollSettings{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+}
+
+@media (max-width:760px), (pointer:coarse) and (max-width:900px){
+  #maxEmergencyExit,.maxEmergencyExit{
+    top:calc(env(safe-area-inset-top,0px) + 58px)!important;
+    right:max(12px, env(safe-area-inset-right,0px) + 12px)!important;
+    min-height:52px!important;
+    padding:10px 16px!important;
+    font-size:18px!important;
+  }
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
@@ -10028,133 +10134,6 @@ document.addEventListener('click',function(e){
 </script>
 <script>
 
-/* v1.0.60 cleanup: focus resize hook */
-(function(){
-  function p(){try{ if(typeof positionFocusExitPrimary==='function') positionFocusExitPrimary(); }catch(e){}}
-  window.addEventListener('resize',()=>{setTimeout(p,0);setTimeout(p,180);},{passive:true});
-  window.addEventListener('orientationchange',()=>{setTimeout(p,80);setTimeout(p,300);},{passive:true});
-  if(window.visualViewport){
-    visualViewport.addEventListener('resize',p,{passive:true});
-    visualViewport.addEventListener('scroll',p,{passive:true});
-  }
-  new MutationObserver(()=>setTimeout(p,0)).observe(document.body,{attributes:true,attributeFilter:['class']});
-})();
-
-</script>
-<script>
-
-/* v1.0.63 touch-exit controller */
-(function(){
-  function state(){
-    const isMax = (typeof focusMaximized !== 'undefined' && !!focusMaximized) ||
-      document.body.classList.contains('focus-maximized');
-    const isFocus = (typeof focusMode !== 'undefined' && !!focusMode) ||
-      document.body.classList.contains('focus-mode') ||
-      document.body.classList.contains('focus-edit') ||
-      document.body.classList.contains('focus-presentation');
-    return {isMax,isFocus,show:isMax||isFocus};
-  }
-
-  function ensureTouchExit(){
-    let btn=document.getElementById('maxEmergencyExit') || document.querySelector('.maxEmergencyExit');
-    if(!btn){
-      btn=document.createElement('button');
-      btn.id='maxEmergencyExit';
-      btn.className='maxEmergencyExit hidden';
-      btn.type='button';
-      document.body.appendChild(btn);
-    }else if(btn.parentElement!==document.body){
-      document.body.appendChild(btn);
-    }
-
-    if(!btn.__v63Wired){
-      btn.__v63Wired=true;
-      btn.addEventListener('click',function(ev){
-        ev.preventDefault();
-        ev.stopPropagation();
-        if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
-
-        const s=state();
-        if(s.isMax){
-          try{ if(typeof hardExitMaximized==='function') hardExitMaximized(); }catch(e){}
-          // Hvis maksimering kom fra almindelig fokus, behold fokus. Ellers luk kun maksimering.
-          try{ if(typeof focusMode !== 'undefined' && focusMode) setFocusMode(focusMode); }catch(e){}
-        }else{
-          try{ if(typeof setFocusMode==='function') setFocusMode(null); }catch(e){}
-          document.body.classList.remove('focus-mode','focus-edit','focus-presentation');
-        }
-        setTimeout(syncTouchExit,20);
-      },true);
-    }
-    return btn;
-  }
-
-  function syncGroupLocks(){
-    const app=document.getElementById('app');
-    const inPresent=!!(app && app.classList.contains('present'));
-    const inFocus=document.body.classList.contains('focus-mode') ||
-      document.body.classList.contains('focus-edit') ||
-      document.body.classList.contains('focus-presentation');
-    const maxFromEdit=document.body.classList.contains('focus-maximized') &&
-      document.body.classList.contains('maximized-from-edit') &&
-      !document.body.classList.contains('focus-edit') &&
-      !document.body.classList.contains('focus-presentation') &&
-      !inPresent;
-
-    document.querySelectorAll('.groupLock').forEach(el=>{
-      if(maxFromEdit){
-        el.style.display='grid';
-        el.style.visibility='visible';
-        el.style.pointerEvents='auto';
-        el.style.opacity='1';
-      }else if(inPresent || inFocus || document.body.classList.contains('focus-maximized')){
-        el.style.display='none';
-        el.style.visibility='hidden';
-        el.style.pointerEvents='none';
-        el.style.opacity='0';
-      }else{
-        el.style.display='';
-        el.style.visibility='';
-        el.style.pointerEvents='';
-        el.style.opacity='';
-      }
-    });
-  }
-
-  function syncTouchExit(){
-    const btn=ensureTouchExit();
-    const s=state();
-    btn.classList.toggle('hidden',!s.show);
-    btn.style.display=s.show?'block':'none';
-    btn.style.visibility=s.show?'visible':'hidden';
-    btn.style.opacity=s.show?'1':'0';
-    btn.style.pointerEvents=s.show?'auto':'none';
-
-    if(s.show){
-      const label=s.isMax?'× maksimeret':'× fokus';
-      btn.textContent=label;
-      btn.title=s.isMax?'Afslut maksimeret visning':'Afslut fokus';
-      btn.setAttribute('aria-label',btn.title);
-    }
-
-    const focusBtn=document.getElementById('focusExit');
-    if(focusBtn)focusBtn.style.display='none';
-
-    syncGroupLocks();
-  }
-
-  new MutationObserver(()=>setTimeout(syncTouchExit,0)).observe(document.body,{attributes:true,attributeFilter:['class']});
-  const app=document.getElementById('app')||document.body;
-  new MutationObserver(()=>setTimeout(syncTouchExit,0)).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
-  window.addEventListener('resize',()=>setTimeout(syncTouchExit,50),{passive:true});
-  window.addEventListener('orientationchange',()=>setTimeout(syncTouchExit,150),{passive:true});
-  setInterval(syncTouchExit,700);
-  setTimeout(syncTouchExit,100);
-})();
-
-</script>
-<script>
-
 /* v1.0.64 text tool autofocus fallback */
 (function(){
   function isDefaultText(s){
@@ -10222,21 +10201,6 @@ document.addEventListener('click',function(e){
 </script>
 <script>
 
-/* v1.0.66 viewport class for debugging/responsive behavior */
-(function(){
-  function syncViewportClass(){
-    const w=window.innerWidth || document.documentElement.clientWidth || 0;
-    document.body.classList.toggle('phone-width', w<=640);
-    document.body.classList.toggle('tablet-or-desktop-width', w>640);
-  }
-  window.addEventListener('resize',syncViewportClass,{passive:true});
-  window.addEventListener('orientationchange',()=>setTimeout(syncViewportClass,80),{passive:true});
-  syncViewportClass();
-})();
-
-</script>
-<script>
-
 /* v1.0.67 poll toggle delegation */
 (function(){
   document.addEventListener('click',function(ev){
@@ -10284,30 +10248,75 @@ document.addEventListener('click',function(e){
 </script>
 <script>
 
-/* v1.0.73 poll inline-style cleanup on mode changes only */
+/* v1.0.74 phase 2: single lightweight state sync */
 (function(){
-  function clearPollInlineTools(){
+  function focusOrMaxOn(){
+    return document.body.classList.contains('focus-mode') ||
+      document.body.classList.contains('focus-edit') ||
+      document.body.classList.contains('focus-presentation') ||
+      document.body.classList.contains('focus-maximized') ||
+      (typeof focusMode!=='undefined' && !!focusMode) ||
+      (typeof focusMaximized!=='undefined' && !!focusMaximized);
+  }
+
+  function ensureExit(){
+    let btn=document.getElementById('maxEmergencyExit') || document.querySelector('.maxEmergencyExit');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.id='maxEmergencyExit';
+      btn.className='maxEmergencyExit hidden';
+      btn.type='button';
+      document.body.appendChild(btn);
+    }else if(btn.parentElement!==document.body){
+      document.body.appendChild(btn);
+    }
+    if(!btn.__v74Wired){
+      btn.__v74Wired=true;
+      btn.addEventListener('click',function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+        const isMax=document.body.classList.contains('focus-maximized') || (typeof focusMaximized!=='undefined' && !!focusMaximized);
+        if(isMax){
+          try{ if(typeof hardExitMaximized==='function') hardExitMaximized(); }catch(e){}
+        }else{
+          try{ if(typeof setFocusMode==='function') setFocusMode(null); }catch(e){}
+          document.body.classList.remove('focus-mode','focus-edit','focus-presentation');
+        }
+        requestAnimationFrame(sync);
+      },true);
+    }
+    return btn;
+  }
+
+  function clearPollInline(){
     document.querySelectorAll('.widget[data-type="poll"] .pollTools,.widget[data-type="poll"] .pollSettings').forEach(el=>{
       el.style.display='';
       el.style.visibility='';
       el.style.pointerEvents='';
       el.style.opacity='';
     });
-    document.querySelectorAll('.widget[data-type="poll"] .pollSettings input[type="checkbox"]').forEach(cb=>{
-      cb.style.width='';
-      cb.style.height='';
-      cb.style.minWidth='';
-      cb.style.minHeight='';
-      cb.style.transform='';
-    });
   }
+
+  function sync(){
+    const btn=ensureExit();
+    const isMax=document.body.classList.contains('focus-maximized') || (typeof focusMaximized!=='undefined' && !!focusMaximized);
+    const show=focusOrMaxOn();
+    btn.classList.toggle('hidden',!show);
+    btn.textContent=isMax?'× maksimeret':'× fokus';
+    btn.title=isMax?'Afslut maksimeret visning':'Afslut fokus';
+    btn.setAttribute('aria-label',btn.title);
+    const f=document.getElementById('focusExit');
+    if(f)f.style.display='none';
+    clearPollInline();
+  }
+
+  new MutationObserver(()=>requestAnimationFrame(sync)).observe(document.body,{attributes:true,attributeFilter:['class']});
   const app=document.getElementById('app');
-  if(app){
-    new MutationObserver(()=>requestAnimationFrame(clearPollInlineTools)).observe(app,{attributes:true,attributeFilter:['class']});
-  }
-  new MutationObserver(()=>requestAnimationFrame(clearPollInlineTools)).observe(document.body,{attributes:true,attributeFilter:['class']});
-  window.tavleClearPollInlineTools=clearPollInlineTools;
-  setTimeout(clearPollInlineTools,100);
+  if(app)new MutationObserver(()=>requestAnimationFrame(sync)).observe(app,{attributes:true,attributeFilter:['class']});
+  window.addEventListener('resize',()=>requestAnimationFrame(sync),{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(sync,120),{passive:true});
+  setTimeout(sync,100);
 })();
 
 </script>
