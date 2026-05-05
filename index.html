@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.0.74</title>
+<title>Interaktiv tavle v1.0.83</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -5375,13 +5375,347 @@ body.focus-maximized .app:not(.present) .widget.selected .pollSettings{
   }
 }
 
+
+/* v1.0.75 link/iframe controls fix
+   Indholdsknapperne i iframe-widget skal ligge over iframe-overlayet.
+   Rediger-knappen i indholdet er fjernet; blyanten i topbjælken er redigering. */
+.widget[data-type="link"] .linkIframeControls,
+.widget.link-widget .linkIframeControls,
+.widget.iframe-widget .linkIframeControls{
+  position:relative!important;
+  z-index:20!important;
+  pointer-events:auto!important;
+}
+.widget[data-type="link"] .linkIframeControls button,
+.widget.link-widget .linkIframeControls button,
+.widget.iframe-widget .linkIframeControls button{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+.widget[data-type="link"] .linkIframeBox,
+.widget.link-widget .linkIframeBox,
+.widget.iframe-widget .linkIframeBox{
+  position:relative!important;
+  z-index:6!important;
+}
+
+
+/* v1.0.76 link controls in chrome */
+.widget[data-type="link"] .chrome{
+  z-index:40!important;
+}
+.widget[data-type="link"] .mini [data-act="activateLinkIframe"].active{
+  background:#6d5dfc!important;
+  color:white!important;
+}
+.widget[data-type="link"] .titleText.linkTitleOpen{
+  border:0!important;
+  background:transparent!important;
+  color:inherit!important;
+  font:inherit!important;
+  font-weight:900!important;
+  padding:0!important;
+  margin:0!important;
+  cursor:pointer!important;
+  text-align:left!important;
+}
+.widget[data-type="link"] .titleText.linkTitleOpen:hover{
+  text-decoration:underline;
+}
+.widget[data-type="link"] .linkIframeControls{
+  display:none!important;
+}
+.widget[data-type="link"] .linkIframeBox{
+  height:100%!important;
+}
+
+
+/* v1.0.77 link/iframe model cleanup */
+.widget[data-type="link"] .titleText{
+  cursor:default!important;
+  text-decoration:none!important;
+}
+
+/* Iframe-værktøjer findes kun i iframe-visning via makeWidget.
+   Når webstyring er aktiv, skal iframe faktisk kunne modtage klik/touch. */
+.widget[data-type="link"].linkIframeActive iframe,
+.widget[data-type="link"].linkIframeActive .linkIframeFrame iframe,
+.widget.link-widget.linkIframeActive iframe,
+.widget.iframe-widget.linkIframeActive iframe{
+  pointer-events:auto!important;
+}
+
+.widget[data-type="link"].linkIframeActive::after,
+.widget.link-widget.linkIframeActive::after,
+.widget.iframe-widget.linkIframeActive::after{
+  pointer-events:none!important;
+}
+
+.widget[data-type="link"].linkIframeActive .linkIframeShield{
+  display:none!important;
+  pointer-events:none!important;
+}
+
+/* Aktiv-knappen bruger nu museikon og tydelig aktiv status. */
+.widget[data-type="link"] .mini [data-act="activateLinkIframe"].active{
+  background:#6d5dfc!important;
+  color:white!important;
+}
+
+/* Link-indholdets gamle kontrolbjælke skal aldrig vises. */
+.widget[data-type="link"] .linkIframeControls{
+  display:none!important;
+}
+
+
+/* v1.0.78 iframe interaction real fix */
+.widget[data-type="link"] .chrome,
+.widget[data-type="link"] .mini,
+.widget[data-type="link"] .mini button{
+  pointer-events:auto!important;
+  z-index:200!important;
+}
+
+.widget[data-type="link"].linkIframeActive iframe,
+.widget[data-type="link"].linkIframeActive .linkIframeFrame iframe,
+.widget[data-type="link"].iframe-interaction-enabled iframe,
+.widget[data-type="link"].is-iframe-active iframe{
+  pointer-events:auto!important;
+}
+
+.widget[data-type="link"].linkIframeActive::after,
+.widget[data-type="link"].iframe-interaction-enabled::after,
+.widget[data-type="link"].is-iframe-active::after{
+  pointer-events:none!important;
+  display:none!important;
+}
+
+.widget[data-type="link"].linkIframeActive .linkIframeShield,
+.widget[data-type="link"].iframe-interaction-enabled .linkIframeShield,
+.widget[data-type="link"].is-iframe-active .linkIframeShield{
+  display:none!important;
+  pointer-events:none!important;
+}
+
+.widget[data-type="link"] .mini [data-act="activateLinkIframe"].active{
+  background:#6d5dfc!important;
+  color:#fff!important;
+}
+
+
+/* v1.0.79 viewport rescue */
+#rescueWidgets{
+  background:#4b5563!important;
+}
+#rescueWidgets:active{
+  transform:scale(.96);
+}
+@media(max-width:640px){
+  #rescueWidgets{
+    display:inline-flex!important;
+  }
+}
+
+
+/* v1.0.80 iframe safe mode
+   Appens egne værktøjer skal altid være over iframe og altid kunne klikkes. */
+body.iframe-control-active .toolbar,
+body.iframe-control-active .topbar,
+body.iframe-control-active #toolbarFallback,
+body.iframe-control-active #toolbarPinFallback,
+body.iframe-control-active .toolbarFallback,
+body.iframe-control-active .title{
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+.topbar,
+.toolbar,
+#toolbarFallback,
+#toolbarPinFallback,
+.toolbarFallback,
+.title,
+.modalBack,
+.modal{
+  z-index:2147483000!important;
+  pointer-events:auto!important;
+}
+
+.widget[data-type="link"] .chrome,
+.widget[data-type="link"] .mini,
+.widget[data-type="link"] .mini button{
+  z-index:2147482990!important;
+  pointer-events:auto!important;
+}
+
+/* Iframe må kun være interaktiv inde i den aktive link-widget – ikke blokere appens UI. */
+body.iframe-control-active .widget:not(.linkIframeActive) iframe{
+  pointer-events:none!important;
+}
+
+body.iframe-control-active .widget.linkIframeActive .linkIframeShield{
+  display:none!important;
+  pointer-events:none!important;
+}
+
+body.iframe-control-active .widget.linkIframeActive iframe{
+  pointer-events:auto!important;
+}
+
+/* Redningsknappen skal kunne bruges selv mens iframe er aktiv. */
+#rescueWidgets{
+  position:relative!important;
+  z-index:2147483001!important;
+}
+
+
+/* v1.0.81 stronger viewport rescue */
+#rescueWidgets{
+  background:#6d5dfc!important;
+  color:white!important;
+  position:relative!important;
+  z-index:2147483647!important;
+  pointer-events:auto!important;
+}
+body.iframe-control-active #rescueWidgets,
+body.iframe-control-active .topbar,
+body.iframe-control-active .toolbar{
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+
+/* v1.0.82 rescue focus/selection stabilization
+   Efter redningsbælte må browseren ikke gå i tekstmarkerings-mode på tavlen. */
+.app,
+.widget,
+.chrome,
+.mini,
+.toolbar,
+.topbar,
+.resize,
+.rotater{
+  -webkit-user-select:none!important;
+  user-select:none!important;
+}
+
+input,
+textarea,
+select,
+[contenteditable="true"],
+.textEditor,
+.textEditor *{
+  -webkit-user-select:text!important;
+  user-select:text!important;
+}
+
+#rescueWidgets{
+  outline:none!important;
+}
+#rescueWidgets:focus{
+  box-shadow:0 0 0 3px rgba(109,93,252,.35)!important;
+}
+#rescueWidgets.rescueFlash{
+  animation:rescueFlash .42s ease both;
+}
+@keyframes rescueFlash{
+  0%{transform:scale(1)}
+  35%{transform:scale(.92)}
+  100%{transform:scale(1)}
+}
+
+
+/* v1.0.83 rescue + narrow iframe toolbar fix */
+
+/* Redningsbæltet må ikke se permanent aktivt ud efter klik. */
+#rescueWidgets,
+#rescueWidgets:focus,
+#rescueWidgets:active,
+#rescueWidgets[aria-pressed="true"],
+#rescueWidgets.active{
+  background:#4b5563!important;
+  color:white!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+#rescueWidgets.rescueFlash{
+  background:#6d5dfc!important;
+  animation:rescueFlash .36s ease both!important;
+}
+
+/* Link/iframe-widget må ikke blive så smal, at topbjælken kollapser til en søjle. */
+.widget[data-type="link"]{
+  min-width:260px!important;
+  min-height:170px!important;
+}
+
+/* Gør topbjælken i link/iframe mere robust ved smalle widgets. */
+.widget[data-type="link"] .chrome{
+  min-height:34px!important;
+  height:auto!important;
+  align-items:flex-start!important;
+  gap:6px!important;
+  flex-wrap:nowrap!important;
+  overflow:visible!important;
+}
+
+.widget[data-type="link"] .chrome .titleText{
+  min-width:42px!important;
+  max-width:92px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  line-height:30px!important;
+  flex:0 1 auto!important;
+}
+
+.widget[data-type="link"] .mini{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  gap:4px!important;
+  max-width:calc(100% - 52px)!important;
+}
+
+.widget[data-type="link"] .mini button{
+  width:30px!important;
+  min-width:30px!important;
+  height:30px!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  font-size:14px!important;
+}
+
+/* Hvis der alligevel er mange knapper, må chrome vokse nedad i stedet for at hænge udenfor. */
+.widget[data-type="link"] .content{
+  height:calc(100% - 42px)!important;
+}
+
+/* Ekstra smalle widgets: skjul mindre kritiske pile op/ned, så iframe-værktøjer stadig er brugbare. */
+.widget[data-type="link"] .mini button[data-act="up"],
+.widget[data-type="link"] .mini button[data-act="down"]{
+  display:none!important;
+}
+
+/* Iframe-knapperne skal blive i bjælken, ikke hænge udenfor widgetten. */
+.widget[data-type="link"] .chrome,
+.widget[data-type="link"] .mini{
+  contain:layout paint!important;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
 <body>
 <div id="app" class="app">
   <div id="title" class="title" contenteditable="true">Min undervisningstavle</div>
-  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide">🧹</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="presentFocus" title="Fokus i præsentation">🎯</button><button id="present">🎬</button></div>
+  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide">🧹</button><button id="rescueWidgets" title="Saml widgets i synligt område">🛟</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="presentFocus" title="Fokus i præsentation">🎯</button><button id="present">🎬</button></div>
   <div id="hintBar" class="hintBar hidden" aria-live="polite"></div>
   <canvas id="draw" class="drawLayer"></canvas>
   <div class="drawPanel" id="drawPanel"><b>Tegn</b><input id="penColor" type="color" value="#000000"><input id="penSize" type="range" min="2" max="40" value="6"><button data-drawmode="pen" class="active">Fri</button><button data-drawmode="line">Linje</button><button data-drawmode="rect">Firkant</button><button data-drawmode="circle">Cirkel</button><button data-drawmode="eraser">Viskelæder</button><button id="drawClear">Ryd</button><button id="drawOff">Luk</button></div>
@@ -5611,6 +5945,8 @@ function syncIframeControl(){
   else setIframeControl(activeIframeWidgetId,true);
 }
 window.isIframeControlActive=isIframeControlActive;
+window.setIframeControl=setIframeControl;
+window.syncIframeControl=syncIframeControl;
 window.clearIframeControl=clearIframeControl;
 
 
@@ -6554,8 +6890,80 @@ function initDrawLayerAfterRender(){
   }catch(e){}
 }
 
+
+
+function visibleBoardBounds(){
+  const rect=app.getBoundingClientRect();
+  const pad=28;
+  const topPad=78;
+  const bottomPad=126;
+  const w=Math.max(260,rect.width-pad*2);
+  const h=Math.max(190,rect.height-topPad-bottomPad);
+  return {x:pad,y:topPad,w,h,right:pad+w,bottom:topPad+h};
+}
+function clamp(n,min,max){return Math.min(Math.max(Number(n)||0,min),max)}
+function preferredWidgetSize(type,b){
+  const maxW=Math.max(220,Math.min(b.w, type==='text'?560: type==='timer'?520: 920));
+  const maxH=Math.max(170,Math.min(b.h, type==='timer'?280: type==='link'?360: 640));
+  const minW=Math.min(220,maxW);
+  const minH=Math.min(150,maxH);
+  return {minW,minH,maxW,maxH};
+}
+function fitWidgetToViewport(w,opts={}){
+  const b=visibleBoardBounds();
+  const p=preferredWidgetSize(w.type,b);
+  const before=[w.x,w.y,w.w,w.h,w.rotation||0].join('|');
+  if(opts.resetRotation!==false)w.rotation=0;
+  w.w=clamp(w.w,p.minW,p.maxW);
+  w.h=clamp(w.h,p.minH,p.maxH);
+  w.x=clamp(w.x,b.x,Math.max(b.x,b.right-w.w));
+  w.y=clamp(w.y,b.y,Math.max(b.y,b.bottom-w.h));
+  if(w.w>=b.w)w.x=b.x;
+  if(w.h>=b.h)w.y=b.y;
+  return [w.x,w.y,w.w,w.h,w.rotation||0].join('|')!==before;
+}
+function arrangeWidgetsInViewport(opts={}){
+  const sl=slide();
+  if(!sl||!Array.isArray(sl.widgets))return 0;
+  const widgets=sl.widgets;
+  const b=visibleBoardBounds();
+  const gap=18;
+  let changed=0, x=b.x, y=b.y, rowH=0;
+  widgets.forEach((w,i)=>{
+    const before=[w.x,w.y,w.w,w.h,w.rotation||0].join('|');
+    fitWidgetToViewport(w,{resetRotation:opts.resetRotation!==false});
+    if(opts.arrange){
+      if(x+w.w>b.right && x>b.x){x=b.x;y+=rowH+gap;rowH=0;}
+      if(y+w.h>b.bottom){x=b.x+Math.min(40,(i%5)*14);y=b.y+Math.min(40,(i%5)*14);}
+      w.x=x;w.y=y;x+=w.w+gap;rowH=Math.max(rowH,w.h);
+    }
+    if([w.x,w.y,w.w,w.h,w.rotation||0].join('|')!==before)changed++;
+  });
+  return changed;
+}
+function rescueWidgetsToViewport(opts={}){
+  try{ if(window.clearIframeControl)window.clearIframeControl(); }catch(e){}
+  const changed=arrangeWidgetsInViewport({arrange:opts.arrange!==false,resetRotation:opts.resetRotation!==false});
+  save();render();
+  if(opts.toast!==false && typeof toast==='function')toast(changed?'Samlede og tilpassede '+changed+' widget(s)':'Alle widgets er synlige');
+  return changed;
+}
+function rescueSelectedWidgetToViewport(){
+  if(!selected)return rescueWidgetsToViewport({toast:false,arrange:false,resetRotation:false});
+  const w=findWidget(selected);
+  if(!w)return rescueWidgetsToViewport({toast:false,arrange:false,resetRotation:false});
+  try{ if(window.clearIframeControl)window.clearIframeControl(); }catch(e){}
+  const changed=fitWidgetToViewport(w,{resetRotation:false});
+  if(changed){save();render();setTimeout(()=>select(w.id,{editText:false}),0);return 1;}
+  return 0;
+}
+window.visibleBoardBounds=visibleBoardBounds;
+window.fitWidgetToViewport=fitWidgetToViewport;
+window.rescueWidgetsToViewport=rescueWidgetsToViewport;
+window.rescueSelectedWidgetToViewport=rescueSelectedWidgetToViewport;
+
 function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
-function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll')?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='timer'?260: type==='link'?230:320)))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
+function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll')?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='timer'?260: type==='link'?230:320)))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
 function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
 
@@ -6567,7 +6975,7 @@ function resetWidgetRotation(w,el){
   if(typeof toast==='function')toast('Rotation nulstillet');
 }
 function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
-function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="'+((w.data&&w.data.view)==='iframe'?'iframe':'link')+'" title="Skift mellem link og iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>':'';el.innerHTML=`<div class="chrome"><span class="titleText">${w.title||titles[w.type]}</span><div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):'';const titleHtml='<span class="titleText">'+(w.title||titles[w.type])+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -7841,37 +8249,12 @@ if(w.type==='poll'){
   const view=w.data.view||'link';
   if(view==='iframe' && url){
     c.innerHTML=`<div class="linkIframeBox">
-      <div class="linkIframeControls widget-control">
-        <button class="linkActivate">Aktivér webside</button>
-        <button class="linkEdit">Rediger</button>
-        <button class="linkReload">Genindlæs</button>
-        <button class="linkOpen">Åbn</button>
-        <span class="linkIframeUrl">${esc(url)}</span>
-      </div>
       <div class="linkIframeFrame">
         <iframe src="${esc(tavleIframeSrc(url,w))}" allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
         <div class="linkIframeShield"></div>
       </div>
     </div>`;
     const iframe=c.querySelector('iframe');
-    const activate=c.querySelector('.linkActivate');
-    const edit=c.querySelector('.linkEdit');
-    const reload=c.querySelector('.linkReload');
-    const open=c.querySelector('.linkOpen');
-    if(activate){
-      activate.classList.toggle('active',activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id));
-      activate.textContent=(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))?'Afslut webstyring':'Aktivér webside';
-      activate.onclick=e=>{
-        e.preventDefault();
-        e.stopPropagation();
-        const isActive=activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id);
-        setIframeControl(w.id,!isActive);
-        fillContent(el,w);
-      };
-    }
-    if(edit)edit.onclick=e=>{e.preventDefault();e.stopPropagation();if(canEditWidgets())askLink(w)};
-    if(reload)reload.onclick=e=>{e.preventDefault();e.stopPropagation();if(iframe)iframe.src=url};
-    if(open)open.onclick=e=>{e.preventDefault();e.stopPropagation();window.open(url,'_blank','noopener')};
   }else{
     c.innerHTML=`<div class="linkBox"><a target="_blank" href="${esc(url||'#')}">${esc(w.data.text||'Klikbart link')}</a></div>`;
   }
@@ -8121,26 +8504,77 @@ function wireWidget(el,w){
    layerTap.t=0;
  },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
  const toggleLinkViewBtn=el.querySelector('[data-act=toggleLinkView]');
- if(toggleLinkViewBtn)toggleLinkViewBtn.onclick=e=>{
-   e.preventDefault();
-   e.stopPropagation();
-   if(!canEditWidgets())return;
-   select(w.id,{editText:false});
-   w.data=w.data||{};
-   w.data.url=normalizeLinkUrl(w.data.url||'');
-   w.data.view=(w.data.view==='iframe')?'link':'iframe';
-   if(w.data.view!=='iframe' && activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();
-   render();
-   save();
- };
- const editLinkBtn=el.querySelector('[data-act=editLink]');
- if(editLinkBtn)editLinkBtn.onclick=e=>{
-   e.preventDefault();
-   e.stopPropagation();
-   if(!canEditWidgets())return;
-   select(w.id,{editText:false});
-   askLink(w);
- };
+  if(toggleLinkViewBtn)toggleLinkViewBtn.onclick=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    if(!canEditWidgets())return;
+    w.data=w.data||{};
+    w.data.url=normalizeLinkUrl(w.data.url||'');
+    w.data.view=(w.data.view==='iframe')?'link':'iframe';
+    if(w.data.view!=='iframe' && activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();
+    save();
+    render();
+    setTimeout(()=>select(w.id,{editText:false}),0);
+  };
+
+  const activateLinkIframeBtn=el.querySelector('[data-act=activateLinkIframe]');
+  if(activateLinkIframeBtn)activateLinkIframeBtn.onclick=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    w.data=w.data||{};
+    w.data.url=normalizeLinkUrl(w.data.url||'');
+    if(w.data.view!=='iframe')return;
+    const isActive=activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id);
+    setIframeControl(w.id,!isActive);
+    el.classList.toggle('iframe-interaction-enabled',!isActive);
+    el.classList.toggle('is-iframe-active',!isActive);
+    select(w.id,{editText:false});
+    activateLinkIframeBtn.classList.toggle('active',!isActive);
+    activateLinkIframeBtn.textContent=!isActive?'🖱✓':'🖱';
+    activateLinkIframeBtn.title=!isActive?'Lås webside igen':'Lås op for webside-interaktion';
+  };
+
+  const reloadLinkIframeBtn=el.querySelector('[data-act=reloadLinkIframe]');
+  if(reloadLinkIframeBtn)reloadLinkIframeBtn.onclick=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    w.data=w.data||{};
+    const url=normalizeLinkUrl(w.data.url||'');
+    const iframe=el.querySelector('iframe');
+    if(iframe){
+      iframe.src='about:blank';
+      setTimeout(()=>{iframe.src=tavleIframeSrc(url,w)},40);
+    }
+    select(w.id,{editText:false});
+  };
+
+  const openLinkBtn=el.querySelector('[data-act=openLink]');
+  if(openLinkBtn)openLinkBtn.onclick=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    w.data=w.data||{};
+    const url=normalizeLinkUrl(w.data.url||'');
+    if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();
+    select(w.id,{editText:false});
+    if(url){
+      const a=document.createElement('a');
+      a.href=url;
+      a.target='_blank';
+      a.rel='noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  };
+
+  const editLinkBtn=el.querySelector('[data-act=editLink]');
+  if(editLinkBtn)editLinkBtn.onclick=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    if(!canEditWidgets())return;
+    select(w.id,{editText:false});
+    askLink(w);
+  };
 el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
  let drag=false,rot=false,res=false,start={}; let rotHoldTimer=null, rotHoldStart=null, rotHoldDidReset=false; const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
  if(rh){
@@ -10317,6 +10751,261 @@ document.addEventListener('click',function(e){
   window.addEventListener('resize',()=>requestAnimationFrame(sync),{passive:true});
   window.addEventListener('orientationchange',()=>setTimeout(sync,120),{passive:true});
   setTimeout(sync,100);
+})();
+
+</script>
+<script>
+
+/* v1.0.75 robust link/iframe controls */
+(function(){
+  function linkWidgetFromButton(btn){
+    const widget=btn && btn.closest && btn.closest('.widget[data-type="link"]');
+    if(!widget)return null;
+    let w=null;
+    try{ w=typeof findWidget==='function'?findWidget(widget.dataset.id):null; }catch(e){}
+    if(!w)return null;
+    const url=(typeof normalizeLinkUrl==='function')?normalizeLinkUrl(w.data&&w.data.url||''):(w.data&&w.data.url||'');
+    return {widget,w,url};
+  }
+
+  document.addEventListener('click',function(ev){
+    const btn=ev.target && ev.target.closest && ev.target.closest('.linkIframeControls button');
+    if(!btn)return;
+    const ctx=linkWidgetFromButton(btn);
+    if(!ctx)return;
+
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+
+    const {widget,w,url}=ctx;
+    if(btn.classList.contains('linkActivate')){
+      try{
+        const isActive=(typeof activeIframeWidgetId!=='undefined') && activeIframeWidgetId && String(activeIframeWidgetId)===String(w.id);
+        if(typeof setIframeControl==='function')setIframeControl(w.id,!isActive);
+        if(typeof fillContent==='function')fillContent(widget,w);
+      }catch(e){console.error('Kunne ikke aktivere webside',e)}
+      return;
+    }
+
+    if(btn.classList.contains('linkReload')){
+      const iframe=widget.querySelector('iframe');
+      if(iframe){
+        try{
+          iframe.src='about:blank';
+          setTimeout(()=>{iframe.src=(typeof tavleIframeSrc==='function')?tavleIframeSrc(url,w):url;},30);
+        }catch(e){iframe.src=url}
+      }
+      return;
+    }
+
+    if(btn.classList.contains('linkOpen')){
+      try{
+        const a=document.createElement('a');
+        a.href=url;
+        a.target='_blank';
+        a.rel='noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }catch(e){
+        try{window.open(url,'_blank','noopener')}catch(_e){}
+      }
+      return;
+    }
+  },true);
+})();
+
+</script>
+<script>
+
+/* v1.0.78 link iframe button state sync */
+(function(){
+  function sync(){
+    document.querySelectorAll('.widget[data-type="link"]').forEach(widget=>{
+      const btn=widget.querySelector('[data-act="activateLinkIframe"]');
+      if(!btn)return;
+      const active=widget.classList.contains('linkIframeActive') || widget.classList.contains('iframe-interaction-enabled') || widget.classList.contains('is-iframe-active');
+      btn.classList.toggle('active',active);
+      btn.textContent=active?'🖱✓':'🖱';
+      btn.title=active?'Lås webside igen':'Lås op for webside-interaktion';
+    });
+  }
+  new MutationObserver(()=>requestAnimationFrame(sync)).observe(document.body,{attributes:true,subtree:true,attributeFilter:['class']});
+  setTimeout(sync,100);
+})();
+
+</script>
+<script>
+
+/* v1.0.80 iframe safety controller */
+(function(){
+  function clearIframeIfToolbarClick(ev){
+    const t=ev.target;
+    if(!t || !t.closest)return;
+    const ui=t.closest('.topbar,.toolbar,#toolbarFallback,#toolbarPinFallback,.toolbarFallback,#rescueWidgets,.modal,.modalBack');
+    if(!ui)return;
+    try{
+      if(document.body.classList.contains('iframe-control-active') && window.clearIframeControl){
+        window.clearIframeControl();
+      }
+    }catch(e){}
+  }
+
+  // Capture, but do not stop propagation: first unlock iframe mode, then let the actual button work.
+  document.addEventListener('pointerdown',clearIframeIfToolbarClick,true);
+  document.addEventListener('click',clearIframeIfToolbarClick,true);
+
+  // When returning from another app/tab, immediately unlock iframe mode and rescue selected widget.
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden)return;
+    setTimeout(function(){
+      try{ if(window.clearIframeControl) window.clearIframeControl(); }catch(e){}
+      try{ if(typeof rescueSelectedWidgetToViewport==='function')rescueSelectedWidgetToViewport(); }catch(e){}
+    },120);
+  });
+
+  window.addEventListener('pageshow',function(){
+    setTimeout(function(){
+      try{ if(window.clearIframeControl) window.clearIframeControl(); }catch(e){}
+      try{ if(typeof rescueSelectedWidgetToViewport==='function')rescueSelectedWidgetToViewport(); }catch(e){}
+    },120);
+  },{passive:true});
+})();
+
+</script>
+<script>
+
+/* v1.0.80 escape clears iframe mode */
+(function(){
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.body.classList.contains('iframe-control-active')){
+      try{ if(window.clearIframeControl) window.clearIframeControl(); }catch(_e){}
+    }
+  },true);
+})();
+
+</script>
+<script>
+
+/* v1.0.82 viewport rescue – clear focus and text selection */
+(function(){
+  function clearUiFocusAndSelection(){
+    try{
+      if(document.activeElement && document.activeElement.blur)document.activeElement.blur();
+    }catch(e){}
+    try{
+      const sel=window.getSelection&&window.getSelection();
+      if(sel)sel.removeAllRanges();
+    }catch(e){}
+    document.body.classList.remove('textSelecting','isSelectingText');
+  }
+
+  function rescueAll(btn){
+    try{
+      clearUiFocusAndSelection();
+      if(btn){
+        btn.classList.remove('rescueFlash');
+        void btn.offsetWidth;
+        btn.classList.add('rescueFlash');
+        setTimeout(()=>btn.classList.remove('rescueFlash'),500);
+      }
+      if(window.clearIframeControl)window.clearIframeControl();
+      if(window.rescueWidgetsToViewport)window.rescueWidgetsToViewport({toast:true,arrange:true,resetRotation:true});
+      setTimeout(clearUiFocusAndSelection,50);
+    }catch(e){console.error('Kunne ikke samle widgets',e)}
+  }
+
+  function rescueSelected(){
+    try{
+      if(window.clearIframeControl)window.clearIframeControl();
+      if(window.rescueSelectedWidgetToViewport)window.rescueSelectedWidgetToViewport();
+      setTimeout(clearUiFocusAndSelection,50);
+    }catch(e){}
+  }
+
+  document.addEventListener('pointerdown',function(ev){
+    const btn=ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
+    if(!btn)return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    rescueAll(btn);
+  },true);
+
+  document.addEventListener('click',function(ev){
+    const btn=ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
+    if(!btn)return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    clearUiFocusAndSelection();
+  },true);
+
+  // Når man begynder at flytte/resizere/rotere en widget, ryd tekstmarkering.
+  document.addEventListener('pointerdown',function(ev){
+    const handle=ev.target&&ev.target.closest&&ev.target.closest('.chrome,.resize,.rotater,.widget');
+    if(!handle)return;
+    if(ev.target.closest && ev.target.closest('input,textarea,select,[contenteditable="true"],.textEditor'))return;
+    clearUiFocusAndSelection();
+  },true);
+
+  window.addEventListener('resize',()=>setTimeout(rescueSelected,150),{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(rescueSelected,300),{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>rescueAll(null),180)});
+  window.addEventListener('pageshow',()=>setTimeout(()=>rescueAll(null),180),{passive:true});
+})();
+
+</script>
+<script>
+
+/* v1.0.83 rescue button focus + link min-size data guard */
+(function(){
+  function clearRescueVisual(btn){
+    if(!btn)return;
+    btn.blur&&btn.blur();
+    btn.classList.remove('active');
+    btn.removeAttribute('aria-pressed');
+    setTimeout(()=>btn.classList.remove('rescueFlash'),420);
+  }
+
+  document.addEventListener('pointerup',function(ev){
+    const btn=ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
+    if(btn)clearRescueVisual(btn);
+  },true);
+  document.addEventListener('click',function(ev){
+    const btn=ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
+    if(btn)clearRescueVisual(btn);
+  },true);
+
+  function enforceLinkMinSize(){
+    try{
+      const sl=typeof slide==='function'?slide():null;
+      if(!sl||!Array.isArray(sl.widgets))return;
+      let changed=false;
+      sl.widgets.forEach(w=>{
+        if(w.type==='link'){
+          if(Number(w.w||0)<260){w.w=260;changed=true;}
+          if(Number(w.h||0)<170){w.h=170;changed=true;}
+        }
+      });
+      if(changed){
+        if(typeof save==='function')save();
+        document.querySelectorAll('.widget[data-type="link"]').forEach(el=>{
+          const id=el.dataset.id;
+          const w=sl.widgets.find(x=>String(x.id)===String(id));
+          if(w){
+            el.style.width=w.w+'px';
+            el.style.height=w.h+'px';
+          }
+        });
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('pointerup',()=>setTimeout(enforceLinkMinSize,20),true);
+  window.addEventListener('resize',()=>setTimeout(enforceLinkMinSize,80),{passive:true});
+  setTimeout(enforceLinkMinSize,150);
 })();
 
 </script>
