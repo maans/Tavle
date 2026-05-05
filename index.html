@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.0.84</title>
+<title>Interaktiv tavle v1.0.86</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -5758,6 +5758,120 @@ input,textarea,select,[contenteditable="true"],.textEditor,.textEditor *{
   user-select:text!important;
 }
 
+
+/* v1.0.85 no auto rescue + wheel tagcloud button visibility */
+
+/* Tagcloud/skyvisning-knappen skal ikke forsvinde, når hjul-widgetten bliver smallere. */
+.widget[data-type="wheel"] .wheelToggleHint,
+.widget[data-type="wheel"] .wheelCloudToggleFixed{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:40!important;
+  pointer-events:auto!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:nowrap!important;
+  max-width:calc(100% - 24px)!important;
+}
+
+/* I valgt/resultatfelt ligger den fast nederst til højre, men må gerne skubbes ind. */
+.widget[data-type="wheel"] .wheelToggleHint{
+  right:10px!important;
+  bottom:10px!important;
+  transform:none!important;
+}
+
+/* Ved små hjul-widgets bliver knappen kompakt i stedet for at blive klippet væk. */
+.widget[data-type="wheel"]{
+  min-width:300px!important;
+  min-height:240px!important;
+}
+.widget[data-type="wheel"] .chosen{
+  min-height:120px!important;
+  padding-bottom:48px!important;
+  overflow:visible!important;
+}
+@media(max-width:760px){
+  .widget[data-type="wheel"] .wheelToggleHint,
+  .widget[data-type="wheel"] .wheelCloudToggleFixed{
+    font-size:11px!important;
+    padding:7px 10px!important;
+    right:8px!important;
+    bottom:8px!important;
+  }
+}
+
+/* Redningsbælte er kun manuel fuld redning – ingen permanent aktiv markering. */
+#rescueWidgets,
+#rescueWidgets:focus,
+#rescueWidgets:active,
+#rescueWidgets.active,
+#rescueWidgets[aria-pressed="true"]{
+  background:#4b5563!important;
+  color:#fff!important;
+  outline:none!important;
+  box-shadow:none!important;
+}
+#rescueWidgets.rescueFlash{
+  background:#6d5dfc!important;
+  animation:rescueFlash .36s ease both!important;
+}
+
+
+/* v1.0.86 iframe full-height cleanup
+   Fjerner hvid bundkant/restplads fra gammel iframe-kontrolbjælke. */
+.widget[data-type="link"] .content,
+.widget[data-type="link"] .content.link,
+.widget[data-type="link"] .linkIframeBox,
+.widget[data-type="link"] .linkIframeFrame{
+  height:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+
+.widget[data-type="link"] .linkIframeBox{
+  display:block!important;
+}
+
+.widget[data-type="link"] .linkIframeFrame{
+  position:relative!important;
+  width:100%!important;
+}
+
+.widget[data-type="link"] .linkIframeFrame iframe{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  border:0!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+}
+
+.widget[data-type="link"] .linkIframeShield{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+/* Gammel indholds-kontrolbjælke må ikke reservere plads nogen steder. */
+.widget[data-type="link"] .linkIframeControls{
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
@@ -11076,6 +11190,148 @@ document.addEventListener('click',function(e){
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>rescueAll(null),180)});
   window.addEventListener('pageshow',()=>setTimeout(()=>rescueAll(null),180),{passive:true});
   setTimeout(enforceLinkMinSize,150);
+})();
+
+</script>
+<script>
+
+/* v1.0.85 rescue state unlock – no auto-arrange on app resume */
+(function(){
+  let rescueInProgress=false;
+
+  function hardUnlockUi(){
+    try{ if(window.clearIframeControl)window.clearIframeControl(); }catch(e){}
+    document.body.classList.remove(
+      'iframe-control-active',
+      'widget-transform-active',
+      'textSelecting',
+      'isSelectingText',
+      'dragging',
+      'resizing',
+      'rotating'
+    );
+    document.querySelectorAll('.widget').forEach(el=>{
+      el.classList.remove(
+        'linkIframeActive',
+        'iframe-interaction-enabled',
+        'is-iframe-active',
+        'widgetTransforming',
+        'dragging',
+        'resizing',
+        'rotating'
+      );
+      el.style.pointerEvents='';
+    });
+    document.querySelectorAll('.linkIframeShield').forEach(el=>{
+      el.style.display='';
+      el.style.pointerEvents='';
+    });
+    document.querySelectorAll('iframe').forEach(el=>{
+      el.style.pointerEvents='';
+    });
+  }
+
+  function clearUiFocusAndSelection(){
+    try{
+      if(document.activeElement && document.activeElement.blur)document.activeElement.blur();
+    }catch(e){}
+    try{
+      const sel=window.getSelection&&window.getSelection();
+      if(sel)sel.removeAllRanges();
+    }catch(e){}
+  }
+
+  function finishRescue(btn){
+    hardUnlockUi();
+    clearUiFocusAndSelection();
+    if(btn){
+      btn.blur&&btn.blur();
+      btn.classList.remove('active');
+      btn.removeAttribute('aria-pressed');
+      btn.classList.remove('rescueFlash');
+    }
+    rescueInProgress=false;
+  }
+
+  function manualRescueAll(btn){
+    if(rescueInProgress)return;
+    rescueInProgress=true;
+    try{
+      hardUnlockUi();
+      clearUiFocusAndSelection();
+      if(btn){
+        btn.classList.remove('rescueFlash');
+        void btn.offsetWidth;
+        btn.classList.add('rescueFlash');
+      }
+      if(window.rescueWidgetsToViewport)window.rescueWidgetsToViewport({toast:true,arrange:true,resetRotation:true});
+      setTimeout(()=>finishRescue(btn),80);
+      setTimeout(()=>finishRescue(btn),320);
+    }catch(e){
+      console.error('Kunne ikke samle widgets',e);
+      finishRescue(btn);
+    }
+  }
+
+  function lightResumeUnlock(){
+    // Do not move, resize, arrange or rotate widgets.
+    hardUnlockUi();
+    clearUiFocusAndSelection();
+  }
+
+  document.addEventListener('pointerdown',function(ev){
+    const btn=ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
+    if(!btn)return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    manualRescueAll(btn);
+  },true);
+
+  document.addEventListener('click',function(ev){
+    const btn=ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
+    if(!btn)return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    finishRescue(btn);
+  },true);
+
+  document.addEventListener('pointerdown',function(ev){
+    if(ev.target.closest && ev.target.closest('input,textarea,select,[contenteditable="true"],.textEditor'))return;
+    const handle=ev.target&&ev.target.closest&&ev.target.closest('.chrome,.mini button,.resize,.rotater,.widget');
+    if(handle)clearUiFocusAndSelection();
+  },true);
+
+  function enforceLinkMinSize(){
+    try{
+      const sl=typeof slide==='function'?slide():null;
+      if(!sl||!Array.isArray(sl.widgets))return;
+      let changed=false;
+      sl.widgets.forEach(w=>{
+        if(w.type==='link'){
+          if(Number(w.w||0)<260){w.w=260;changed=true;}
+          if(Number(w.h||0)<170){w.h=170;changed=true;}
+        }
+      });
+      if(changed){
+        if(typeof save==='function')save();
+        document.querySelectorAll('.widget[data-type="link"]').forEach(el=>{
+          const id=el.dataset.id;
+          const w=sl.widgets.find(x=>String(x.id)===String(id));
+          if(w){el.style.width=w.w+'px';el.style.height=w.h+'px';}
+        });
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('pointerup',()=>setTimeout(enforceLinkMinSize,20),true);
+  // On resize/orientation: only keep link minimums. Do NOT reposition/scale/rotate all widgets.
+  window.addEventListener('resize',()=>setTimeout(enforceLinkMinSize,120),{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(enforceLinkMinSize,250),{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(lightResumeUnlock,120)});
+  window.addEventListener('pageshow',()=>setTimeout(lightResumeUnlock,120),{passive:true});
+  window.tavleLightResumeUnlock=lightResumeUnlock;
 })();
 
 </script>
