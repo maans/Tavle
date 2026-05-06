@@ -1,4 +1,4 @@
-# Interaktiv tavle v1.0.2
+# Interaktiv tavle v1.2.14
 
 ![Interaktiv tavle v1.0.2](README_infografik.png)
 
@@ -77,21 +77,7 @@ Hints skifter automatisk efter situationen:
 - Når du skriver i tekst: `Esc` stopper skrivning og beholder widgetten valgt.
 - I præsentation: hints viser hvordan du vælger, fokuserer og vender tilbage.
 
-Hints er lavet som let HTML/CSS og forstørrer derfor ikke `index.html` med indlejrede billeder.
-
-
-Hints kan slås til/fra med `Shift + O`. De vises i redigering, men skjules som udgangspunkt i præsentation, så elevvisningen forbliver rolig.
-
-
-v1.0.39: Den interne knap “Rediger link” i link-widgetten er skjult. Link kan stadig redigeres ved oprettelse og via dobbeltklik i redigering.
-
-
-v1.0.40: Link-widgetten har nu en lille rediger-knap i topbjælken i redigeringstilstand, mens den store interne “Rediger link”-knap fortsat er skjult.
-
-
-## v1.0.41 fix
-- Baggrunde er udskiftet fra PNG til optimeret WebP.
-- Link-widget/iframe får separat localStorage-scope, når Tavle indlejres i Tavle, så en iframe ikke overtager hovedappens tavledata.
+# Interaktiv tavle v1.2.14
 
 
 ## v1.0.42
