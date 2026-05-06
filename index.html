@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.16</title>
+<title>Interaktiv tavle v1.2.30</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -13,7 +13,23 @@
 <link rel="manifest" href="manifest.webmanifest">
 <!-- Interaktiv tavle v1.0.13-dev – PDF keyboard navigation -->
 <style>
-:root{--bar:#1f2937;--accent:#6d5dfc;--bg:linear-gradient(135deg,#edf6ff,#dff8e8);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#111827}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#111}button,input,textarea,select{font:inherit}.app{height:100%;background:var(--bg);position:relative;overflow:hidden;touch-action:none}.app.grid:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.055) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}.title{position:absolute;top:14px;left:16px;background:rgba(0,0,0,.68);color:white;padding:10px 16px;border-radius:9px;font-size:24px;font-weight:700;z-index:900;max-width:45vw}.topbar{position:absolute;top:14px;right:14px;background:rgba(17,24,39,.86);border-radius:12px;padding:8px;display:flex;gap:8px;z-index:1000;align-items:center;color:white}.topbar button,.tool button,.mini button,.modal button{border:0;border-radius:9px;padding:9px 12px;background:#4b5563;color:white;font-weight:700}.topbar button:disabled{opacity:.45}.toolbar{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.88);border-radius:16px;padding:10px 14px;display:flex;gap:13px;box-shadow:0 12px 28px rgba(0,0,0,.3)}.tool{display:flex;flex-direction:column;align-items:center;gap:3px;color:white;font-size:11px}.tool button{width:50px;height:50px;background:#fff;color:#111827;font-size:27px;padding:0}.widget{position:absolute;left:0;top:0;width:360px;height:240px;background:white;border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.22);transform-origin:center center;overflow:visible;touch-action:none}.widget.selected{outline:3px solid var(--accent)}.widget.locked{outline:2px dashed #6b7280}.widget:not(.selected) .chrome,.widget:not(.selected) .resize,.widget:not(.selected) .rotater{display:none}.chrome{height:34px;background:#30394a;color:white;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;cursor:move;font-weight:700;font-size:14px}.mini{display:flex;gap:5px}.mini button{padding:4px 8px;font-size:12px;background:#4b5563}.content{height:calc(100% - 34px);overflow:auto;background:rgba(255,255,255,.94);border-radius:0 0 12px 12px}.widget:not(.selected) .content{height:100%;border-radius:12px;background:transparent;overflow:hidden}.widget:not(.selected){box-shadow:0 8px 20px rgba(0,0,0,.12)}.widget.locked:not(.selected){outline:none}.widget.selected.locked{outline:3px dashed #6b7280}.resize{position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:white;border:3px solid var(--accent);cursor:nwse-resize}.rotater{position:absolute;left:50%;bottom:-40px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:white;border:3px solid var(--accent);display:grid;place-items:center;font-weight:bold;color:var(--accent);cursor:grab}.text{height:100%;display:flex;flex-direction:column}.textTools{display:flex;padding:6px 10px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;gap:8px;align-items:center;flex-wrap:wrap}.text textarea{width:100%;flex:1;border:0;padding:16px;font-size:var(--fs,24px);resize:none;background:white}.videoBox{height:100%;background:#222;color:white;display:grid;place-items:center;text-align:center;padding:18px}.videoBox iframe{width:100%;height:100%;border:0}.videoBox a{color:white;font-size:24px;font-weight:800}.timerBox{padding:18px;text-align:center}.timerBox .display{font-size:58px;font-weight:900;margin:18px}.timerBox input{width:70px;padding:6px}.timerBox button,.wheel button,.linkBox button,.modal button{background:var(--accent);color:white;border:0;border-radius:8px;padding:8px 12px;margin:3px}.wheel{height:100%;display:grid;gap:12px;padding:12px;overflow:hidden;box-sizing:border-box}.wheel:not(.editing){grid-template-columns:minmax(260px,58%) minmax(220px,42%)}.wheel.editing{grid-template-columns:minmax(260px,52%) minmax(260px,48%)}.wheelBox{min-width:0;min-height:0;height:100%;display:flex;align-items:center;justify-content:center}.wheelCanvas{width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:1/1;object-fit:contain;border-radius:50%;box-shadow:0 0 0 8px white,0 4px 12px #999}.wheelSide{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;align-content:start}.winner{font-size:clamp(28px,5vw,76px);font-weight:900;text-align:center;line-height:1}.wheelControls,.wheelTools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wheel .chosen{font-size:14px;min-height:0;overflow:auto;overflow-wrap:anywhere;background:#f3f4f6;padding:8px;border-radius:8px}.wheel textarea{width:100%;height:130px}.wheel .editArea{display:none;min-width:0;overflow:auto}.wheel.editing .editArea{display:block}.wheel.editing .wheelSide{grid-template-rows:auto auto minmax(80px,.7fr) auto}@media(max-width:700px){.wheel:not(.editing),.wheel.editing{grid-template-columns:1fr}.wheelBox{height:260px}}.linkBox{height:100%;display:grid;place-items:center;text-align:center;padding:20px}.linkBox a{font-size:30px;color:#1559d6;font-weight:800}.imageWidget img{width:100%;height:100%;object-fit:contain;display:block}.pdfBox{height:100%;display:grid;place-items:center;padding:20px;text-align:center}.pdfBox iframe,.pdfBox object{width:100%;height:100%;border:0}.drawLayer{position:absolute;inset:0;z-index:850;pointer-events:none}.drawLayer.active{pointer-events:auto;cursor:crosshair}.app.drawActive .widget{filter:saturate(.7) brightness(.9)}.app.drawActive:after{content:'TEGNETILSTAND – klik blyanten igen eller Luk for at stoppe';position:absolute;top:78px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(17,24,39,.9);color:white;border-radius:999px;padding:9px 16px;font-weight:900;pointer-events:none}.drawPanel{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:1001;background:rgba(255,255,255,.96);border-radius:14px;padding:10px;box-shadow:0 10px 24px #0004;display:none;gap:8px;align-items:center;max-width:92vw;overflow:auto}.drawPanel.show{display:flex}.drawPanel button.active{background:#6d5dfc;color:white}.modalBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:none;align-items:center;justify-content:center}.modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.modal h2{margin-top:0}.modal input,.modal textarea,.modal select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 12px}.hidden{display:none!important}.present .toolbar,.present .topbar,.present .chrome,.present .resize,.present .rotater,.present .drawPanel{display:none!important}.present .title{display:none}.present .widget{box-shadow:none;outline:none}.present .content{height:100%;border-radius:12px}.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#111827;color:white;padding:10px 16px;border-radius:999px;z-index:3000;opacity:0;transition:.2s}.toast.show{opacity:1}@media(max-width:800px){.toolbar{gap:8px;max-width:96vw;overflow-x:auto}.tool button{width:44px;height:44px}.title{font-size:18px}.topbar{scale:.9;transform-origin:top right}}
+:root{--bar:#1f2937;--accent:#6d5dfc;--bg:linear-gradient(135deg,#edf6ff,#dff8e8);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#111827}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#111}button,input,textarea,select{font:inherit}.app{height:100%;background:var(--bg);position:relative;overflow:hidden;touch-action:none}.app.grid:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.055) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}.title{position:absolute;top:14px;left:16px;background:rgba(0,0,0,.68);color:white;padding:10px 16px;border-radius:9px;font-size:24px;font-weight:700;z-index:900;max-width:45vw}.topbar{position:absolute;top:14px;right:14px;background:rgba(17,24,39,.86);border-radius:12px;padding:8px;display:flex;gap:8px;z-index:1000;align-items:center;color:white}.topbar button,.tool button,.mini button,.modal button{border:0;border-radius:9px;padding:9px 12px;background:#4b5563;color:white;font-weight:700}.topbar button:disabled{opacity:.45}.toolbar{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.88);border-radius:16px;padding:10px 14px;display:flex;gap:13px;box-shadow:0 12px 28px rgba(0,0,0,.3)}.tool{display:flex;flex-direction:column;align-items:center;gap:3px;color:white;font-size:11px}.tool button{width:50px;height:50px;background:#fff;color:#111827;font-size:27px;padding:0}.widget{position:absolute;left:0;top:0;width:360px;height:240px;background:white;border-radius:12px;box-shadow:0 14px 28px rgba(0,0,0,.22);transform-origin:center center;overflow:visible;touch-action:none}.widget.selected{outline:3px solid var(--accent)}.widget.locked{outline:2px dashed #6b7280}.widget:not(.selected) .chrome,.widget:not(.selected) .resize,.widget:not(.selected) .rotater{display:none}.chrome{height:34px;background:#30394a;color:white;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;padding:0 8px;cursor:move;font-weight:700;font-size:14px}.mini{display:flex;gap:5px}.mini button{padding:4px 8px;font-size:12px;background:#4b5563}.content{height:calc(100% - 34px);overflow:auto;background:rgba(255,255,255,.94);border-radius:0 0 12px 12px}.widget:not(.selected) .content{height:100%;border-radius:12px;background:transparent;overflow:hidden}.widget:not(.selected){box-shadow:0 8px 20px rgba(0,0,0,.12)}.widget.locked:not(.selected){outline:none}.widget.selected.locked{outline:3px dashed #6b7280}.resize{position:absolute;right:-8px;bottom:-8px;width:24px;height:24px;border-radius:50%;background:white;border:3px solid var(--accent);cursor:nwse-resize}.rotater{position:absolute;left:50%;bottom:-40px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:white;border:3px solid var(--accent);display:grid;place-items:center;font-weight:bold;color:var(--accent);cursor:grab}.text{height:100%;display:flex;flex-direction:column}.textTools{display:flex;padding:6px 10px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;gap:8px;align-items:center;flex-wrap:wrap}.text textarea{width:100%;flex:1;border:0;padding:16px;font-size:var(--fs,24px);resize:none;background:white}.videoBox{height:100%;background:#222;color:white;display:grid;place-items:center;text-align:center;padding:18px}.videoBox iframe{width:100%;height:100%;border:0}.videoBox a{color:white;font-size:24px;font-weight:800}.timerBox{padding:18px;text-align:center}.timerBox .display{font-size:58px;font-weight:900;margin:18px}.timerBox input{width:70px;padding:6px}.timerBox button,.wheel button,.linkBox button,.modal button{background:var(--accent);color:white;border:0;border-radius:8px;padding:8px 12px;margin:3px}.wheel{height:100%;display:grid;gap:12px;padding:12px;overflow:hidden;box-sizing:border-box}.wheel:not(.editing){grid-template-columns:minmax(260px,58%) minmax(220px,42%)}.wheel.editing{grid-template-columns:minmax(260px,52%) minmax(260px,48%)}.wheelBox{min-width:0;min-height:0;height:100%;display:flex;align-items:center;justify-content:center}.wheelCanvas{width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:1/1;object-fit:contain;border-radius:50%;box-shadow:0 0 0 8px white,0 4px 12px #999}.wheelSide{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;align-content:start}.winner{font-size:clamp(28px,5vw,76px);font-weight:900;text-align:center;line-height:1}.wheelControls,.wheelTools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wheel .chosen{font-size:14px;min-height:0;overflow:auto;overflow-wrap:anywhere;background:#f3f4f6;padding:8px;border-radius:8px}.wheel textarea{width:100%;height:130px}.wheel .editArea{display:none;min-width:0;overflow:auto}.wheel.editing .editArea{display:block}.wheel.editing .wheelSide{grid-template-rows:auto auto minmax(80px,.7fr) auto}@media(max-width:700px){.wheel:not(.editing),.wheel.editing{grid-template-columns:1fr}.wheelBox{height:260px}}.linkBox{height:100%;display:grid;place-items:center;text-align:center;padding:20px}.linkBox a{font-size:30px;color:#1559d6;font-weight:800}.imageWidget img{width:100%;height:100%;object-fit:contain;display:block}.pdfBox{height:100%;display:grid;place-items:center;padding:20px;text-align:center}.pdfBox iframe,.pdfBox object{width:100%;height:100%;border:0}.drawLayer{position:absolute;inset:0;z-index:850;pointer-events:none}.drawLayer.active{pointer-events:auto;cursor:crosshair}.app.drawActive .widget{filter:saturate(.7) brightness(.9)}.app.drawActive:after{content:'TEGNETILSTAND – klik blyanten igen eller Luk for at stoppe';position:absolute;top:78px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(17,24,39,.9);color:white;border-radius:999px;padding:9px 16px;font-weight:900;pointer-events:none}.drawPanel{position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:1001;background:rgba(255,255,255,.96);border-radius:14px;padding:10px;box-shadow:0 10px 24px #0004;display:none;gap:8px;align-items:center;max-width:92vw;overflow:auto}.drawPanel.show{display:flex}.drawPanel button.active{background:#6d5dfc;color:white}.modalBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:none;align-items:center;justify-content:center}.modalBackdrop.bgModalKeyboard{
+  background:rgba(0,0,0,.06)!important;
+}
+.modalBackdrop.bgModalKeyboard.bgPreviewing .modal{
+  opacity:.28;
+  transform:scale(.985);
+  transition:opacity .12s ease, transform .12s ease;
+}
+
+.bgChoice.kbSelected{
+  outline-color:#6c5cff!important;
+  box-shadow:0 0 0 5px rgba(108,92,255,.28),0 10px 24px rgba(15,23,42,.26)!important;
+}
+.bgChoice.kbPreview{
+  outline-style:dashed!important;
+}
+.modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.modal h2{margin-top:0}.modal input,.modal textarea,.modal select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 12px}.hidden{display:none!important}.present .toolbar,.present .topbar,.present .chrome,.present .resize,.present .rotater,.present .drawPanel{display:none!important}.present .title{display:none}.present .widget{box-shadow:none;outline:none}.present .content{height:100%;border-radius:12px}.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#111827;color:white;padding:10px 16px;border-radius:999px;z-index:3000;opacity:0;transition:.2s}.toast.show{opacity:1}@media(max-width:800px){.toolbar{gap:8px;max-width:96vw;overflow-x:auto}.tool button{width:44px;height:44px}.title{font-size:18px}.topbar{scale:.9;transform-origin:top right}}
 
 .present .toolbar{display:none!important}
 .present .title{display:none!important}
@@ -5900,6 +5916,27 @@ body.focus-mode .widget[data-type="wheel"] .chrome,body.focus-mode .widget[data-
 body.focus-mode .wheel.recon .wheelTopBar,body.focus-mode .wheel.recon .wheelSettings,body.focus-mode .wheel.recon .wheelBottom,body.focus-mode .wheel.recon .editArea{display:none!important}
 @media(max-width:700px){.wheel.recon,.wheel.recon.editing{grid-template-columns:1fr!important;grid-template-rows:minmax(240px,1fr) auto!important}.wheel.recon .wheelSide{max-height:48vh!important}}
 
+
+/* v1.2.17: PDF fanger kun piletaster, når PDF-kontrol er aktiv */
+.widget[data-type="pdf"].pdfKeyboardActive{
+  outline:3px solid rgba(108,92,231,.55);
+  outline-offset:2px;
+}
+.widget[data-type="pdf"].pdfKeyboardActive::after{
+  content:"PDF-pile aktive · ESC slipper";
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  z-index:20;
+  background:rgba(17,24,39,.84);
+  color:white;
+  border-radius:999px;
+  padding:5px 9px;
+  font-weight:800;
+  font-size:12px;
+  pointer-events:none;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
@@ -6023,7 +6060,8 @@ body.focus-mode .wheel.recon .wheelTopBar,body.focus-mode .wheel.recon .wheelSet
         h: {label:'Hjul', widget:'h'},
         r: {label:'Grupper', widget:'r'},
         s: {label:'Ordsky', widget:'s'},
-        v: {label:'Afstemning', widget:'v'},
+        v: {label:'Video', widget:'v'},
+        x: {label:'Afstemning', widget:'x'},
         m: {label:'Baggrund', widget:'m'},
         g: {label:'Grid', widget:'g'},
         b: {label:'Backup', widget:'b'},
@@ -6783,7 +6821,9 @@ function bgFilterCss(key){return getBgFilterDef(key).css||'none'}
 function bgFilterOverlay(key){return getBgFilterDef(key).overlay||''}
 
 let embeddedData=window.__TAVLE_DATA__||null;
-let state=(embeddedData&&embeddedData.state)||load()||{active:0,slides:[{title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]}]};
+let __loadedState=load();
+let __freshFirstRun=!(embeddedData&&embeddedData.state) && !__loadedState;
+let state=(embeddedData&&embeddedData.state)||__loadedState||{active:0,slides:[classicHdSlide()]};
 if(embeddedData&&embeddedData.wheelLists){try{localStorage.setItem('maans_wheel_lists',JSON.stringify(embeddedData.wheelLists))}catch(e){}}
 if(embeddedData&&embeddedData.settings){try{Object.entries(embeddedData.settings).forEach(([k,v])=>localStorage.setItem(k,v))}catch(e){}}
 
@@ -7200,7 +7240,7 @@ function makeGroupsWithLocks(names,size,currentGroups,locks){
 }
 function renderGroups(groups,locks=[]){if(!groups||!groups.length)return '<p>Ingen grupper endnu.</p>';const cls=groups.length>4?' groupCompact':'';return groups.map((g,i)=>{const locked=!!locks[i];return `<div class="groupCard${cls}" data-group-i="${i}"><button type="button" class="groupLock ${locked?'isLocked':''}" data-i="${i}" title="${locked?'Låst: bevares ved ny randomisering':'Åben: blandes med ved ny randomisering'}">${locked?'🔒':'🔓'}</button><b>Gruppe ${i+1}</b>${g.map(esc).join('<br>')}</div>`}).join('')}
 function drawGroupWheel(canvas,names,rot=0){const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=Math.min(W,H)*.46;ctx.clearRect(0,0,W,H);const list=names&&names.length?names:['Grupper'];const cols=['#ff6b6b','#ffd93d','#4ade80','#60a5fa','#c084fc','#fb923c'];list.forEach((name,i)=>{const a1=rot+i*2*Math.PI/list.length,a2=rot+(i+1)*2*Math.PI/list.length;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a1,a2);ctx.closePath();ctx.fillStyle=cols[i%cols.length];ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate((a1+a2)/2);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#111827';ctx.font=`800 ${Math.max(18,Math.min(36,180/list.length+10))}px system-ui`;let label=String(name||'');if(label.length>18)label=label.slice(0,17)+'…';ctx.fillText(label,r-18,0);ctx.restore()});ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,.10)';ctx.lineWidth=Math.max(10,W*.018);ctx.stroke()}
-function wireGroups(c,w){const canvas=c.querySelector('.groupWheel');drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),w.data.rot||0);const textarea=c.querySelector('.groupNames'),sizeInput=c.querySelector('.groupSize');normalizeGroupLocks(w);c.querySelectorAll('.groupLock').forEach(btn=>btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();normalizeGroupLocks(w);const i=Number(btn.dataset.i);w.data.groupLocks[i]=!w.data.groupLocks[i];fillContent(c.closest('.widget'),w);save();toast(w.data.groupLocks[i]?'Gruppe låst':'Gruppe åben')});const showBtn=c.querySelector('.showGroupList');if(showBtn)showBtn.onclick=()=>{w.data.listHidden=false;w.data.groupsVisible=false;fillContent(c.closest('.widget'),w);save()};c.querySelector('.toGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.rot=0;w.data.listHidden=true;w.data.groupsVisible=true;fillContent(c.closest('.widget'),w);save();toast('Grupper dannet')};c.querySelector('.newGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);if(!w.data.names.length){toast('Indsæt en liste først');return}const btn=c.querySelector('.groupSpinBtn');btn.disabled=true;const duration=1800+Math.random()*600,start=performance.now(),endRot=(5+Math.random()*2)*Math.PI*2;function frame(now){const p=Math.min(1,(now-start)/duration),rot=endRot*easeOutCubic(p);drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),rot);if(p<1)requestAnimationFrame(frame);else{w.data.rot=endRot;w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.listHidden=true;w.data.groupsVisible=true;btn.disabled=false;wheelLand();fillContent(c.closest('.widget'),w);setTimeout(()=>{const nb=c.closest('.widget').querySelector('.groupsBox');if(nb){nb.classList.add('flashGroups');setTimeout(()=>nb.classList.remove('flashGroups'),650)}},60);save()}}requestAnimationFrame(frame)};c.querySelector('.loadGroupList').onclick=()=>{const useList=(pick,items)=>{w.data.names=[...items];w.data.groups=[];w.data.groupLocks=[];w.data.rot=0;w.data.listHidden=false;w.data.groupsVisible=false;closeModal();fillContent(c.closest('.widget'),w);save();toast('Liste hentet')};const bank=wheelListBank();const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));showModal('<h2>Hent liste til grupper</h2><p>Vælg en gemt liste eller importér en tekstfil/CSV/regneark.</p>'+(keys.length?keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' '):'<p>Ingen gemte lister endnu.</p>')+'<hr>'+importedListButtonHtml()+' <button id="close">Luk</button>');modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.k;useList(pick,wheelListBank()[pick]||[])});wireImportListButton(useList);modal.querySelector('#close').onclick=closeModal};c.querySelector('.saveGroupList').onclick=()=>openSaveListModal({data:{names:textarea.value.split('\n').map(x=>x.trim()).filter(Boolean),chosen:[]}})}
+function wireGroups(c,w){const canvas=c.querySelector('.groupWheel');drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),w.data.rot||0);const textarea=c.querySelector('.groupNames'),sizeInput=c.querySelector('.groupSize');normalizeGroupLocks(w);c.querySelectorAll('.groupLock').forEach(btn=>btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();normalizeGroupLocks(w);const i=Number(btn.dataset.i);w.data.groupLocks[i]=!w.data.groupLocks[i];fillContent(c.closest('.widget'),w);save();toast(w.data.groupLocks[i]?'Gruppe låst':'Gruppe åben')});const showBtn=c.querySelector('.showGroupList');if(showBtn)showBtn.onclick=()=>{w.data.listHidden=false;w.data.groupsVisible=false;fillContent(c.closest('.widget'),w);save()};c.querySelector('.toGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.rot=0;w.data.listHidden=true;w.data.groupsVisible=true;fillContent(c.closest('.widget'),w);save();toast('Grupper dannet')};c.querySelector('.newGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);if(!w.data.names.length){toast('Indsæt en liste først');return}const btn=c.querySelector('.groupSpinBtn');btn.disabled=true;const duration=1800+Math.random()*600,start=performance.now(),endRot=(5+Math.random()*2)*Math.PI*2;function frame(now){const p=Math.min(1,(now-start)/duration),rot=endRot*easeOutCubic(p);drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),rot);if(p<1)requestAnimationFrame(frame);else{w.data.rot=endRot;w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.listHidden=true;w.data.groupsVisible=true;btn.disabled=false;wheelLand();fillContent(c.closest('.widget'),w);setTimeout(()=>{const nb=c.closest('.widget').querySelector('.groupsBox');if(nb){nb.classList.add('flashGroups');setTimeout(()=>nb.classList.remove('flashGroups'),650)}},60);save()}}requestAnimationFrame(frame)};c.querySelector('.loadGroupList').onclick=()=>{const useList=(pick,items)=>{w.data.names=[...items];w.data.groups=[];w.data.groupLocks=[];w.data.rot=0;w.data.listHidden=false;w.data.groupsVisible=false;closeModal();fillContent(c.closest('.widget'),w);setTimeout(()=>{const inp=c.closest('.widget')?.querySelector('.groupSize');if(inp){inp.focus({preventScroll:true});inp.select()}},80);save();toast('Liste hentet')};const bank=wheelListBank();const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));showModal('<h2>Hent liste til grupper</h2><p>Vælg en gemt liste eller importér en tekstfil/CSV/regneark.</p>'+(keys.length?keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' '):'<p>Ingen gemte lister endnu.</p>')+'<hr>'+importedListButtonHtml()+' <button id="close">Luk</button>');modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.k;useList(pick,wheelListBank()[pick]||[])});wireImportListButton(useList);modal.querySelector('#close').onclick=closeModal};c.querySelector('.saveGroupList').onclick=()=>openSaveListModal({data:{names:textarea.value.split('\n').map(x=>x.trim()).filter(Boolean),chosen:[]}})}
 
 
 
@@ -7460,7 +7500,7 @@ function chooseSharedList(title,callback){
     closeModal();
   });
   wireImportListButton((name,items)=>{callback(name,items);closeModal()});
-  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
 function showMoreTools(){
@@ -8053,10 +8093,11 @@ if(presentFocusBtn)presentFocusBtn.onclick=e=>{e.preventDefault();e.stopPropagat
 /* v1.0.10-dev: shared shortcut API used by the early capture keydown listener */
 window.tavleShortcutAPI={
   newSlideShortcut(){
-    state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});
+    state.slides.push(createThemedSlide());
     state.active=state.slides.length-1;
     render();
     save();
+    focusSlideTitleForRename();
     try{toast('Ny tavle')}catch(e){}
   },
   duplicateSlideShortcut(){
@@ -8171,7 +8212,8 @@ window.tavleShortcutAPI={
     const map={
       p:['pdf',{}],
       a:['text',{text:'Skriv instruktion her…',fontSize:24}],
-      v:['poll',{}],
+      v:['video',{}],
+      x:['poll',{}],
       i:['image',{}],
       r:['groups',{}],
       h:['wheel',{}],
@@ -8315,7 +8357,7 @@ function wirePoll(c,w,el){
       w.data.votes=w.data.options.map((_,i)=>Number((w.data.votes||[])[i]||0));
       closeModal();fillContent(el,w);save();
     };
-    modal.querySelector('#close').onclick=closeModal;
+    modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
   };
 }
 
@@ -8543,6 +8585,104 @@ if(w.type==='poll'){
 }
 
 function safeSlideTitle(s,i){return (s.title&&String(s.title).trim()) ? s.title : 'Tavle '+(i+1)}
+function usedBoardBackgroundKeys(){
+  const keys=new Set();
+  try{
+    (state.slides||[]).forEach(s=>{
+      if(s.bgImageTitle)keys.add('title:'+s.bgImageTitle);
+      if(s.bgImage)keys.add('src:'+String(s.bgImage).replace(/^.*backgrounds\//,'backgrounds/'));
+    });
+  }catch(_e){}
+  return keys;
+}
+function randomBoardTheme(){
+  // Brug hele baggrundsvælgerens bibliotek: både HD og Klassisk.
+  // Nye tavler vælger først en baggrundsfil, der ikke allerede er brugt.
+  const library=(typeof TAVLE_BACKGROUNDS!=='undefined' && Array.isArray(TAVLE_BACKGROUNDS))
+    ? TAVLE_BACKGROUNDS.filter(bg=>bg && bg.src)
+    : [];
+  if(!library.length)return null;
+  const used=usedBoardBackgroundKeys();
+  const unused=library.filter(bg=>!used.has('src:'+bg.src));
+  const pool=unused.length ? unused : library;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function classicHdSlide(){
+  const bg=(typeof TAVLE_BACKGROUNDS!=='undefined' && Array.isArray(TAVLE_BACKGROUNDS))
+    ? TAVLE_BACKGROUNDS.find(x=>x && x.baseId==='bg1' && x.version==='HD') || TAVLE_BACKGROUNDS.find(x=>x && x.title==='Klassisk tavle' && x.version==='HD')
+    : null;
+  if(bg){
+    const resolved=typeof resolveAssetPath==='function' ? resolveAssetPath(bg.src) : bg.src;
+    return {
+      title:'Min undervisningstavle',
+      bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',
+      bgImage:resolved,
+      bgImageSource:'builtin',
+      bgImageTitle:bg.title||'Klassisk tavle',
+      bgImageName:bg.name||'',
+      bgImageVersion:bg.version||'HD',
+      bgFit:'cover',
+      bgFilter:'standard',
+      grid:false,
+      draw:'',
+      widgets:[]
+    };
+  }
+  return {title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]};
+}
+
+function applyRandomBackgroundToActiveSlide(){
+  const bg=randomBoardTheme();
+  if(!bg)return false;
+  const s=slide();
+  const resolved=typeof resolveAssetPath==='function' ? resolveAssetPath(bg.src) : bg.src;
+  s.bg='linear-gradient(135deg,#edf6ff,#dff8e8)';
+  s.bgImage=resolved;
+  s.bgImageSource='builtin';
+  s.bgImageTitle=bg.title||'';
+  s.bgImageName=bg.name||'';
+  s.bgImageVersion=bg.version||'';
+  s.bgFit='cover';
+  s.bgFilter=s.bgFilter||'standard';
+  render();
+  save();
+  toast('Baggrund: '+(bg.title||'Ny')+(bg.version?(' ('+bg.version+')'):''));
+  return true;
+}
+
+function createThemedSlide(){
+  const bg=randomBoardTheme();
+  if(bg){
+    const resolved=typeof resolveAssetPath==='function' ? resolveAssetPath(bg.src) : bg.src;
+    return {
+      title:(bg.title ? (bg.version ? `${bg.title} (${bg.version})` : bg.title) : 'Ny tavle'),
+      bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',
+      bgImage:resolved,
+      bgImageSource:'builtin',
+      bgImageTitle:bg.title||'',
+      bgImageName:bg.name||'',
+      bgImageVersion:bg.version||'',
+      bgFit:'cover',
+      bgFilter:'standard',
+      grid:false,
+      draw:'',
+      widgets:[]
+    };
+  }
+  return {title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]};
+}
+function focusSlideTitleForRename(){
+  setTimeout(()=>{
+    try{
+      titleEl.focus({preventScroll:true});
+      const range=document.createRange();
+      range.selectNodeContents(titleEl);
+      const sel=window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }catch(_e){}
+  },80);
+}
 function ensureVisibleOnSlide(w){
   w.x=Math.max(20,Math.min(w.x,innerWidth-Math.min(w.w,innerWidth*.9)-20));
   w.y=Math.max(70,Math.min(w.y,innerHeight-Math.min(w.h,innerHeight*.82)-120));
@@ -8598,7 +8738,7 @@ function copyWidgetToSlide(widgetId,targetIndex,sourceIndex=state.active){
   return true;
 }
 function newSlideForWidget(widgetId,action='move',sourceIndex=state.active){
-  state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});
+  state.slides.push(createThemedSlide());
   const idx=state.slides.length-1;
   return action==='copy' ? copyWidgetToSlide(widgetId,idx,sourceIndex) : moveWidgetToSlide(widgetId,idx,sourceIndex);
 }
@@ -8634,7 +8774,7 @@ function widgetMoveModal(w){
   });
   modal.querySelector('#moveNew').onclick=()=>{closeModal();newSlideForWidget(w.id,'move',sourceIndex)};
   modal.querySelector('#copyNew').onclick=()=>{closeModal();newSlideForWidget(w.id,'copy',sourceIndex)};
-  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
 
@@ -9041,6 +9181,9 @@ function focusTextWidgetEditor(id,selectAll=false){
 }
 function select(id,options={}){
   const previous=selected;
+  if(previous && String(previous)!==String(id)){
+    try{ clearPdfKeyboardControl(); }catch(_e){}
+  }
   selected=id;
   UIState.selectedWidgetId=id;
   let selectedWidget=null;
@@ -9187,7 +9330,7 @@ function openSaveListModal(w){
     const name=btn.dataset.del;
     if(confirm('Slet listen "'+name+'"?')){delete bank[name];saveWheelListBank(bank);openSaveListModal(w)}
   });
-  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
   setTimeout(()=>input.focus(),50);
 }
 
@@ -9467,10 +9610,183 @@ function bgModal(){
     window.__tavleBgCat=btn.dataset.bgCat||'alle';
     modal.querySelectorAll('[data-bg-cat]').forEach(b=>b.classList.toggle('active',b===btn));
     applyBgLibraryFilter();
+    setTimeout(()=>bgHighlight(0),0);
   });
   const searchInput=modal.querySelector('#bgSearch');
-  if(searchInput)searchInput.oninput=applyBgLibraryFilter;
+  if(searchInput)searchInput.oninput=()=>{applyBgLibraryFilter();setTimeout(()=>bgHighlight(0),0)};
   applyBgLibraryFilter();
+
+  // Keyboardstyring for baggrundsvælger: pile markerer, Space previewer, Enter vælger/lukker, ESC gendanner/lukker.
+  modalBack.classList.add('bgModalKeyboard');
+  const bgOriginal={
+    bg:slide().bg,
+    bgImage:slide().bgImage,
+    bgImageName:slide().bgImageName,
+    bgImageSource:slide().bgImageSource,
+    bgImageTitle:slide().bgImageTitle,
+    bgImageVersion:slide().bgImageVersion,
+    bgFilter:slide().bgFilter,
+    bgFit:slide().bgFit
+  };
+  let bgKbIndex=0;
+  function bgVisibleCards(){
+    return Array.from(modal.querySelectorAll('.bgChoice[data-bg-index]')).filter(c=>!c.classList.contains('hiddenByFilter'));
+  }
+  function bgHighlight(i){
+    const cards=bgVisibleCards();
+    modal.querySelectorAll('.bgChoice[data-bg-index]').forEach(c=>c.classList.remove('kbSelected','kbPreview'));
+    if(!cards.length)return;
+    bgKbIndex=Math.max(0,Math.min(cards.length-1,i));
+    const card=cards[bgKbIndex];
+    card.classList.add('kbSelected');
+    try{card.scrollIntoView({block:'nearest',inline:'nearest'});}catch(_e){}
+  }
+  function bgGridColumns(){
+    const cards=bgVisibleCards();
+    if(cards.length<2)return 1;
+    const top=cards[0].getBoundingClientRect().top;
+    let cols=0;
+    for(const c of cards){
+      if(Math.abs(c.getBoundingClientRect().top-top)<10)cols++;
+      else break;
+    }
+    return Math.max(1,cols||3);
+  }
+  function bgFlashPreviewTransparency(){
+    modalBack.classList.add('bgPreviewing');
+  }
+  function bgClearPreviewTransparency(){
+    modalBack.classList.remove('bgPreviewing');
+  }
+  function bgApplyFilterByNumber(n){
+    const chips=Array.from(modal.querySelectorAll('[data-bg-filter]'));
+    const chip=chips[n-1];
+    if(!chip)return false;
+    chip.click();
+    setTimeout(()=>bgHighlight(0),80);
+    return true;
+  }
+  function bgApplyFromCard(card, permanent){
+    const item=(TAVLE_BACKGROUNDS||[])[Number(card?.dataset?.bgIndex)];
+    if(!item)return;
+    slide().bgImage=item.src;
+    slide().bgImageName=item.name || item.src.split('/').pop();
+    slide().bgImageTitle=item.title;
+    slide().bgImageVersion=item.version;
+    slide().bgImageSource='library';
+    slide().bgFilter=slide().bgFilter||'none';
+    slide().bgFit='cover';
+    render();
+    if(permanent)save();
+    modalBack.classList.add('bgModalKeyboard');
+    if(!permanent){
+      modal.querySelectorAll('.bgChoice[data-bg-index]').forEach(c=>c.classList.remove('kbPreview'));
+      card.classList.add('kbPreview');
+    }
+  }
+  function bgRestore(){
+    Object.assign(slide(),bgOriginal);
+    render();
+  }
+  function bgClose(){
+    document.removeEventListener('keydown',bgKeyHandler,true);
+    modalBack.classList.remove('bgModalKeyboard','bgPreviewing');
+    closeModal();
+  }
+  function bgKeyHandler(e){
+    if(modalBack.style.display!=='flex')return;
+    if(!modal || !/Baggrund/i.test(modal.textContent||''))return;
+    const active=document.activeElement;
+    const typing=active && (active.tagName==='INPUT' || active.tagName==='TEXTAREA');
+    if(typing){
+      if(e.key==='Enter'){
+        e.preventDefault();
+        active.blur();
+      }else if(e.key==='Escape'){
+        e.preventDefault();
+        bgRestore();
+        bgClose();
+      }
+      return;
+    }
+    if(e.key==='ArrowRight'){
+      e.preventDefault(); e.stopPropagation();
+      bgClearPreviewTransparency();
+      bgHighlight(bgKbIndex+1);
+      return;
+    }
+    if(e.key==='ArrowLeft'){
+      e.preventDefault(); e.stopPropagation();
+      bgClearPreviewTransparency();
+      bgHighlight(bgKbIndex-1);
+      return;
+    }
+    if(e.key==='ArrowDown'){
+      e.preventDefault(); e.stopPropagation();
+      bgClearPreviewTransparency();
+      bgHighlight(bgKbIndex+bgGridColumns());
+      return;
+    }
+    if(e.key==='ArrowUp'){
+      e.preventDefault(); e.stopPropagation();
+      bgClearPreviewTransparency();
+      bgHighlight(bgKbIndex-bgGridColumns());
+      return;
+    }
+    if(/^[1-6]$/.test(e.key)){
+      e.preventDefault(); e.stopPropagation();
+      bgClearPreviewTransparency();
+      bgApplyFilterByNumber(Number(e.key));
+      return;
+    }
+    if(e.key==='Home'){
+      e.preventDefault(); e.stopPropagation(); bgClearPreviewTransparency(); bgHighlight(0); return;
+    }
+    if(e.key==='End'){
+      e.preventDefault(); e.stopPropagation(); bgClearPreviewTransparency(); bgHighlight(bgVisibleCards().length-1); return;
+    }
+    if(e.key===' '){
+      const cards=bgVisibleCards(), card=cards[bgKbIndex];
+      if(card){
+        e.preventDefault(); e.stopPropagation();
+        if(modalBack.classList.contains('bgPreviewing')){
+          bgClearPreviewTransparency();
+        }else{
+          bgApplyFromCard(card,false);
+          bgFlashPreviewTransparency();
+        }
+      }
+      return;
+    }
+    if(e.key==='Enter'){
+      const cards=bgVisibleCards(), card=cards[bgKbIndex];
+      if(card){
+        e.preventDefault(); e.stopPropagation();
+        bgClearPreviewTransparency();
+        bgApplyFromCard(card,true);
+        toast('Baggrund valgt');
+        bgClose();
+      }
+      return;
+    }
+    if(e.key==='Escape'){
+      e.preventDefault(); e.stopPropagation();
+      bgClearPreviewTransparency();
+      bgRestore();
+      bgClose();
+      return;
+    }
+  }
+  modal.addEventListener('pointerdown',()=>bgClearPreviewTransparency(),true);
+  if(window.__bgKeyHandler)document.removeEventListener('keydown',window.__bgKeyHandler,true);
+  window.__bgKeyHandler=bgKeyHandler;
+  document.addEventListener('keydown',bgKeyHandler,true);
+  setTimeout(()=>{
+    const cards=bgVisibleCards();
+    const activeIdx=cards.findIndex(c=>c.classList.contains('active'));
+    bgHighlight(activeIdx>=0?activeIdx:0);
+    try{modal.tabIndex=-1;modal.focus({preventScroll:true});}catch(_e){}
+  },60);
 
   modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{slide().bg=b.dataset.bg;slide().bgImage='';slide().bgImageName='';slide().bgImageSource='';delete slide().bgImageTitle;delete slide().bgImageVersion;render();save();bgModal()});
   modal.querySelectorAll('[data-bg-filter]').forEach(btn=>btn.onclick=()=>{slide().bgFilter=btn.dataset.bgFilter||'none';render();save();bgModal()});
@@ -9508,7 +9824,7 @@ function bgModal(){
   };
   modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render();save()};
   modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';slide().bgImageName='';slide().bgImageSource='';delete slide().bgImageTitle;delete slide().bgImageVersion;render();save();bgModal()};
-  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
 function downloadEmptyApp(){
@@ -9579,106 +9895,115 @@ function showQuickHelp(){
 
   <div class="helpFAQ">
     <details open>
-      <summary>Hvordan bruger jeg redigering og præsentation?</summary>
+      <summary>Det vigtigste live-flow</summary>
       <div class="answer">
-        <p><b>Redigering</b> er til at bygge tavlen. <b>Præsentation</b> skjuler redigeringsgrej og gør tavlen roligere.</p>
         <ul>
-          <li><b>🎬</b> skifter til præsentation.</li>
-          <li><b>✎</b> vender tilbage til redigering.</li>
-          <li>I præsentation kan widgets stadig bruges til deres kernefunktion, fx afstemning.</li>
+          <li><b>↑/↓</b> vælger widgets på tavlen.</li>
+          <li><b>Mellemrum</b> aktiverer valgt hjul, grupper eller afstemning.</li>
+          <li><b>Hjul:</b> mellemrum drejer – eller stopper Auto, hvis Auto kører.</li>
+          <li><b>Grupper:</b> mellemrum kører “Dan grupper”.</li>
+          <li><b>Afstemning:</b> mellemrum skifter mellem afstemning og statistik/ordsky.</li>
+          <li><b>Grupper:</b> tast 1–9/0 for at låse eller åbne gruppe 1–10, når grupper-widgetten er valgt.</li>
+          <li>Den valgte widget lægges automatisk forrest.</li>
         </ul>
       </div>
     </details>
 
     <details>
-      <summary>Hvordan bruger jeg fokus?</summary>
-      <div class="answer">
-        <p><b>Fokus</b> fremhæver én widget og dæmper resten. Brug det, når eleverne kun skal se ét element ad gangen.</p>
-        <p>I præsentation bruges fokus fra topbaren; i redigering bruges fokus fra værktøjslinjen.</p>
-      </div>
-    </details>
-
-    <details>
-      <summary>Hvordan bruger jeg tegneværktøjet?</summary>
-      <div class="answer">
-        <p>Tryk <b>✎ Tegn</b> for at tegne ovenpå tavlen. Slå tegning fra igen for at vælge og flytte widgets.</p>
-        <p>Tegnelaget slås automatisk fra i fokus, så det ikke blokerer for valg.</p>
-      </div>
-    </details>
-
-    <details>
-      <summary>Hvordan bruger jeg hjul, grupper og ordsky?</summary>
-      <div class="answer">
-        <ul>
-          <li><b>Hjul:</b> skriv eller hent en liste og tryk Drej.</li>
-          <li><b>Grupper:</b> skriv/hent navne, vælg antal pr. gruppe og tryk Dan grupper.</li>
-          <li><b>Ordsky:</b> viser ord/svar større, når de forekommer oftere.</li>
-        </ul>
-      </div>
-    </details>
-
-    <details>
-      <summary>Hvordan bruger jeg afstemning?</summary>
-      <div class="answer">
-        <p>Afstemning kan bruges med smilies eller korte svar. Du kan vise/skjule resultater og skifte mellem afstemningsvisning og ordsky.</p>
-        <p><b>Overvej:</b> Hvis elever kan se resultater løbende – som søjler, procenter eller ordsky – kan det påvirke deres stemme. Skjul resultater under afstemningen, hvis du vil have mere uafhængige svar.</p>
-      </div>
-    </details>
-
-    <details>
-      <summary>Hvordan gemmer og åbner jeg tavler?</summary>
-      <div class="answer">
-        <p>Brug <b>⋯ Mere → 💾 backup</b>.</p>
-        <ul>
-          <li><b>Gem tavlefil</b> er den sikre backup.</li>
-          <li><b>Hent tavlefil</b> åbner en gemt tavle.</li>
-          <li>Browseren gemmer lokalt, men tavlefiler er bedst, hvis noget skal flyttes eller sikres.</li>
-        </ul>
-      </div>
-    </details>
-
-    <details>
-      <summary>Hvilke genvejstaster findes der?</summary>
+      <summary>Navigation og tavler</summary>
       <div class="answer">
         <ul>
           <li><b>N</b> opretter en ny tavle.</li>
-          <li><b>Cmd/Ctrl + D</b> kopierer den valgte widget.</li>
-          <li><b>Delete</b> eller <b>Backspace</b> sletter den valgte widget.</li>
-          <li><b>Shift + D</b> duplikerer den aktive tavle.</li>
-          <li><b>T</b> viser/skjuler værktøjslinjen. <b>Shift + N</b> virker stadig som gammel genvej.</li>
-          <li><b>Cmd/Ctrl + S</b> åbner backup/gem.</li>
-          <li><b>P</b> eller <b>R</b> skifter mellem redigering og præsentation.</li>
-          <li><b>F</b> går ind/ud af fokus på den valgte widget.</li>
-          <li><b>Shift + F</b> maksimerer den valgte/fokuserede widget. Tryk <b>Shift + F</b> igen for at vende tilbage.</li>
-          <li><b>Esc</b> går tilbage fra fokus/maksimeret, lukker iframe-kontrol og slår tegning fra.</li>
-          <li><b>Shift + A</b> tekst, <b>Shift + P</b> PDF, <b>Shift + I</b> billede, <b>Shift + L</b> link.</li>
-          <li><b>Shift + T</b> timer, <b>Shift + U</b> ur, <b>Shift + H</b> hjul, <b>Shift + R</b> grupper, <b>Shift + S</b> ordsky.</li>
-          <li><b>Shift + V</b> afstemning, <b>Shift + M</b> baggrund, <b>Shift + G</b> grid, <b>Shift + B</b> backup.</li>
-          <li><b>Shift + O</b> hints til/fra, <b>Shift + ?</b> hjælp.</li>
-          <li><b>←</b> og <b>→</b> skifter tavle – men skifter PDF-side, når en PDF-widget er aktiv eller i fokus.</li>
-          <li><b>↑</b> og <b>↓</b> scroller PDF’en, når en PDF-widget er aktiv eller i fokus.</li>
-          <li><b>1–9</b> går direkte til tavle 1–9. <b>0</b> går til tavle 10.</li>
+          <li><b>←/→</b> skifter tavle.</li>
+          <li><b>Ctrl/Cmd + ←/→</b> flytter valgt widget til forrige/næste tavle.</li>
+          <li>Hvis ingen widget er valgt, flytter <b>Ctrl/Cmd + ←/→</b> den aktive tavle i rækkefølgen.</li>
+          <li>Flytter du en widget mod højre forbi sidste tavle, oprettes en ny tavle automatisk.</li>
+          <li>Nye tavler vælger først en baggrundsfil, der ikke allerede er brugt — både HD og Klassisk indgår.</li>
+          <li><b>Shift+D</b> duplikerer aktiv tavle.</li>
+          <li><b>1–9</b> går direkte til tavle 1–9. <b>0</b> går til tavle 10. Når en grupper-widget er valgt, låser/åbner tallene i stedet grupperne.</li>
         </ul>
-        <p>Genvejene virker ikke, mens du skriver i et tekstfelt eller en modal er åben.</p>
       </div>
     </details>
 
     <details>
-      <summary>Hvor finder jeg ekstra værktøjer?</summary>
+      <summary>Komplet genvejskort</summary>
       <div class="answer">
-        <p>Tryk <b>⋯ Mere</b> for billede, link, PDF, baggrund, grid, timer, ur og backup.</p>
+        <ul>
+          <li><b>P</b> eller <b>R</b> redigering/præsentation</li>
+          <li><b>F</b> fokus på valgt widget</li>
+          <li><b>Shift+F</b> maksimer valgt/fokuseret widget</li>
+          <li><b>N</b> ny tavle</li>
+          <li><b>T</b> værktøjslinje til/fra</li>
+          <li><b>Mellemrum</b> aktiver valgt hjul/grupper/afstemning</li>
+          <li><b>1–9/0</b> lås/åbn gruppe 1–10, når en grupper-widget er valgt</li>
+          <li><b>Delete/Backspace</b> slet valgt widget</li>
+          <li><b>Ctrl/Cmd+D</b> dupliker valgt widget</li>
+          <li><b>Ctrl/Cmd+S</b> backup/gem</li>
+          <li><b>Ctrl/Cmd+←/→</b> flyt valgt widget – eller flyt tavle, hvis ingen widget er valgt</li>
+          <li><b>Shift+A</b> tekst</li>
+          <li><b>Shift+V</b> video</li>
+          <li><b>Shift+X</b> afstemning</li>
+          <li><b>Shift+H</b> hjul</li>
+          <li><b>Shift+R</b> grupper</li>
+          <li><b>Shift+S</b> ordsky</li>
+          <li><b>Shift+P</b> PDF</li>
+          <li><b>Shift+I</b> billede</li>
+          <li><b>Shift+L</b> link</li>
+          <li><b>Shift+T</b> timer</li>
+          <li><b>Shift+U</b> ur</li>
+          <li><b>Shift+M</b> baggrundsvælger</li><li><b>Ctrl/Cmd+M</b> vælg ny/random baggrund på aktiv tavle</li><li><b>I baggrundsvælger:</b> ←/→ flytter én baggrund, ↑/↓ flytter en række, 1–6 vælger filter, Space previewer og toggler semitransparent visning, Enter vælger/lukker, ESC annullerer.</li>
+          <li><b>Shift+G</b> grid</li>
+          <li><b>Shift+B</b> backup</li>
+          <li><b>Shift+O</b> hints til/fra</li>
+          <li><b>Shift+?</b> hjælp</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>PDF, iframe og ESC</summary>
+      <div class="answer">
+        <ul>
+          <li>Klik i en <b>PDF</b> for at aktivere PDF-pile.</li>
+          <li><b>ESC</b> slipper PDF-kontrollen, så pil op/ned igen vælger widgets.</li>
+          <li><b>ESC</b> slipper også iframe-/websidekontrol og fokusvisning, når de er aktive.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Hjul, grupper, ordsky og afstemning</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Hjul:</b> skriv eller hent en liste og tryk Drej. Auto, Antal og Statistik/Valgte bruges inde i hjulet.</li>
+          <li><b>Grupper:</b> skriv/hent navne, vælg antal pr. gruppe og tryk Dan grupper.</li>
+          <li><b>Ordsky:</b> viser ord/svar større, når de forekommer oftere.</li>
+          <li><b>Afstemning:</b> bruges med smilies eller korte svar. Resultater kan vises/skjules.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Hints og ekstra værktøjer</summary>
+      <div class="answer">
+        <ul>
+          <li>Kontekstuelle hints vises i redigering, når de er slået til.</li>
+          <li>Slå hints til/fra med afkrydsningen øverst eller <b>Shift+O</b>.</li>
+          <li>Tryk <b>⋯ Mere</b> for billede, link, PDF, baggrund, grid, timer, ur og backup.</li>
+        </ul>
       </div>
     </details>
   </div>
 
-    <div class="helpPager">
-    <span>Tip: Lav én tavle pr. aktivitet, og brug pilene til at skifte mellem dem.</span>
+  <div class="helpPager">
+    <span>Tip: Vælg med ↑/↓ og aktiver med mellemrum.</span>
     <button id="closeHelp">Luk</button>
   </div>`);
   modal.querySelector('#closeHelp').onclick=closeModal;
   const ht=modal.querySelector('#helpHintsToggle');
   if(ht)ht.onchange=e=>setHintsEnabled(e.target.checked);
 }
+
 function maybeShowQuickHelp(){
   try{
     const k='maans_tavle_seen_quick_help_v162_test';
@@ -10219,8 +10544,8 @@ function slideOverviewModal(){
   modal.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{swapSlides(+b.dataset.up,+b.dataset.up-1);slideOverviewModal()});
   modal.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>{swapSlides(+b.dataset.down,+b.dataset.down+1);slideOverviewModal()});
   modal.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{deleteSlideAt(+b.dataset.del);slideOverviewModal()});
-  modal.querySelector('#newSlideFromOverview').onclick=()=>{state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});state.active=state.slides.length-1;render();slideOverviewModal();save()};
-  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelector('#newSlideFromOverview').onclick=()=>{state.slides.push(createThemedSlide());state.active=state.slides.length-1;render();slideOverviewModal();save()};
+  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
 
@@ -10243,9 +10568,11 @@ document.getElementById('prev').onclick=()=>prevSlide();
 document.getElementById('next').onclick=()=>nextSlide();
 document.getElementById('slidesOverview').onclick=slideOverviewModal;
 document.getElementById('addSlide').onclick=()=>{
-  state.slides.push({title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});
+  state.slides.push(createThemedSlide());
   state.active=state.slides.length-1;
   render();
+  save();
+  focusSlideTitleForRename();
 };
 document.getElementById('clearSlide').onclick=()=>{
   if(confirm('Ryd denne tavle?')){
@@ -10283,11 +10610,24 @@ document.querySelectorAll('.tool button').forEach(b=>b.onclick=()=>{const t=b.da
 function nextSlide(){if(state.active<state.slides.length-1){state.active++;render();toast('Tavle '+(state.active+1))}}
 function prevSlide(){if(state.active>0){state.active--;render();toast('Tavle '+(state.active+1))}}
 function goToSlide(i){if(i>=0&&i<state.slides.length){state.active=i;render();toast('Tavle '+(state.active+1))}}
+let pdfKeyboardWidgetId=null;
+function clearPdfKeyboardControl(){
+  pdfKeyboardWidgetId=null;
+  document.querySelectorAll('.widget.pdfKeyboardActive').forEach(e=>e.classList.remove('pdfKeyboardActive'));
+}
+function activatePdfKeyboardControl(el){
+  if(!el || !el.matches || !el.matches('.widget[data-type="pdf"]')) return;
+  pdfKeyboardWidgetId=el.dataset.id||null;
+  document.querySelectorAll('.widget.pdfKeyboardActive').forEach(e=>e.classList.remove('pdfKeyboardActive'));
+  el.classList.add('pdfKeyboardActive');
+}
 function activePdfKeyboardTarget(){
   let el=null;
-  // I fokus ejer den fokuserede PDF-widget tastaturet.
-  el=document.querySelector('.widget.focusTarget[data-type="pdf"]');
-  if(!el && selected) el=document.querySelector('.widget.selected[data-type="pdf"][data-id="'+CSS.escape(String(selected))+'"]');
+  // Kun eksplicit aktiveret PDF må fange piletaster.
+  // Man aktiverer ved at klikke i PDF-indholdet. ESC slipper igen.
+  if(pdfKeyboardWidgetId){
+    el=document.querySelector('.widget[data-type="pdf"][data-id="'+CSS.escape(String(pdfKeyboardWidgetId))+'"]');
+  }
   if(!el) return null;
   const w=slide().widgets.find(x=>x.id===el.dataset.id && x.type==='pdf');
   const content=el.querySelector('.content.pdf');
@@ -10314,6 +10654,18 @@ function handlePdfArrowKey(e){
   e.stopPropagation();
   return true;
 }
+
+// PDF-widget: piletaster aktiveres kun efter eksplicit klik i selve PDF-indholdet.
+// ESC slipper PDF-kontrollen igen.
+document.addEventListener('pointerdown',function(e){
+  const pdfContent=e.target && e.target.closest ? e.target.closest('.widget[data-type="pdf"] .content.pdf, .widget[data-type="pdf"] .pdfJsViewer') : null;
+  if(pdfContent){
+    const widget=pdfContent.closest('.widget[data-type="pdf"]');
+    activatePdfKeyboardControl(widget);
+  }else if(e.target && e.target.closest && !e.target.closest('.widget[data-type="pdf"]')){
+    clearPdfKeyboardControl();
+  }
+},true);
 
 function widgetNavigationOrder(){
   // Pil op/ned skal vælge widgets på den aktive tavle i en forudsigelig visuel rækkefølge.
@@ -10349,11 +10701,139 @@ function selectAdjacentWidget(dir){
   return true;
 }
 
+function moveActiveSlideByDirection(dir){
+  if(selected) return false;
+  const from=state.active;
+  const to=from+dir;
+  if(to<0 || to>=state.slides.length){
+    toast(dir>0?'Tavlen er allerede sidst':'Tavlen er allerede først');
+    return true;
+  }
+  const tmp=state.slides[from];
+  state.slides[from]=state.slides[to];
+  state.slides[to]=tmp;
+  state.active=to;
+  render();
+  save();
+  toast('Tavle flyttet');
+  return true;
+}
+
+function moveSelectedWidgetBySlideDirection(dir){
+  if(!selected) return false;
+  const currentIndex=state.active;
+  let targetIndex=currentIndex + dir;
+  if(targetIndex<0){
+    toast('Ingen forrige tavle');
+    return true;
+  }
+  if(targetIndex>=state.slides.length){
+    state.slides.push(createThemedSlide());
+    targetIndex=state.slides.length-1;
+  }
+  const found=findWidgetOnSlide(currentIndex, selected);
+  if(!found.widget) return false;
+  if(found.widget.locked){
+    toast('Widget er låst');
+    return true;
+  }
+  clearPdfKeyboardControl && clearPdfKeyboardControl();
+  moveWidgetToSlide(selected, targetIndex, currentIndex);
+  return true;
+}
+
+function toggleSelectedGroupLockByNumber(n){
+  if(!selected) return false;
+  const el=document.querySelector('.widget[data-id="'+CSS.escape(String(selected))+'"]');
+  const w=findWidget(selected);
+  if(!el || !w || w.type!=='groups') return false;
+  normalizeGroupLocks(w);
+  const groups=w.data.groups||[];
+  if(!groups.length){toast('Ingen grupper at låse endnu');return true;}
+  const idx=n===0 ? 9 : n-1;
+  if(idx<0 || idx>=groups.length){toast('Ingen gruppe '+(idx+1));return true;}
+  w.data.groupLocks[idx]=!w.data.groupLocks[idx];
+  fillContent(el,w);
+  save();
+  toast(w.data.groupLocks[idx] ? ('Gruppe '+(idx+1)+' låst') : ('Gruppe '+(idx+1)+' åben'));
+  return true;
+}
+
+function activateSelectedWidgetWithSpace(){
+  if(!selected) return false;
+  const el=document.querySelector('.widget[data-id="'+CSS.escape(String(selected))+'"]');
+  const w=findWidget(selected);
+  if(!el || !w) return false;
+
+  if(w.type==='wheel'){
+    const content=el.querySelector('.content') || el;
+    if(w.data && w.data.autoRunning){
+      w.data.autoRunning=false;
+      fillContent(el,w);
+      save();
+      toast('Auto stoppet');
+      return true;
+    }
+    if(w.data && w.data.auto){
+      startWheelAuto(content,w);
+      return true;
+    }
+    runWheelSpin(content,w,{auto:false});
+    return true;
+  }
+
+  if(w.type==='groups'){
+    const btn=el.querySelector('.newGroups,.groupSpinBtn');
+    if(btn && !btn.disabled){
+      btn.click();
+      return true;
+    }
+    return false;
+  }
+
+  if(w.type==='poll'){
+    try{
+      togglePollCloudView(w,el);
+      toast(w.data.cloudView?'Statistik':'Afstemning');
+      return true;
+    }catch(_e){
+      const btn=el.querySelector('.pollModeToggle,.pollCloud');
+      if(btn){btn.click();return true;}
+    }
+    return false;
+  }
+
+  return false;
+}
+
+// Capture Space before focused buttons/browser defaults can swallow it.
+document.addEventListener('keydown',function(e){
+  if(!(e.code==='Space' || e.key===' '))return;
+  if(e.defaultPrevented)return;
+  if(isIframeControlActive())return;
+  const t=e.target;
+  if(t && (t.matches('input,textarea,select') || t.isContentEditable))return;
+  if(modalBack && modalBack.style.display==='flex')return;
+  if(app.classList.contains('drawActive'))return;
+  if(selected && activateSelectedWidgetWithSpace()){
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  }
+},true);
+
 document.addEventListener('keydown',e=>{
   if(isIframeControlActive())return;
   const t=e.target;
   if(t && (t.matches('input,textarea,select') || t.isContentEditable)) return;
   if(app.classList.contains('drawActive')) return;
+
+  if(e.key==='Escape' && pdfKeyboardWidgetId){
+    clearPdfKeyboardControl();
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
 
   if((e.key==='Delete'||e.key==='Backspace') && selected){
     e.preventDefault();
@@ -10363,6 +10843,26 @@ document.addEventListener('keydown',e=>{
       if(api.deleteSelectedWidgetShortcut) api.deleteSelectedWidgetShortcut();
     }catch(_e){}
     return;
+  }
+
+  if((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase()==='m'){
+    const active=document.activeElement;
+    const typing=active && (active.tagName==='INPUT' || active.tagName==='TEXTAREA' || active.isContentEditable);
+    if(!typing && applyRandomBackgroundToActiveSlide()){
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+  }
+
+  if((e.ctrlKey || e.metaKey) && !e.altKey && (e.key==='ArrowRight' || e.key==='ArrowLeft')){
+    const dir=e.key==='ArrowRight' ? 1 : -1;
+    const handled=selected ? moveSelectedWidgetBySlideDirection(dir) : moveActiveSlideByDirection(dir);
+    if(handled){
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
   }
 
   if(handlePdfArrowKey(e)) return;
@@ -10382,6 +10882,13 @@ document.addEventListener('keydown',e=>{
   }
   if(e.key==='ArrowRight'){e.preventDefault();nextSlide()}
   if(e.key==='ArrowLeft'){e.preventDefault();prevSlide()}
+  if(/^[0-9]$/.test(e.key) && selected){
+    if(toggleSelectedGroupLockByNumber(Number(e.key))){
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+  }
   if(/^[1-9]$/.test(e.key)){e.preventDefault();goToSlide(Number(e.key)-1)}
   if(e.key==='0'){e.preventDefault();goToSlide(9)}
 });
@@ -10476,7 +10983,7 @@ function toolbarSettingsModal(){
     closeModal();
     Toolbar.show();
   };
-  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 if(pinToolbar) pinToolbar.onclick=e=>{
   e.stopPropagation();
@@ -10515,7 +11022,7 @@ render = function(){
   updateSlidesOverviewVisibility();
   try{syncIframeControl();}catch(_e){}
 };
-wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVisibility();maybeShowQuickHelp();wireQuickPinButton();
+wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVisibility();if(__freshFirstRun)focusSlideTitleForRename();maybeShowQuickHelp();wireQuickPinButton();
 
 /* v158: mus-fix til widget-topbarens knapper på Mac */
 (function(){
