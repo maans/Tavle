@@ -1,4 +1,4 @@
-# Interaktiv tavle v1.2.14
+# Interaktiv tavle v1.2.30
 
 ![Interaktiv tavle v1.0.2](README_infografik.png)
 
