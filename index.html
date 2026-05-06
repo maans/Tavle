@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.30</title>
+<title>Interaktiv tavle v1.2.36-safe</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -29,7 +29,33 @@
 .bgChoice.kbPreview{
   outline-style:dashed!important;
 }
-.modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.modal h2{margin-top:0}.modal input,.modal textarea,.modal select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 12px}.hidden{display:none!important}.present .toolbar,.present .topbar,.present .chrome,.present .resize,.present .rotater,.present .drawPanel{display:none!important}.present .title{display:none}.present .widget{box-shadow:none;outline:none}.present .content{height:100%;border-radius:12px}.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#111827;color:white;padding:10px 16px;border-radius:999px;z-index:3000;opacity:0;transition:.2s}.toast.show{opacity:1}@media(max-width:800px){.toolbar{gap:8px;max-width:96vw;overflow-x:auto}.tool button{width:44px;height:44px}.title{font-size:18px}.topbar{scale:.9;transform-origin:top right}}
+.modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.bgColorBar{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin:10px 0 12px 0;
+}
+.bgColorChoice{
+  border:0!important;
+  border-radius:14px!important;
+  min-height:56px;
+  padding:10px 12px!important;
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-start;
+  color:#111827!important;
+  font-weight:950!important;
+  box-shadow:0 4px 14px rgba(15,23,42,.18)!important;
+  outline:3px solid transparent;
+}
+.bgColorChoice.darkText{color:#111827!important}
+.bgColorChoice.lightText{color:white!important;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+.bgColorChoice.active{
+  outline-color:#6c5cff;
+  box-shadow:0 0 0 4px rgba(108,92,255,.18),0 8px 22px rgba(15,23,42,.22)!important;
+}
+@media (max-width:700px){.bgColorBar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.modal h2{margin-top:0}.modal input,.modal textarea,.modal select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:9px;margin:6px 0 12px}.hidden{display:none!important}.present .toolbar,.present .topbar,.present .chrome,.present .resize,.present .rotater,.present .drawPanel{display:none!important}.present .title{display:none}.present .widget{box-shadow:none;outline:none}.present .content{height:100%;border-radius:12px}.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:#111827;color:white;padding:10px 16px;border-radius:999px;z-index:3000;opacity:0;transition:.2s}.toast.show{opacity:1}@media(max-width:800px){.toolbar{gap:8px;max-width:96vw;overflow-x:auto}.tool button{width:44px;height:44px}.title{font-size:18px}.topbar{scale:.9;transform-origin:top right}}
 
 .present .toolbar{display:none!important}
 .present .title{display:none!important}
@@ -5937,6 +5963,33 @@ body.focus-mode .wheel.recon .wheelTopBar,body.focus-mode .wheel.recon .wheelSet
   pointer-events:none;
 }
 
+
+/* v1.2.33: swatch-baggrunde som rigtige kort */
+.bgChoicePreview.swatchPreview{
+  background:var(--swatch-bg,linear-gradient(135deg,#eef7ff,#d6ecff)) !important;
+  min-height:92px;
+  position:relative;
+}
+.bgChoicePreview.swatchPreview .swatchOverlay{
+  position:absolute;
+  inset:0;
+  background:var(--swatch-overlay,transparent);
+  pointer-events:none;
+}
+.bgChoicePreview.swatchPreview .swatchTexture{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 20% 20%,rgba(255,255,255,.35),transparent 32%),
+    radial-gradient(circle at 80% 70%,rgba(255,255,255,.18),transparent 28%),
+    linear-gradient(135deg,rgba(255,255,255,.12),rgba(0,0,0,.06));
+  pointer-events:none;
+}
+.bgBadge.swatch{
+  background:#dbeafe!important;
+  color:#075985!important;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 </head>
@@ -7024,11 +7077,19 @@ function applyBg(){
       app.style.backgroundBlendMode='normal, normal';
     }
   }else{
-    app.style.backgroundImage='';
-    app.style.backgroundSize='cover';
-    app.style.backgroundRepeat='no-repeat';
-    app.style.backgroundPosition='center';
-    app.style.backgroundBlendMode='normal';
+    if(overlay){
+      app.style.backgroundImage=`${overlay}, ${baseBg}`;
+      app.style.backgroundSize='cover, cover';
+      app.style.backgroundRepeat='no-repeat, no-repeat';
+      app.style.backgroundPosition='center, center';
+      app.style.backgroundBlendMode='normal, normal';
+    }else{
+      app.style.backgroundImage='';
+      app.style.backgroundSize='cover';
+      app.style.backgroundRepeat='no-repeat';
+      app.style.backgroundPosition='center';
+      app.style.backgroundBlendMode='normal';
+    }
   }
   app.classList.toggle('grid',!!s.grid);
   titleEl.textContent=s.title||'Min undervisningstavle';
@@ -8584,6 +8645,18 @@ if(w.type==='poll'){
 }
 }
 
+const TAVLE_RANDOM_SWATCHES=[
+    {kind:'swatch',title:'Lys blå',desc:'Neutral og rolig',group:'Rolig',version:'Farve',bg:'linear-gradient(135deg,#eef7ff,#d6ecff)',search:'lys blå neutral rolig grøn undervisning'},
+    {kind:'swatch',title:'Minimal grå',desc:'Rolig skriveflade',group:'Tavle',version:'Farve',bg:'linear-gradient(135deg,#f8fafc,#e5e7eb)',search:'minimal grå neutral lys tavle'},
+    {kind:'swatch',title:'Varm kreativ',desc:'Blød varm energi',group:'Kreativ',version:'Farve',bg:'linear-gradient(135deg,#fff7ed,#fde68a)',search:'varm kreativ gul orange lys'},
+    {kind:'swatch',title:'Lilla ro',desc:'Rolig fokusfarve',group:'Rolig',version:'Farve',bg:'linear-gradient(135deg,#f5f3ff,#ddd6fe)',search:'lilla ro fokus kreativ'},
+    {kind:'swatch',title:'Blå fokus',desc:'Kølig og tydelig',group:'Struktur',version:'Farve',bg:'linear-gradient(135deg,#dbeafe,#bfdbfe)',search:'blå fokus kølig struktur'},
+    {kind:'swatch',title:'Grøn tavle',desc:'Klassisk ro',group:'Tavle',version:'Farve',bg:'linear-gradient(135deg,#dcfce7,#bbf7d0)',search:'grøn tavle klassisk rolig'},
+    {kind:'swatch',title:'Mørk grøn',desc:'Dæmpet tavlestemning',group:'Tavle',version:'Farve',bg:'linear-gradient(135deg,#0f172a,#064e3b)',search:'mørk grøn tavle dæmpet'},
+    {kind:'swatch',title:'Dyb blå',desc:'Mørk præsentation',group:'Struktur',version:'Farve',bg:'linear-gradient(135deg,#0f172a,#1d4ed8)',search:'mørk blå præsentation struktur'},
+    {kind:'swatch',title:'Kontrast',desc:'Kraftig sort/hvid',group:'Struktur',version:'Farve',bg:'linear-gradient(135deg,#020617,#475569)',search:'kontrast mørk sort grå tydelig'}
+  ];
+
 function safeSlideTitle(s,i){return (s.title&&String(s.title).trim()) ? s.title : 'Tavle '+(i+1)}
 function usedBoardBackgroundKeys(){
   const keys=new Set();
@@ -8595,15 +8668,56 @@ function usedBoardBackgroundKeys(){
   }catch(_e){}
   return keys;
 }
+
+function applyThemeBackgroundToSlide(s,bg){
+  if(!s || !bg)return false;
+  if(bg.kind==='swatch'){
+    s.bg=bg.bg || 'linear-gradient(135deg,#eef7ff,#d6ecff)';
+    s.bgImage='';
+    s.bgImageSource='swatch';
+    s.bgImageTitle=bg.title||'Farve';
+    s.bgImageName='';
+    s.bgImageVersion=bg.version||'Farve';
+    s.bgFit='cover';
+    s.bgFilter=s.bgFilter||'none';
+    return true;
+  }
+  const resolved=typeof resolveAssetPath==='function' ? resolveAssetPath(bg.src) : bg.src;
+  s.bg='linear-gradient(135deg,#eef7ff,#d6ecff)';
+  s.bgImage=resolved;
+  s.bgImageSource='builtin';
+  s.bgImageTitle=bg.title||'';
+  s.bgImageName=bg.name||'';
+  s.bgImageVersion=bg.version||'';
+  s.bgFit='cover';
+  s.bgFilter=s.bgFilter||'standard';
+  return true;
+}
+
 function randomBoardTheme(){
-  // Brug hele baggrundsvælgerens bibliotek: både HD og Klassisk.
-  // Nye tavler vælger først en baggrundsfil, der ikke allerede er brugt.
-  const library=(typeof TAVLE_BACKGROUNDS!=='undefined' && Array.isArray(TAVLE_BACKGROUNDS))
-    ? TAVLE_BACKGROUNDS.filter(bg=>bg && bg.src)
+  // Fælles random-pulje: farve/gradient-swatches + alle billedbaggrunde.
+  const swatches=(typeof TAVLE_RANDOM_SWATCHES!=='undefined' && Array.isArray(TAVLE_RANDOM_SWATCHES))
+    ? TAVLE_RANDOM_SWATCHES.map(sw=>({...sw,kind:'swatch'}))
     : [];
+  const images=(typeof TAVLE_BACKGROUNDS!=='undefined' && Array.isArray(TAVLE_BACKGROUNDS))
+    ? TAVLE_BACKGROUNDS.filter(bg=>bg && bg.src).map(bg=>({...bg,kind:'image'}))
+    : [];
+  const library=[...swatches,...images];
   if(!library.length)return null;
-  const used=usedBoardBackgroundKeys();
-  const unused=library.filter(bg=>!used.has('src:'+bg.src));
+
+  const used=new Set();
+  try{
+    (state.slides||[]).forEach(s=>{
+      if(s.bgImageSource==='swatch' && s.bgImageTitle)used.add('swatch:'+s.bgImageTitle);
+      if(!s.bgImage && s.bg)used.add('swatch-bg:'+String(s.bg));
+      if(s.bgImage)used.add('image:'+String(s.bgImage).replace(/^.*backgrounds\//,'backgrounds/'));
+    });
+  }catch(_e){}
+
+  const unused=library.filter(bg=>{
+    if(bg.kind==='swatch')return !used.has('swatch:'+bg.title) && !used.has('swatch-bg:'+String(bg.bg));
+    return !used.has('image:'+String(bg.src).replace(/^.*backgrounds\//,'backgrounds/'));
+  });
   const pool=unused.length ? unused : library;
   return pool[Math.floor(Math.random()*pool.length)];
 }
@@ -8635,15 +8749,7 @@ function applyRandomBackgroundToActiveSlide(){
   const bg=randomBoardTheme();
   if(!bg)return false;
   const s=slide();
-  const resolved=typeof resolveAssetPath==='function' ? resolveAssetPath(bg.src) : bg.src;
-  s.bg='linear-gradient(135deg,#edf6ff,#dff8e8)';
-  s.bgImage=resolved;
-  s.bgImageSource='builtin';
-  s.bgImageTitle=bg.title||'';
-  s.bgImageName=bg.name||'';
-  s.bgImageVersion=bg.version||'';
-  s.bgFit='cover';
-  s.bgFilter=s.bgFilter||'standard';
+  applyThemeBackgroundToSlide(s,bg);
   render();
   save();
   toast('Baggrund: '+(bg.title||'Ny')+(bg.version?(' ('+bg.version+')'):''));
@@ -8652,24 +8758,25 @@ function applyRandomBackgroundToActiveSlide(){
 
 function createThemedSlide(){
   const bg=randomBoardTheme();
+  const s={
+    title:'Ny tavle',
+    bg:'linear-gradient(135deg,#eef7ff,#d6ecff)',
+    bgImage:'',
+    bgImageSource:'',
+    bgImageTitle:'',
+    bgImageName:'',
+    bgImageVersion:'',
+    bgFit:'cover',
+    bgFilter:'none',
+    grid:false,
+    draw:'',
+    widgets:[]
+  };
   if(bg){
-    const resolved=typeof resolveAssetPath==='function' ? resolveAssetPath(bg.src) : bg.src;
-    return {
-      title:(bg.title ? (bg.version ? `${bg.title} (${bg.version})` : bg.title) : 'Ny tavle'),
-      bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',
-      bgImage:resolved,
-      bgImageSource:'builtin',
-      bgImageTitle:bg.title||'',
-      bgImageName:bg.name||'',
-      bgImageVersion:bg.version||'',
-      bgFit:'cover',
-      bgFilter:'standard',
-      grid:false,
-      draw:'',
-      widgets:[]
-    };
+    s.title=(bg.title ? (bg.version ? `${bg.title} (${bg.version})` : bg.title) : 'Ny tavle');
+    applyThemeBackgroundToSlide(s,bg);
   }
-  return {title:'Ny tavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]};
+  return s;
 }
 function focusSlideTitleForRename(){
   setTimeout(()=>{
@@ -9542,16 +9649,43 @@ function bgModal(){
   const filterDef=getBgFilterDef(currentFilter), previewCss=bgFilterCss(currentFilter), previewOverlay=bgFilterOverlay(currentFilter);
   const isInfoBg=slide().bgImageSource==='builtin' || slide().bgImageSource==='builtin-url' || slide().bgImage===BUILTIN_INFOGRAFIK_BG || slide().bgImageName==='README_infografik.png';
   const activeCat=window.__tavleBgCat || 'alle';
-  const categories=[{key:'alle',label:'Alle 30'},{key:'Tavle',label:'Tavle'},{key:'Fag',label:'Fag'},{key:'Struktur',label:'Struktur'},{key:'Kreativ',label:'Kreativ'},{key:'Rolig',label:'Rolig'}];
+  const categories=[{key:'alle',label:'Alle'},{key:'Tavle',label:'Tavle'},{key:'Fag',label:'Fag'},{key:'Struktur',label:'Struktur'},{key:'Kreativ',label:'Kreativ'},{key:'Rolig',label:'Rolig'}];
+  const bgSwatches=[
+    {kind:'swatch',title:'Lys blå',desc:'Neutral og rolig',group:'Rolig',version:'Farve',bg:'linear-gradient(135deg,#eef7ff,#d6ecff)',search:'lys blå neutral rolig grøn undervisning'},
+    {kind:'swatch',title:'Minimal grå',desc:'Rolig skriveflade',group:'Tavle',version:'Farve',bg:'linear-gradient(135deg,#f8fafc,#e5e7eb)',search:'minimal grå neutral lys tavle'},
+    {kind:'swatch',title:'Varm kreativ',desc:'Blød varm energi',group:'Kreativ',version:'Farve',bg:'linear-gradient(135deg,#fff7ed,#fde68a)',search:'varm kreativ gul orange lys'},
+    {kind:'swatch',title:'Lilla ro',desc:'Rolig fokusfarve',group:'Rolig',version:'Farve',bg:'linear-gradient(135deg,#f5f3ff,#ddd6fe)',search:'lilla ro fokus kreativ'},
+    {kind:'swatch',title:'Blå fokus',desc:'Kølig og tydelig',group:'Struktur',version:'Farve',bg:'linear-gradient(135deg,#dbeafe,#bfdbfe)',search:'blå fokus kølig struktur'},
+    {kind:'swatch',title:'Grøn tavle',desc:'Klassisk ro',group:'Tavle',version:'Farve',bg:'linear-gradient(135deg,#dcfce7,#bbf7d0)',search:'grøn tavle klassisk rolig'},
+    {kind:'swatch',title:'Mørk grøn',desc:'Dæmpet tavlestemning',group:'Tavle',version:'Farve',bg:'linear-gradient(135deg,#0f172a,#064e3b)',search:'mørk grøn tavle dæmpet'},
+    {kind:'swatch',title:'Dyb blå',desc:'Mørk præsentation',group:'Struktur',version:'Farve',bg:'linear-gradient(135deg,#0f172a,#1d4ed8)',search:'mørk blå præsentation struktur'},
+    {kind:'swatch',title:'Kontrast',desc:'Kraftig sort/hvid',group:'Struktur',version:'Farve',bg:'linear-gradient(135deg,#020617,#475569)',search:'kontrast mørk sort grå tydelig'}
+  ];
+  const bgItems=[
+    ...bgSwatches,
+    ...(TAVLE_BACKGROUNDS||[]).map(bg=>({...bg,kind:'image'}))
+  ];
 
   const filterButtons=(TAVLE_BG_FILTERS||[]).map(f=>`<button class="bgFilterChip ${currentFilter===f.key?'active':''}" data-bg-filter="${esc(f.key)}" title="${esc(f.desc||f.title)}">${esc(f.title)}</button>`).join('');
   const categoryButtons=categories.map(c=>`<button class="bgCategoryChip ${activeCat===c.key?'active':''}" data-bg-cat="${esc(c.key)}">${esc(c.label)}</button>`).join('');
 
-  const bgCards=(TAVLE_BACKGROUNDS||[]).map((bg,idx)=>{
+  const bgCards=bgItems.map((bg,idx)=>{
+    if(bg.kind==='swatch'){
+      const active=(!slide().bgImage && String(slide().bg||'')===String(bg.bg||'')) || (slide().bgImageSource==='swatch' && slide().bgImageTitle===bg.title);
+      const swatchOverlay=bgFilterOverlay(currentFilter);
+      return `<button class="bgChoice v46 ${active?'active':''}" data-bg-index="${idx}" data-bg-kind="swatch" data-bg-group="${esc(bg.group||'Tavle')}" data-bg-search="${esc((bg.title+' '+bg.desc+' '+bg.group+' '+bg.version+' '+(bg.search||'')).toLowerCase())}" title="${esc(bg.title+' — '+bg.desc)}">
+        <span class="bgChoicePreview swatchPreview" style="--swatch-bg:${esc(bg.bg)};--swatch-overlay:${esc(swatchOverlay)};background:${esc(bg.bg)} !important;filter:${esc(previewCss)}">
+          <span class="swatchTexture"></span>
+          <span class="swatchOverlay"></span>
+        </span>
+        <span class="bgChoiceMeta"><span class="bgChoiceTitle">${esc(bg.title)}</span><span class="bgBadge swatch">Farve</span></span>
+        <span class="bgChoiceDesc">${esc(bg.desc)}</span>
+      </button>`;
+    }
     const resolvedSrc=resolveAssetPath(bg.src);
     const active=currentBg===bg.src || currentBg===resolvedSrc || (slide().bgImageTitle===bg.title && slide().bgImageVersion===bg.version);
     const badgeClass=bg.version==='Klassisk'?'old':'';
-    return `<button class="bgChoice v46 ${active?'active':''}" data-bg-index="${idx}" data-bg-group="${esc(bg.group||'Andre')}" data-bg-search="${esc((bg.title+' '+bg.desc+' '+bg.group+' '+bg.version).toLowerCase())}" title="${esc(bg.title+' — '+bg.desc+' — '+(bg.version==='HD'?'HD / forbedret skarp version':'Klassisk / oprindelig webversion'))}">
+    return `<button class="bgChoice v46 ${active?'active':''}" data-bg-index="${idx}" data-bg-kind="image" data-bg-group="${esc(bg.group||'Andre')}" data-bg-search="${esc((bg.title+' '+bg.desc+' '+bg.group+' '+bg.version).toLowerCase())}" title="${esc(bg.title+' — '+bg.desc+' — '+(bg.version==='HD'?'HD / forbedret skarp version':'Klassisk / oprindelig webversion'))}">
       <span class="bgChoicePreview"><img src="${esc(resolvedSrc)}" alt="${esc(bg.title)}" loading="lazy" style="filter:${esc(previewCss)}" onerror="this.classList.add('bgImgMissing')"><span class="bgChoiceOverlay" style="background:${esc(previewOverlay)}"></span></span>
       <span class="bgChoiceMeta"><span class="bgChoiceTitle">${esc(bg.title)}</span><span class="bgBadge ${badgeClass}">${esc(bg.version)}</span></span>
       <span class="bgChoiceDesc">${esc(bg.desc)}</span>
@@ -9560,15 +9694,11 @@ function bgModal(){
 
   showModal(`<h2>Baggrund</h2>
     <p style="margin-top:0;opacity:.75;font-weight:800">${hasImg?'Baggrundsbillede er valgt. Justér visning, filter eller fjern billedet.':'Vælg en farve, vælg en tavlebaggrund, vælg et lokalt billede eller indsæt en billed-URL.'}</p>
-    <button data-bg="linear-gradient(135deg,#edf6ff,#dff8e8)">Lys grøn/blå</button>
-    <button data-bg="linear-gradient(135deg,#0f172a,#064e3b)">Mørk</button>
-    <button data-bg="linear-gradient(135deg,#fef3c7,#fed7aa)">Varm</button>
-    <hr>
     <div class="bgLibraryWrap v46">
       <div class="bgLibraryHead">
         <div>
           <h3>Tavlebaggrunde</h3>
-          <p>30 WebP-valg: HD og Klassisk ligger side om side med samme titel og beskrivelse. Ved lokal åbning bruges online fallback fra GitHub Pages. Aktivt filter: <span class="filterName">${esc(filterDef.title)}</span></p>
+          <p>9 farver/gradienter og 9 farver/gradienter + 30 WebP-valg: HD og Klassisk ligger side om side med samme titel og beskrivelse. Ved lokal åbning bruges online fallback fra GitHub Pages. Aktivt filter: <span class="filterName">${esc(filterDef.title)}</span></p>
         </div>
       </div>
       <div class="bgFilterBar">${filterButtons}</div>
@@ -9589,7 +9719,6 @@ function bgModal(){
         <option value="contain" ${fit==='contain'?'selected':''}>contain – vis hele billedet</option>
         <option value="auto" ${fit==='auto'?'selected':''}>auto – original størrelse</option>
       </select>
-      <button id="clearBg">Fjern billede</button>
       <button id="close">Luk</button>
     </div>`);
 
@@ -9658,6 +9787,11 @@ function bgModal(){
   function bgClearPreviewTransparency(){
     modalBack.classList.remove('bgPreviewing');
   }
+  function bgLiveApplyToBoard(){
+    // Tving preview direkte på tavlen, så gradient-swatches ses med det samme,
+    // også mens modalens tastatur-state stadig er aktiv.
+    applyBg();
+  }
   function bgApplyFilterByNumber(n){
     const chips=Array.from(modal.querySelectorAll('[data-bg-filter]'));
     const chip=chips[n-1];
@@ -9667,16 +9801,28 @@ function bgModal(){
     return true;
   }
   function bgApplyFromCard(card, permanent){
-    const item=(TAVLE_BACKGROUNDS||[])[Number(card?.dataset?.bgIndex)];
+    const item=bgItems[Number(card?.dataset?.bgIndex)];
     if(!item)return;
-    slide().bgImage=item.src;
-    slide().bgImageName=item.name || item.src.split('/').pop();
-    slide().bgImageTitle=item.title;
-    slide().bgImageVersion=item.version;
-    slide().bgImageSource='library';
-    slide().bgFilter=slide().bgFilter||'none';
-    slide().bgFit='cover';
+    if(item.kind==='swatch'){
+      slide().bg=item.bg;
+      slide().bgImage='';
+      slide().bgImageName='';
+      slide().bgImageSource='swatch';
+      slide().bgImageTitle=item.title;
+      slide().bgImageVersion=item.version||'Farve';
+      slide().bgFit='cover';
+      slide().bgFilter=slide().bgFilter||'none';
+    }else{
+      slide().bgImage=item.src;
+      slide().bgImageName=item.name || item.src.split('/').pop();
+      slide().bgImageTitle=item.title;
+      slide().bgImageVersion=item.version;
+      slide().bgImageSource='library';
+      slide().bgFilter=slide().bgFilter||'none';
+      slide().bgFit='cover';
+    }
     render();
+    bgLiveApplyToBoard();
     if(permanent)save();
     modalBack.classList.add('bgModalKeyboard');
     if(!permanent){
@@ -9792,18 +9938,12 @@ function bgModal(){
   modal.querySelectorAll('[data-bg-filter]').forEach(btn=>btn.onclick=()=>{slide().bgFilter=btn.dataset.bgFilter||'none';render();save();bgModal()});
 
   modal.querySelectorAll('[data-bg-index]').forEach(btn=>btn.onclick=()=>{
-    const item=(TAVLE_BACKGROUNDS||[])[Number(btn.dataset.bgIndex)];
+    const item=bgItems[Number(btn.dataset.bgIndex)];
     if(!item)return;
-    slide().bgImage=item.src;
-    slide().bgImageName=item.name || item.src.split('/').pop();
-    slide().bgImageTitle=item.title;
-    slide().bgImageVersion=item.version;
-    slide().bgImageSource='library';
-    slide().bgFilter=slide().bgFilter||'none';
-    slide().bgFit='cover';
-    render(); save();
-    toast(item.title+' valgt som baggrund');
-    bgModal();
+    bgApplyFromCard(btn,true);
+    modal.querySelectorAll('.bgChoice[data-bg-index]').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+    toast((item.title||'Baggrund')+' valgt som baggrund');
   });
 
   modal.querySelector('#bgInfo').onclick=()=>{
@@ -9823,7 +9963,7 @@ function bgModal(){
     slide().bgImage=trimmed;slide().bgImageName='eksternt baggrundsbillede';slide().bgImageSource='url';slide().bgFilter=slide().bgFilter||'none';delete slide().bgImageTitle;delete slide().bgImageVersion;if(!slide().bgFit)slide().bgFit='cover';render();save();toast('Eksternt baggrundsbillede valgt');bgModal();
   };
   modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render();save()};
-  modal.querySelector('#clearBg').onclick=()=>{slide().bgImage='';slide().bgImageName='';slide().bgImageSource='';delete slide().bgImageTitle;delete slide().bgImageVersion;render();save();bgModal()};
+  const clearBgBtn=modal.querySelector('#clearBg');if(clearBgBtn)clearBgBtn.onclick=()=>{slide().bgImage='';slide().bgImageName='';slide().bgImageSource='';delete slide().bgImageTitle;delete slide().bgImageVersion;render();save();bgModal()};
   modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
