@@ -1,9 +1,24 @@
 <!doctype html>
 <html lang="da">
 <head>
+<script id="widget-overview-early-cmdo-guard">
+(function(){
+  function isCmdO(e){return (e.metaKey||e.ctrlKey) && !e.altKey && !e.shiftKey && String(e.key||'').toLowerCase()==='o';}
+  window.addEventListener('keydown',function(e){
+    if(!isCmdO(e)) return;
+    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    try{
+      if(typeof window.toggleWidgetOverview==='function') window.toggleWidgetOverview();
+      else { var b=document.getElementById('widgetCycle'); if(b) b.click(); }
+    }catch(_e){}
+    return false;
+  },true);
+})();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.36-safe</title>
+<title>Interaktiv tavle v1.2.45</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -5990,13 +6005,230 @@ body.focus-mode .wheel.recon .wheelTopBar,body.focus-mode .wheel.recon .wheelSet
   color:#075985!important;
 }
 
+
+/* v1.2.37: Universal dropzone */
+body.draggingPayload #app::after{
+  content:"Slip hvor som helst på tavlen";
+  position:absolute;
+  inset:18px;
+  border:4px dashed rgba(108,92,255,.75);
+  border-radius:24px;
+  background:rgba(255,255,255,.18);
+  color:white;
+  display:grid;
+  place-items:center;
+  font-size:clamp(22px,4vw,44px);
+  font-weight:950;
+  text-shadow:0 2px 8px rgba(0,0,0,.55);
+  z-index:2147483000;
+  pointer-events:none;
+}
+
+
+/* v1.2.39: Gem/åbn som moderne import-modal */
+.saveActions.v39{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin:18px 0;
+}
+.saveActions.v39 button{
+  min-height:58px;
+  font-size:18px;
+  font-weight:950;
+}
+.saveDropZone{
+  border:3px dashed #6c5cff;
+  border-radius:18px;
+  padding:28px 18px;
+  margin:18px 0 14px;
+  background:#f8fafc;
+  text-align:center;
+  color:#111827;
+  display:grid;
+  gap:10px;
+  place-items:center;
+  transition:background .15s ease,transform .15s ease,box-shadow .15s ease;
+}
+.saveDropZone.dragOver{
+  background:#eef2ff;
+  transform:scale(1.01);
+  box-shadow:0 0 0 6px rgba(108,92,255,.16);
+}
+.saveDropIcon{
+  font-size:46px;
+  line-height:1;
+  opacity:.75;
+}
+.saveDropZone b{
+  font-size:26px;
+}
+.saveDropZone span{
+  color:#4b5563;
+  font-weight:750;
+}
+.saveDropChoose{
+  color:#2563eb;
+  text-decoration:underline;
+  cursor:pointer;
+  font-weight:950;
+}
+.saveDropHint{
+  font-size:13px;
+  color:#6b7280;
+  max-width:680px;
+}
+@media(max-width:700px){
+  .saveActions.v39{grid-template-columns:1fr}
+  .saveDropZone{padding:22px 12px}
+}
+
+
+/* v1.2.40: Import polish */
+.saveActions.v40{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin:16px 0;
+}
+.saveActions.v40 button{
+  min-height:56px;
+  font-size:18px;
+  font-weight:950;
+}
+.saveActions.v40 .secondaryClose{
+  justify-self:start;
+  min-height:44px;
+  font-size:16px;
+  opacity:.85;
+}
+
+
+/* v1.2.41: HTML-widget + modal top layer */
+.modalBackdrop,
+#modalBackdrop{
+  z-index:2147483000!important;
+}
+.modal,
+#modal{
+  position:relative;
+  z-index:2147483001!important;
+}
+.widget[data-type="html"] .htmlBox{height:100%;display:flex;flex-direction:column;background:white}
+.widget[data-type="html"] .htmlTools{display:flex;gap:6px;flex-wrap:wrap;padding:8px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;align-items:center}
+.widget[data-type="html"] .htmlTools button.active{background:#4f46e5!important;color:white!important}
+.widget[data-type="html"] iframe{width:100%;height:100%;border:0;background:white;flex:1}
+.widget[data-type="html"] textarea{width:100%;height:100%;flex:1;border:0;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px;line-height:1.35;resize:none;box-sizing:border-box;background:#0f172a;color:#f8fafc}
+
+
+/* v1.2.44 repair: HTML widget, More, Backup, Background */
+.widget[data-type="html"] .htmlBox{height:100%;display:flex;flex-direction:column;background:white;overflow:hidden}
+.widget[data-type="html"] .htmlTools{display:flex;gap:8px;flex-wrap:wrap;padding:8px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;align-items:center;z-index:2}
+.widget[data-type="html"] .htmlTools button{font-size:14px!important;padding:6px 12px!important;border-radius:999px!important}
+.widget[data-type="html"] .htmlTools button.active{background:#4f46e5!important;color:white!important}
+.widget[data-type="html"] .htmlFrameWrap{position:relative;flex:1;min-height:0;background:white}
+.widget[data-type="html"] iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:white}
+.widget[data-type="html"] .htmlShield{position:absolute;inset:0;background:transparent;z-index:2}
+.widget[data-type="html"].htmlInteractive .htmlShield{display:none}
+.widget[data-type="html"] textarea{width:100%;height:100%;flex:1;border:0;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px;line-height:1.35;resize:none;box-sizing:border-box;background:#0f172a;color:#f8fafc}
+
+.moreMenu{display:grid!important;grid-template-columns:repeat(4,minmax(64px,1fr))!important;gap:8px!important;max-width:min(430px,92vw)!important}
+.moreMenu button{min-width:0!important;min-height:62px!important;padding:7px 6px!important;border-radius:14px!important}
+.moreMenu .ico{font-size:19px!important;line-height:1!important;display:block!important}
+.moreMenu .txt{font-size:12px!important;line-height:1.1!important;display:block!important;margin-top:4px!important}
+
+.saveActions.v40{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin:14px 0!important}
+.saveActions.v40 button{min-height:48px!important;font-size:16px!important;font-weight:950!important;padding:8px 10px!important}
+.saveActions.v40 .secondaryClose{grid-column:1/-1!important;justify-self:start!important;min-height:38px!important;font-size:15px!important;opacity:.9!important}
+.saveDropZone{padding:22px 16px!important;margin:14px 0!important}
+.saveDropZone b{font-size:24px!important}
+.saveDropIcon{font-size:36px!important}
+
+.bgLibraryHead{display:block!important;margin-bottom:8px!important}
+.bgLibraryHead p{margin:3px 0 0 0!important;opacity:.70!important}
+.bgCategoryBar{display:none!important}
+.bgGridToggleRow{display:flex;align-items:center;justify-content:flex-start;margin:6px 0 10px 0}
+.bgGridToggleBtn{appearance:none;border:1px solid rgba(15,23,42,.12);border-radius:999px;background:#fff;padding:8px 13px;font-weight:950;cursor:pointer;box-shadow:0 1px 4px rgba(15,23,42,.08)}
+.bgGridToggleBtn.active{background:#111827;color:#fff;border-color:#111827}
+.bgGridToggleBtn small{opacity:.70;font-weight:850;margin-left:6px}
+.bgFilterBar{margin:8px 0 10px 0!important}
+
+
+
+/* v_focus_zfix: focused widget must stay above all others */
+body.focus-edit .widget.focused,
+body.focus-presentation .widget.focused,
+.app.focusMode .widget.focused,
+.widget.focused{
+  z-index:9999!important;
+}
+body.focus-edit .widget:not(.focused),
+body.focus-presentation .widget:not(.focused){
+  z-index:20!important;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
+
+<style id="phase1-import-feedback-css">
+.importSummaryBackdrop{position:absolute;inset:0;z-index:3199;background:transparent;display:none}.importSummaryBackdrop.show{display:block}
+.importSummaryCard{position:absolute;right:18px;top:76px;z-index:3200;min-width:260px;max-width:min(420px,calc(100vw - 36px));background:rgba(17,24,39,.96);color:white;border-radius:18px;padding:14px 16px;box-shadow:0 16px 38px rgba(0,0,0,.36);opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .18s ease,transform .18s ease;font-weight:800}
+.importSummaryCard.show{opacity:1;transform:none;pointer-events:auto}
+.importSummaryCard header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}.importSummaryCard b{display:block;font-size:16px}.importSummaryClose{border:0;border-radius:999px;background:rgba(255,255,255,.14);color:white;width:34px;height:34px;font-size:20px;font-weight:900;line-height:1;cursor:pointer}
+.importSummaryCard .importRow{display:flex;gap:8px;align-items:center;margin:5px 0}.importSummaryCard .importErrorDetails{margin-top:8px;background:rgba(255,255,255,.10);border-radius:12px;padding:9px 10px;font-weight:700}.importSummaryCard .importErrorDetails div{margin:4px 0;line-height:1.25}.importSummaryCard small{display:block;opacity:.82;font-weight:700;margin-top:7px;line-height:1.3}.modalBackdrop.importFeedbackDim .modal{opacity:.18;transform:scale(.985);transition:opacity .16s ease,transform .16s ease}
+.datasetCard{height:100%;padding:14px;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:9px;background:linear-gradient(135deg,#f8fafc,#eef2ff);border-radius:0 0 12px 12px;overflow:hidden}.widget:not(.selected) .datasetCard{border-radius:12px}.datasetTitle{font-size:22px;font-weight:950;display:flex;align-items:center;gap:8px}.datasetMeta{display:flex;gap:8px;flex-wrap:wrap}.datasetMeta span{background:white;border-radius:999px;padding:5px 9px;font-weight:850;color:#334155;box-shadow:0 1px 4px rgba(15,23,42,.08)}.datasetPreview{min-height:0;overflow:auto;background:white;border-radius:12px;border:1px solid #e2e8f0}.datasetPreview table{width:100%;border-collapse:collapse;font-size:13px}.datasetPreview th,.datasetPreview td{border-bottom:1px solid #e5e7eb;padding:6px 8px;text-align:left;white-space:nowrap}.datasetPreview th{position:sticky;top:0;background:#f8fafc;font-weight:900}.datasetActions{display:flex;gap:8px;flex-wrap:wrap}.datasetActions button{border:0;border-radius:999px;background:#6d5dfc;color:white;font-weight:900;padding:8px 12px}.datasetActions button.secondary{background:#e0e7ff;color:#312e81}.present .datasetActions{display:none!important}
+
+
+/* v_focus_zfix: focused widget must stay above all others */
+body.focus-edit .widget.focused,
+body.focus-presentation .widget.focused,
+.app.focusMode .widget.focused,
+.widget.focused{
+  z-index:9999!important;
+}
+body.focus-edit .widget:not(.focused),
+body.focus-presentation .widget:not(.focused){
+  z-index:20!important;
+}
+
+</style>
+<style id="phase3-focus-stability-css">
+body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important}
+body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important}
+body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!important;top:0!important;left:0!important}
+
+
+/* v_focus_zfix: focused widget must stay above all others */
+body.focus-edit .widget.focused,
+body.focus-presentation .widget.focused,
+.app.focusMode .widget.focused,
+.widget.focused{
+  z-index:9999!important;
+}
+body.focus-edit .widget:not(.focused),
+body.focus-presentation .widget:not(.focused){
+  z-index:20!important;
+}
+
+</style>
+
+<style id="widget-cycle-tap-css">
+#widgetCycle.widgetCycleBtn{
+  margin-left:10px!important;
+  background:#6d5dfc!important;
+  color:white!important;
+  min-width:48px!important;
+  font-size:22px!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.14) inset!important;
+}
+#widgetCycle.widgetCycleBtn:active{transform:scale(.96);filter:brightness(1.08)}
+.present #widgetCycle.widgetCycleBtn{display:inline-flex!important;align-items:center;justify-content:center}
+</style>
 </head>
 <body>
 <div id="app" class="app">
   <div id="title" class="title" contenteditable="true">Min undervisningstavle</div>
-  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide">🧹</button><button id="rescueWidgets" title="Saml widgets i synligt område">🛟</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="presentFocus" title="Fokus i præsentation">🎯</button><button id="present">🎬</button></div>
+  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide">🧹</button><button id="rescueWidgets" title="Saml widgets i synligt område">🛟</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="presentFocus" title="Fokus i præsentation">🎯</button><button id="present">🎬</button><button id="widgetCycle" class="widgetCycleBtn" title="Widget-overblik">⧉</button></div>
   <div id="hintBar" class="hintBar hidden" aria-live="polite"></div>
   <canvas id="draw" class="drawLayer"></canvas>
   <div class="drawPanel" id="drawPanel"><b>Tegn</b><input id="penColor" type="color" value="#000000"><input id="penSize" type="range" min="2" max="40" value="6"><button data-drawmode="pen" class="active">Fri</button><button data-drawmode="line">Linje</button><button data-drawmode="rect">Firkant</button><button data-drawmode="circle">Cirkel</button><button data-drawmode="eraser">Viskelæder</button><button id="drawClear">Ryd</button><button id="drawOff">Luk</button></div>
@@ -6022,6 +6254,7 @@ body.focus-mode .wheel.recon .wheelTopBar,body.focus-mode .wheel.recon .wheelSet
 </div>
 <input id="fileInput" type="file" class="hidden">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 
 <script>
 /* v1.0.16-dev: updated keyboard shortcuts */
@@ -6110,7 +6343,8 @@ body.focus-mode .wheel.recon .wheelTopBar,body.focus-mode .wheel.recon .wheelSet
         l: {label:'Link', widget:'l'},
         t: {label:'Timer', widget:'t'},
         u: {label:'Ur', widget:'u'},
-        h: {label:'Hjul', widget:'h'},
+        h: {label:'HTML', widget:'y'},
+        j: {label:'Hjul', widget:'h'},
         r: {label:'Grupper', widget:'r'},
         s: {label:'Ordsky', widget:'s'},
         v: {label:'Video', widget:'v'},
@@ -6213,6 +6447,7 @@ function isIframeControlActive(){
 function setIframeControl(id,on){
   activeIframeWidgetId=on?String(id):null;
   document.body.classList.toggle('iframe-control-active',!!activeIframeWidgetId);
+  if(!activeIframeWidgetId)document.querySelectorAll('.widget.htmlInteractive').forEach(el=>el.classList.remove('htmlInteractive'));
   document.querySelectorAll('.widget').forEach(el=>{
     el.classList.toggle('linkIframeActive',!!activeIframeWidgetId && String(el.dataset.id)===activeIframeWidgetId);
   });
@@ -6392,15 +6627,69 @@ function tavleIframeSrc(url,w){
   }
 let toolClickBlockUntil=0;
 
-const TAVLE_ASSET_BASE='https://maans.github.io/Tavle/';
-const RUNNING_FROM_FILE=location.protocol==='file:';
+/*
+ * The app can be run from a local file (file://), via GitHub Pages or
+ * wrapped in an iframe/Quine.  When running from a local file the code
+ * prefixes relative asset paths with the GitHub base so assets are
+ * discoverable offline.  When loaded in an iframe (for example the
+ * HTML-widget preview) the inner document runs at a blob: or about:
+ * origin which confuses the original detection.  To support runtime
+ * configuration we expose a couple of globals on window and compute
+ * whether we should apply the fallback on demand.
+ */
+
+// Default base for assets hosted in the Tavle repository.  This value can
+// be overridden by parent contexts via postMessage (see below).
+const DEFAULT_TAVLE_ASSET_BASE='https://maans.github.io/Tavle/';
+// If a parent document defines window.TAVLE_ASSET_BASE we honour that,
+// otherwise fall back to the default.
+if(typeof window.TAVLE_ASSET_BASE==='undefined'){
+  window.TAVLE_ASSET_BASE=DEFAULT_TAVLE_ASSET_BASE;
+}
+
+// Helper to decide if the app should load assets from the remote base.
+// When running from a local file the location protocol is 'file:', but
+// this flag may be overridden at runtime by the parent context via
+// postMessage.  See message listener below.
+function isRunningFromFile(){
+  // Prefer an explicitly configured value on the window.  Only accept
+  // booleans to avoid overriding with undefined or strings.
+  if(typeof window.RUNNING_FROM_FILE==='boolean'){
+    return window.RUNNING_FROM_FILE;
+  }
+  return location.protocol==='file:';
+}
+
+// Asset resolver.  Given a relative path this function prefixes the
+// configured base if we determine the app is running from a local file.
 function resolveAssetPath(path){
   path=String(path||'').trim();
   if(!path)return '';
+  // leave data:, blob:, http(s) URLs untouched
   if(/^data:/i.test(path) || /^blob:/i.test(path) || /^https?:\/\//i.test(path))return path;
+  // remove leading './'
   path=path.replace(/^\.\//,'');
-  return RUNNING_FROM_FILE ? (TAVLE_ASSET_BASE + path) : path;
+  const running=isRunningFromFile();
+  const base=window.TAVLE_ASSET_BASE || DEFAULT_TAVLE_ASSET_BASE;
+  return running ? (base + path) : path;
 }
+
+// Listen for environment messages from parent contexts (e.g. the
+// HTML-widget preview).  When a message contains a `tavle_env` key we
+// update global flags accordingly.  Only boolean values are accepted for
+// RUNNING_FROM_FILE; any truthy string for TAVLE_ASSET_BASE will be used.
+window.addEventListener('message',event=>{
+  try{
+    const env=event.data&&event.data.tavle_env;
+    if(!env)return;
+    if(typeof env.RUNNING_FROM_FILE==='boolean'){
+      window.RUNNING_FROM_FILE=env.RUNNING_FROM_FILE;
+    }
+    if(env.TAVLE_ASSET_BASE){
+      window.TAVLE_ASSET_BASE=env.TAVLE_ASSET_BASE;
+    }
+  }catch(_e){}
+});
 
 const BUILTIN_INFOGRAFIK_BG=resolveAssetPath('README_infografik.png');
 const TAVLE_BACKGROUND_THEMES=[
@@ -6877,6 +7166,9 @@ let embeddedData=window.__TAVLE_DATA__||null;
 let __loadedState=load();
 let __freshFirstRun=!(embeddedData&&embeddedData.state) && !__loadedState;
 let state=(embeddedData&&embeddedData.state)||__loadedState||{active:0,slides:[classicHdSlide()]};
+// Ensure a dataset store exists on the state object.  Each dataset
+// contains {id,name,type,columns,rows,sourceName,importedAt}.
+if(!state.datasets) state.datasets=[];
 if(embeddedData&&embeddedData.wheelLists){try{localStorage.setItem('maans_wheel_lists',JSON.stringify(embeddedData.wheelLists))}catch(e){}}
 if(embeddedData&&embeddedData.settings){try{Object.entries(embeddedData.settings).forEach(([k,v])=>localStorage.setItem(k,v))}catch(e){}}
 
@@ -7255,8 +7547,391 @@ window.rescueWidgetsToViewport=rescueWidgetsToViewport;
 window.rescueSelectedWidgetToViewport=rescueSelectedWidgetToViewport;
 
 function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
-function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll')?860:(type==='text'?420:520),h:type==='wheel'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='timer'?260: type==='link'?230:320)))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
-const titles={text:'Tekst',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF'};
+function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll')?860:(type==='dataset'?390:(type==='text'?420:520)),h:type==='wheel'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='timer'?260: type==='link'?230:320))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
+const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
+
+/* v1.2.37: Universal drop på tavlen - JS */
+function tavleDropPoint(e){
+  const rect=app.getBoundingClientRect();
+  return {
+    x:Math.max(20,Math.min((e.clientX||rect.left+180)-rect.left,rect.width-180)),
+    y:Math.max(70,Math.min((e.clientY||rect.top+140)-rect.top,rect.height-140))
+  };
+}
+function addDroppedWidget(type,data,point,title){
+  const w=addWidget(type,data||{});
+  if(title)w.title=title;
+  w.x=point.x;
+  w.y=point.y;
+  if(type==='image'){w.w=Math.min(560,Math.max(360,innerWidth*.38));w.h=Math.min(380,Math.max(260,innerHeight*.32));}
+  if(type==='pdf'){w.w=Math.min(680,Math.max(420,innerWidth*.46));w.h=Math.min(520,Math.max(340,innerHeight*.46));}
+  if(type==='text'){w.w=Math.min(620,Math.max(420,innerWidth*.42));w.h=Math.min(420,Math.max(260,innerHeight*.34));}
+  if(type==='video'){w.w=Math.min(680,Math.max(460,innerWidth*.46));w.h=Math.min(420,Math.max(280,innerHeight*.34));}
+  if(type==='link'){w.w=Math.min(560,Math.max(360,innerWidth*.34));w.h=230;}
+  if(type==='html'){w.w=Math.min(760,Math.max(480,innerWidth*.50));w.h=Math.min(520,Math.max(340,innerHeight*.46));}
+  fitWidgetToViewport(w);
+  render();
+  select(w.id);
+  save();
+  return w;
+}
+function readFileAsDataURL(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(String(r.result||''));
+    r.onerror=()=>reject(r.error||new Error('Kunne ikke læse fil'));
+    r.readAsDataURL(file);
+  });
+}
+function readFileAsText(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(String(r.result||''));
+    r.onerror=()=>reject(r.error||new Error('Kunne ikke læse tekstfil'));
+    r.readAsText(file);
+  });
+}
+function isLikelyTextFile(file){
+  const name=String(file.name||'').toLowerCase();
+  return /^text\//.test(file.type||'') || /(^readme$|\.(txt|md|markdown|rtf|log|html?|css|js|json|csv))$/i.test(name);
+}
+function isLikelyPdfFile(file){
+  return file.type==='application/pdf' || /\.pdf$/i.test(file.name||'');
+}
+function isLikelyImageFile(file){
+  return /^image\//.test(file.type||'') || /\.(png|jpe?g|gif|webp|svg)$/i.test(file.name||'');
+}
+
+function isLikelyHtmlFile(file){
+  const name=String(file.name||'').toLowerCase();
+  return /(\.html?|^index\.html?)$/i.test(name) || /html/i.test(file.type||'');
+}
+
+// Detect comma-separated or semicolon-separated value files by extension or MIME.
+function isLikelyCsvFile(file){
+  const name=String(file.name||'').toLowerCase();
+  return /\.csv$/i.test(name) || /text\/csv/i.test(file.type||'');
+}
+
+// Detect tab-separated value files (.tsv) by extension or MIME.
+function isLikelyTsvFile(file){
+  const name=String(file.name||'').toLowerCase();
+  return /\.tsv$/i.test(name) || /text\/tsv/i.test(file.type||'');
+}
+
+function isLikelyXlsxFile(file){
+  const name=String(file.name||'').toLowerCase();
+  return /\.(xlsx|xls)$/i.test(name) || /spreadsheet|excel/i.test(file.type||'');
+}
+function isLikelyGoogleSheetRef(file){
+  return /\.gsheet$/i.test(String(file&&file.name||''));
+}
+function datasetFirstTextColumn(ds){
+  if(!ds||!Array.isArray(ds.rows))return [];
+  const cols=Array.isArray(ds.columns)?ds.columns:[];
+  let best=0,bestCount=-1;
+  for(let i=0;i<Math.max(cols.length,1);i++){
+    const count=ds.rows.map(r=>String((r||[])[i]||'').trim()).filter(Boolean).length;
+    if(count>bestCount){best=i;bestCount=count;}
+  }
+  return ds.rows.map(r=>String((r||[])[best]||'').trim()).filter(Boolean);
+}
+function addDatasetWidget(ds,point){
+  if(!ds)return null;
+  const title=ds.name||'Datasæt';
+  const w=addDroppedWidget('dataset',{datasetId:ds.id},point,title);
+  w.w=Math.min(430,Math.max(340,innerWidth*.30));
+  w.h=Math.min(300,Math.max(230,innerHeight*.26));
+  fitWidgetToViewport(w);render();select(w.id);save();
+  return w;
+}
+
+// Parse a delimited text file into a dataset object.  If a header row is
+// present the first row will be used as column names.  Otherwise columns
+// are named generically (col1, col2, ...).  A best-effort delimiter
+// detection is performed: tab, semicolon or comma.
+function parseDatasetFromText(text,name){
+  text=String(text||'');
+  // remove BOM
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  const lines=text.split(/\r?\n/).filter(l=>l.trim().length>0);
+  if(!lines.length){return null;}
+  // guess delimiter based on first non-empty line
+  let delim=',';
+  const first=lines[0];
+  const counts={comma:(first.match(/,/g)||[]).length, semicolon:(first.match(/;/g)||[]).length, tab:(first.match(/\t/g)||[]).length};
+  const maxDelim=Object.entries(counts).reduce((a,b)=>a[1]>=b[1]?a:b);
+  if(maxDelim[1]>0){if(maxDelim[0]==='tab') delim='\t'; else if(maxDelim[0]==='semicolon') delim=';'; else delim=',';}
+  // simple CSV parser: split on delimiter outside of quotes.  Quotes may
+  // contain escaped quotes.
+  function splitLine(line){
+    const arr=[];
+    let cur='';
+    let inQuotes=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'){
+        if(inQuotes && line[i+1]==='"'){cur+= '"'; i++; continue;}
+        inQuotes=!inQuotes;
+        continue;
+      }
+      if(!inQuotes && ch===delim){arr.push(cur);cur='';continue;}
+      cur+=ch;
+    }
+    arr.push(cur);
+    return arr;
+  }
+  const rows=lines.map(splitLine);
+  let columns=[];
+  // check if first row is header: treat as header if all cells are non-empty strings and not all numeric
+  const headerCandidate=rows[0];
+  const numericCells=headerCandidate.filter(c=>/^\s*-?\d+(\.\d+)?\s*$/.test(c)).length;
+  const isHeader=numericCells< headerCandidate.length/2;
+  if(isHeader){
+    columns=headerCandidate.map(c=>String(c||'').trim()||'Kolonne');
+    rows.shift();
+  }else{
+    const maxLen=Math.max(...rows.map(r=>r.length));
+    columns=Array.from({length:maxLen},(_,i)=>'Kolonne '+(i+1));
+  }
+  // normalize rows length
+  const normalized=rows.map(r=>{
+    const arr=Array.from({length:columns.length},(_,i)=>String(r[i]||'').trim());
+    return arr;
+  });
+  return {
+    id:'ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+    name: name || 'Datasæt',
+    type:'csv',
+    columns:columns,
+    rows:normalized,
+    sourceName:name||'',
+    importedAt:Date.now()
+  };
+}
+
+// Add a dataset to the persistent store.  The state.datasets array is
+// initialized at startup.  Datasets are saved with save().
+function addDataset(ds){
+  if(!ds) return;
+  try{
+    state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+    // ensure unique id
+    if(!ds.id) ds.id='ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+    state.datasets.push(ds);
+    save();
+  }catch(e){console.error('Could not save dataset',e);toast('Kunne ikke gemme datasæt');}
+}
+function dropBatchPoint(base,index,type){
+  const rect=app.getBoundingClientRect();
+  const col=index%3;
+  const row=Math.floor(index/3);
+  const dx=34*col + 22*row;
+  const dy=30*row + 18*col;
+  return {
+    x:Math.max(20,Math.min((base.x||140)+dx,rect.width-180)),
+    y:Math.max(70,Math.min((base.y||130)+dy,rect.height-140))
+  };
+}
+function importHtmlEsc(s){return String(s||'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]||ch));}
+function importKindLabel(kind,count){
+  const labels={image:'billede'+(count===1?'':'r'),pdf:'PDF'+(count===1?'':'er'),html:'HTML-side'+(count===1?'':'r'),text:'tekst'+(count===1?'':'er'),video:'video'+(count===1?'':'er'),link:'link'+(count===1?'':'s'),dataset:'datasæt',backup:'backup',error:'problem'+(count===1?'':'er'),file:'fil'+(count===1?'':'er')};
+  return labels[kind]||labels.file;
+}
+function normalizeImportResult(res,file){
+  if(!res)return {ok:false,kind:'error',label:(file&&file.name)||'Ikke importeret'};
+  if(res===true)return {ok:true,kind:'file',label:(file&&file.name)||'Fil'};
+  if(typeof res==='object')return {...res,label:res.label||((file&&file.name)||'Fil')};
+  return {ok:true,kind:'file',label:(file&&file.name)||'Fil'};
+}
+let importSummaryTimer=0;
+function closeImportSummary(){
+  clearTimeout(importSummaryTimer);
+  const box=document.getElementById('importSummaryCard');
+  const back=document.getElementById('importSummaryBackdrop');
+  if(box)box.classList.remove('show');
+  if(back)back.classList.remove('show');
+}
+function closeImportModalAfterSuccess(){
+  try{
+    if(modalBack&&modalBack.style.display&&modalBack.style.display!=='none'){
+      modalBack.classList.add('importFeedbackDim');
+      setTimeout(()=>{try{closeModal()}catch(_e){modalBack.style.display='none'};modalBack.classList.remove('importFeedbackDim')},220);
+    }
+  }catch(_e){}
+}
+function showImportSummary(results,opts={}){
+  results=(results||[]).filter(Boolean);
+  if(!results.length)return;
+  const ok=results.filter(r=>r.ok!==false), bad=results.filter(r=>r.ok===false);
+  const groups={};
+  ok.forEach(r=>{const k=r.kind||'file';groups[k]=(groups[k]||0)+Number(r.count||1)});
+  bad.forEach(r=>{groups.error=(groups.error||0)+Number(r.count||1)});
+  let back=document.getElementById('importSummaryBackdrop');
+  if(!back){back=document.createElement('div');back.id='importSummaryBackdrop';back.className='importSummaryBackdrop';(document.getElementById('app')||document.body).appendChild(back)}
+  let box=document.getElementById('importSummaryCard');
+  if(!box){box=document.createElement('div');box.id='importSummaryCard';box.className='importSummaryCard';(document.getElementById('app')||document.body).appendChild(box)}
+  const rows=Object.entries(groups).map(([k,n])=>`<div class="importRow">${k==='error'?'⚠':'✓'} <span>${n} ${importHtmlEsc(importKindLabel(k,n))}</span></div>`).join('');
+  const details=bad.length?`<div class="importErrorDetails">${bad.map(r=>`<div>⚠ ${importHtmlEsc(r.label||r.message||'Ukendt importfejl')}</div>`).join('')}</div>`:'';
+  const detail=(!bad.length&&ok.length===1&&ok[0].label)?`<small>${importHtmlEsc(ok[0].label)}</small>`:(ok.length>1?`<small>${ok.length} filer behandlet</small>`:'');
+  box.innerHTML='<header><b>Import færdig</b><button class="importSummaryClose" type="button" title="Luk">×</button></header>'+rows+details+detail;
+  back.classList.add('show');box.classList.add('show');
+  box.querySelector('.importSummaryClose').onclick=closeImportSummary;
+  back.onclick=closeImportSummary;
+  clearTimeout(importSummaryTimer);
+  if(opts.duration && opts.duration>0)importSummaryTimer=setTimeout(closeImportSummary,opts.duration);
+  if(opts.closeModal!==false && ok.length && !bad.length)setTimeout(closeImportModalAfterSuccess,60);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImportSummary();},true);
+function toastImportCount(count,extra=''){
+  if(count>1)toast(`${count} filer importeret${extra?': '+extra:''}`);
+  else if(count===1)toast(`1 fil importeret${extra?': '+extra:''}`);
+  else toast('Ingen filer importeret');
+}
+
+function droppedTextFromDataTransfer(dt){
+  return (dt.getData('text/uri-list') || dt.getData('URL') || dt.getData('text/plain') || '').trim();
+}
+function isYoutubeUrl(url){
+  return !!ytId(url||'');
+}
+async function handleDroppedFile(file,point){
+  // Dataset import: support CSV and TSV files.  When a delimited text
+  // file is dropped we parse it into a dataset and store it centrally
+  // instead of creating a widget.  Datasets can later be used by
+  // widgets such as the Wheel or Group generator.  Excel files are
+  // ignored here; they can be imported via the existing list import UI.
+  if(isLikelyGoogleSheetRef(file)){
+    return {ok:false,kind:'error',label:'.gsheet er kun en Google Sheets-reference – eksportér som CSV først'};
+  }
+  if(isLikelyXlsxFile(file)){
+    return {ok:false,kind:'error',label:'XLSX dataset-import er endnu ikke implementeret her – brug CSV/TSV eller listeimport'};
+  }
+  if(isLikelyCsvFile(file) || isLikelyTsvFile(file)){
+    try{
+      const text=await readFileAsText(file);
+      const ds=parseDatasetFromText(text,(file.name||'Datasæt').replace(/\.[^.]+$/,''));
+      if(!ds || !Array.isArray(ds.rows) || !ds.rows.length)return {ok:false,kind:'error',label:'Kunne ikke parse CSV: ingen rækker fundet'};
+      addDataset(ds);
+      addDatasetWidget(ds,point);
+      toast('Datasæt importeret: '+(ds.name||'')+' ('+ds.rows.length+' rækker)');
+      return {ok:true,kind:'dataset',label:(ds.name||'Datasæt')+' · '+ds.rows.length+' rækker'};
+    }catch(err){
+      console.error(err);
+      return {ok:false,kind:'error',label:'Kunne ikke parse CSV: '+(err&&err.message||'ukendt fejl')};
+    }
+  }
+  if(isLikelyImageFile(file)){
+    const src=await readFileAsDataURL(file);
+    addDroppedWidget('image',{src,name:file.name||'billede'},point,file.name||'Billede');
+    toast('Billede indsat');
+    return {ok:true,kind:'image',label:file.name||'Billede'};
+  }
+  if(isLikelyPdfFile(file)){
+    const src=await readFileAsDataURL(file);
+    addDroppedWidget('pdf',{src,url:src,name:file.name||'PDF',page:1},point,file.name||'PDF');
+    toast('PDF indsat');
+    return {ok:true,kind:'pdf',label:file.name||'PDF'};
+  }
+  if(isLikelyHtmlFile(file)){
+    const htmlText=await readFileAsText(file);
+    addDroppedWidget('html',{html:htmlText,mode:'preview',name:file.name||'HTML'},point,file.name||'HTML');
+    toast('HTML åbnet i webvisning');
+    return {ok:true,kind:'html',label:file.name||'HTML'};
+  }
+  if(isLikelyTextFile(file)){
+    const text=await readFileAsText(file);
+    addDroppedWidget('text',{text,name:file.name||'tekstfil'},point,file.name||'Tekst');
+    toast('Tekst indsat');
+    return {ok:true,kind:'text',label:file.name||'Tekst'};
+  }
+  toast('Filtypen understøttes ikke endnu');
+  return {ok:false,kind:'error',label:'Filtypen understøttes ikke endnu: '+(file.name||'ukendt fil')};
+}
+function handleDroppedUrlOrText(raw,point){
+  const text=String(raw||'').trim();
+  if(!text)return false;
+  const urlMatch=text.match(/https?:\/\/[^\s<>"']+/i) || text.match(/(?:youtu\.be|youtube\.com)\/[^\s<>"']+/i);
+  const maybeUrl=urlMatch ? urlMatch[0] : text;
+  if(isYoutubeUrl(maybeUrl)){
+    addDroppedWidget('video',{url:normalizeLinkUrl(maybeUrl)},point,'Video');
+    toast('YouTube-video indsat');
+    return {ok:true,kind:'video',label:'YouTube-video'};
+  }
+  if(/^(https?:\/\/|www\.)/i.test(maybeUrl)){
+    const url=normalizeLinkUrl(maybeUrl);
+    let label=url.replace(/^https?:\/\//,'').replace(/^www\./,'');
+    if(label.length>42)label=label.slice(0,39)+'…';
+    addDroppedWidget('link',{url,text:label,view:'link'},point,'Link');
+    toast('Link indsat');
+    return {ok:true,kind:'link',label};
+  }
+  if(text.length>0){
+    addDroppedWidget('text',{text},point,'Tekst');
+    toast('Tekst indsat');
+    return {ok:true,kind:'text',label:'Tekst'};
+  }
+  return false;
+}
+function dataTransferHasSupportedPayload(dt){
+  if(!dt)return false;
+  if(dt.files && dt.files.length)return true;
+  const types=Array.from(dt.types||[]);
+  return types.includes('text/uri-list') || types.includes('text/plain') || types.includes('URL');
+}
+let tavleDragDepth=0;
+function isInsideTavleSurface(e){
+  const rect=app.getBoundingClientRect();
+  const x=e.clientX, y=e.clientY;
+  if(!Number.isFinite(x) || !Number.isFinite(y))return true;
+  return x>=rect.left && x<=rect.right && y>=rect.top && y<=rect.bottom;
+}
+function showDropSurface(e){
+  if(!dataTransferHasSupportedPayload(e.dataTransfer))return false;
+  if(!isInsideTavleSurface(e))return false;
+  e.preventDefault();
+  e.stopPropagation();
+  document.body.classList.add('draggingPayload');
+  try{e.dataTransfer.dropEffect='copy'}catch(_e){}
+  return true;
+}
+['dragenter','dragover'].forEach(ev=>{
+  document.addEventListener(ev,e=>showDropSurface(e),true);
+});
+document.addEventListener('dragleave',e=>{
+  if(!e.relatedTarget || e.relatedTarget===document.documentElement || e.relatedTarget===document.body){
+    document.body.classList.remove('draggingPayload');
+  }
+},true);
+document.addEventListener('drop',async e=>{
+  if(!dataTransferHasSupportedPayload(e.dataTransfer))return;
+  if(!isInsideTavleSurface(e))return;
+  e.preventDefault();
+  e.stopPropagation();
+  document.body.classList.remove('draggingPayload');
+  const point=tavleDropPoint(e);
+  const files=Array.from(e.dataTransfer.files||[]);
+  if(files.length){
+    let imported=0;
+    const results=[];
+    for(let i=0;i<files.length;i++){
+      const raw=await handleDroppedFile(files[i],dropBatchPoint(point,i));
+      const res=normalizeImportResult(raw,files[i]);
+      results.push(res);
+      if(res.ok!==false)imported++;
+    }
+    toastImportCount(imported);
+    showImportSummary(results,{closeModal:true});
+    return;
+  }
+  const dropped=droppedTextFromDataTransfer(e.dataTransfer);
+  const raw=handleDroppedUrlOrText(dropped,point);
+  const res=raw?normalizeImportResult(raw,null):null;
+  if(res){showImportSummary([res],{closeModal:true});toastImportCount(res.ok!==false?1:0)}
+},true);
+window.addEventListener('dragend',()=>document.body.classList.remove('draggingPayload'));
+window.addEventListener('blur',()=>document.body.classList.remove('draggingPayload'));
+
 function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
 
 function resetWidgetRotation(w,el){
@@ -7267,7 +7942,7 @@ function resetWidgetRotation(w,el){
   if(typeof toast==='function')toast('Rotation nulstillet');
 }
 function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
-function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):'';const titleHtml='<span class="titleText">'+(w.title||titles[w.type])+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':'');const titleHtml='<span class="titleText">'+(w.title||titles[w.type])+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -7314,6 +7989,8 @@ function extFromDataUrl(dataUrl,fallback='bin'){
   if(type.includes('webp'))return 'webp';
   if(type.includes('gif'))return 'gif';
   if(type.includes('svg'))return 'svg';
+  if(type.includes('html'))return 'html';
+  if(type.includes('plain'))return 'txt';
   return fallback;
 }
 function safeFileName(name,ext){
@@ -7577,7 +8254,7 @@ function showMoreTools(){
     ['link','🔗','link'],
     ['pdf','PDF','pdf'],
     ['bg','🎨','baggrund'],
-    ['grid','#','grid'],
+    ['html','&lt;/&gt;','html'],
     ['timer','⌛','timer'],
     ['clock','🕒','ur'],
     ['backup','💾','backup']
@@ -7701,7 +8378,36 @@ function handleTool(t){
   if(t==='timer')addWidget('timer',{});
   if(t==='image')addWidget('image',{});
   if(t==='link'){const w=addWidget('link',{text:'Link',url:''});setTimeout(()=>askLink(w),0);return;}
-  if(t==='pdf')addWidget('pdf',{});
+  if(t==='html'){addWidget('html',{html:`<!doctype html><html><head><meta charset="utf-8"><title>Ny HTML-widget</title><style>body{font-family:sans-serif;padding:2rem;line-height:1.5}h1{color:#4f46e5}
+
+/* v_focus_zfix: focused widget must stay above all others */
+body.focus-edit .widget.focused,
+body.focus-presentation .widget.focused,
+.app.focusMode .widget.focused,
+.widget.focused{
+  z-index:9999!important;
+}
+body.focus-edit .widget:not(.focused),
+body.focus-presentation .widget:not(.focused){
+  z-index:20!important;
+}
+
+</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p></body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
+  if(t==='html')addWidget('html',{html:`<!doctype html><html><head><meta charset="utf-8"><title>Ny HTML-widget</title><style>body{font-family:sans-serif;padding:2rem;line-height:1.5}h1{color:#4f46e5}
+
+/* v_focus_zfix: focused widget must stay above all others */
+body.focus-edit .widget.focused,
+body.focus-presentation .widget.focused,
+.app.focusMode .widget.focused,
+.widget.focused{
+  z-index:9999!important;
+}
+body.focus-edit .widget:not(.focused),
+body.focus-presentation .widget:not(.focused){
+  z-index:20!important;
+}
+
+</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p></body></html>`,mode:'edit',name:'Ny HTML-widget'});if(t==='pdf')addWidget('pdf',{});
   if(t==='background'||t==='bg')bgModal();
   if(t==='grid'){slide().grid=!slide().grid;
 const __setDrawActive_v155 = setDrawActive;
@@ -8277,7 +8983,63 @@ window.tavleShortcutAPI={
       x:['poll',{}],
       i:['image',{}],
       r:['groups',{}],
-      h:['wheel',{}],
+      y:['html',{html:`<!doctype html><html><head><meta charset="utf-8"><title>Ny HTML-widget</title><style>body{font-family:sans-serif;padding:2rem;line-height:1.5}h1{color:#4f46e5}
+
+/* v_focus_zfix: focused widget must stay above all others */
+body.focus-edit .widget.focused,
+body.focus-presentation .widget.focused,
+.app.focusMode .widget.focused,
+.widget.focused{
+  z-index:9999!important;
+}
+body.focus-edit .widget:not(.focused),
+body.focus-presentation .widget:not(.focused){
+  z-index:20!important;
+}
+
+
+
+/* Widget-overblik: midlertidig visning, ændrer ikke gemte widgetdata */
+.widgetOverviewMode .widgetOverviewItem{
+  outline:3px solid rgba(109,93,252,.72)!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.28)!important;
+  cursor:pointer!important;
+  overflow:hidden!important;
+}
+.widgetOverviewMode .widgetOverviewItem:hover{
+  outline-color:#f59e0b!important;
+  box-shadow:0 16px 42px rgba(0,0,0,.35)!important;
+}
+.widgetOverviewMode .widgetOverviewItem .chrome{
+  display:flex!important;
+}
+.widgetOverviewMode .widgetOverviewItem .resize,
+.widgetOverviewMode .widgetOverviewItem .rotater{
+  display:none!important;
+}
+.widgetOverviewMode .widget:not(.widgetOverviewItem){
+  opacity:.25!important;
+  pointer-events:none!important;
+}
+.widgetOverviewHint{
+  position:absolute;
+  left:50%;
+  bottom:92px;
+  transform:translateX(-50%);
+  z-index:9999;
+  background:rgba(17,24,39,.9);
+  color:white;
+  border-radius:999px;
+  padding:10px 16px;
+  font-weight:900;
+  box-shadow:0 10px 24px rgba(0,0,0,.25);
+  pointer-events:none;
+}
+#widgetCycle.widgetCycleBtn{
+  margin-left:8px!important;
+}
+</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p></body></html>`,mode:'edit',name:'Ny HTML-widget'}],
+      j:['wheel',{}],
       s:['wordcloud',{}],
       t:['timer',{}],
       l:['link',{text:'Link',url:''}]
@@ -8563,13 +9325,105 @@ if(w.type==='poll'){
   }
   wirePoll(c,w,el);
 }
+ if(w.type==='dataset'){
+  w.data=w.data||{};
+  const ds=(state.datasets||[]).find(d=>String(d.id)===String(w.data.datasetId));
+  if(!ds){
+    c.innerHTML='<div class="datasetCard"><div class="datasetTitle">📊 Manglende datasæt</div><div class="datasetMeta"><span>Kun reference fundet</span></div><div></div></div>';
+  }else{
+    const cols=(ds.columns||[]).slice(0,5);
+    const rows=(ds.rows||[]).slice(0,8);
+    c.innerHTML=`<div class="datasetCard">
+      <div class="datasetTitle"><span>📊</span><span>${esc(ds.name||w.title||'Datasæt')}</span></div>
+      <div class="datasetMeta"><span>${(ds.rows||[]).length} rækker</span><span>${(ds.columns||[]).length} kolonner</span></div>
+      <div class="datasetPreview"><table><thead><tr>${cols.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map((_,i)=>`<td>${esc((r||[])[i]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <div class="datasetActions widget-control"><button class="datasetUse">Brug som liste</button><button class="datasetInfo secondary">Preview</button></div>
+    </div>`;
+    const use=c.querySelector('.datasetUse');
+    if(use)use.onclick=e=>{e.stopPropagation();const items=datasetFirstTextColumn(ds);if(!items.length){toast('Datasættet har ingen brugbar listekolonne');return}const bank=wheelListBank();bank[ds.name||w.title||'Datasæt']=items;saveWheelListBank(bank);toast('Datasæt gemt som liste: '+items.length+' elementer')};
+    const info=c.querySelector('.datasetInfo');
+    if(info)info.onclick=e=>{e.stopPropagation();showModal(`<h2>${esc(ds.name||'Datasæt')}</h2><p>${(ds.rows||[]).length} rækker · ${(ds.columns||[]).length} kolonner</p><div class="datasetPreview" style="max-height:55vh">${c.querySelector('.datasetPreview').innerHTML}</div><button id="close">Luk</button>`);modal.querySelector('#close').onclick=closeModal};
+  }
+}
+ if(w.type==='html'){
+  w.data=w.data||{};
+  w.data.mode=w.data.mode||'edit';
+  const isEdit=w.data.mode==='edit';
+  c.innerHTML=`<div class="htmlBox">
+    <div class="htmlTools widget-control">
+      <button class="htmlPreview ${!isEdit?'active':''}">Webvisning</button>
+      <button class="htmlEdit ${isEdit?'active':''}">Tekst</button>
+      <button class="htmlDownload">Download HTML</button>
+      ${!isEdit?'<button class="htmlInteract">Aktivér side</button>':''}
+    </div>
+    ${isEdit
+      ? `<textarea spellcheck="false">${esc(w.data.html||'')}</textarea>`
+      : `<div class="htmlFrameWrap"><iframe sandbox="allow-scripts allow-forms allow-popups allow-modals allow-same-origin"></iframe><div class="htmlShield"></div></div>`}
+  </div>`;
+  const setMode=(mode)=>{w.data.mode=mode;el.classList.remove('htmlInteractive');fillContent(el,w);save()};
+  const prev=c.querySelector('.htmlPreview');
+  const edit=c.querySelector('.htmlEdit');
+  const dl=c.querySelector('.htmlDownload');
+  const interact=c.querySelector('.htmlInteract');
+  if(prev)prev.onclick=e=>{e.stopPropagation();setMode('preview')};
+  if(edit)edit.onclick=e=>{e.stopPropagation();setMode('edit')};
+  if(dl)dl.onclick=e=>{e.stopPropagation();downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html||''),w.data.name||w.title||'side.html')};
+  if(interact)interact.onclick=e=>{e.stopPropagation();el.classList.add('htmlInteractive');setIframeControl(w.id,true);toast('HTML-side aktiv. ESC slipper kontrollen.')};
+  const iframe=c.querySelector('iframe');
+  if(iframe){
+    // Send environment information to the iframe once it has loaded.  This
+    // allows HTML widgets to inherit the parent app's fallback configuration
+    // (RUNNING_FROM_FILE and TAVLE_ASSET_BASE) via postMessage.  The
+    // imported document can listen for this message and update its
+    // globals accordingly.
+    iframe.onload=()=>{
+      try{
+        iframe.contentWindow.postMessage({
+          tavle_env:{
+            RUNNING_FROM_FILE:(typeof window.RUNNING_FROM_FILE==='boolean'?window.RUNNING_FROM_FILE:(location.protocol==='file:')),
+            TAVLE_ASSET_BASE:window.TAVLE_ASSET_BASE
+          }
+        },'*');
+      }catch(_envErr){}
+    };
+    const code=String(w.data.html||'');
+    try{
+      const blob=new Blob([code],{type:'text/html;charset=utf-8'});
+      const oldUrl=w.data.__previewUrl;
+      const url=URL.createObjectURL(blob);
+      w.data.__previewUrl=url;
+      iframe.src=url;
+      if(oldUrl&&String(oldUrl).startsWith('blob:'))setTimeout(()=>{try{URL.revokeObjectURL(oldUrl)}catch(_e){}},1000);
+    }catch(_e){
+      try{
+        iframe.src='about:blank';
+        setTimeout(()=>{
+          try{iframe.contentDocument.open();iframe.contentDocument.write(code);iframe.contentDocument.close()}catch(__e){}
+        },0);
+      }catch(__e){}
+    }
+  }
+  const shield=c.querySelector('.htmlShield');
+  if(shield)shield.onpointerdown=e=>{e.preventDefault();e.stopPropagation();select(w.id,{editText:false})};
+  const ta=c.querySelector('textarea');
+  if(ta){
+    ta.addEventListener('pointerdown',e=>{if(!app.classList.contains('present'))select(w.id,{editText:false});e.stopPropagation()});
+    ta.addEventListener('click',e=>e.stopPropagation());
+    ta.oninput=e=>{w.data.html=e.target.value;save({silent:true})};
+    ta.onblur=e=>save();
+    ta.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ta.blur();select(w.id,{editText:false})}};
+  }
+}
  if(w.type==='link'){
   const url=normalizeLinkUrl(w.data.url||'');
   const view=w.data.view||'link';
-  if(view==='iframe' && url){
+  if(view==='iframe' && (url||w.data.srcdoc)){
+    const iframeAttr=w.data.srcdoc
+      ? `srcdoc="${esc(w.data.srcdoc)}"`
+      : `src="${esc(tavleIframeSrc(url,w))}"`;
     c.innerHTML=`<div class="linkIframeBox">
       <div class="linkIframeFrame">
-        <iframe src="${esc(tavleIframeSrc(url,w))}" allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
+        <iframe ${iframeAttr} allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
         <div class="linkIframeShield"></div>
       </div>
     </div>`;
@@ -8966,6 +9820,20 @@ function wireWidget(el,w){
    if(isTap && (!layerTap.ignore || w.type==='text'))bringWidgetToFront(w,el);
    layerTap.t=0;
  },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
+ const toggleHtmlViewBtn=el.querySelector('[data-act=toggleHtmlView]');
+  if(toggleHtmlViewBtn)toggleHtmlViewBtn.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    w.data=w.data||{};
+    w.data.mode=(w.data.mode==='edit')?'preview':'edit';
+    save();render();setTimeout(()=>select(w.id,{editText:false}),0);
+  };
+  const downloadHtmlBtn=el.querySelector('[data-act=downloadHtml]');
+  if(downloadHtmlBtn)downloadHtmlBtn.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    w.data=w.data||{};
+    downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html||''),w.data.name||w.title||'side.html');
+  };
  const toggleLinkViewBtn=el.querySelector('[data-act=toggleLinkView]');
   if(toggleLinkViewBtn)toggleLinkViewBtn.onclick=e=>{
     e.preventDefault();
@@ -9545,7 +10413,58 @@ function wireWheel(c,w){
  const resetBtn=c.querySelector('.resetPool'); if(resetBtn)resetBtn.onclick=()=>{w.data.names=[...(w.data.original||w.data.names||[])];w.data.chosen=[];w.data.winner='';w.data.rot=0;w.data.statsView=false;fillContent(el,w);save()};
  const saveListBtns=c.querySelectorAll('.saveList'); saveListBtns.forEach(btn=>btn.onclick=()=>openSaveListModal({data:{names:[...(w.data.names||[])],chosen:[]}}));
  const saveChosenList=c.querySelector('.saveChosenList'); if(saveChosenList)saveChosenList.onclick=()=>{const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);if(!selected.length){toast('Ingen valgte at gemme endnu');return}openSaveListModal({data:{names:selected,chosen:[]}})};
- const loadBtns=c.querySelectorAll('.loadList'); loadBtns.forEach(loadList=>loadList.onclick=()=>{const useList=(pick,items)=>{w.data.names=[...items];w.data.original=[...items];w.data.chosen=[];w.data.winner='';w.data.rot=0;w.data.editing=false;closeModal();fillContent(el,w);toast('Listen er indlæst i hjulet');setTimeout(()=>flashWheel(el.querySelector('.content')),50);save()};const bank=wheelListBank();const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));showModal('<h2>Hent liste</h2><p>Vælg en gemt liste eller importér en tekstfil/CSV/regneark.</p>'+(keys.length?keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' '):'<p>Ingen gemte lister endnu.</p>')+'<hr>'+importedListButtonHtml()+' <button id="close">Luk</button>');modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.k;useList(pick,wheelListBank()[pick]||[])});wireImportListButton(useList);modal.querySelector('#close').onclick=closeModal});
+  const loadBtns=c.querySelectorAll('.loadList');
+  loadBtns.forEach(loadList=>loadList.onclick=()=>{
+    const useList=(pick,items)=>{
+      w.data.names=[...items];
+      w.data.original=[...items];
+      w.data.chosen=[];
+      w.data.winner='';
+      w.data.rot=0;
+      w.data.editing=false;
+      closeModal();
+      fillContent(el,w);
+      toast('Listen er indlæst i hjulet');
+      setTimeout(()=>flashWheel(el.querySelector('.content')),50);
+      save();
+    };
+    const bank=wheelListBank();
+    const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));
+    // Build dataset selection UI.  Each dataset row is shown with buttons for each column.
+    let dsHtml='';
+    try{
+      const dsets=Array.isArray(state.datasets)?state.datasets:[];
+      if(dsets.length){
+        dsHtml+='<h3>Datasæt</h3>';
+        dsHtml+=dsets.map(ds=>{
+          const cols=(ds.columns||[]).map((col,i)=>`<button class="pickDatasetCol" data-ds="${esc(ds.id)}" data-col="${i}">${esc(col)}</button>`).join(' ');
+          return `<div class="datasetPick"><span>${esc(ds.name||'Datasæt')}</span> ${cols}</div>`;
+        }).join('');
+      }
+    }catch(_e){}
+    const listHtml = keys.length? keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' ') : '<p>Ingen gemte lister endnu.</p>';
+    showModal('<h2>Hent liste</h2><p>Vælg en gemt liste, et datasæt eller importér en tekstfil/CSV/regneark.</p>' + listHtml + dsHtml + '<hr>' + importedListButtonHtml() + ' <button id="close">Luk</button>');
+    // Attach list pick handlers
+    modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{
+      const pick=btn.dataset.k;
+      useList(pick,wheelListBank()[pick]||[]);
+    });
+    // Attach dataset column pick handlers
+    modal.querySelectorAll('.pickDatasetCol').forEach(btn=>btn.onclick=()=>{
+      const dsId=btn.dataset.ds;
+      const colIndex=Number(btn.dataset.col);
+      try{
+        const dset=(state.datasets||[]).find(ds=>String(ds.id)===String(dsId));
+        if(dset){
+          const items=(dset.rows||[]).map(row=>String(row[colIndex]||'').trim()).filter(Boolean);
+          useList(dset.name + ' – ' + (dset.columns&&dset.columns[colIndex]?dset.columns[colIndex]:'Kolonne '+(colIndex+1)), items);
+        }
+      }catch(_err){}
+    });
+    // Import list via file (existing functionality)
+    wireImportListButton(useList);
+    modal.querySelector('#close').onclick=closeModal;
+  });
  const chosenToWheel=c.querySelector('.chosenToWheel'); if(chosenToWheel)chosenToWheel.onclick=()=>{const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);if(!selected.length){toast('Ingen valgte endnu');return}w.data.names=[...selected];w.data.original=[...selected];w.data.chosen=[];w.data.statsView=false;w.data.rot=0;fillContent(el,w);save()};
  const spin=c.querySelector('.spinCenter'); if(spin)spin.onclick=()=>{if(w.data.auto){startWheelAuto(c,w)}else{runWheelSpin(c,w,{auto:false})}};
 }
@@ -9698,9 +10617,10 @@ function bgModal(){
       <div class="bgLibraryHead">
         <div>
           <h3>Tavlebaggrunde</h3>
-          <p>9 farver/gradienter og 9 farver/gradienter + 30 WebP-valg: HD og Klassisk ligger side om side med samme titel og beskrivelse. Ved lokal åbning bruges online fallback fra GitHub Pages. Aktivt filter: <span class="filterName">${esc(filterDef.title)}</span></p>
+          <p>Aktivt filter: <span class="filterName">${esc(filterDef.title)}</span></p>
         </div>
       </div>
+      <div class="bgGridToggleRow"><button id="bgGridToggle" class="bgGridToggleBtn ${slide().grid?'active':''}" type="button">Gitter: ${slide().grid?'Til':'Fra'} <small>Shift+G</small></button></div>
       <div class="bgFilterBar">${filterButtons}</div>
       <div class="bgCategoryBar v46">${categoryButtons}</div>
       <div class="bgSelectorTools">
@@ -9721,6 +10641,21 @@ function bgModal(){
       </select>
       <button id="close">Luk</button>
     </div>`);
+
+  const bgGridToggle=modal.querySelector('#bgGridToggle');
+  function syncBgGridButton(){
+    if(!bgGridToggle)return;
+    bgGridToggle.classList.toggle('active',!!slide().grid);
+    bgGridToggle.innerHTML='Gitter: '+(slide().grid?'Til':'Fra')+' <small>Shift+G</small>';
+  }
+  function toggleBgGrid(){
+    slide().grid=!slide().grid;
+    updateGridOverlay();
+    save();
+    syncBgGridButton();
+    toast(slide().grid?'Gitter til':'Gitter fra');
+  }
+  if(bgGridToggle)bgGridToggle.onclick=e=>{e.preventDefault();e.stopPropagation();toggleBgGrid()};
 
   function applyBgLibraryFilter(){
     const cat=window.__tavleBgCat||'alle';
@@ -9853,6 +10788,12 @@ function bgModal(){
         bgRestore();
         bgClose();
       }
+      return;
+    }
+    if(e.shiftKey && String(e.key||'').toLowerCase()==='g'){
+      e.preventDefault(); e.stopPropagation();
+      bgClearPreviewTransparency();
+      toggleBgGrid();
       return;
     }
     if(e.key==='ArrowRight'){
@@ -10083,7 +11024,8 @@ function showQuickHelp(){
           <li><b>Shift+A</b> tekst</li>
           <li><b>Shift+V</b> video</li>
           <li><b>Shift+X</b> afstemning</li>
-          <li><b>Shift+H</b> hjul</li>
+          <li><b>Shift+H</b> HTML-widget</li>
+          <li><b>Shift+J</b> hjul</li>
           <li><b>Shift+R</b> grupper</li>
           <li><b>Shift+S</b> ordsky</li>
           <li><b>Shift+P</b> PDF</li>
@@ -10091,7 +11033,7 @@ function showQuickHelp(){
           <li><b>Shift+L</b> link</li>
           <li><b>Shift+T</b> timer</li>
           <li><b>Shift+U</b> ur</li>
-          <li><b>Shift+M</b> baggrundsvælger</li><li><b>Ctrl/Cmd+M</b> vælg ny/random baggrund på aktiv tavle</li><li><b>I baggrundsvælger:</b> ←/→ flytter én baggrund, ↑/↓ flytter en række, 1–6 vælger filter, Space previewer og toggler semitransparent visning, Enter vælger/lukker, ESC annullerer.</li>
+          <li><b>Shift+M</b> baggrundsvælger</li><li><b>Træk og slip:</b> billeder, PDF, tekstfiler, links og YouTube-links kan slippes direkte på tavlen.</li><li><b>Ctrl/Cmd+M</b> vælg ny/random baggrund på aktiv tavle</li><li><b>I baggrundsvælger:</b> ←/→ flytter én baggrund, ↑/↓ flytter en række, 1–6 vælger filter, Space previewer og toggler semitransparent visning, Enter vælger/lukker, ESC annullerer.</li>
           <li><b>Shift+G</b> grid</li>
           <li><b>Shift+B</b> backup</li>
           <li><b>Shift+O</b> hints til/fra</li>
@@ -10129,7 +11071,7 @@ function showQuickHelp(){
         <ul>
           <li>Kontekstuelle hints vises i redigering, når de er slået til.</li>
           <li>Slå hints til/fra med afkrydsningen øverst eller <b>Shift+O</b>.</li>
-          <li>Tryk <b>⋯ Mere</b> for billede, link, PDF, baggrund, grid, timer, ur og backup.</li>
+          <li>Tryk <b>⋯ Mere</b> for billede, link, PDF, HTML, baggrund, timer, ur og backup. Grid findes i baggrundsvælgeren og med <b>Shift+G</b>.</li>
         </ul>
       </div>
     </details>
@@ -10247,6 +11189,18 @@ function collectEmbeddedMedia(){
         }
         if(w.type==='pdf'&&w.data&&String(w.data.src||w.data.url||'').startsWith('data:')){
           items.push({type:'PDF',slide:slideName,name:w.data.name||`tavle-${si+1}-pdf-${wi+1}`,src:w.data.src||w.data.url});
+        }
+        if(w.type==='text'&&w.data&&typeof w.data.text==='string'){
+          const src='data:text/plain;charset=utf-8,'+encodeURIComponent(w.data.text);
+          items.push({type:'Tekst',slide:slideName,name:w.data.name||w.title||`tavle-${si+1}-tekst-${wi+1}.txt`,src});
+        }
+        if(w.type==='html'&&w.data&&typeof w.data.html==='string'){
+          const src='data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html);
+          items.push({type:'HTML',slide:slideName,name:w.data.name||w.title||`tavle-${si+1}-html-${wi+1}.html`,src});
+        }
+        if(w.type==='link'&&w.data&&w.data.srcdoc){
+          const src='data:text/html;charset=utf-8,'+encodeURIComponent(w.data.srcdoc);
+          items.push({type:'HTML',slide:slideName,name:w.data.text||w.title||`tavle-${si+1}-html-${wi+1}.html`,src});
         }
       });
     });
@@ -10575,77 +11529,120 @@ function downloadTavleSaveFile(options={}){
   toast(options.templateOnly?'Skabelon gemt':'Gemmefil gemt');
 }
 function applyOpenOptionsFromSaveData(data){tavleApplyPresentationOpen(data);}
+function openTavleSaveText(txt,file){
+  try{
+    const data=JSON.parse(txt);
+    const next=data.state||data;
+    if(!next||!Array.isArray(next.slides)){toast('Filen indeholder ikke tavledata');return false}
+    if(!confirm('Åbn denne tavlefil? Dette erstatter de tavler, der er åbne nu.'))return false;
+    try{tavleRestoreLists(data)}catch(e){}
+    state=next;
+    if(typeof state.active!=='number')state.active=0;
+    const openInPresentation=tavleShouldOpenInPresentation(data);
+    save({silent:true});
+    closeModal();
+    render();
+    if(openInPresentation)tavleSetPresentationMode(true);
+    try{updateSlidesOverviewVisibility()}catch(e){}
+    toast('Tavlefil åbnet');
+    return true;
+  }catch(e){
+    console.error(e);
+    toast('Kunne ikke åbne tavlefilen');
+    return false;
+  }
+}
+
 function openTavleSaveFile(){
-  tavlePickTextFile('.json,application/json',(txt,file)=>{
-    try{
-      const data=JSON.parse(txt);
-      const next=data.state||data;
-      if(!next||!Array.isArray(next.slides)){toast('Filen indeholder ikke tavledata');return}
-      if(!confirm('Åbn denne tavlefil? Dette erstatter de tavler, der er åbne nu.'))return;
-      try{tavleRestoreLists(data)}catch(e){}
-      state=next;
-      if(typeof state.active!=='number')state.active=0;
-      const openInPresentation=tavleShouldOpenInPresentation(data);
-      save({silent:true});
-      closeModal();
-      render();
-      if(openInPresentation)tavleSetPresentationMode(true);
-      try{updateSlidesOverviewVisibility()}catch(e){}
-      toast('Tavlefil åbnet');
-    }catch(e){
-      console.error(e);
-      toast('Kunne ikke åbne tavlefilen');
-    }
-  });
+  tavlePickTextFile('.json,application/json',openTavleSaveText);
 }
 
 
 
+
+async function importFileFromSaveModal(file,point={x:140,y:130}){
+  if(!file)return false;
+  const name=String(file.name||'').toLowerCase();
+  if(/\.(json|tavle|tavlefil)$/i.test(name) || file.type==='application/json'){
+    const txt=await readFileAsText(file);
+    return openTavleSaveText(txt,file)?{ok:true,kind:'backup',label:file&&file.name||'Tavlefil åbnet'}:{ok:false,kind:'error',label:'Kunne ikke åbne tavlefilen'};
+  }
+  if(typeof handleDroppedFile==='function'){
+    return await handleDroppedFile(file,point);
+  }
+  toast('Import er ikke tilgængelig i denne version');
+  return false;
+}
+
 function showSaveFileOptions(){
-  let saveMode='full';
   showModal(`<h2>Gem / åbn</h2>
 
-    <div class="saveCards">
-      <div class="saveCard selected" data-mode="full">
-        <span class="check">✓</span>
-        <b>Fuld tavle</b>
-        <small>Gemmer tavler, widgets, tekst, lister og indlejrede medier som tavlefil.</small>
-      </div>
-
-      <div class="saveCard" data-mode="template">
-        <span class="check">✓</span>
-        <b>Kun skabelon</b>
-        <small>Gemmer layout, tavler, widgets, størrelser og placeringer – uden eksempelindhold.</small>
-      </div>
+    <div id="saveDropZone" class="saveDropZone" tabindex="0" role="button" aria-label="Slip eller vælg fil">
+      <div class="saveDropIcon">📄</div>
+      <b>Slip filer her</b>
+      <span>eller <span class="saveDropChoose">vælg filer</span></span>
+      <div class="saveDropHint">Tavlefiler/JSON åbnes som backup. PDF, billeder, tekst, HTML, CSV m.m. indsættes som widgets, når filtypen understøttes.</div>
     </div>
 
-    <div class="saveActions">
-      <button id="saveTavleFile">Gem tavlefil</button>
-      <button id="openTavleFile">Åbn tavlefil</button>
+    <input id="saveDropInput" type="file" style="display:none" multiple
+      accept=".json,.tavle,.pdf,.png,.jpg,.jpeg,.webp,.gif,.svg,.txt,.md,.markdown,.html,.htm,.css,.js,.csv,.tsv,.xlsx,.xls,.gsheet,application/json,application/pdf,image/*,text/*">
+
+    <div class="saveActions v40">
       <button id="downloadMedia">Download indlejrede medier</button>
+      <button id="saveBackup">Gem backup</button>
+      <button id="saveTemplate">Gem skabelon</button>
       <button id="downloadEmpty">Hent tom app</button>
-    </div>
-
-    <p class="note">Tavlefilen er en JSON-fil med tavlens data. Store medier kan også hentes separat.</p>
-    <button id="closeSave">Luk</button>`);
-
-  const cards=[...modal.querySelectorAll('.saveCard')];
-  cards.forEach(card=>{
-    card.onclick=()=>{
-      saveMode=card.dataset.mode||'full';
-      cards.forEach(c=>c.classList.toggle('selected',c===card));
-    };
-  });
+      <button id="closeSave" class="secondaryClose">Luk</button>
+    </div>`);
 
   const qs=(id)=>modal.querySelector('#'+id);
-  qs('saveTavleFile').onclick=()=>downloadTavleSaveFile({
-    startPresentation:false,
-    templateOnly:saveMode==='template'
-  });
-  qs('openTavleFile').onclick=openTavleSaveFile;
+  qs('saveBackup').onclick=()=>downloadTavleSaveFile({startPresentation:false,templateOnly:false});
+  qs('saveTemplate').onclick=()=>downloadTavleSaveFile({startPresentation:false,templateOnly:true});
   qs('downloadMedia').onclick=downloadAllEmbeddedMedia;
   qs('downloadEmpty').onclick=downloadEmptyApp;
   qs('closeSave').onclick=closeModal;
+
+  const dz=qs('saveDropZone');
+  const input=qs('saveDropInput');
+  const openPicker=()=>input.click();
+  dz.onclick=openPicker;
+  dz.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPicker()}};
+  input.onchange=async()=>{
+    const files=[...input.files||[]];
+    let imported=0;
+    const results=[];
+    for(let i=0;i<files.length;i++){
+      const raw=await importFileFromSaveModal(files[i],dropBatchPoint({x:140,y:130},i));
+      const res=normalizeImportResult(raw,files[i]);
+      results.push(res);
+      if(res.ok!==false)imported++;
+    }
+    input.value='';
+    toastImportCount(imported);
+    showImportSummary(results,{closeModal:true});
+  };
+  ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{
+    e.preventDefault();e.stopPropagation();dz.classList.add('dragOver');
+    try{e.dataTransfer.dropEffect='copy'}catch(_e){}
+  }));
+  ['dragleave','dragend'].forEach(ev=>dz.addEventListener(ev,e=>{
+    e.preventDefault();e.stopPropagation();dz.classList.remove('dragOver');
+  }));
+  dz.addEventListener('drop',async e=>{
+    e.preventDefault();e.stopPropagation();dz.classList.remove('dragOver');
+    const files=[...e.dataTransfer.files||[]];
+    if(!files.length){toast('Ingen filer fundet');return}
+    let imported=0;
+    const results=[];
+    for(let i=0;i<files.length;i++){
+      const raw=await importFileFromSaveModal(files[i],dropBatchPoint({x:140,y:130},i));
+      const res=normalizeImportResult(raw,files[i]);
+      results.push(res);
+      if(res.ok!==false)imported++;
+    }
+    toastImportCount(imported);
+    showImportSummary(results,{closeModal:true});
+  });
 }
 
 
@@ -12142,4 +13139,771 @@ document.addEventListener('click',function(e){
 })();
 
 </script>
+<script>
+(() => {
+  const __oldWireGroups = window.wireGroups;
+  if (__oldWireGroups) {
+    window.wireGroups = function(c, w) {
+      __oldWireGroups(c, w);
+      try {
+        const loadBtn = c.querySelector('.loadGroupList');
+        if (loadBtn) {
+          loadBtn.onclick = () => {
+            // Helper to update groups from selected list or dataset
+            const useList = (pick, items) => {
+              w.data.names = [...items];
+              w.data.groups = [];
+              w.data.groupLocks = [];
+              w.data.rot = 0;
+              w.data.listHidden = false;
+              w.data.groupsVisible = false;
+              closeModal();
+              fillContent(c.closest('.widget'), w);
+              setTimeout(() => {
+                const inp = c.closest('.widget')?.querySelector('.groupSize');
+                if (inp) {
+                  inp.focus({ preventScroll: true });
+                  inp.select();
+                }
+              }, 80);
+              save();
+              toast('Liste hentet');
+            };
+            const bank = wheelListBank();
+            const keys = Object.keys(bank).sort((a, b) => a.localeCompare(b, 'da'));
+            let dsHtml = '';
+            try {
+              const dsets = Array.isArray(state.datasets) ? state.datasets : [];
+              if (dsets.length) {
+                dsHtml += '<h3>Datasæt</h3>';
+                dsHtml += dsets.map(ds => {
+                  const cols = (ds.columns || []).map((col, i) => '<button class="pickDatasetCol" data-ds="' + esc(ds.id) + '" data-col="' + i + '">' + esc(col) + '</button>').join(' ');
+                  return '<div class="datasetPick"><span>' + esc(ds.name || 'Datasæt') + '</span> ' + cols + '</div>';
+                }).join('');
+              }
+            } catch (e) {}
+            const listHtml = keys.length ? keys.map(k => '<button class="pickList" data-k="' + esc(k) + '">' + esc(k) + '</button>').join(' ') : '<p>Ingen gemte lister endnu.</p>';
+            showModal('<h2>Hent liste til grupper</h2><p>Vælg en gemt liste, et datasæt eller importér en tekstfil/CSV/regneark.</p>' + listHtml + dsHtml + '<hr>' + importedListButtonHtml() + ' <button id="close">Luk</button>');
+            modal.querySelectorAll('.pickList').forEach(btn => btn.onclick = () => {
+              const pick = btn.dataset.k;
+              useList(pick, wheelListBank()[pick] || []);
+            });
+            modal.querySelectorAll('.pickDatasetCol').forEach(btn => btn.onclick = () => {
+              const dsId = btn.dataset.ds;
+              const colIndex = Number(btn.dataset.col);
+              try {
+                const dset = (state.datasets || []).find(ds => String(ds.id) === String(dsId));
+                if (dset) {
+                  const items = (dset.rows || []).map(row => String(row[colIndex] || '').trim()).filter(Boolean);
+                  useList(dset.name + ' – ' + ((dset.columns && dset.columns[colIndex]) || ('Kolonne ' + (colIndex + 1))), items);
+                }
+              } catch (err) {}
+            });
+            wireImportListButton(useList);
+            modal.querySelector('#close').onclick = closeModal;
+          };
+        }
+      } catch (err) {}
+    };
+  }
+})();
+</script>
+
+<script id="widget-overview-js">
+(function(){
+  function ready(fn){
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fn,{once:true});
+    else fn();
+  }
+  ready(function(){
+    const app=document.getElementById('app');
+    const btn=document.getElementById('widgetCycle');
+    if(!app || !btn) return;
+    btn.title='Widget-overblik (Cmd/Ctrl+O)';
+    btn.setAttribute('aria-label','Widget-overblik');
+    btn.classList.add('widgetOverviewToggle');
+    btn.classList.remove('active');
+
+    if(!document.getElementById('widget-overview-style-v4')){
+      const st=document.createElement('style');
+      st.id='widget-overview-style-v4';
+      st.textContent=`
+        body.widgetOverviewMode .toolbar,
+        body.widgetOverviewMode .toolbarPeek,
+        body.widgetOverviewMode .toolbarPinFloat,
+        body.widgetOverviewMode .drawPanel{display:none!important}
+        body.widgetOverviewMode .widgetOverviewItem{
+          outline:3px solid rgba(255,255,255,.55)!important;
+          box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+          cursor:pointer!important;overflow:hidden!important;border-radius:14px!important;
+        }
+        body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected{
+          outline:5px solid #6d5dfc!important;
+          box-shadow:0 0 0 4px rgba(109,93,252,.22),0 18px 42px rgba(0,0,0,.38)!important;
+        }
+        body.widgetOverviewMode .widgetOverviewItem:hover{outline-color:#f59e0b!important}
+        body.widgetOverviewMode .widgetOverviewItem .chrome,
+        body.widgetOverviewMode .widgetOverviewItem .resize,
+        body.widgetOverviewMode .widgetOverviewItem .rotater,
+        body.widgetOverviewMode .widgetOverviewItem .widget-control,
+        body.widgetOverviewMode .widgetOverviewItem .mediaActions,
+        body.widgetOverviewMode .widgetOverviewItem .pdfControls,
+        body.widgetOverviewMode .widgetOverviewItem .linkBox .edit{display:none!important}
+        body.widgetOverviewMode .widgetOverviewItem .content{
+          height:100%!important;border-radius:14px!important;overflow:hidden!important;
+        }
+        body.widgetOverviewMode .widget:not(.widgetOverviewItem){opacity:.18!important;pointer-events:none!important}
+        body.widgetOverviewMode #app::after{
+          content:"";position:absolute;inset:0;z-index:15;pointer-events:none;background:rgba(0,0,0,.10);
+        }
+        body.widgetOverviewMode .widgetOverviewHint{
+          position:absolute;left:50%;bottom:92px;transform:translateX(-50%);z-index:9999;
+          background:rgba(17,24,39,.92);color:white;border-radius:999px;padding:10px 16px;
+          font-weight:900;box-shadow:0 10px 24px rgba(0,0,0,.25);pointer-events:none;text-align:center;
+        }
+        #widgetCycle.widgetCycleBtn,#widgetCycle.widgetOverviewToggle{margin-left:8px!important}
+        #widgetCycle.widgetOverviewToggle:not(.active){background:#4b5563!important;color:white!important;box-shadow:none!important}
+        body.widgetOverviewMode #widgetCycle.widgetOverviewToggle,
+        #widgetCycle.widgetOverviewToggle.active{background:#6d5dfc!important;color:white!important;box-shadow:0 0 0 2px rgba(255,255,255,.14) inset!important}
+
+        body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected{z-index:8500!important}
+        body:not(.widgetOverviewMode) .widget.selected,
+        body:not(.widgetOverviewMode) .widget.focused,
+        body:not(.widgetOverviewMode) .widget.focusTarget,
+        body.focus-mode .widget.selected,
+        body.focus-mode .widget.focused,
+        body.focus-mode .widget.focusTarget,
+        body.focus-edit .widget.selected,
+        body.focus-edit .widget.focused,
+        body.focus-edit .widget.focusTarget,
+        body.focus-presentation .widget.selected,
+        body.focus-presentation .widget.focused,
+        body.focus-presentation .widget.focusTarget,
+        body.focus-maximized .widget.selected,
+        body.focus-maximized .widget.focused,
+        body.focus-maximized .widget.focusTarget{
+          z-index:214748000!important;
+        }
+      `;
+      document.head.appendChild(st);
+    }
+
+    let overviewOpen=false;
+    let stored=[];
+    let hint=null;
+    let activeIndex=0;
+    let beforeState=null;
+    let overviewCols=1;
+
+    function cssEscape(v){ return (window.CSS&&CSS.escape) ? CSS.escape(String(v)) : String(v).replace(/"/g,'\\"'); }
+    function widgets(){
+      return Array.from(document.querySelectorAll('.widget'))
+        .filter(el=>el && el.offsetParent!==null && !el.classList.contains('hidden'));
+    }
+    function getId(el){ return el && el.dataset ? el.dataset.id : ''; }
+    function currentOverviewItems(){ return Array.from(document.querySelectorAll('.widgetOverviewItem')); }
+    function setButtonActive(on){ btn.classList.toggle('active',!!on); btn.setAttribute('aria-pressed',on?'true':'false'); }
+    function removeFocusModeClasses(){
+      ['focus-mode','focus-edit','focus-presentation','focus-maximized','focusMode'].forEach(function(c){document.body.classList.remove(c); app.classList.remove(c);});
+    }
+    function restoreModeClassesFromBefore(){
+      if(!beforeState) return;
+      document.body.className=beforeState.bodyClasses || '';
+      app.className=beforeState.appClasses || app.className;
+      document.body.classList.remove('widgetOverviewMode');
+      app.classList.remove('widgetOverviewMode');
+    }
+
+    function isRealFocusActive(){
+      return document.body.classList.contains('focus-mode') ||
+             document.body.classList.contains('focus-edit') ||
+             document.body.classList.contains('focus-presentation') ||
+             document.body.classList.contains('focus-maximized');
+    }
+    function topWidgetZ(){
+      let m=0;
+      document.querySelectorAll('.widget').forEach(w=>{
+        const zi=parseInt(w.style.zIndex || getComputedStyle(w).zIndex || '0',10);
+        if(Number.isFinite(zi)) m=Math.max(m,zi);
+      });
+      return Math.max(m, window.__widgetOverviewTopZ||9000);
+    }
+    function bumpWidgetToFront(el){
+      if(!el) return;
+      const nextZ=(window.__widgetOverviewTopZ=topWidgetZ()+1);
+      el.style.zIndex=String(nextZ);
+      try{
+        const id=getId(el);
+        if(id && typeof window.slide==='function'){
+          const data=(slide().widgets||[]).find(w=>String(w.id)===String(id));
+          if(data) data.z=nextZ;
+        }
+      }catch(_e){}
+    }
+    function selectWidget(el){
+      if(!el) return;
+      const id=getId(el);
+      try{ if(id && typeof window.select==='function') window.select(id); }catch(_e){}
+      try{ if(id && typeof window.selectWidget==='function') window.selectWidget(id); }catch(_e){}
+      document.querySelectorAll('.widget').forEach(w=>{
+        if(w!==el) w.classList.remove('selected','focused','focusTarget');
+      });
+      el.classList.add('selected');
+      if(isRealFocusActive()){
+        document.querySelectorAll('.widget').forEach(w=>{ if(w!==el) w.classList.remove('focused','focusTarget'); });
+        el.classList.add('focused','focusTarget');
+      }
+      bumpWidgetToFront(el);
+    }
+    function focusChosenWidget(el){
+      if(!el) return;
+      selectWidget(el);
+      el.classList.add('focused','focusTarget');
+      bumpWidgetToFront(el);
+      if(isRealFocusActive()) return;
+      setTimeout(function(){
+        try{
+          const api=window.tavleShortcutAPI||{};
+          if(api.toggleFocusShortcut) api.toggleFocusShortcut();
+          else document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true,cancelable:true}));
+          el.classList.add('focused','focusTarget');
+          bumpWidgetToFront(el);
+        }catch(_e){}
+      },40);
+    }
+    function maximizeChosenWidget(el){
+      if(!el) return;
+      selectWidget(el);
+      el.classList.add('focused','focusTarget');
+      bumpWidgetToFront(el);
+      setTimeout(function(){
+        try{
+          const api=window.tavleShortcutAPI||{};
+          if(api.toggleMaximizedFocusShortcut) api.toggleMaximizedFocusShortcut();
+          else document.dispatchEvent(new KeyboardEvent('keydown',{key:'F',shiftKey:true,bubbles:true,cancelable:true}));
+          el.classList.add('focused','focusTarget');
+          bumpWidgetToFront(el);
+        }catch(_e){}
+      },70);
+    }
+    function clampIndex(i){
+      const items=currentOverviewItems();
+      if(!items.length) return 0;
+      return Math.max(0,Math.min(items.length-1,i));
+    }
+    function setOverviewSelection(index){
+      const items=currentOverviewItems();
+      if(!items.length) return;
+      activeIndex=clampIndex(index);
+      items.forEach((el,i)=>el.classList.toggle('widgetOverviewSelected',i===activeIndex));
+      try{ items[activeIndex].scrollIntoView({block:'nearest',inline:'nearest'}); }catch(_e){}
+    }
+    function moveOverviewSelection(dir){
+      const items=currentOverviewItems();
+      if(!items.length) return;
+      const cols=Math.max(1,overviewCols||1);
+      let next=activeIndex;
+      if(dir==='right') next=activeIndex+1;
+      if(dir==='left') next=activeIndex-1;
+      if(dir==='down') next=activeIndex+cols;
+      if(dir==='up') next=activeIndex-cols;
+      setOverviewSelection(next);
+    }
+    function selectedOverviewWidget(){ return currentOverviewItems()[activeIndex] || currentOverviewItems()[0] || null; }
+
+    function capture(){
+      beforeState={
+        bodyClasses:document.body.className,
+        appClasses:app.className,
+        selected:document.querySelector('.widget.selected') ? getId(document.querySelector('.widget.selected')) : '',
+        wasFocus:isRealFocusActive()
+      };
+      stored=widgets().map(el=>({
+        el:el,id:getId(el),
+        left:el.style.left,top:el.style.top,width:el.style.width,height:el.style.height,
+        transform:el.style.transform,transformOrigin:el.style.transformOrigin,zIndex:el.style.zIndex,
+        transition:el.style.transition,pointerEvents:el.style.pointerEvents
+      }));
+    }
+    function restore(){
+      stored.forEach(s=>{
+        const el=s.el && s.el.isConnected ? s.el : (s.id?document.querySelector('.widget[data-id="'+cssEscape(s.id)+'"]'):null);
+        if(!el) return;
+        el.style.left=s.left; el.style.top=s.top; el.style.width=s.width; el.style.height=s.height;
+        el.style.transform=s.transform; el.style.transformOrigin=s.transformOrigin; el.style.zIndex=s.zIndex;
+        el.style.transition=s.transition; el.style.pointerEvents=s.pointerEvents;
+        el.classList.remove('widgetOverviewItem','widgetOverviewSelected');
+      });
+      stored=[];
+    }
+    function closeOverview(chosen, opts){
+      opts=opts||{};
+      if(!overviewOpen) return;
+      const wasFocus=!!(beforeState && beforeState.wasFocus);
+      overviewOpen=false;
+      app.classList.remove('widgetOverviewMode');
+      document.body.classList.remove('widgetOverviewMode');
+      setButtonActive(false);
+      if(hint){ hint.remove(); hint=null; }
+      restore();
+      restoreModeClassesFromBefore();
+      if(chosen){
+        if(opts.maximize) maximizeChosenWidget(chosen);
+        else if(opts.focus || wasFocus) focusChosenWidget(chosen);
+        else selectWidget(chosen);
+      }
+      beforeState=null;
+      try{ if(typeof window.toast==='function') window.toast(chosen?(opts.focus?'Widget i fokus':(opts.maximize?'Widget maksimeret':'Widget valgt')):'Widget-overblik lukket'); }catch(_e){}
+    }
+    function openOverview(){
+      if(overviewOpen){ closeOverview(); return; }
+      const ws=widgets();
+      if(!ws.length){ try{ if(typeof window.toast==='function') window.toast('Ingen widgets på tavlen'); }catch(_e){} return; }
+      overviewOpen=true;
+      capture();
+      removeFocusModeClasses();
+      app.classList.add('widgetOverviewMode');
+      document.body.classList.add('widgetOverviewMode');
+      setButtonActive(true);
+
+      const rect=app.getBoundingClientRect();
+      const topPad=86, bottomPad=118, sidePad=28, gap=12;
+      const availW=Math.max(260, rect.width - sidePad*2);
+      const availH=Math.max(220, rect.height - topPad - bottomPad);
+      const n=ws.length;
+      let best={cols:1,rows:n,score:Infinity,w:availW,h:availH};
+      for(let cols=1; cols<=Math.min(n,5); cols++){
+        const rows=Math.ceil(n/cols);
+        const cellW=(availW-gap*(cols-1))/cols;
+        const cellH=(availH-gap*(rows-1))/rows;
+        const ratio=cellW/cellH;
+        const score=Math.abs(Math.log(ratio/1.45)) + rows*.08;
+        if(score<best.score) best={cols:cols,rows:rows,score:score,w:cellW,h:cellH};
+      }
+      overviewCols=Math.max(1,best.cols||1);
+      const gridW=best.cols*best.w+(best.cols-1)*gap;
+      const startX=Math.max(sidePad,(rect.width-gridW)/2);
+      const startY=topPad;
+      ws.forEach((el,i)=>{
+        const col=i%best.cols, row=Math.floor(i/best.cols);
+        const x=startX+col*(best.w+gap), y=startY+row*(best.h+gap);
+        const oldW=el.offsetWidth||360, oldH=el.offsetHeight||240;
+        const scale=Math.min(best.w/oldW, best.h/oldH, 1.05);
+        const shownW=Math.max(150, Math.min(best.w, oldW*scale));
+        const shownH=Math.max(105, Math.min(best.h, oldH*scale));
+        el.style.transition='left .18s ease, top .18s ease, width .18s ease, height .18s ease, transform .18s ease, box-shadow .18s ease';
+        el.style.left=Math.round(x+(best.w-shownW)/2)+'px';
+        el.style.top=Math.round(y+(best.h-shownH)/2)+'px';
+        el.style.width=Math.round(shownW)+'px';
+        el.style.height=Math.round(shownH)+'px';
+        el.style.transform='rotate(0deg)';
+        el.style.transformOrigin='center center';
+        el.style.zIndex=String(7000+i);
+        el.style.pointerEvents='auto';
+        el.classList.add('widgetOverviewItem');
+        el.classList.remove('selected','focused','focusTarget');
+      });
+      const selectedId=(beforeState&&beforeState.selected)||'';
+      activeIndex=Math.max(0, ws.findIndex(el=>getId(el)===selectedId));
+      setOverviewSelection(activeIndex);
+      hint=document.createElement('div');
+      hint.className='widgetOverviewHint';
+      hint.textContent='Widget-overblik: pile vælger i grid · Enter/tap åbner · F fokus · Shift+F maksimerer · ESC lukker';
+      app.appendChild(hint);
+      try{ if(typeof window.toast==='function') window.toast('Widget-overblik'); }catch(_e){}
+    }
+
+    btn.addEventListener('click',function(e){
+      e.preventDefault(); e.stopPropagation();
+      if(overviewOpen) closeOverview(); else openOverview();
+    });
+
+    document.addEventListener('click',function(e){
+      if(!overviewOpen) return;
+      const w=e.target && e.target.closest && e.target.closest('.widgetOverviewItem');
+      if(w){
+        e.preventDefault(); e.stopPropagation();
+        closeOverview(w);
+        return;
+      }
+      if(e.target===btn || (e.target.closest && e.target.closest('#widgetCycle'))) return;
+      if(e.target.closest && e.target.closest('.topbar')) return;
+      e.preventDefault(); e.stopPropagation();
+      closeOverview();
+    },true);
+
+    window.addEventListener('keydown',function(e){
+      const key=String(e.key||'');
+      const lower=key.toLowerCase();
+      if((e.metaKey || e.ctrlKey) && !e.altKey && lower==='o'){
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        if(overviewOpen) closeOverview(); else openOverview();
+        return;
+      }
+      if(!overviewOpen) return;
+      /* v7: In overview, Cmd/Ctrl+Left/Right moves the selected widget to another board.
+         Close overview first so temporary grid layout is never saved as widget geometry. */
+      if((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && (key==='ArrowRight' || key==='ArrowLeft')){
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        const chosen=selectedOverviewWidget();
+        const dir=key==='ArrowRight' ? 1 : -1;
+        closeOverview(chosen);
+        setTimeout(function(){
+          try{
+            const id=getId(chosen);
+            if(id){
+              if(typeof window.select==='function') window.select(id);
+              else if(typeof window.selectWidget==='function') window.selectWidget(id);
+            }
+            if(typeof moveSelectedWidgetBySlideDirection==='function') moveSelectedWidgetBySlideDirection(dir);
+          }catch(_e){}
+        },20);
+        return;
+      }
+      if(['ArrowRight','ArrowDown','ArrowLeft','ArrowUp','Enter','Escape'].includes(key) || lower==='f'){
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      }
+      if(key==='Escape'){
+        closeOverview();
+      }else if(key==='Enter'){
+        closeOverview(selectedOverviewWidget());
+      }else if(key==='ArrowRight'){
+        moveOverviewSelection('right');
+      }else if(key==='ArrowLeft'){
+        moveOverviewSelection('left');
+      }else if(key==='ArrowDown'){
+        moveOverviewSelection('down');
+      }else if(key==='ArrowUp'){
+        moveOverviewSelection('up');
+      }else if(lower==='f' && e.shiftKey){
+        closeOverview(selectedOverviewWidget(),{maximize:true});
+      }else if(lower==='f'){
+        closeOverview(selectedOverviewWidget(),{focus:true});
+      }
+    },true);
+
+    window.closeWidgetOverview=closeOverview;
+    window.openWidgetOverview=openOverview;
+    window.toggleWidgetOverview=function(){ if(overviewOpen) closeOverview(); else openOverview(); };
+    setButtonActive(false);
+  });
+})();
+</script>
+
+
+<script id="widget-overview-v5-focus-key-fix">
+
+(function(){
+  function ready(fn){
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fn,{once:true});
+    else fn();
+  }
+  ready(function(){
+    const app=document.getElementById('app');
+    const btn=document.getElementById('widgetCycle');
+    if(!app || !btn) return;
+
+    /* v5: clean initial state for overview button/classes */
+    try{
+      document.body.classList.remove('widgetOverviewMode');
+      app.classList.remove('widgetOverviewMode');
+      btn.classList.remove('active');
+      btn.setAttribute('aria-pressed','false');
+    }catch(_e){}
+
+    if(!document.getElementById('widget-overview-v5-style')){
+      const st=document.createElement('style');
+      st.id='widget-overview-v5-style';
+      st.textContent=`
+        /* v5: in overview there is exactly one clear selection mark */
+        body.widgetOverviewMode .widgetOverviewItem{
+          outline:3px solid rgba(255,255,255,.55)!important;
+          box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+        }
+        body.widgetOverviewMode .widgetOverviewItem.selected,
+        body.widgetOverviewMode .widgetOverviewItem.focused,
+        body.widgetOverviewMode .widgetOverviewItem.focusTarget{
+          outline:3px solid rgba(255,255,255,.55)!important;
+          box-shadow:0 10px 28px rgba(0,0,0,.28)!important;
+        }
+        body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected,
+        body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected.selected,
+        body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected.focused,
+        body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected.focusTarget{
+          outline:6px solid #6d5dfc!important;
+          box-shadow:0 0 0 4px rgba(109,93,252,.28),0 20px 48px rgba(0,0,0,.42)!important;
+          z-index:214748200!important;
+        }
+        /* v5: selected/focused/maximized widget must always win the stack */
+        body:not(.widgetOverviewMode) .widget.selected,
+        body:not(.widgetOverviewMode) .widget.focused,
+        body:not(.widgetOverviewMode) .widget.focusTarget,
+        body.focus-mode:not(.widgetOverviewMode) .widget.selected,
+        body.focus-mode:not(.widgetOverviewMode) .widget.focused,
+        body.focus-mode:not(.widgetOverviewMode) .widget.focusTarget,
+        body.focus-edit:not(.widgetOverviewMode) .widget.selected,
+        body.focus-edit:not(.widgetOverviewMode) .widget.focused,
+        body.focus-edit:not(.widgetOverviewMode) .widget.focusTarget,
+        body.focus-presentation:not(.widgetOverviewMode) .widget.selected,
+        body.focus-presentation:not(.widgetOverviewMode) .widget.focused,
+        body.focus-presentation:not(.widgetOverviewMode) .widget.focusTarget,
+        body.focus-maximized:not(.widgetOverviewMode) .widget.selected,
+        body.focus-maximized:not(.widgetOverviewMode) .widget.focused,
+        body.focus-maximized:not(.widgetOverviewMode) .widget.focusTarget{
+          z-index:214748200!important;
+        }
+      `;
+      document.head.appendChild(st);
+    }
+
+    function isOverview(){ return document.body.classList.contains('widgetOverviewMode') || app.classList.contains('widgetOverviewMode'); }
+    function isFocusActive(){
+      return document.body.classList.contains('focus-mode') ||
+             document.body.classList.contains('focus-edit') ||
+             document.body.classList.contains('focus-presentation') ||
+             document.body.classList.contains('focus-maximized') ||
+             app.classList.contains('focusMode') ||
+             app.classList.contains('focus-mode');
+    }
+    function topZ(){
+      let m=0;
+      document.querySelectorAll('.widget').forEach(w=>{
+        const z=parseInt(w.style.zIndex || getComputedStyle(w).zIndex || '0',10);
+        if(Number.isFinite(z)) m=Math.max(m,z);
+      });
+      return Math.max(m, window.__widgetOverviewTopZ || 9000);
+    }
+    function setFront(el){
+      if(!el) return;
+      const z=(window.__widgetOverviewTopZ=topZ()+1);
+      el.style.zIndex=String(z);
+      try{
+        const id=el.dataset && el.dataset.id;
+        if(id && typeof window.slide==='function'){
+          const data=(slide().widgets||[]).find(w=>String(w.id)===String(id));
+          if(data) data.z=z;
+        }
+      }catch(_e){}
+    }
+    function normalizeSelectedFocus(){
+      if(isOverview()) return;
+      const sel=document.querySelector('.widget.selected:not(.focused):not(.focusTarget)') || document.querySelector('.widget.selected') || document.querySelector('.widget.focused') || document.querySelector('.widget.focusTarget');
+      if(!sel) return;
+      if(isFocusActive()){
+        document.querySelectorAll('.widget').forEach(w=>{
+          if(w!==sel) w.classList.remove('selected','focused','focusTarget');
+        });
+        sel.classList.add('selected','focused','focusTarget');
+      }else{
+        sel.classList.add('selected');
+      }
+      setFront(sel);
+    }
+    function normalizeOverviewSelection(){
+      if(!isOverview()) return;
+      const items=Array.from(document.querySelectorAll('.widgetOverviewItem'));
+      const active=document.querySelector('.widgetOverviewItem.widgetOverviewSelected') || items.find(w=>w.classList.contains('selected')) || items[0];
+      items.forEach(w=>{
+        w.classList.remove('selected','focused','focusTarget');
+        if(w!==active){ w.classList.remove('widgetOverviewSelected'); }
+      });
+      if(active){ active.classList.add('widgetOverviewSelected'); active.style.zIndex='214748200'; }
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed','true');
+    }
+
+    /* Cmd/Ctrl+O must always be widget overview, never maximize/open-file. */
+    function cmdOHandler(e){
+      const k=String(e.key||'').toLowerCase();
+      if((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && k==='o'){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+        try{
+          if(typeof window.toggleWidgetOverview==='function') window.toggleWidgetOverview();
+          else btn.click();
+        }catch(_e){ try{ btn.click(); }catch(_e2){} }
+        return false;
+      }
+    }
+    window.addEventListener('keydown',cmdOHandler,true);
+    document.addEventListener('keydown',cmdOHandler,true);
+    app.addEventListener('keydown',cmdOHandler,true);
+
+    /* Up/down changes widgets in normal mode; when in focus, the focus must follow selected widget. */
+    function afterNav(e){
+      const k=String(e.key||'');
+      if(isOverview()){
+        if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(k)) setTimeout(normalizeOverviewSelection,0);
+        return;
+      }
+      if(k==='ArrowUp' || k==='ArrowDown'){
+        setTimeout(normalizeSelectedFocus,0);
+        setTimeout(normalizeSelectedFocus,60);
+      }
+      if(k==='F' && e.shiftKey){
+        setTimeout(normalizeSelectedFocus,90);
+      }
+    }
+    window.addEventListener('keydown',afterNav,true);
+    document.addEventListener('keyup',afterNav,true);
+    document.addEventListener('click',function(e){
+      setTimeout(function(){ if(isOverview()) normalizeOverviewSelection(); else normalizeSelectedFocus(); },0);
+    },true);
+
+    /* Last-resort sync while in focus/overview after external handlers have changed selection. */
+    let lastSel='';
+    setInterval(function(){
+      try{
+        if(isOverview()){
+          normalizeOverviewSelection();
+          return;
+        }
+        const sel=document.querySelector('.widget.selected') || document.querySelector('.widget.focused') || document.querySelector('.widget.focusTarget');
+        const id=sel && sel.dataset ? String(sel.dataset.id||'') : '';
+        if(id && (id!==lastSel || isFocusActive())){
+          lastSel=id;
+          normalizeSelectedFocus();
+        }
+      }catch(_e){}
+    },250);
+  });
+})();
+
+</script>
+
+<script id="widget-overview-v6-focus-overview-fix">
+(function(){
+  function ready(fn){ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fn,{once:true}); else fn(); }
+  ready(function(){
+    var app=document.getElementById('app'); var btn=document.getElementById('widgetCycle'); if(!app) return;
+    if(!document.getElementById('widget-overview-v6-style')){
+      var st=document.createElement('style'); st.id='widget-overview-v6-style'; st.textContent='body.widgetOverviewMode .widgetOverviewItem{opacity:1!important;filter:none!important;visibility:visible!important} body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected{outline:6px solid #6d5dfc!important;box-shadow:0 0 0 4px rgba(109,93,252,.30),0 22px 52px rgba(0,0,0,.44)!important;z-index:214748250!important} body:not(.widgetOverviewMode) .widget.selected,body:not(.widgetOverviewMode) .widget.focused,body:not(.widgetOverviewMode) .widget.focusTarget{z-index:214748250!important}';
+      document.head.appendChild(st);
+    }
+    function isOverview(){return document.body.classList.contains('widgetOverviewMode')||app.classList.contains('widgetOverviewMode');}
+    function isFocus(){return ['focus-mode','focus-edit','focus-presentation','focus-maximized','focusMode'].some(function(c){return document.body.classList.contains(c)||app.classList.contains(c);});}
+    function topZ(){var m=0;document.querySelectorAll('.widget').forEach(function(w){var z=parseInt(w.style.zIndex||getComputedStyle(w).zIndex||'0',10);if(Number.isFinite(z))m=Math.max(m,z);});return Math.max(m,window.__widgetOverviewTopZ||9000);}
+    function front(w){if(!w)return;var z=(window.__widgetOverviewTopZ=topZ()+1);w.style.zIndex=String(z);}
+    function currentSelected(){return document.querySelector('.widget.selected:not(.focused):not(.focusTarget)')||document.querySelector('.widget.selected')||document.querySelector('.widget.focused')||document.querySelector('.widget.focusTarget');}
+    function syncFocusSelection(){
+      if(isOverview()) return;
+      var sel=currentSelected(); if(!sel) return;
+      if(isFocus()){document.querySelectorAll('.widget').forEach(function(w){if(w!==sel)w.classList.remove('selected','focused','focusTarget');}); sel.classList.add('selected','focused','focusTarget');}
+      else {document.querySelectorAll('.widget').forEach(function(w){if(w!==sel)w.classList.remove('focused','focusTarget');}); sel.classList.add('selected');}
+      front(sel);
+    }
+    function cleanOverviewButton(){ if(btn && !isOverview()){btn.classList.remove('active');btn.setAttribute('aria-pressed','false');} }
+    cleanOverviewButton();
+    document.addEventListener('keydown',function(e){
+      var k=String(e.key||''); var lower=k.toLowerCase();
+      if((e.metaKey||e.ctrlKey)&&!e.altKey&&!e.shiftKey&&lower==='o'){ e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); try{ if(typeof window.toggleWidgetOverview==='function') window.toggleWidgetOverview(); else if(btn) btn.click(); }catch(_e){} return false; }
+      if(!isOverview() && (k==='ArrowUp'||k==='ArrowDown')){ setTimeout(syncFocusSelection,0); setTimeout(syncFocusSelection,80); }
+      if(!isOverview() && k==='F' && e.shiftKey){ setTimeout(syncFocusSelection,120); }
+    },true);
+    document.addEventListener('keyup',function(e){ if(!isOverview() && (e.key==='ArrowUp'||e.key==='ArrowDown')) setTimeout(syncFocusSelection,0); },true);
+    setInterval(function(){try{ if(!isOverview()){cleanOverviewButton(); if(isFocus()) syncFocusSelection();}}catch(_e){}},300);
+  });
+})();
+</script>
+
+
+<script id="widget-overview-v8-fixed-clean-overview-slide-reset">
+(function(){
+  function ready(fn){ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fn,{once:true}); else fn(); }
+  ready(function(){
+    var app=document.getElementById('app');
+    if(!app) return;
+
+    if(!document.getElementById('widget-overview-v8-fixed-style')){
+      var st=document.createElement('style');
+      st.id='widget-overview-v8-fixed-style';
+      st.textContent=[
+        /* Overview skal være ren: ingen topbar/toolbar, kun tavletitel bliver stående. */
+        'body.widgetOverviewMode .topbar{display:none!important;opacity:0!important;pointer-events:none!important}',
+        'body.widgetOverviewMode .toolbar,body.widgetOverviewMode .toolbarPeek,body.widgetOverviewMode .toolbarPinFloat,body.widgetOverviewMode .drawPanel,#toolbarWakeZone{display:none!important;opacity:0!important;pointer-events:none!important}',
+        'body.widgetOverviewMode .title,body.widgetOverviewMode #title{display:block!important;opacity:1!important;visibility:visible!important;pointer-events:none!important;z-index:214748260!important}',
+        /* Valgt/fokus/max skal altid ligge øverst udenfor overview. */
+        'body:not(.widgetOverviewMode) .widget.selected,body:not(.widgetOverviewMode) .widget.focused,body:not(.widgetOverviewMode) .widget.focusTarget{z-index:214748250!important}',
+        'body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected{outline:6px solid #6d5dfc!important;box-shadow:0 0 0 4px rgba(109,93,252,.30),0 22px 52px rgba(0,0,0,.44)!important;z-index:214748250!important}'
+      ].join('\n');
+      document.head.appendChild(st);
+    }
+
+    function overviewOn(){ return document.body.classList.contains('widgetOverviewMode') || app.classList.contains('widgetOverviewMode'); }
+    function clearFocusAndMax(){
+      var classes=['focus-mode','focus-edit','focus-presentation','focus-maximized','focusMode','maximized-from-edit','maximizedFocus','focusMaximized'];
+      classes.forEach(function(c){ document.body.classList.remove(c); app.classList.remove(c); });
+      document.querySelectorAll('.widget').forEach(function(w){
+        w.classList.remove('focused','focusTarget','maximized','maximizedFocus','focusMaximized');
+        w.style.opacity='';
+        w.style.filter='';
+        w.style.visibility='';
+      });
+      document.querySelectorAll('#focusExit,#maxEmergencyExit,.focusExit,.maxEmergencyExit').forEach(function(el){
+        if(el && el.style) el.style.display='none';
+      });
+    }
+
+    /* Åbner overview rent, også hvis man kom fra fokus/maksimeret. Den gamle overview-logik husker stadig, om fokus var aktivt. */
+    var openOld=window.openWidgetOverview;
+    if(typeof openOld==='function' && !openOld.__v8FixedWrapped){
+      var openNew=function(){
+        var r=openOld.apply(this,arguments);
+        setTimeout(function(){
+          if(overviewOn()){
+            clearFocusAndMax();
+            document.body.classList.add('widgetOverviewMode');
+            app.classList.add('widgetOverviewMode');
+          }
+        },0);
+        return r;
+      };
+      openNew.__v8FixedWrapped=true;
+      window.openWidgetOverview=openNew;
+      window.toggleWidgetOverview=function(){
+        if(overviewOn() && typeof window.closeWidgetOverview==='function') window.closeWidgetOverview();
+        else window.openWidgetOverview();
+      };
+    }
+
+    function wrapBoardChange(name){
+      var old=window[name];
+      if(typeof old!=='function' || old.__v8FixedWrapped) return;
+      var fn=function(){
+        if(overviewOn() && typeof window.closeWidgetOverview==='function') window.closeWidgetOverview();
+        clearFocusAndMax();
+        var r=old.apply(this,arguments);
+        setTimeout(clearFocusAndMax,0);
+        setTimeout(clearFocusAndMax,80);
+        return r;
+      };
+      fn.__v8FixedWrapped=true;
+      window[name]=fn;
+    }
+    wrapBoardChange('nextSlide');
+    wrapBoardChange('prevSlide');
+
+    /* Topbar-knapper og almindeligt tastatur-tavleskift må ikke trække fokus/max med over på næste tavle. */
+    ['prev','next'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){ el.addEventListener('click',function(){ setTimeout(clearFocusAndMax,0); setTimeout(clearFocusAndMax,80); },true); }
+    });
+    document.addEventListener('keydown',function(e){
+      var key=e.key||'';
+      var lower=String(key).toLowerCase();
+      if((e.metaKey||e.ctrlKey) && !e.altKey && !e.shiftKey && lower==='o'){
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+        if(typeof window.toggleWidgetOverview==='function') window.toggleWidgetOverview();
+        return false;
+      }
+      if(!overviewOn() && (key==='ArrowLeft' || key==='ArrowRight') && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey){
+        setTimeout(clearFocusAndMax,0);
+        setTimeout(clearFocusAndMax,80);
+      }
+    },true);
+  });
+})();
+</script>
+
 </body></html>
