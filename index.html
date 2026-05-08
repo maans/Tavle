@@ -1,5 +1,6 @@
 <!doctype html>
-<!-- Måns patch version: v1.2.45-mM-24 | compact wheel statistics overview without shrinking the wheel -->
+<!-- Måns patch version: v1.2.45-kahoopardy-phase1.35-SAFE | robust local info overlay -->
+<!-- previous: v1.2.45-mM-24 | compact wheel statistics overview without shrinking the wheel -->
 <html lang="da">
 <head>
 <script id="widget-overview-early-cmdo-guard">
@@ -6208,6 +6209,211 @@ body.focus-presentation .widget:not(.focused){
 .widget .chrome .mini{flex:0 1 auto!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;max-width:72%!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
 .widget .chrome .mini::-webkit-scrollbar{display:none!important}
 .widget .chrome .mini button{flex:0 0 auto!important}
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
+
+
+/* v1.2.45-kahoopardy phase1_14: Jeopardy statistics, import and inherited rows */
+.kahoopardyJeopardyGrid.jeopardyColumns{
+  display:grid!important;
+  grid-auto-flow:initial!important;
+  grid-auto-columns:initial!important;
+  min-height:0!important;
+  height:100%!important;
+  overflow:hidden!important;
+  gap:8px!important;
+  padding:4px!important;
+  box-sizing:border-box!important;
+}
+.kahoopardyJeopardyGrid.jeopardyColumns .kahoopardyJeopardyCol{
+  min-width:0!important;
+  min-height:0!important;
+  display:grid!important;
+  grid-template-rows:minmax(28px,.38fr) repeat(var(--jp-rows,5),minmax(30px,1fr))!important;
+  gap:8px!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+.kahoopardyJeopardyGrid.jeopardyColumns .kahoopardyJeopardyCat{
+  background:transparent!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  border-bottom:3px solid rgba(255,255,255,.28)!important;
+  color:white!important;
+  font-size:clamp(13px,1.35vw,24px)!important;
+  font-weight:950!important;
+  text-align:center!important;
+  padding:3px 4px 6px!important;
+  min-height:0!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  line-height:1.05!important;
+  text-wrap:balance!important;
+}
+.kahoopardyJeopardyGrid.jeopardyColumns .kahoopardyJeopardyCard{
+  min-height:0!important;
+  height:100%!important;
+  width:100%!important;
+  border-radius:12px!important;
+  font-size:clamp(17px,3.1vw,48px)!important;
+  padding:3px!important;
+  display:grid!important;
+  place-items:center!important;
+}
+.kahoopardyJeopardyGrid.jeopardyColumns .kahoopardyJeopardyBlank{
+  min-height:0!important;
+  border-radius:12px!important;
+  background:rgba(255,255,255,.045)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)!important;
+}
+@media(max-width:700px){
+  .kahoopardyJeopardyGrid.jeopardyColumns{gap:5px!important;padding:3px!important}
+  .kahoopardyJeopardyGrid.jeopardyColumns .kahoopardyJeopardyCol{gap:5px!important;grid-template-rows:minmax(24px,.34fr) repeat(var(--jp-rows,5),minmax(26px,1fr))!important}
+  .kahoopardyJeopardyGrid.jeopardyColumns .kahoopardyJeopardyCat{font-size:clamp(10px,2.8vw,16px)!important;border-bottom-width:2px!important}
+  .kahoopardyJeopardyGrid.jeopardyColumns .kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px)!important;border-radius:9px!important}
+}
+
+
+/* v1.2.45-kahoopardy-phase1.16: fælles gennemløb + Mester */
+.kahoopardyDoneView{height:100%;display:grid;place-items:center;gap:16px;text-align:center;padding:20px;box-sizing:border-box}
+.kahoopardyDoneTitle{font-size:clamp(28px,4.8vw,72px);font-weight:950;line-height:1.05}
+.kahoopardyDoneText{font-size:clamp(16px,2vw,28px);font-weight:850;opacity:.9}
+.kahoopardyReplayChoices{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.kahoopardyReplayChoices button{border:0;border-radius:999px;padding:12px 18px;background:#facc15;color:#111827;font-weight:950}
+.kahoopardyMaster{height:100%;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:12px;align-items:center;overflow:hidden}
+.kahoopardyMasterPrompt,.kahoopardyMasterAnswer{min-height:0;display:grid;place-items:center;text-align:center;padding:16px;border-radius:22px;background:rgba(255,255,255,.08)}
+.kahoopardyMasterQuestion{font-size:clamp(28px,4.6vw,72px);line-height:1.07;font-weight:950;text-wrap:balance}
+.kahoopardyMasterAnswerText{font-size:clamp(30px,5vw,78px);line-height:1.06;font-weight:950;color:#bbf7d0;text-wrap:balance}
+.kahoopardyMasterLabel{font-size:clamp(13px,1.3vw,20px);opacity:.75;font-weight:900;margin-bottom:8px}
+.kahoopardyJudgeBtns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.kahoopardyJudgeBtns button{border:0;border-radius:999px;padding:12px 20px;font-weight:950;font-size:clamp(16px,1.8vw,26px)}
+.kahoopardyJudgeBtns .correctBtn{background:#22c55e;color:white}.kahoopardyJudgeBtns .wrongBtn{background:#fecaca;color:#7f1d1d}.kahoopardyJudgeBtns .halfBtn{background:#fde68a;color:#78350f}
+.kahoopardyActionBar .modeBtn{background:#e0e7ff;color:#111827}.kahoopardyModeBar button.active{background:#facc15!important;color:#111827!important}
+
+
+
+/* v1.2.45-kahoopardy-phase1.17: compact mode cycle + keyboard helpers */
+.kahoopardyActionBar{gap:8px!important}
+.kahoopardyActionBar .cycleMode{min-width:112px!important}
+.kahoopardyJeopardyJudge .halfBtn{background:#fde68a!important;color:#78350f!important}
+.kahoopardyJudgeBtns button,.kahoopardyJeopardyJudge button{min-width:116px}
+.kahoopardyReplayChoices{gap:10px!important}
+@media(max-width:700px){.kahoopardyActionBar .cycleMode{min-width:auto!important}.kahoopardyJudgeBtns button,.kahoopardyJeopardyJudge button{min-width:86px}}
+
+
+
+/* v1.2.45-kahoopardy-phase1.18: fixed mode switch + Jeopardy keyboard focus */
+/* v1.2.45-kahoopardy-phase1.19: edit-mode K/J/M selection + Enter start; do not capture shifted/global combos */
+.kahoopardyBox{position:relative!important}
+.kahoopardyModeSwitchFixed{
+  position:absolute;right:12px;top:10px;z-index:12;
+  border:0;border-radius:999px;padding:9px 14px;
+  background:#facc15;color:#111827;font-weight:950;
+  box-shadow:0 6px 16px rgba(0,0,0,.24);
+}
+.kahoopardyTeams{padding-right:140px}
+.kahoopardyJeopardyCard.focused{
+  outline:5px solid #fff!important;
+  box-shadow:0 0 0 4px rgba(250,204,21,.75),0 12px 26px rgba(0,0,0,.35)!important;
+  transform:scale(1.02);
+}
+.present .kahoopardyModeSwitchFixed{opacity:.92}
+@media(max-width:700px){.kahoopardyModeSwitchFixed{right:8px;top:8px;padding:7px 10px;font-size:13px}.kahoopardyTeams{padding-right:104px}}
+
+
+/* v1.2.45-kahoopardy-phase1.20: current mode label + keyboard judge focus */
+.kahoopardyModeSwitchFixed{min-width:118px;text-align:center}
+.kahoopardyJudgeBtns button.focused,
+.kahoopardyJeopardyJudge button.focused{
+  outline:5px solid #fff!important;
+  box-shadow:0 0 0 5px rgba(250,204,21,.42),0 10px 24px rgba(0,0,0,.28)!important;
+  transform:translateY(-2px) scale(1.03);
+}
+
+
+
+/* v1.2.45-kahoopardy-phase1.27-SAFE: settings icon + category-colored Jeopardy cards */
+.content.kahoopardy .settingsBtn{
+  min-width:54px!important;
+  width:54px!important;
+  height:46px!important;
+  padding:0!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  font-size:24px!important;
+  line-height:1!important;
+  border-radius:999px!important;
+}
+.content.kahoopardy .kahoopardyJeopardyCat{
+  color:hsl(var(--catHue,215) 85% 88%)!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.28),0 0 12px hsl(var(--catHue,215) 90% 55% / .25)!important;
+  border-bottom-color:hsl(var(--catHue,215) 85% 68% / .48)!important;
+}
+.content.kahoopardy .kahoopardyJeopardyCard{
+  color:#fff7b8!important;
+  text-shadow:0 2px 0 rgba(0,0,0,.28),0 0 10px rgba(250,204,21,.26)!important;
+  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease!important;
+}
+.content.kahoopardy .kahoopardyJeopardyCard.focused:not(.used){
+  outline:5px solid rgba(255,255,255,.94)!important;
+  outline-offset:-3px!important;
+  transform:translateY(-1px) scale(1.01)!important;
+}
+.content.kahoopardy .kahoopardyJeopardyCard.used{
+  background:rgba(255,255,255,.065)!important;
+  color:rgba(255,255,255,.24)!important;
+  filter:none!important;
+  box-shadow:none!important;
+}
+.present .content.kahoopardy .settingsBtn{display:none!important;}
+
+/* v29 SAFE: buttons in embedded media download modal (Safari-safe) */
+.mediaDownloadItem .mediaDownloadBtn{
+  background:#6d5dfc;
+  color:white!important;
+  text-decoration:none;
+  border:0;
+  border-radius:999px;
+  padding:8px 12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+
+/* v1.2.45-kahoopardy-phase1.35 SAFE: robust local info overlay, independent of global modal */
+.kahoopardyLocalInfoOverlay{
+  position:fixed; inset:0; z-index:2147483647;
+  background:rgba(0,0,0,.42);
+  display:grid; place-items:center;
+  padding:24px;
+}
+.kahoopardyLocalInfoBox{
+  width:min(560px,92vw);
+  background:white; color:#111827;
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 25px 70px rgba(0,0,0,.45);
+  font-size:18px; line-height:1.35;
+}
+.kahoopardyLocalInfoBox h2{margin:0 0 12px 0;font-size:28px;}
+.kahoopardyLocalInfoBox button{
+  border:0; border-radius:999px; padding:10px 18px;
+  background:#6d5dfc; color:white; font-weight:900; font-size:18px;
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 
@@ -6232,6 +6438,19 @@ body.focus-presentation .widget:not(.focused){
   z-index:20!important;
 }
 
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
 </style>
 <style id="phase3-focus-stability-css">
 body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important}
@@ -6251,6 +6470,347 @@ body.focus-presentation .widget:not(.focused){
   z-index:20!important;
 }
 
+
+
+/* FASE 1: Kahoopardy minimal Kahoot-widget */
+.content.kahoopardy{background:#0f172a;color:white;overflow:hidden!important}
+.kahoopardyBox{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:12px;box-sizing:border-box;background:linear-gradient(135deg,#0f172a,#1e1b4b)}
+.kahoopardyTeams{display:flex;gap:8px;align-items:stretch;overflow-x:auto;padding-bottom:2px}
+.kahoopardyTeam{border:2px solid rgba(255,255,255,.20);border-radius:16px;background:rgba(255,255,255,.10);color:white;min-width:130px;padding:9px 10px;text-align:left;font-weight:900;box-shadow:0 8px 18px rgba(0,0,0,.16)}
+.kahoopardyTeam.active{outline:4px solid #facc15;background:rgba(250,204,21,.20)}
+.kahoopardyTeam.awarded{border-color:#22c55e;background:rgba(34,197,94,.24)}
+.kahoopardyTeamName{font-size:clamp(15px,1.6vw,24px);white-space:nowrap}.kahoopardyTeamScore{font-size:clamp(18px,2.2vw,34px)}.kahoopardyTeamSmall{font-size:12px;opacity:.82}
+.kahoopardyAddTeam{border:0;border-radius:16px;min-width:52px;padding:8px 14px;background:#e0e7ff;color:#111827;font-size:30px;font-weight:950}
+.kahoopardyMain{min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:10px}
+.kahoopardyMeta{display:flex;gap:12px;justify-content:center;align-items:center;font-weight:950}.kahoopardyMeta span{background:rgba(255,255,255,.14);border-radius:999px;padding:7px 13px}
+.kahoopardyQuestion{text-align:center;font-size:clamp(24px,4.2vw,62px);line-height:1.08;font-weight:950;padding:8px 10px;text-wrap:balance}
+.kahoopardyOptions{min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px}
+.kahoopardyOption{border:0;border-radius:22px;color:white;font-size:clamp(22px,3vw,46px);font-weight:950;line-height:1.1;padding:18px;box-shadow:0 10px 22px rgba(0,0,0,.25);touch-action:manipulation;position:relative;overflow:hidden}
+.kahoopardyOption:active{transform:scale(.985)}.kahoopardyOption.selectedByActive{outline:5px solid #fff}.kahoopardyOption.correct{outline:6px solid #22c55e;animation:kahoopardyGlow 1s ease-in-out infinite alternate}.kahoopardyOption .check{display:none;position:absolute;right:16px;top:10px;font-size:42px}.kahoopardyOption.correct .check{display:block}
+.kahoopardyOption.red{background:#dc2626}.kahoopardyOption.blue{background:#2563eb}.kahoopardyOption.yellow{background:#d97706}.kahoopardyOption.green{background:#16a34a}
+.kahoopardyBottom{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.kahoopardyBottom button,.kahoopardyEditActions button{border:0;border-radius:999px;padding:10px 16px;background:#e0e7ff;color:#111827;font-weight:950}.kahoopardyBottom .primary{background:#22c55e;color:white}.kahoopardyBottom .next{background:#facc15;color:#111827}
+.kahoopardyHint{text-align:center;font-size:clamp(14px,1.4vw,20px);opacity:.85;font-weight:800}.kahoopardyScoreView{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;align-items:center}.kahoopardyScoreTitle{text-align:center;font-size:clamp(28px,4vw,58px);font-weight:950}.kahoopardyScoreRows{display:grid;gap:16px;align-content:center;overflow:auto;padding:4px}.kahoopardyScoreTieGroup{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;align-items:stretch}.kahoopardyScoreTieGroup.top{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.kahoopardyScoreRow{font-size:clamp(19px,2.3vw,38px);font-weight:900;background:rgba(255,255,255,.12);border-radius:18px;padding:14px 16px;text-align:center;box-shadow:0 8px 18px rgba(0,0,0,.12)}.kahoopardyScoreTieGroup.top .kahoopardyScoreRow{background:rgba(250,204,21,.20);outline:3px solid rgba(250,204,21,.58)}.kahoopardyRank{display:block;font-size:clamp(12px,1.1vw,16px);opacity:.78;margin-bottom:3px}.kahoopardyScoreName{display:block}.kahoopardyScoreMeta{display:block;font-size:.72em;opacity:.88;margin-top:4px}.kahoopardyEdit{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px}.kahoopardyEdit textarea{width:100%;height:100%;min-height:0;border:0;border-radius:14px;padding:12px;font-size:16px;line-height:1.35;color:#111827;background:white;resize:none}.kahoopardyEdit p{margin:0;opacity:.86;font-weight:800}.kahoopardyError{background:#fee2e2;color:#991b1b;border-radius:12px;padding:8px 10px;font-weight:800}.present .kahoopardyBottom .editQuestions{display:none!important}
+@keyframes kahoopardyGlow{from{box-shadow:0 0 0 rgba(34,197,94,0),0 10px 22px rgba(0,0,0,.25)}to{box-shadow:0 0 28px rgba(34,197,94,.95),0 10px 22px rgba(0,0,0,.25)}}
+@media(max-width:700px){.kahoopardyOptions{grid-template-columns:1fr;grid-template-rows:repeat(4,1fr)}.kahoopardyOption{font-size:24px;padding:12px}.kahoopardyTeam{min-width:110px}}
+
+
+
+
+/* v1.2.45-kahoopardy-phase1.9: persistent Kahoopardy actionbar */
+.kahoopardyActionBar{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:9px!important;
+  flex-wrap:wrap!important;
+  padding:6px 4px 2px!important;
+  max-width:100%!important;
+}
+.kahoopardyActionBar button{
+  border:0!important;
+  border-radius:999px!important;
+  padding:9px 14px!important;
+  background:#e0e7ff!important;
+  color:#111827!important;
+  font-weight:950!important;
+  box-shadow:0 4px 10px rgba(0,0,0,.12)!important;
+}
+.kahoopardyActionBar .primary{background:#22c55e!important;color:white!important}
+.kahoopardyActionBar .next{background:#facc15!important;color:#111827!important}
+.kahoopardyActionBar .danger{background:#fee2e2!important;color:#991b1b!important}
+.kahoopardyActionBar .modeBtn.active{background:#facc15!important;color:#111827!important;box-shadow:0 0 0 3px rgba(250,204,21,.28),0 4px 10px rgba(0,0,0,.12)!important}
+.kahoopardyActionBar .modeBtn:not(.active){opacity:.92}
+.kahoopardyBox{grid-template-rows:auto minmax(0,1fr)!important}
+.kahoopardyMain,.kahoopardyScoreView,.kahoopardyJeopardy{min-height:0!important}
+@media(max-width:700px){.kahoopardyActionBar button{padding:8px 10px!important;font-size:13px!important}}
+/* v1.2.45-kahoopardy-phase1.15: import + score navigation */
+.kahoopardyEditActions .importQuestions{background:#eef2ff!important;color:#312e81!important}
+.kahoopardyEditActions input[type="file"]{display:none!important}
+.kahoopardyJeopardyDone{font-weight:950;text-align:center;color:#facc15}
+
+/* v1.2.45-kahoopardy-phase1.10: clean mode/reset visibility */
+.kahoopardyModeBar .startQuizMode{font-size:clamp(16px,1.7vw,24px);padding:10px 18px!important}
+.kahoopardyActionBar .modeBtn{background:#facc15!important;color:#111827!important}
+.kahoopardyEditActions .resetPoints{display:none!important}
+
+
+/* v1.2.45-kahoopardy-phase1.8: Kahoot/Jeopardy switch + reset points */
+.kahoopardyModeBar{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin:2px 0 6px}
+.kahoopardyModeBar button{border:0;border-radius:999px;padding:8px 14px;font-weight:950;background:#e0e7ff;color:#111827}
+.kahoopardyModeBar button.active{background:#facc15;color:#111827;box-shadow:0 0 0 3px rgba(250,204,21,.22)}
+.kahoopardyBottom .danger,.kahoopardyEditActions .danger{background:#fee2e2!important;color:#991b1b!important}
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px}
+.kahoopardyJeopardyGrid{min-height:0;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(145px,1fr);gap:10px;overflow:auto;padding:4px}
+.kahoopardyJeopardyCol{display:grid;grid-template-rows:auto repeat(8,minmax(62px,1fr));gap:8px;min-width:145px}
+.kahoopardyJeopardyCat{border-radius:14px;background:rgba(255,255,255,.14);font-size:clamp(15px,1.6vw,24px);font-weight:950;text-align:center;padding:10px;display:grid;place-items:center;min-height:58px}
+.kahoopardyJeopardyCard{border:0;border-radius:14px;background:#1d4ed8;color:#facc15;font-size:clamp(22px,3vw,46px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:62px}
+.kahoopardyJeopardyCard.used{background:rgba(255,255,255,.10);color:rgba(255,255,255,.34);box-shadow:none}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{grid-auto-columns:minmax(125px,72vw)}.kahoopardyJeopardyCol{min-width:125px}.kahoopardyModeBar button{padding:7px 11px}}
+/* v1.2.45-kahoopardy-phase1.11: real Jeopardy flow */
+.kahoopardyJeopardyPlay{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;align-items:center}
+.kahoopardyJeopardyPrompt,.kahoopardyJeopardyAnswer{min-height:0;display:grid;place-items:center;text-align:center;padding:12px}
+.kahoopardyJeopardyPrompt .bigQuestion{font-size:clamp(30px,5vw,74px);line-height:1.08;font-weight:950;text-wrap:balance}
+.kahoopardyJeopardyAnswer .answerLabel{font-size:clamp(16px,2vw,30px);font-weight:950;opacity:.78;margin-bottom:12px}
+.kahoopardyJeopardyAnswer .bigAnswer{font-size:clamp(34px,6vw,88px);line-height:1.02;font-weight:950;color:#facc15;text-wrap:balance}
+.kahoopardyJeopardyJudge{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.kahoopardyJeopardyJudge button{border:0;border-radius:999px;padding:13px 22px;font-size:clamp(16px,1.8vw,26px);font-weight:950}
+.kahoopardyJeopardyJudge .correctBtn{background:#22c55e;color:white}
+.kahoopardyJeopardyJudge .wrongBtn{background:#fee2e2;color:#991b1b}
+.kahoopardyJeopardyTurn{text-align:center;font-weight:950;opacity:.88;font-size:clamp(14px,1.5vw,22px)}
+
+
+/* v1.2.45-kahoopardy-phase1.7: cleaner quiz/leaderboard view */
+.kahoopardyMain{
+  grid-template-rows:auto auto minmax(0,1fr) auto!important;
+}
+.kahoopardyAwardHint,
+.kahoopardyHint{
+  display:none!important;
+}
+.kahoopardyScoreView{
+  grid-template-rows:minmax(0,1fr) auto!important;
+  gap:10px!important;
+  align-items:stretch!important;
+  padding-top:4px!important;
+}
+.kahoopardyScoreTitle{
+  display:none!important;
+}
+.kahoopardyScoreRows{
+  display:grid!important;
+  gap:14px!important;
+  align-content:center!important;
+  overflow:auto!important;
+  padding:6px 4px!important;
+}
+.kahoopardyScoreTieGroup{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important;
+  gap:12px!important;
+  align-items:stretch!important;
+}
+.kahoopardyScoreTieGroup.top{
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;
+}
+.kahoopardyScoreRow{
+  position:relative!important;
+  border-radius:22px!important;
+  padding:16px 18px!important;
+  text-align:center!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.13),rgba(255,255,255,.08))!important;
+  border:2px solid rgba(255,255,255,.08)!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.18)!important;
+  overflow:hidden!important;
+}
+.kahoopardyScoreRank1 .kahoopardyScoreRow{
+  min-height:118px!important;
+  background:linear-gradient(135deg,rgba(250,204,21,.34),rgba(217,119,6,.22))!important;
+  border-color:rgba(250,204,21,.72)!important;
+  box-shadow:0 0 0 3px rgba(250,204,21,.18),0 18px 34px rgba(0,0,0,.24)!important;
+  animation:kahoopardyWinnerFlip .92s cubic-bezier(.2,.85,.25,1.25) both;
+}
+.kahoopardyScoreRank2 .kahoopardyScoreRow{
+  min-height:96px!important;
+  background:linear-gradient(135deg,rgba(226,232,240,.24),rgba(148,163,184,.14))!important;
+  border-color:rgba(226,232,240,.34)!important;
+}
+.kahoopardyScoreRank3 .kahoopardyScoreRow{
+  min-height:82px!important;
+  background:linear-gradient(135deg,rgba(180,83,9,.20),rgba(120,53,15,.12))!important;
+  border-color:rgba(180,83,9,.35)!important;
+}
+.kahoopardyScoreRankOther .kahoopardyScoreRow{
+  min-height:72px!important;
+}
+.kahoopardyRank{
+  display:block!important;
+  margin:0 0 4px 0!important;
+  opacity:.86!important;
+  font-weight:950!important;
+}
+.kahoopardyScoreRank1 .kahoopardyRank{font-size:clamp(20px,2.6vw,42px)!important;color:#fff7c2!important;text-shadow:0 2px 0 rgba(0,0,0,.20)}
+.kahoopardyScoreRank2 .kahoopardyRank{font-size:clamp(16px,2vw,32px)!important;color:#e2e8f0!important}
+.kahoopardyScoreRank3 .kahoopardyRank{font-size:clamp(13px,1.6vw,24px)!important;color:#fed7aa!important}
+.kahoopardyScoreRankOther .kahoopardyRank{font-size:clamp(11px,1.25vw,18px)!important}
+.kahoopardyScoreName{
+  display:block!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+}
+.kahoopardyScoreRank1 .kahoopardyScoreName{font-size:clamp(28px,3.2vw,54px)!important}
+.kahoopardyScoreRank2 .kahoopardyScoreName{font-size:clamp(24px,2.7vw,44px)!important}
+.kahoopardyScoreRank3 .kahoopardyScoreName{font-size:clamp(20px,2.25vw,36px)!important}
+.kahoopardyScoreRankOther .kahoopardyScoreName{font-size:clamp(17px,1.8vw,28px)!important}
+.kahoopardyScoreMeta{display:block!important;opacity:.9!important;margin-top:5px!important;font-size:.62em!important}
+@keyframes kahoopardyWinnerFlip{
+  0%{opacity:.2;transform:perspective(700px) rotateY(88deg) scale(.72)}
+  55%{opacity:1;transform:perspective(700px) rotateY(-12deg) scale(1.08)}
+  78%{transform:perspective(700px) rotateY(6deg) scale(.98)}
+  100%{opacity:1;transform:perspective(700px) rotateY(0) scale(1)}
+}
+@media(max-width:700px){
+  .kahoopardyScoreRows{align-content:start!important;gap:10px!important;padding-top:0!important}
+  .kahoopardyScoreTieGroup,.kahoopardyScoreTieGroup.top{grid-template-columns:1fr!important;gap:10px!important}
+  .kahoopardyScoreRank1 .kahoopardyScoreRow{min-height:105px!important}
+  .kahoopardyScoreRank2 .kahoopardyScoreRow{min-height:88px!important}
+  .kahoopardyScoreRank3 .kahoopardyScoreRow{min-height:76px!important}
+}
+
+.kahoopardyTeam.canAward{cursor:pointer}
+.kahoopardyTeam.correctChoice:not(.awarded){border-color:#86efac;background:rgba(34,197,94,.16)}
+.kahoopardyTeam.wrongChoice{opacity:.78}
+.kahoopardyAwardHint{text-align:center;font-size:clamp(15px,1.5vw,22px);font-weight:900;opacity:.92}
+.kahoopardyTableWrap{min-height:0;overflow:auto;background:white;border-radius:14px;color:#111827}
+.kahoopardyTable{width:100%;border-collapse:separate;border-spacing:0;min-width:920px}
+.kahoopardyTable th{position:sticky;top:0;background:#e0e7ff;color:#111827;z-index:1}
+.kahoopardyTable th,.kahoopardyTable td{border-bottom:1px solid #e5e7eb;padding:7px;vertical-align:top}
+.kahoopardyTable input{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:8px;font-size:15px;margin:0}
+.kahoopardyTable input.points{max-width:80px}
+.kahoopardyTable .deleteRow{background:#fee2e2!important;color:#991b1b!important}
+
+.kahoopardyTable .optionCell{display:grid;grid-template-columns:auto minmax(120px,1fr);gap:6px;align-items:center}
+.kahoopardyTable .correctPick{width:auto!important;min-width:22px;height:22px;accent-color:#22c55e}
+.kahoopardyTable .correctPick:checked + input{border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.18);font-weight:800}
+.kahoopardyTeam.autoAward{border-color:#22c55e;background:rgba(34,197,94,.22)}
+.kahoopardyEditActions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.kahoopardyEditActions .secondary{background:#eef2ff!important;color:#312e81!important}
+.present .kahoopardyAwardHint{font-size:clamp(18px,2vw,28px)}
+
+
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
+
+
+/* v1.2.45-kahoopardy-phase1.24-SAFE: forklar datawidget-backup og skjul redigeringsværktøjer i præsentation */
+.kahoopardyEditInfo{
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:18px;
+  padding:12px 14px;
+  font-weight:850;
+  line-height:1.32;
+  display:grid;
+  gap:6px;
+}
+.kahoopardyEditInfo b{font-size:clamp(16px,1.7vw,25px);color:#facc15}
+.kahoopardyEditInfo small{display:block;opacity:.88;font-weight:750}
+.kahoopardyEditInfo ul{margin:4px 0 0 1.1em;padding:0}
+.kahoopardyEditInfo li{margin:2px 0}
+.present .content.kahoopardy .kahoopardyEditInfo,
+.present .content.kahoopardy .kahoopardyEdit > p,
+.present .content.kahoopardy .kahoopardyTableWrap,
+.present .content.kahoopardy .kahoopardyEditActions,
+.present .content.kahoopardy .kahoopardyError,
+body.focus-presentation .content.kahoopardy .kahoopardyEditInfo,
+body.focus-presentation .content.kahoopardy .kahoopardyEdit > p,
+body.focus-presentation .content.kahoopardy .kahoopardyTableWrap,
+body.focus-presentation .content.kahoopardy .kahoopardyEditActions,
+body.focus-presentation .content.kahoopardy .kahoopardyError{
+  display:none!important;
+}
+.present .content.kahoopardy .kahoopardyEdit,
+body.focus-presentation .content.kahoopardy .kahoopardyEdit{
+  grid-template-rows:1fr!important;
+  align-items:center!important;
+}
+.present .content.kahoopardy .kahoopardyModeBar,
+body.focus-presentation .content.kahoopardy .kahoopardyModeBar{
+  width:min(900px,92%)!important;
+  margin:auto!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:16px!important;
+}
+.present .content.kahoopardy .kahoopardyModeBar button,
+body.focus-presentation .content.kahoopardy .kahoopardyModeBar button{
+  min-height:82px!important;
+  border-radius:24px!important;
+  font-size:clamp(22px,2.8vw,42px)!important;
+}
+@media(max-width:700px){
+  .present .content.kahoopardy .kahoopardyModeBar,
+  body.focus-presentation .content.kahoopardy .kahoopardyModeBar{grid-template-columns:1fr!important}
+}
+
+
+/* v1.2.45-kahoopardy-phase1.33-SAFE: kompakt hjælp + stabil tabelscroll i editoren */
+.content.kahoopardy .kahoopardyEdit{
+  height:100%!important;
+  min-height:0!important;
+  display:grid!important;
+  grid-template-rows:auto auto minmax(0,1fr) auto auto!important;
+  gap:10px!important;
+  overflow:hidden!important;
+}
+.content.kahoopardy .kahoopardyTableWrap{
+  min-height:0!important;
+  height:100%!important;
+  overflow:auto!important;
+  align-self:stretch!important;
+}
+.content.kahoopardy .kahoopardyEditHelp{
+  margin:0!important;
+  padding:8px 12px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.10)!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  color:white!important;
+  font-weight:900!important;
+  line-height:1.15!important;
+  overflow:visible!important;
+}
+.content.kahoopardy .kahoopardyEditHelp summary{
+  list-style:none!important;
+  cursor:pointer!important;
+  display:flex!important;
+  gap:10px!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+}
+.content.kahoopardy .kahoopardyEditHelp summary::-webkit-details-marker{display:none!important}
+.content.kahoopardy .kahoopardyEditHelp summary span{
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  min-width:0!important;
+}
+.content.kahoopardy .kahoopardyEditHelp summary b{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:28px!important;
+  height:28px!important;
+  border-radius:999px!important;
+  background:#e0e7ff!important;
+  color:#312e81!important;
+  flex:0 0 auto!important;
+}
+.content.kahoopardy .kahoopardyEditHelp[open]{
+  border-radius:16px!important;
+}
+.content.kahoopardy .kahoopardyEditHelp div{
+  margin-top:8px!important;
+  padding-top:8px!important;
+  border-top:1px solid rgba(255,255,255,.14)!important;
+  font-size:14px!important;
+  font-weight:750!important;
+  opacity:.9!important;
+}
+.present .content.kahoopardy .kahoopardyEditHelp,
+body.focus-presentation .content.kahoopardy .kahoopardyEditHelp{
+  display:none!important;
+}
 </style>
 
 <style id="widget-cycle-tap-css">
@@ -6264,6 +6824,19 @@ body.focus-presentation .widget:not(.focused){
 }
 #widgetCycle.widgetCycleBtn:active{transform:scale(.96);filter:brightness(1.08)}
 .present #widgetCycle.widgetCycleBtn{display:inline-flex!important;align-items:center;justify-content:center}
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
 </style>
 </head>
 <body>
@@ -6278,6 +6851,7 @@ body.focus-presentation .widget:not(.focused){
     <div class="tool"><button data-tool="video">▶</button><span>video</span></div>
     <div class="tool"><button data-tool="draw" title="Tegn til/fra">✎</button><span>tegn</span></div>
     <div class="tool"><button data-tool="wheel">🎲</button><span>hjul</span></div>
+    <div class="tool"><button data-tool="kahoopardy" title="Kahoopardy (Shift+Q)">❓</button><span>quiz</span></div>
     <div class="tool"><button data-tool="groups">👥</button><span>grupper</span></div>
     <div class="tool"><button data-tool="wordcloud">☁️</button><span>ordsky</span></div>
     <div class="tool"><button data-tool="poll">😊</button><span>afstem</span></div>
@@ -6390,9 +6964,9 @@ body.focus-presentation .widget:not(.focused){
         s: {label:'Ordsky', widget:'s'},
         v: {label:'Video', widget:'v'},
         x: {label:'Afstemning', widget:'x'},
-        m: {label:'Baggrund', widget:'m'},
+        q: {label:'Kahoopardy', widget:'q'},
         g: {label:'Grid', widget:'g'},
-        b: {label:'Backup', widget:'b'},
+        b: {label:'Baggrund', widget:'m'},
         o: {label:'Hints til/fra', widget:'o'},
         n: {label:'Værktøjslinje til/fra (gammel)', run:()=>{
           const hidden=document.body.classList.contains('toolbar-is-hidden') || appEl.classList.contains('toolbarHidden');
@@ -6445,10 +7019,17 @@ body.focus-presentation .widget:not(.focused){
           api.duplicateSelectedWidgetShortcut();
           return;
         }
-        if(modKey==='s' && api.saveShortcut){
+        if((modKey==='g'||modKey==='s') && api.saveShortcut){
           e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
           api.saveShortcut();
           return;
+        }
+        if(modKey==='b' && typeof window.applyRandomBackgroundToActiveSlide==='function'){
+          if(window.applyRandomBackgroundToActiveSlide()){
+            e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+            try{toast('Tilfældig baggrund')}catch(_e){}
+            return;
+          }
         }
         return;
       }
@@ -7588,8 +8169,8 @@ window.rescueWidgetsToViewport=rescueWidgetsToViewport;
 window.rescueSelectedWidgetToViewport=rescueSelectedWidgetToViewport;
 
 function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
-function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll')?860:(type==='dataset'?390:(type==='text'?420:520)),h:type==='wheel'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='timer'?260: type==='link'?230:320))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
-const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
+function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll'||type==='kahoopardy')?860:(type==='dataset'?390:(type==='text'?420:520)),h:type==='wheel'?560:(type==='kahoopardy'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='timer'?260: type==='link'?230:320)))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
+const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',kahoopardy:'Kahoopardy',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
 
 /* v1.2.37: Universal drop på tavlen - JS */
 function tavleDropPoint(e){
@@ -7848,12 +8429,20 @@ function datasetPreviewHtml(ds){
   const maxCols=Math.min(cols.length,8), maxRows=Math.min(rows.length,16);
   const head=cols.slice(0,maxCols).map(c=>'<th>'+esc(c||'Kolonne')+'</th>').join('')+(cols.length>maxCols?'<th>…</th>':'');
   const body=rows.slice(0,maxRows).map(r=>'<tr>'+Array.from({length:maxCols},(_,i)=>'<td>'+esc((r||[])[i]||'')+'</td>').join('')+(cols.length>maxCols?'<td>…</td>':'')+'</tr>').join('');
-  return `<div class="datasetCard"><div class="datasetTitle">📊 ${esc(ds.name||'Datasæt')}</div><div class="datasetMeta"><span>${rows.length} rækker</span><span>${cols.length} kolonner</span><span>${esc((ds.type||'csv').toUpperCase())}</span></div><div class="datasetPreview"><table><thead><tr>${head}</tr></thead><tbody>${body||'<tr><td>Ingen rækker</td></tr>'}</tbody></table></div><div class="datasetActions"><button type="button" class="secondary" data-act="datasetCopyList">→ Liste</button></div></div>`;
+  return `<div class="datasetCard"><div class="datasetTitle">📊 ${esc(ds.name||'Datasæt')}</div><div class="datasetMeta"><span>${rows.length} rækker</span><span>${cols.length} kolonner</span><span>${esc((ds.type||'csv').toUpperCase())}</span></div><div class="datasetPreview"><table><thead><tr>${head}</tr></thead><tbody>${body||'<tr><td>Ingen rækker</td></tr>'}</tbody></table></div><div class="datasetActions"><button type="button" class="secondary" data-act="datasetCopyList">→ Liste</button><button type="button" class="secondary" data-act="datasetDownloadCsv">CSV</button></div></div>`;
 }
 function openDatasetToListDialog(ds,sourceWidget){
   if(!ds||!Array.isArray(ds.rows)||!ds.rows.length){toast('Ingen data at lave liste af');return;}
   const cols=Array.isArray(ds.columns)&&ds.columns.length?ds.columns:Array.from({length:Math.max(...ds.rows.map(r=>(r||[]).length),1)},(_,i)=>'Kolonne '+(i+1));
-  const colHtml=cols.map((c,i)=>`<label><input type="checkbox" data-col="${i}" ${i===0?'checked':''}> ${esc(c||('Kolonne '+(i+1)))}</label>`).join('');
+  function isDefaultListColumn(c){
+    const name=String(c||'').trim().toLowerCase();
+    if(!name) return false;
+    if(name==='rigtige hold') return false;
+    if(/^hold\s+\d+\s+svar$/i.test(String(c||'').trim())) return false;
+    if(/^resultat/i.test(String(c||'').trim())) return false;
+    return true;
+  }
+  const colHtml=cols.map((c,i)=>`<label><input type="checkbox" data-col="${i}" ${isDefaultListColumn(c)?'checked':''}> ${esc(c||('Kolonne '+(i+1)))}</label>`).join('');
   showModal(`<h2>→ Liste</h2><div class="datasetListBuilder"><p>Vælg én eller flere kolonner. Resultatet bliver oprettet som en ny tekstwidget, så listen kan ses og bruges videre.</p><div class="cols">${colHtml}</div><div class="sepRow"><label>Separator<select id="dsListSep"><option value="space">mellemrum</option><option value="comma">komma</option><option value="dash">bindestreg</option><option value="custom">custom</option></select></label><label>Custom separator<input id="dsListCustom" value=" " placeholder="fx / eller ·"></label></div><b>Preview</b><div class="preview" id="dsListPreview"></div><div class="actions"><button id="dsCreateList">Opret liste-widget</button><button id="close">Luk</button></div></div>`);
   const root=modal.querySelector('.datasetListBuilder');
   const sepSel=modal.querySelector('#dsListSep');
@@ -8257,15 +8846,56 @@ function safeFileName(name,ext){
   if(ext && !name.toLowerCase().endsWith('.'+ext))name+='.'+ext;
   return name;
 }
+function safeDownload(filename, content, mime){
+  filename=safeFileName(filename||'download','');
+  mime=mime||'application/octet-stream';
+  try{
+    const blob = (content instanceof Blob) ? content : new Blob([content], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=filename;
+    a.rel='noopener';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(e){}; try{a.remove()}catch(e){}},1200);
+    return true;
+  }catch(err){
+    try{
+      const a=document.createElement('a');
+      a.href='data:'+mime+','+encodeURIComponent(String(content||''));
+      a.download=filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      return true;
+    }catch(e){toast('Download blev blokeret'); return false;}
+  }
+}
+function dataUrlToBlob(dataUrl){
+  const m=String(dataUrl||'').match(/^data:([^;,]+)?((?:;[^,]+)*),(.*)$/s);
+  if(!m)throw new Error('Ikke en data-url');
+  const mime=m[1]||'application/octet-stream';
+  const meta=m[2]||'';
+  const body=m[3]||'';
+  let bytes;
+  if(/;base64/i.test(meta)){
+    const bin=atob(body); const arr=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+    bytes=arr;
+  }else{
+    bytes=decodeURIComponent(body);
+  }
+  return new Blob([bytes],{type:mime});
+}
 function downloadDataUrl(dataUrl,filename){
   if(!dataUrl||!String(dataUrl).startsWith('data:')){toast('Mediet er ikke indlejret og kan ikke downloades herfra');return}
-  const a=document.createElement('a');
-  const ext=extFromDataUrl(dataUrl);
-  a.href=dataUrl;
-  a.download=safeFileName(filename||'medie',ext);
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  try{
+    const ext=extFromDataUrl(dataUrl);
+    const blob=dataUrlToBlob(dataUrl);
+    safeDownload(safeFileName(filename||'medie',ext), blob, blob.type||'application/octet-stream');
+  }catch(e){
+    const ext=extFromDataUrl(dataUrl);
+    safeDownload(safeFileName(filename||'medie',ext), String(dataUrl), 'text/plain;charset=utf-8');
+  }
 }
 
 
@@ -8631,6 +9261,7 @@ function handleTool(t){
   }
   if(t==='video')addWidget('video',{});
   if(t==='wheel')addWidget('wheel',{});
+  if(t==='kahoopardy')addWidget('kahoopardy',{});
   if(t==='groups')addWidget('groups',{});
   if(t==='wordcloud')addWidget('wordcloud',{});
   if(t==='poll')addWidget('poll',{});
@@ -8651,7 +9282,25 @@ body.focus-presentation .widget:not(.focused){
   z-index:20!important;
 }
 
-</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p></body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
+</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p>
+<script id="shortcut-help-v37-safe">
+/* v1.2.45-kahoopardy-phase1.37-SAFE: help text matches shortcut cleanup.
+   Delete/Backspace are intentionally non-destructive; use widget X/🗑 instead. */
+</script>
+</body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   if(t==='html')addWidget('html',{html:`<!doctype html><html><head><meta charset="utf-8"><title>Ny HTML-widget</title><style>body{font-family:sans-serif;padding:2rem;line-height:1.5}h1{color:#4f46e5}
 
 /* v_focus_zfix: focused widget must stay above all others */
@@ -8665,6 +9314,19 @@ body.focus-edit .widget:not(.focused),
 body.focus-presentation .widget:not(.focused){
   z-index:20!important;
 }
+
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
 
 </style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p></body></html>`,mode:'edit',name:'Ny HTML-widget'});if(t==='pdf')addWidget('pdf',{});
   if(t==='background'||t==='bg')bgModal();
@@ -9152,14 +9814,7 @@ window.tavleShortcutAPI={
     try{toast('Widget kopieret')}catch(e){}
   },
   deleteSelectedWidgetShortcut(){
-    if(!selected){try{toast('Vælg en widget først')}catch(e){};return;}
-    const id=selected;
-    slide().widgets=slide().widgets.filter(w=>String(w.id)!==String(id));
-    selected=null;
-    UIState.selectedWidgetId=null;
-    render();
-    save();
-    try{toast('Widget slettet')}catch(e){}
+    try{toast('Brug widgettens X/🗑 for at slette')}catch(e){}
   },
   saveShortcut(){
     try{saveModal();toast('Backup')}catch(e){try{save();toast('Gemt')}catch(_e){}}
@@ -9294,8 +9949,22 @@ body.focus-presentation .widget:not(.focused){
 #widgetCycle.widgetCycleBtn{
   margin-left:8px!important;
 }
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
 </style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p></body></html>`,mode:'edit',name:'Ny HTML-widget'}],
       j:['wheel',{}],
+      q:['kahoopardy',{}],
       s:['wordcloud',{}],
       t:['timer',{}],
       l:['link',{text:'Link',url:''}]
@@ -9440,6 +10109,954 @@ function wirePoll(c,w,el){
   };
 }
 
+
+function kahoopardyDefaults(){return {mode:'kahoot',currentQuestion:0,currentTeam:0,teams:[{name:'Hold 1',score:0,correct:0},{name:'Hold 2',score:0,correct:0}],questions:[{category:'Demo',question:'Hvad hedder hovedpersonen?',answer:'Måns',correctIndex:0,points:100,options:['Måns','Mette','Marie','Mads']}],selections:{},awarded:{},autoAwarded:{},optionOrders:{},usedQuestions:{},reveal:false,stage:'question',editing:true};}
+function normalizeKahoopardy(w){
+  w.data=Object.assign(kahoopardyDefaults(),w.data||{});
+  if(!Array.isArray(w.data.teams)||!w.data.teams.length)w.data.teams=kahoopardyDefaults().teams;
+  if(!Array.isArray(w.data.questions)||!w.data.questions.length)w.data.questions=kahoopardyDefaults().questions;
+  w.data.questions=w.data.questions.map(q=>{
+    q=Object.assign({category:'Quiz',question:'Spørgsmål',points:100,options:['Svar 1','Svar 2','Svar 3','Svar 4']},q||{});
+    q.options=(q.options||[]).slice(0,4); while(q.options.length<4)q.options.push('Svar '+(q.options.length+1));
+    let ci=Number.isFinite(Number(q.correctIndex))?Number(q.correctIndex):-1;
+    if(ci<0||ci>3){ci=q.options.findIndex(o=>String(o).trim()===String(q.answer||'').trim());}
+    if(ci<0||ci>3)ci=0;
+    q.correctIndex=ci;
+    q.answer=q.options[ci]||q.answer||q.options[0]||'';
+    q.points=Number(q.points)||100;
+    return q;
+  });
+  w.data.currentQuestion=Math.max(0,Math.min(Number(w.data.currentQuestion)||0,w.data.questions.length-1));
+  w.data.currentTeam=(w.data.currentTeam===-1)?-1:Math.max(0,Math.min(Number(w.data.currentTeam)||0,w.data.teams.length-1));
+  w.data.selections=w.data.selections||{};w.data.awarded=w.data.awarded||{};w.data.autoAwarded=w.data.autoAwarded||{};w.data.optionOrders=w.data.optionOrders||{};w.data.usedQuestions=w.data.usedQuestions||{};w.data.mode=(w.data.mode==='jeopardy'||w.data.mode==='master')?w.data.mode:'kahoot';w.data.stage=w.data.stage||'question';
+}
+function currentKahoopardyQuestion(w){normalizeKahoopardy(w);return w.data.questions[w.data.currentQuestion]||kahoopardyDefaults().questions[0];}
+function kahoopardyCSV(w){normalizeKahoopardy(w);return ['Kategori,Spørgsmål,Point,Korrekt,Mulighed1,Mulighed2,Mulighed3,Mulighed4'].concat((w.data.questions||[]).map(q=>[q.category,q.question,q.points,(Number(q.correctIndex)||0)+1].concat((q.options||[]).slice(0,4)).map(kahoopardyCSVCell).join(','))).join('\n');}
+function kahoopardyCSVCell(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function parseKahoopardyCSVLine(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(q&&ch==='"'&&line[i+1]==='"'){cur+='"';i++;continue}if(ch==='"'){q=!q;continue}if(ch===','&&!q){out.push(cur.trim());cur='';continue}cur+=ch}out.push(cur.trim());return out;}
+function parseKahoopardyCSV(text){const lines=String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(lines.length&&/^kategori\s*,/i.test(lines[0]))lines.shift();const qs=lines.map(parseKahoopardyCSVLine).filter(r=>r.length>=7).map(r=>{let oldFormat=r.length>=8&&!/^\d+$/.test(r[3]);let opts=oldFormat?[r[4],r[5],r[6],r[7]]:[r[4],r[5],r[6],r[7]];let answer=oldFormat?r[2]:'';let ci=oldFormat?opts.findIndex(x=>String(x).trim()===String(answer).trim()):(Number(r[3])-1);if(ci<0||ci>3)ci=0;return {category:r[0]||'Quiz',question:r[1]||'Spørgsmål',points:Number(oldFormat?r[3]:r[2])||100,correctIndex:ci,answer:opts[ci]||'',options:opts.map(x=>String(x||'').trim()).slice(0,4)}}).filter(q=>q.question&&q.options.length===4&&q.options.every(Boolean));if(!qs.length)throw new Error('Ingen gyldige spørgsmål. Brug tabellen i editoren.');return qs;}
+function kahoopardyCorrectIndex(q){let ci=Number(q&&q.correctIndex); if(!Number.isFinite(ci)||ci<0||ci>3){ci=(q.options||[]).findIndex(o=>String(o).trim()===String(q.answer||'').trim());} return (ci>=0&&ci<=3)?ci:0;}
+function kahoopardyEditRowsHtml(w){
+  normalizeKahoopardy(w);
+  const rows=(w.data.questions&&w.data.questions.length?w.data.questions:kahoopardyDefaults().questions);
+  return `<div class="kahoopardyTableWrap"><table class="kahoopardyTable"><thead><tr><th>Kategori</th><th>Spørgsmål</th><th>Point</th><th>Rigtigt svar</th><th>Forkert svar 1</th><th>Forkert svar 2</th><th>Forkert svar 3</th><th></th></tr></thead><tbody>${
+    rows.map((q,ri)=>{
+      const o=(q.options||[]);
+      return `<tr data-row="${ri}">
+        <td><input data-field="category" value="${esc(q.category||'')}"></td>
+        <td><input data-field="question" value="${esc(q.question||'')}"></td>
+        <td><input class="points" data-field="points" type="number" min="0" step="10" value="${Number(q.points)||100}"></td>
+        <td><input data-field="option0" value="${esc(o[0]||'')}"></td>
+        <td><input data-field="option1" value="${esc(o[1]||'')}"></td>
+        <td><input data-field="option2" value="${esc(o[2]||'')}"></td>
+        <td><input data-field="option3" value="${esc(o[3]||'')}"></td>
+        <td><button type="button" class="deleteRow">Slet</button></td>
+      </tr>`;
+    }).join('')
+  }</tbody></table></div>`;
+}
+function kahoopardyReadTable(c){
+  const rows=[...c.querySelectorAll('.kahoopardyTable tbody tr')];
+  const qs=rows.map(tr=>{
+    const get=f=>{const i=tr.querySelector(`[data-field="${f}"]`);return String(i?i.value:'').trim();};
+    const opts=[0,1,2,3].map(i=>get('option'+i));
+    const ci=0;
+    return {category:get('category')||'Quiz',question:get('question')||'Spørgsmål',points:Number(get('points'))||100,correctIndex:0,answer:opts[0]||'',options:opts};
+  }).filter(q=>q.question&&q.options.every(Boolean));
+  if(!qs.length)throw new Error('Der skal være mindst ét spørgsmål, og alle fire svarmuligheder skal være udfyldt.');
+  return qs;
+}
+function kahoopardySplitDelimitedLine(line,delim){
+  if(delim==='\t')return String(line||'').split('\t').map(x=>x.trim());
+  return parseKahoopardyCSVLine(String(line||''));
+}
+function kahoopardyImportQuestionsFromText(text){
+  text=String(text||'').trim();
+  if(!text)throw new Error('Importfilen er tom.');
+  const lines=text.split(/\r?\n/).filter(x=>String(x).trim());
+  if(!lines.length)throw new Error('Importfilen er tom.');
+  const delim=(lines[0].indexOf('\t')>=0)?'\t':',';
+  const header=kahoopardySplitDelimitedLine(lines[0],delim).map(h=>String(h||'').trim().toLowerCase());
+  const hasHeader=header.some(h=>['kategori','spørgsmål','sporgsmal','question','point','points','rigtigt svar','korrekt svar'].includes(h));
+  if(!hasHeader)return parseKahoopardyCSV(text);
+  const idx=(names)=>{for(const n of names){const i=header.indexOf(n);if(i>=0)return i;}return -1;};
+  const iCat=idx(['kategori','category']);
+  const iQ=idx(['spørgsmål','sporgsmal','question','spørgsmaal']);
+  const iPts=idx(['point','points']);
+  const iRight=idx(['rigtigt svar','korrekt svar','svar','answer','mulighed 1','rigtig']);
+  const iW1=idx(['forkert svar 1','forkert 1','mulighed 2','wrong 1']);
+  const iW2=idx(['forkert svar 2','forkert 2','mulighed 3','wrong 2']);
+  const iW3=idx(['forkert svar 3','forkert 3','mulighed 4','wrong 3']);
+  if(iQ<0||iRight<0)throw new Error('Importen skal mindst have kolonnerne Spørgsmål og Rigtigt svar.');
+  const qs=[];
+  for(let li=1;li<lines.length;li++){
+    const r=kahoopardySplitDelimitedLine(lines[li],delim);
+    const val=i=>i>=0?String(r[i]||'').trim():'';
+    const opts=[val(iRight),val(iW1)||'Forkert svar 1',val(iW2)||'Forkert svar 2',val(iW3)||'Forkert svar 3'];
+    const q={category:val(iCat)||'Quiz',question:val(iQ)||'Spørgsmål',points:Number(val(iPts))||100,correctIndex:0,answer:opts[0],options:opts};
+    if(q.question&&opts[0])qs.push(q);
+  }
+  if(!qs.length)throw new Error('Ingen gyldige spørgsmål fundet i importen.');
+  return qs;
+}
+function kahoopardyAllJeopardyUsed(w){
+  normalizeKahoopardy(w);
+  const used=w.data.usedQuestions||{};
+  return (w.data.questions||[]).length>0 && (w.data.questions||[]).every((_,i)=>!!used[i]);
+}
+
+function kahoopardyScoreboardHtml(w){
+  normalizeKahoopardy(w);
+  const teams=(w.data.teams||[]).slice().map((t,i)=>({
+    idx:i,
+    name:String(t.name||('Hold '+(i+1))),
+    score:Number(t.score)||0,
+    correct:Number(t.correct)||0
+  })).sort((a,b)=>(b.score-a.score)||(b.correct-a.correct)||a.idx-b.idx);
+  const groups=[];
+  teams.forEach(t=>{
+    const last=groups[groups.length-1];
+    if(last&&last.score===t.score&&last.correct===t.correct) last.teams.push(t);
+    else groups.push({score:t.score,correct:t.correct,teams:[t]});
+  });
+  let rank=1;
+  return groups.map((g,gi)=>{
+    const label=rank===1?'1. plads':rank+'. plads';
+    const rankClass=rank===1?'kahoopardyScoreRank1':rank===2?'kahoopardyScoreRank2':rank===3?'kahoopardyScoreRank3':'kahoopardyScoreRankOther';
+    const cards=g.teams.map(t=>`<div class="kahoopardyScoreRow"><span class="kahoopardyRank">${esc(label)}</span><span class="kahoopardyScoreName">${esc(t.name)}</span><span class="kahoopardyScoreMeta">${t.score} point · ${t.correct} rigtige</span></div>`).join('');
+    // Tæt rangering til klassevisning: 1, 1, 2, 2.
+    rank+=1;
+    return `<div class="kahoopardyScoreTieGroup ${rankClass} ${gi===0?'top':''}">${cards}</div>`;
+  }).join('');
+}
+function kahoopardyModeBarHtml(w){
+  normalizeKahoopardy(w);
+  return `<div class="kahoopardyModeBar"><button type="button" class="startQuizMode ${w.data.mode==='kahoot'?'active':''}" data-mode="kahoot">▶ Kahoot</button><button type="button" class="startQuizMode ${w.data.mode==='jeopardy'?'active':''}" data-mode="jeopardy">▶ Jeopardy</button><button type="button" class="startQuizMode ${w.data.mode==='master'?'active':''}" data-mode="master">▶ Mester</button></div>`;
+}
+function kahoopardyModeName(m){return m==='jeopardy'?'Jeopardy':m==='master'?'Mester':'Kahoot';}
+function kahoopardyNextMode(m){return m==='kahoot'?'jeopardy':(m==='jeopardy'?'master':'kahoot');}
+function kahoopardyStageForMode(m){return m==='jeopardy'?'board':'question';}
+function kahoopardyFixedModeButtonHtml(w){
+  normalizeKahoopardy(w);
+  const currentMode=(w.data.mode==='jeopardy'||w.data.mode==='master')?w.data.mode:'kahoot';
+  const nextMode=kahoopardyNextMode(currentMode);
+  // Knappen viser altid AKTUEL tilstand, men klik cykler videre til næste tilstand.
+  return `<button type="button" class="cycleMode kahoopardyModeSwitchFixed" data-mode="${nextMode}" title="Aktiv tilstand: ${kahoopardyModeName(currentMode)}. Klik for næste. K/J/M vælger direkte.">${kahoopardyModeName(currentMode)}</button>`;
+}
+function kahoopardyActionBarHtml(w, primaryHtml){
+  normalizeKahoopardy(w);
+  const reset=(w.data.stage==='score'||w.data.stage==='done')?'<button type="button" class="resetPoints danger">↺ Nulstil points</button>':'';
+  return `<div class="kahoopardyActionBar">${primaryHtml||''}<button type="button" class="editQuestions settingsBtn" title="Indstillinger / redigér spørgsmål" aria-label="Indstillinger / redigér spørgsmål">⚙️</button>${reset}</div>`;
+}
+function kahoopardyResetPoints(w){
+  normalizeKahoopardy(w);
+  (w.data.teams||[]).forEach(t=>{t.score=0;t.correct=0;});
+  w.data.currentQuestion=0;w.data.currentTeam=0;w.data.selections={};w.data.awarded={};w.data.autoAwarded={};w.data.optionOrders={};w.data.usedQuestions={};w.data.reveal=false;w.data.stage=kahoopardyStageForMode(w.data.mode);
+}
+function kahoopardyPlayAgain(w,mode){
+  normalizeKahoopardy(w);
+  if(mode)w.data.mode=(mode==='jeopardy'||mode==='master')?mode:'kahoot';
+  w.data.usedQuestions={};w.data.selections={};w.data.awarded={};w.data.autoAwarded={};w.data.optionOrders={};w.data.currentQuestion=0;w.data.currentTeam=Math.max(0,Math.min(Number(w.data.currentTeam)||0,w.data.teams.length-1));w.data.reveal=false;w.data.stage=kahoopardyStageForMode(w.data.mode);
+}
+function kahoopardyAllQuestionsUsed(w){
+  normalizeKahoopardy(w);
+  return (w.data.questions||[]).length>0 && (w.data.questions||[]).every((_,i)=>!!(w.data.usedQuestions&&w.data.usedQuestions[i]));
+}
+function kahoopardyFindNextUnused(w,start){
+  normalizeKahoopardy(w);
+  const n=(w.data.questions||[]).length;
+  if(!n)return -1;
+  for(let step=0;step<n;step++){
+    const idx=((Number(start)||0)+step+n)%n;
+    if(!(w.data.usedQuestions&&w.data.usedQuestions[idx]))return idx;
+  }
+  return -1;
+}
+function kahoopardyPrepareNextQuestion(w,preferred){
+  normalizeKahoopardy(w);
+  const idx=kahoopardyFindNextUnused(w,Number.isFinite(Number(preferred))?Number(preferred):w.data.currentQuestion);
+  if(idx<0){w.data.stage='done';return false;}
+  w.data.currentQuestion=idx;w.data.reveal=false;if(w.data.mode==='kahoot')w.data.currentTeam=0;else w.data.currentTeam=Math.max(0,Math.min(Number(w.data.currentTeam)||0,w.data.teams.length-1));w.data.stage=(w.data.mode==='jeopardy')?'board':'question';
+  kahoopardyResetQuestionRound(w,idx);
+  return true;
+}
+
+function kahoopardyJeopardyCardStyle(catIndex,points,minPoint,maxPoint,used){
+  const p=Number(points)||0;
+  const min=Number(minPoint)||p;
+  const max=Number(maxPoint)||p;
+  const range=Math.max(1,max-min);
+  const t=Math.max(0,Math.min(1,(p-min)/range));
+  const hue=(215 + (Number(catIndex)||0)*58)%360;
+  const sat=Math.round(60 + t*25);
+  const light=Math.round(31 + t*7);
+  const light2=Math.round(22 + t*5);
+  const borderLight=Math.round(58 + t*14);
+  const shadow=0.16 + t*0.16;
+  if(used)return '';
+  return ` style="background:linear-gradient(135deg,hsl(${hue} ${sat}% ${light}%),hsl(${(hue+18)%360} ${Math.max(52,sat-8)}% ${light2}%));box-shadow:0 8px 18px rgba(0,0,0,.22), inset 0 0 0 ${1+t*2}px hsl(${hue} 84% ${borderLight}% / .34), 0 0 ${Math.round(4+t*12)}px hsl(${hue} 90% 55% / ${shadow});filter:saturate(${(0.92+t*0.28).toFixed(2)}) brightness(${(0.94+t*0.08).toFixed(2)});"`;
+}
+
+function kahoopardyJeopardyBoardHtml(w){
+  normalizeKahoopardy(w);
+  const cats=[];
+  (w.data.questions||[]).forEach((q,i)=>{
+    const name=String(q.category||'Quiz').trim()||'Quiz';
+    let g=cats.find(x=>x.name===name); if(!g){g={name,items:[]};cats.push(g);}
+    g.items.push({q,i,points:Number(q.points)||100});
+  });
+  // Klassisk Jeopardy-board: kategorier som faste kolonne-headers,
+  // og pointkort sorteret med laveste point øverst og højeste nederst.
+  cats.forEach(g=>g.items.sort((a,b)=>a.points-b.points||a.i-b.i));
+  const colCount=Math.max(1,cats.length);
+  const maxRows=Math.max(1,...cats.map(g=>g.items.length));
+  const available=[];
+  cats.forEach(g=>g.items.forEach(it=>{if(!(w.data.usedQuestions&&w.data.usedQuestions[it.i]))available.push(it.i);}));
+  if(!available.length)w.data.jeopardyFocus=-1;
+  else if(!available.includes(Number(w.data.jeopardyFocus)))w.data.jeopardyFocus=available[0];
+  const activeTeam=(w.data.teams[w.data.currentTeam]||{}).name||'Hold';
+  const cols=cats.map((g,catIndex)=>{
+    const pts=g.items.map(it=>Number(it.points)||0);
+    const minPoint=Math.min(...pts);
+    const maxPoint=Math.max(...pts);
+    let inner=`<div class="kahoopardyJeopardyCat" title="${esc(g.name)}" style="--catHue:${(215+catIndex*58)%360}">${esc(g.name)}</div>`;
+    for(let r=0;r<maxRows;r++){
+      const it=g.items[r];
+      if(!it){inner+=`<div class="kahoopardyJeopardyBlank"></div>`;continue;}
+      const used=!!(w.data.usedQuestions&&w.data.usedQuestions[it.i]);
+      inner+=`<button type="button" class="kahoopardyJeopardyCard ${used?'used':''} ${Number(w.data.jeopardyFocus)===it.i?'focused':''}" data-question="${it.i}" ${used?'disabled aria-disabled="true"':''}${kahoopardyJeopardyCardStyle(catIndex,it.points,minPoint,maxPoint,used)}>${it.points}</button>`;
+    }
+    return `<div class="kahoopardyJeopardyCol" style="--jp-rows:${maxRows}">${inner}</div>`;
+  }).join('');
+  const style=`grid-template-columns:repeat(${colCount},minmax(0,1fr));`;
+  const done=kahoopardyAllJeopardyUsed(w);
+  const banner=done?'Alle pointkort er brugt':`${esc(activeTeam)} vælger kategori og point`;
+  const primary=done?'<button type="button" class="jeopardyToScore next">Stilling</button><button type="button" class="playAgain secondary">Spil igen</button>':'';
+  return `<div class="kahoopardyJeopardy"><div class="kahoopardyJeopardyTurnBanner ${done?'kahoopardyJeopardyDone':''}">${banner}</div><div class="kahoopardyJeopardyGrid jeopardyColumns" style="${style}">${cols}</div>${kahoopardyActionBarHtml(w,primary)}</div>`;
+}
+
+function kahoopardyShuffle(arr){
+  arr=arr.slice();
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=arr[i];arr[i]=arr[j];arr[j]=t;}
+  return arr;
+}
+function kahoopardyOptionOrder(w){
+  normalizeKahoopardy(w);
+  const qKey=String(w.data.currentQuestion);
+  w.data.optionOrders=w.data.optionOrders||{};
+  let order=w.data.optionOrders[qKey];
+  if(!Array.isArray(order)||order.length!==4||order.some(x=>![0,1,2,3].includes(Number(x)))){
+    order=kahoopardyShuffle([0,1,2,3]);
+    w.data.optionOrders[qKey]=order;
+  }
+  return order.map(Number);
+}
+function kahoopardyResetQuestionRound(w,qIndex){
+  normalizeKahoopardy(w);
+  const qKey=String(qIndex);
+  if(w.data.selections)delete w.data.selections[qKey];
+  if(w.data.awarded)delete w.data.awarded[qKey];
+  if(w.data.autoAwarded)delete w.data.autoAwarded[qKey];
+  if(w.data.optionOrders)delete w.data.optionOrders[qKey];
+}
+function kahoopardyApplyAwardsFromSelections(w){
+  normalizeKahoopardy(w);
+  const q=currentKahoopardyQuestion(w), qKey=String(w.data.currentQuestion), ci=kahoopardyCorrectIndex(q), pts=Number(q.points)||100;
+  w.data.selections[qKey]=w.data.selections[qKey]||{}; w.data.awarded[qKey]=w.data.awarded[qKey]||{};
+  (w.data.teams||[]).forEach((t,i)=>{
+    if(w.data.selections[qKey][i]===ci && !w.data.awarded[qKey][i]){
+      t.score=(Number(t.score)||0)+pts;
+      t.correct=(Number(t.correct)||0)+1;
+      w.data.awarded[qKey][i]=true;
+      if(w.data.autoAwarded&&w.data.autoAwarded[qKey])w.data.autoAwarded[qKey][i]=true;
+    }
+  });
+}
+
+function kahoopardyAllAnswered(w){normalizeKahoopardy(w);const key=String(w.data.currentQuestion);return (w.data.teams||[]).every((_,i)=>w.data.selections[key]&&w.data.selections[key][i]!==undefined);}
+function kahoopardyAutoAwardCorrect(w){
+  normalizeKahoopardy(w);
+  const qKey=String(w.data.currentQuestion);
+  w.data.autoAwarded[qKey]=w.data.autoAwarded[qKey]||{};
+  kahoopardyApplyAwardsFromSelections(w);
+  Object.keys(w.data.awarded[qKey]||{}).forEach(i=>{w.data.autoAwarded[qKey][i]=true;});
+}
+function kahoopardyDing(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.18,ac.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.18);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.2)}catch(e){}}
+function kahoopardyApplause(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const master=ac.createGain();master.gain.value=.16;master.connect(ac.destination);for(let i=0;i<18;i++){const dur=.035+Math.random()*.055,start=ac.currentTime+i*.018+Math.random()*.018;const buffer=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*dur)),ac.sampleRate);const data=buffer.getChannelData(0);for(let j=0;j<data.length;j++)data[j]=(Math.random()*2-1)*(1-j/data.length);const src=ac.createBufferSource();src.buffer=buffer;const filter=ac.createBiquadFilter();filter.type='bandpass';filter.frequency.value=900+Math.random()*1400;filter.Q.value=.7;const g=ac.createGain();g.gain.setValueAtTime(.001,start);g.gain.exponentialRampToValueAtTime(.35,start+.008);g.gain.exponentialRampToValueAtTime(.001,start+dur);src.connect(filter);filter.connect(g);g.connect(master);src.start(start);src.stop(start+dur+.02);}setTimeout(()=>{try{ac.close()}catch(_e){}},700)}catch(e){}}
+
+function kahoopardyResultForQuestion(w,qi){
+  normalizeKahoopardy(w);
+  const q=w.data.questions[qi]||{};
+  const key=String(qi), ci=kahoopardyCorrectIndex(q);
+  const selections=(w.data.selections&&w.data.selections[key])||{};
+  const correct=[];
+  (w.data.teams||[]).forEach((t,i)=>{ if(Number(selections[i])===ci) correct.push(t.name||('Hold '+(i+1))); });
+  return correct.join(', ');
+}
+function kahoopardySaveQuestionsDataset(w){
+  normalizeKahoopardy(w);
+  const teamCols=(w.data.teams||[]).map((t,i)=>(t.name||('Hold '+(i+1)))+' svar');
+  const columns=['Kategori','Spørgsmål','Point','Rigtigt svar','Forkert svar 1','Forkert svar 2','Forkert svar 3','Rigtige hold'].concat(teamCols);
+  const rows=(w.data.questions||[]).map((q,qi)=>{
+    const opts=(q.options||[]).slice(0,4); while(opts.length<4)opts.push('');
+    const key=String(qi), selections=(w.data.selections&&w.data.selections[key])||{};
+    const teamAnswers=(w.data.teams||[]).map((t,i)=>opts[Number(selections[i])]||'');
+    return [q.category||'',q.question||'',String(Number(q.points)||0),opts[0]||'',opts[1]||'',opts[2]||'',opts[3]||'',kahoopardyResultForQuestion(w,qi)].concat(teamAnswers);
+  });
+  const ds={id:'ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:'Kahoopardy – spørgsmål og resultat',type:'csv',columns,rows,sourceName:'Kahoopardy',importedAt:Date.now()};
+  if(typeof addDataset==='function') addDataset(ds);
+  // addDatasetWidget kræver et tavlepunkt. Uden punkt forsøgte den at læse point.x
+  // og viste en fejl, selv om datasættet faktisk blev oprettet.
+  if(typeof addDatasetWidget==='function'){
+    const p={
+      x:Math.max(40,Math.min((Number(w.x)||140)+45,(window.innerWidth||1200)-520)),
+      y:Math.max(80,Math.min((Number(w.y)||130)+45,(window.innerHeight||800)-360))
+    };
+    addDatasetWidget(ds,p);
+  }
+  return ds;
+}
+
+
+
+/* v1.2.45-kahoopardy-phase1.26-SAFE: Importer liste åbner intern oversigt over datawidgets/lister i appen */
+function kahoopardyFindColumnIndex(cols,names){
+  cols=(cols||[]).map(c=>String(c||'').trim().toLowerCase());
+  for(const n of names){const i=cols.indexOf(String(n).trim().toLowerCase());if(i>=0)return i;}
+  return -1;
+}
+function kahoopardyQuestionsFromDataset(ds){
+  if(!ds||!Array.isArray(ds.rows))throw new Error('Datasættet kunne ikke læses.');
+  const cols=Array.isArray(ds.columns)?ds.columns:[];
+  const iCat=kahoopardyFindColumnIndex(cols,['kategori','category']);
+  const iQ=kahoopardyFindColumnIndex(cols,['spørgsmål','sporgsmal','spørgsmaal','question']);
+  const iPts=kahoopardyFindColumnIndex(cols,['point','points']);
+  const iRight=kahoopardyFindColumnIndex(cols,['rigtigt svar','korrekt svar','svar','answer','mulighed 1','rigtig']);
+  const iW1=kahoopardyFindColumnIndex(cols,['forkert svar 1','forkert 1','mulighed 2','wrong 1']);
+  const iW2=kahoopardyFindColumnIndex(cols,['forkert svar 2','forkert 2','mulighed 3','wrong 2']);
+  const iW3=kahoopardyFindColumnIndex(cols,['forkert svar 3','forkert 3','mulighed 4','wrong 3']);
+  if(iQ<0||iRight<0)throw new Error('Datawidgetten skal have mindst Spørgsmål og Rigtigt svar.');
+  const qs=[];
+  (ds.rows||[]).forEach(r=>{
+    r=Array.isArray(r)?r:[];
+    const val=i=>i>=0?String(r[i]??'').trim():'';
+    const opts=[val(iRight),val(iW1)||'Forkert svar 1',val(iW2)||'Forkert svar 2',val(iW3)||'Forkert svar 3'];
+    const q={category:val(iCat)||'Quiz',question:val(iQ)||'Spørgsmål',points:Number(val(iPts))||100,correctIndex:0,answer:opts[0],options:opts};
+    if(q.question&&opts[0])qs.push(q);
+  });
+  if(!qs.length)throw new Error('Ingen gyldige KahooPardy-spørgsmål i datawidgetten.');
+  return qs;
+}
+function kahoopardyDatasetLooksUseful(ds){
+  try{ kahoopardyQuestionsFromDataset(ds); return true; }catch(_e){ return false; }
+}
+function kahoopardyOpenImportOverview(w,el){
+  normalizeKahoopardy(w);
+  const currentWidgets=(slide()&&slide().widgets)||[];
+  const datasets=(state&&Array.isArray(state.datasets))?state.datasets:[];
+  const datasetItems=[];
+  datasets.forEach(ds=>{
+    if(!ds||!kahoopardyDatasetLooksUseful(ds))return;
+    const usedBy=currentWidgets.find(x=>x&&x.type==='dataset'&&x.data&&String(x.data.datasetId)===String(ds.id));
+    datasetItems.push({kind:'dataset',id:String(ds.id),title:ds.name||'Datasæt',meta:(ds.rows||[]).length+' rækker · '+(ds.columns||[]).length+' kolonner'+(usedBy?' · datawidget på tavlen':'')});
+  });
+  const textItems=[];
+  currentWidgets.forEach(tw=>{
+    if(!tw||tw.type!=='text'||!tw.data||tw.data.datasetId)return;
+    const raw=String(tw.data.text||'').trim();
+    if(!raw)return;
+    try{ const qs=kahoopardyImportQuestionsFromText(raw); if(qs&&qs.length)textItems.push({kind:'text',id:String(tw.id),title:tw.title||'Listewidget',meta:qs.length+' spørgsmål'}); }catch(_e){}
+  });
+  const all=[...datasetItems,...textItems];
+  const cards=all.length?all.map((it,i)=>`<button type="button" class="kpImportPick" data-i="${i}"><b>${esc(it.title)}</b><small>${esc(it.kind==='dataset'?'Datawidget/datasæt':'Liste-/tekstwidget')} · ${esc(it.meta)}</small></button>`).join(''):'<p class="kpImportEmpty">Ingen egnede datawidgets eller listewidgets fundet. Brug først “Gem/backup til datawidget” eller opret en datawidget med kolonnerne Spørgsmål og Rigtigt svar.</p>';
+  showModal(`<style>
+    .kpImportGrid{display:grid;gap:10px;margin:12px 0;max-height:52vh;overflow:auto}
+    .kpImportPick{display:block;width:100%;text-align:left;background:#eef2ff!important;color:#111827!important;border:0;border-radius:14px;padding:12px 14px!important;margin:0!important}
+    .kpImportPick b{display:block;font-size:17px;margin-bottom:3px}.kpImportPick small{display:block;opacity:.72;line-height:1.25}.kpImportEmpty{background:#f3f4f6;border-radius:12px;padding:12px;line-height:1.35}
+  </style><h2>Importer til KahooPardy</h2><p>Vælg en eksisterende datawidget/datasæt eller en liste-/tekstwidget i appen. Der åbnes ikke filvælger her.</p><div class="kpImportGrid">${cards}</div><button id="close">Luk</button>`);
+  modal.querySelectorAll('.kpImportPick').forEach(btn=>btn.onclick=()=>{
+    const it=all[Number(btn.dataset.i)];
+    try{
+      let qs=[];
+      if(it.kind==='dataset') qs=kahoopardyQuestionsFromDataset(findDatasetById(it.id));
+      else {
+        const tw=currentWidgets.find(x=>String(x.id)===String(it.id));
+        qs=kahoopardyImportQuestionsFromText(tw&&tw.data?tw.data.text:'');
+      }
+      if(!qs.length)throw new Error('Ingen spørgsmål fundet.');
+      w.data.questions=qs;
+      w.data.currentQuestion=0;w.data.currentTeam=0;w.data.selections={};w.data.awarded={};w.data.autoAwarded={};w.data.optionOrders={};w.data.usedQuestions={};w.data.reveal=false;w.data.stage='question';
+      closeModal();
+      save();renderKahoopardy(el,w);toast('Spørgsmål importeret: '+qs.length);
+    }catch(ex){toast(ex&&ex.message?ex.message:'Kunne ikke importere');}
+  });
+  const close=modal.querySelector('#close'); if(close)close.onclick=closeModal;
+}
+
+function renderKahoopardy(el,w){
+  normalizeKahoopardy(w);
+  const c=el.querySelector('.content');
+  const q=currentKahoopardyQuestion(w), qKey=String(w.data.currentQuestion), selections=w.data.selections[qKey]||{}, awarded=w.data.awarded[qKey]||{};
+  const correctIndex=kahoopardyCorrectIndex(q);
+  const allAnswered=kahoopardyAllAnswered(w);
+  const activeOk=w.data.currentTeam>=0&&!w.data.reveal&&!allAnswered;
+  const teamHtml=(w.data.teams||[]).map((t,i)=>{
+    const picked=selections[i];
+    const pickedText=picked!==undefined&&q.options&&q.options[picked]!==undefined?String(q.options[picked]):'';
+    const isCorrect=picked!==undefined&&Number(picked)===correctIndex;
+    const classes=['kahoopardyTeam'];
+    if(i===w.data.currentTeam&&activeOk)classes.push('active');
+    if(awarded[i])classes.push('awarded');
+    if(w.data.reveal)classes.push('canAward');
+    if(w.data.reveal&&w.data.autoAwarded&&w.data.autoAwarded[qKey]&&w.data.autoAwarded[qKey][i])classes.push('autoAward');
+    if(w.data.reveal&&pickedText)classes.push(isCorrect?'correctChoice':'wrongChoice');
+    return `<button type="button" class="${classes.join(' ')}" data-team="${i}">
+      <div class="kahoopardyTeamName">${esc(t.name)}</div>
+      <div class="kahoopardyTeamScore">${Number(t.score)||0}</div>
+      <div class="kahoopardyTeamSmall">${Number(t.correct)||0} rigtige${pickedText?' · '+esc(pickedText):''}</div>
+    </button>`;
+  }).join('')+`<button type="button" class="kahoopardyAddTeam" title="Tilføj hold">+</button>`;
+  if(w.data.editing){
+    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyEdit">
+      ${kahoopardyModeBarHtml(w)}
+      <div class="kahoopardyEditHelp"><span>Mulighed 1 er altid korrekt. Gem/backup opretter datawidget.</span><button type="button" class="kahoopardyInfoBtn" title="Vis forklaring">?</button></div>
+      ${kahoopardyEditRowsHtml(w)}
+      <div class="kahoopardyEditActions"><button class="saveQuestions">Gem/backup til datawidget</button><button class="importQuestions secondary">Importer liste</button><button class="addQuestionRow secondary" title="Tilføj spørgsmål (Cmd/Ctrl+Enter)">Tilføj spørgsmål</button><button class="cancelEdit secondary">Annuller</button></div>
+      <div class="kahoopardyError" style="display:none"></div>
+    </div></div>`;
+    wireKahoopardy(c,w,el);return;
+  }
+  if(w.data.stage==='done'){
+    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyDoneView">
+      <div><div class="kahoopardyDoneTitle">Alle spørgsmål er brugt</div><div class="kahoopardyDoneText">Se stillingen – eller spil en ny runde med samme point.</div></div>
+      <div class="kahoopardyReplayChoices"><button type="button" class="showFinalScore">Stilling</button><button type="button" class="playAgain">Spil igen: ${kahoopardyModeName(w.data.mode)}</button></div>
+      ${kahoopardyActionBarHtml(w,'')}
+    </div></div>`;
+    wireKahoopardy(c,w,el);return;
+  }
+  if(w.data.mode==='jeopardy'&&w.data.stage==='board'){
+    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div>${kahoopardyJeopardyBoardHtml(w)}</div>`;
+    wireKahoopardy(c,w,el);return;
+  }
+  if(w.data.mode==='jeopardy'&&w.data.stage==='jeopardy_question'){
+    const activeTeam=(w.data.teams[w.data.currentTeam]||{}).name||'Hold';
+    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyJeopardyPlay">
+      <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span><span>${Number(q.points)||100} point</span></div>
+      <div class="kahoopardyJeopardyPrompt"><div class="bigQuestion">${esc(q.question||'Spørgsmål')}</div></div>
+      ${kahoopardyActionBarHtml(w,`<button type="button" class="showJeopardyAnswer primary">Vis svar</button><div class="kahoopardyJeopardyTurn">Svarende hold: ${esc(activeTeam)}</div>`)}
+    </div></div>`;
+    wireKahoopardy(c,w,el);return;
+  }
+  if(w.data.mode==='jeopardy'&&w.data.stage==='jeopardy_answer'){
+    const activeTeam=(w.data.teams[w.data.currentTeam]||{}).name||'Hold';
+    const correctText=(q.options&&q.options[kahoopardyCorrectIndex(q)])||q.answer||'';
+    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyJeopardyPlay">
+      <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span><span>${Number(q.points)||100} point</span></div>
+      <div class="kahoopardyJeopardyAnswer"><div><div class="answerLabel">Rigtigt svar til ${esc(activeTeam)}</div><div class="bigAnswer">${esc(correctText)}</div></div></div>
+      ${kahoopardyActionBarHtml(w,`<div class="kahoopardyJeopardyJudge"><button type="button" class="jeopardyCorrect correctBtn ${(Number(w.data.judgeFocus)||0)===0?'focused':''}" data-judge="0">1 Rigtigt</button><button type="button" class="jeopardyHalf halfBtn ${(Number(w.data.judgeFocus)||0)===1?'focused':''}" data-judge="1">2 Halvt</button><button type="button" class="jeopardyWrong wrongBtn ${(Number(w.data.judgeFocus)||0)===2?'focused':''}" data-judge="2">3 Forkert</button></div>`)}
+    </div></div>`;
+    wireKahoopardy(c,w,el);return;
+  }
+  if(w.data.mode==='master'&&w.data.stage==='question'){
+    const activeTeam=(w.data.teams[w.data.currentTeam]||{}).name||'Hold';
+    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyMaster">
+      <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span><span>${Number(q.points)||100} point</span><span>${esc(activeTeam)} svarer</span></div>
+      <div class="kahoopardyMasterPrompt"><div class="kahoopardyMasterQuestion">${esc(q.question||'Spørgsmål')}</div></div>
+      ${kahoopardyActionBarHtml(w,`<button type="button" class="showMasterAnswer primary">Vis svar</button>`)}
+    </div></div>`;
+    wireKahoopardy(c,w,el);return;
+  }
+  if(w.data.mode==='master'&&w.data.stage==='master_answer'){
+    const activeTeam=(w.data.teams[w.data.currentTeam]||{}).name||'Hold';
+    const correctText=(q.options&&q.options[kahoopardyCorrectIndex(q)])||q.answer||'';
+    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyMaster">
+      <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span><span>${Number(q.points)||100} point</span><span>${esc(activeTeam)} svarer</span></div>
+      <div class="kahoopardyMasterAnswer"><div><div class="kahoopardyMasterLabel">Rigtigt svar</div><div class="kahoopardyMasterAnswerText">${esc(correctText)}</div></div></div>
+      ${kahoopardyActionBarHtml(w,`<div class="kahoopardyJudgeBtns"><button type="button" class="masterCorrect correctBtn ${(Number(w.data.judgeFocus)||0)===0?'focused':''}" data-judge="0">1 Rigtigt</button><button type="button" class="masterHalf halfBtn ${(Number(w.data.judgeFocus)||0)===1?'focused':''}" data-judge="1">2 Halvt</button><button type="button" class="masterWrong wrongBtn ${(Number(w.data.judgeFocus)||0)===2?'focused':''}" data-judge="2">3 Forkert</button></div>`)}
+    </div></div>`;
+    wireKahoopardy(c,w,el);return;
+  }
+  if(w.data.stage==='score'){
+    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyScoreView">
+      <div class="kahoopardyScoreRows">${kahoopardyScoreboardHtml(w)}</div>
+      ${kahoopardyActionBarHtml(w,kahoopardyAllQuestionsUsed(w)?`<button type="button" class="playAgain next">Spil igen: ${kahoopardyModeName(w.data.mode)}</button>`:`<button type="button" class="nextQuestion next">Næste spørgsmål</button>`)}
+    </div></div>`;
+    wireKahoopardy(c,w,el);return;
+  }
+  const color=['red','blue','yellow','green'];
+  const order=kahoopardyOptionOrder(w);
+  const optHtml=order.map((orig,displayIndex)=>`<button type="button" class="kahoopardyOption ${color[displayIndex]||'blue'} ${activeOk&&selections[w.data.currentTeam]===orig?'selectedByActive':''} ${w.data.reveal&&orig===correctIndex?'correct':''}" data-option="${orig}"><span class="check">✓</span>${esc((q.options||[])[orig]||'')}</button>`).join('');
+  const answerHint='';
+  const bottom=!w.data.reveal?(allAnswered?`<button type="button" class="revealAnswer primary">Se svar</button>`:`<div class="kahoopardyHint">Aktivt hold: ${activeOk?esc((w.data.teams[w.data.currentTeam]||{}).name||'Hold'):'Alle hold har svaret'}</div>`):`<button type="button" class="continueScore next">Stilling</button>`;
+  c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyMain">
+    <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span><span>${Number(q.points)||100} point</span></div>
+    <div class="kahoopardyQuestion">${esc(q.question||'Spørgsmål')}</div>
+    ${answerHint}
+    <div class="kahoopardyOptions">${optHtml}</div>
+    ${kahoopardyActionBarHtml(w,bottom)}
+  </div></div>`;
+  wireKahoopardy(c,w,el);
+}
+function wireKahoopardy(c,w,el){
+  c.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('pointerdown',e=>e.stopPropagation(),{passive:true});
+    b.addEventListener('click',e=>e.stopPropagation());
+  });
+  c.querySelectorAll('.kahoopardyTable input[type="text"], .kahoopardyTable input:not([type])').forEach(inp=>{
+    inp.addEventListener('focus',()=>setTimeout(()=>{try{inp.select()}catch(_e){}},0));
+    inp.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        const tr=inp.closest('tr');
+        const field=inp.getAttribute('data-field');
+        const rows=[...c.querySelectorAll('.kahoopardyTable tbody tr')];
+        const ri=rows.indexOf(tr);
+        const dir=e.shiftKey?-1:1;
+        let next=null;
+        for(let step=1;step<=rows.length;step++){
+          const row=rows[(ri+dir*step+rows.length)%rows.length];
+          next=row&&row.querySelector(`[data-field="${field}"]`);
+          if(next&&!next.disabled)break;
+        }
+        if(!next){
+          const fields=[...c.querySelectorAll('.kahoopardyTable input')].filter(x=>!x.disabled);
+          const idx=fields.indexOf(inp); next=fields[idx+1]||fields[0];
+        }
+        if(next){next.focus(); if(next.select) setTimeout(()=>next.select(),0);}
+      }
+    });
+  });
+  const rerender=()=>{save();renderKahoopardy(el,w);};
+  const add=c.querySelector('.kahoopardyAddTeam');
+  if(add)add.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);const n=w.data.teams.length+1;w.data.teams.push({name:'Hold '+n,score:0,correct:0});rerender();};
+  c.querySelectorAll('.kahoopardyOption').forEach(btn=>btn.onclick=e=>{
+    e.preventDefault();
+    normalizeKahoopardy(w);
+    if(w.data.reveal||kahoopardyAllAnswered(w))return;
+    const qKey=String(w.data.currentQuestion);
+    w.data.selections[qKey]=w.data.selections[qKey]||{};
+    w.data.selections[qKey][w.data.currentTeam]=Number(btn.dataset.option);
+    let next=-1;
+    for(let i=0;i<w.data.teams.length;i++){
+      const cand=(w.data.currentTeam+1+i)%w.data.teams.length;
+      if(w.data.selections[qKey][cand]===undefined){next=cand;break;}
+    }
+    w.data.currentTeam=next;
+    rerender();
+  });
+  const reveal=c.querySelector('.revealAnswer');
+  if(reveal)reveal.onclick=e=>{e.preventDefault();w.data.reveal=true;w.data.currentTeam=-1;kahoopardyAutoAwardCorrect(w);kahoopardyDing();rerender();};
+  c.querySelectorAll('.kahoopardyTeam').forEach(btn=>btn.onclick=e=>{
+    e.preventDefault();
+    normalizeKahoopardy(w);
+    const i=Number(btn.dataset.team);
+    if(!w.data.reveal){
+      const qKey=String(w.data.currentQuestion);
+      if(!w.data.selections[qKey]||w.data.selections[qKey][i]===undefined)w.data.currentTeam=i;
+      rerender();
+      return;
+    }
+    const q=currentKahoopardyQuestion(w),qKey=String(w.data.currentQuestion), pts=Number(q.points)||100;
+    w.data.awarded[qKey]=w.data.awarded[qKey]||{}; w.data.autoAwarded[qKey]=w.data.autoAwarded[qKey]||{};
+    const t=w.data.teams[i]; if(!t)return;
+    if(w.data.awarded[qKey][i]){
+      t.score=(Number(t.score)||0)-pts;
+      t.correct=Math.max(0,(Number(t.correct)||0)-1);
+      delete w.data.awarded[qKey][i]; delete w.data.autoAwarded[qKey][i];
+    }else{
+      t.score=(Number(t.score)||0)+pts;
+      t.correct=(Number(t.correct)||0)+1;
+      w.data.awarded[qKey][i]=true;
+    }
+    rerender();
+  });
+  const cont=c.querySelector('.continueScore');
+  if(cont)cont.onclick=e=>{e.preventDefault();kahoopardyApplyAwardsFromSelections(w);w.data.usedQuestions=w.data.usedQuestions||{};w.data.usedQuestions[w.data.currentQuestion]=true;w.data.stage='score';kahoopardyApplause();rerender();};
+  const next=c.querySelector('.nextQuestion');
+  if(next)next.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);if(kahoopardyAllQuestionsUsed(w)){w.data.stage='done';rerender();return;} if(w.data.mode==='jeopardy'){w.data.stage='board';w.data.reveal=false;rerender();return;} kahoopardyPrepareNextQuestion(w,(w.data.currentQuestion+1));rerender();};
+  const jpScore=c.querySelector('.jeopardyToScore');
+  if(jpScore)jpScore.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);w.data.stage='score';kahoopardyApplause();rerender();};
+  c.querySelectorAll('.editQuestions').forEach(b=>b.onclick=e=>{e.preventDefault();w.data.editing=true;rerender();});
+  const cancel=c.querySelector('.cancelEdit');
+  if(cancel)cancel.onclick=e=>{e.preventDefault();w.data.editing=false;rerender();};
+  c.querySelectorAll('.deleteRow').forEach(b=>b.onclick=e=>{e.preventDefault();const tr=b.closest('tr');if(tr&&c.querySelectorAll('.kahoopardyTable tbody tr').length>1)tr.remove();});
+  const addRow=c.querySelector('.addQuestionRow');
+  if(addRow)addRow.onclick=e=>{
+    e.preventDefault();
+    const body=c.querySelector('.kahoopardyTable tbody'); if(!body)return;
+    const ri=body.querySelectorAll('tr').length;
+    const prev=body.querySelector('tr:last-child');
+    const getPrev=f=>{const i=prev&&prev.querySelector(`[data-field="${f}"]`);return i?i.value:'';};
+    const vals={
+      category:getPrev('category')||'Demo',
+      question:getPrev('question')||'Nyt spørgsmål',
+      points:getPrev('points')||'100',
+      option0:getPrev('option0')||'Rigtigt svar',
+      option1:getPrev('option1')||'Forkert svar 1',
+      option2:getPrev('option2')||'Forkert svar 2',
+      option3:getPrev('option3')||'Forkert svar 3'
+    };
+    body.insertAdjacentHTML('beforeend',`<tr data-row="${ri}">
+      <td><input data-field="category" value="${esc(vals.category)}"></td>
+      <td><input data-field="question" value="${esc(vals.question)}"></td>
+      <td><input class="points" data-field="points" type="number" min="0" step="10" value="${esc(vals.points)}"></td>
+      <td><input data-field="option0" value="${esc(vals.option0)}"></td>
+      <td><input data-field="option1" value="${esc(vals.option1)}"></td>
+      <td><input data-field="option2" value="${esc(vals.option2)}"></td>
+      <td><input data-field="option3" value="${esc(vals.option3)}"></td>
+      <td><button type="button" class="deleteRow">Slet</button></td>
+    </tr>`);
+    const newRow=body.querySelector('tr:last-child');
+    const wrap=c.querySelector('.kahoopardyTableWrap');
+    if(wrap){
+      setTimeout(()=>{try{wrap.scrollTop=wrap.scrollHeight; if(newRow)newRow.scrollIntoView({block:'nearest',inline:'nearest'});}catch(_e){}},0);
+    }else if(newRow){
+      setTimeout(()=>{try{newRow.scrollIntoView({block:'nearest',inline:'nearest'});}catch(_e){}},0);
+    }
+    wireKahoopardy(c,w,el);
+    const q=newRow&&newRow.querySelector('input[data-field="question"]'); if(q){q.focus(); if(q.select)setTimeout(()=>q.select(),0);}
+  };
+  const importBtn=c.querySelector('.importQuestions');
+  if(importBtn)importBtn.onclick=e=>{e.preventDefault();kahoopardyOpenImportOverview(w,el);};
+  const infoBtn=c.querySelector('.kahoopardyInfoBtn');
+  if(infoBtn)infoBtn.onclick=e=>{
+    e.preventDefault();
+    let old=document.querySelector('.kahoopardyLocalInfoOverlay');
+    if(old)old.remove();
+    const ov=document.createElement('div');
+    ov.className='kahoopardyLocalInfoOverlay';
+    ov.innerHTML=`<div class="kahoopardyLocalInfoBox" role="dialog" aria-modal="true" aria-label="KahooPardy-data">
+      <h2>KahooPardy-data</h2>
+      <p><b>Mulighed 1</b> er altid det rigtige svar. Appen blander selv svarmulighederne, når quizzen vises.</p>
+      <p><b>Gem/backup til datawidget</b> opretter et internt datasæt med spørgsmål, svarmuligheder, quizstatus og resultater.</p>
+      <p>Datawidgetten kan senere bruges til at oprette lister, genbruge spørgsmål i en ny KahooPardy eller eksportere data videre, hvor browseren tillader download.</p>
+      <button type="button" class="kahoopardyLocalInfoClose">Luk</button>
+    </div>`;
+    document.body.appendChild(ov);
+    const close=()=>{try{ov.remove();}catch(_e){}};
+    ov.addEventListener('click',ev=>{if(ev.target===ov)close();});
+    const btn=ov.querySelector('.kahoopardyLocalInfoClose');
+    if(btn){btn.onclick=close; setTimeout(()=>{try{btn.focus();}catch(_e){}},0);}
+    const escHandler=ev=>{if(ev.key==='Escape'){close();document.removeEventListener('keydown',escHandler,true);}};
+    document.addEventListener('keydown',escHandler,true);
+  };
+
+  const saveBtn=c.querySelector('.saveQuestions');
+  if(saveBtn)saveBtn.onclick=e=>{
+    e.preventDefault();
+    const err=c.querySelector('.kahoopardyError');
+    try{
+      w.data.questions=kahoopardyReadTable(c);
+      kahoopardySaveQuestionsDataset(w);
+      save();
+      if(err){err.style.display='none';err.textContent='';}
+      toast('Kahoopardy gemt som datawidget');
+    }catch(ex){if(err){err.style.display='block';err.textContent=ex.message||'Kunne ikke gemme spørgsmål';}}
+  };
+
+  c.querySelectorAll('.startQuizMode').forEach(b=>b.onclick=e=>{
+    e.preventDefault();
+    const err=c.querySelector('.kahoopardyError');
+    try{w.data.questions=kahoopardyReadTable(c);}catch(ex){if(err){err.style.display='block';err.textContent=ex.message||'Kunne ikke starte quiz';}return;}
+    normalizeKahoopardy(w);
+    const m=(b.dataset.mode==='jeopardy'||b.dataset.mode==='master')?b.dataset.mode:'kahoot';
+    w.data.mode=m;w.data.editing=false;w.data.currentQuestion=0;w.data.currentTeam=0;w.data.reveal=false;w.data.stage=kahoopardyStageForMode(m);
+    kahoopardyResetQuestionRound(w,0);
+    rerender();
+  });
+
+  c.querySelectorAll('.switchMode,.cycleMode').forEach(b=>b.onclick=e=>{
+    e.preventDefault();
+    normalizeKahoopardy(w);
+    const m=(b.dataset.mode==='jeopardy'||b.dataset.mode==='master')?b.dataset.mode:'kahoot';
+    w.data.mode=m;
+    if(w.data.editing){rerender();return;}
+    if(w.data.stage==='score'||w.data.stage==='done'){rerender();return;}
+    w.data.stage=kahoopardyStageForMode(m);
+    if(m!=='jeopardy' && (w.data.usedQuestions&&w.data.usedQuestions[w.data.currentQuestion])){kahoopardyPrepareNextQuestion(w,w.data.currentQuestion+1);}
+    rerender();
+  });
+  c.querySelectorAll('.playAgainMode').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyPlayAgain(w,b.dataset.mode);rerender();});
+  c.querySelectorAll('.playAgain').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyPlayAgain(w,w.data.mode);rerender();});
+  c.querySelectorAll('.showFinalScore').forEach(b=>b.onclick=e=>{e.preventDefault();w.data.stage='score';kahoopardyApplause();rerender();});
+  const showM=c.querySelector('.showMasterAnswer');
+  if(showM)showM.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);w.data.stage='master_answer';w.data.judgeFocus=0;kahoopardyDing();rerender();};
+  function finishMaster(kind){
+    normalizeKahoopardy(w);
+    const qi=w.data.currentQuestion, q=currentKahoopardyQuestion(w), pts=Number(q.points)||100, ti=Math.max(0,Math.min(Number(w.data.currentTeam)||0,w.data.teams.length-1));
+    w.data.usedQuestions=w.data.usedQuestions||{};w.data.usedQuestions[qi]=true;
+    w.data.awarded=w.data.awarded||{};w.data.awarded[String(qi)]=w.data.awarded[String(qi)]||{};
+    const add=kind==='correct'?pts:(kind==='half'?Math.round(pts/2):0);
+    if(add&&w.data.teams[ti]&&!w.data.awarded[String(qi)][ti]){
+      w.data.teams[ti].score=(Number(w.data.teams[ti].score)||0)+add;
+      w.data.teams[ti].correct=(Number(w.data.teams[ti].correct)||0)+(kind==='half'?0.5:1);
+      w.data.awarded[String(qi)][ti]=true;
+      kahoopardyApplause();
+    }else{kahoopardyDing();}
+    w.data.currentTeam=(ti+1)%Math.max(1,(w.data.teams||[]).length);
+    w.data.stage='score';w.data.reveal=false;
+    rerender();
+  }
+  const mc=c.querySelector('.masterCorrect'); if(mc)mc.onclick=e=>{e.preventDefault();finishMaster('correct');};
+  const mh=c.querySelector('.masterHalf'); if(mh)mh.onclick=e=>{e.preventDefault();finishMaster('half');};
+  const mw=c.querySelector('.masterWrong'); if(mw)mw.onclick=e=>{e.preventDefault();finishMaster('wrong');};
+  c.querySelectorAll('.resetPoints').forEach(b=>b.onclick=e=>{
+    e.preventDefault();
+    kahoopardyResetPoints(w);
+    rerender();
+  });
+  c.querySelectorAll('.kahoopardyJeopardyCard').forEach(b=>b.onclick=e=>{
+    e.preventDefault();
+    normalizeKahoopardy(w);
+    const qi=Number(b.dataset.question);
+    if(!Number.isFinite(qi)||b.disabled||(w.data.usedQuestions&&w.data.usedQuestions[qi]))return;
+    w.data.currentQuestion=Math.max(0,Math.min(qi,w.data.questions.length-1));
+    if(!Number.isFinite(Number(w.data.currentTeam))||w.data.currentTeam<0)w.data.currentTeam=0;
+    w.data.reveal=false;w.data.stage='jeopardy_question';
+    kahoopardyResetQuestionRound(w,w.data.currentQuestion);
+    rerender();
+  });
+  const showJ=c.querySelector('.showJeopardyAnswer');
+  if(showJ)showJ.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);w.data.stage='jeopardy_answer';w.data.judgeFocus=0;kahoopardyDing();rerender();};
+  function finishJeopardy(kind){
+    normalizeKahoopardy(w);
+    const qi=w.data.currentQuestion, q=currentKahoopardyQuestion(w), pts=Number(q.points)||100, ti=Math.max(0,Math.min(Number(w.data.currentTeam)||0,w.data.teams.length-1));
+    w.data.usedQuestions=w.data.usedQuestions||{};w.data.usedQuestions[qi]=true;
+    w.data.awarded=w.data.awarded||{};w.data.awarded[String(qi)]=w.data.awarded[String(qi)]||{};
+    const add=kind==='correct'?pts:(kind==='half'?Math.round(pts/2):0);
+    if(add&&w.data.teams[ti]&&!w.data.awarded[String(qi)][ti]){
+      w.data.teams[ti].score=(Number(w.data.teams[ti].score)||0)+add;
+      w.data.teams[ti].correct=(Number(w.data.teams[ti].correct)||0)+(kind==='half'?0.5:1);
+      w.data.awarded[String(qi)][ti]=true;
+      kahoopardyApplause();
+      // Rigtigt/halvt svar beholder turen og vælger næste kort.
+      w.data.currentTeam=ti;
+    }else{
+      // Kun forkert svar sender turen videre til næste hold.
+      w.data.currentTeam=(ti+1)%Math.max(1,(w.data.teams||[]).length);
+      kahoopardyDing();
+    }
+    w.data.stage='board';w.data.reveal=false;
+    rerender();
+  }
+  const jc=c.querySelector('.jeopardyCorrect'); if(jc)jc.onclick=e=>{e.preventDefault();finishJeopardy('correct');};
+  const jh=c.querySelector('.jeopardyHalf'); if(jh)jh.onclick=e=>{e.preventDefault();finishJeopardy('half');};
+  const jw=c.querySelector('.jeopardyWrong'); if(jw)jw.onclick=e=>{e.preventDefault();finishJeopardy('wrong');};
+}
+
+
+function kahoopardyActiveWidgetForKeyboard(){
+  try{
+    if(selected){
+      const w=findWidget(selected);
+      if(w&&w.type==='kahoopardy')return {w,el:document.querySelector(`.widget[data-id="${selected}"]`)};
+    }
+    const el=document.querySelector('.widget.selected[data-type="kahoopardy"], .widget[data-type="kahoopardy"].focusTarget, .widget[data-type="kahoopardy"]');
+    if(el&&el.dataset&&el.dataset.id){const w=findWidget(el.dataset.id); if(w&&w.type==='kahoopardy')return {w,el};}
+  }catch(_e){}
+  return null;
+}
+function kahoopardyKeyOptionIndex(e){
+  const k=String(e.key||'');
+  const code=String(e.code||'');
+  if(/^[1-9]$/.test(k))return Number(k)-1;
+  if(k==='0')return 9;
+  if(k==='+'||k==='Add'||code==='NumpadAdd')return 9;
+  if(/^Numpad[1-9]$/.test(code))return Number(code.replace('Numpad',''))-1;
+  if(code==='Numpad0')return 9;
+  return -1;
+}
+function kahoopardyHandleKeyboard(e){
+  const tag=(e.target&&e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select'||(e.target&&e.target.isContentEditable))return;
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const hit=kahoopardyActiveWidgetForKeyboard();
+  if(!hit||!hit.el||!hit.w)return;
+  normalizeKahoopardy(hit.w);
+  if(hit.w.data.editing)return;
+  const c=hit.el.querySelector('.content.kahoopardy')||hit.el.querySelector('.content');
+  if(!c)return;
+  const isSpace=(e.key===' '||e.key==='Spacebar'||e.code==='Space');
+  const isEnter=(e.key==='Enter'||e.code==='Enter'||e.code==='NumpadEnter');
+  const stage=hit.w.data.stage;
+  if(stage==='master_answer'||stage==='jeopardy_answer'){
+    let btn=null;
+    if(e.key==='1'||String(e.key).toLowerCase()==='r')btn=c.querySelector('.masterCorrect,.jeopardyCorrect');
+    if(e.key==='2'||String(e.key).toLowerCase()==='h')btn=c.querySelector('.masterHalf,.jeopardyHalf');
+    if(e.key==='3'||String(e.key).toLowerCase()==='f')btn=c.querySelector('.masterWrong,.jeopardyWrong');
+    if(btn){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();btn.click();return;}
+  }
+  if(isSpace||isEnter){
+    const btn=c.querySelector('.revealAnswer,.continueScore,.nextQuestion,.showJeopardyAnswer,.showMasterAnswer,.jeopardyToScore,.showFinalScore,.playAgain');
+    if(btn){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();btn.click();}
+    return;
+  }
+  const idx=kahoopardyKeyOptionIndex(e);
+  if(idx>=0){
+    const opts=[...c.querySelectorAll('.kahoopardyOption')];
+    const btn=opts[idx];
+    if(btn){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();btn.click();}
+  }
+}
+document.addEventListener('keydown',kahoopardyHandleKeyboard,true);
+
+document.addEventListener('keydown',function kahoopardyPhase18Keys(e){
+  const tag=(e.target&&e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select'||(e.target&&e.target.isContentEditable))return;
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const hit=(typeof kahoopardyActiveWidgetForKeyboard==='function')?kahoopardyActiveWidgetForKeyboard():null;
+  if(!hit||!hit.w||!hit.el)return;
+  normalizeKahoopardy(hit.w);
+  const c=hit.el.querySelector('.content.kahoopardy')||hit.el.querySelector('.content');
+  if(!c)return;
+  const key=String(e.key||'').toLowerCase();
+  function stop(){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+  function switchMode(m){
+    hit.w.data.mode=m;
+    if(!hit.w.data.editing && hit.w.data.stage!=='score' && hit.w.data.stage!=='done'){
+      hit.w.data.stage=kahoopardyStageForMode(m);
+      if(m!=='jeopardy' && hit.w.data.usedQuestions && hit.w.data.usedQuestions[hit.w.data.currentQuestion]){
+        kahoopardyPrepareNextQuestion(hit.w,hit.w.data.currentQuestion+1);
+      }
+    }
+    renderKahoopardy(hit.el,hit.w);try{save({silent:true})}catch(_e){try{save()}catch(_e2){}}
+  }
+  if((key==='k'||key==='j'||key==='m') && !e.shiftKey){
+    stop();
+    // Bevar ufærdige ændringer i redigeringstabellen, før mode-markeringen renderes igen.
+    if(hit.w.data.editing){try{hit.w.data.questions=kahoopardyReadTable(c);}catch(_e){}}
+    switchMode(key==='j'?'jeopardy':(key==='m'?'master':'kahoot'));
+    return;
+  }
+  if(hit.w.data.editing){
+    if(e.key==='Enter'||e.code==='Enter'||e.code==='NumpadEnter'){
+      stop();
+      const mode=(hit.w.data.mode==='jeopardy'||hit.w.data.mode==='master')?hit.w.data.mode:'kahoot';
+      const btn=c.querySelector(`.startQuizMode[data-mode="${mode}"]`)||c.querySelector('.startQuizMode.active')||c.querySelector('.startQuizMode');
+      if(btn)btn.click();
+    }
+    return;
+  }
+  if(hit.w.data.mode==='jeopardy' && hit.w.data.stage==='board'){
+    const cards=[...c.querySelectorAll('.kahoopardyJeopardyCard:not(.used):not(:disabled)')];
+    if(!cards.length)return;
+    let idx=cards.findIndex(b=>Number(b.dataset.question)===Number(hit.w.data.jeopardyFocus));
+    if(idx<0)idx=0;
+    if(e.key==='Tab'){
+      stop();
+      idx=(idx+(e.shiftKey?-1:1)+cards.length)%cards.length;
+      hit.w.data.jeopardyFocus=Number(cards[idx].dataset.question);
+      renderKahoopardy(hit.el,hit.w);try{save({silent:true})}catch(_e){}
+      return;
+    }
+    if(e.key==='Enter'||e.code==='Enter'||e.code==='NumpadEnter'){
+      stop();
+      (cards[idx]||cards[0]).click();
+      return;
+    }
+  }
+},true);
+
+
+/* v1.2.45-kahoopardy-phase1.20: Shift+Space cycles judge buttons; Enter chooses focused judge button */
+document.addEventListener('keydown',function kahoopardyPhase20JudgeKeys(e){
+  const tag=(e.target&&e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select'||(e.target&&e.target.isContentEditable))return;
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const hit=(typeof kahoopardyActiveWidgetForKeyboard==='function')?kahoopardyActiveWidgetForKeyboard():null;
+  if(!hit||!hit.w||!hit.el)return;
+  normalizeKahoopardy(hit.w);
+  if(hit.w.data.editing)return;
+  const stage=hit.w.data.stage;
+  if(stage!=='master_answer'&&stage!=='jeopardy_answer')return;
+  const isSpace=(e.key===' '||e.key==='Spacebar'||e.code==='Space');
+  const isEnter=(e.key==='Enter'||e.code==='Enter'||e.code==='NumpadEnter');
+  if(!isSpace&&!isEnter)return;
+  const c=hit.el.querySelector('.content.kahoopardy')||hit.el.querySelector('.content');
+  if(!c)return;
+  const buttons=[...c.querySelectorAll('.masterCorrect,.masterHalf,.masterWrong,.jeopardyCorrect,.jeopardyHalf,.jeopardyWrong')];
+  if(!buttons.length)return;
+  function stop(){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+  let idx=Number(hit.w.data.judgeFocus)||0;
+  idx=Math.max(0,Math.min(idx,buttons.length-1));
+  if(isSpace&&e.shiftKey){
+    stop();
+    hit.w.data.judgeFocus=(idx+1)%buttons.length;
+    renderKahoopardy(hit.el,hit.w);
+    try{save({silent:true})}catch(_e){}
+    return;
+  }
+  if(isEnter){
+    stop();
+    (buttons[idx]||buttons[0]).click();
+    return;
+  }
+},true);
+
+
+
+/* v1.2.45-kahoopardy-phase1.21: edit start mode cycling + ESC blurs editor fields */
+document.addEventListener('keydown',function kahoopardyPhase21EditKeys(e){
+  const tag=(e.target&&e.target.tagName||'').toLowerCase();
+  const isTextField=tag==='input'||tag==='textarea'||tag==='select'||(e.target&&e.target.isContentEditable);
+  if(isTextField && (e.key==='Escape'||e.code==='Escape')){
+    try{e.target.blur();}catch(_e){}
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    return;
+  }
+  if(isTextField)return;
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const hit=(typeof kahoopardyActiveWidgetForKeyboard==='function')?kahoopardyActiveWidgetForKeyboard():null;
+  if(!hit||!hit.w||!hit.el)return;
+  normalizeKahoopardy(hit.w);
+  if(!hit.w.data.editing)return;
+  const c=hit.el.querySelector('.content.kahoopardy')||hit.el.querySelector('.content');
+  if(!c)return;
+  const isSpace=(e.key===' '||e.key==='Spacebar'||e.code==='Space');
+  const isEnter=(e.key==='Enter'||e.code==='Enter'||e.code==='NumpadEnter');
+  function stop(){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+  const modes=['kahoot','jeopardy','master'];
+  if(isSpace&&e.shiftKey){
+    stop();
+    // Shift+Space må kun skifte markeret startmode – ikke smide nyligt indtastede rækker væk.
+    try{hit.w.data.questions=kahoopardyReadTable(c);}catch(_e){}
+    const cur=modes.indexOf(hit.w.data.mode);
+    hit.w.data.mode=modes[(cur<0?0:cur+1)%modes.length];
+    renderKahoopardy(hit.el,hit.w);
+    try{save({silent:true})}catch(_e){try{save()}catch(_e2){}}
+    return;
+  }
+  if(isEnter){
+    stop();
+    const mode=(hit.w.data.mode==='jeopardy'||hit.w.data.mode==='master')?hit.w.data.mode:'kahoot';
+    const btn=c.querySelector(`.startQuizMode[data-mode="${mode}"]`)||c.querySelector('.startQuizMode.active')||c.querySelector('.startQuizMode');
+    if(btn)btn.click();
+    return;
+  }
+},true);
+
+
+
+/* v1.2.45-kahoopardy-phase1.31: Cmd/Ctrl+Enter adds a question row in the KahooPardy editor. */
+document.addEventListener('keydown',function kahoopardyPhase31AddQuestionShortcut(e){
+  const isEnter=(e.key==='Enter'||e.code==='Enter'||e.code==='NumpadEnter');
+  if(!isEnter || !(e.metaKey||e.ctrlKey) || e.altKey) return;
+  const hit=(typeof kahoopardyActiveWidgetForKeyboard==='function')?kahoopardyActiveWidgetForKeyboard():null;
+  if(!hit||!hit.w||!hit.el) return;
+  try{ normalizeKahoopardy(hit.w); }catch(_e){}
+  if(!hit.w.data || !hit.w.data.editing) return;
+  const c=hit.el.querySelector('.content.kahoopardy')||hit.el.querySelector('.content');
+  if(!c) return;
+  const btn=c.querySelector('.addQuestionRow');
+  if(!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  btn.click();
+},true);
+
 function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type; if(w.type==='text'){
   w.data=w.data||{};
   const isDatasetText=!!w.data.datasetId;
@@ -9448,6 +11065,8 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
     c.innerHTML=datasetPreviewHtml(ds);
     const copyBtn=c.querySelector('[data-act="datasetCopyList"]');
     if(copyBtn)copyBtn.onclick=e=>{e.preventDefault();e.stopPropagation();openDatasetToListDialog(ds,w)};
+    const csvBtn=c.querySelector('[data-act="datasetDownloadCsv"]');
+    if(csvBtn)csvBtn.onclick=e=>{e.preventDefault();e.stopPropagation();try{safeDownload(safeFileName((ds&&ds.name)||'datasæt','csv'),datasetToDelimitedText(ds,','),'text/csv;charset=utf-8')}catch(err){toast('Kunne ikke hente CSV: '+(err&&err.message||'ukendt fejl'))}};
     return;
   }
   const top=isDatasetText?`<div class="datasetTextTools"><button type="button" data-act="datasetBackToPreview">Opdater datasæt / vis preview</button><span class="datasetTextHint">Redigér som CSV/tekst. Knappen opdaterer datasættet.</span></div>`:'';
@@ -9543,6 +11162,7 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
   drawWheel(c.querySelector('canvas'),w,w.data.rot||0);
   wireWheel(c,w);
 }
+ if(w.type==='kahoopardy'){normalizeKahoopardy(w);renderKahoopardy(el,w)}
  if(w.type==='groups'){w.data.names??=[];w.data.size??=2;w.data.groups??=[];w.data.groupLocks??=[];w.data.groupsVisible??=!!(w.data.groups&&w.data.groups.length);c.innerHTML=`<div class="groupsBox ${w.data.listHidden?'groupsListHidden':''} ${w.data.groupsVisible?'groupsShowResult':''}"><div class="groupSpin"><canvas class="groupWheel" width="700" height="700"></canvas><button class="groupSpinBtn newGroups">Dan grupper</button></div><div class="groupsControls"><div class="groupsRow"><button class="showGroupList">Vis/rediger liste</button></div><div class="groupsRow editOnly"><button class="loadGroupList">Hent liste</button><button class="saveGroupList">Gem liste</button></div><div class="groupsRow editOnly"><label>Personer pr. gruppe <input class="groupSize" type="number" min="1" max="12" value="${w.data.size}"></label><button class="toGroups">Grupper</button></div><textarea class="groupNames editOnly" placeholder="Én person/ting pr. linje">${esc((w.data.names||[]).join('\n'))}</textarea><div class="groupsResult">${renderGroups(w.data.groups,w.data.groupLocks)}</div></div></div>`;wireGroups(c,w)}
  if(w.type==='wordcloud'){
   w.data.names??=[];
@@ -9869,7 +11489,7 @@ function classicHdSlide(){
   return {title:'Min undervisningstavle',bg:'linear-gradient(135deg,#edf6ff,#dff8e8)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]};
 }
 
-function applyRandomBackgroundToActiveSlide(){
+window.applyRandomBackgroundToActiveSlide=function applyRandomBackgroundToActiveSlide(){
   const bg=randomBoardTheme();
   if(!bg)return false;
   const s=slide();
@@ -11272,6 +12892,7 @@ function showQuickHelp(){
           <li><b>Afstemning:</b> mellemrum skifter mellem afstemning og statistik/ordsky.</li>
           <li><b>Grupper:</b> tast 1–9/0 for at låse eller åbne gruppe 1–10, når grupper-widgetten er valgt.</li>
           <li>Den valgte widget lægges automatisk forrest.</li>
+          <li>Sletning sker med widgettens egen X/🗑-knap, ikke med Delete/Backspace.</li>
         </ul>
       </div>
     </details>
@@ -11303,9 +12924,9 @@ function showQuickHelp(){
           <li><b>T</b> værktøjslinje til/fra</li>
           <li><b>Mellemrum</b> aktiver valgt hjul/grupper/afstemning</li>
           <li><b>1–9/0</b> lås/åbn gruppe 1–10, når en grupper-widget er valgt</li>
-          <li><b>Delete/Backspace</b> slet valgt widget</li>
+          <li><b>Sletning:</b> brug widgettens X/🗑-knap. Delete/Backspace er ikke en global slettegenvej.</li>
           <li><b>Ctrl/Cmd+D</b> dupliker valgt widget</li>
-          <li><b>Ctrl/Cmd+S</b> backup/gem</li>
+          <li><b>Ctrl/Cmd+G</b> backup/gem</li>
           <li><b>Ctrl/Cmd+←/→</b> flyt valgt widget – eller flyt tavle, hvis ingen widget er valgt</li>
           <li><b>Shift+A</b> tekst</li>
           <li><b>Shift+V</b> video</li>
@@ -11319,9 +12940,8 @@ function showQuickHelp(){
           <li><b>Shift+L</b> link</li>
           <li><b>Shift+T</b> timer</li>
           <li><b>Shift+U</b> ur</li>
-          <li><b>Shift+M</b> baggrundsvælger</li><li><b>Træk og slip:</b> billeder, PDF, tekstfiler, links og YouTube-links kan slippes direkte på tavlen.</li><li><b>Ctrl/Cmd+M</b> vælg ny/random baggrund på aktiv tavle</li><li><b>I baggrundsvælger:</b> ←/→ flytter én baggrund, ↑/↓ flytter en række, 1–6 vælger filter, Space previewer og toggler semitransparent visning, Enter vælger/lukker, ESC annullerer.</li>
+          <li><b>Shift+B</b> baggrundsvælger</li><li><b>Ctrl/Cmd+B</b> vælg ny/random baggrund på aktiv tavle</li><li><b>Træk og slip:</b> billeder, PDF, tekstfiler, links og YouTube-links kan slippes direkte på tavlen.</li><li><b>I baggrundsvælger:</b> ←/→ flytter én baggrund, ↑/↓ flytter en række, 1–6 vælger filter, Space previewer og toggler semitransparent visning, Enter vælger/lukker, ESC annullerer.</li>
           <li><b>Shift+G</b> grid</li>
-          <li><b>Shift+B</b> backup</li>
           <li><b>Shift+O</b> hints til/fra</li>
           <li><b>Shift+?</b> hjælp</li>
         </ul>
@@ -11384,13 +13004,7 @@ function maybeShowQuickHelp(){
 
 
 function tavleDownloadTextFile(filename,text,mime='text/plain'){
-  const blob=new Blob([text],{type:mime});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+  safeDownload(filename, String(text||''), mime||'text/plain;charset=utf-8');
 }
 function tavlePickTextFile(accept,cb){
   const input=document.createElement('input');
@@ -11505,12 +13119,18 @@ function downloadAllEmbeddedMedia(){
         <b>${i+1}. ${esc(it.filename)}</b>
         <small>${esc(it.label)} · ${esc(it.slide||'Tavle')}</small>
       </div>
-      <a href="${esc(it.src)}" download="${esc(it.filename)}">Download</a>
+      <button class="mediaDownloadBtn" data-i="${i}">Download</button>
     </div>`).join('');
   showModal(`<h2>Download indlejrede medier</h2>
-    <p>Browseren kan blokere mange automatiske downloads. Hent derfor filerne herfra én ad gangen.</p>
+    <p>Hent filerne én ad gangen. På iPad kan lokale data:/Quine-filer stadig blokere download; GitHub Pages er normalt mere stabilt.</p>
     <div class="mediaDownloadList">${rows}</div>
     <button id="closeMediaDownloads">Luk</button>`);
+  modal.querySelectorAll('.mediaDownloadBtn').forEach(btn=>{
+    btn.onclick=()=>{
+      const it=items[Number(btn.dataset.i)];
+      if(it&&it.src)downloadDataUrl(it.src,it.filename||it.name||'download');
+    };
+  });
   const close=modal.querySelector('#closeMediaDownloads');
   if(close)close.onclick=closeModal;
 }
@@ -11981,7 +13601,7 @@ document.querySelectorAll('.toolbar [data-tool], .toolbar button').forEach(btn=>
   },true);
 });
 
-document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=e=>{if(app.classList.contains('toolbarBlocked')||Date.now()<toolClickBlockUntil){e.preventDefault();e.stopPropagation();return}const t=b.dataset.tool;if(t==='text'){let w=addWidget('text',{text:'Skriv instruktion her…',fontSize:24});focusTextWidgetEditor(w.id,true)};if(t==='video'){let w=addWidget('video',{url:''});askVideo(w)}if(t==='draw'){setDrawActive(!app.classList.contains('drawActive'))}if(t==='wheel')addWidget('wheel',{});if(t==='groups')addWidget('groups',{});if(t==='wordcloud')addWidget('wordcloud',{});if(t==='poll')addWidget('poll',{});if(t==='timer')addWidget('timer',{});if(t==='image')addWidget('image',{});if(t==='link'){let w=addWidget('link',{text:'Klikbart link',url:'https://'});askLink(w)}if(t==='pdf')addWidget('pdf',{});if(t==='bg')bgModal();if(t==='grid'){slide().grid=!slide().grid;render()}if(t==='save')saveModal()});
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=e=>{if(app.classList.contains('toolbarBlocked')||Date.now()<toolClickBlockUntil){e.preventDefault();e.stopPropagation();return}const t=b.dataset.tool;if(t==='text'){let w=addWidget('text',{text:'Skriv instruktion her…',fontSize:24});focusTextWidgetEditor(w.id,true)};if(t==='video'){let w=addWidget('video',{url:''});askVideo(w)}if(t==='draw'){setDrawActive(!app.classList.contains('drawActive'))}if(t==='wheel')addWidget('wheel',{});if(t==='kahoopardy')addWidget('kahoopardy',{});if(t==='groups')addWidget('groups',{});if(t==='wordcloud')addWidget('wordcloud',{});if(t==='poll')addWidget('poll',{});if(t==='timer')addWidget('timer',{});if(t==='image')addWidget('image',{});if(t==='link'){let w=addWidget('link',{text:'Klikbart link',url:'https://'});askLink(w)}if(t==='pdf')addWidget('pdf',{});if(t==='bg')bgModal();if(t==='grid'){slide().grid=!slide().grid;render()}if(t==='save')saveModal()});
 
 app.addEventListener('pointerdown',e=>{
   if(e.target===app || e.target===titleEl){ select(null); }
@@ -12261,14 +13881,11 @@ document.addEventListener('keydown',e=>{
   if((e.key==='Delete'||e.key==='Backspace') && selected){
     e.preventDefault();
     e.stopPropagation();
-    try{
-      const api=window.tavleShortcutAPI||{};
-      if(api.deleteSelectedWidgetShortcut) api.deleteSelectedWidgetShortcut();
-    }catch(_e){}
+    try{toast('Brug widgettens X/🗑 for at slette')}catch(_e){}
     return;
   }
 
-  if((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase()==='m'){
+  if((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase()==='b'){
     const active=document.activeElement;
     const typing=active && (active.tagName==='INPUT' || active.tagName==='TEXTAREA' || active.isContentEditable);
     if(!typing && applyRandomBackgroundToActiveSlide()){
@@ -14222,6 +15839,19 @@ document.addEventListener('click',function(e){
   .datasetListBuilder .sepRow{grid-template-columns:1fr!important;}
   .datasetListBuilder .sepRow label{grid-template-columns:1fr!important;gap:5px!important;}
 }
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
 </style>
 <script>
 (function(){
@@ -14326,7 +15956,7 @@ document.addEventListener('click',function(e){
     }catch(e){try{toast(msg+' – Cmd+Z fortryder')}catch(_e){}}
   }
   // Patch shortcut API deletion.
-  setTimeout(()=>{try{ if(window.tavleShortcutAPI){window.tavleShortcutAPI.deleteSelectedWidgetShortcut=function(){ if(!selected){toast('Vælg en widget først');return;} window.__tavleDeleteWidgetToTrash(selected); };}}catch(e){}},0);
+  setTimeout(()=>{try{ if(window.tavleShortcutAPI){window.tavleShortcutAPI.deleteSelectedWidgetShortcut=function(){ try{toast('Brug widgettens X/🗑 for at slette')}catch(_e){}; };}}catch(e){}},0);
 
   // Wheel cleanup: cancel RAF/timeouts and make Stop/Space reliable.
   const wheelJobs=new Map();
@@ -14715,7 +16345,20 @@ document.addEventListener('click',function(e){
     var savedHtml=keys.length?keys.map(function(k){var n=0;try{n=(bank[k]||[]).length;}catch(_e){}return '<button class="mm16Saved" data-k="'+e(k)+'">'+e(k)+(n?' <small>('+n+')</small>':'')+'</button>';}).join(' '):'<p style="opacity:.7">Ingen gemte lister endnu.</p>';
     var widgetHtml=widgets.length?widgets.map(function(src,i){return '<button class="mm16Widget" data-i="'+i+'">📄 '+e(src.name)+' <small>('+src.items.length+')</small></button>';}).join(' '):'<p style="opacity:.7">Ingen listewidgets på tavlen endnu. Opret en liste fra en datasetwidget med → Liste først.</p>';
     if(typeof showModal!=='function') return;
-    showModal('<style>.mm16Grid{display:flex;gap:8px;flex-wrap:wrap}.mm16Grid button{font-weight:900}</style><h2>'+e(title||'Hent data/liste')+'</h2><p>Vælg en gemt liste eller en listewidget. Datasæt og kolonner vælges kun inde i datasetwidgetten med → Liste.</p><h3>Gemte lister</h3><div class="mm16Grid">'+savedHtml+'</div><h3>Listewidgets på tavlen</h3><div class="mm16Grid">'+widgetHtml+'</div><hr><button id="mm16Import">Importér tekst/regneark</button> <button id="close">Luk</button>');
+    showModal('<style>.mm16Grid{display:flex;gap:8px;flex-wrap:wrap}.mm16Grid button{font-weight:900}
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
+</style><h2>'+e(title||'Hent data/liste')+'</h2><p>Vælg en gemt liste eller en listewidget. Datasæt og kolonner vælges kun inde i datasetwidgetten med → Liste.</p><h3>Gemte lister</h3><div class="mm16Grid">'+savedHtml+'</div><h3>Listewidgets på tavlen</h3><div class="mm16Grid">'+widgetHtml+'</div><hr><button id="mm16Import">Importér tekst/regneark</button> <button id="close">Luk</button>');
     modal.querySelectorAll('.mm16Saved').forEach(function(btn){btn.onclick=function(){var k=btn.dataset.k;var items=(savedBank()[k]||[]).map(function(x){return String(x||'').trim();}).filter(Boolean);callback(k,items);if(typeof closeModal==='function')closeModal();};});
     modal.querySelectorAll('.mm16Widget').forEach(function(btn){btn.onclick=function(){var src=widgets[Number(btn.dataset.i)];if(src){callback(src.name,[].concat(src.items));if(typeof closeModal==='function')closeModal();}};});
     var imp=modal.querySelector('#mm16Import'); if(imp) imp.onclick=openGemAaben;
@@ -14939,6 +16582,19 @@ document.addEventListener('click',function(e){
   #modal .pickMM07DatasetCol {
     display:none!important;
   }
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
 </style>
 
 
@@ -15037,6 +16693,19 @@ document.addEventListener('click',function(e){
       min-height:220px!important;
     }
   }
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
 </style>
 
 
@@ -15119,6 +16788,55 @@ document.addEventListener('click',function(e){
       grid-template-columns:1fr!important;
     }
   }
+
+
+/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
+.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
+.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
+.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
+.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
+.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
+.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
+.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
+.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
+@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
+
+
+
+/* v1.2.45-kahoopardy-phase1.32-SAFE: præsentation må ikke vise redigerings- eller nulstillingsværktøjer */
+.present .content.kahoopardy .editQuestions,
+.present .content.kahoopardy .resetPoints,
+.present .content.kahoopardy .kahoopardyEditActions,
+.present .content.kahoopardy .kahoopardyEditHelp,
+.present .content.kahoopardy .kahoopardyBackupHelp,
+.present .content.kahoopardy .kahoopardyEdit p,
+.present .content.kahoopardy .kahoopardyEditTableWrap,
+.present .content.kahoopardy .kahoopardyTableWrap,
+.present .content.kahoopardy table{
+  display:none!important;
+}
+.present .content.kahoopardy .kahoopardyActionBar{
+  display:flex!important;
+}
+.present .content.kahoopardy .playAgain,
+.present .content.kahoopardy .showFinalScore,
+.present .content.kahoopardy .nextQuestion,
+.present .content.kahoopardy .jeopardyToScore{
+  display:inline-flex!important;
+}
+.present .content.kahoopardy .kahoopardyEdit{
+  grid-template-rows:minmax(0,1fr)!important;
+  align-items:center!important;
+}
+.present .content.kahoopardy .kahoopardyModeBar{
+  align-self:center!important;
+  justify-self:center!important;
+  gap:14px!important;
+}
+.present .content.kahoopardy .kahoopardyModeBar .startQuizMode{
+  font-size:clamp(20px,3vw,42px)!important;
+  padding:16px 28px!important;
+}
 </style>
 
 </body></html>
