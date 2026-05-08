@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Måns patch version: v1.2.45-mM-24 | compact wheel statistics overview without shrinking the wheel -->
 <html lang="da">
 <head>
 <script id="widget-overview-early-cmdo-guard">
@@ -6167,6 +6168,46 @@ body.focus-presentation .widget:not(.focused){
   z-index:20!important;
 }
 
+
+/* v9 SAFE: dataset import creates a normal text widget with a readable preview */
+.widget[data-dataset-view="true"] .text textarea,
+.widget.datasetTextWidget .text textarea{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace!important;
+  font-size:15px!important;
+  line-height:1.35!important;
+  white-space:pre!important;
+  background:linear-gradient(135deg,#f8fafc,#eef2ff)!important;
+}
+
+/* v10 SAFE: combined text/dataset widget */
+.datasetTextTools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:7px 10px;background:#eef2ff;border-bottom:1px solid #c7d2fe;font-size:13px;font-weight:850;color:#312e81}
+.datasetTextTools button{border:0;border-radius:999px;background:#6d5dfc;color:white;font-weight:900;padding:7px 11px}
+.datasetTextTools .datasetTextHint{opacity:.78;line-height:1.25}
+.widget[data-dataset-view="true"] .content.text{background:linear-gradient(135deg,#f8fafc,#eef2ff)!important}
+.widget.datasetTextWidget .text textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace!important;font-size:15px!important;line-height:1.35!important;white-space:pre!important}
+.datasetCard{height:100%;padding:14px;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:9px;background:linear-gradient(135deg,#f8fafc,#eef2ff);border-radius:0 0 12px 12px;overflow:hidden}.widget:not(.selected) .datasetCard{border-radius:12px}.datasetTitle{font-size:22px;font-weight:950;display:flex;align-items:center;gap:8px}.datasetMeta{display:flex;gap:8px;flex-wrap:wrap}.datasetMeta span{background:white;border-radius:999px;padding:5px 9px;font-weight:850;color:#334155;box-shadow:0 1px 4px rgba(15,23,42,.08)}.datasetPreview{min-height:0;overflow:auto;background:white;border-radius:12px;border:1px solid #e2e8f0}.datasetPreview table{width:100%;border-collapse:collapse;font-size:13px}.datasetPreview th,.datasetPreview td{border-bottom:1px solid #e5e7eb;padding:6px 8px;text-align:left;white-space:nowrap}.datasetPreview th{position:sticky;top:0;background:#f8fafc;font-weight:900}.datasetActions{display:flex;gap:8px;flex-wrap:wrap}.datasetActions button{border:0;border-radius:999px;background:#6d5dfc;color:white;font-weight:900;padding:8px 12px}.datasetActions button.secondary{background:#e0e7ff;color:#312e81}.present .datasetActions,.present .datasetTextTools{display:none!important}
+
+
+/* conservative hotfix: keep widget header controls inside narrow widgets */
+.widget .chrome{overflow:hidden!important;gap:8px!important;}
+.widget .chrome .titleText{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;display:block!important;}
+.widget .chrome .mini{flex:0 1 auto!important;min-width:0!important;max-width:58%!important;overflow:hidden!important;display:flex!important;justify-content:flex-end!important;gap:4px!important;}
+.widget .chrome .mini button{flex:0 0 auto!important;min-width:30px!important;min-height:30px!important;padding:3px 7px!important;}
+.datasetListBuilder{display:grid;gap:10px;}
+.datasetListBuilder .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;max-height:220px;overflow:auto;background:#f8fafc;border-radius:12px;padding:10px;}
+.datasetListBuilder label{display:flex;gap:7px;align-items:center;font-weight:800;}
+.datasetListBuilder .sepRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.datasetListBuilder .preview{white-space:pre-wrap;background:#111827;color:white;border-radius:12px;padding:10px;max-height:190px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;}
+.datasetListBuilder .actions{display:flex;gap:8px;flex-wrap:wrap;}
+@media(max-width:700px){.widget .chrome .mini{max-width:64%!important}.widget .chrome .mini button{min-width:28px!important;padding:3px 6px!important}.datasetListBuilder .sepRow{grid-template-columns:1fr}}
+
+/* dataset topbar list action hotfix */
+.widget[data-dataset-view="true"] .datasetActions{display:none!important}
+.widget .chrome{overflow:hidden!important;gap:8px!important}
+.widget .chrome .titleText{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;display:block!important}
+.widget .chrome .mini{flex:0 1 auto!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;max-width:72%!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
+.widget .chrome .mini::-webkit-scrollbar{display:none!important}
+.widget .chrome .mini button{flex:0 0 auto!important}
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 
@@ -7583,13 +7624,42 @@ function readFileAsDataURL(file){
     r.readAsDataURL(file);
   });
 }
+function tavleTextDecodeScore(s){
+  s=String(s||'');
+  const bad=(s.match(/[\uFFFD]/g)||[]).length*8+(s.match(/(?:Ã.|Â.|â€.|â€™|â€œ|â€�|â€“|â€”)/g)||[]).length*3;
+  const dk=(s.match(/[ÆØÅæøå]/g)||[]).length;
+  return bad*10-dk;
+}
+function tavleRepairMojibake(s){
+  s=String(s||'');
+  try{
+    const bytes=[];
+    for(let i=0;i<s.length;i++){
+      const code=s.charCodeAt(i);
+      if(code>255)return s;
+      bytes.push(code);
+    }
+    return new TextDecoder('utf-8',{fatal:false}).decode(new Uint8Array(bytes));
+  }catch(_e){return s}
+}
+async function tavleDecodeTextFile(file){
+  const buf=await file.arrayBuffer();
+  const bytes=new Uint8Array(buf);
+  const candidates=[];
+  const add=(label,text)=>{
+    text=String(text||'');
+    candidates.push({label,text,score:tavleTextDecodeScore(text)});
+    const repaired=tavleRepairMojibake(text);
+    if(repaired!==text)candidates.push({label:label+' repareret',text:repaired,score:tavleTextDecodeScore(repaired)});
+  };
+  add('utf-8',new TextDecoder('utf-8',{fatal:false}).decode(bytes));
+  try{add('windows-1252',new TextDecoder('windows-1252',{fatal:false}).decode(bytes));}catch(_e){}
+  try{add('iso-8859-1',new TextDecoder('iso-8859-1',{fatal:false}).decode(bytes));}catch(_e){}
+  candidates.sort((a,b)=>a.score-b.score);
+  return candidates[0]?candidates[0].text:'';
+}
 function readFileAsText(file){
-  return new Promise((resolve,reject)=>{
-    const r=new FileReader();
-    r.onload=()=>resolve(String(r.result||''));
-    r.onerror=()=>reject(r.error||new Error('Kunne ikke læse tekstfil'));
-    r.readAsText(file);
-  });
+  return tavleDecodeTextFile(file);
 }
 function isLikelyTextFile(file){
   const name=String(file.name||'').toLowerCase();
@@ -7636,13 +7706,40 @@ function datasetFirstTextColumn(ds){
   }
   return ds.rows.map(r=>String((r||[])[best]||'').trim()).filter(Boolean);
 }
+function formatDatasetAsTextWidgetContent(ds){
+  if(!ds)return '📊 Datasæt\nIngen data';
+  const cols=Array.isArray(ds.columns)?ds.columns:[];
+  const rows=Array.isArray(ds.rows)?ds.rows:[];
+  const maxCols=Math.min(cols.length||0,6);
+  const previewRows=rows.slice(0,12);
+  const header='📊 Datasæt: '+(ds.name||'Datasæt')+'\n'+rows.length+' rækker · '+cols.length+' kolonner';
+  const shownCols=cols.slice(0,maxCols);
+  const lines=[header,''];
+  if(shownCols.length){
+    lines.push(shownCols.join(' | ')+(cols.length>maxCols?' | …':''));
+    lines.push(shownCols.map(()=> '---').join(' | ')+(cols.length>maxCols?' | ---':''));
+  }
+  previewRows.forEach(r=>{
+    const cells=Array.from({length:maxCols},(_,i)=>String((r||[])[i]||'').trim());
+    lines.push(cells.join(' | ')+(cols.length>maxCols?' | …':''));
+  });
+  if(rows.length>previewRows.length)lines.push('… '+(rows.length-previewRows.length)+' flere rækker');
+  lines.push('');
+  lines.push('Tip: Datasættet er stadig gemt internt og kan hentes i hjul/grupper via “Hent liste” → “Datasæt”.');
+  return lines.join('\n');
+}
 function addDatasetWidget(ds,point){
   if(!ds)return null;
-  const title=ds.name||'Datasæt';
-  const w=addDroppedWidget('dataset',{datasetId:ds.id},point,title);
-  w.w=Math.min(430,Math.max(340,innerWidth*.30));
-  w.h=Math.min(300,Math.max(230,innerHeight*.26));
-  fitWidgetToViewport(w);render();select(w.id);save();
+  const title='📊 '+(ds.name||'Datasæt');
+  const w=addDroppedWidget('text',{
+    text:formatDatasetAsTextWidgetContent(ds),
+    datasetId:ds.id,
+    datasetView:true,
+    sourceType:'dataset'
+  },point,title);
+  w.w=Math.min(680,Math.max(460,innerWidth*.46));
+  w.h=Math.min(440,Math.max(300,innerHeight*.38));
+  fitWidgetToViewport(w);render();select(w.id,{editText:false});save();
   return w;
 }
 
@@ -7721,6 +7818,119 @@ function addDataset(ds){
     state.datasets.push(ds);
     save();
   }catch(e){console.error('Could not save dataset',e);toast('Kunne ikke gemme datasæt');}
+}
+
+function findDatasetById(id){
+  state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+  return state.datasets.find(ds=>String(ds&&ds.id)===String(id));
+}
+function updateDatasetInState(ds){
+  if(!ds)return;
+  state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+  const i=state.datasets.findIndex(x=>String(x&&x.id)===String(ds.id));
+  if(i>=0)state.datasets[i]=ds; else state.datasets.push(ds);
+  save();
+}
+function datasetToDelimitedText(ds,delim){
+  delim=delim||',';
+  const cols=Array.isArray(ds&&ds.columns)?ds.columns:[];
+  const rows=Array.isArray(ds&&ds.rows)?ds.rows:[];
+  const q=(v)=>{
+    v=String(v==null?'':v);
+    return /["\n\r,;\t]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+  };
+  return [cols.map(q).join(delim)].concat(rows.map(r=>Array.from({length:cols.length},(_,i)=>q((r||[])[i])).join(delim))).join('\n');
+}
+function datasetPreviewHtml(ds){
+  if(!ds)return '<div class="datasetCard"><div class="datasetTitle">📊 Datasæt</div><div class="datasetMeta"><span>Ingen data</span></div></div>';
+  const cols=Array.isArray(ds.columns)?ds.columns:[];
+  const rows=Array.isArray(ds.rows)?ds.rows:[];
+  const maxCols=Math.min(cols.length,8), maxRows=Math.min(rows.length,16);
+  const head=cols.slice(0,maxCols).map(c=>'<th>'+esc(c||'Kolonne')+'</th>').join('')+(cols.length>maxCols?'<th>…</th>':'');
+  const body=rows.slice(0,maxRows).map(r=>'<tr>'+Array.from({length:maxCols},(_,i)=>'<td>'+esc((r||[])[i]||'')+'</td>').join('')+(cols.length>maxCols?'<td>…</td>':'')+'</tr>').join('');
+  return `<div class="datasetCard"><div class="datasetTitle">📊 ${esc(ds.name||'Datasæt')}</div><div class="datasetMeta"><span>${rows.length} rækker</span><span>${cols.length} kolonner</span><span>${esc((ds.type||'csv').toUpperCase())}</span></div><div class="datasetPreview"><table><thead><tr>${head}</tr></thead><tbody>${body||'<tr><td>Ingen rækker</td></tr>'}</tbody></table></div><div class="datasetActions"><button type="button" class="secondary" data-act="datasetCopyList">→ Liste</button></div></div>`;
+}
+function openDatasetToListDialog(ds,sourceWidget){
+  if(!ds||!Array.isArray(ds.rows)||!ds.rows.length){toast('Ingen data at lave liste af');return;}
+  const cols=Array.isArray(ds.columns)&&ds.columns.length?ds.columns:Array.from({length:Math.max(...ds.rows.map(r=>(r||[]).length),1)},(_,i)=>'Kolonne '+(i+1));
+  const colHtml=cols.map((c,i)=>`<label><input type="checkbox" data-col="${i}" ${i===0?'checked':''}> ${esc(c||('Kolonne '+(i+1)))}</label>`).join('');
+  showModal(`<h2>→ Liste</h2><div class="datasetListBuilder"><p>Vælg én eller flere kolonner. Resultatet bliver oprettet som en ny tekstwidget, så listen kan ses og bruges videre.</p><div class="cols">${colHtml}</div><div class="sepRow"><label>Separator<select id="dsListSep"><option value="space">mellemrum</option><option value="comma">komma</option><option value="dash">bindestreg</option><option value="custom">custom</option></select></label><label>Custom separator<input id="dsListCustom" value=" " placeholder="fx / eller ·"></label></div><b>Preview</b><div class="preview" id="dsListPreview"></div><div class="actions"><button id="dsCreateList">Opret liste-widget</button><button id="close">Luk</button></div></div>`);
+  const root=modal.querySelector('.datasetListBuilder');
+  const sepSel=modal.querySelector('#dsListSep');
+  const custom=modal.querySelector('#dsListCustom');
+  const preview=modal.querySelector('#dsListPreview');
+  function separator(){const v=sepSel.value;return v==='comma'?', ':v==='dash'?' - ':v==='custom'?String(custom.value||''):' ';}
+  function selectedCols(){return Array.from(root.querySelectorAll('[data-col]:checked')).map(x=>Number(x.dataset.col)).filter(n=>Number.isFinite(n));}
+  function lines(){const chosen=selectedCols(); if(!chosen.length)return []; const sep=separator(); return ds.rows.map(r=>chosen.map(i=>String((r||[])[i]||'').trim()).filter(Boolean).join(sep).trim()).filter(Boolean);}
+  function refresh(){const out=lines(); preview.textContent=(out.slice(0,20).join('\n') || 'Vælg mindst én kolonne')+(out.length>20?'\n… '+(out.length-20)+' flere linjer':'');}
+  root.querySelectorAll('input,select').forEach(x=>x.addEventListener('input',refresh));
+  root.querySelectorAll('[data-col]').forEach(x=>x.addEventListener('change',refresh));
+  modal.querySelector('#dsCreateList').onclick=()=>{const out=lines(); if(!out.length){toast('Ingen listepunkter valgt');return;} const chosenCols=selectedCols(); const sep=separator();
+      let title=prompt('Navn på ny liste:','Liste fra '+String(ds.name||'datasæt'));
+      if(title===null)return;
+      title=String(title||'').trim()||('Liste fra '+String(ds.name||'datasæt'));
+      closeModal(); const w=addWidget('text',{text:out.join('\n'),kind:'list',listAsset:true,createdFromDataset:true,sourceDatasetId:ds.id,sourceDatasetName:ds.name||'Datasæt',sourceColumns:chosenCols,separator:sep}); w.data=w.data||{}; w.data.kind='list'; w.data.listAsset=true; w.data.createdFromDataset=true; w.data.sourceDatasetId=ds.id; w.data.sourceDatasetName=ds.name||'Datasæt'; w.data.sourceColumns=chosenCols; w.data.separator=sep; w.title=title; w.w=Math.min(520,Math.max(360,innerWidth*.36)); w.h=Math.min(520,Math.max(300,innerHeight*.40)); fitWidgetToViewport(w); render(); select(w.id,{editText:true}); toast('Liste-widget oprettet: '+out.length+' punkter'); save();};
+  modal.querySelector('#close').onclick=closeModal;
+  refresh();
+}
+
+function commitDatasetTextWidget(w){
+  w.data=w.data||{};
+  const old=w.data.datasetId?findDatasetById(w.data.datasetId):null;
+  const parsed=parseDatasetFromText(w.data.text||'',(old&&old.name)||w.title||'Datasæt');
+  if(!parsed||!parsed.columns||!parsed.rows)throw new Error('Ingen data fundet');
+  parsed.id=w.data.datasetId||parsed.id;
+  parsed.name=(old&&old.name)||String(w.title||'Datasæt').replace(/^📊\s*/, '');
+  parsed.type='csv';
+  parsed.sourceName=(old&&old.sourceName)||parsed.name;
+  parsed.importedAt=(old&&old.importedAt)||Date.now();
+  updateDatasetInState(parsed);
+  w.data.datasetId=parsed.id;
+  w.data.datasetView=true;
+  w.data.text=datasetToDelimitedText(parsed,',');
+  return parsed;
+}
+function xlsxColToIndex(ref){
+  const m=String(ref||'').match(/^([A-Z]+)/i); if(!m)return 0;
+  let n=0; for(const ch of m[1].toUpperCase())n=n*26+(ch.charCodeAt(0)-64);
+  return Math.max(0,n-1);
+}
+async function parseXlsxDatasetFile(file){
+  if(/\.xls$/i.test(file.name||'') && !/\.xlsx$/i.test(file.name||''))throw new Error('Ældre Excel-format (.xls) understøttes ikke endnu. Gem filen som .xlsx.');
+  const zip=tavleZipEntries(await file.arrayBuffer());
+  const sheetName=Object.keys(zip).sort().find(k=>/^xl\/worksheets\/sheet\d+\.xml$/.test(k));
+  if(!sheetName)throw new Error('Kunne ikke finde første ark i regnearket');
+  const sharedXml=await tavleInflateZipEntry(zip['xl/sharedStrings.xml']).catch(()=> '');
+  const shared=[];
+  sharedXml.replace(/<si[\s\S]*?<\/si>/g,si=>{let text='';si.replace(/<t[^>]*>([\s\S]*?)<\/t>/g,(_,t)=>{text+=tavleDecodeXmlEntities(t)});shared.push(text);return si});
+  const sheetXml=await tavleInflateZipEntry(zip[sheetName]);
+  const rows=[];
+  sheetXml.replace(/<row[^>]*>[\s\S]*?<\/row>/g,rowXml=>{
+    const row=[];
+    rowXml.replace(/<c([^>]*)>([\s\S]*?)<\/c>/g,(_,attrs,body)=>{
+      const ref=(attrs.match(/\sr="([^"]+)"/)||[])[1]||'';
+      const t=(attrs.match(/\st="([^"]+)"/)||[])[1]||'';
+      const idx=ref?xlsxColToIndex(ref):row.length;
+      let v='';
+      const m=body.match(/<v[^>]*>([\s\S]*?)<\/v>/);
+      const im=body.match(/<is[\s\S]*?<t[^>]*>([\s\S]*?)<\/t>[\s\S]*?<\/is>/);
+      if(t==='s'&&m)v=shared[Number(m[1])]||'';
+      else if(im)v=tavleDecodeXmlEntities(im[1]);
+      else if(m)v=tavleDecodeXmlEntities(m[1]);
+      row[idx]=String(v==null?'':v).trim();
+      return _;
+    });
+    if(row.some(x=>String(x||'').trim()))rows.push(row.map(x=>x||''));
+    return rowXml;
+  });
+  if(!rows.length)return null;
+  const maxLen=Math.max(...rows.map(r=>r.length));
+  const first=Array.from({length:maxLen},(_,i)=>String(rows[0][i]||'').trim());
+  const numeric=first.filter(c=>/^\s*-?\d+(\.\d+)?\s*$/.test(c)).length;
+  const hasHeader=numeric<first.filter(Boolean).length/2;
+  const columns=hasHeader?first.map((c,i)=>c||('Kolonne '+(i+1))):Array.from({length:maxLen},(_,i)=>'Kolonne '+(i+1));
+  const dataRows=(hasHeader?rows.slice(1):rows).map(r=>Array.from({length:columns.length},(_,i)=>String(r[i]||'').trim()));
+  return {id:'ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:(file.name||'Datasæt').replace(/\.[^.]+$/,''),type:'xlsx',columns,rows:dataRows,sourceName:file.name||'',importedAt:Date.now()};
 }
 function dropBatchPoint(base,index,type){
   const rect=app.getBoundingClientRect();
@@ -7805,7 +8015,17 @@ async function handleDroppedFile(file,point){
     return {ok:false,kind:'error',label:'.gsheet er kun en Google Sheets-reference – eksportér som CSV først'};
   }
   if(isLikelyXlsxFile(file)){
-    return {ok:false,kind:'error',label:'XLSX dataset-import er endnu ikke implementeret her – brug CSV/TSV eller listeimport'};
+    try{
+      const ds=await parseXlsxDatasetFile(file);
+      if(!ds || !Array.isArray(ds.rows) || !ds.rows.length)return {ok:false,kind:'error',label:'Kunne ikke læse Excelark: ingen rækker fundet'};
+      addDataset(ds);
+      addDatasetWidget(ds,point);
+      toast('Excelark importeret: '+(ds.name||'')+' ('+ds.rows.length+' rækker)');
+      return {ok:true,kind:'dataset',label:(ds.name||'Datasæt')+' · '+ds.rows.length+' rækker'};
+    }catch(err){
+      console.error(err);
+      return {ok:false,kind:'error',label:'Kunne ikke læse Excelark: '+(err&&err.message||'ukendt fejl')};
+    }
   }
   if(isLikelyCsvFile(file) || isLikelyTsvFile(file)){
     try{
@@ -7873,11 +8093,42 @@ function handleDroppedUrlOrText(raw,point){
   }
   return false;
 }
+function filesFromDataTransfer(dt){
+  const out=[];
+  if(!dt)return out;
+  try{ if(dt.files && dt.files.length) out.push(...Array.from(dt.files)); }catch(_e){}
+  try{
+    for(const it of Array.from(dt.items||[])){
+      if(it && it.kind==='file' && typeof it.getAsFile==='function'){
+        const f=it.getAsFile();
+        if(f && !out.some(x=>x.name===f.name && x.size===f.size && x.type===f.type)) out.push(f);
+      }
+    }
+  }catch(_e){}
+  return out;
+}
+function dataTransferHasFiles(dt){
+  if(!dt)return false;
+  try{ if(dt.files && dt.files.length)return true; }catch(_e){}
+  try{ if(Array.from(dt.items||[]).some(it=>it && it.kind==='file'))return true; }catch(_e){}
+  try{ return Array.from(dt.types||[]).includes('Files'); }catch(_e){}
+  return false;
+}
 function dataTransferHasSupportedPayload(dt){
   if(!dt)return false;
-  if(dt.files && dt.files.length)return true;
+  if(dataTransferHasFiles(dt))return true;
   const types=Array.from(dt.types||[]);
   return types.includes('text/uri-list') || types.includes('text/plain') || types.includes('URL');
+}
+function tavleModalIsOpen(){
+  try{return !!(modalBack && getComputedStyle(modalBack).display!=='none')}catch(_e){return false}
+}
+function highlightSaveDropZone(on){
+  try{const dz=document.getElementById('saveDropZone'); if(dz)dz.classList.toggle('dragOver',!!on);}catch(_e){}
+}
+function openSaveModalForExternalFileDrag(){
+  try{ if(!tavleModalIsOpen()) saveModal(); }catch(_e){}
+  highlightSaveDropZone(true);
 }
 let tavleDragDepth=0;
 function isInsideTavleSurface(e){
@@ -7891,7 +8142,11 @@ function showDropSurface(e){
   if(!isInsideTavleSurface(e))return false;
   e.preventDefault();
   e.stopPropagation();
-  document.body.classList.add('draggingPayload');
+  if(dataTransferHasFiles(e.dataTransfer)){
+    openSaveModalForExternalFileDrag();
+  }else{
+    document.body.classList.add('draggingPayload');
+  }
   try{e.dataTransfer.dropEffect='copy'}catch(_e){}
   return true;
 }
@@ -7901,21 +8156,25 @@ function showDropSurface(e){
 document.addEventListener('dragleave',e=>{
   if(!e.relatedTarget || e.relatedTarget===document.documentElement || e.relatedTarget===document.body){
     document.body.classList.remove('draggingPayload');
+    highlightSaveDropZone(false);
   }
 },true);
 document.addEventListener('drop',async e=>{
+  if(e.target && e.target.closest && e.target.closest('#saveDropZone'))return; // let dropzonen importere selv
   if(!dataTransferHasSupportedPayload(e.dataTransfer))return;
   if(!isInsideTavleSurface(e))return;
   e.preventDefault();
   e.stopPropagation();
   document.body.classList.remove('draggingPayload');
+  highlightSaveDropZone(false);
   const point=tavleDropPoint(e);
-  const files=Array.from(e.dataTransfer.files||[]);
+  const files=filesFromDataTransfer(e.dataTransfer);
   if(files.length){
+    if(!tavleModalIsOpen())openSaveModalForExternalFileDrag();
     let imported=0;
     const results=[];
     for(let i=0;i<files.length;i++){
-      const raw=await handleDroppedFile(files[i],dropBatchPoint(point,i));
+      const raw=await importFileFromSaveModal(files[i],dropBatchPoint({x:140,y:130},i));
       const res=normalizeImportResult(raw,files[i]);
       results.push(res);
       if(res.ok!==false)imported++;
@@ -7929,8 +8188,8 @@ document.addEventListener('drop',async e=>{
   const res=raw?normalizeImportResult(raw,null):null;
   if(res){showImportSummary([res],{closeModal:true});toastImportCount(res.ok!==false?1:0)}
 },true);
-window.addEventListener('dragend',()=>document.body.classList.remove('draggingPayload'));
-window.addEventListener('blur',()=>document.body.classList.remove('draggingPayload'));
+window.addEventListener('dragend',()=>{document.body.classList.remove('draggingPayload');highlightSaveDropZone(false)});
+window.addEventListener('blur',()=>{document.body.classList.remove('draggingPayload');highlightSaveDropZone(false)});
 
 function transformFor(w){return`translate(${w.x}px,${w.y}px) rotate(${w.rotation||0}deg)`}
 
@@ -7942,7 +8201,7 @@ function resetWidgetRotation(w,el){
   if(typeof toast==='function')toast('Rotation nulstillet');
 }
 function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
-function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':'');const titleHtml='<span class="titleText">'+(w.title||titles[w.type])+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const titleHtml='<span class="titleText">'+(w.title||titles[w.type])+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -8216,7 +8475,7 @@ function pickListImportFile(cb){
   const input=document.createElement('input');
   input.type='file';
   input.accept='.txt,.csv,.tsv,.xlsx,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  input.onchange=async()=>{const f=input.files&&input.files[0];if(!f)return;try{let items=/\.xlsx$/i.test(f.name)?await parseXlsxListFile(f):parseListTextFile(await f.text());items=[...new Set(items.map(x=>String(x).trim()).filter(Boolean))];if(!items.length){toast('Filen indeholdt ingen liste');return}const defaultName=(f.name||'Importeret liste').replace(/\.[^.]+$/,'');const name=(prompt('Navn på importeret liste:',defaultName)||defaultName).trim();const bank=wheelListBank();bank[name||defaultName]=items;saveWheelListBank(bank);toast('Liste importeret: '+items.length);cb&&cb(name||defaultName,items)}catch(err){console.error(err);toast('Kunne ikke importere listen: '+(err&&err.message?err.message:'ukendt fejl'))}};
+  input.onchange=async()=>{const f=input.files&&input.files[0];if(!f)return;try{let items=/\.xlsx$/i.test(f.name)?await parseXlsxListFile(f):parseListTextFile(await readFileAsText(f));items=[...new Set(items.map(x=>String(x).trim()).filter(Boolean))];if(!items.length){toast('Filen indeholdt ingen liste');return}const defaultName=(f.name||'Importeret liste').replace(/\.[^.]+$/,'');const name=(prompt('Navn på importeret liste:',defaultName)||defaultName).trim();const bank=wheelListBank();bank[name||defaultName]=items;saveWheelListBank(bank);toast('Liste importeret: '+items.length);cb&&cb(name||defaultName,items)}catch(err){console.error(err);toast('Kunne ikke importere listen: '+(err&&err.message?err.message:'ukendt fejl'))}};
   input.click();
 }
 function importedListButtonHtml(){return '<button id="importListFile">Importér tekst/regneark</button>'}
@@ -8457,14 +8716,11 @@ document.addEventListener('click',function(e){
   if(act==='del'){
     e.preventDefault();e.stopPropagation();
     if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    if(window.__tavleDeleteWidgetToTrash){ window.__tavleDeleteWidgetToTrash(w.id); return; }
     slide().widgets=slide().widgets.filter(x=>x.id!==w.id);
-    // clear selection in both legacy and new state
-    selected=null;
-    UIState.selectedWidgetId=null;
+    selected=null; UIState.selectedWidgetId=null;
     try{applyUIState();}catch(_e){}
-    render();
-    save();
-    return;
+    render(); save(); return;
   }
 },true);
 
@@ -9184,7 +9440,21 @@ function wirePoll(c,w,el){
   };
 }
 
-function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type; if(w.type==='text'){c.innerHTML=`<div class="text"><textarea placeholder="Skriv her...">${esc(w.data.text||'')}</textarea></div>`;const ta=c.querySelector('textarea');
+function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type; if(w.type==='text'){
+  w.data=w.data||{};
+  const isDatasetText=!!w.data.datasetId;
+  const ds=isDatasetText?findDatasetById(w.data.datasetId):null;
+  if(isDatasetText && w.data.datasetView!==false){
+    c.innerHTML=datasetPreviewHtml(ds);
+    const copyBtn=c.querySelector('[data-act="datasetCopyList"]');
+    if(copyBtn)copyBtn.onclick=e=>{e.preventDefault();e.stopPropagation();openDatasetToListDialog(ds,w)};
+    return;
+  }
+  const top=isDatasetText?`<div class="datasetTextTools"><button type="button" data-act="datasetBackToPreview">Opdater datasæt / vis preview</button><span class="datasetTextHint">Redigér som CSV/tekst. Knappen opdaterer datasættet.</span></div>`:'';
+  c.innerHTML=`<div class="text">${top}<textarea placeholder="Skriv her...">${esc(w.data.text||'')}</textarea></div>`;
+  const backBtn=c.querySelector('[data-act="datasetBackToPreview"]');
+  if(backBtn)backBtn.onclick=e=>{e.preventDefault();e.stopPropagation();try{commitDatasetTextWidget(w);save();fillContent(el,w);toast('Datasæt opdateret')}catch(err){toast('Kunne ikke opdatere datasæt: '+(err&&err.message||'ukendt fejl'))}};
+  const ta=c.querySelector('textarea');
   // Keep normal text editing stable in edit mode, but allow text widgets
   // to become the focus target when the board is in focus mode.
   function focusThisTextWidgetFromTextarea(e){
@@ -9252,7 +9522,7 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
   const modePanel=w.data.statsView
     ? `<div class="chosen stats">${stats.length?stats.map(([name,n])=>{const pct=Math.round(n*100/total);const fs=Math.max(16,Math.min(34,16+(n/maxCount)*18));return `<span class="statChip" style="font-size:${fs}px">${esc(name)}<small>${n} · ${pct}%</small></span>`}).join(''):'<b>Ingen resultater endnu</b>'}</div>`
     : `<div class="chosen"><b>Valgte:</b><br>${esc(chosen.join(', ')||'Ingen endnu')}</div>`;
-  c.innerHTML=`<div class="wheel recon ${w.data.editing?'editing':''}">
+  c.innerHTML=`<div class="wheel recon ${w.data.editing?'editing':''} ${w.data.statsView?'statsMode':''}">
     <div class="wheelBox"><canvas class="wheelCanvas" width="900" height="900"></canvas><button class="spin spinCenter ${w.data.autoRunning?'running':''}">${w.data.autoRunning?'Stop':'Drej'}</button></div>
     <div class="wheelSide">
       <div class="wheelTopBar">
@@ -9819,7 +10089,27 @@ function wireWidget(el,w){
    const isTap=!layerTap.moved && Date.now()-layerTap.t<320;
    if(isTap && (!layerTap.ignore || w.type==='text'))bringWidgetToFront(w,el);
    layerTap.t=0;
- },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.stopPropagation(); if(confirm('Slet widget?')){if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()}};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
+ },{passive:true});el.querySelector('[data-act=del]').onclick=e=>{e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); if(window.__tavleDeleteWidgetToTrash){window.__tavleDeleteWidgetToTrash(w.id);return;} if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
+ const datasetCopyListChromeBtn=el.querySelector('[data-act=datasetCopyListChrome]');
+  if(datasetCopyListChromeBtn)datasetCopyListChromeBtn.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    w.data=w.data||{};
+    const ds=w.data.datasetId?findDatasetById(w.data.datasetId):null;
+    openDatasetToListDialog(ds,w);
+  };
+
+ const toggleDatasetTextBtn=el.querySelector('[data-act=toggleDatasetTextView]');
+  if(toggleDatasetTextBtn)toggleDatasetTextBtn.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    w.data=w.data||{};
+    const ds=w.data.datasetId?findDatasetById(w.data.datasetId):null;
+    if(w.data.datasetView!==false){w.data.datasetView=false;w.data.text=datasetToDelimitedText(ds||{columns:[],rows:[]},',');}
+    else {try{commitDatasetTextWidget(w)}catch(err){toast('Kunne ikke opdatere datasæt: '+(err&&err.message||'ukendt fejl'));return}}
+    save();render();setTimeout(()=>select(w.id,{editText:false}),0);
+  };
+
  const toggleHtmlViewBtn=el.querySelector('[data-act=toggleHtmlView]');
   if(toggleHtmlViewBtn)toggleHtmlViewBtn.onclick=e=>{
     e.preventDefault();e.stopPropagation();
@@ -10278,7 +10568,23 @@ function targetRotationForIndex(index,count,extraTurns=6){
 }
 
 
-function wheelListBank(){try{return JSON.parse(localStorage.getItem('maans_wheel_lists')||'{}')}catch(e){return {}}}
+function wheelListBank(){
+  let bank={};
+  try{bank=JSON.parse(localStorage.getItem('maans_wheel_lists')||'{}')||{}}catch(e){bank={}}
+  // mM-19: Include visible list-widgets on the current tavle in the same list bank.
+  try{
+    const ws=(slide().widgets||[]);
+    ws.forEach(w=>{
+      if(!w||w.type!=='text'||!w.data||w.data.datasetId)return;
+      const title=String(w.data.sharedListName||w.title||'').replace(/^📊\s*/,'').trim();
+      const isList=(w.data.kind==='list')||w.data.listAsset===true||w.data.createdFromDataset===true||/^Liste fra\s+/i.test(title)||/liste/i.test(title);
+      if(!isList)return;
+      const items=String(w.data.text||'').split(/\r?\n/).map(x=>String(x||'').trim()).filter(Boolean);
+      if(items.length)bank[title||'Liste-widget']=items;
+    });
+  }catch(_e){}
+  return bank;
+}
 function saveWheelListBank(bank){localStorage.setItem('maans_wheel_lists',JSON.stringify(bank))}
 function wheelListNamesForSave(w){return [...(w.data.names||[]),...(w.data.chosen||[])]}
 function openSaveListModal(w){
@@ -10430,18 +10736,8 @@ function wireWheel(c,w){
     };
     const bank=wheelListBank();
     const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));
-    // Build dataset selection UI.  Each dataset row is shown with buttons for each column.
+    // mM-19: Dataset columns are NOT shown in Hent liste. Use the dataset-widget → Liste button to create list assets.
     let dsHtml='';
-    try{
-      const dsets=Array.isArray(state.datasets)?state.datasets:[];
-      if(dsets.length){
-        dsHtml+='<h3>Datasæt</h3>';
-        dsHtml+=dsets.map(ds=>{
-          const cols=(ds.columns||[]).map((col,i)=>`<button class="pickDatasetCol" data-ds="${esc(ds.id)}" data-col="${i}">${esc(col)}</button>`).join(' ');
-          return `<div class="datasetPick"><span>${esc(ds.name||'Datasæt')}</span> ${cols}</div>`;
-        }).join('');
-      }
-    }catch(_e){}
     const listHtml = keys.length? keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' ') : '<p>Ingen gemte lister endnu.</p>';
     showModal('<h2>Hent liste</h2><p>Vælg en gemt liste, et datasæt eller importér en tekstfil/CSV/regneark.</p>' + listHtml + dsHtml + '<hr>' + importedListButtonHtml() + ' <button id="close">Luk</button>');
     // Attach list pick handlers
@@ -10450,17 +10746,7 @@ function wireWheel(c,w){
       useList(pick,wheelListBank()[pick]||[]);
     });
     // Attach dataset column pick handlers
-    modal.querySelectorAll('.pickDatasetCol').forEach(btn=>btn.onclick=()=>{
-      const dsId=btn.dataset.ds;
-      const colIndex=Number(btn.dataset.col);
-      try{
-        const dset=(state.datasets||[]).find(ds=>String(ds.id)===String(dsId));
-        if(dset){
-          const items=(dset.rows||[]).map(row=>String(row[colIndex]||'').trim()).filter(Boolean);
-          useList(dset.name + ' – ' + (dset.columns&&dset.columns[colIndex]?dset.columns[colIndex]:'Kolonne '+(colIndex+1)), items);
-        }
-      }catch(_err){}
-    });
+    // mM-19: dataset-column pick handler removed from Hent liste modal.
     // Import list via file (existing functionality)
     wireImportListButton(useList);
     modal.querySelector('#close').onclick=closeModal;
@@ -11608,7 +11894,7 @@ function showSaveFileOptions(){
   dz.onclick=openPicker;
   dz.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPicker()}};
   input.onchange=async()=>{
-    const files=[...input.files||[]];
+    const files=Array.from(input.files||[]);
     let imported=0;
     const results=[];
     for(let i=0;i<files.length;i++){
@@ -11630,7 +11916,7 @@ function showSaveFileOptions(){
   }));
   dz.addEventListener('drop',async e=>{
     e.preventDefault();e.stopPropagation();dz.classList.remove('dragOver');
-    const files=[...e.dataTransfer.files||[]];
+    const files=filesFromDataTransfer(e.dataTransfer);
     if(!files.length){toast('Ingen filer fundet');return}
     let imported=0;
     const results=[];
@@ -13905,5 +14191,934 @@ document.addEventListener('click',function(e){
   });
 })();
 </script>
+
+
+
+<!-- v1.2.46 Måns patch: wheel cleanup, text/dataset as one widget, visible list assets, trash system -->
+<style>
+  .importSummaryBackdrop{z-index:2147483300!important}.importSummaryCard{z-index:2147483400!important}
+  .datasetTextTools .datasetAsPreview,.datasetTextTools .datasetAsText,.datasetTextTools .datasetDownload{background:#eef2ff!important;color:#312e81!important}
+  .tavleTrashBadge{position:absolute;right:8px;top:8px;background:#ef4444;color:#fff;border-radius:999px;padding:2px 7px;font-size:12px;font-weight:900}
+  .trashModal .trashList{display:grid;gap:10px;max-height:56vh;overflow:auto;margin:12px 0}
+  .trashItem{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#f3f4f6;border-radius:14px;padding:10px}
+  .trashItem b{display:block}.trashItem small{display:block;opacity:.72;margin-top:2px}.trashItem .actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .trashItem button{margin:0!important}.trashDanger{background:#fee2e2!important;color:#991b1b!important}.trashRestore{background:#6d5dfc!important;color:white!important}
+
+
+/* dataset list modal layout fix: checkboxes and labels on iPad */
+.datasetListBuilder{gap:12px!important;max-height:calc(92vh - 90px)!important;overflow:auto!important;padding-right:2px!important;}
+.datasetListBuilder .cols{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important;gap:10px 14px!important;max-height:210px!important;overflow:auto!important;background:#f8fafc!important;border-radius:14px!important;padding:12px!important;align-items:start!important;}
+.datasetListBuilder .cols label{display:grid!important;grid-template-columns:26px minmax(0,1fr)!important;gap:8px!important;align-items:start!important;font-weight:850!important;line-height:1.18!important;min-width:0!important;}
+.datasetListBuilder input[type="checkbox"]{width:22px!important;height:22px!important;min-width:22px!important;margin:0!important;padding:0!important;appearance:auto!important;-webkit-appearance:checkbox!important;}
+.datasetListBuilder .sepRow{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;align-items:end!important;}
+.datasetListBuilder .sepRow label{display:grid!important;grid-template-columns:minmax(88px,auto) minmax(0,1fr)!important;gap:10px!important;align-items:center!important;font-weight:850!important;line-height:1.15!important;}
+.datasetListBuilder select,.datasetListBuilder input[type="text"],.datasetListBuilder #dsListCustom{width:100%!important;margin:0!important;min-width:0!important;}
+.datasetListBuilder .preview{white-space:pre!important;max-height:175px!important;overflow:auto!important;line-height:1.25!important;}
+.datasetListBuilder .actions{position:sticky!important;bottom:0!important;background:white!important;padding-top:8px!important;z-index:2!important;}
+.modal:has(.datasetListBuilder){width:min(720px,92vw)!important;max-height:92vh!important;overflow:hidden!important;padding:18px 22px!important;}
+@media(max-width:700px){
+  .modal:has(.datasetListBuilder){width:92vw!important;max-height:92vh!important;padding:16px!important;}
+  .datasetListBuilder .cols{grid-template-columns:1fr!important;max-height:230px!important;}
+  .datasetListBuilder .sepRow{grid-template-columns:1fr!important;}
+  .datasetListBuilder .sepRow label{grid-template-columns:1fr!important;gap:5px!important;}
+}
+</style>
+<script>
+(function(){
+  'use strict';
+  const TRASH_KEY='maans_tavle_widget_trash_v1';
+  function now(){return Date.now()}
+  function clone(o){return JSON.parse(JSON.stringify(o||{}))}
+  function getTrash(){try{return JSON.parse(localStorage.getItem(TRASH_KEY)||'[]')}catch(e){return []}}
+  function setTrash(items){try{localStorage.setItem(TRASH_KEY,JSON.stringify((items||[]).slice(-50)))}catch(e){try{toast('Papirkurven kunne ikke gemmes – localStorage er muligvis fuld')}catch(_e){}} updateTrashBadge();}
+  function currentSlideTitle(i){try{return (state.slides[i]&&state.slides[i].title)||('Tavle '+(i+1))}catch(e){return 'Tavle'}}
+  function updateTrashBadge(){
+    try{
+      const n=getTrash().length;
+      document.querySelectorAll('[data-more-tool="trash"]').forEach(btn=>{
+        let b=btn.querySelector('.tavleTrashBadge');
+        if(n&&!b){b=document.createElement('span');b.className='tavleTrashBadge';btn.style.position='relative';btn.appendChild(b)}
+        if(b){b.textContent=String(n);b.style.display=n?'inline-block':'none'}
+      });
+    }catch(e){}
+  }
+  function getWidgetByIdOnCurrent(id){try{return (slide().widgets||[]).find(w=>String(w.id)===String(id))}catch(e){return null}}
+  function cleanupDatasetIfUnreferenced(datasetId){
+    if(!datasetId)return;
+    try{
+      const inSlides=(state.slides||[]).some(sl=>(sl.widgets||[]).some(w=>w&&w.data&&String(w.data.datasetId)===String(datasetId)));
+      const inTrash=getTrash().some(it=>it&&it.widget&&it.widget.data&&String(it.widget.data.datasetId)===String(datasetId));
+      if(!inSlides&&!inTrash&&Array.isArray(state.datasets)){state.datasets=state.datasets.filter(ds=>String(ds&&ds.id)!==String(datasetId));}
+    }catch(e){}
+  }
+  function cleanupWidgetProcesses(id){
+    try{ if(window.__tavleStopWheel) window.__tavleStopWheel(id,true); }catch(e){}
+    try{ if(typeof activeIframeWidgetId!=='undefined' && activeIframeWidgetId&&String(activeIframeWidgetId)===String(id)) clearIframeControl(); }catch(e){}
+  }
+  window.__tavleCleanupWidget=cleanupWidgetProcesses;
+  window.__tavleDeleteWidgetToTrash=function(id){
+    try{
+      const sl=slide(); if(!sl||!Array.isArray(sl.widgets))return;
+      const idx=sl.widgets.findIndex(w=>String(w.id)===String(id));
+      if(idx<0)return;
+      const w=sl.widgets[idx];
+      cleanupWidgetProcesses(w.id);
+      const entry={trashId:'trash_'+now().toString(36)+'_'+Math.random().toString(36).slice(2,6),deletedAt:now(),originSlideIndex:state.active,originSlideTitle:currentSlideTitle(state.active),widget:clone(w)};
+      sl.widgets.splice(idx,1);
+      setTrash(getTrash().concat(entry));
+      if(String(selected)===String(id)){selected=null;try{UIState.selectedWidgetId=null}catch(e){}}
+      render(); save();
+      showUndoToast('Widget flyttet til papirkurv',entry.trashId);
+    }catch(err){console.error(err);try{toast('Kunne ikke flytte til papirkurv')}catch(e){}}
+  };
+  function restoreTrashEntry(trashId,opts={}){
+    let items=getTrash();
+    const idx=items.findIndex(it=>String(it.trashId)===String(trashId));
+    if(idx<0)return false;
+    const it=items[idx]; items.splice(idx,1); setTrash(items);
+    const targetIndex=Math.min(Math.max(0,Number(it.originSlideIndex)||0),(state.slides||[]).length-1);
+    if(!state.slides[targetIndex])state.slides.push(createThemedSlide?createThemedSlide():{title:'Tavle',widgets:[],draw:''});
+    state.active=targetIndex;
+    const w=clone(it.widget); w.id=w.id||uid(); w.z=++z;
+    state.slides[targetIndex].widgets=state.slides[targetIndex].widgets||[];
+    state.slides[targetIndex].widgets.push(w);
+    render(); select(w.id,{editText:false}); save();
+    if(!opts.silent)try{toast('Widget gendannet')}catch(e){}
+    return true;
+  }
+  window.__tavleRestoreTrashEntry=restoreTrashEntry;
+  function restoreLatest(){const items=getTrash(); if(!items.length){try{toast('Papirkurven er tom')}catch(e){};return false} return restoreTrashEntry(items[items.length-1].trashId);}
+  function permanentDelete(trashId){
+    let items=getTrash(); const idx=items.findIndex(it=>String(it.trashId)===String(trashId)); if(idx<0)return;
+    const it=items[idx]; const dsid=it&&it.widget&&it.widget.data&&it.widget.data.datasetId;
+    try{cleanupWidgetProcesses(it.widget&&it.widget.id)}catch(e){}
+    items.splice(idx,1); setTrash(items); cleanupDatasetIfUnreferenced(dsid); save(); openTrashView();
+  }
+  function emptyTrash(){
+    if(!confirm('Tøm papirkurven permanent?'))return;
+    const ids=getTrash().map(it=>it&&it.widget&&it.widget.data&&it.widget.data.datasetId).filter(Boolean);
+    setTrash([]); ids.forEach(cleanupDatasetIfUnreferenced); save(); openTrashView();
+  }
+  function openTrashView(){
+    const items=getTrash().slice().reverse();
+    const rows=items.length?items.map((it,ri)=>{
+      const w=it.widget||{}; const title=w.title||titles[w.type]||w.type||'Widget';
+      const type=w.type==='text'&&w.data&&w.data.datasetId?'Tekst/datasæt':(titles[w.type]||w.type||'Widget');
+      const dt=new Date(it.deletedAt||Date.now()).toLocaleString('da-DK');
+      return `<div class="trashItem"><div><b>${esc(title)}</b><small>${esc(type)} · slettet fra ${esc(it.originSlideTitle||'tavle')} · ${esc(dt)}</small></div><div class="actions"><button class="trashRestore" data-restore="${esc(it.trashId)}">Gendan</button><button class="trashDanger" data-delete="${esc(it.trashId)}">Slet permanent</button></div></div>`;
+    }).join(''):'<p>Papirkurven er tom.</p>';
+    showModal(`<div class="trashModal"><h2>🗑 Papirkurv</h2><p>Slettede widgets ligger her, indtil du gendanner dem eller sletter dem permanent. Cmd/Ctrl+Z gendanner den seneste.</p><div class="trashList">${rows}</div><button id="restoreAllTrash" ${items.length?'':'disabled'}>Gendan alle</button><button id="emptyTrash" class="trashDanger" ${items.length?'':'disabled'}>Tøm papirkurv</button><button id="closeTrash">Luk</button></div>`);
+    modal.querySelectorAll('[data-restore]').forEach(b=>b.onclick=()=>{restoreTrashEntry(b.dataset.restore);closeModal()});
+    modal.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>permanentDelete(b.dataset.delete));
+    const all=modal.querySelector('#restoreAllTrash'); if(all)all.onclick=()=>{const allItems=getTrash().slice(); allItems.forEach(it=>restoreTrashEntry(it.trashId,{silent:true})); try{toast('Alle widgets gendannet')}catch(e){}; closeModal();};
+    const emp=modal.querySelector('#emptyTrash'); if(emp)emp.onclick=emptyTrash;
+    const close=modal.querySelector('#closeTrash'); if(close)close.onclick=closeModal;
+  }
+  window.openTrashView=openTrashView;
+  function showUndoToast(msg,trashId){
+    try{
+      let box=document.getElementById('trashUndoToast');
+      if(!box){box=document.createElement('div');box.id='trashUndoToast';box.style.cssText='position:absolute;left:50%;bottom:88px;transform:translateX(-50%);z-index:2147483600;background:#111827;color:white;border-radius:999px;padding:10px 14px;font-weight:900;box-shadow:0 14px 36px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center';(document.getElementById('app')||document.body).appendChild(box)}
+      box.innerHTML=`<span>${esc(msg)}</span><button id="undoTrashBtn" style="border:0;border-radius:999px;background:#6d5dfc;color:#fff;padding:7px 11px;font-weight:900">Fortryd</button><button id="openTrashBtn" style="border:0;border-radius:999px;background:#374151;color:#fff;padding:7px 11px;font-weight:900">Papirkurv</button><button id="closeTrashToast" style="border:0;border-radius:999px;background:#4b5563;color:#fff;padding:7px 10px;font-weight:900">×</button>`;
+      box.querySelector('#undoTrashBtn').onclick=()=>{restoreTrashEntry(trashId);box.remove()};
+      box.querySelector('#openTrashBtn').onclick=()=>{openTrashView()};
+      box.querySelector('#closeTrashToast').onclick=()=>box.remove();
+    }catch(e){try{toast(msg+' – Cmd+Z fortryder')}catch(_e){}}
+  }
+  // Patch shortcut API deletion.
+  setTimeout(()=>{try{ if(window.tavleShortcutAPI){window.tavleShortcutAPI.deleteSelectedWidgetShortcut=function(){ if(!selected){toast('Vælg en widget først');return;} window.__tavleDeleteWidgetToTrash(selected); };}}catch(e){}},0);
+
+  // Wheel cleanup: cancel RAF/timeouts and make Stop/Space reliable.
+  const wheelJobs=new Map();
+  function jobFor(id){let j=wheelJobs.get(String(id)); if(!j){j={raf:0,timers:new Set(),token:0}; wheelJobs.set(String(id),j)} return j;}
+  function wheelSetTimeout(id,fn,ms){const j=jobFor(id); const t=setTimeout(()=>{j.timers.delete(t);fn()},ms); j.timers.add(t); return t;}
+  window.__tavleStopWheel=function(id,silent){
+    if(!id)return;
+    const j=jobFor(id); j.token++;
+    if(j.raf){cancelAnimationFrame(j.raf);j.raf=0}
+    j.timers.forEach(t=>clearTimeout(t)); j.timers.clear();
+    let w=null; try{w=(state.slides||[]).flatMap(sl=>sl.widgets||[]).find(x=>String(x.id)===String(id));}catch(e){}
+    if(w&&w.type==='wheel'){w.data=w.data||{}; w.data.autoRunning=false; w.data.spinning=false;}
+    if(!silent)try{toast('Hjul stoppet')}catch(e){}
+    try{render(); if(w)select(w.id,{editText:false}); save();}catch(e){}
+  };
+  if(typeof runWheelSpin==='function'){
+    runWheelSpin=function(c,w,{auto=false,onDone=null}={}){
+      const el=c.closest('.widget'); if(!el||!w)return;
+      const id=w.id; const j=jobFor(id); const token=++j.token;
+      const canv=el.querySelector('canvas'); const btn=el.querySelector('.spinCenter')||el.querySelector('.spin');
+      let names=[...(w.data.names||[])];
+      if(!names.length){toast('Puljen er tom'); if(onDone)onDone(false); return;}
+      w.data.spinning=true; if(btn){btn.disabled=false;btn.textContent='Stop';btn.classList.add('running')}
+      const idx=Math.floor(Math.random()*names.length), winner=names[idx];
+      const duration=auto?1050+Math.random()*350:2600+Math.random()*700;
+      const startRot=w.data.rot||0;
+      const endRot=startRot+targetRotationForIndex(idx,names.length,auto?3+Math.floor(Math.random()*2):6+Math.floor(Math.random()*3));
+      const startTime=performance.now(); let lastTick=0;
+      function finish(ok){w.data.spinning=false; if(btn){btn.disabled=false;btn.textContent=w.data.autoRunning?'Stop':'Drej';btn.classList.toggle('running',!!w.data.autoRunning)} if(onDone)onDone(ok,winner);}
+      function frame(nowTime){
+        if(j.token!==token || !document.body.contains(el) || !getWidgetByIdOnCurrent(id)){finish(false);return;}
+        const p=Math.min(1,(nowTime-startTime)/duration),rot=startRot+(endRot-startRot)*easeOutCubic(p);
+        drawWheel(canv,w,rot);
+        if(nowTime-lastTick>(auto?120:95) && p<.94){wheelTick();lastTick=nowTime}
+        if(p<1){j.raf=requestAnimationFrame(frame)}else{
+          j.raf=0; drawWheel(canv,w,endRot); wheelLand(); if(!auto)wheelSetTimeout(id,wheelLand,80); animateWinner(c,winner);
+          w.data.chosen=w.data.chosen||[]; w.data.chosen.push(winner);
+          if(!w.data.keepPool){ if(auto){w.data.names.splice(idx,1)} else if(confirm(winner+' blev valgt. Fjern fra puljen?')){w.data.names.splice(idx,1)} }
+          w.data.winner=''; w.data.rot=0; w.data.statsView=!!(w.data.statsView || auto); w.data.spinning=false;
+          fillContent(el,w); save(); finish(true);
+        }
+      }
+      j.raf=requestAnimationFrame(frame);
+    };
+  }
+  if(typeof startWheelAuto==='function'){
+    startWheelAuto=function(c,w){
+      const el=c.closest('.widget'); if(!el||!w)return;
+      if(w.data.autoRunning||w.data.spinning){window.__tavleStopWheel(w.id);return;}
+      w.data.autoRunning=true; w.data.statsView=true; fillContent(el,w); save();
+      let remaining=w.data.keepPool?Math.max(1,parseInt(w.data.autoCount||1,10)):Math.min(Math.max(1,parseInt(w.data.autoCount||1,10)),(w.data.names||[]).length);
+      const step=()=>{
+        if(!w.data.autoRunning || remaining<=0 || !(w.data.names||[]).length){w.data.autoRunning=false;w.data.spinning=false;fillContent(el,w);save();return;}
+        remaining--;
+        runWheelSpin(el.querySelector('.content')||el,w,{auto:true,onDone:(ok)=>{ if(ok&&w.data.autoRunning)wheelSetTimeout(w.id,step,180); else {w.data.spinning=false;w.data.autoRunning=false;save();} }});
+      };
+      wheelSetTimeout(w.id,step,60);
+    };
+  }
+  document.addEventListener('keydown',function(e){
+    const key=(e.key||'').toLowerCase();
+    if((e.metaKey||e.ctrlKey)&&!e.shiftKey&&!e.altKey&&key==='z'){e.preventDefault();restoreLatest();return;}
+    if(!e.metaKey&&!e.ctrlKey&&e.shiftKey&&!e.altKey&&key==='z'){e.preventDefault();openTrashView();return;}
+    if((e.code==='Space'||e.key===' ')&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
+      const tag=(e.target&&e.target.tagName||'').toLowerCase(); if(/input|textarea|select/.test(tag))return;
+      const w=selected?getWidgetByIdOnCurrent(selected):null; if(w&&w.type==='wheel'){
+        e.preventDefault(); if(w.data&&(w.data.autoRunning||w.data.spinning)) window.__tavleStopWheel(w.id); else {const el=document.querySelector('.widget[data-id="'+CSS.escape(String(w.id))+'"]'); if(el) runWheelSpin(el.querySelector('.content')||el,w,{auto:false});}
+      }
+    }
+  },true);
+
+  // Make the spin button a reliable Stop button when running.
+  document.addEventListener('click',function(e){
+    const btn=e.target.closest&&e.target.closest('.spinCenter'); if(!btn)return;
+    const el=btn.closest('.widget'); if(!el)return; const w=getWidgetByIdOnCurrent(el.dataset.id); if(!w||w.type!=='wheel')return;
+    if(w.data&&(w.data.autoRunning||w.data.spinning)){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.__tavleStopWheel(w.id);}
+  },true);
+
+  // Text/dataset: all text widgets can become dataset widgets; all dataset assets remain editable as text.
+  function createDatasetWidgetFromList(name,items){
+    items=(items||[]).map(x=>String(x||'').trim()).filter(Boolean);
+    if(!items.length){try{toast('Listen er tom')}catch(e){};return null;}
+    name=String(name||'Liste').trim()||'Liste';
+
+    // 1) Register in the shared list bank immediately, so all Hent liste modals can use it.
+    try{
+      const bank=(typeof wheelListBank==='function') ? wheelListBank() : {};
+      bank[name]=[...items];
+      if(typeof saveWheelListBank==='function') saveWheelListBank(bank);
+      else localStorage.setItem('maans_wheel_lists',JSON.stringify(bank));
+    }catch(e){console.warn('Kunne ikke gemme liste i fælles listebank',e)}
+
+    // 2) Create visible editable list-widget on the tavle.
+    const w=addDroppedWidget('text',{text:items.join('\n'),kind:'list',listAsset:true,createdFromDataset:true,sharedListName:name},{x:180,y:120},name);
+    if(w){
+      w.title=name;
+      w.data=w.data||{};
+      w.data.kind='list';
+      w.data.listAsset=true;
+      w.data.createdFromDataset=true;
+      w.data.sharedListName=name;
+      w.w=Math.min(520,Math.max(360,innerWidth*.36));
+      w.h=Math.min(520,Math.max(300,innerHeight*.40));
+      try{fitWidgetToViewport(w)}catch(e){}
+      render(); select(w.id,{editText:true}); save();
+      try{toast('Liste oprettet og gemt: '+items.length+' punkter')}catch(e){}
+    }
+    return w;
+  }
+  window.createDatasetWidgetFromList=createDatasetWidgetFromList;
+  const oldMakeWidget=makeWidget;
+  makeWidget=function(w){
+    oldMakeWidget(w);
+    try{
+      const el=document.querySelector('.widget[data-id="'+CSS.escape(String(w.id))+'"]'); if(!el)return;
+      if(w.type==='text'){
+        const mini=el.querySelector('.mini');
+        if(mini && !mini.querySelector('[data-act="textDatasetToggle"]')){
+          const b=document.createElement('button'); b.type='button'; b.dataset.act='textDatasetToggle'; b.title=w.data&&w.data.datasetId?'Skift/parse datasæt':'Vis som datasæt'; b.textContent=w.data&&w.data.datasetId?'📊':'T⇄📊';
+          mini.insertBefore(b,mini.querySelector('[data-act="max"]')||mini.firstChild);
+          b.onclick=function(e){e.preventDefault();e.stopPropagation();
+            w.data=w.data||{};
+            if(w.data.datasetId && w.data.datasetView!==false){w.data.datasetView=false; const ds=findDatasetById(w.data.datasetId); w.data.text=datasetToDelimitedText(ds||{columns:[],rows:[]},'\t');}
+            else {try{const parsed=parseDatasetFromText(w.data.text||'',String(w.title||'Datasæt').replace(/^📊\s*/,'')); if(!parsed)throw new Error('Ingen tabeldata fundet'); parsed.id=w.data.datasetId||parsed.id; updateDatasetInState(parsed); w.data.datasetId=parsed.id; w.data.datasetView=true; w.title='📊 '+(parsed.name||w.title||'Datasæt');}catch(err){toast('Kunne ikke vise som datasæt: '+(err&&err.message||'ukendt fejl'));return;}}
+            render(); select(w.id,{editText:false}); save();
+          };
+        }
+        // If in plain text mode, add a visible button above textarea as well.
+        if(!(w.data&&w.data.datasetId) || w.data.datasetView===false){
+          const content=el.querySelector('.content.text .text');
+          if(content && !content.querySelector('.datasetAsPreview')){
+            const bar=document.createElement('div'); bar.className='datasetTextTools';
+            const btn=document.createElement('button'); btn.type='button'; btn.className='datasetAsPreview'; btn.textContent=(w.data&&w.data.datasetId)?'Opdater datasæt / vis preview':'Vis som datasæt';
+            const hint=document.createElement('span'); hint.className='datasetTextHint'; hint.textContent='Skriv tabel som TSV/CSV og vis den som datasæt.';
+            bar.appendChild(btn); bar.appendChild(hint); content.insertBefore(bar,content.firstChild);
+            btn.onclick=function(e){e.preventDefault();e.stopPropagation();try{const parsed=parseDatasetFromText(w.data.text||'',String(w.title||'Datasæt').replace(/^📊\s*/,'')); if(!parsed)throw new Error('Ingen tabeldata fundet'); parsed.id=w.data.datasetId||parsed.id; updateDatasetInState(parsed); w.data.datasetId=parsed.id; w.data.datasetView=true; w.title='📊 '+(parsed.name||w.title||'Datasæt'); render();select(w.id,{editText:false});save();}catch(err){toast('Kunne ikke parse tabel: '+(err&&err.message||'ukendt fejl'))}};
+          }
+        }
+      }
+    }catch(e){console.warn('dataset postprocess failed',e)}
+  };
+
+  // Save list/result now creates a visible text/dataset widget instead of a hidden list asset.
+  openSaveListModal=function(w){
+    const items=wheelListNamesForSave(w).map(x=>String(x||'').trim()).filter(Boolean);
+    showModal(`<h2>Gem som tekst/datasæt-widget</h2><p>Listen bliver oprettet som en synlig widget på tavlen. Den kan redigeres, downloades og hentes af andre widgets som datasæt.</p><label>Navn<input id="listName" value="Min liste"></label><button id="createListWidget">Opret widget</button><button id="close">Luk</button>`);
+    const input=modal.querySelector('#listName'); setTimeout(()=>{try{input.focus();input.select()}catch(e){}},50);
+    modal.querySelector('#createListWidget').onclick=function(){const name=String(input.value||'Min liste').trim()||'Min liste'; if(!items.length){toast('Listen er tom');return;} closeModal(); createDatasetWidgetFromList(name,items);};
+    modal.querySelector('#close').onclick=closeModal;
+  };
+
+  // Download content: dataset widgets download raw CSV/TSV instead of preview text.
+  if(typeof collectEmbeddedMedia==='function'){
+    const oldCollect=collectEmbeddedMedia;
+    collectEmbeddedMedia=function(){
+      const items=oldCollect().filter(it=>!(it.type==='Tekst'&&/^📊\s*Datasæt:/m.test(decodeURIComponent(String(it.src||'').split(',')[1]||''))));
+      try{(state.slides||[]).forEach((sl,si)=>{const slideName=(typeof safeSlideTitle==='function'?safeSlideTitle(sl,si):('Tavle '+(si+1)));(sl.widgets||[]).forEach((w,wi)=>{if(w.type==='text'&&w.data&&w.data.datasetId){const ds=findDatasetById(w.data.datasetId); if(ds){const txt=datasetToDelimitedText(ds,'\t');items.push({type:'Datasæt',slide:slideName,name:(ds.name||w.title||`datasæt-${wi+1}`)+'.tsv',src:'data:text/tab-separated-values;charset=utf-8,'+encodeURIComponent(txt),ext:'tsv',filename:safeFileName((ds.name||w.title||`datasæt-${wi+1}`),'tsv'),label:'Datasæt',id:'datasetDl'+si+'_'+wi});}}})})}catch(e){}
+      return items;
+    };
+  }
+
+  // More menu: add Papirkurv button without rewriting whole toolbar.
+  const oldShowMoreTools=showMoreTools;
+  showMoreTools=function(){
+    oldShowMoreTools();
+    setTimeout(()=>{try{const menu=document.querySelector('.moreMenu'); if(menu&&!menu.querySelector('[data-more-tool="trash"]')){const b=document.createElement('button');b.dataset.moreTool='trash';b.innerHTML='<span class="ico">🗑</span><span class="txt">papirkurv</span>';b.onclick=e=>{e.preventDefault();e.stopPropagation();document.querySelector('.moreMenuBackdrop')?.remove();document.querySelector('.moreMenu')?.remove();openTrashView();};menu.appendChild(b);updateTrashBadge();}}catch(e){}},0);
+  };
+
+  // Import summary should also close on Enter.
+  document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('importSummaryCard')?.classList.contains('show')){closeImportSummary();}},true);
+  updateTrashBadge();
+})();
+</script>
+
+
+<script id="maans-mm06-visible-widget-lists">
+(function(){
+  'use strict';
+  if(window.__maansMM06VisibleWidgetLists) return;
+  window.__maansMM06VisibleWidgetLists = true;
+
+  function mm06Esc(v){
+    try{ return (typeof esc==='function') ? esc(v) : String(v==null?'':v).replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch];}); }
+    catch(_e){ return String(v==null?'':v); }
+  }
+  function mm06CurrentWidgets(){
+    try{
+      const sl = (typeof slide==='function') ? slide() : null;
+      return (sl && Array.isArray(sl.widgets)) ? sl.widgets : [];
+    }catch(_e){ return []; }
+  }
+  function mm06DatasetById(id){
+    try{
+      if(typeof findDatasetById==='function') return findDatasetById(id);
+      const arr = Array.isArray(state && state.datasets) ? state.datasets : [];
+      return arr.find(ds => String(ds && ds.id) === String(id));
+    }catch(_e){ return null; }
+  }
+  function mm06DatasetColumnItems(ds,colIndex){
+    try{
+      return (ds && Array.isArray(ds.rows) ? ds.rows : [])
+        .map(row => String((row || [])[colIndex] == null ? '' : (row || [])[colIndex]).trim())
+        .filter(Boolean);
+    }catch(_e){ return []; }
+  }
+  function mm06TextItems(txt){
+    return String(txt||'')
+      .split(/\r?\n|[,;]+/)
+      .map(x => String(x||'').trim())
+      .filter(Boolean)
+      .filter(x => !/^📊\s*Datasæt:?/i.test(x) && !/^\d+\s*rækker\s*[·,]/i.test(x) && !/^Tip:/i.test(x));
+  }
+  function mm06VisibleListSources(excludeId){
+    const out=[];
+    const seen=new Set();
+    const addSource=function(src){
+      const key=String(src.kind||'')+'|'+String(src.widgetId||'')+'|'+String(src.datasetId||'')+'|'+String(src.colIndex==null?'':src.colIndex)+'|'+String(src.name||'');
+      if(seen.has(key)) return;
+      seen.add(key); out.push(src);
+    };
+    mm06CurrentWidgets().forEach(function(w){
+      if(!w || String(w.id)===String(excludeId)) return;
+      const title=String(w.title || (w.type==='text'?'Tekst':'Widget')).replace(/^📊\s*/,'').trim() || 'Widget';
+      if(w.type==='text' && w.data){
+        if(w.data.datasetId){
+          const ds=mm06DatasetById(w.data.datasetId);
+          if(ds && Array.isArray(ds.rows) && ds.rows.length){
+            const cols=(Array.isArray(ds.columns) && ds.columns.length) ? ds.columns : ['Kolonne 1'];
+            if(cols.length===1){
+              addSource({kind:'widgetDatasetCol',widgetId:w.id,datasetId:ds.id,colIndex:0,name:title,items:mm06DatasetColumnItems(ds,0)});
+            }else{
+              cols.forEach(function(col,i){
+                addSource({kind:'widgetDatasetCol',widgetId:w.id,datasetId:ds.id,colIndex:i,name:title+' – '+String(col||('Kolonne '+(i+1))),items:mm06DatasetColumnItems(ds,i)});
+              });
+            }
+          }
+        }else{
+          const items=mm06TextItems(w.data.text||'');
+          if(items.length) addSource({kind:'widgetText',widgetId:w.id,name:title,items:items});
+        }
+      }
+    });
+    return out.filter(src => Array.isArray(src.items) && src.items.length);
+  }
+  function mm06SavedListButtons(keys){
+    return keys.length ? keys.map(k => '<button class="pickList" data-k="'+mm06Esc(k)+'">'+mm06Esc(k)+'</button>').join(' ') : '<p>Ingen gemte lister endnu.</p>';
+  }
+  function mm06AllDatasetHtml(){
+    let html='';
+    try{
+      const dsets=Array.isArray(state && state.datasets) ? state.datasets : [];
+      if(dsets.length){
+        html += '<h3>Alle datasæt</h3>';
+        html += dsets.map(function(ds){
+          const cols=(ds.columns||[]).map(function(col,i){return '<button class="pickDatasetCol" data-ds="'+mm06Esc(ds.id)+'" data-col="'+i+'">'+mm06Esc(col||('Kolonne '+(i+1)))+'</button>';}).join(' ');
+          return '<div class="datasetPick"><span>'+mm06Esc(ds.name||'Datasæt')+'</span> '+cols+'</div>';
+        }).join('');
+      }
+    }catch(_e){}
+    return html;
+  }
+  function mm06VisibleWidgetsHtml(sources){
+    if(!sources.length) return '';
+    return '<h3>Synlige liste-widgets</h3><div class="mm06WidgetLists">'+sources.map(function(src,i){
+      return '<button class="pickVisibleWidgetList" data-mm06-i="'+i+'">'+mm06Esc(src.name)+' <small>('+src.items.length+')</small></button>';
+    }).join(' ')+'</div>';
+  }
+  function mm06InstallGroupLoadHandler(c,w){
+    try{
+      const loadBtn=c && c.querySelector && c.querySelector('.loadGroupList');
+      if(!loadBtn) return;
+      loadBtn.onclick=function(ev){
+        if(ev){ev.preventDefault(); ev.stopPropagation();}
+        const useList=function(pick,items){
+          items=(items||[]).map(x=>String(x||'').trim()).filter(Boolean);
+          if(!items.length){ if(typeof toast==='function') toast('Listen er tom'); return; }
+          w.data=w.data||{};
+          w.data.names=[...items];
+          w.data.groups=[];
+          w.data.groupLocks=[];
+          w.data.rot=0;
+          w.data.listHidden=false;
+          w.data.groupsVisible=false;
+          if(typeof closeModal==='function') closeModal();
+          if(typeof fillContent==='function') fillContent(c.closest('.widget'),w);
+          setTimeout(function(){
+            try{const inp=c.closest('.widget') && c.closest('.widget').querySelector('.groupSize'); if(inp){inp.focus({preventScroll:true}); inp.select();}}
+            catch(_e){}
+          },80);
+          if(typeof save==='function') save();
+          if(typeof toast==='function') toast('Liste hentet: '+items.length);
+        };
+        const bank=(typeof wheelListBank==='function') ? wheelListBank() : {};
+        const keys=Object.keys(bank||{}).sort((a,b)=>a.localeCompare(b,'da'));
+        const visibleSources=mm06VisibleListSources(w.id);
+        const html='<h2>Hent liste til grupper</h2><p>Vælg en gemt liste, en synlig liste-/datasæt-widget eller importér en tekstfil/CSV/regneark.</p>'+
+          mm06SavedListButtons(keys)+
+          mm06VisibleWidgetsHtml(visibleSources)+
+          mm06AllDatasetHtml()+
+          '<hr>'+((typeof importedListButtonHtml==='function') ? importedListButtonHtml() : '')+' <button id="close">Luk</button>';
+        if(typeof showModal==='function') showModal(html); else return;
+        modal.querySelectorAll('.pickList').forEach(function(btn){
+          btn.onclick=function(){const pick=btn.dataset.k; useList(pick, ((typeof wheelListBank==='function') ? wheelListBank()[pick] : bank[pick]) || []);};
+        });
+        modal.querySelectorAll('.pickVisibleWidgetList').forEach(function(btn){
+          btn.onclick=function(){const src=visibleSources[Number(btn.dataset.mm06I)]; if(src) useList(src.name,src.items);};
+        });
+        modal.querySelectorAll('.pickDatasetCol').forEach(function(btn){
+          btn.onclick=function(){
+            const ds=mm06DatasetById(btn.dataset.ds); const colIndex=Number(btn.dataset.col);
+            if(ds) useList((ds.name||'Datasæt')+' – '+((ds.columns&&ds.columns[colIndex])||('Kolonne '+(colIndex+1))),mm06DatasetColumnItems(ds,colIndex));
+          };
+        });
+        try{ if(typeof wireImportListButton==='function') wireImportListButton(useList); }catch(_e){}
+        const close=modal.querySelector('#close'); if(close) close.onclick=closeModal;
+      };
+    }catch(err){ console.warn('mM-06 group list handler failed',err); }
+  }
+
+  const previousWireGroups = window.wireGroups;
+  if(typeof previousWireGroups==='function'){
+    window.wireGroups=function(c,w){
+      previousWireGroups(c,w);
+      mm06InstallGroupLoadHandler(c,w);
+    };
+  }
+  if(typeof window.fillContent==='function'){
+    // Existing rendered group widgets keep their handler after this script loads.
+    setTimeout(function(){
+      document.querySelectorAll('.widget[data-type="groups"] .content').forEach(function(c){
+        try{ const el=c.closest('.widget'); const ww=(typeof getWidgetByIdOnCurrent==='function') ? getWidgetByIdOnCurrent(el.dataset.id) : null; if(ww) mm06InstallGroupLoadHandler(c,ww); }catch(_e){}
+      });
+    },0);
+  }
+})();
+</script>
+
+<!-- v1.2.45-mM-16: direct safe Hent liste override. No capture/observer. -->
+<script>
+(function(){
+  'use strict';
+  if(window.__maansMM16DirectListPicker) return;
+  window.__maansMM16DirectListPicker=true;
+
+  function e(v){
+    try{return (typeof esc==='function')?esc(v):String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
+    catch(_err){return String(v==null?'':v);}
+  }
+  function curWidgets(){
+    try{var s=(typeof slide==='function')?slide():null; if(s&&Array.isArray(s.widgets)) return s.widgets;}catch(_e){}
+    try{if(typeof state!=='undefined' && state && Array.isArray(state.slides)){var sl=state.slides[Number(state.current||state.active||0)]||state.slides[0];return (sl&&Array.isArray(sl.widgets))?sl.widgets:[];}}catch(_e){}
+    return [];
+  }
+  function getW(id){return curWidgets().find(function(w){return String(w.id)===String(id);})||null;}
+  function lines(txt){return String(txt||'').split(/\r?\n/).map(function(x){return x.trim();}).filter(Boolean);}
+  function savedBank(){try{return (typeof wheelListBank==='function')?wheelListBank():{};}catch(_e){return {};}}
+  function listSources(excludeId){
+    var out=[];
+    curWidgets().forEach(function(w){
+      if(!w || String(w.id)===String(excludeId)) return;
+      if(w.type!=='text' || !w.data || w.data.datasetId) return;
+      var title=String(w.title||'').replace(/^📊\s*/,'').trim();
+      var isList=(w.data.kind==='list') || w.data.listAsset===true || w.data.createdFromDataset===true || /^Liste fra\s+/i.test(title);
+      if(!isList) return;
+      var items=lines(w.data.text||'');
+      if(items.length) out.push({name:title||'Liste-widget',items:items});
+    });
+    return out;
+  }
+  function openGemAaben(){
+    try{ if(typeof closeModal==='function') closeModal(); }catch(_e){}
+    setTimeout(function(){
+      try{
+        if(typeof showSaveFileOptions==='function'){showSaveFileOptions();return;}
+        if(typeof saveModal==='function'){saveModal();return;}
+        if(typeof openBackupModal==='function'){openBackupModal();return;}
+        if(typeof showBackupModal==='function'){showBackupModal();return;}
+        if(typeof toast==='function')toast('Åbn Gem/åbn via Mere-menuen for at importere.');
+      }catch(err){console.warn('mM16 open Gem/åbn failed',err);try{if(typeof toast==='function')toast('Åbn Gem/åbn via Mere-menuen for at importere.');}catch(_e){}}
+    },0);
+  }
+  function showListPicker(title,callback,excludeId){
+    var bank=savedBank();
+    var keys=Object.keys(bank||{}).sort(function(a,b){return a.localeCompare(b,'da');});
+    var widgets=listSources(excludeId);
+    var savedHtml=keys.length?keys.map(function(k){var n=0;try{n=(bank[k]||[]).length;}catch(_e){}return '<button class="mm16Saved" data-k="'+e(k)+'">'+e(k)+(n?' <small>('+n+')</small>':'')+'</button>';}).join(' '):'<p style="opacity:.7">Ingen gemte lister endnu.</p>';
+    var widgetHtml=widgets.length?widgets.map(function(src,i){return '<button class="mm16Widget" data-i="'+i+'">📄 '+e(src.name)+' <small>('+src.items.length+')</small></button>';}).join(' '):'<p style="opacity:.7">Ingen listewidgets på tavlen endnu. Opret en liste fra en datasetwidget med → Liste først.</p>';
+    if(typeof showModal!=='function') return;
+    showModal('<style>.mm16Grid{display:flex;gap:8px;flex-wrap:wrap}.mm16Grid button{font-weight:900}</style><h2>'+e(title||'Hent data/liste')+'</h2><p>Vælg en gemt liste eller en listewidget. Datasæt og kolonner vælges kun inde i datasetwidgetten med → Liste.</p><h3>Gemte lister</h3><div class="mm16Grid">'+savedHtml+'</div><h3>Listewidgets på tavlen</h3><div class="mm16Grid">'+widgetHtml+'</div><hr><button id="mm16Import">Importér tekst/regneark</button> <button id="close">Luk</button>');
+    modal.querySelectorAll('.mm16Saved').forEach(function(btn){btn.onclick=function(){var k=btn.dataset.k;var items=(savedBank()[k]||[]).map(function(x){return String(x||'').trim();}).filter(Boolean);callback(k,items);if(typeof closeModal==='function')closeModal();};});
+    modal.querySelectorAll('.mm16Widget').forEach(function(btn){btn.onclick=function(){var src=widgets[Number(btn.dataset.i)];if(src){callback(src.name,[].concat(src.items));if(typeof closeModal==='function')closeModal();}};});
+    var imp=modal.querySelector('#mm16Import'); if(imp) imp.onclick=openGemAaben;
+    var cl=modal.querySelector('#close'); if(cl) cl.onclick=closeModal;
+  }
+  function applyGroups(c,w,items){
+    items=(items||[]).map(function(x){return String(x||'').trim();}).filter(Boolean);
+    if(!items.length){try{toast('Listen er tom')}catch(_e){};return;}
+    w.data=w.data||{}; w.data.names=[].concat(items); w.data.groups=[]; w.data.groupLocks=[]; w.data.rot=0; w.data.listHidden=false; w.data.groupsVisible=false;
+    var el=c.closest('.widget'); if(typeof fillContent==='function')fillContent(el,w); if(typeof save==='function')save(); try{toast('Liste hentet: '+items.length)}catch(_e){}
+  }
+  function applyWheel(c,w,items){
+    items=(items||[]).map(function(x){return String(x||'').trim();}).filter(Boolean);
+    if(!items.length){try{toast('Listen er tom')}catch(_e){};return;}
+    w.data=w.data||{}; w.data.names=[].concat(items); w.data.original=[].concat(items); w.data.chosen=[]; w.data.winner=''; w.data.rot=0; w.data.editing=false;
+    var el=c.closest('.widget'); if(typeof fillContent==='function')fillContent(el,w); if(typeof save==='function')save(); try{toast('Liste hentet: '+items.length)}catch(_e){}
+  }
+  function installOnContent(c,w){
+    if(!c||!w)return;
+    try{
+      var root=c.closest('.widget'); var type=root&&root.dataset&&root.dataset.type;
+      if(type==='groups'){
+        var b=c.querySelector('.loadGroupList');
+        if(b){b.onclick=function(ev){if(ev){ev.preventDefault();ev.stopPropagation();}showListPicker('Hent data/liste til grupper',function(name,items){applyGroups(c,w,items);},w.id);return false;};}
+      }else if(type==='wheel'){
+        c.querySelectorAll('.loadList').forEach(function(b){b.onclick=function(ev){if(ev){ev.preventDefault();ev.stopPropagation();}showListPicker('Hent data/liste til lykkehjulet',function(name,items){applyWheel(c,w,items);},w.id);return false;};});
+      }
+    }catch(err){console.warn('mM16 install failed',err);}
+  }
+  var oldGroups=window.wireGroups;
+  if(typeof oldGroups==='function'){
+    window.wireGroups=function(c,w){oldGroups(c,w);installOnContent(c,w);};
+    try{wireGroups=window.wireGroups;}catch(_e){}
+  }
+  var oldWheel=window.wireWheel;
+  if(typeof oldWheel==='function'){
+    window.wireWheel=function(c,w){oldWheel(c,w);installOnContent(c,w);};
+    try{wireWheel=window.wireWheel;}catch(_e){}
+  }
+  var oldChoose=window.chooseSharedList;
+  window.chooseSharedList=function(title,callback){showListPicker(title||'Hent data/liste',callback,null);};
+  try{chooseSharedList=window.chooseSharedList;}catch(_e){}
+  setTimeout(function(){
+    try{document.querySelectorAll('.widget[data-type="groups"] .content').forEach(function(c){var el=c.closest('.widget');var w=getW(el&&el.dataset&&el.dataset.id); if(w&&window.wireGroups)window.wireGroups(c,w);});}catch(_e){}
+    try{document.querySelectorAll('.widget[data-type="wheel"] .content').forEach(function(c){var el=c.closest('.widget');var w=getW(el&&el.dataset&&el.dataset.id); if(w&&window.wireWheel)window.wireWheel(c,w);});}catch(_e){}
+  },0);
+  window.mm16ShowListPicker=showListPicker;
+})();
+</script>
+
+
+<!-- v1.2.45-mM-17: keep editable list-widget linked to shared list bank -->
+<script>
+(function(){
+  'use strict';
+  if(window.__maansMM17ListWidgetBankSync) return;
+  window.__maansMM17ListWidgetBankSync=true;
+
+  function lines(txt){
+    return String(txt||'').split(/\r?\n/).map(function(x){return String(x||'').trim();}).filter(Boolean);
+  }
+  function syncListWidgetToBank(w){
+    try{
+      if(!w || w.type!=='text' || !w.data) return;
+      if(!(w.data.kind==='list' || w.data.listAsset===true || w.data.createdFromDataset===true)) return;
+      var name=String(w.data.sharedListName || w.title || 'Liste').replace(/^📊\s*/,'').trim();
+      if(!name) return;
+      var items=lines(w.data.text||'');
+      var bank=(typeof wheelListBank==='function') ? wheelListBank() : {};
+      bank[name]=items;
+      if(typeof saveWheelListBank==='function') saveWheelListBank(bank);
+      else localStorage.setItem('maans_wheel_lists',JSON.stringify(bank));
+    }catch(e){console.warn('mM17 sync list-widget failed',e);}
+  }
+  function currentWidgets(){
+    try{var s=(typeof slide==='function')?slide():null; return (s&&Array.isArray(s.widgets))?s.widgets:[];}catch(e){return [];}
+  }
+  function syncAll(){
+    currentWidgets().forEach(syncListWidgetToBank);
+  }
+
+  // Sync when list-widget textareas are edited and lose focus.
+  document.addEventListener('change',function(e){
+    try{
+      var ta=e.target && e.target.closest && e.target.closest('textarea');
+      if(!ta) return;
+      var root=ta.closest('.widget');
+      if(!root) return;
+      var id=root.dataset.id;
+      var w=currentWidgets().find(function(x){return String(x.id)===String(id);});
+      if(w) syncListWidgetToBank(w);
+    }catch(err){}
+  },true);
+  document.addEventListener('blur',function(e){
+    try{
+      var ta=e.target && e.target.closest && e.target.closest('textarea');
+      if(!ta) return;
+      var root=ta.closest('.widget');
+      if(!root) return;
+      var id=root.dataset.id;
+      var w=currentWidgets().find(function(x){return String(x.id)===String(id);});
+      if(w) syncListWidgetToBank(w);
+    }catch(err){}
+  },true);
+
+  var oldSave=window.save;
+  if(typeof oldSave==='function' && !oldSave.__mm17Wrapped){
+    var wrapped=function(){
+      syncAll();
+      return oldSave.apply(this,arguments);
+    };
+    wrapped.__mm17Wrapped=true;
+    window.save=wrapped;
+    try{save=wrapped;}catch(e){}
+  }
+  window.mm17SyncListWidgets=syncAll;
+})();
+</script>
+
+
+<!-- v1.2.45-mM-18: make Hent liste see visible list-widgets even if their metadata is incomplete -->
+<script>
+(function(){
+  'use strict';
+  if(window.__maansMM18ListBankIncludesWidgets) return;
+  window.__maansMM18ListBankIncludesWidgets = true;
+
+  function getSlidesWidgets(){
+    try{
+      if(typeof slide==='function'){
+        var s=slide();
+        if(s && Array.isArray(s.widgets)) return s.widgets;
+      }
+    }catch(e){}
+    try{
+      if(typeof state!=='undefined' && state && Array.isArray(state.slides)){
+        var sl=state.slides[Number(state.current||0)] || state.slides[0];
+        return (sl && Array.isArray(sl.widgets)) ? sl.widgets : [];
+      }
+    }catch(e){}
+    return [];
+  }
+  function lines(txt){
+    return String(txt||'').split(/\r?\n/).map(function(x){return String(x||'').trim();}).filter(Boolean);
+  }
+  function isListWidget(w){
+    if(!w || w.type!=='text' || !w.data || w.data.datasetId) return false;
+    var title=String(w.title||'').replace(/^📊\s*/,'').trim();
+    if(w.data.kind==='list' || w.data.listAsset===true || w.data.createdFromDataset===true) return true;
+    if(/^Liste fra\s+/i.test(title) || /liste/i.test(title)) return true;
+    // Fallback: a plain text widget with several short lines is probably a list-widget in this workflow.
+    var items=lines(w.data.text||'');
+    return items.length>=3 && items.length<=500 && items.every(function(x){return x.length<=140;});
+  }
+  function widgetLists(){
+    var out={};
+    getSlidesWidgets().forEach(function(w){
+      if(!isListWidget(w)) return;
+      var title=String((w.data && w.data.sharedListName) || w.title || 'Liste').replace(/^📊\s*/,'').trim() || 'Liste';
+      var items=lines(w.data.text||'');
+      if(items.length) out[title]=items;
+    });
+    return out;
+  }
+
+  var nativeWheelListBank = (typeof wheelListBank==='function') ? wheelListBank : null;
+  window.wheelListBank = function(){
+    var bank={};
+    try{ if(nativeWheelListBank) bank=nativeWheelListBank() || {}; }catch(e){ bank={}; }
+    var wlists=widgetLists();
+    Object.keys(wlists).forEach(function(k){ bank[k]=wlists[k]; });
+    return bank;
+  };
+  try{ wheelListBank=window.wheelListBank; }catch(e){}
+
+  // Also persist visible list widgets into localStorage before any Hent liste modal is shown.
+  function persistWidgetLists(){
+    try{
+      var raw={};
+      if(nativeWheelListBank) raw=nativeWheelListBank() || {};
+      var wlists=widgetLists();
+      Object.keys(wlists).forEach(function(k){ raw[k]=wlists[k]; });
+      if(typeof saveWheelListBank==='function') saveWheelListBank(raw);
+      else localStorage.setItem('maans_wheel_lists',JSON.stringify(raw));
+    }catch(e){console.warn('mM18 persist list widgets failed',e);}
+  }
+
+  document.addEventListener('click',function(e){
+    try{
+      var btn=e.target && e.target.closest && e.target.closest('button,[role="button"]');
+      if(!btn) return;
+      if(/Hent\s+liste|Lister/i.test(String(btn.textContent||btn.title||btn.getAttribute('aria-label')||''))){
+        persistWidgetLists();
+      }
+    }catch(err){}
+  },true);
+
+  var oldSave=window.save;
+  if(typeof oldSave==='function' && !oldSave.__mm18Wrapped){
+    var wrapped=function(){
+      persistWidgetLists();
+      return oldSave.apply(this,arguments);
+    };
+    wrapped.__mm18Wrapped=true;
+    window.save=wrapped;
+    try{save=wrapped;}catch(e){}
+  }
+
+  setTimeout(persistWidgetLists,0);
+  setInterval(persistWidgetLists,2500);
+  window.mm18PersistListWidgets=persistWidgetLists;
+})();
+</script>
+
+
+<!-- v1.2.45-mM-19: safety-hide dataset columns in Hent liste modals only -->
+<style>
+  #modal .datasetPick,
+  #modal .pickDatasetCol,
+  #modal .mm07Datasets,
+  #modal .pickMM07DatasetCol {
+    display:none!important;
+  }
+</style>
+
+
+<!-- v1.2.45-mM-23: statistics panel fix without shrinking the wheel -->
+<style>
+  /*
+    Keep the original wheel size/proportions.
+    Only make the right-side statistics area use the available height.
+  */
+  .wheel.recon.statsMode:not(.editing){
+    grid-template-columns:minmax(260px,58%) minmax(220px,42%)!important;
+  }
+
+  .wheel.recon.statsMode .wheelBox{
+    min-height:0!important;
+    height:100%!important;
+  }
+
+  .wheel.recon.statsMode .wheelSide{
+    min-height:0!important;
+    height:100%!important;
+    display:flex!important;
+    flex-direction:column!important;
+    gap:8px!important;
+    overflow:hidden!important;
+  }
+
+  .wheel.recon.statsMode .wheelTopBar,
+  .wheel.recon.statsMode .wheelSettings,
+  .wheel.recon.statsMode .modeToggle,
+  .wheel.recon.statsMode .wheelBottom{
+    flex:0 0 auto!important;
+  }
+
+  .wheel.recon.statsMode .modeToggle{
+    width:100%!important;
+    margin:0!important;
+  }
+
+  .wheel.recon.statsMode .chosen.stats{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:auto!important;
+    box-sizing:border-box!important;
+    padding:10px!important;
+    background:#f3f4f6!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:8px!important;
+  }
+
+  .wheel.recon.statsMode .chosen.stats .statChip{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+    padding:9px 10px!important;
+    border-radius:14px!important;
+    background:white!important;
+    box-shadow:0 3px 10px rgba(15,23,42,.12)!important;
+    line-height:1.05!important;
+    text-align:center!important;
+    overflow-wrap:anywhere!important;
+    font-size:clamp(20px,2.2vw,32px)!important;
+  }
+
+  .wheel.recon.statsMode .chosen.stats .statChip small{
+    display:block!important;
+    margin-top:5px!important;
+    font-size:.62em!important;
+    line-height:1!important;
+    opacity:.85!important;
+  }
+
+  .wheel.recon.statsMode .wheelBottom{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:6px!important;
+  }
+
+  @media(max-width:700px){
+    .wheel.recon.statsMode:not(.editing){
+      grid-template-columns:1fr!important;
+    }
+    .wheel.recon.statsMode .wheelBox{
+      height:260px!important;
+      min-height:260px!important;
+    }
+    .wheel.recon.statsMode .chosen.stats{
+      min-height:220px!important;
+    }
+  }
+</style>
+
+
+<!-- v1.2.45-mM-24: compact statistical overview for many wheel results -->
+<style>
+  /*
+    Keep the good mM-23 wheel size.
+    Make statistics usable as an overview: compact rows, multiple columns when space allows.
+  */
+  .wheel.recon.statsMode .chosen.stats{
+    display:grid!important;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important;
+    grid-auto-rows:minmax(34px,auto)!important;
+    align-content:start!important;
+    align-items:stretch!important;
+    gap:6px!important;
+    padding:8px!important;
+    overflow:auto!important;
+  }
+
+  .wheel.recon.statsMode .chosen.stats .statChip{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"name value"!important;
+    align-items:center!important;
+    justify-content:stretch!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    min-height:34px!important;
+    box-sizing:border-box!important;
+    padding:6px 9px!important;
+    border-radius:10px!important;
+    text-align:left!important;
+    line-height:1.1!important;
+    background:white!important;
+    box-shadow:0 2px 6px rgba(15,23,42,.10)!important;
+    font-size:clamp(13px,1.35vw,18px)!important;
+    font-weight:900!important;
+    overflow:hidden!important;
+  }
+
+  .wheel.recon.statsMode .chosen.stats .statChip{
+    white-space:normal!important;
+  }
+
+  .wheel.recon.statsMode .chosen.stats .statChip small{
+    grid-area:value!important;
+    display:block!important;
+    margin:0 0 0 8px!important;
+    white-space:nowrap!important;
+    font-size:.82em!important;
+    line-height:1!important;
+    opacity:.75!important;
+    font-weight:900!important;
+  }
+
+  /* The name text is the anonymous text node in statChip; these settings still affect it. */
+  .wheel.recon.statsMode .chosen.stats .statChip{
+    overflow-wrap:anywhere!important;
+  }
+
+  /* In maximized/focus there is room for more columns, so the overview becomes denser. */
+  .widget.maximized .wheel.recon.statsMode .chosen.stats,
+  .present .wheel.recon.statsMode .chosen.stats,
+  .focus .wheel.recon.statsMode .chosen.stats{
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr))!important;
+    gap:7px!important;
+  }
+
+  .widget.maximized .wheel.recon.statsMode .chosen.stats .statChip,
+  .present .wheel.recon.statsMode .chosen.stats .statChip,
+  .focus .wheel.recon.statsMode .chosen.stats .statChip{
+    font-size:clamp(14px,1.15vw,20px)!important;
+    min-height:36px!important;
+  }
+
+  @media(max-width:700px){
+    .wheel.recon.statsMode .chosen.stats{
+      grid-template-columns:1fr!important;
+    }
+  }
+</style>
 
 </body></html>
