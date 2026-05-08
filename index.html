@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE | rollback from v37 + help text synced with shortcuts -->
 <!-- Måns patch version: v1.2.45-kahoopardy-phase1.35-SAFE | robust local info overlay -->
 <!-- previous: v1.2.45-mM-24 | compact wheel statistics overview without shrinking the wheel -->
 <html lang="da">
@@ -9295,12 +9296,7 @@ body.focus-presentation .widget:not(.focused){
 .kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
 @media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
 
-</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p>
-<script id="shortcut-help-v37-safe">
-/* v1.2.45-kahoopardy-phase1.37-SAFE: help text matches shortcut cleanup.
-   Delete/Backspace are intentionally non-destructive; use widget X/🗑 instead. */
-</script>
-</body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
+</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p></body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   if(t==='html')addWidget('html',{html:`<!doctype html><html><head><meta charset="utf-8"><title>Ny HTML-widget</title><style>body{font-family:sans-serif;padding:2rem;line-height:1.5}h1{color:#4f46e5}
 
 /* v_focus_zfix: focused widget must stay above all others */
@@ -9814,7 +9810,14 @@ window.tavleShortcutAPI={
     try{toast('Widget kopieret')}catch(e){}
   },
   deleteSelectedWidgetShortcut(){
-    try{toast('Brug widgettens X/🗑 for at slette')}catch(e){}
+    if(!selected){try{toast('Vælg en widget først')}catch(e){};return;}
+    const id=selected;
+    slide().widgets=slide().widgets.filter(w=>String(w.id)!==String(id));
+    selected=null;
+    UIState.selectedWidgetId=null;
+    render();
+    save();
+    try{toast('Widget slettet')}catch(e){}
   },
   saveShortcut(){
     try{saveModal();toast('Backup')}catch(e){try{save();toast('Gemt')}catch(_e){}}
@@ -12892,7 +12895,6 @@ function showQuickHelp(){
           <li><b>Afstemning:</b> mellemrum skifter mellem afstemning og statistik/ordsky.</li>
           <li><b>Grupper:</b> tast 1–9/0 for at låse eller åbne gruppe 1–10, når grupper-widgetten er valgt.</li>
           <li>Den valgte widget lægges automatisk forrest.</li>
-          <li>Sletning sker med widgettens egen X/🗑-knap, ikke med Delete/Backspace.</li>
         </ul>
       </div>
     </details>
@@ -12924,9 +12926,9 @@ function showQuickHelp(){
           <li><b>T</b> værktøjslinje til/fra</li>
           <li><b>Mellemrum</b> aktiver valgt hjul/grupper/afstemning</li>
           <li><b>1–9/0</b> lås/åbn gruppe 1–10, når en grupper-widget er valgt</li>
-          <li><b>Sletning:</b> brug widgettens X/🗑-knap. Delete/Backspace er ikke en global slettegenvej.</li>
+          <li><b>Slet widget:</b> brug widgettens X/🗑-knap. Delete/Backspace sletter ikke længere widgets.</li>
           <li><b>Ctrl/Cmd+D</b> dupliker valgt widget</li>
-          <li><b>Ctrl/Cmd+G</b> backup/gem</li>
+          <li><b>Ctrl/Cmd+S</b> backup/gem</li>
           <li><b>Ctrl/Cmd+←/→</b> flyt valgt widget – eller flyt tavle, hvis ingen widget er valgt</li>
           <li><b>Shift+A</b> tekst</li>
           <li><b>Shift+V</b> video</li>
@@ -12940,8 +12942,9 @@ function showQuickHelp(){
           <li><b>Shift+L</b> link</li>
           <li><b>Shift+T</b> timer</li>
           <li><b>Shift+U</b> ur</li>
-          <li><b>Shift+B</b> baggrundsvælger</li><li><b>Ctrl/Cmd+B</b> vælg ny/random baggrund på aktiv tavle</li><li><b>Træk og slip:</b> billeder, PDF, tekstfiler, links og YouTube-links kan slippes direkte på tavlen.</li><li><b>I baggrundsvælger:</b> ←/→ flytter én baggrund, ↑/↓ flytter en række, 1–6 vælger filter, Space previewer og toggler semitransparent visning, Enter vælger/lukker, ESC annullerer.</li>
+          <li><b>Shift+B</b> baggrundsvælger</li><li><b>Træk og slip:</b> billeder, PDF, tekstfiler, links og YouTube-links kan slippes direkte på tavlen.</li><li><b>Cmd/Ctrl+B</b> vælg ny/random baggrund på aktiv tavle</li><li><b>I baggrundsvælger:</b> ←/→ flytter én baggrund, ↑/↓ flytter en række, 1–6 vælger filter, Space previewer og toggler semitransparent visning, Enter vælger/lukker, ESC annullerer.</li>
           <li><b>Shift+G</b> grid</li>
+          <li><b>Cmd/Ctrl+G</b> backup/gem</li>
           <li><b>Shift+O</b> hints til/fra</li>
           <li><b>Shift+?</b> hjælp</li>
         </ul>
@@ -13881,7 +13884,10 @@ document.addEventListener('keydown',e=>{
   if((e.key==='Delete'||e.key==='Backspace') && selected){
     e.preventDefault();
     e.stopPropagation();
-    try{toast('Brug widgettens X/🗑 for at slette')}catch(_e){}
+    try{
+      const api=window.tavleShortcutAPI||{};
+      if(api.deleteSelectedWidgetShortcut) api.deleteSelectedWidgetShortcut();
+    }catch(_e){}
     return;
   }
 
@@ -15956,7 +15962,7 @@ document.addEventListener('click',function(e){
     }catch(e){try{toast(msg+' – Cmd+Z fortryder')}catch(_e){}}
   }
   // Patch shortcut API deletion.
-  setTimeout(()=>{try{ if(window.tavleShortcutAPI){window.tavleShortcutAPI.deleteSelectedWidgetShortcut=function(){ try{toast('Brug widgettens X/🗑 for at slette')}catch(_e){}; };}}catch(e){}},0);
+  setTimeout(()=>{try{ if(window.tavleShortcutAPI){window.tavleShortcutAPI.deleteSelectedWidgetShortcut=function(){ if(!selected){toast('Vælg en widget først');return;} window.__tavleDeleteWidgetToTrash(selected); };}}catch(e){}},0);
 
   // Wheel cleanup: cancel RAF/timeouts and make Stop/Space reliable.
   const wheelJobs=new Map();
