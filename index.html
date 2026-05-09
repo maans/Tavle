@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE20-x-to-trash-shift-x-permanent | based on working SAFE19; close button fixed -->
+<!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE21-x-fix-from-SAFE19 | SAFE19 + only widget-X trash/permanent rules -->
 <!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE | rollback from v37 + help text synced with shortcuts -->
 <!-- Måns patch version: v1.2.45-kahoopardy-phase1.35-SAFE | robust local info overlay -->
 <!-- previous: v1.2.45-mM-24 | compact wheel statistics overview without shrinking the wheel -->
@@ -9357,10 +9357,6 @@ body.focus-presentation .widget:not(.focused){
 
 </style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p>
 <!-- SAFE17: help text synced with trash-board shortcuts. No KahooPardy/render changes. -->
-
-<script id="maans-trash-board-safe20-close-button-rules-marker">
-/* SAFE20: Widget-X follows trash rules: normal X -> trash, Shift+X -> permanent, trash X -> permanent. Built on SAFE19. */
-</script>
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   if(t==='html')addWidget('html',{html:`<!doctype html><html><head><meta charset="utf-8"><title>Ny HTML-widget</title><style>body{font-family:sans-serif;padding:2rem;line-height:1.5}h1{color:#4f46e5}
 
@@ -13661,9 +13657,10 @@ function wireRobustWidgetClose(){
     const now=Date.now();
     if(widget.__closeActivatedAt && now-widget.__closeActivatedAt<700)return;
     widget.__closeActivatedAt=now;
-    /* SAFE20: Widget-X skal følge papirkurvsreglerne.
-       Normal tavle: X flytter til papirkurv. Shift+X sletter permanent.
-       Papirkurv: X sletter permanent. */
+
+    /* SAFE21: Widget-X følger samme regler som tastatur-sletning.
+       Normal tavle: X -> papirkurv. Shift+X -> permanent sletning.
+       Papirkurv: X -> permanent sletning. */
     try{
       const onTrash = !!(window.__trashBoardIsActive && window.__trashBoardIsActive());
       if(onTrash && window.__trashBoardPermanentById){
@@ -13680,6 +13677,7 @@ function wireRobustWidgetClose(){
       }
     }catch(err){}
 
+    /* Fallback fra den stabile version, hvis papirkurvlaget ikke er aktivt. */
     try{
       if(typeof removeWidget==='function'){
         removeWidget(id);
