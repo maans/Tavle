@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE17-help-shortcuts-sync | based on working SAFE16 -->
+<!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE20-x-to-trash-shift-x-permanent | based on working SAFE19; close button fixed -->
 <!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE | rollback from v37 + help text synced with shortcuts -->
 <!-- Måns patch version: v1.2.45-kahoopardy-phase1.35-SAFE | robust local info overlay -->
 <!-- previous: v1.2.45-mM-24 | compact wheel statistics overview without shrinking the wheel -->
@@ -9357,6 +9357,10 @@ body.focus-presentation .widget:not(.focused){
 
 </style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p>
 <!-- SAFE17: help text synced with trash-board shortcuts. No KahooPardy/render changes. -->
+
+<script id="maans-trash-board-safe20-close-button-rules-marker">
+/* SAFE20: Widget-X follows trash rules: normal X -> trash, Shift+X -> permanent, trash X -> permanent. Built on SAFE19. */
+</script>
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   if(t==='html')addWidget('html',{html:`<!doctype html><html><head><meta charset="utf-8"><title>Ny HTML-widget</title><style>body{font-family:sans-serif;padding:2rem;line-height:1.5}h1{color:#4f46e5}
 
@@ -13657,6 +13661,25 @@ function wireRobustWidgetClose(){
     const now=Date.now();
     if(widget.__closeActivatedAt && now-widget.__closeActivatedAt<700)return;
     widget.__closeActivatedAt=now;
+    /* SAFE20: Widget-X skal følge papirkurvsreglerne.
+       Normal tavle: X flytter til papirkurv. Shift+X sletter permanent.
+       Papirkurv: X sletter permanent. */
+    try{
+      const onTrash = !!(window.__trashBoardIsActive && window.__trashBoardIsActive());
+      if(onTrash && window.__trashBoardPermanentById){
+        window.__trashBoardPermanentById(id);
+        return;
+      }
+      if(e.shiftKey && window.__tavlePermanentDeleteWidget){
+        window.__tavlePermanentDeleteWidget(id);
+        return;
+      }
+      if(window.__trashBoardDelete){
+        window.__trashBoardDelete(id);
+        return;
+      }
+    }catch(err){}
+
     try{
       if(typeof removeWidget==='function'){
         removeWidget(id);
@@ -17433,6 +17456,223 @@ document.addEventListener('click',function(e){
       if(window.__trashBoardRestoreLatest){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); window.__trashBoardRestoreLatest(); return false;}
     }
   },true);
+})();
+</script>
+
+<script id="maans-trash-board-safe19-hide-from-normal-boards">
+(function(){
+  'use strict';
+  /* SAFE19: Papirkurven bevares som intern tavle, men skjules fra normal tavle-navigation.
+     Bygget oven på den virkende SAFE17/Safe16-papirkurvlogik. Ændrer ikke slette/gendanne-flowet. */
+  function isTrash(s){
+    try{return !!(s && (s.isTrashBoard===true || s.title==='🗑 Papirkurv' || s.title==='Papirkurv'));}
+    catch(_e){return false;}
+  }
+  function slides(){try{return (state && Array.isArray(state.slides)) ? state.slides : [];}catch(_e){return [];}}
+  function normalIndices(){
+    const arr=slides();
+    const out=[];
+    for(let i=0;i<arr.length;i++){ if(!isTrash(arr[i])) out.push(i); }
+    return out;
+  }
+  function normalCount(){return Math.max(1,normalIndices().length);}
+  function visibleNo(realIndex){
+    const list=normalIndices();
+    const p=list.indexOf(realIndex);
+    return p>=0 ? p+1 : normalCount();
+  }
+  function firstNormal(){const list=normalIndices(); return list.length ? list[0] : 0;}
+  function insertNormalSlide(){
+    const arr=slides();
+    if(!arr.length)return -1;
+    const ns=(typeof createThemedSlide==='function') ? createThemedSlide() : {title:'Ny tavle',widgets:[]};
+    const trashIndex=arr.findIndex(isTrash);
+    let idx;
+    if(trashIndex>=0){arr.splice(trashIndex,0,ns); idx=trashIndex;}
+    else {arr.push(ns); idx=arr.length-1;}
+    return idx;
+  }
+  function updateSlideCounter(){
+    try{
+      const el=document.getElementById('slideInfo');
+      if(!el)return;
+      if(isTrash(slide())){ el.textContent='Papirkurv'; return; }
+      el.textContent=visibleNo(state.active)+'/'+normalCount();
+    }catch(_e){}
+  }
+  function patchMultiButton(){
+    try{
+      const btn=document.getElementById('slidesOverview');
+      if(!btn)return;
+      const hide=normalCount()<=1;
+      btn.classList.toggle('onlyMultiHidden',hide);
+      btn.hidden=hide;
+      btn.style.display=hide?'none':'';
+    }catch(_e){}
+  }
+  function patchTopUI(){updateSlideCounter();patchMultiButton();}
+  function goNormalByPosition(pos){
+    const list=normalIndices();
+    if(!list.length)return false;
+    const safe=Math.max(0,Math.min(list.length-1,pos));
+    state.active=list[safe];
+    try{selected=null;if(window.UIState)UIState.selectedWidgetId=null;}catch(_e){}
+    render();
+    patchTopUI();
+    try{toast('Tavle '+visibleNo(state.active));}catch(_e){}
+    try{save({silent:true});}catch(_e){}
+    return true;
+  }
+  const oldNext=(typeof nextSlide==='function')?nextSlide:null;
+  const oldPrev=(typeof prevSlide==='function')?prevSlide:null;
+  try{
+    nextSlide=function(){
+      const list=normalIndices();
+      const pos=list.indexOf(state.active);
+      if(pos>=0 && pos<list.length-1)return goNormalByPosition(pos+1);
+      return false;
+    };
+    prevSlide=function(){
+      const list=normalIndices();
+      const pos=list.indexOf(state.active);
+      if(pos>0)return goNormalByPosition(pos-1);
+      return false;
+    };
+    goToSlide=function(i){ return goNormalByPosition(Number(i)||0); };
+  }catch(_e){void oldNext;void oldPrev;}
+  function deleteNormalSlideAt(realIndex){
+    const arr=slides();
+    if(!arr[realIndex] || isTrash(arr[realIndex])){try{toast('Papirkurven kan ikke slettes herfra');}catch(_e){};return;}
+    const list=normalIndices();
+    if(list.length<=1){try{toast('Der skal være mindst én tavle');}catch(_e){};return;}
+    const name=(typeof safeSlideTitle==='function')?safeSlideTitle(arr[realIndex],realIndex):(arr[realIndex].title||'Tavle');
+    if(!confirm('Slet tavlen "'+name+'"?'))return;
+    const activeBefore=state.active;
+    arr.splice(realIndex,1);
+    if(activeBefore===realIndex){state.active=firstNormal();}
+    else if(activeBefore>realIndex){state.active=activeBefore-1;}
+    if(isTrash(arr[state.active]))state.active=firstNormal();
+    render();patchTopUI();save();try{toast('Tavle slettet');}catch(_e){}
+  }
+  try{ deleteSlideAt=deleteNormalSlideAt; }catch(_e){}
+  function swapRealSlides(a,b){
+    const arr=slides();
+    if(a<0||b<0||a>=arr.length||b>=arr.length||isTrash(arr[a])||isTrash(arr[b]))return false;
+    const tmp=arr[a]; arr[a]=arr[b]; arr[b]=tmp;
+    if(state.active===a)state.active=b; else if(state.active===b)state.active=a;
+    render();patchTopUI();save({silent:true});
+    return true;
+  }
+  try{
+    slideOverviewModal=function(){
+      const list=normalIndices();
+      const rows=list.map((realIndex,visibleIndex)=>{
+        const s=slides()[realIndex];
+        const current=realIndex===state.active;
+        const title=(typeof esc==='function'?esc(safeSlideTitle(s,realIndex)):String(s.title||('Tavle '+(visibleIndex+1))));
+        return `<div class="slideOverviewRow ${current?'active':''}">
+          <div class="num">${visibleIndex+1}</div>
+          <input data-title-real="${realIndex}" value="${title}" aria-label="Tavletitel ${visibleIndex+1}">
+          <div class="slideOverviewActions">
+            <button data-go-visible="${visibleIndex}">Gå til</button>
+            <button data-up-visible="${visibleIndex}" ${visibleIndex===0?'disabled':''}>↑</button>
+            <button data-down-visible="${visibleIndex}" ${visibleIndex===list.length-1?'disabled':''}>↓</button>
+            <button class="danger" data-del-real="${realIndex}" ${list.length<=1?'disabled':''}>🗑 Slet</button>
+          </div>
+        </div>`;
+      }).join('');
+      showModal(`<h2>Tavleoversigt</h2>
+        <p>Her kan du omdøbe, flytte, gå til eller slette almindelige tavler. Papirkurven ligger i baggrunden og vises ikke her.</p>
+        <div class="slideOverview">${rows}</div>
+        <button id="newSlideFromOverview">+ ny tavle</button>
+        <button id="close">Luk</button>`);
+      modal.querySelectorAll('[data-title-real]').forEach(inp=>{
+        inp.onchange=()=>{const i=+inp.dataset.titleReal; if(isTrash(slides()[i]))return; slides()[i].title=inp.value.trim()||('Tavle '+visibleNo(i)); render(); patchTopUI(); slideOverviewModal(); save({silent:true});};
+        inp.onkeydown=e=>{if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();inp.blur();}};
+      });
+      modal.querySelectorAll('[data-go-visible]').forEach(b=>b.onclick=()=>{goNormalByPosition(+b.dataset.goVisible);closeModal();});
+      modal.querySelectorAll('[data-up-visible]').forEach(b=>b.onclick=()=>{const v=+b.dataset.upVisible; const fresh=normalIndices(); if(v>0){swapRealSlides(fresh[v],fresh[v-1]); slideOverviewModal();}});
+      modal.querySelectorAll('[data-down-visible]').forEach(b=>b.onclick=()=>{const v=+b.dataset.downVisible; const fresh=normalIndices(); if(v<fresh.length-1){swapRealSlides(fresh[v],fresh[v+1]); slideOverviewModal();}});
+      modal.querySelectorAll('[data-del-real]').forEach(b=>b.onclick=()=>{deleteNormalSlideAt(+b.dataset.delReal); slideOverviewModal();});
+      const ns=modal.querySelector('#newSlideFromOverview'); if(ns)ns.onclick=()=>{state.active=insertNormalSlide(); render(); patchTopUI(); slideOverviewModal(); save({silent:true});};
+      const close=modal.querySelector('#close'); if(close)close.onclick=()=>closeModal();
+    };
+  }catch(_e){}
+  function patchButtons(){
+    try{const b=document.getElementById('slidesOverview'); if(b)b.onclick=slideOverviewModal;}catch(_e){}
+    try{const b=document.getElementById('addSlide'); if(b)b.onclick=()=>{state.active=insertNormalSlide();render();patchTopUI();save();try{focusSlideTitleForRename();}catch(_e){}};}catch(_e){}
+  }
+  try{
+    const oldMove=(typeof moveWidgetToSlide==='function')?moveWidgetToSlide:null;
+    const oldCopy=(typeof copyWidgetToSlide==='function')?copyWidgetToSlide:null;
+    if(oldMove){moveWidgetToSlide=function(widgetId,targetIndex,sourceIndex=state.active){
+      const list=normalIndices(); const real=list[targetIndex]!==undefined?list[targetIndex]:targetIndex;
+      if(isTrash(slides()[real])){try{toast('Papirkurven er ikke en almindelig tavle');}catch(_e){};return false;}
+      return oldMove(widgetId,real,sourceIndex);
+    };}
+    if(oldCopy){copyWidgetToSlide=function(widgetId,targetIndex,sourceIndex=state.active){
+      const list=normalIndices(); const real=list[targetIndex]!==undefined?list[targetIndex]:targetIndex;
+      if(isTrash(slides()[real])){try{toast('Papirkurven er ikke en almindelig tavle');}catch(_e){};return false;}
+      return oldCopy(widgetId,real,sourceIndex);
+    };}
+    newSlideForWidget=function(widgetId,action='move',sourceIndex=state.active){
+      const idx=insertNormalSlide();
+      return action==='copy' ? copyWidgetToSlide(widgetId,idx,sourceIndex) : moveWidgetToSlide(widgetId,idx,sourceIndex);
+    };
+  }catch(_e){}
+  try{
+    widgetMoveModal=function(w){
+      const sourceIndex=state.active;
+      const sourceTitle=(typeof safeSlideTitle==='function')?safeSlideTitle(slides()[sourceIndex],sourceIndex):'Aktuel tavle';
+      const widgetTitle=(typeof esc==='function'?esc(w.title||titles[w.type]||'Widget'):(w.title||'Widget'));
+      let rows=normalIndices().map((realIndex,visibleIndex)=>{
+        const s=slides()[realIndex];
+        const isCurrent=realIndex===sourceIndex;
+        const title=(typeof esc==='function'?esc(safeSlideTitle(s,realIndex)):(s.title||('Tavle '+(visibleIndex+1))));
+        return `<div class="slideMoveRow">
+          <b>${visibleIndex+1}. ${title}${isCurrent?' (nu)':''}</b>
+          <div class="actions">
+            <button data-action="move" data-target-visible="${visibleIndex}" ${isCurrent?'disabled title="Widgetten er allerede på denne tavle"':''}>Flyt</button>
+            <button data-action="copy" data-target-visible="${visibleIndex}">Kopiér</button>
+          </div>
+        </div>`;
+      }).join('');
+      showModal(`<div class="moveWidgetDialog"><h2>Flyt eller kopiér widget</h2>
+        <p class="moveWidgetTitle"><b>${widgetTitle}</b></p>
+        <p>Fra: ${typeof esc==='function'?esc(sourceTitle):sourceTitle}</p>
+        <div class="slideList">${rows}</div>
+        <button id="newSlideMove">Ny tavle + flyt</button>
+        <button id="newSlideCopy">Ny tavle + kopiér</button>
+        <button id="close">Luk</button></div>`);
+      modal.querySelectorAll('[data-target-visible]').forEach(btn=>btn.onclick=()=>{
+        const real=normalIndices()[+btn.dataset.targetVisible];
+        if(btn.dataset.action==='copy') copyWidgetToSlide(w.id,real,sourceIndex); else moveWidgetToSlide(w.id,real,sourceIndex);
+        closeModal();
+      });
+      modal.querySelector('#newSlideMove').onclick=()=>{newSlideForWidget(w.id,'move',sourceIndex);closeModal();};
+      modal.querySelector('#newSlideCopy').onclick=()=>{newSlideForWidget(w.id,'copy',sourceIndex);closeModal();};
+      modal.querySelector('#close').onclick=closeModal;
+    };
+  }catch(_e){}
+  // Når papirkurven er aktiv, må normal forrige/næste ikke bruge den som almindelig tavle.
+  document.addEventListener('click',function(e){
+    const id=e.target&&e.target.id;
+    if(id==='next' || id==='prev'){
+      // Lad de redefinerede funktioner håndtere det; sikrer at gammel onclick ikke rammer papirkurven.
+      e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      if(id==='next')nextSlide(); else prevSlide();
+      return false;
+    }
+  },true);
+  patchButtons();
+  patchTopUI();
+  setTimeout(()=>{patchButtons();patchTopUI();},0);
+  setTimeout(()=>{patchButtons();patchTopUI();},300);
+  setInterval(patchTopUI,600);
+  try{
+    const target=document.getElementById('slideInfo')||document.body;
+    new MutationObserver(()=>patchTopUI()).observe(target,{childList:true,characterData:true,subtree:true});
+  }catch(_e){}
 })();
 </script>
 </body></html>
