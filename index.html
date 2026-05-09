@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE16-trash-board-permanent-overview | based on working SAFE15 -->
 <!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE | rollback from v37 + help text synced with shortcuts -->
 <!-- Måns patch version: v1.2.45-kahoopardy-phase1.35-SAFE | robust local info overlay -->
 <!-- previous: v1.2.45-mM-24 | compact wheel statistics overview without shrinking the wheel -->
@@ -6415,6 +6416,61 @@ body.focus-presentation .widget:not(.focused){
   background:#6d5dfc; color:white; font-weight:900; font-size:18px;
 }
 
+
+/* SAFE10 phase 1: Papirkurv som rigtig tavle, ikke modal */
+.moreMenu{grid-template-columns:repeat(5,minmax(74px,1fr))!important;max-width:min(94vw,680px)!important;}
+.trashBoardBar{
+  position:absolute;left:50%;top:82px;transform:translateX(-50%);z-index:950;
+  display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;
+  background:rgba(15,23,42,.86);color:white;border-radius:999px;padding:9px 14px;
+  box-shadow:0 10px 24px rgba(0,0,0,.28);font-weight:900;backdrop-filter:blur(8px);
+}
+.trashBoardBar button{border:0;border-radius:999px;background:white;color:#111827;font-weight:900;padding:7px 12px;}
+.trashBoardEmptyNote{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;
+  color:rgba(255,255,255,.82);background:rgba(15,23,42,.38);border:1px solid rgba(255,255,255,.18);
+  border-radius:22px;padding:22px 28px;text-align:center;font-weight:900;font-size:clamp(20px,3vw,42px);
+  pointer-events:none;backdrop-filter:blur(4px);
+}
+@media(max-width:700px){.moreMenu{grid-template-columns:repeat(5,minmax(56px,1fr))!important;max-width:96vw!important}.moreMenu button{padding:8px 5px!important}.moreMenu button .txt{font-size:10px!important}.trashBoardBar{top:78px;max-width:92vw;border-radius:18px}}
+/* SAFE14: trash board is a separate dark workspace; normal tools hidden there */
+.app.trashBoardActive{
+  background:
+    radial-gradient(circle at 18% 16%, rgba(148,163,184,.24), transparent 25%),
+    radial-gradient(circle at 82% 80%, rgba(71,85,105,.42), transparent 32%),
+    linear-gradient(135deg,#020617 0%,#111827 48%,#0f172a 100%)!important;
+  background-image:
+    radial-gradient(circle at 18% 16%, rgba(148,163,184,.24), transparent 25%),
+    radial-gradient(circle at 82% 80%, rgba(71,85,105,.42), transparent 32%),
+    linear-gradient(135deg,#020617 0%,#111827 48%,#0f172a 100%)!important;
+  background-size:cover!important;
+  background-position:center!important;
+}
+.app.trashBoardActive .topbar,
+.app.trashBoardActive .toolbar,
+.app.trashBoardActive .toolbarPeek,
+.app.trashBoardActive .toolbarPinFloat,
+.app.trashBoardActive #toolbarFallback,
+body.trashBoardActive .topbar,
+body.trashBoardActive .toolbar,
+body.trashBoardActive .toolbarPeek,
+body.trashBoardActive .toolbarPinFloat,
+body.trashBoardActive #toolbarFallback{
+  display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+.app.trashBoardActive .title{
+  background:rgba(15,23,42,.88)!important;
+  border-color:rgba(203,213,225,.42)!important;
+  box-shadow:0 0 0 3px rgba(148,163,184,.20),0 14px 36px rgba(0,0,0,.38)!important;
+}
+.app.trashBoardActive .trashBoardBar{
+  background:rgba(15,23,42,.94)!important;
+  border:1px solid rgba(255,255,255,.14);
+}
+.trashBoardBar .danger{background:#7f1d1d!important;color:white!important;}
+.trashBoardBar button:disabled{opacity:.45;filter:grayscale(.6);}
+.trashBoardEmptyNote{color:white!important;background:rgba(148,163,184,.22)!important;border:1px solid rgba(255,255,255,.14);}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 
@@ -6858,7 +6914,6 @@ body.focus-presentation .content.kahoopardy .kahoopardyEditHelp{
     <div class="tool"><button data-tool="poll">😊</button><span>afstem</span></div>
     <div class="tool"><button data-tool="focus" title="Fokus-mode">🎯</button><span>fokus</span></div>
     <div class="tool pinTool"><button data-tool="pin" title="Værktøjslinje">📌</button><span>skjul</span></div>
-    <div class="tool"><button data-tool="help">?</button><span>hjælp</span></div>
     <div class="tool"><button data-tool="more">⋯</button><span>mere</span></div>
     <div class="tool"><button data-tool="save">💾</button><span>backup</span></div>
   </div>
@@ -6940,14 +6995,14 @@ body.focus-presentation .content.kahoopardy .kahoopardyEditHelp{
         r: {label:'Skift redigering/præsentation', run:()=>togglePresentationFromShortcut()},
         f: {label:'Fokus på valgt widget', run:api=>api.toggleFocusShortcut&&api.toggleFocusShortcut()},
         n: {label:'Ny tavle', run:api=>api.newSlideShortcut&&api.newSlideShortcut()},
-        t: {label:'Værktøjslinje til/fra', run:api=>{
-          if(api.toggleToolbarShortcut) api.toggleToolbarShortcut();
-          else {
-            const hidden=document.body.classList.contains('toolbar-is-hidden') || appEl.classList.contains('toolbarHidden');
-            document.body.classList.toggle('toolbar-is-hidden', !hidden);
-            appEl.classList.toggle('toolbarHidden', !hidden);
-            try{ if(window.UIState) window.UIState.toolbarVisible = hidden; }catch(_e){}
-          }
+        t: {label:'Åbn papirkurv', run:()=>{
+          if(typeof window.openTrashBoard==='function') window.openTrashBoard();
+        }},
+        ' ': {label:'Åbn Mere-menu', run:()=>{
+          try{
+            const hasSelection=!!(window.UIState && window.UIState.selectedWidgetId);
+            if(!hasSelection && typeof window.showMoreTools==='function') window.showMoreTools();
+          }catch(_e){}
         }}
       },
       shift: {
@@ -8169,7 +8224,7 @@ window.fitWidgetToViewport=fitWidgetToViewport;
 window.rescueWidgetsToViewport=rescueWidgetsToViewport;
 window.rescueSelectedWidgetToViewport=rescueSelectedWidgetToViewport;
 
-function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
+function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
 function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll'||type==='kahoopardy')?860:(type==='dataset'?390:(type==='text'?420:520)),h:type==='wheel'?560:(type==='kahoopardy'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='timer'?260: type==='link'?230:320)))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',kahoopardy:'Kahoopardy',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
 
@@ -9143,11 +9198,13 @@ function showMoreTools(){
     ['image','🖼️','billede'],
     ['link','🔗','link'],
     ['pdf','PDF','pdf'],
-    ['bg','🎨','baggrund'],
     ['html','&lt;/&gt;','html'],
+    ['bg','🎨','baggrund'],
     ['timer','⌛','timer'],
     ['clock','🕒','ur'],
-    ['backup','💾','backup']
+    ['backup','💾','backup'],
+    ['help','?','hjælp'],
+    ['trash','🗑','papirkurv']
   ];
   menu.innerHTML=tools.map(t=>`<button data-more-tool="${t[0]}"><span class="ico">${t[1]}</span><span class="txt">${t[2]}</span></button>`).join('');
   document.body.appendChild(bd);
@@ -9162,6 +9219,7 @@ function showMoreTools(){
     };
   });
 }
+window.showMoreTools=showMoreTools;
 
 
 
@@ -9252,6 +9310,7 @@ function updateGridOverlay(){
 
 function handleTool(t){
   if(t==='help'){showQuickHelp();return}
+  if(t==='trash'){openTrashBoard();return}
 
   if(t==='draw'){setDrawActive(!app.classList.contains('drawActive'));return}
   if(t==='focus'){toggleFocusMode();return}
@@ -11525,6 +11584,317 @@ function createThemedSlide(){
   }
   return s;
 }
+
+function isTrashBoard(s){
+  return !!(s && (s.isTrashBoard===true || s.title==='🗑 Papirkurv'));
+}
+function createTrashBoard(){
+  return {
+    title:'🗑 Papirkurv',
+    isTrashBoard:true,
+    bg:'radial-gradient(circle at 20% 15%, rgba(148,163,184,.34), transparent 28%), radial-gradient(circle at 85% 82%, rgba(30,41,59,.85), transparent 36%), linear-gradient(135deg,#020617,#111827 48%,#334155)',
+    bgImage:'',
+    bgImageSource:'trash',
+    bgImageTitle:'Papirkurv',
+    bgImageName:'',
+    bgImageVersion:'Special',
+    bgFit:'cover',
+    bgFilter:'none',
+    grid:false,
+    draw:'',
+    widgets:[]
+  };
+}
+function ensureTrashBoard(){
+  if(!state || !Array.isArray(state.slides))return -1;
+  let idx=state.slides.findIndex(isTrashBoard);
+  if(idx<0){
+    state.slides.push(createTrashBoard());
+    idx=state.slides.length-1;
+  }else{
+    const s=state.slides[idx];
+    s.isTrashBoard=true;
+    s.title='🗑 Papirkurv';
+    s.bg='radial-gradient(circle at 20% 15%, rgba(148,163,184,.34), transparent 28%), radial-gradient(circle at 85% 82%, rgba(30,41,59,.85), transparent 36%), linear-gradient(135deg,#020617,#111827 48%,#334155)';
+    s.bgImage='';
+    s.bgImageSource='trash';
+    s.bgImageTitle='Papirkurv';
+    s.bgFit='cover';
+    s.bgFilter='none';
+    if(!Array.isArray(s.widgets))s.widgets=[];
+  }
+  return idx;
+}
+function openTrashBoard(){
+  const idx=ensureTrashBoard();
+  if(idx<0)return false;
+  if(!isTrashBoard(slide())) state.trashReturnIndex=state.active;
+  state.active=idx;
+  selected=null;
+  if(window.UIState) UIState.selectedWidgetId=null;
+  render();
+  save({silent:true});
+  try{toast('Papirkurv')}catch(_e){}
+  return true;
+}
+window.openTrashBoard=openTrashBoard;
+function returnFromTrashBoard(){
+  let idx=Number(state && state.trashReturnIndex);
+  if(!Number.isInteger(idx) || idx<0 || idx>=state.slides.length || isTrashBoard(state.slides[idx])){
+    idx=state.slides.findIndex(s=>!isTrashBoard(s));
+    if(idx<0)idx=0;
+  }
+  state.active=idx;
+  selected=null;
+  if(window.UIState) UIState.selectedWidgetId=null;
+  render();
+  save({silent:true});
+}
+function updateTrashBoardUI(){
+  document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());
+  const s=slide();
+  const on=isTrashBoard(s);
+  app.classList.toggle('trashBoardActive',on);
+  document.body.classList.toggle('trashBoardActive',on);
+  if(!on)return;
+  const count=(s.widgets&&s.widgets.length)||0;
+  const bar=document.createElement('div');
+  bar.className='trashBoardBar';
+  bar.innerHTML='<button type="button" id="trashBackBtn">← Tilbage</button><span>🗑 Papirkurv</span><small>'+(count?count+' slettede widget(s)':'tom')+'</small><button type="button" id="trashRestoreBtn" '+(count?'':'disabled')+'>Gendan valgt</button><button type="button" id="trashPermanentBtn" class="danger" '+(count?'':'disabled')+'>Slet valgt permanent</button>';
+  app.appendChild(bar);
+  const back=bar.querySelector('#trashBackBtn');
+  if(back)back.onclick=function(e){e.preventDefault();e.stopPropagation();returnFromTrashBoard();};
+  const restore=bar.querySelector('#trashRestoreBtn');
+  if(restore)restore.onclick=function(e){e.preventDefault();e.stopPropagation();restoreSelectedOrLatestFromTrash();};
+  const del=bar.querySelector('#trashPermanentBtn');
+  if(del)del.onclick=function(e){e.preventDefault();e.stopPropagation();permanentlyDeleteSelectedTrashWidget();};
+  if(!count){
+    const note=document.createElement('div');
+    note.className='trashBoardEmptyNote';
+    note.textContent='🗑 Papirkurven er tom';
+    app.appendChild(note);
+  }
+  setTimeout(decorateTrashBoardWidgets,0);
+}
+
+function trashOverviewLayout(sl){
+  const ws=(sl&&sl.widgets)||[];
+  const pad=110, gap=24;
+  const cols=Math.max(1,Math.floor((innerWidth-pad*2)/(320+gap)));
+  ws.slice().sort((a,b)=>Number(b._trashDeletedAt||0)-Number(a._trashDeletedAt||0)).forEach((w,i)=>{
+    const col=i%cols, row=Math.floor(i/cols);
+    w.x=pad+col*(320+gap);
+    w.y=150+row*(230+gap);
+    w.w=Math.min(Number(w.w)||320,360);
+    w.h=Math.min(Number(w.h)||220,260);
+    w.z=i+1;
+    w.rotation=0;
+  });
+}
+function trashWidgetToBoard(id){
+  if(!id || isTrashBoard(slide()))return false;
+  const src=slide();
+  if(!src||!Array.isArray(src.widgets))return false;
+  const i=src.widgets.findIndex(w=>String(w.id)===String(id));
+  if(i<0){try{toast('Vælg en widget først')}catch(_e){};return false;}
+  const trashIdx=ensureTrashBoard();
+  const trash=state.slides[trashIdx];
+  const w=src.widgets.splice(i,1)[0];
+  w._trashOriginSlideIndex=state.active;
+  w._trashOriginTitle=src.title||'Tavle';
+  w._trashOriginalX=w.x; w._trashOriginalY=w.y; w._trashOriginalW=w.w; w._trashOriginalH=w.h;
+  w._trashOriginalZ=w.z; w._trashOriginalRotation=w.rotation||0;
+  w._trashDeletedAt=Date.now();
+  trash.widgets=trash.widgets||[];
+  trash.widgets.push(w);
+  trashOverviewLayout(trash);
+  if(String(selected)===String(id)){selected=null; if(window.UIState)UIState.selectedWidgetId=null;}
+  render();
+  save({silent:true});
+  try{toast('Widget flyttet til papirkurv')}catch(_e){}
+  return true;
+}
+function selectedTrashWidgetIndex(){
+  const s=slide();
+  if(!isTrashBoard(s)||!Array.isArray(s.widgets)||!s.widgets.length)return -1;
+  let idx=s.widgets.findIndex(w=>String(w.id)===String(selected));
+  if(idx<0){
+    let latest=-Infinity;
+    s.widgets.forEach((w,i)=>{const t=Number(w._trashDeletedAt||0); if(t>latest){latest=t;idx=i;}});
+  }
+  return idx;
+}
+function restoreTrashWidgetAt(idx){
+  const trash=slide();
+  if(!isTrashBoard(trash)||idx<0||!trash.widgets||!trash.widgets[idx]){try{toast('Papirkurven er tom')}catch(_e){};return false;}
+  const w=trash.widgets.splice(idx,1)[0];
+  let target=Number(w._trashOriginSlideIndex);
+  if(!Number.isInteger(target)||target<0||target>=state.slides.length||isTrashBoard(state.slides[target])){
+    target=state.slides.findIndex(sl=>!isTrashBoard(sl));
+    if(target<0){state.slides.unshift(classicHdSlide()); target=0;}
+  }
+  w.x=Number(w._trashOriginalX)||140; w.y=Number(w._trashOriginalY)||130;
+  w.w=Number(w._trashOriginalW)||w.w||360; w.h=Number(w._trashOriginalH)||w.h||240;
+  w.rotation=Number(w._trashOriginalRotation)||0; w.z=++z;
+  delete w._trashOriginSlideIndex; delete w._trashOriginTitle; delete w._trashOriginalX; delete w._trashOriginalY; delete w._trashOriginalW; delete w._trashOriginalH; delete w._trashOriginalZ; delete w._trashOriginalRotation; delete w._trashDeletedAt;
+  state.slides[target].widgets=state.slides[target].widgets||[];
+  state.slides[target].widgets.push(w);
+  state.active=target;
+  selected=w.id; if(window.UIState)UIState.selectedWidgetId=w.id;
+  render(); select(w.id,{editText:false}); save({silent:true});
+  try{toast('Widget gendannet')}catch(_e){}
+  return true;
+}
+function restoreSelectedOrLatestFromTrash(){ return restoreTrashWidgetAt(selectedTrashWidgetIndex()); }
+function restoreLatestTrashWidget(){
+  const ti=ensureTrashBoard();
+  const oldActive=state.active;
+  state.active=ti;
+  const ok=restoreSelectedOrLatestFromTrash();
+  if(!ok){state.active=oldActive; render();}
+  return ok;
+}
+function permanentlyDeleteSelectedTrashWidget(){
+  const s=slide();
+  const idx=selectedTrashWidgetIndex();
+  if(!isTrashBoard(s)||idx<0){try{toast('Vælg en widget i papirkurven')}catch(_e){};return false;}
+  const w=s.widgets.splice(idx,1)[0];
+  if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
+  trashOverviewLayout(s); render(); save({silent:true});
+  try{toast('Widget slettet permanent')}catch(_e){}
+  return true;
+}
+
+function permanentlyDeleteTrashWidgetById(id){
+  const s=slide();
+  if(!isTrashBoard(s)||!Array.isArray(s.widgets))return false;
+  const idx=s.widgets.findIndex(w=>String(w.id)===String(id));
+  if(idx<0)return false;
+  selected=id; if(window.UIState)UIState.selectedWidgetId=id;
+  return permanentlyDeleteSelectedTrashWidget();
+}
+function permanentlyDeleteNormalWidgetById(id){
+  const s=slide();
+  if(!s||!Array.isArray(s.widgets)||isTrashBoard(s))return false;
+  const idx=s.widgets.findIndex(w=>String(w.id)===String(id));
+  if(idx<0){try{toast('Vælg en widget først')}catch(_e){};return false;}
+  const w=s.widgets.splice(idx,1)[0];
+  try{ if(window.__tavleCleanupWidget) window.__tavleCleanupWidget(w.id); }catch(_e){}
+  if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
+  render(); save({silent:true});
+  try{toast('Widget slettet permanent')}catch(_e){}
+  return true;
+}
+function decorateTrashBoardWidgets(){
+  try{
+    if(!isTrashBoard(slide()))return;
+    document.querySelectorAll('.widget[data-id]').forEach(el=>{
+      if(el.querySelector('.trashPermanentX'))return;
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='trashPermanentX';
+      b.title='Slet permanent';
+      b.textContent='×';
+      b.addEventListener('click',function(e){
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        permanentlyDeleteTrashWidgetById(el.dataset.id);
+        return false;
+      },true);
+      el.appendChild(b);
+    });
+  }catch(_e){}
+}
+window.__trashBoardDelete=trashWidgetToBoard;
+window.__tavleDeleteWidgetToTrash=trashWidgetToBoard;
+window.__trashBoardPermanentById=permanentlyDeleteTrashWidgetById;
+window.__trashBoardPermanentSelected=permanentlyDeleteSelectedTrashWidget;
+window.__tavlePermanentDeleteWidget=permanentlyDeleteNormalWidgetById;
+window.__trashBoardRestoreLatest=restoreLatestTrashWidget;
+window.openTrashView=openTrashBoard;
+window.__tavleOpenTrashBoard=openTrashBoard;
+
+
+
+/* SAFE15 internal trash-board bridge: expose board functions and bind shortcuts inside app scope */
+function restoreTrashWidgetById(id){
+  const s=slide();
+  if(!isTrashBoard(s)||!Array.isArray(s.widgets))return false;
+  const idx=s.widgets.findIndex(w=>String(w.id)===String(id));
+  if(idx<0)return false;
+  return restoreTrashWidgetAt(idx);
+}
+function currentSelectedWidgetId(){
+  if(selected)return selected;
+  try{const el=document.querySelector('.widget.selected[data-id]'); if(el)return el.dataset.id;}catch(_e){}
+  return null;
+}
+function trashTypingTarget(e){
+  const t=e&&e.target;
+  if(t && (t.matches&&t.matches('input,textarea,select,[contenteditable="true"]') || t.isContentEditable))return true;
+  const a=document.activeElement;
+  return !!(a && (a.matches&&a.matches('input,textarea,select,[contenteditable="true"]') || a.isContentEditable));
+}
+window.__tavleReturnFromTrashBoard=returnFromTrashBoard;
+window.__trashBoardRestoreById=restoreTrashWidgetById;
+window.__trashBoardIsActive=function(){try{return isTrashBoard(slide());}catch(_e){return false;}};
+window.__trashBoardSelectedId=currentSelectedWidgetId;
+try{
+  if(window.tavleShortcutAPI){
+    window.tavleShortcutAPI.deleteSelectedWidgetShortcut=function(){
+      const id=currentSelectedWidgetId();
+      if(!id){try{toast('Vælg en widget først')}catch(_e){};return;}
+      if(isTrashBoard(slide())){ restoreTrashWidgetById(id); return; }
+      trashWidgetToBoard(id);
+    };
+    window.tavleShortcutAPI.openTrashBoardShortcut=function(){openTrashBoard();};
+    window.tavleShortcutAPI.returnFromTrashBoardShortcut=function(){returnFromTrashBoard();};
+  }
+}catch(_e){}
+document.addEventListener('keydown',function(e){
+  if(trashTypingTarget(e))return;
+  const key=String(e.key||'');
+  const lower=key.toLowerCase();
+  const plain=!e.metaKey&&!e.ctrlKey&&!e.altKey&&!e.shiftKey;
+  const onTrash=isTrashBoard(slide());
+  if(onTrash){
+    if(plain && (lower==='t' || key==='Escape' || e.code==='Space' || key===' ')){
+      e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      returnFromTrashBoard();
+      return false;
+    }
+    if(plain && key==='Enter'){
+      const id=currentSelectedWidgetId();
+      if(id){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); restoreTrashWidgetById(id); return false;}
+    }
+    return;
+  }
+  if(plain && lower==='t'){
+    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    openTrashBoard();
+    return false;
+  }
+  if(plain && (e.code==='Space'||key===' ')){
+    const id=currentSelectedWidgetId();
+    if(!id){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); showMoreTools(); return false;}
+  }
+  if(plain && (key==='Delete'||key==='Backspace')){
+    const id=currentSelectedWidgetId();
+    if(id){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); trashWidgetToBoard(id); return false;}
+  }
+  if((e.metaKey||e.ctrlKey)&&!e.altKey&&!e.shiftKey&&lower==='z'){
+    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); restoreLatestTrashWidget(); return false;
+  }
+},true);
+document.addEventListener('click',function(e){
+  const onTrash=isTrashBoard(slide());
+  const wEl=e.target&&e.target.closest&&e.target.closest('.widget[data-id]');
+  if(onTrash && wEl && !(e.target&&e.target.closest&&e.target.closest('.trashPermanentX,[data-act="del"],.chrome,.resize,.rotater'))){
+    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    restoreTrashWidgetById(wEl.dataset.id);
+    return false;
+  }
+},true);
+
 function focusSlideTitleForRename(){
   setTimeout(()=>{
     try{
@@ -16845,4 +17215,195 @@ document.addEventListener('click',function(e){
 }
 </style>
 
+
+
+
+
+
+
+<style id="maans-trash-board-safe16-css">
+/* SAFE16: papirkurven er et kompakt overview, ikke en almindelig redigeringstavle */
+.app.trashBoardActive .trashBoardBar{
+  top:46px!important;
+  padding:6px 10px!important;
+  gap:7px!important;
+  max-width:min(86vw,560px)!important;
+  border-radius:999px!important;
+  font-size:14px!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.34)!important;
+}
+.app.trashBoardActive .trashBoardBar button{
+  padding:5px 9px!important;
+  font-size:13px!important;
+}
+.app.trashBoardActive .trashBoardBar small{font-size:12px!important;opacity:.86!important;}
+.app.trashBoardActive .trashBoardBar .danger{padding:5px 9px!important;}
+.app.trashBoardActive .widget .chrome,
+.app.trashBoardActive .widget .resize,
+.app.trashBoardActive .widget .rotater{
+  display:none!important;
+}
+.app.trashBoardActive .widget{
+  cursor:pointer!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.36)!important;
+  overflow:visible!important;
+}
+.app.trashBoardActive .widget.selected{
+  outline:4px solid rgba(255,255,255,.92)!important;
+  box-shadow:0 0 0 5px rgba(109,93,252,.65),0 18px 38px rgba(0,0,0,.46)!important;
+}
+.trashPermanentX{
+  position:absolute;
+  right:-13px;
+  top:-13px;
+  z-index:999;
+  width:34px;
+  height:34px;
+  border:0;
+  border-radius:999px;
+  background:#7f1d1d;
+  color:#fff;
+  font-weight:950;
+  font-size:19px;
+  line-height:1;
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+.trashPermanentX:active{transform:scale(.94)}
+@media(max-width:700px){
+  .app.trashBoardActive .trashBoardBar{top:44px!important;max-width:94vw!important;border-radius:16px!important;}
+}
+</style>
+
+<script id="maans-trash-board-phase2-safe16-overview-keys">
+(function(){
+  'use strict';
+  function isTyping(e){
+    var t=e&&e.target,a=document.activeElement;
+    function m(x){return !!(x&&(x.matches&&x.matches('input,textarea,select,[contenteditable="true"]')||x.isContentEditable||x.closest&&x.closest('input,textarea,select,[contenteditable="true"]')));}
+    return m(t)||m(a);
+  }
+  function trashActive(){try{return !!(window.__trashBoardIsActive&&window.__trashBoardIsActive())||document.body.classList.contains('trashBoardActive');}catch(_e){return false;}}
+  function selectedEl(){return document.querySelector('.widget.selected[data-id]')||document.querySelector('.widget[data-id]');}
+  function selectedId(){var el=document.querySelector('.widget.selected[data-id]'); if(el)return el.dataset.id; try{return window.__trashBoardSelectedId&&window.__trashBoardSelectedId();}catch(_e){} return null;}
+  function selectId(id){try{ if(typeof window.select==='function') window.select(id,{editText:false}); else {document.querySelectorAll('.widget').forEach(function(x){x.classList.toggle('selected',x.dataset.id===String(id));});} }catch(_e){}}
+  function openMore(){
+    try{ if(typeof window.showMoreTools==='function'){window.showMoreTools();return true;} }catch(_e){}
+    try{var b=document.querySelector('button[data-tool="more"]'); if(b){b.click();return true;}}catch(_e){}
+    return false;
+  }
+  function navTrash(dir){
+    var items=[].slice.call(document.querySelectorAll('.app.trashBoardActive .widget[data-id], body.trashBoardActive .widget[data-id]'));
+    if(!items.length)return false;
+    var cur=document.querySelector('.widget.selected[data-id]')||items[0];
+    if(!document.querySelector('.widget.selected[data-id]')){selectId(cur.dataset.id);return true;}
+    var cr=cur.getBoundingClientRect(), cx=cr.left+cr.width/2, cy=cr.top+cr.height/2;
+    var best=null,bestScore=Infinity;
+    items.forEach(function(el){
+      if(el===cur)return;
+      var r=el.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+r.height/2, dx=x-cx, dy=y-cy;
+      var ok=false, score=Infinity;
+      if(dir==='right'&&dx>8){ok=true;score=dx*3+Math.abs(dy);}
+      if(dir==='left'&&dx<-8){ok=true;score=(-dx)*3+Math.abs(dy);}
+      if(dir==='down'&&dy>8){ok=true;score=dy*3+Math.abs(dx);}
+      if(dir==='up'&&dy<-8){ok=true;score=(-dy)*3+Math.abs(dx);}
+      if(ok&&score<bestScore){bestScore=score;best=el;}
+    });
+    if(best){selectId(best.dataset.id);return true;}
+    return false;
+  }
+  document.addEventListener('click',function(e){
+    if(!trashActive())return;
+    var x=e.target&&e.target.closest&&e.target.closest('.trashPermanentX,[data-act="del"]');
+    if(x){
+      var w=x.closest('.widget[data-id]');
+      if(w&&window.__trashBoardPermanentById){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.__trashBoardPermanentById(w.dataset.id);return false;}
+    }
+  },true);
+  document.addEventListener('keydown',function(e){
+    if(isTyping(e))return;
+    var key=String(e.key||''), lower=key.toLowerCase();
+    var plain=!e.metaKey&&!e.ctrlKey&&!e.altKey&&!e.shiftKey;
+    if(trashActive()){
+      if(plain&&(key==='Delete'||key==='Backspace')){
+        var id=selectedId();
+        if(id&&window.__trashBoardPermanentById){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.__trashBoardPermanentById(id);return false;}
+      }
+      if(plain&&['ArrowRight','ArrowLeft','ArrowUp','ArrowDown'].includes(key)){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        navTrash(key.replace('Arrow','').toLowerCase()); return false;
+      }
+      return;
+    }
+    if((key==='Delete'||key==='Backspace')&&e.shiftKey&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
+      var sid=selectedId();
+      if(sid&&window.__tavlePermanentDeleteWidget){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.__tavlePermanentDeleteWidget(sid);return false;}
+    }
+    if(plain&&(e.code==='Space'||key===' ')){
+      if(!document.querySelector('.widget.selected[data-id]')){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();openMore();return false;}
+    }
+  },true);
+})();
+</script>
+
+<script id="maans-trash-board-phase2-safe15-final-guard">
+(function(){
+  'use strict';
+  function typingTarget(e){
+    var t=e&&e.target,a=document.activeElement;
+    function is(x){return !!(x&&(x.matches&&x.matches('input,textarea,select,[contenteditable="true"]')||x.isContentEditable||x.closest&&x.closest('input,textarea,select,[contenteditable="true"]')));}
+    return is(t)||is(a);
+  }
+  function trashActive(){try{return !!(window.__trashBoardIsActive&&window.__trashBoardIsActive()) || document.body.classList.contains('trashBoardActive');}catch(_e){return false;}}
+  function selectedId(){try{var el=document.querySelector('.widget.selected[data-id]'); if(el)return el.dataset.id;}catch(_e){} try{return window.__trashBoardSelectedId&&window.__trashBoardSelectedId();}catch(_e){} return null;}
+  function rebind(){
+    try{ if(window.__trashBoardDelete) window.__tavleDeleteWidgetToTrash=window.__trashBoardDelete; }catch(_e){}
+    try{ if(window.__tavleOpenTrashBoard){ window.openTrashView=window.__tavleOpenTrashBoard; window.openTrashBoard=window.__tavleOpenTrashBoard; } }catch(_e){}
+    try{ if(window.tavleShortcutAPI&&window.__trashBoardDelete){ window.tavleShortcutAPI.deleteSelectedWidgetShortcut=function(){var id=selectedId(); if(id)window.__trashBoardDelete(id); else if(typeof toast==='function')toast('Vælg en widget først');}; } }catch(_e){}
+  }
+  rebind(); setTimeout(rebind,0); setTimeout(rebind,200); setTimeout(rebind,1000);
+  document.addEventListener('click',function(e){
+    var trashBtn=e.target&&e.target.closest&&e.target.closest('[data-more-tool="trash"]');
+    if(trashBtn){
+      e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      document.querySelector('.moreMenuBackdrop')?.remove(); document.querySelector('.moreMenu')?.remove();
+      rebind(); if(window.__tavleOpenTrashBoard)window.__tavleOpenTrashBoard(); return false;
+    }
+    var del=e.target&&e.target.closest&&e.target.closest('[data-act="del"]');
+    if(del && !trashActive()){
+      var w=del.closest('.widget[data-id]');
+      if(w&&window.__trashBoardDelete){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); rebind(); window.__trashBoardDelete(w.dataset.id); return false;}
+    }
+    if(trashActive()){
+      var tw=e.target&&e.target.closest&&e.target.closest('.widget[data-id]');
+      if(tw&&!(e.target&&e.target.closest&&e.target.closest('.trashPermanentX,[data-act="del"],.chrome,.resize,.rotater'))&&window.__trashBoardRestoreById){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); window.__trashBoardRestoreById(tw.dataset.id); return false;}
+    }
+  },true);
+  document.addEventListener('keydown',function(e){
+    if(typingTarget(e))return;
+    var key=String(e.key||''), lower=key.toLowerCase(), plain=!e.metaKey&&!e.ctrlKey&&!e.altKey&&!e.shiftKey;
+    if(trashActive()){
+      if(plain&&(lower==='t'||key==='Escape'||e.code==='Space'||key===' ')){
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        if(window.__tavleReturnFromTrashBoard)window.__tavleReturnFromTrashBoard(); return false;
+      }
+      if(plain&&key==='Enter'){
+        var rid=selectedId(); if(rid&&window.__trashBoardRestoreById){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); window.__trashBoardRestoreById(rid); return false;}
+      }
+      return;
+    }
+    if(plain&&lower==='t'){
+      e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); rebind(); if(window.__tavleOpenTrashBoard)window.__tavleOpenTrashBoard(); return false;
+    }
+    if(plain&&(e.code==='Space'||key===' ')){
+      if(!selectedId()&&typeof window.showMoreTools==='function'){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); window.showMoreTools(); return false;}
+    }
+    if(plain&&(key==='Delete'||key==='Backspace')){
+      var id=selectedId(); if(id&&window.__trashBoardDelete){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); rebind(); window.__trashBoardDelete(id); return false;}
+    }
+    if((e.metaKey||e.ctrlKey)&&!e.altKey&&!e.shiftKey&&lower==='z'){
+      if(window.__trashBoardRestoreLatest){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); window.__trashBoardRestoreLatest(); return false;}
+    }
+  },true);
+})();
+</script>
 </body></html>
