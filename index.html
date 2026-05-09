@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE16-trash-board-permanent-overview | based on working SAFE15 -->
+<!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE18-hidden-trash-board | based on working SAFE17 -->
 <!-- Måns patch version: v1.2.45-kahoopardy-phase1.38-SAFE | rollback from v37 + help text synced with shortcuts -->
 <!-- Måns patch version: v1.2.45-kahoopardy-phase1.35-SAFE | robust local info overlay -->
 <!-- previous: v1.2.45-mM-24 | compact wheel statistics overview without shrinking the wheel -->
@@ -8135,7 +8135,7 @@ window.addEventListener('resize',resizeCanvas);
 function updateSlidesOverviewVisibility(){
   const btn=document.getElementById('slidesOverview');
   if(!btn) return;
-  const hide = !state || !state.slides || state.slides.length <= 1;
+  const hide = !state || !state.slides || nonTrashSlideCount() <= 1;
   btn.hidden = hide;
   btn.style.display = hide ? 'none' : '';
   btn.classList.toggle('onlyMultiHidden', hide);
@@ -8224,7 +8224,7 @@ window.fitWidgetToViewport=fitWidgetToViewport;
 window.rescueWidgetsToViewport=rescueWidgetsToViewport;
 window.rescueSelectedWidgetToViewport=rescueSelectedWidgetToViewport;
 
-function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
+function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();normalizeTrashBoardPosition();document.getElementById('slideInfo').textContent=visibleSlideNumberForIndex(state.active)+'/'+nonTrashSlideCount();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
 function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll'||type==='kahoopardy')?860:(type==='dataset'?390:(type==='text'?420:520)),h:type==='wheel'?560:(type==='kahoopardy'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='timer'?260: type==='link'?230:320)))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',kahoopardy:'Kahoopardy',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
 
@@ -9355,7 +9355,9 @@ body.focus-presentation .widget:not(.focused){
 .kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
 @media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
 
-</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p></body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
+</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p>
+<!-- SAFE17: help text synced with trash-board shortcuts. No KahooPardy/render changes. -->
+</body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   if(t==='html')addWidget('html',{html:`<!doctype html><html><head><meta charset="utf-8"><title>Ny HTML-widget</title><style>body{font-family:sans-serif;padding:2rem;line-height:1.5}h1{color:#4f46e5}
 
 /* v_focus_zfix: focused widget must stay above all others */
@@ -11814,6 +11816,56 @@ window.openTrashView=openTrashBoard;
 window.__tavleOpenTrashBoard=openTrashBoard;
 
 
+/* SAFE18: Papirkurven er en intern tavle, men skjules fra almindelig tavlenavigation/oversigt */
+function nonTrashSlideIndices(){
+  if(!state || !Array.isArray(state.slides))return [];
+  return state.slides.map((s,i)=>isTrashBoard(s)?-1:i).filter(i=>i>=0);
+}
+function nonTrashSlideCount(){ return nonTrashSlideIndices().length || 1; }
+function visibleSlideNumberForIndex(idx){
+  const list=nonTrashSlideIndices();
+  const pos=list.indexOf(idx);
+  return pos>=0 ? pos+1 : Math.max(1,list.length);
+}
+function firstNonTrashSlideIndex(){
+  const list=nonTrashSlideIndices();
+  return list.length?list[0]:0;
+}
+function insertNormalSlideBeforeTrash(newSlide){
+  if(!state || !Array.isArray(state.slides))return -1;
+  const trashIdx=state.slides.findIndex(isTrashBoard);
+  if(trashIdx>=0){
+    state.slides.splice(trashIdx,0,newSlide);
+    return trashIdx;
+  }
+  state.slides.push(newSlide);
+  return state.slides.length-1;
+}
+function normalizeTrashBoardPosition(){
+  try{
+    if(!state || !Array.isArray(state.slides))return;
+    const idx=state.slides.findIndex(isTrashBoard);
+    if(idx>=0 && idx!==state.slides.length-1){
+      const wasActive=state.active;
+      const trash=state.slides.splice(idx,1)[0];
+      state.slides.push(trash);
+      if(wasActive===idx)state.active=state.slides.length-1;
+      else if(wasActive>idx)state.active=wasActive-1;
+    }
+  }catch(_e){}
+}
+function goToNonTrashSlideByVisibleIndex(visibleIndex){
+  const list=nonTrashSlideIndices();
+  if(!list.length)return false;
+  const idx=list[Math.max(0,Math.min(list.length-1,visibleIndex))];
+  state.active=idx;
+  selected=null; if(window.UIState)UIState.selectedWidgetId=null;
+  render();
+  try{toast('Tavle '+visibleSlideNumberForIndex(state.active))}catch(_e){}
+  return true;
+}
+
+
 
 /* SAFE15 internal trash-board bridge: expose board functions and bind shortcuts inside app scope */
 function restoreTrashWidgetById(id){
@@ -11962,18 +12014,18 @@ function copyWidgetToSlide(widgetId,targetIndex,sourceIndex=state.active){
   return true;
 }
 function newSlideForWidget(widgetId,action='move',sourceIndex=state.active){
-  state.slides.push(createThemedSlide());
-  const idx=state.slides.length-1;
+  const idx=insertNormalSlideBeforeTrash(createThemedSlide());
   return action==='copy' ? copyWidgetToSlide(widgetId,idx,sourceIndex) : moveWidgetToSlide(widgetId,idx,sourceIndex);
 }
 function widgetMoveModal(w){
   const sourceIndex=state.active;
   const sourceTitle=safeSlideTitle(state.slides[sourceIndex],sourceIndex);
   const widgetTitle=esc(w.title||titles[w.type]||'Widget');
-  let rows=state.slides.map((s,i)=>{
+  let rows=nonTrashSlideIndices().map((i)=>{
+    const s=state.slides[i];
     const isCurrent=i===sourceIndex;
     return `<div class="slideMoveRow">
-      <b>${i+1}. ${esc(safeSlideTitle(s,i))}${isCurrent?' (nu)':''}</b>
+      <b>${visibleSlideNumberForIndex(i)}. ${esc(safeSlideTitle(s,i))}${isCurrent?' (nu)':''}</b>
       <div class="actions">
         <button data-action="move" data-target="${i}" ${isCurrent?'disabled title="Widgetten er allerede på denne tavle"':''}>Flyt</button>
         <button data-action="copy" data-target="${i}">Kopiér</button>
@@ -13258,13 +13310,32 @@ function showQuickHelp(){
       <summary>Det vigtigste live-flow</summary>
       <div class="answer">
         <ul>
-          <li><b>↑/↓</b> vælger widgets på tavlen.</li>
+          <li><b>↑/↓</b> vælger widgets på den almindelige tavle. Den valgte widget lægges automatisk forrest.</li>
           <li><b>Mellemrum</b> aktiverer valgt hjul, grupper eller afstemning.</li>
+          <li><b>Mellemrum</b> åbner <b>Mere</b>, når ingen widget er valgt på en almindelig tavle.</li>
+          <li><b>T</b> åbner <b>🗑 Papirkurv</b>. I papirkurven lukker <b>T</b>, <b>ESC</b> og <b>Mellemrum</b> papirkurven igen.</li>
+          <li><b>Delete/Backspace</b> flytter valgt widget til papirkurven.</li>
+          <li><b>Shift+Delete/Shift+Backspace</b> sletter valgt widget permanent uden papirkurv.</li>
+          <li><b>Cmd/Ctrl+Z</b> gendanner senest slettede widget fra papirkurven.</li>
           <li><b>Hjul:</b> mellemrum drejer – eller stopper Auto, hvis Auto kører.</li>
-          <li><b>Grupper:</b> mellemrum kører “Dan grupper”.</li>
+          <li><b>Grupper:</b> mellemrum kører “Dan grupper”. Tast 1–9/0 låser eller åbner gruppe 1–10, når grupper-widgetten er valgt.</li>
           <li><b>Afstemning:</b> mellemrum skifter mellem afstemning og statistik/ordsky.</li>
-          <li><b>Grupper:</b> tast 1–9/0 for at låse eller åbne gruppe 1–10, når grupper-widgetten er valgt.</li>
-          <li>Den valgte widget lægges automatisk forrest.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Papirkurv</summary>
+      <div class="answer">
+        <ul>
+          <li><b>T</b> eller <b>Mere → Papirkurv</b> åbner papirkurv-tavlen.</li>
+          <li>Papirkurven er en rigtig tavle med mørk specialbaggrund og titlen <b>🗑 Papirkurv</b>.</li>
+          <li>Slettede widgets vises som rigtige widgets i et overview.</li>
+          <li><b>Klik</b> eller <b>Enter</b> på en widget i papirkurven gendanner den.</li>
+          <li><b>←/→/↑/↓</b> flytter valg mellem widgets i papirkurvens overview — de skifter ikke tavle dér.</li>
+          <li><b>X</b> på en widget i papirkurven sletter permanent.</li>
+          <li><b>Delete/Backspace</b> i papirkurven sletter valgt widget permanent.</li>
+          <li><b>Gendan valgt</b> gendanner valgt widget. <b>Slet valgt permanent</b> fjerner den helt.</li>
         </ul>
       </div>
     </details>
@@ -13274,7 +13345,7 @@ function showQuickHelp(){
       <div class="answer">
         <ul>
           <li><b>N</b> opretter en ny tavle.</li>
-          <li><b>←/→</b> skifter tavle.</li>
+          <li><b>←/→</b> skifter tavle på almindelige tavler.</li>
           <li><b>Ctrl/Cmd + ←/→</b> flytter valgt widget til forrige/næste tavle.</li>
           <li>Hvis ingen widget er valgt, flytter <b>Ctrl/Cmd + ←/→</b> den aktive tavle i rækkefølgen.</li>
           <li>Flytter du en widget mod højre forbi sidste tavle, oprettes en ny tavle automatisk.</li>
@@ -13293,12 +13364,18 @@ function showQuickHelp(){
           <li><b>F</b> fokus på valgt widget</li>
           <li><b>Shift+F</b> maksimer valgt/fokuseret widget</li>
           <li><b>N</b> ny tavle</li>
-          <li><b>T</b> værktøjslinje til/fra</li>
+          <li><b>T</b> åbn/luk papirkurv</li>
           <li><b>Mellemrum</b> aktiver valgt hjul/grupper/afstemning</li>
+          <li><b>Mellemrum</b> åbner Mere, når ingen widget er valgt på almindelig tavle</li>
+          <li><b>Esc</b> lukker papirkurv/fokus/iframe-kontrol/PDF-kontrol</li>
+          <li><b>Delete/Backspace</b> flyt valgt widget til papirkurv</li>
+          <li><b>Shift+Delete/Shift+Backspace</b> slet valgt widget permanent uden papirkurv</li>
+          <li><b>Cmd/Ctrl+Z</b> gendan senest slettede widget fra papirkurv</li>
+          <li><b>I papirkurv:</b> klik/Enter gendanner valgt widget; Delete/Backspace sletter permanent; ←/→/↑/↓ vælger mellem widgets</li>
           <li><b>1–9/0</b> lås/åbn gruppe 1–10, når en grupper-widget er valgt</li>
-          <li><b>Slet widget:</b> brug widgettens X/🗑-knap. Delete/Backspace sletter ikke længere widgets.</li>
           <li><b>Ctrl/Cmd+D</b> dupliker valgt widget</li>
           <li><b>Ctrl/Cmd+S</b> backup/gem</li>
+          <li><b>Ctrl/Cmd+G</b> backup/gem</li>
           <li><b>Ctrl/Cmd+←/→</b> flyt valgt widget – eller flyt tavle, hvis ingen widget er valgt</li>
           <li><b>Shift+A</b> tekst</li>
           <li><b>Shift+V</b> video</li>
@@ -13312,11 +13389,13 @@ function showQuickHelp(){
           <li><b>Shift+L</b> link</li>
           <li><b>Shift+T</b> timer</li>
           <li><b>Shift+U</b> ur</li>
-          <li><b>Shift+B</b> baggrundsvælger</li><li><b>Træk og slip:</b> billeder, PDF, tekstfiler, links og YouTube-links kan slippes direkte på tavlen.</li><li><b>Cmd/Ctrl+B</b> vælg ny/random baggrund på aktiv tavle</li><li><b>I baggrundsvælger:</b> ←/→ flytter én baggrund, ↑/↓ flytter en række, 1–6 vælger filter, Space previewer og toggler semitransparent visning, Enter vælger/lukker, ESC annullerer.</li>
+          <li><b>Shift+B</b> baggrundsvælger</li>
           <li><b>Shift+G</b> grid</li>
-          <li><b>Cmd/Ctrl+G</b> backup/gem</li>
           <li><b>Shift+O</b> hints til/fra</li>
           <li><b>Shift+?</b> hjælp</li>
+          <li><b>Træk og slip:</b> billeder, PDF, tekstfiler, links og YouTube-links kan slippes direkte på tavlen.</li>
+          <li><b>Cmd/Ctrl+B</b> vælg ny/random baggrund på aktiv tavle</li>
+          <li><b>I baggrundsvælger:</b> ←/→ flytter én baggrund, ↑/↓ flytter en række, 1–6 vælger filter, Space previewer/toggler semitransparent visning, Enter vælger/lukker, ESC annullerer.</li>
         </ul>
       </div>
     </details>
@@ -13927,40 +14006,52 @@ function showSaveFileOptions(){
 
 function saveModal(){showSaveFileOptions();}
 function deleteSlideAt(i){
-  if(state.slides.length<=1){toast('Der skal være mindst én tavle');return}
+  if(!state || !Array.isArray(state.slides) || isTrashBoard(state.slides[i])){toast('Papirkurven kan ikke slettes');return}
+  if(nonTrashSlideCount()<=1){toast('Der skal være mindst én tavle');return}
   const name=safeSlideTitle(state.slides[i],i);
   if(!confirm('Slet tavlen "'+name+'"?'))return;
   state.slides.splice(i,1);
   if(state.active>=state.slides.length)state.active=state.slides.length-1;
   if(state.active>i)state.active--;
+  if(isTrashBoard(state.slides[state.active]))state.active=firstNonTrashSlideIndex();
   render(); save(); toast('Tavle slettet');
 }
 function slideOverviewModal(){
-  const rows=state.slides.map((s,i)=>`
-    <div class="slideOverviewRow ${i===state.active?'active':''}">
-      <div class="num">${i+1}</div>
-      <input data-title="${i}" value="${esc(safeSlideTitle(s,i))}" aria-label="Tavletitel ${i+1}">
+  const visible=nonTrashSlideIndices();
+  const rows=visible.map((realIndex,visibleIndex)=>{
+    const s=state.slides[realIndex];
+    return `
+    <div class="slideOverviewRow ${realIndex===state.active?'active':''}">
+      <div class="num">${visibleIndex+1}</div>
+      <input data-title="${realIndex}" value="${esc(safeSlideTitle(s,realIndex))}" aria-label="Tavletitel ${visibleIndex+1}">
       <div class="slideOverviewActions">
-        <button data-go="${i}">Gå til</button>
-        <button data-up="${i}" ${i===0?'disabled':''}>↑</button>
-        <button data-down="${i}" ${i===state.slides.length-1?'disabled':''}>↓</button>
-        <button class="danger" data-del="${i}" ${state.slides.length<=1?'disabled':''}>🗑 Slet</button>
+        <button data-go="${visibleIndex}">Gå til</button>
+        <button data-up-visible="${visibleIndex}" ${visibleIndex===0?'disabled':''}>↑</button>
+        <button data-down-visible="${visibleIndex}" ${visibleIndex===visible.length-1?'disabled':''}>↓</button>
+        <button class="danger" data-del="${realIndex}" ${visible.length<=1?'disabled':''}>🗑 Slet</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   showModal(`<h2>Tavleoversigt</h2>
-    <p>Her kan du omdøbe, flytte, gå til eller slette tavler.</p>
+    <p>Her kan du omdøbe, flytte, gå til eller slette almindelige tavler. Papirkurven er intern og vises ikke her.</p>
     <div class="slideOverview">${rows}</div>
     <button id="newSlideFromOverview">+ ny tavle</button>
     <button id="close">Luk</button>`);
   modal.querySelectorAll('[data-title]').forEach(inp=>{
-    inp.onchange=()=>{const i=+inp.dataset.title; state.slides[i].title=inp.value.trim()||('Tavle '+(i+1)); render(); slideOverviewModal(); save()};
+    inp.onchange=()=>{const i=+inp.dataset.title; if(isTrashBoard(state.slides[i]))return; state.slides[i].title=inp.value.trim()||('Tavle '+(visibleSlideNumberForIndex(i))); render(); slideOverviewModal(); save()};
     inp.onkeydown=e=>{if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();inp.blur()}};
   });
-  modal.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{state.active=+b.dataset.go;closeModal();render();save()});
-  modal.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{swapSlides(+b.dataset.up,+b.dataset.up-1);slideOverviewModal()});
-  modal.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>{swapSlides(+b.dataset.down,+b.dataset.down+1);slideOverviewModal()});
+  modal.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{goToNonTrashSlideByVisibleIndex(+b.dataset.go);closeModal();save({silent:true})});
+  modal.querySelectorAll('[data-up-visible]').forEach(b=>b.onclick=()=>{
+    const v=+b.dataset.upVisible; const fresh=nonTrashSlideIndices();
+    if(v>0){swapSlides(fresh[v],fresh[v-1]);normalizeTrashBoardPosition();slideOverviewModal();}
+  });
+  modal.querySelectorAll('[data-down-visible]').forEach(b=>b.onclick=()=>{
+    const v=+b.dataset.downVisible; const fresh=nonTrashSlideIndices();
+    if(v<fresh.length-1){swapSlides(fresh[v],fresh[v+1]);normalizeTrashBoardPosition();slideOverviewModal();}
+  });
   modal.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{deleteSlideAt(+b.dataset.del);slideOverviewModal()});
-  modal.querySelector('#newSlideFromOverview').onclick=()=>{state.slides.push(createThemedSlide());state.active=state.slides.length-1;render();slideOverviewModal();save()};
+  modal.querySelector('#newSlideFromOverview').onclick=()=>{state.active=insertNormalSlideBeforeTrash(createThemedSlide());render();slideOverviewModal();save()};
   modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
@@ -13984,8 +14075,7 @@ document.getElementById('prev').onclick=()=>prevSlide();
 document.getElementById('next').onclick=()=>nextSlide();
 document.getElementById('slidesOverview').onclick=slideOverviewModal;
 document.getElementById('addSlide').onclick=()=>{
-  state.slides.push(createThemedSlide());
-  state.active=state.slides.length-1;
+  state.active=insertNormalSlideBeforeTrash(createThemedSlide());
   render();
   save();
   focusSlideTitleForRename();
@@ -14023,9 +14113,17 @@ document.getElementById('present').onclick=()=>{
 ['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>ensureAudio(),{once:false,passive:true}));
 
 document.querySelectorAll('.tool button').forEach(b=>b.onclick=()=>{const t=b.dataset.tool;if(t==='more')showMoreTools();else handleTool(t)});
-function nextSlide(){if(state.active<state.slides.length-1){state.active++;render();toast('Tavle '+(state.active+1))}}
-function prevSlide(){if(state.active>0){state.active--;render();toast('Tavle '+(state.active+1))}}
-function goToSlide(i){if(i>=0&&i<state.slides.length){state.active=i;render();toast('Tavle '+(state.active+1))}}
+function nextSlide(){
+  const list=nonTrashSlideIndices();
+  const pos=list.indexOf(state.active);
+  if(pos>=0 && pos<list.length-1){state.active=list[pos+1];render();toast('Tavle '+visibleSlideNumberForIndex(state.active));}
+}
+function prevSlide(){
+  const list=nonTrashSlideIndices();
+  const pos=list.indexOf(state.active);
+  if(pos>0){state.active=list[pos-1];render();toast('Tavle '+visibleSlideNumberForIndex(state.active));}
+}
+function goToSlide(i){goToNonTrashSlideByVisibleIndex(i)}
 let pdfKeyboardWidgetId=null;
 function clearPdfKeyboardControl(){
   pdfKeyboardWidgetId=null;
@@ -14119,33 +14217,39 @@ function selectAdjacentWidget(dir){
 
 function moveActiveSlideByDirection(dir){
   if(selected) return false;
-  const from=state.active;
-  const to=from+dir;
-  if(to<0 || to>=state.slides.length){
+  if(isTrashBoard(slide())){toast('Papirkurven kan ikke flyttes');return true;}
+  const visible=nonTrashSlideIndices();
+  const pos=visible.indexOf(state.active);
+  const newPos=pos+dir;
+  if(pos<0 || newPos<0 || newPos>=visible.length){
     toast(dir>0?'Tavlen er allerede sidst':'Tavlen er allerede først');
     return true;
   }
-  const tmp=state.slides[from];
-  state.slides[from]=state.slides[to];
-  state.slides[to]=tmp;
-  state.active=to;
+  swapSlides(visible[pos],visible[newPos]);
+  normalizeTrashBoardPosition();
   render();
   save();
   toast('Tavle flyttet');
   return true;
 }
 
+
 function moveSelectedWidgetBySlideDirection(dir){
   if(!selected) return false;
+  if(isTrashBoard(slide())) return false;
   const currentIndex=state.active;
-  let targetIndex=currentIndex + dir;
-  if(targetIndex<0){
-    toast('Ingen forrige tavle');
-    return true;
-  }
-  if(targetIndex>=state.slides.length){
-    state.slides.push(createThemedSlide());
-    targetIndex=state.slides.length-1;
+  const visible=nonTrashSlideIndices();
+  const pos=visible.indexOf(currentIndex);
+  let targetIndex;
+  if(dir<0){
+    if(pos<=0){toast('Ingen forrige tavle');return true;}
+    targetIndex=visible[pos-1];
+  }else{
+    if(pos<0 || pos>=visible.length-1){
+      targetIndex=insertNormalSlideBeforeTrash(createThemedSlide());
+    }else{
+      targetIndex=visible[pos+1];
+    }
   }
   const found=findWidgetOnSlide(currentIndex, selected);
   if(!found.widget) return false;
