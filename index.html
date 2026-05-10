@@ -332,7 +332,16 @@ ARBEJDSREGEL:
 - Hvis dokumentation tilføjes igen, skal filen testes straks som funktionel ændring, selv hvis det “kun” er kommentarer.
 -->
 
-<!-- Måns patch version: SAFE95-ROLLBACK-to-SAFE90 | kasserer SAFE91-SAFE94; ren tilbagevenden til fungerende SAFE90 -->
+<!--
+SAFE96 NOTE:
+- Kun hjælpetekst er opdateret.
+- Tilføjer brugerrettet forklaring af:
+  1) Data i praksis: import -> datawidget -> redigér tabel -> lav liste -> brug i aktiviteter.
+  2) Gem / åbn: forskel på almindelige filer og fuld backup.
+- Ingen funktionalitet, ingen modaler/dialoglogik, ingen KahooPardy, render(), select(), addWidget(), import/backup eller datamodel ændret.
+-->
+
+<!-- Måns patch version: SAFE96-help-data-practice-backup-import | bygger på SAFE95; kun hjælpetekst om data i praksis og Gem/åbn -->
 <!--
 AI-KODEKORT — Min undervisningstavle / SAFE41
 Formål: Single-file webapp (HTML + CSS + JavaScript i én fil). Data gemmes primært i localStorage. Ingen backend.
@@ -14658,6 +14667,9 @@ function showQuickHelp(){
   Hjælp starter med det vigtigste live-flow, derefter ikonforklaring og Mere-opdeling.
   Mere avancerede/sekundære emner ligger længere nede.
   Ændr kun rækkefølge/tekst her; ingen funktionelle handlers i hjælp. -->
+  <!-- SAFE96 HELP ADDITIONS:
+  Disse afsnit forklarer kun eksisterende brugerflow.
+  De må ikke kobles til nye knapper, modaler eller importlogik. -->
   <div class="helpFAQ">
 <details open>
       <summary>Det vigtigste live-flow</summary>
@@ -14708,6 +14720,22 @@ function showQuickHelp(){
         </ul>
       </div>
     </details>
+
+
+    <details>
+      <summary>Gem / åbn og filimport</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Gem / åbn</b> bruges både til backup og til at importere filer.</li>
+          <li>Almindelige filer som PDF, billeder, tekst, HTML, CSV/TSV og Excel tilføjes som nye widgets eller datawidgets.</li>
+          <li>En backup/gemmefil genskaber en hel tavlepakke med tavler, widgets og indstillinger.</li>
+          <li>Importerer du en backup, kan den erstatte det nuværende indhold. Brug backup med omtanke, hvis du allerede har arbejde på tavlen.</li>
+          <li>Hvis en import går godt, lukker importdialogen normalt selv. Hvis noget går galt, bliver den stående, så du kan læse fejlen og prøve igen.</li>
+        </ul>
+      </div>
+    </details>
+
+
 
 <details>
       <summary>Data og lister</summary>
