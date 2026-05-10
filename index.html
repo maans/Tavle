@@ -1,4 +1,105 @@
+<!--
+SAFE121 ROLLBACK-NOTE:
+- SAFE119 og SAFE120 skal kasseres i denne arbejdslinje.
+- Brugeren rapporterede, at + tavle og N stoppede med at virke efter de seneste patches.
+- Denne fil bygger derfor direkte på den uploadede SAFE118/SAFE116-rollbackbase, hvor + tavle og N virker.
+- SAFE121 retter kun tegnelagets visuelle lagorden:
+  1) Tegninger skal blive liggende visuelt over widgets, også når tegnetilstand slås fra.
+  2) Widgets og KahooPardy/datawidget/render/select/addWidget røres ikke.
+  3) Modaler, titel/topbar/toolbar og tegnepanel lægges eksplicit over tegnelaget.
+- Ingen papirkurv-navigation, ingen modalflow, ingen widgetdata og ingen import/backup ændres i denne fil.
+-->
 <!doctype html>
+<!--
+SAFE137 NOTE:
+- Bygger direkte på den virkende SAFE134.
+- Retter kun Ryd papirkurv-bekræftelsen.
+- Native confirm() erstattes af appens egen modal, så rydningen ikke afhænger af browserens confirm-flow.
+- Selve sletningen rydder kun den aktive papirkurvvisnings widgets.
+- Ingen ændringer i normal tavlenavigation, +Tavle, N, Ryd tavle, tegning, KahooPardy, datawidget, render(), select(), addWidget() eller import/backup.
+-->
+
+
+<!--
+SAFE134 NOTE:
+- Bygger på senest godkendte SAFE131.
+- Retter papirkurven inde i hovedappens tavle-flow i stedet for med sen overlay-guard.
+- Papirkurven tælles ikke som normal tavle i slideInfo/oversigtsknap.
+- +Tavle og N indsætter ny normal tavle før papirkurven.
+- Almindelig piletast- og swipe-navigation bruger kun normale tavler.
+- Ingen ændringer i papirkurvbar, Ryd tavle, Ryd papirkurv, tegning, KahooPardy, datawidget, render-flow ud over tællerlinjen eller import/backup.
+-->
+
+<!--
+SAFE131 NOTE:
+- Retter kun Ryd tavle-bekræftelsen.
+- Browserens native confirm() erstattes for denne ene handling af appens egen modal, så Enter vælger OK og Escape annullerer.
+- Selve ryd-logikken fra SAFE128/130 ændres ikke: widgets flyttes til papirkurv, og tegningen slettes.
+- Ingen ændringer i papirkurv, Ryd papirkurv, tegningens z-index, +Tavle, N, KahooPardy, datawidget, render(), select(), addWidget() eller import/backup.
+-->
+
+<!--
+SAFE130 NOTE:
+- Tilføjer kun genvejen Cmd+Shift+Delete / Ctrl+Shift+Delete til den eksisterende, virkende “Ryd tavle”-funktion fra SAFE128/129.
+- Shift+Delete/Shift+Backspace bevares uændret til permanent sletning af valgt widget.
+- Hjælp opdateres med den nye genvej.
+- Ingen ændringer i papirkurvlogik, Ryd papirkurv, tegning, +Tavle, N, KahooPardy, datawidget, render(), select(), addWidget() eller import/backup.
+-->
+<!--
+SAFE129 NOTE:
+- Bygger på virkende SAFE128.
+- Rydder kun op i papirkurvens brugerflade, så papirkurvbaren kun viser de vigtigste handlinger.
+- Synlige handlinger i papirkurvbaren: Tilbage, Gendan valgt og Ryd papirkurv.
+- Fjerner den synlige "Slet valgt permanent"-knap og de små permanente X-knapper på papirkurv-widgets.
+- Permanent enkeltslet kan stadig ske via eksisterende tastaturflow; samlet sletning sker via Ryd papirkurv.
+- Ingen ændringer i Ryd tavle, Cmd+Z, +Tavle, N, tegning, KahooPardy, datawidget, render(), select(), addWidget() eller import/backup.
+-->
+<!--
+SAFE128 NOTE:
+- Bygger på virkende SAFE127.
+- Retter kun Ryd tavle-knappen.
+- Ryd tavle flytter alle widgets på aktiv normal tavle til papirkurven og rydder tavlens tegning.
+- Ingen ny Cmd+Z-/undo-logik tilføjes. Eksisterende papirkurv-gendannelse bevares uændret.
+- Ingen ændringer i papirkurvens titel, Ryd papirkurv, tegningens z-index, +Tavle, N, KahooPardy, datawidget, render(), select(), addWidget() eller import/backup.
+-->
+<!--
+SAFE126 NOTE:
+- Bygger på den virkende SAFE124/SAFE121-rollback.
+- Retter kun papirkurvens titel inde i eksisterende titel-/papirkurv-flow.
+- Papirkurvens titel låses som ikke-redigerbar i updateTrashBoardUI().
+- Titelinput/Enter/Escape ignoreres, hvis aktiv tavle er papirkurven.
+- Klik/tap på titel/prik i papirkurven bruger eksisterende returnFromTrashBoard()/__tavleReturnFromTrashBoard-flow.
+- Ingen ændringer i Ryd tavle, +Tavle, N, KahooPardy, datawidget, tegning, modaler, render(), select(), addWidget() eller import/backup.
+-->
+
+<!--
+SAFE127 NOTE:
+- Bygger på den virkende SAFE126.
+- Tilføjer kun “Ryd papirkurv”-knap i den eksisterende papirkurvbar.
+- Knappen vises kun i papirkurven og sletter alle widgets i papirkurven permanent efter bekræftelse.
+- Ingen ændringer i Ryd tavle, Cmd+Z, +Tavle, N, KahooPardy, datawidget, tegning, modaler, render(), select(), addWidget() eller import/backup.
+-->
+
+<!--
+SAFE113 ROLLBACK-NOTE:
+- SAFE112 skal kasseres.
+- SAFE112 forsøgte at skjule præsentationsikonet og skifte redigering/præsentation via tap på tavlebaggrund/titelprik.
+- Brugeren rapporterede, at SAFE112 ødelagde appen.
+- Denne fil er derfor en ren rollback til SAFE111.
+- SAFE111 skjuler de defekte topbar-pile og bevarer + tavle.
+- Ingen nye funktionelle ændringer i denne fil.
+-->
+
+<!--
+SAFE110 ROLLBACK-NOTE:
+- SAFE105, SAFE106, SAFE107, SAFE108 og SAFE109 skal kasseres.
+- De forsøgte at reparere grafiske pile/Tavler-knap, men skabte ustabil topbar med dubletknapper og buggy adfærd.
+- Denne fil er en ren rollback til SAFE104, hvor + tavle virkede.
+- Kendt fejl i denne rollback: grafiske pile og Tavler-knap er stadig ikke løst.
+- Ingen funktionelle ændringer ud over den allerede fungerende SAFE104 + tavle-rettelse.
+-->
+
+
 <!--
 SAFE58 ROLLBACK-NOTE:
 - SAFE56 og SAFE57 skal kasseres.
@@ -341,7 +442,100 @@ SAFE96 NOTE:
 - Ingen funktionalitet, ingen modaler/dialoglogik, ingen KahooPardy, render(), select(), addWidget(), import/backup eller datamodel ændret.
 -->
 
-<!-- Måns patch version: SAFE96-help-data-practice-backup-import | bygger på SAFE95; kun hjælpetekst om data i praksis og Gem/åbn -->
+<!--
+SAFE97 NOTE:
+- Retter SAFE96-fejl: “Data i praksis” stod kun i kodekommentaren, ikke som synligt hjælpeafsnit.
+- Tilføjer nu “Data i praksis” inde i den faktiske Hjælp/FAQ.
+- “Gem / åbn og filimport” var allerede synligt i SAFE96 og bevares.
+- Ingen funktionalitet, ingen modaler/dialoglogik, ingen KahooPardy, render(), select(), addWidget(), import/backup eller datamodel ændret.
+-->
+
+<!--
+SAFE99 ROLLBACK-NOTE:
+- SAFE98 skal kasseres.
+- SAFE98 forsøgte at rette tavle-navigation, + tavle og papirkurvstælling med globale overrides.
+- Det var for aggressivt og ødelagde appen.
+- Denne fil er en ren rollback til SAFE97, som var fungerende før SAFE98.
+- Ingen nye funktionelle ændringer i denne fil.
+
+AKTUEL STABIL BASE:
+- SAFE97 / SAFE95 / SAFE90-linjen.
+- Datawidget tabel-editor virker.
+- Hjælp indeholder nu både “Gem / åbn og filimport” og “Data i praksis”.
+- Data → liste-dialogens layout må ikke redesignes i denne tråd.
+- Tavle-navigation/papirkurv-fejlen er stadig observeret, men ikke løst i denne fil.
+
+LÆRING:
+- Tavle-navigation skal ikke fixes med brede globale overrides.
+- Næste forsøg skal først kortlægge de eksisterende navigation-patches og kun rette én ting ad gangen:
+  1) først + tavle-knappen,
+  2) derefter topbar-pile,
+  3) til sidst papirkurv/tæller.
+-->
+
+<!--
+SAFE101 ROLLBACK-NOTE:
+- SAFE100 skal kasseres.
+- SAFE100 forsøgte kun at binde topbar-knapperne ◀, ▶ og + tavle direkte,
+  men brugeren rapporterede at appen blev ødelagt.
+- Denne fil er en ren rollback til SAFE99, som brugeren bekræftede virkede,
+  bortset fra at topbarens ◀/▶ og + tavle ikke virker.
+- Ingen nye funktionelle ændringer i denne fil.
+
+AKTUEL STABIL BASE:
+- SAFE101 = SAFE99-linjen.
+- Tavle-navigation virker via swipe og almindelige pilgenveje.
+- N opretter ny tavle.
+- Papirkurv/tæller opfører sig som ønsket i rollback.
+- Topbarens ◀/▶ og + tavle er stadig ikke løst.
+
+LÆRING:
+- Topbar-knapperne må ikke patches med ekstra capture/click-bindinger ovenpå eksisterende handlers.
+- Næste forsøg bør ikke tilføje ny global script-handler.
+- Først kortlæg præcis hvorfor topbar-knappernes eksisterende onclick ikke affyres:
+  1) er de dækket af overlay?
+  2) er pointer-events slået fra?
+  3) er knapperne skjult/erstattet af en anden topbar?
+  4) bliver click stoppet af en anden capture-handler?
+- Ingen ny topbar-fix i denne tråd uden kortlægning.
+-->
+
+
+<!--
+SAFE116 NOTE:
+- Retter kun SAFE115-prikskiftet, så det også virker tilbage fra præsentation til redigering.
+- Årsag: eksisterende CSS satte pointer-events:none på titlen i præsentationstilstand.
+- SAFE116 gør kun #title klikbar igen; selve handleren skifter stadig kun tilstand i venstre prikzone.
+- Ingen ændringer i baggrundstap, Space, topbar, widgets, KahooPardy, datawidget, render(), select(), addWidget(), import/backup eller papirkurv.
+-->
+<!--
+SAFE102 NOTE:
+- Retter kun + tavle-knappen.
+- Ingen nye globale handlers, ingen capture-events og ingen overrides af nextSlide()/prevSlide().
+- + tavle bruger nu samme shortcut-API som N, fordi N allerede virker.
+- Rører ikke ◀/▶, papirkurv/tæller, swipe, datawidget, KahooPardy, render(), select(), addWidget(), import/backup eller datamodel.
+-->
+
+<!--
+SAFE104 NOTE:
+- Retter kun + tavle-knappen i den sene papirkurv-/tavlepatch, hvor #addSlide.onclick bliver overskrevet efter den oprindelige topbar-binding.
+- SAFE102 rettede den tidlige handler, men den sene patch vandt bagefter.
+- SAFE104 lader derfor den sene #addSlide.onclick kalde samme window.tavleShortcutAPI.newSlideShortcut() som N-genvejen.
+- Ingen ændringer i ◀/▶, nextSlide()/prevSlide(), render(), select(), addWidget(), KahooPardy, datawidget, import/backup eller datamodel.
+- Ingen globale click/capture-handlere tilføjet.
+-->
+
+
+<!--
+SAFE115 NOTE:
+- Bygger på SAFE113/SAFE111-linjen.
+- Tilføjer kun en afgrænset touch-/klikzone på statusprikken i venstre side af titlen.
+- Tryk/klik i prikzonen skifter mellem redigering og præsentation via den eksisterende #present-knap.
+- Ingen baggrundstap, ingen ændring af Space/Mere, ingen ændring af topbarens øvrige knapper.
+- Rører ikke KahooPardy, datawidget, papirkurv, render(), select(), addWidget(), import/backup eller datamodel.
+-->
+
+<!-- Måns patch version: SAFE102-fix-add-slide-only | bygger på SAFE101; retter kun + tavle via eksisterende onclick -->
 <!--
 AI-KODEKORT — Min undervisningstavle / SAFE41
 Formål: Single-file webapp (HTML + CSS + JavaScript i én fil). Data gemmes primært i localStorage. Ingen backend.
@@ -415,6 +609,14 @@ DATAWIDGET-FLOW / AI-UX-REGEL
 - En tavlebackup/gemmefil er noget andet end dataimport: den kan erstatte hele den aktuelle tavle-state og skal derfor altid forklares/advares tydeligt.
 - Fremtidigt UX-mål: tydelig importvej til widgets/data, tydelig backupvej til hele tavlen, og evt. sikkert valg mellem “Erstat aktuel tavle” og “Merge/indsæt som nye tavler”.
 - Ved fremtidige ændringer: undgå at tilføje nye separate importflows inde i enkeltwidgets, medmindre de også gemmer resultatet som data/liste.
+-->
+
+<!--
+SAFE111 NOTE:
+- Fjerner de grafiske topbar-pile visuelt, fordi #prev/#next ikke reagerer stabilt i SAFE101/104-linjen.
+- Tavleskift bevares via træk/swipe på tavlebaggrunden og tastaturets almindelige piletaster.
+- Knapperne fjernes ikke fra DOM, fordi ældre scriptlag stadig forventer at finde #prev og #next.
+- Ændringen er kun CSS/visuel og må ikke påvirke + tavle, N-genvej, papirkurv, datawidget, KahooPardy, render(), select(), addWidget() eller import/backup.
 -->
 <html lang="da">
 <head>
@@ -7055,6 +7257,21 @@ body.trashBoardActive #toolbarFallback{
 }
 
 
+/* SAFE115: Prikzonen i titlen er et lille, afgrænset touchmål til
+   redigering/præsentation. Selve kliklogikken ligger i SAFE115-scriptet
+   nederst i filen. Ingen baggrundstap og ingen ændring af titelredigering
+   uden for venstre prikzone. */
+#title{
+  --safe115-dot-zone:44px;
+}
+#title.safe115DotReady{
+  cursor:text;
+}
+#title.safe115DotReady::before{
+  cursor:pointer!important;
+}
+
+
 
 /* ===== SAFE68: MERE-MENU I FASTE 2 KOLONNER =====
    Formål:
@@ -7315,6 +7532,17 @@ body.trashBoardActive #toolbarFallback{
     max-width:210px!important;
   }
   .safe85DatasetTable input{min-width:120px!important;}
+}
+
+
+/* SAFE111: Skjul defekte grafiske tavle-pile.
+   De bliver i DOM for ikke at bryde ældre onclick-/patchlag.
+   Navigation sker fortsat via swipe/træk og tastaturets piletaster. */
+.topbar #prev,
+.topbar #next{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
 }
 
 </style>
@@ -9035,10 +9263,69 @@ function loadDraw(src){
 }
 window.addEventListener('resize',resizeCanvas);
 
+/* SAFE134: normal tavlelogik skal ignorere intern papirkurv. */
+function safe134IsTrashSlideForNav(s){
+  try{return !!(s && (s.isTrashBoard===true || s.title==='🗑 Papirkurv' || s.title==='Papirkurv'));}
+  catch(_e){return false;}
+}
+function safe134NormalSlideIndices(){
+  const arr=(state && Array.isArray(state.slides)) ? state.slides : [];
+  const out=[];
+  for(let i=0;i<arr.length;i++){ if(!safe134IsTrashSlideForNav(arr[i])) out.push(i); }
+  return out;
+}
+function safe134NormalSlideCount(){ return Math.max(1,safe134NormalSlideIndices().length); }
+function safe134VisibleSlideNumber(realIndex){
+  const list=safe134NormalSlideIndices();
+  const pos=list.indexOf(realIndex);
+  return pos>=0 ? pos+1 : safe134NormalSlideCount();
+}
+function safe134SlideInfoText(){
+  try{
+    if(safe134IsTrashSlideForNav(slide())) return 'Papirkurv';
+    return safe134VisibleSlideNumber(state.active)+'/'+safe134NormalSlideCount();
+  }catch(_e){ return (state.active+1)+'/'+state.slides.length; }
+}
+function safe134InsertNormalSlideBeforeTrash(){
+  const ns=createThemedSlide();
+  const arr=state.slides;
+  const trashIndex=arr.findIndex(safe134IsTrashSlideForNav);
+  if(trashIndex>=0){ arr.splice(trashIndex,0,ns); state.active=trashIndex; }
+  else { arr.push(ns); state.active=arr.length-1; }
+  return state.active;
+}
+function safe134SetActiveNormalByPosition(pos){
+  const list=safe134NormalSlideIndices();
+  if(!list.length) return false;
+  const safe=Math.max(0,Math.min(list.length-1,Number(pos)||0));
+  state.active=list[safe];
+  selected=null;
+  if(window.UIState) window.UIState.selectedWidgetId=null;
+  render();
+  try{toast('Tavle '+safe134VisibleSlideNumber(state.active));}catch(_e){}
+  return true;
+}
+function safe134NormalStep(dir){
+  const list=safe134NormalSlideIndices();
+  if(!list.length) return false;
+  let pos=list.indexOf(state.active);
+  if(pos<0){
+    const ret=Number(state && state.trashReturnIndex);
+    const retPos=list.indexOf(ret);
+    return safe134SetActiveNormalByPosition(retPos>=0 ? retPos : 0);
+  }
+  const next=pos+dir;
+  if(next<0 || next>=list.length){
+    try{toast(dir>0?'Tavlen er allerede sidst':'Tavlen er allerede først');}catch(_e){}
+    return false;
+  }
+  return safe134SetActiveNormalByPosition(next);
+}
 function updateSlidesOverviewVisibility(){
   const btn=document.getElementById('slidesOverview');
   if(!btn) return;
-  const hide = !state || !state.slides || state.slides.length <= 1;
+  /* SAFE134: oversigtsknappen vurderes ud fra normale tavler, ikke intern papirkurv. */
+  const hide = safe134NormalSlideCount() <= 1;
   btn.hidden = hide;
   btn.style.display = hide ? 'none' : '';
   btn.classList.toggle('onlyMultiHidden', hide);
@@ -9131,7 +9418,7 @@ window.rescueSelectedWidgetToViewport=rescueSelectedWidgetToViewport;
 // WIDGET CORE
 ////////////////////////////////////////////////////////////
 /* render-flow: rydder DOM-widgets, anvender baggrund/grid, bygger widgets og opdaterer papirkurv. Rør ikke uden fuld regressionstest. */
-function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=(state.active+1)+'/'+state.slides.length;updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
+function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=safe134SlideInfoText();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
 /* addWidget(): opretter widget-objekt, fitter til viewport, kalder makeWidget(), select() og save(). Bevar rækkefølgen. */
 function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll'||type==='kahoopardy')?860:(type==='dataset'?390:(type==='text'?420:520)),h:type==='wheel'?560:(type==='kahoopardy'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='timer'?260: type==='link'?230:320)))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',kahoopardy:'Kahoopardy',timer:'Timer',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
@@ -10421,6 +10708,48 @@ body.focus-presentation .widget:not(.focused){
 }
 </style>
 
+
+
+<style id="safe121-drawing-visible-over-widgets-only">
+/* SAFE121:
+   Tegnecanvas skal være et permanent visuelt overlay over widgets,
+   ellers ryger streger bag widgets, når tegnetilstand slås fra.
+   Samtidig holdes UI-lag og modaler over canvas, så SAFE117-fejlen
+   med modaler bag widgets/lag ikke gentages.
+   Ingen widget-z-index ændres her. */
+.drawLayer,
+#draw{
+  z-index:2147483000!important;
+}
+.drawLayer{
+  pointer-events:none;
+}
+.drawLayer.active,
+.app.drawActive .drawLayer,
+.app.drawActive #draw{
+  pointer-events:auto!important;
+  cursor:crosshair;
+}
+.title,
+.topbar,
+.toolbar,
+.toolbarPeek,
+.toolbarPinFloat,
+.trashBoardBar{
+  z-index:2147483100!important;
+}
+.drawPanel{
+  z-index:2147483200!important;
+}
+.modalBackdrop,
+#modalBack{
+  z-index:2147483300!important;
+}
+.toast{
+  z-index:2147483400!important;
+}
+</style>
+
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
   if(t==='pdf')addWidget('pdf',{});
@@ -10873,8 +11202,8 @@ if(presentFocusBtn)presentFocusBtn.onclick=e=>{e.preventDefault();e.stopPropagat
 /* v1.0.10-dev: shared shortcut API used by the early capture keydown listener */
 window.tavleShortcutAPI={
   newSlideShortcut(){
-    state.slides.push(createThemedSlide());
-    state.active=state.slides.length-1;
+    /* SAFE134: ny normal tavle skal indsættes før intern papirkurv. */
+    safe134InsertNormalSlideBeforeTrash();
     render();
     save();
     focusSlideTitleForRename();
@@ -11064,7 +11393,49 @@ body.focus-presentation .widget:not(.focused){
 .kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
 @media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
 
-</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p></body></html>`,mode:'edit',name:'Ny HTML-widget'}],
+</style></head><body><h1>Hej verden</h1><p>Redigér HTML her…</p>
+
+<style id="safe121-drawing-visible-over-widgets-only">
+/* SAFE121:
+   Tegnecanvas skal være et permanent visuelt overlay over widgets,
+   ellers ryger streger bag widgets, når tegnetilstand slås fra.
+   Samtidig holdes UI-lag og modaler over canvas, så SAFE117-fejlen
+   med modaler bag widgets/lag ikke gentages.
+   Ingen widget-z-index ændres her. */
+.drawLayer,
+#draw{
+  z-index:2147483000!important;
+}
+.drawLayer{
+  pointer-events:none;
+}
+.drawLayer.active,
+.app.drawActive .drawLayer,
+.app.drawActive #draw{
+  pointer-events:auto!important;
+  cursor:crosshair;
+}
+.title,
+.topbar,
+.toolbar,
+.toolbarPeek,
+.toolbarPinFloat,
+.trashBoardBar{
+  z-index:2147483100!important;
+}
+.drawPanel{
+  z-index:2147483200!important;
+}
+.modalBackdrop,
+#modalBack{
+  z-index:2147483300!important;
+}
+.toast{
+  z-index:2147483400!important;
+}
+</style>
+
+</body></html>`,mode:'edit',name:'Ny HTML-widget'}],
       j:['wheel',{}],
       q:['kahoopardy',{}],
       s:['wordcloud',{}],
@@ -13061,18 +13432,35 @@ function updateTrashBoardUI(){
   const on=isTrashBoard(s);
   app.classList.toggle('trashBoardActive',on);
   document.body.classList.toggle('trashBoardActive',on);
+  /* SAFE126: Papirkurven bruger titelområdet som fast tilbageknap, ikke som redigerbar tavletitel. */
+  try{
+    if(on){
+      titleEl.textContent='🗑 Papirkurv';
+      titleEl.contentEditable='false';
+      titleEl.setAttribute('data-trash-title-locked','true');
+      titleEl.title='Papirkurv – klik for at gå tilbage';
+    }else if(titleEl.getAttribute('data-trash-title-locked')==='true'){
+      titleEl.removeAttribute('data-trash-title-locked');
+      titleEl.contentEditable=app.classList.contains('present')?'false':'true';
+    }
+  }catch(_e){}
   if(!on)return;
   const count=(s.widgets&&s.widgets.length)||0;
   const bar=document.createElement('div');
   bar.className='trashBoardBar';
-  bar.innerHTML='<button type="button" id="trashBackBtn">← Tilbage</button><span>🗑 Papirkurv</span><small>'+(count?count+' slettede widget(s)':'tom')+'</small><button type="button" id="trashRestoreBtn" '+(count?'':'disabled')+'>Gendan valgt</button><button type="button" id="trashPermanentBtn" class="danger" '+(count?'':'disabled')+'>Slet valgt permanent</button>';
+  /* SAFE129: Papirkurvbaren holdes bevidst minimal: tilbage, gendan valgt og ryd hele papirkurven. */
+  bar.innerHTML='<button type="button" id="trashBackBtn">← Tilbage</button><span>🗑 Papirkurv</span><small>'+(count?count+' slettede widget(s)':'tom')+'</small><button type="button" id="trashRestoreBtn" '+(count?'':'disabled')+'>Gendan valgt</button><button type="button" id="trashClearAllBtn" class="danger" '+(count?'':'disabled')+'>Ryd papirkurv</button>';
   app.appendChild(bar);
   const back=bar.querySelector('#trashBackBtn');
   if(back)back.onclick=function(e){e.preventDefault();e.stopPropagation();returnFromTrashBoard();};
   const restore=bar.querySelector('#trashRestoreBtn');
   if(restore)restore.onclick=function(e){e.preventDefault();e.stopPropagation();restoreSelectedOrLatestFromTrash();};
-  const del=bar.querySelector('#trashPermanentBtn');
-  if(del)del.onclick=function(e){e.preventDefault();e.stopPropagation();permanentlyDeleteSelectedTrashWidget();};
+  const clearAll=bar.querySelector('#trashClearAllBtn');
+  if(clearAll)clearAll.onclick=function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    clearTrashBoardPermanently();
+  };
   if(!count){
     const note=document.createElement('div');
     note.className='trashBoardEmptyNote';
@@ -13170,6 +13558,44 @@ function permanentlyDeleteSelectedTrashWidget(){
   return true;
 }
 
+/* SAFE137: Permanent rydning af papirkurvens egne widgets.
+   Bevarer SAFE134-navigation og bruger appens modal i stedet for native confirm(). */
+function clearTrashBoardPermanently(){
+  const s=slide();
+  if(!isTrashBoard(s) || !Array.isArray(s.widgets) || !s.widgets.length){
+    try{toast('Papirkurven er tom')}catch(_e){}
+    return false;
+  }
+  const count=s.widgets.length;
+  function doClearTrashBoardPermanently(){
+    try{
+      s.widgets.forEach(w=>{ try{ if(window.__tavleCleanupWidget) window.__tavleCleanupWidget(w.id); }catch(_e){} });
+    }catch(_e){}
+    s.widgets=[];
+    selected=null;
+    if(window.UIState)UIState.selectedWidgetId=null;
+    render();
+    save({silent:true});
+    try{toast('Papirkurv ryddet')}catch(_e){}
+    return true;
+  }
+  showModal('<h2>Ryd papirkurv?</h2><p>Slet '+count+' widget(s) permanent fra papirkurven?</p><p style="font-size:13px;opacity:.72;margin-top:-4px">Enter = OK · Escape = Annuller</p><div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap"><button id="clearTrashCancel">Annuller</button><button id="clearTrashOk">OK</button></div>');
+  const okBtn=modal.querySelector('#clearTrashOk');
+  const cancelBtn=modal.querySelector('#clearTrashCancel');
+  function cleanup(){document.removeEventListener('keydown',keyHandler,true)}
+  function cancel(){cleanup();closeModal()}
+  function ok(){cleanup();closeModal();doClearTrashBoardPermanently()}
+  function keyHandler(e){
+    if(e.key==='Escape'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();cancel();return false;}
+    if(e.key==='Enter'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();ok();return false;}
+  }
+  document.addEventListener('keydown',keyHandler,true);
+  if(cancelBtn)cancelBtn.onclick=cancel;
+  if(okBtn){okBtn.onclick=ok;setTimeout(()=>{try{okBtn.focus({preventScroll:true})}catch(_e){}},0);}
+  return true;
+}
+window.__trashBoardClearAll=clearTrashBoardPermanently;
+
 function permanentlyDeleteTrashWidgetById(id){
   const s=slide();
   if(!isTrashBoard(s)||!Array.isArray(s.widgets))return false;
@@ -13191,22 +13617,11 @@ function permanentlyDeleteNormalWidgetById(id){
   return true;
 }
 function decorateTrashBoardWidgets(){
+  /* SAFE129: Ingen små permanente X-knapper på papirkurv-widgets.
+     Klik på en widget gendanner fortsat via den eksisterende papirkurv-kliklogik. */
   try{
     if(!isTrashBoard(slide()))return;
-    document.querySelectorAll('.widget[data-id]').forEach(el=>{
-      if(el.querySelector('.trashPermanentX'))return;
-      const b=document.createElement('button');
-      b.type='button';
-      b.className='trashPermanentX';
-      b.title='Slet permanent';
-      b.textContent='×';
-      b.addEventListener('click',function(e){
-        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-        permanentlyDeleteTrashWidgetById(el.dataset.id);
-        return false;
-      },true);
-      el.appendChild(b);
-    });
+    document.querySelectorAll('.trashPermanentX').forEach(el=>el.remove());
   }catch(_e){}
 }
 window.__trashBoardDelete=trashWidgetToBoard;
@@ -14681,6 +15096,7 @@ function showQuickHelp(){
           <li><b>T</b> åbner <b>🗑 Papirkurv</b>. I papirkurven lukker <b>T</b>, <b>ESC</b> og <b>Mellemrum</b> igen.</li>
           <li><b>Delete/Backspace</b> flytter valgt widget til papirkurven.</li>
           <li><b>Shift+Delete/Shift+Backspace</b> – eller <b>Shift+klik på X</b> på en widget – sletter permanent uden papirkurv.</li>
+          <li><b>Cmd/Ctrl+Shift+Delete/Backspace</b> rydder aktiv tavle: widgets flyttes til papirkurven, og tegningen slettes.</li>
           <li><b>Cmd/Ctrl+Z</b> gendanner senest slettede widget fra papirkurven.</li>
           <li><b>Hjul:</b> mellemrum drejer – eller stopper Auto, hvis Auto kører.</li>
           <li><b>Timer:</b> bruges som live-nedtælling eller tidsmarkør.</li>
@@ -14749,6 +15165,23 @@ function showQuickHelp(){
       </div>
     </details>
 
+
+    <details>
+      <summary>Data i praksis</summary>
+      <div class="answer">
+        <ul>
+          <li>Træk en CSV-, TSV- eller Excel-fil ind på tavlen, eller opret <b>data</b> fra <b>Mere → Indhold</b>.</li>
+          <li>Appen opretter en datawidget, hvor kolonnenavne og celler kan redigeres direkte som en tabel.</li>
+          <li>Første række i tabellen bruges som kolonnenavne/headers.</li>
+          <li>Brug den hvide firkantede knap i widgetens topbjælke til at skifte mellem preview og redigering.</li>
+          <li>Brug <b>→</b> i widgetens topbjælke til at lave en liste fra valgte kolonner.</li>
+          <li>Listen kan bagefter bruges i aktiviteter som hjul, grupper, ordsky og afstemning.</li>
+        </ul>
+      </div>
+    </details>
+
+
+
 <details>
       <summary>Papirkurv</summary>
       <div class="answer">
@@ -14811,6 +15244,7 @@ function showQuickHelp(){
           <li><b>Esc</b> lukker papirkurv/fokus/iframe-kontrol/PDF-kontrol</li>
           <li><b>Delete/Backspace</b> flyt valgt widget til papirkurv</li>
           <li><b>Shift+Delete/Shift+Backspace</b> slet valgt widget permanent uden papirkurv</li>
+          <li><b>Cmd/Ctrl+Shift+Delete/Backspace</b> ryd aktiv tavle</li>
           <li><b>Cmd/Ctrl+Z</b> gendan senest slettede widget fra papirkurv</li>
           <li><b>I papirkurv:</b> klik/Enter gendanner valgt widget; Delete/Backspace sletter permanent; ←/→/↑/↓ vælger mellem slettede widgets</li>
           <li><b>1–9/0</b> lås/åbn gruppe 1–10, når en grupper-widget er valgt</li>
@@ -15541,7 +15975,7 @@ function slideOverviewModal(){
   modal.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{swapSlides(+b.dataset.up,+b.dataset.up-1);slideOverviewModal()});
   modal.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>{swapSlides(+b.dataset.down,+b.dataset.down+1);slideOverviewModal()});
   modal.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{deleteSlideAt(+b.dataset.del);slideOverviewModal()});
-  modal.querySelector('#newSlideFromOverview').onclick=()=>{state.slides.push(createThemedSlide());state.active=state.slides.length-1;render();slideOverviewModal();save()};
+  modal.querySelector('#newSlideFromOverview').onclick=()=>{safe134InsertNormalSlideBeforeTrash();render();slideOverviewModal();save()};
   modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
@@ -15565,19 +15999,82 @@ document.getElementById('prev').onclick=()=>prevSlide();
 document.getElementById('next').onclick=()=>nextSlide();
 document.getElementById('slidesOverview').onclick=slideOverviewModal;
 document.getElementById('addSlide').onclick=()=>{
+  // SAFE102: + tavle skal bruge samme robuste vej som N-genvejen.
+  // Ingen ny handler/capture-logik; kun den eksisterende onclick-blok ændres.
+  if(window.tavleShortcutAPI && typeof window.tavleShortcutAPI.newSlideShortcut==='function'){
+    window.tavleShortcutAPI.newSlideShortcut();
+    return;
+  }
   state.slides.push(createThemedSlide());
   state.active=state.slides.length-1;
   render();
   save();
   focusSlideTitleForRename();
 };
-document.getElementById('clearSlide').onclick=()=>{
-  if(confirm('Ryd denne tavle?')){
-    slide().widgets=[];
-    slide().draw='';
+function clearActiveSlideToTrash(){
+  /* SAFE128/SAFE130: Ryd tavle flytter widgets til papirkurv og rydder tegningen.
+     SAFE130 genbruger kun denne eksisterende funktion som genvej; ingen ny ryd-logik. */
+  const src=slide();
+  if(!src || isTrashBoard(src)){try{toast('Papirkurv ryddes med knappen Ryd papirkurv')}catch(_e){};return;}
+  const widgetCount=(Array.isArray(src.widgets)?src.widgets.length:0);
+  const hasDraw=!!src.draw;
+  if(!widgetCount && !hasDraw){try{toast('Tavlen er allerede tom')}catch(_e){};return;}
+  function doClearActiveSlideToTrash(){
+    const originIndex=state.active;
+    const trashIdx=ensureTrashBoard();
+    const trash=state.slides[trashIdx];
+    const moved=(src.widgets||[]).splice(0);
+    const stamp=Date.now();
+    moved.forEach((w,i)=>{
+      w._trashOriginSlideIndex=originIndex;
+      w._trashOriginTitle=src.title||'Tavle';
+      w._trashOriginalX=w.x; w._trashOriginalY=w.y; w._trashOriginalW=w.w; w._trashOriginalH=w.h;
+      w._trashOriginalZ=w.z; w._trashOriginalRotation=w.rotation||0;
+      w._trashDeletedAt=stamp+i;
+      trash.widgets=trash.widgets||[];
+      trash.widgets.push(w);
+    });
+    if(moved.length)trashOverviewLayout(trash);
+    src.draw='';
+    selected=null;
+    if(window.UIState)UIState.selectedWidgetId=null;
     render();
+    save({silent:true});
+    try{toast(moved.length?('Ryddet: '+moved.length+' widget(s) flyttet til papirkurv'):'Tegning ryddet')}catch(_e){}
   }
-};
+  // SAFE131: Native confirm() kan ikke styres pålideligt med Enter/Escape på iPad.
+  // Derfor bruges appens eksisterende modal kun for denne Ryd tavle-bekræftelse.
+  showModal('<h2>Ryd tavle?</h2><p>Widgets flyttes til papirkurven, og tegningen slettes.</p><p style="font-size:13px;opacity:.72;margin-top:-4px">Enter = OK · Escape = Annuller</p><div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap"><button id="clearSlideCancel">Annuller</button><button id="clearSlideOk">OK</button></div>');
+  const okBtn=modal.querySelector('#clearSlideOk');
+  const cancelBtn=modal.querySelector('#clearSlideCancel');
+  function cleanup(){document.removeEventListener('keydown',keyHandler,true)}
+  function cancel(){cleanup();closeModal()}
+  function ok(){cleanup();closeModal();doClearActiveSlideToTrash()}
+  function keyHandler(e){
+    if(e.key==='Escape'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();cancel();return false;}
+    if(e.key==='Enter'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();ok();return false;}
+  }
+  document.addEventListener('keydown',keyHandler,true);
+  if(cancelBtn)cancelBtn.onclick=cancel;
+  if(okBtn){okBtn.onclick=ok;setTimeout(()=>{try{okBtn.focus({preventScroll:true})}catch(_e){}},0);}
+}
+window.__tavleClearActiveSlideToTrash=clearActiveSlideToTrash;
+document.getElementById('clearSlide').onclick=clearActiveSlideToTrash;
+/* SAFE130: Cmd+Shift+Delete / Ctrl+Shift+Delete rydder aktiv tavle via samme funktion som Ryd tavle-knappen.
+   Shift+Delete uden Cmd/Ctrl bevares til permanent sletning af valgt widget. */
+document.addEventListener('keydown',e=>{
+  const key=String(e.key||'');
+  const isDeleteKey=(key==='Delete'||key==='Backspace');
+  if(!isDeleteKey || !e.shiftKey || !(e.metaKey||e.ctrlKey) || e.altKey)return;
+  const t=e.target;
+  if(t && (t.matches&&t.matches('input,textarea,select,[contenteditable="true"]') || t.isContentEditable))return;
+  if(modalBack && modalBack.style.display==='flex')return;
+  e.preventDefault();
+  e.stopPropagation();
+  if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  clearActiveSlideToTrash();
+  return false;
+},true);
 document.getElementById('drawTop').onclick=()=>setDrawActive(!app.classList.contains('drawActive'));
 document.getElementById('present').onclick=()=>{
   // Toggle presentation mode and keep the current widget selection.
@@ -15605,9 +16102,9 @@ document.getElementById('present').onclick=()=>{
 ['pointerdown','mousedown','touchstart','keydown','click'].forEach(ev=>document.addEventListener(ev,()=>primeAudio(),{capture:true,once:false,passive:true}));
 
 document.querySelectorAll('.tool button').forEach(b=>b.onclick=()=>{const t=b.dataset.tool;if(t==='more')showMoreTools();else handleTool(t)});
-function nextSlide(){if(state.active<state.slides.length-1){state.active++;render();toast('Tavle '+(state.active+1))}}
-function prevSlide(){if(state.active>0){state.active--;render();toast('Tavle '+(state.active+1))}}
-function goToSlide(i){if(i>=0&&i<state.slides.length){state.active=i;render();toast('Tavle '+(state.active+1))}}
+function nextSlide(){return safe134NormalStep(1)}
+function prevSlide(){return safe134NormalStep(-1)}
+function goToSlide(i){return safe134SetActiveNormalByPosition(i)}
 let pdfKeyboardWidgetId=null;
 function clearPdfKeyboardControl(){
   pdfKeyboardWidgetId=null;
@@ -15904,7 +16401,15 @@ app.addEventListener('pointerup',e=>{
   }
   swipeStart=null;
 });
-titleEl.oninput=()=>{slide().title=titleEl.textContent;save()};titleEl.onkeydown=e=>{if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();titleEl.blur();save()}};
+titleEl.oninput=()=>{
+  /* SAFE126: Papirkurven må ikke kunne omdøbes via det almindelige title.oninput-flow. */
+  if(isTrashBoard(slide())){titleEl.textContent='🗑 Papirkurv';return;}
+  slide().title=titleEl.textContent;save();
+};titleEl.onkeydown=e=>{
+  /* SAFE126: I papirkurv er titelområdet en tilbageknap, ikke et inputfelt. */
+  if(isTrashBoard(slide())){e.preventDefault();returnFromTrashBoard();return;}
+  if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();titleEl.blur();save()}
+};
 function drawPt(e){const r=draw.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
 let drawStart=null, drawSnapshot=null;
 function setDrawActive(on){draw.classList.toggle('active',on);app.classList.toggle('drawActive',on);document.getElementById('drawPanel').classList.toggle('show',on);document.querySelectorAll('[data-tool="draw"],#drawTop').forEach(b=>b&&b.classList.toggle('active',on));if(on)select(null)}
@@ -18897,7 +19402,26 @@ function createDatasetWidgetFromList(name,items){
   }catch(_e){}
   function patchButtons(){
     try{const b=document.getElementById('slidesOverview'); if(b)b.onclick=slideOverviewModal;}catch(_e){}
-    try{const b=document.getElementById('addSlide'); if(b)b.onclick=()=>{state.active=insertNormalSlide();render();patchTopUI();save();try{focusSlideTitleForRename();}catch(_e){}};}catch(_e){}
+    try{
+      const b=document.getElementById('addSlide');
+      if(b)b.onclick=()=>{
+        /* SAFE104: Kun + tavle.
+           Årsag: Den sene papirkurv-/tavlepatch overskriver den tidlige addSlide.onclick.
+           Derfor skal topbar-knappen bruge samme fungerende vej som N-genvejen her.
+           Må påvirke: kun klik på #addSlide.
+           Må ikke påvirke: ◀/▶, papirkurv-navigation, swipe, widgets, KahooPardy eller datawidget. */
+        if(window.tavleShortcutAPI && typeof window.tavleShortcutAPI.newSlideShortcut==='function'){
+          window.tavleShortcutAPI.newSlideShortcut();
+          try{patchTopUI();}catch(_e){}
+          return;
+        }
+        state.active=insertNormalSlide();
+        render();
+        patchTopUI();
+        save();
+        try{focusSlideTitleForRename();}catch(_e){}
+      };
+    }catch(_e){}
   }
   try{
     const oldMove=(typeof moveWidgetToSlide==='function')?moveWidgetToSlide:null;
@@ -19044,5 +19568,126 @@ function createDatasetWidgetFromList(name,items){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+
+
+
+<style id="safe116-title-dot-present-pointer-fix">
+/* SAFE116:
+   I præsentationstilstand satte ældre CSS .present .title til pointer-events:none.
+   Derfor kunne SAFE115-prikken skifte TIL præsentation, men ikke tilbage igen.
+   Vi gør kun titelfeltet klikbart; SAFE115-handleren reagerer fortsat kun i venstre prikzone. */
+.present #title.safe115DotReady,
+.present .title.safe115DotReady{
+  pointer-events:auto!important;
+}
+</style>
+
+<script id="safe115-title-dot-toggle-presentation">
+(function(){
+  function ready(fn){
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fn,{once:true});
+    else fn();
+  }
+  ready(function(){
+    var title=document.getElementById('title');
+    var app=document.getElementById('app');
+    if(!title || !app || title.__safe115DotToggle) return;
+    title.__safe115DotToggle=true;
+    title.classList.add('safe115DotReady');
+    title.setAttribute('data-safe115-dot-toggle','Tryk på prikken for at skifte redigering/præsentation');
+
+    function modalOpen(){
+      var m=document.getElementById('modalBack');
+      if(!m) return false;
+      var cs=getComputedStyle(m);
+      return cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0';
+    }
+    function inDotZone(ev){
+      var r=title.getBoundingClientRect();
+      var x=(typeof ev.clientX==='number') ? ev.clientX : (ev.touches && ev.touches[0] ? ev.touches[0].clientX : null);
+      if(x===null) return false;
+      var zone=Math.min(48, Math.max(34, r.width));
+      return x>=r.left && x<=r.left+zone;
+    }
+    function markToggle(){ title.__safe115LastToggle=Date.now(); }
+    function recentToggle(){ return title.__safe115LastToggle && Date.now()-title.__safe115LastToggle<450; }
+    function toggleFromDot(ev){
+      if(modalOpen()) return false;
+      /* SAFE126: I papirkurven fungerer hele titelområdet/prikken som tilbage til seneste normale tavle. */
+      if(app.classList.contains('trashBoardActive')){
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+        try{
+          if(typeof window.__tavleReturnFromTrashBoard==='function') window.__tavleReturnFromTrashBoard();
+        }catch(_e){}
+        return true;
+      }
+      if(!inDotZone(ev)) return false;
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      markToggle();
+      var btn=document.getElementById('present');
+      if(btn) btn.click();
+      return true;
+    }
+
+    // SAFE115: Brug capture på selve titlen, men kun i venstre prikzone.
+    // Resten af titlen bevarer almindelig titelredigering/contenteditable-flow.
+    title.addEventListener('pointerdown',toggleFromDot,true);
+    title.addEventListener('click',function(ev){
+      // Fallback for ældre/tvære touch-browsere. Guard mod dobbelttoggle efter pointerdown.
+      if(recentToggle()){
+        ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+        return;
+      }
+      toggleFromDot(ev);
+    },true);
+  });
+})();
+</script>
+
+
+
+<style id="safe121-drawing-visible-over-widgets-only">
+/* SAFE121:
+   Tegnecanvas skal være et permanent visuelt overlay over widgets,
+   ellers ryger streger bag widgets, når tegnetilstand slås fra.
+   Samtidig holdes UI-lag og modaler over canvas, så SAFE117-fejlen
+   med modaler bag widgets/lag ikke gentages.
+   Ingen widget-z-index ændres her. */
+.drawLayer,
+#draw{
+  z-index:2147483000!important;
+}
+.drawLayer{
+  pointer-events:none;
+}
+.drawLayer.active,
+.app.drawActive .drawLayer,
+.app.drawActive #draw{
+  pointer-events:auto!important;
+  cursor:crosshair;
+}
+.title,
+.topbar,
+.toolbar,
+.toolbarPeek,
+.toolbarPinFloat,
+.trashBoardBar{
+  z-index:2147483100!important;
+}
+.drawPanel{
+  z-index:2147483200!important;
+}
+.modalBackdrop,
+#modalBack{
+  z-index:2147483300!important;
+}
+.toast{
+  z-index:2147483400!important;
+}
+</style>
 
 </body></html>
