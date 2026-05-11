@@ -909,6 +909,11 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 SAFE175 EMBEDDED MEDIA DATASET FULL EXPORT
 - Download indlejrede medier må ikke downloade datawidgettens synlige previewtekst.
 - Hvis en tekstwidget er en datawidget med datasetId, eksporteres hele datasættet fra state.datasets som CSV.
+
+SAFE176 DATAWIDGET FULL MEDIA DOWNLOAD FIX:
+- Download indlejrede medier skal genkende datawidgets robust, også hvis datasetId ikke matcher direkte.
+- Datawidgets eksporteres som fuld CSV fra state.datasets via id, sourceDatasetId, embedded rows eller navnematch.
+- Listewidgets og almindelige tekstwidgets skal fortsat downloades som .txt.
 - Bevarer almindelige tekstwidgets, billeder, PDF, HTML og backup/import-flow uændret.
 */
 /*
@@ -16439,7 +16444,42 @@ function importJson(){
 
 
 
-/* SAFE175: Ved download af indlejrede medier skal datawidgets bruge hele datasættet fra localStorage/state.datasets, ikke preview-teksten i widgetten. */
+/* SAFE175/176: Ved download af indlejrede medier skal datawidgets bruge hele datasættet fra localStorage/state.datasets, ikke preview-teksten i widgetten. */
+function normalizeDatasetTitleForMatch(s){
+  return String(s||'')
+    .replace(/^\s*[📊👥]\s*/,'')
+    .replace(/^Datasæt:\s*/i,'')
+    .replace(/\.(csv|txt)$/i,'')
+    .trim()
+    .toLowerCase();
+}
+function datasetForDownloadWidget(w){
+  if(!w||!w.data)return null;
+  const candidates=[];
+  if(w.data.datasetId)candidates.push(w.data.datasetId);
+  if(w.data.sourceDatasetId)candidates.push(w.data.sourceDatasetId);
+  if(w.data.dataset&&Array.isArray(w.data.dataset.rows))return w.data.dataset;
+  if(Array.isArray(w.data.rows))return {id:w.data.datasetId||uid(),name:w.data.name||w.title||'Datasæt',type:w.data.sourceType||'csv',columns:Array.isArray(w.data.columns)?w.data.columns:[],rows:w.data.rows};
+  for(const id of candidates){
+    const ds=findDatasetById(id);
+    if(ds&&Array.isArray(ds.rows))return ds;
+  }
+  // SAFE176: Nogle ældre/lokale datawidgets kan miste id-match i widgetdata, men datasættet findes stadig i state.datasets.
+  const wanted=[w.title,w.data.name,w.data.sourceDatasetName]
+    .map(normalizeDatasetTitleForMatch)
+    .filter(Boolean);
+  const store=Array.isArray(state&&state.datasets)?state.datasets:[];
+  for(const ds of store){
+    const dn=normalizeDatasetTitleForMatch(ds&&ds.name);
+    if(dn && wanted.some(x=>x===dn || x.endsWith(dn) || dn.endsWith(x)))return ds;
+  }
+  // Sidste forsigtige fallback: grupperesultat-widget med samme navn.
+  if(String(w.data.sourceType||'').includes('groups') || normalizeDatasetTitleForMatch(w.title).includes('grupperesultat')){
+    const found=store.find(ds=>String(ds&&ds.type||'').includes('groups') && Array.isArray(ds.rows));
+    if(found)return found;
+  }
+  return null;
+}
 function collectEmbeddedMedia(){
   const items=[];
   const kindLabel=(src)=>{
@@ -16462,13 +16502,13 @@ function collectEmbeddedMedia(){
           items.push({type:'PDF',slide:slideName,name:w.data.name||`tavle-${si+1}-pdf-${wi+1}`,src:w.data.src||w.data.url});
         }
         if(w.type==='text'&&w.data&&typeof w.data.text==='string'){
-          // SAFE175: Datawidgets gemmer kun preview i w.data.text. Download skal bruge hele datasættet.
-          const ds=w.data.datasetId?findDatasetById(w.data.datasetId):null;
+          // SAFE176: datawidget download må aldrig bruge previewteksten med “… flere rækker”.
+          const ds=datasetForDownloadWidget(w);
           if(ds&&Array.isArray(ds.rows)){
             const csv=datasetToDelimitedText(ds,',');
             const baseName=String((ds&&ds.name)||w.data.name||w.title||`tavle-${si+1}-datasæt-${wi+1}`).replace(/\.(txt|csv)$/i,'');
             const src='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-            items.push({type:'CSV',slide:slideName,name:baseName,src});
+            items.push({type:'Datasæt CSV',slide:slideName,name:baseName,src});
           }else{
             const src='data:text/plain;charset=utf-8,'+encodeURIComponent(w.data.text);
             items.push({type:'Tekst',slide:slideName,name:w.data.name||w.title||`tavle-${si+1}-tekst-${wi+1}.txt`,src});
