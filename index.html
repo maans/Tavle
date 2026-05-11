@@ -1,3 +1,152 @@
+<!doctype html>
+<!--
+SAFE165 NOTE:
+- Fjerner kun Lykkehjulets “↻ Til hjul”-knap fra hovedvisningen.
+- Knappen var uklar og overlappede mentalt med “Behold i puljen”/Nulstil.
+- Fjernelsen gælder både redigeringstilstand og præsentation, fordi knappen ikke længere renderes.
+- Ingen ændringer i spin, stop, auto, Space, lyd, statistik, Gem resultat som datawidget, KahooPardy, datawidget, papirkurv eller navigation.
+-->
+
+<!--
+SAFE164 NOTE:
+- Retter kun Lykkehjulets feltbaserede Rediger pulje-layout fra SAFE163.
+- Fjerner dubletknappen “Vælg kilde” nederst i editoren.
+- Fjerner “Brug som pulje”, fordi hvert felt allerede synkroniserer live til hjulets pulje.
+- Bevarer + Tilføj og minus pr. valgmulighed.
+- Ingen ændring i spin, stop, auto, Space, lyd, statistik, Gem resultat som datawidget, KahooPardy, datawidget, papirkurv eller navigation.
+-->
+
+<!--
+SAFE163 NOTE:
+- Bygger på SAFE162, hvor Lykkehjulet loader og bruger fælles listevælger.
+- Ændrer kun Lykkehjulets Rediger pulje-visning.
+- Puljen redigeres nu som ét tekstfelt pr. valgmulighed med + og −.
+- Formål: undgå klemt textarea og fejl med synlige \n-tegn; gøre manuel puljeredigering rolig på iPad.
+- Rører ikke spin, stop, auto, Space, lyd/animation, statistiklayout, Gem resultat, KahooPardy, datawidget, papirkurv, navigation, render(), select() eller addWidget().
+-->
+<!--
+SAFE162 NOTE:
+- Lykkehjulets Vælg kilde kobles nu på den eksisterende fælles chooseSharedList()-modal, som Afstemning bruger.
+- Formål: ens listevalg på tværs af widgets: listewidgets, datawidgets/datasæt, listebank og import til datawidget.
+- Kun Lykkehjulets loadList-binding ændres. Spin, stop, auto, Space, lyd, statistiklayout, KahooPardy, datawidget-layout, papirkurv og navigation røres ikke.
+- Hvis chooseSharedList ikke findes, falder Lykkehjulet tilbage til den gamle lokale listevælger.
+-->
+<!--
+SAFE161 WHEEL IMPORT-ONLY NOTE:
+- Bygger på virkende SAFE160 layout-only.
+- Retter kun Lykkehjulets eksisterende Vælg kilde/Hent liste-modal: importknappen åbner nu fil som synlig datawidget.
+- Import sender ikke længere filens linjer direkte ind i Lykkehjulet.
+- Ingen datawidget-valg som ekstra kilde endnu.
+- Ingen ændring i listewidgets, listebank, layout, spin, stop, auto, Space, lyd, KahooPardy, Afstemning, Grupper, papirkurv, render(), select() eller addWidget().
+-->
+
+<!--
+SAFE160 NOTE:
+- Bygger på SAFE159, som loader og bevarer den fungerende Lykkehjul-spinmotor.
+- Retter kun Lykkehjulets layout i højre side: statistikpanelet skal scrolle internt, og bundknapperne må ikke skubbes ned.
+- Ingen ændring i Vælg kilde/Hent liste, spin, lyd, auto-spin, Space, KahooPardy, datawidget, papirkurv, render(), select() eller addWidget().
+-->
+
+<!--
+SAFE159 NOTE:
+- Redesign af Lykkehjulets højreside oven på stabile SAFE154-base.
+- Bevarer spin-motor, lyd, auto, Space, wheelListBank/importflow og eksisterende Hent liste-flow.
+- Gør statistik/resultatpanel altid synligt og gør Gem resultat til datawidget.
+- Rediger pulje bevares som manuel nødløsning, men Gem pulje/listebank-flow fjernes fra Lykkehjulets hoved-UI.
+- Ingen ændringer i KahooPardy, Afstemning, Grupper, datawidget-layout, papirkurv, navigation, render(), select() eller addWidget().
+-->
+<!--
+SAFE154 NOTE:
+- Retter kun Hent liste-modalens importknap i det fælles listevalg.
+- Importér tekst/regneark åbner nu CSV/TSV/XLSX/TXT som synlig datawidget i stedet for at sende filens linjer direkte ind i afstemningen/listeforbrugeren.
+- Formål: regneark skal først blive en datawidget, så kolonner/resultater bevares og kan vælges bagefter.
+- Ingen ændringer i Afstemningens gendannelse fra eksisterende datawidget/listewidget, Data → liste-dialog, KahooPardy, Lykkehjulet, Grupper, papirkurv, tegning, navigation, render(), select() eller addWidget().
+-->
+
+<!--
+SAFE153 NOTE:
+- Bygger på den virkende SAFE151.
+- Tilføjer kun oprydning i listebanken inde i Hent liste-modalens listebank-afsnit.
+- Gemte listebank-lister får Brug/Slet, så usynlige lister kan fjernes fra hukommelsen.
+- Rører ikke listewidget-toolbar/chrome, datawidget, afstemningsimport, KahooPardy, papirkurv, tegning eller navigation.
+-->
+<!--
+SAFE151 NOTE:
+- Bygger på SAFE150.
+- Hent liste viser nu listewidgets fra alle tavler, ikke kun aktiv tavle.
+- Listewidgets mærkes med placering: aktuel tavle, anden tavle eller papirkurv.
+- “Gemte lister” omdøbes i modaltekst til “Listebank / importerede gemte lister”, så forskellen på synlige widgets og usynlig listebank bliver tydeligere.
+- Ingen ændring i importlogik, datawidget-layout, KahooPardy, papirkurv, tegning, navigation, render(), select() eller addWidget().
+-->
+
+<!--
+SAFE150 NOTE:
+- Bygger på den godkendte SAFE149.
+- Retter kun Afstemning → Hent liste, når kilden er en listewidget/gemt liste med CSV-/semikolon-lignende afstemningsresultater.
+- Hvis en almindelig liste har headeren Svar, Stemmer, Procent, gendannes spørgsmål, svarmuligheder og stemmetal ligesom fra datawidget.
+- Hvis listewidgetten er produceret fra et datasæt, forsøges først det oprindelige datasæt via sourceDatasetId, hvis det stadig findes.
+- Ingen ændringer i Data → liste-dialog, datawidget-layout, Lykkehjulet, Grupper, KahooPardy, papirkurv, tegning, navigation, render(), select() eller addWidget().
+-->
+<!--
+SAFE149 NOTE:
+- Kun listevælgerens visning af datawidget-/datasætkilder er præciseret.
+- Datawidgets viser nu også oprindelig leverandør/source, fx 😊 Afstemning → 📊 Datawidget.
+- Formål: titler kan ændres, men kildeinformation bør stadig hjælpe brugeren med at forstå, hvor data kommer fra.
+- Ingen ændring i importlogik, datawidgetdata, afstemningsgendannelse, KahooPardy, Grupper, Lykkehjulet, render(), select() eller addWidget().
+-->
+<!--
+SAFE148 NOTE:
+- Bygger på den godkendte SAFE147.
+- Kun UX-forbedring af den fælles Hent liste-modal.
+- Listekilder grupperes nu efter oprindelse: Listewidgets, Datawidgets/datasæt og gemte lister.
+- Hver valgmulighed viser ikon, titel, antal og "leveret af"-tekst.
+- Ingen ændring i selve import-/gendannelseslogikken for Afstemning, Ordsky, datawidget, KahooPardy, papirkurv eller navigation.
+-->
+<!--
+SAFE147 NOTE:
+- Bygger på SAFE146.
+- Hent liste i Afstemning kan nu også vælge synlige datawidgets/datasæt.
+- Hvis datasættet ligner afstemningsresultater (Svar, Stemmer, Procent), gendannes spørgsmål, svarmuligheder og stemmetal.
+- Almindelige datawidgets afleverer fortsat en simpel liste via bedste tekstkolonne.
+- Ingen ændringer i KahooPardy, Lykkehjulet, Grupper, Data → liste-dialog, papirkurv, navigation eller render/select/addWidget.
+-->
+<!--
+SAFE146 NOTE:
+- Bygger på SAFE145, men ændrer kun afstemningens Gem resultat-flow.
+- Gem resultat opretter nu en rigtig datawidget/datasæt med kolonnerne Svar, Stemmer og Procent.
+- Formål: Resultater skal ikke importeres tilbage i afstemningswidgetten eller vises som flad liste, men ligge som struktureret tabeldata.
+- Rører ikke Hent liste, Lykkehjulet, Grupper, KahooPardy, Data → liste-dialog, papirkurv, tegning, navigation, render(), select(), addWidget() eller import/backup.
+-->
+<!--
+SAFE145 NOTE:
+- Bygger på SAFE144.
+- Retter kun Afstemning → Gem svarliste/resultater.
+- Gemte afstemningsresultater oprettes nu direkte som en synlig datawidget med kolonnerne Svar, Stemmer og Procent.
+- Formål: Resultatet skal ligge som strukturerede tabeldata uden at skulle importeres tilbage i afstemningswidgetten.
+- Rører ikke Hent liste, Lykkehjulet, Grupper, KahooPardy, Data → liste-dialog, papirkurv, tegning, navigation, render(), select(), addWidget() eller import/backup.
+-->
+<!--
+SAFE144 NOTE:
+- Bygger på SAFE143.
+- Retter kun Afstemning → Gem svarliste.
+- Den nye listewidget indeholder nu afstemningsresultater pr. svarmulighed: svar, antal stemmer og procent.
+- Årsag: SAFE143 oprettede en synlig listewidget, men overførte kun svarmulighederne og ikke de synlige resultater.
+- Ingen ændringer i Hent liste, Lykkehjulet, Grupper, KahooPardy, Data → liste-dialog, papirkurv, tegning eller navigation.
+-->
+<!--
+SAFE143 NOTE:
+- Kasserer SAFE141/SAFE142-metoderne til Afstemning → Gem svarliste.
+- Bygger på senest fungerende SAFE140.
+- Retter kun Afstemning → Gem svarliste, så knappen opretter og åbner en synlig listewidget direkte på tavlen.
+- Listen gemmes samtidig i fælles listebank, så Hent liste kan finde den.
+- Ingen ændringer i Hent liste, Lykkehjulet, Grupper, KahooPardy, Data → liste-dialog, papirkurv, tegning eller navigation.
+-->
+<!--
+SAFE140 NOTE:
+- Afstemning kan nu også producere en fælles liste: “Gem svarliste” i Rediger afstemning.
+- Gemmer kun afstemningens aktuelle svarmuligheder i det eksisterende listebank-flow via openSaveListModal().
+- Ingen ændringer i Lykkehjulet, Grupper, Ordsky, KahooPardy, Data → liste-dialog, render(), select(), addWidget(), import/backup eller papirkurv.
+-->
 <!--
 SAFE121 ROLLBACK-NOTE:
 - SAFE119 og SAFE120 skal kasseres i denne arbejdslinje.
@@ -9,7 +158,30 @@ SAFE121 ROLLBACK-NOTE:
   3) Modaler, titel/topbar/toolbar og tegnepanel lægges eksplicit over tegnelaget.
 - Ingen papirkurv-navigation, ingen modalflow, ingen widgetdata og ingen import/backup ændres i denne fil.
 -->
+<!--
+SAFE138 DOCUMENTATION-NOTE:
+- Bygger på SAFE137, som er godkendt som ny virkende base efter papirkurv-/tavlenavigationssporet.
+- Denne version ændrer ingen funktionalitet. Den tilføjer kun AI-venlig dokumentation/kodekort om datawidget- og listeflow.
+- Formål: forberede næste udviklingsspor, hvor datawidget/listewidget skal kunne samarbejde mere ensartet med widgets, der bruger eller producerer lister.
+- Ingen ændringer i KahooPardy, datawidget-funktionalitet, liste-dialoger, render(), select(), addWidget(), import/backup, papirkurv, tegning eller navigation.
+
+DATA/LISTE-ARBEJDSSPOR:
+- Datawidget = appens sikre kilde til importerede/redigerede tabeller og strukturerede tekstdata.
+- Listewidget = appens sikre kilde til simple linjelister.
+- Forbrugere bør først kobles på eksisterende data/lister: Lykkehjulet og Grupper, derefter Afstemning/Ordsky, og først senere KahooPardy.
+- Nye importveje direkte inde i enkeltwidgets bør undgås, hvis data kan gå via datawidget/listewidget.
+- Næste funktionelle fase bør kun ensrette “Hent liste” mellem Lykkehjulet og Grupper; KahooPardy må stadig ikke røres.
+-->
 <!doctype html>
+<!--
+SAFE139 NOTE:
+- Bygger på virkende SAFE138.
+- Første funktionelle data/liste-kobling efter kortlægning.
+- Afstemning kan nu hente svarmuligheder fra den fælles listevælger inde fra Rediger afstemning.
+- Valgt liste erstatter svarmulighederne og nulstiller stemmer, men ændrer ikke spørgsmålet.
+- Ingen ændringer i Lykkehjulet, Grupper, Ordsky, KahooPardy, Data → liste-dialog, render(), select(), addWidget(), import/backup, papirkurv eller navigation.
+-->
+
 <!--
 SAFE137 NOTE:
 - Bygger direkte på den virkende SAFE134.
@@ -7545,6 +7717,291 @@ body.trashBoardActive #toolbarFallback{
   pointer-events:none!important;
 }
 
+
+
+/* SAFE159: Lykkehjulet - enkel højreside med fast statistikpanel.
+   Kun visuel layoutstyring for .safe159Wheel; spin-motor og eksisterende wheel JS bevares. */
+.content .wheel.safe159Wheel{
+  display:grid!important;
+  grid-template-columns:minmax(300px,1.15fr) minmax(300px,.85fr)!important;
+  gap:16px!important;
+  padding:14px!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+.safe159Wheel .wheelBox{
+  min-width:0!important;
+  min-height:0!important;
+  height:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.safe159Wheel .wheelCanvas{
+  width:min(100%,calc(var(--widget-h,560px) - 88px))!important;
+  height:min(100%,calc(var(--widget-h,560px) - 88px))!important;
+}
+.safe159Wheel .wheelSide{
+  display:grid!important;
+  grid-template-rows:auto auto auto minmax(0,1fr) auto!important;
+  gap:10px!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.safe159Wheel .wheelTopBar{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+}
+.safe159Wheel .wheelTopBar button{
+  margin:0!important;
+  min-height:42px!important;
+  font-size:16px!important;
+  font-weight:950!important;
+}
+.safe159Wheel .wheelSettings{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+  background:#f8fafc!important;
+  border-radius:16px!important;
+  padding:10px!important;
+}
+.safe159Wheel .wheelSettings label{
+  background:white!important;
+  border-radius:999px!important;
+  padding:8px 10px!important;
+  font-weight:900!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+.safe159Wheel .wheelSettings .autoCountLabel{
+  grid-column:1/-1!important;
+  justify-content:center!important;
+}
+.safe159Wheel .wheelSettings input[type=number]{
+  width:72px!important;
+  padding:5px 8px!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:10px!important;
+  font-weight:900!important;
+}
+.safe159Wheel .wheelResultNow{
+  background:#eef2ff!important;
+  border-radius:16px!important;
+  padding:10px 12px!important;
+  font-weight:950!important;
+  display:grid!important;
+  gap:4px!important;
+}
+.safe159Wheel .wheelResultNow small{opacity:.7;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.safe159Wheel .wheelResultNow b{font-size:clamp(20px,2.6vw,36px);line-height:1.05;overflow-wrap:anywhere}
+.safe159Wheel .wheelStatsPanel{
+  min-height:0!important;
+  overflow:auto!important;
+  background:#f8fafc!important;
+  border:1px solid #e2e8f0!important;
+  border-radius:16px!important;
+  padding:10px!important;
+}
+.safe159Wheel .wheelStatsPanel h3{
+  margin:0 0 8px 0!important;
+  font-size:16px!important;
+}
+.safe159Wheel .wheelStatRow{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto auto!important;
+  gap:8px!important;
+  align-items:center!important;
+  background:white!important;
+  border-radius:12px!important;
+  padding:8px 10px!important;
+  margin:0 0 6px 0!important;
+  font-weight:850!important;
+}
+.safe159Wheel .wheelStatRow .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.safe159Wheel .wheelStatRow .count{font-variant-numeric:tabular-nums}
+.safe159Wheel .wheelStatRow .pct{opacity:.65;font-variant-numeric:tabular-nums}
+.safe159Wheel .wheelNoStats{
+  color:#64748b!important;
+  font-weight:800!important;
+  background:white!important;
+  border-radius:12px!important;
+  padding:12px!important;
+}
+.safe159Wheel .wheelBottom{
+  display:grid!important;
+  grid-template-columns:1fr 1.4fr!important;
+  gap:8px!important;
+}
+.safe159Wheel .wheelBottom button{
+  margin:0!important;
+  min-height:42px!important;
+  font-weight:950!important;
+}
+.safe159Wheel.editing{
+  grid-template-columns:minmax(280px,.9fr) minmax(340px,1.1fr)!important;
+}
+.safe159Wheel.editing .wheelSide{
+  grid-template-rows:auto minmax(0,1fr)!important;
+}
+.safe159Wheel .editArea.safe159EditArea{
+  display:flex!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  background:#f8fafc!important;
+  border-radius:16px!important;
+  padding:10px!important;
+}
+.safe159Wheel .editArea.safe159EditArea textarea{
+  flex:1 1 auto!important;
+  min-height:220px!important;
+  height:auto!important;
+  width:100%!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:12px!important;
+  padding:12px!important;
+  font-size:18px!important;
+  line-height:1.35!important;
+}
+.safe159Wheel .editTools{
+  display:flex!important;
+  gap:8px!important;
+  flex-wrap:wrap!important;
+  margin-top:8px!important;
+}
+.safe159Wheel .editTools button{font-weight:950!important}
+@media(max-width:760px){
+  .content .wheel.safe159Wheel,.safe159Wheel.editing{grid-template-columns:1fr!important;grid-template-rows:minmax(240px,.9fr) minmax(260px,1fr)!important}
+  .safe159Wheel .wheelCanvas{width:min(100%,56vh)!important;height:min(100%,56vh)!important}
+}
+
+
+/* SAFE160 LAYOUT-ONLY: Lykkehjulets højreside har fast bund og intern statistik-scroll.
+   Må ikke ændre kildevælger, spinmotor, Space/lyd eller datawidget-flow. */
+.content .wheel.safe159Wheel:not(.editing){
+  grid-template-columns:minmax(300px,1fr) minmax(330px,430px)!important;
+}
+.content .wheel.safe159Wheel:not(.editing) > .wheelSide{
+  display:grid!important;
+  grid-template-rows:auto auto auto minmax(96px,1fr) auto!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  align-content:stretch!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelTopBar{
+  grid-template-columns:1fr 1fr 1fr!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelTopBar button{
+  min-width:0!important;
+  padding-left:8px!important;
+  padding-right:8px!important;
+  white-space:normal!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelSettings{
+  flex:0 0 auto!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelResultNow{
+  min-height:64px!important;
+  max-height:96px!important;
+  overflow:auto!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelResultNow b{
+  font-size:clamp(18px,2.1vw,30px)!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelStatsPanel{
+  min-height:0!important;
+  height:100%!important;
+  overflow:auto!important;
+  overscroll-behavior:contain!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelBottom{
+  align-self:end!important;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:8px!important;
+  background:rgba(255,255,255,.94)!important;
+  border-top:1px solid #e5e7eb!important;
+  padding-top:8px!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelBottom button{
+  width:100%!important;
+  min-height:40px!important;
+}
+@media(max-width:760px){
+  .content .wheel.safe159Wheel:not(.editing) > .wheelSide{
+    grid-template-rows:auto auto auto minmax(140px,1fr) auto!important;
+  }
+  .content .wheel.safe159Wheel:not(.editing) .wheelTopBar{
+    grid-template-columns:1fr!important;
+  }
+}
+
+
+/* SAFE163: Lykkehjulet Rediger pulje som én valgmulighed pr. felt. */
+.safe159Wheel .editArea.safe159EditArea.safe163OptionEditor{
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr) auto!important;
+  gap:10px!important;
+}
+.safe159Wheel .safe163OptionRows{
+  min-height:0!important;
+  overflow:auto!important;
+  display:grid!important;
+  gap:8px!important;
+  padding-right:2px!important;
+  overscroll-behavior:contain!important;
+}
+.safe159Wheel .safe163OptionRow{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:8px!important;
+  align-items:center!important;
+}
+.safe159Wheel .safe163OptionInput{
+  width:100%!important;
+  min-height:44px!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  padding:9px 12px!important;
+  font-size:18px!important;
+  font-weight:850!important;
+}
+.safe159Wheel .safe163RemoveOption{
+  width:42px!important;
+  min-height:42px!important;
+  margin:0!important;
+  border-radius:12px!important;
+  background:#fee2e2!important;
+  color:#991b1b!important;
+  font-weight:950!important;
+}
+.safe159Wheel .safe163AddOption{
+  background:#e0e7ff!important;
+  color:#312e81!important;
+}
+
+
+/* SAFE164: Rediger pulje synkroniserer live; kun + Tilføj nederst. */
+.safe159Wheel .safe164EditTools{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr)!important;
+  gap:10px!important;
+  align-items:center!important;
+}
+.safe159Wheel .safe164LiveHint{
+  color:#475569!important;
+  font-weight:850!important;
+  font-size:13px!important;
+  line-height:1.2!important;
+}
+@media(max-width:760px){
+  .safe159Wheel .safe164EditTools{grid-template-columns:1fr!important}
+}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 
@@ -9533,6 +9990,16 @@ DATAWIDGET-KERNEFLOW
 - Dataset/datawidgets er den fælles tekst- og tabelkilde i appen.
 - Aktivitetswidgets bør hente lister herfra eller fra listewidgets, ikke selv opfinde nye filimportveje.
 - Denne blok må gerne udbygges senere med bedre kolonnevalg og sammensatte strenge, men ændr småt og test wheel/grupper/KahooPardy bagefter.
+
+SAFE138 DATA/LISTE-KODEKORT — kun dokumentation:
+- Import/drop/backup-flowet kan oprette datasets i state.datasets og derefter en tekstwidget med datasetId + datasetView.
+- datasetFirstTextColumn(ds) vælger aktuelt en bedste tekstkolonne som fallback; fremtidigt kolonnevalg skal hellere ske i Data → liste-dialogen end ved at ændre denne helper bredt.
+- formatDatasetAsTextWidgetContent(ds) laver brugerens synlige datawidget-preview/intro; tekst her må gerne forklare flow, men må ikke blive datalogik.
+- addDatasetWidget(ds, point) opretter datawidget som tekstwidget med dataset-reference; denne kobling bør bevares for localStorage/backups.
+- Listeforbrugere, der bør kortlægges før ændring: wheel/lykkehjul, groups/grupper, poll/afstemning, wordcloud/ordsky.
+- Listeproducenter, der kan blive relevante: dataset/datawidget, almindelig tekstwidget, grupperesultat og evt. afstemning/ordsky-input.
+- Første sikre funktionsfase efter denne dokumentation: gør Hent liste ensartet mellem Lykkehjulet og Grupper, uden ny import og uden KahooPardy.
+- KahooPardy er følsom og skal først kobles på, når fælles listevalg er stabilt i mindst wheel + groups.
 */
 function datasetFirstTextColumn(ds){
   if(!ds||!Array.isArray(ds.rows))return [];
@@ -10398,23 +10865,270 @@ function pickListImportFile(cb){
 }
 function importedListButtonHtml(){return '<button id="importListFile">Importér tekst/regneark</button>'}
 function wireImportListButton(cb){const b=modal.querySelector('#importListFile');if(b)b.onclick=()=>pickListImportFile(cb)}
+function importedDataWidgetButtonHtml(){return '<button id="importListAsDataWidget">Importér regneark til datawidget</button>'}
+function wireImportDataWidgetButton(){
+  const b=modal.querySelector('#importListAsDataWidget');
+  if(!b)return;
+  b.onclick=()=>{
+    const input=document.createElement('input');
+    input.type='file';
+    input.accept='.csv,.tsv,.txt,.xlsx,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    input.onchange=async()=>{
+      const file=input.files&&input.files[0];
+      if(!file)return;
+      try{
+        let ds=null;
+        const cleanName=(file.name||'Datasæt').replace(/\.[^.]+$/,'');
+        if(isLikelyXlsxFile(file)) ds=await parseXlsxDatasetFile(file);
+        else ds=parseDatasetFromText(await readFileAsText(file),cleanName);
+        if(!ds||!Array.isArray(ds.rows)||!ds.rows.length){toast('Filen indeholdt ingen data');return;}
+        ds.name=ds.name||cleanName;
+        ds.sourceName=ds.sourceName||file.name||cleanName;
+        updateDatasetInState(ds);
+        closeModal();
+        addDatasetWidget(ds,{x:Math.max(24,Math.min(innerWidth*.55,innerWidth-720)),y:Math.max(90,Math.min(innerHeight*.22,innerHeight-460))});
+        toast('Datawidget oprettet: '+(ds.name||'Datasæt')+' ('+ds.rows.length+' rækker)');
+      }catch(err){
+        console.error(err);
+        toast('Kunne ikke importere som datawidget: '+(err&&err.message?err.message:'ukendt fejl'));
+      }
+    };
+    input.click();
+  };
+}
 
 
 function cloudInfo(label,count){
   toast(`${label}: ${count}`);
 }
+function safe147DatasetSharedListItems(ds){
+  if(!ds||!Array.isArray(ds.rows))return [];
+  const cols=(Array.isArray(ds.columns)?ds.columns:[]).map(c=>String(c||'').trim().toLowerCase());
+  let idx=cols.findIndex(c=>['svar','navn','name','person','liste','option','valgmulighed'].includes(c));
+  if(idx<0)idx=0;
+  return ds.rows.map(r=>String((r||[])[idx]||'').trim()).filter(Boolean);
+}
+function safe147PollResultFromDataset(ds){
+  if(!ds||!Array.isArray(ds.rows))return null;
+  const cols=(Array.isArray(ds.columns)?ds.columns:[]).map(c=>String(c||'').trim().toLowerCase());
+  const answerIdx=cols.findIndex(c=>c==='svar'||c==='answer'||c==='valgmulighed');
+  const voteIdx=cols.findIndex(c=>c==='stemmer'||c==='votes'||c==='antal');
+  const pctIdx=cols.findIndex(c=>c==='procent'||c==='pct'||c==='%');
+  if(answerIdx<0||voteIdx<0)return null;
+  const options=[],votes=[];
+  ds.rows.forEach(r=>{
+    const option=String((r||[])[answerIdx]||'').trim();
+    if(!option)return;
+    const raw=String((r||[])[voteIdx]||'0').replace(',', '.').replace(/[^0-9.\-]/g,'');
+    options.push(option); votes.push(Math.max(0,Math.round(Number(raw)||0)));
+  });
+  if(!options.length)return null;
+  return {question:String(ds.sourceName||ds.question||ds.name||'Afstemning').replace(/^Afstemningsresultater\s*-\s*/i,'').trim()||'Afstemning',options,votes,percentColumn:pctIdx>=0};
+}
+function safe150ParseDelimitedLine(line,delim){
+  const out=[]; let cur='', inQ=false;
+  line=String(line==null?'':line);
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){
+      if(inQ && line[i+1]==='"'){cur+='"'; i++;}
+      else inQ=!inQ;
+    }else if(ch===delim && !inQ){out.push(cur.trim()); cur='';}
+    else cur+=ch;
+  }
+  out.push(cur.trim());
+  return out;
+}
+function safe150DetectDelimiter(lines){
+  const sample=(lines||[]).slice(0,5).join('\n');
+  const count=(ch)=>((sample.match(new RegExp(ch==='\t'?'\\t':ch,'g'))||[]).length);
+  const tabs=count('\t'), semis=count(';'), commas=count(',');
+  if(tabs>=semis && tabs>=commas && tabs>0)return '\t';
+  if(semis>=commas && semis>0)return ';';
+  if(commas>0)return ',';
+  return null;
+}
+function safe150PollResultFromListItems(items,sourceName){
+  const lines=(items||[]).map(x=>String(x==null?'':x).trim()).filter(Boolean);
+  if(lines.length<2)return null;
+  const delim=safe150DetectDelimiter(lines);
+  if(!delim)return null;
+  const table=lines.map(line=>safe150ParseDelimitedLine(line,delim));
+  const header=(table[0]||[]).map(c=>String(c||'').trim().toLowerCase());
+  const answerIdx=header.findIndex(c=>c==='svar'||c==='answer'||c==='valgmulighed'||c==='mulighed'||c==='option');
+  const voteIdx=header.findIndex(c=>c==='stemmer'||c==='votes'||c==='antal'||c==='stemme');
+  const pctIdx=header.findIndex(c=>c==='procent'||c==='pct'||c==='%'||c==='procenter');
+  if(answerIdx<0||voteIdx<0)return null;
+  const options=[],votes=[];
+  table.slice(1).forEach(r=>{
+    const option=String((r||[])[answerIdx]||'').trim();
+    if(!option)return;
+    const raw=String((r||[])[voteIdx]||'0').replace(',', '.').replace(/[^0-9.\-]/g,'');
+    options.push(option);
+    votes.push(Math.max(0,Math.round(Number(raw)||0)));
+  });
+  if(!options.length)return null;
+  let q=String(sourceName||'Afstemning').replace(/^Liste fra\s+/i,'').replace(/^Afstemningsresultater\s*-\s*/i,'').trim();
+  if(!q)q='Afstemning';
+  return {question:q,options,votes,percentColumn:pctIdx>=0,source:'listCsv'};
+}
+function safe150PollResultFromListSource(src){
+  if(!src)return null;
+  try{
+    if(src.sourceDatasetId){
+      const ds=findDatasetById(src.sourceDatasetId);
+      const restored=safe147PollResultFromDataset(ds);
+      if(restored)return restored;
+    }
+  }catch(_e){}
+  return safe150PollResultFromListItems(src.items||[],src.name||src.sourceDatasetName||'Afstemning');
+}
+function safe147VisibleDatasetChoices(){
+  const out=[],seen=new Set();
+  try{
+    (slide().widgets||[]).forEach(w=>{
+      if(!w||w.type!=='text'||!w.data||!w.data.datasetId)return;
+      const ds=findDatasetById(w.data.datasetId);
+      if(!ds||seen.has(String(ds.id)))return;
+      seen.add(String(ds.id));
+      out.push({id:String(ds.id),name:String(w.title||ds.name||'Datawidget').replace(/^📊\s*/,''),ds});
+    });
+    (state.datasets||[]).forEach(ds=>{
+      if(!ds||!ds.id||seen.has(String(ds.id)))return;
+      seen.add(String(ds.id));
+      out.push({id:String(ds.id),name:String(ds.name||'Datasæt').replace(/^📊\s*/,''),ds});
+    });
+  }catch(_e){}
+  return out;
+}
+function safe148RawSavedListBank(){
+  try{return JSON.parse(localStorage.getItem('maans_wheel_lists')||'{}')||{}}catch(_e){return {}}
+}
+function safe148VisibleListWidgetChoices(){
+  const out=[];
+  try{
+    const slides=Array.isArray(state.slides)?state.slides:[];
+    slides.forEach((sl,slideIndex)=>{
+      ((sl&&sl.widgets)||[]).forEach(w=>{
+        if(!w||w.type!=='text'||!w.data||w.data.datasetId)return;
+        const title=String(w.data.sharedListName||w.title||'Listewidget').replace(/^📊\s*/,'').trim()||'Listewidget';
+        const isList=(w.data.kind==='list')||w.data.listAsset===true||w.data.createdFromDataset===true||/^Liste fra\s+/i.test(title)||/liste/i.test(title);
+        if(!isList)return;
+        const items=String(w.data.text||'').split(/\r?\n/).map(x=>String(x||'').trim()).filter(Boolean);
+        if(!items.length)return;
+        const isTrash=!!(sl&&(sl.isTrash||sl.trash||sl.type==='trash'||sl.internal==='trash'||sl.title==='🗑 Papirkurv'||/papirkurv/i.test(String(sl.title||''))));
+        const isActive=slideIndex===state.active;
+        const boardTitle=String((sl&&sl.title)||'Tavle '+(slideIndex+1)).trim();
+        const locationLabel=isTrash?'i papirkurv':(isActive?'på aktuel tavle':'på tavle: '+boardTitle);
+        out.push({
+          id:String(w.id),name:title,items,source:'Listewidget',
+          slideIndex,boardTitle,isTrash,isActive,locationLabel,
+          sourceDatasetId:w.data.sourceDatasetId||'',sourceDatasetName:w.data.sourceDatasetName||'',sourceColumns:w.data.sourceColumns||null,separator:w.data.separator||''
+        });
+      });
+    });
+  }catch(_e){}
+  return out.sort((a,b)=>{
+    const ga=(a.isActive?0:(a.isTrash?2:1)), gb=(b.isActive?0:(b.isTrash?2:1));
+    if(ga!==gb)return ga-gb;
+    return String(a.name||'').localeCompare(String(b.name||''),'da');
+  });
+}
+function safe148SourceButton(cls,attrs,icon,title,meta){
+  return `<button class="${cls} safe148SourceBtn" ${attrs}><span class="safe148Icon">${icon}</span><span class="safe148Text"><b>${esc(title)}</b><small>${esc(meta)}</small></span></button>`;
+}
+
+function safe149DatasetSourceInfo(ds){
+  const type=String((ds&&ds.sourceType)||(ds&&ds.type)||(ds&&ds.originType)||'').toLowerCase();
+  const name=String((ds&&ds.sourceWidgetTitle)||(ds&&ds.sourceName)||(ds&&ds.question)||'').trim();
+  if(type==='poll-results'||type==='poll'||type.includes('poll'))return {icon:'😊',label:'Afstemning',detail:name?('fra spørgsmålet “'+name+'”'):'fra afstemningswidget'};
+  if(type==='wheel'||type.includes('wheel'))return {icon:'🎲',label:'Lykkehjulet',detail:'fra lykkehjul'};
+  if(type==='groups'||type.includes('group'))return {icon:'👥',label:'Grupper',detail:'fra gruppewidget'};
+  if(type==='wordcloud'||type.includes('cloud'))return {icon:'☁️',label:'Ordsky',detail:'fra ordsky'};
+  if(type==='kahoot'||type==='kahoopardy'||type.includes('kahoo'))return {icon:'🎯',label:'KahooPardy',detail:'fra KahooPardy'};
+  if(type==='list'||type.includes('list'))return {icon:'☰',label:'Listewidget',detail:'fra listewidget'};
+  return {icon:'📊',label:'Datawidget/datasæt',detail:'fra datawidget/datasæt'};
+}
+function safe149DatasetButtonIcon(ds){
+  const info=safe149DatasetSourceInfo(ds);
+  return info.icon==='📊'?'📊':info.icon+'→📊';
+}
+function safe149DatasetButtonMeta(ds,rows){
+  const info=safe149DatasetSourceInfo(ds);
+  if(info.icon==='📊')return `${rows} rækker · leveret af datawidget/datasæt`;
+  return `${rows} rækker · leveret af ${info.icon} ${info.label} → 📊 Datawidget`;
+}
 function chooseSharedList(title,callback){
-  const bank=wheelListBank();
-  const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));
-  showModal(`<h2>${esc(title||'Hent liste')}</h2><p>Vælg en gemt liste eller importér en tekstfil/CSV/regneark.</p>`+
-    (keys.length?keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)} <small>(${(bank[k]||[]).length})</small></button>`).join(' '):'<p>Ingen gemte lister endnu.</p>')+
-    '<hr>'+importedListButtonHtml()+' <button id="close">Luk</button>');
-  modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{
-    const pick=btn.dataset.k;
-    callback(pick,[...(wheelListBank()[pick]||[])]);
+  const rawBank=safe148RawSavedListBank();
+  const listWidgets=safe148VisibleListWidgetChoices();
+  const datasets=safe147VisibleDatasetChoices();
+  const visibleListNames=new Set(listWidgets.map(x=>String(x.name||'').trim().toLowerCase()));
+  const keys=Object.keys(rawBank).filter(k=>!visibleListNames.has(String(k||'').trim().toLowerCase())).sort((a,b)=>a.localeCompare(b,'da'));
+  const sourceStyle=`<style>
+    .safe148Picker{display:grid;gap:12px}
+    .safe148Section{display:grid;gap:8px}
+    .safe148Section h3{margin:8px 0 0;font-size:17px}
+    .safe148Grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+    .safe148SourceBtn{display:flex!important;align-items:center;gap:10px;text-align:left;justify-content:flex-start;min-height:58px;padding:10px 12px!important}
+    .safe148Icon{font-size:25px;line-height:1;min-width:30px;text-align:center}
+    .safe148Text{display:grid;gap:2px;min-width:0}
+    .safe148Text b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .safe148Text small{opacity:.78;font-weight:700;white-space:normal;line-height:1.15}
+    .safe148Empty{opacity:.68;margin:0}
+    .safe153BankRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+    .safe153BankRow .safe148SourceBtn{min-width:0}
+    .safe153DeleteList{background:#fee2e2!important;color:#991b1b!important;min-height:58px;padding:10px 12px!important}
+  </style>`;
+  const widgetHtml=listWidgets.length?listWidgets.map((src,i)=>
+    safe148SourceButton('pickVisibleList',`data-i="${i}"`,'☰',src.name,`${src.items.length} linjer · ${src.locationLabel||'listewidget'}`)
+  ).join(''):'<p class="safe148Empty">Ingen listewidgets fundet.</p>';
+  const dataHtml=datasets.length?datasets.map(d=>{
+    const rows=((d.ds&&d.ds.rows)||[]).length;
+    return safe148SourceButton('pickDatasetList',`data-ds="${esc(d.id)}"`,safe149DatasetButtonIcon(d.ds),d.name,safe149DatasetButtonMeta(d.ds,rows));
+  }).join(''):'<p class="safe148Empty">Ingen datawidgets/datasæt på tavlen.</p>';
+  const savedHtml=keys.length?keys.map(k=>
+    `<div class="safe153BankRow">${safe148SourceButton('pickList',`data-k="${esc(k)}"`,'💾',k,`${(rawBank[k]||[]).length} linjer · usynlig listebank`)}<button class="safe153DeleteList" data-k="${esc(k)}" title="Slet fra listebank">Slet</button></div>`
+  ).join(''):'<p class="safe148Empty">Ingen ekstra gemte lister.</p>';
+  showModal(sourceStyle+`<h2>${esc(title||'Hent liste')}</h2><p>Vælg en listekilde. Synlige listewidgets vises nu fra alle tavler; listebank er ældre/importerede lister uden synlig widget.</p><div class="safe148Picker">`+
+    `<section class="safe148Section"><h3>☰ Listewidgets på alle tavler</h3><div class="safe148Grid">${widgetHtml}</div></section>`+
+    `<section class="safe148Section"><h3>📊 Datawidgets / datasæt</h3><div class="safe148Grid">${dataHtml}</div></section>`+
+    `<section class="safe148Section"><h3>💾 Listebank / importerede gemte lister</h3><div class="safe148Grid">${savedHtml}</div></section>`+
+    `</div><hr>${(typeof importedDataWidgetButtonHtml==='function'?importedDataWidgetButtonHtml():importedListButtonHtml())} <button id="close">Luk</button>`);
+  modal.querySelectorAll('.pickVisibleList').forEach(btn=>btn.onclick=()=>{
+    const src=listWidgets[Number(btn.dataset.i)];
+    if(!src)return;
+    callback(src.name,[...src.items],{type:'widgetList',widgetId:src.id,source:'listWidget',pollResult:safe150PollResultFromListSource(src),sourceDatasetId:src.sourceDatasetId||''});
     closeModal();
   });
-  wireImportListButton((name,items)=>{callback(name,items);closeModal()});
+  modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{
+    const pick=btn.dataset.k;
+    const savedItems=[...(safe148RawSavedListBank()[pick]||[])];
+    callback(pick,savedItems,{type:'list',source:'savedBank',pollResult:safe150PollResultFromListItems(savedItems,pick)});
+    closeModal();
+  });
+  modal.querySelectorAll('.safe153DeleteList').forEach(btn=>btn.onclick=(ev)=>{
+    if(ev){ev.preventDefault();ev.stopPropagation();}
+    const pick=btn.dataset.k;
+    if(!pick)return;
+    if(!confirm('Slet “'+pick+'” fra listebanken? Den synlige widget slettes ikke.'))return;
+    const bank=safe148RawSavedListBank();
+    delete bank[pick];
+    try{
+      if(typeof saveWheelListBank==='function')saveWheelListBank(bank);
+      else localStorage.setItem('maans_wheel_lists',JSON.stringify(bank));
+    }catch(_e){localStorage.setItem('maans_wheel_lists',JSON.stringify(bank));}
+    try{toast('Slettet fra listebank')}catch(_e){}
+    chooseSharedList(title,callback);
+  });
+  modal.querySelectorAll('.pickDatasetList').forEach(btn=>btn.onclick=()=>{
+    const id=btn.dataset.ds;
+    const ds=findDatasetById(id);
+    const items=safe147DatasetSharedListItems(ds);
+    callback((ds&&ds.name)||'Datawidget',items,{type:'dataset',dataset:ds,pollResult:safe147PollResultFromDataset(ds),source:'dataset'});
+    closeModal();
+  });
+  if(typeof wireImportDataWidgetButton==='function') wireImportDataWidgetButton();
+  else wireImportListButton((name,items)=>{callback(name,items,{type:'import',source:'file'});closeModal()});
   modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
@@ -11569,8 +12283,81 @@ function wirePoll(c,w,el){
     showModal(`<h2>Rediger afstemning</h2>
       <label>Spørgsmål<br><input id="pollQ" value="${esc(w.data.question||'Hvordan går det?')}" style="width:100%"></label>
       <label>Smilies / svarmuligheder<br><input id="pollOpts" value="${esc((w.data.options||['😀','🙂','😐','🙁','😡']).join(' '))}" style="width:100%"></label>
-      <p class="note">Skriv svarmuligheder adskilt med mellemrum. Brug gerne emojis.</p>
-      <button id="ok">Gem</button><button id="close">Luk</button>`);
+      <p class="note">Skriv svarmuligheder adskilt med mellemrum. Brug gerne emojis. Du kan også hente svarmuligheder fra en gemt liste/listewidget.</p>
+      <button id="pollLoadList">Hent liste</button><button id="pollSaveList">Gem resultat som datawidget</button><button id="ok">Gem</button><button id="close">Luk</button>`);
+    const loadListBtn=modal.querySelector('#pollLoadList');
+    if(loadListBtn)loadListBtn.onclick=()=>{
+      chooseSharedList('Hent svarmuligheder til afstemning',(name,items,meta)=>{
+        const restored=meta&&meta.pollResult;
+        if(restored&&Array.isArray(restored.options)&&restored.options.length){
+          w.data.question=restored.question||w.data.question||'Afstemning';
+          w.data.options=restored.options;
+          w.data.votes=restored.votes||restored.options.map(()=>0);
+          fillContent(el,w);
+          save();
+          toast('Afstemning gendannet fra '+((meta&&meta.type==='dataset')?'datawidget':'liste')+': '+restored.options.length);
+          return;
+        }
+        const opts=(items||[]).map(x=>String(x||'').trim()).filter(Boolean);
+        if(!opts.length){toast('Listen er tom');return}
+        w.data.options=opts;
+        w.data.votes=opts.map(()=>0);
+        fillContent(el,w);
+        save();
+        toast((meta&&meta.type==='dataset'?'Datawidget hentet som svarliste: ':'Svarliste hentet: ')+opts.length);
+      });
+    };
+    const saveListBtn=modal.querySelector('#pollSaveList');
+    if(saveListBtn)saveListBtn.onclick=(ev)=>{
+      if(ev){ev.preventDefault();ev.stopPropagation();}
+      const opts=(modal.querySelector('#pollOpts')?.value||'').trim().split(/\s+/).map(x=>String(x||'').trim()).filter(Boolean);
+      if(!opts.length){toast('Ingen svarmuligheder at gemme');return false}
+      /* SAFE145: Gem afstemningsresultater som CSV i en synlig listewidget.
+         CSV med headerrække kan senere parses til datawidget via tekst/listens data-knap. */
+      const q=(modal.querySelector('#pollQ')?.value||w.data.question||'Afstemning').trim()||'Afstemning';
+      const votes=(w.data.votes||[]).map(v=>Number(v)||0);
+      const total=votes.reduce((a,b)=>a+b,0);
+      const csvCell=function(v){
+        const t=String(v==null?'':v);
+        return /[",\n;]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t;
+      };
+      /* SAFE146: Gem afstemningsresultater direkte som datawidget/datasæt.
+         Det undgår at en CSV-liste importeres tilbage i afstemningswidgetten og giver en redigerbar tabelkilde. */
+      const rows=opts.map((o,i)=>{
+        const n=Number(votes[i]||0);
+        const pct=total?Math.round(n/total*100):0;
+        return [String(o),String(n),String(pct)];
+      });
+      const name=('Afstemningsresultater - '+q).slice(0,70);
+      const ds={
+        id:uid(),
+        name:name,
+        type:'poll-results',
+        columns:['Svar','Stemmer','Procent'],
+        rows:rows,
+        sourceName:q,
+        importedAt:Date.now()
+      };
+      closeModal();
+      try{
+        updateDatasetInState(ds);
+        const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+36,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+36,innerHeight-440))});
+        if(dw){
+          dw.title='📊 '+name;
+          dw.data=dw.data||{};
+          dw.data.sourceType='poll-results';
+          dw.data.sourcePollQuestion=q;
+          render();
+          select(dw.id,{editText:false});
+          save();
+        }
+        toast('Resultat-datawidget oprettet: '+rows.length+' rækker');
+      }catch(err){
+        console.error(err);
+        toast('Kunne ikke oprette resultat-datawidget');
+      }
+      return false;
+    };
     modal.querySelector('#ok').onclick=()=>{
       w.data.question=modal.querySelector('#pollQ').value.trim()||'Afstemning';
       w.data.options=modal.querySelector('#pollOpts').value.trim().split(/\s+/).filter(Boolean);
@@ -12951,25 +13738,26 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
   chosen.forEach(x=>counts.set(x,(counts.get(x)||0)+1));
   const stats=[...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'da'));
   const maxCount=stats[0]?.[1]||1;
-  const modeLabel=w.data.statsView?'Statistik':'Valgte';
-  const modePanel=w.data.statsView
-    ? `<div class="chosen stats">${stats.length?stats.map(([name,n])=>{const pct=Math.round(n*100/total);const fs=Math.max(16,Math.min(34,16+(n/maxCount)*18));return `<span class="statChip" style="font-size:${fs}px">${esc(name)}<small>${n} · ${pct}%</small></span>`}).join(''):'<b>Ingen resultater endnu</b>'}</div>`
-    : `<div class="chosen"><b>Valgte:</b><br>${esc(chosen.join(', ')||'Ingen endnu')}</div>`;
-  c.innerHTML=`<div class="wheel recon ${w.data.editing?'editing':''} ${w.data.statsView?'statsMode':''}">
+  const latest=chosen.length?chosen[chosen.length-1]:'';
+  const statsRows=stats.length?stats.map(([name,n])=>{const pct=Math.round(n*100/total);return `<div class="wheelStatRow"><span class="name">${esc(name)}</span><span class="count">${n}</span><span class="pct">${pct}%</span></div>`}).join(''):'<div class="wheelNoStats">Ingen resultater endnu. Drej hjulet for at opbygge statistik.</div>';
+  // SAFE163: Rediger pulje som felter, ikke ét textarea.
+  const safe163EditorNames=((w.data.names||[]).length?(w.data.names||[]):['']).map(x=>String(x||''));
+  const safe163EditorRows=safe163EditorNames.map((name,i)=>`<div class="safe163OptionRow"><input class="safe163OptionInput" data-i="${i}" value="${esc(name)}" placeholder="Valgmulighed ${i+1}"><button type="button" class="safe163RemoveOption" title="Fjern valgmulighed">−</button></div>`).join('');
+  c.innerHTML=`<div class="wheel recon safe159Wheel ${w.data.editing?'editing':''}">
     <div class="wheelBox"><canvas class="wheelCanvas" width="900" height="900"></canvas><button class="spin spinCenter ${w.data.autoRunning?'running':''}">${w.data.autoRunning?'Stop':'Drej'}</button></div>
     <div class="wheelSide">
       <div class="wheelTopBar">
-        <button class="editNames">${w.data.editing?'Luk redigering':'Rediger'}</button>
-        <button class="loadList">Lister</button>
-        ${w.data.editing?'<button class="saveList">Gem pulje</button>':'<button class="resetPool">Nulstil</button>'}
+        <button class="loadList">Vælg kilde</button>
+        <button class="editNames">${w.data.editing?'Luk':'Rediger pulje'}</button>
+        <button class="resetPool">Nulstil</button>
       </div>
       ${w.data.editing?`
-        <div class="editArea"><div class="editHint"><span>Aktuel pulje</span><span>${(w.data.names||[]).length} valg · adskil med komma</span></div><textarea class="nameEditor">${esc((w.data.names||[]).join(', '))}</textarea><div class="editTools"><button class="names">Brug som pulje</button><button class="loadList">Hent liste</button><button class="saveList">Gem pulje</button></div></div>
+        <div class="editArea safe159EditArea safe163OptionEditor"><div class="editHint"><span>Aktuel pulje</span><span>${(w.data.names||[]).length} valg · gemmes live</span></div><div class="safe163OptionRows">${safe163EditorRows}</div><div class="editTools safe164EditTools"><button type="button" class="safe163AddOption">+ Tilføj</button><span class="safe164LiveHint">Ændringer opdaterer hjulet med det samme</span></div></div>
       `:`
-        <div class="wheelSettings"><label><input class="keepPool" type="checkbox" ${w.data.keepPool?'checked':''}> Behold i puljen</label><label><input class="autoToggle" type="checkbox" ${w.data.auto?'checked':''}> Auto</label>${w.data.auto?`<label>Antal <input class="autoCount" type="number" min="1" max="999" value="${esc(w.data.autoCount)}"></label>`:''}</div>
-        <button class="modeToggle ${w.data.statsView?'active':''}">${modeLabel} ↔</button>
-        ${modePanel}
-        <div class="wheelBottom"><button class="chosenToWheel">↻ Til hjul</button><button class="saveChosenList" title="Gem resultat">💾 Gem resultat</button></div>
+        <div class="wheelSettings"><label><input class="keepPool" type="checkbox" ${w.data.keepPool?'checked':''}> Behold i puljen</label><label><input class="autoToggle" type="checkbox" ${w.data.auto?'checked':''}> Auto</label>${w.data.auto?`<label class="autoCountLabel">Antal <input class="autoCount" type="number" min="1" max="999" value="${esc(w.data.autoCount)}"></label>`:''}</div>
+        <div class="wheelResultNow"><small>Seneste valg</small><b>${esc(latest||'Ingen endnu')}</b></div>
+        <div class="wheelStatsPanel"><h3>Statistik (${chosen.length} valg)</h3>${statsRows}</div>
+        <div class="wheelBottom"><button class="saveChosenList" title="Gem resultat som datawidget">💾 Gem resultat som datawidget</button></div>
       `}
     </div>
   </div>`;
@@ -14532,14 +15320,83 @@ function wireWheel(c,w){
    editor.addEventListener('pointerdown',e=>e.stopPropagation(),true);
    editor.addEventListener('input',()=>{w.data.names=parseWheelNames(editor.value);w.data.original=[...w.data.names,...(w.data.chosen||[])];w.data.rot=0;const canv=c.querySelector('canvas');if(canv)drawWheel(canv,w,0);save()});
  }
- const useNames=()=>{const t=c.querySelector('.nameEditor');if(t){w.data.names=parseWheelNames(t.value);w.data.original=[...w.data.names];w.data.rot=0;}w.data.editing=false;fillContent(el,w);toast('Listen er overført til hjulet');setTimeout(()=>flashWheel(el.querySelector('.content')),50);save()};
+ // SAFE163: Feltbaseret puljeeditor. Ét input = én valgmulighed.
+ const readSafe163Options=()=>[...c.querySelectorAll('.safe163OptionInput')].map(inp=>String(inp.value||'').trim()).filter(Boolean);
+ const syncSafe163Options=()=>{
+   const vals=readSafe163Options();
+   w.data.names=vals;
+   w.data.original=[...vals,...(w.data.chosen||[])];
+   w.data.rot=0;
+   const canv=c.querySelector('canvas');
+   if(canv)drawWheel(canv,w,0);
+   save();
+ };
+ c.querySelectorAll('.safe163OptionInput').forEach(inp=>{
+   inp.addEventListener('pointerdown',e=>e.stopPropagation(),true);
+   inp.addEventListener('click',e=>e.stopPropagation(),true);
+   inp.addEventListener('input',syncSafe163Options);
+   inp.addEventListener('keydown',e=>{
+     if(e.key==='Enter'){
+       e.preventDefault();
+       const row=inp.closest('.safe163OptionRow');
+       const add=c.querySelector('.safe163AddOption');
+       if(row && add){add.click();}
+     }
+   });
+ });
+ c.querySelectorAll('.safe163RemoveOption').forEach(btn=>btn.onclick=e=>{
+   e.preventDefault(); e.stopPropagation();
+   const row=btn.closest('.safe163OptionRow');
+   if(row)row.remove();
+   if(!c.querySelector('.safe163OptionInput')){
+     const rows=c.querySelector('.safe163OptionRows');
+     if(rows)rows.innerHTML='<div class="safe163OptionRow"><input class="safe163OptionInput" value="" placeholder="Valgmulighed 1"><button type="button" class="safe163RemoveOption" title="Fjern valgmulighed">−</button></div>';
+     fillContent(el,w);
+     return;
+   }
+   syncSafe163Options();
+ });
+ const safe163Add=c.querySelector('.safe163AddOption');
+ if(safe163Add)safe163Add.onclick=e=>{
+   e.preventDefault(); e.stopPropagation();
+   const vals=[...c.querySelectorAll('.safe163OptionInput')].map(inp=>String(inp.value||''));
+   vals.push('');
+   w.data.names=vals;
+   w.data.original=[...vals.map(x=>String(x||'').trim()).filter(Boolean),...(w.data.chosen||[])];
+   fillContent(el,w);
+   setTimeout(()=>{try{const inputs=el.querySelectorAll('.safe163OptionInput');const last=inputs[inputs.length-1];if(last)last.focus({preventScroll:true});}catch(_e){}},30);
+   save();
+ };
+ const useNames=()=>{const t=c.querySelector('.nameEditor');if(t){w.data.names=parseWheelNames(t.value);w.data.original=[...w.data.names];w.data.rot=0;}else if(c.querySelector('.safe163OptionInput')){const vals=readSafe163Options();w.data.names=[...vals];w.data.original=[...vals];w.data.rot=0;}w.data.editing=false;fillContent(el,w);toast('Listen er overført til hjulet');setTimeout(()=>flashWheel(el.querySelector('.content')),50);save()};
  const namesBtn=c.querySelector('.names'); if(namesBtn)namesBtn.onclick=useNames;
  const resetBtn=c.querySelector('.resetPool'); if(resetBtn)resetBtn.onclick=()=>{w.data.names=[...(w.data.original||w.data.names||[])];w.data.chosen=[];w.data.winner='';w.data.rot=0;w.data.statsView=false;fillContent(el,w);save()};
  const saveListBtns=c.querySelectorAll('.saveList'); saveListBtns.forEach(btn=>btn.onclick=()=>openSaveListModal({data:{names:[...(w.data.names||[])],chosen:[]}}));
- const saveChosenList=c.querySelector('.saveChosenList'); if(saveChosenList)saveChosenList.onclick=()=>{const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);if(!selected.length){toast('Ingen valgte at gemme endnu');return}openSaveListModal({data:{names:selected,chosen:[]}})};
+ const saveChosenList=c.querySelector('.saveChosenList'); if(saveChosenList)saveChosenList.onclick=()=>{
+   const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);
+   if(!selected.length){toast('Ingen valgte at gemme endnu');return}
+   const total=selected.length;
+   const counts=new Map();
+   selected.forEach((name,idx)=>{
+     const key=String(name||'').trim();
+     if(!key)return;
+     const rec=counts.get(key)||{n:0,order:[]};
+     rec.n++; rec.order.push(idx+1); counts.set(key,rec);
+   });
+   const rows=[...counts.entries()].sort((a,b)=>b[1].n-a[1].n||a[0].localeCompare(b[0],'da')).map(([name,rec])=>[String(name),String(rec.n),String(total?Math.round(rec.n/total*100):0),rec.order.join(' ')]);
+   const name=('Lykkehjul-resultat - '+(w.title||'Lykkehjulet')).slice(0,70);
+   const ds={id:uid(),name:name,type:'wheel-results',columns:['Valg','Antal','Procent','Rækkefølge'],rows:rows,sourceName:w.title||'Lykkehjulet',importedAt:Date.now()};
+   try{
+     updateDatasetInState(ds);
+     const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});
+     if(dw){dw.title='🎡 '+name;dw.data=dw.data||{};dw.data.sourceType='wheel-results';dw.data.sourceWheelTitle=w.title||'Lykkehjulet';render();select(dw.id,{editText:false});save();}
+     toast('Lykkehjul-resultat gemt som datawidget');
+   }catch(err){console.error(err);toast('Kunne ikke oprette resultat-datawidget')}
+ };
   const loadBtns=c.querySelectorAll('.loadList');
   loadBtns.forEach(loadList=>loadList.onclick=()=>{
     const useList=(pick,items)=>{
+      items=[...(items||[])].map(x=>String(x||'').trim()).filter(Boolean);
+      if(!items.length){toast('Kilden indeholdt ingen brugbar liste');return}
       w.data.names=[...items];
       w.data.original=[...items];
       w.data.chosen=[];
@@ -14552,21 +15409,23 @@ function wireWheel(c,w){
       setTimeout(()=>flashWheel(el.querySelector('.content')),50);
       save();
     };
+    // SAFE162: Brug samme fælles listevælger som Afstemning, men anvend valget som enkel hjulpulje.
+    if(typeof chooseSharedList==='function'){
+      chooseSharedList('Vælg kilde til Lykkehjulet',(name,items,meta)=>{
+        useList(name,items);
+      });
+      return;
+    }
+    // Fallback: gammel lokale hjul-listevælger, hvis shared picker ikke findes.
     const bank=wheelListBank();
     const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));
-    // mM-19: Dataset columns are NOT shown in Hent liste. Use the dataset-widget → Liste button to create list assets.
-    let dsHtml='';
     const listHtml = keys.length? keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' ') : '<p>Ingen gemte lister endnu.</p>';
-    showModal('<h2>Hent liste</h2><p>Vælg en gemt liste, et datasæt eller importér en tekstfil/CSV/regneark.</p>' + listHtml + dsHtml + '<hr>' + importedListButtonHtml() + ' <button id="close">Luk</button>');
-    // Attach list pick handlers
+    showModal('<h2>Hent liste</h2><p>Vælg en gemt liste. Importér tekst/regneark opretter nu en datawidget først.</p>' + listHtml + '<hr>' + importedDataWidgetButtonHtml() + ' <button id="close">Luk</button>');
     modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{
       const pick=btn.dataset.k;
       useList(pick,wheelListBank()[pick]||[]);
     });
-    // Attach dataset column pick handlers
-    // mM-19: dataset-column pick handler removed from Hent liste modal.
-    // Import list via file (existing functionality)
-    wireImportListButton(useList);
+    wireImportDataWidgetButton();
     modal.querySelector('#close').onclick=closeModal;
   });
  const chosenToWheel=c.querySelector('.chosenToWheel'); if(chosenToWheel)chosenToWheel.onclick=()=>{const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);if(!selected.length){toast('Ingen valgte endnu');return}w.data.names=[...selected];w.data.original=[...selected];w.data.chosen=[];w.data.statsView=false;w.data.rot=0;fillContent(el,w);save()};
