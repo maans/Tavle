@@ -1,4 +1,80 @@
+<!--
+SAFE174_GROUP_RESULTS_show_all_rows
+- Fjerner visningsbegrænsningen for Grupperesultat-datawidgets.
+- Grupperesultater viser nu alle rækker i datawidgettens tabel/Preview, så alle grupper kan kontrolleres visuelt.
+- Ændrer ikke gruppealgoritme, Gem grupper som datawidget, Data → liste-logik, Lykkehjulet, Afstemning, KahooPardy, papirkurv eller navigation.
+-->
 <!doctype html>
+<!--
+SAFE173 DATA → LISTE SELECT ALL/NONE NOTE:
+- Bygger på SAFE172, som kun var dokumentation oven på testet SAFE171.
+- Ændrer kun Data → liste-dialogen fra datawidget/datasæt.
+- Tilføjer knapperne “Vælg alle” og “Vælg ingen” over kolonnevalgene.
+- Knapperne ændrer kun checkbox-valg og genberegner preview.
+- Ingen ændring i listeoprettelse, separator, dataformat, Grupper, Lykkehjulet, Afstemning, KahooPardy, papirkurv, navigation, render(), select() eller addWidget().
+-->
+
+<!--
+SAFE172 GROUPS STABILIZATION NOTE:
+- Bygger på SAFE171, som brugeren har testet og meldt OK.
+- SAFE171 fastholdes som ny stabil Grupper-milepæl:
+  Hent liste → fælles kildevælger; data/lister → w.data.names; Dan grupper → eksisterende algoritme/låse; Gem grupper som datawidget → Gruppe/Navn/Position.
+- Denne SAFE172 ændrer kun dokumentation/kodekort. Ingen JS-logik, CSS-regler, markup-output, widget-algoritmer eller øvrige flows ændres.
+-->
+
+<!--
+SAFE171 GROUPS SAVE RESULT DATAWIDGET NOTE:
+- Bygger på SAFE170 FIX1, som loader igen efter syntax-rettelsen.
+- Ændrer kun Grupper → Gem liste til Gem grupper som datawidget.
+- Resultatet oprettes som synlig datawidget med kolonnerne Gruppe, Navn og Position.
+- Ingen ændring i Hent liste, import, fælles listevælger, gruppealgoritme, låste grupper, Dan grupper, Lykkehjulet, Afstemning, KahooPardy, papirkurv, navigation, render(), select() eller addWidget().
+-->
+
+<!--
+SAFE170 GROUPS SHARED LIST PICKER NOTE:
+- Bygger på SAFE169, som brugeren testede: Grupper kan vælge datawidget/datasæt, og import opretter synlig datawidget.
+- Ændrer kun Grupper → Hent liste, så handleren bruger den eksisterende fælles chooseSharedList()-modal som Afstemning/Lykkehjulet.
+- Valgt liste/datawidget/listebank skriver fortsat kun til w.data.names og nulstiller grupper/låse/rotation som før.
+- Import i den fælles listevælger opretter stadig synlig datawidget først og skriver ikke direkte ind i Grupper.
+- Ingen ændring i gruppealgoritme, låste grupper, Dan grupper, Gem liste, Lykkehjulet, Afstemning, KahooPardy, papirkurv, navigation, render(), select() eller addWidget().
+-->
+<!--
+SAFE169 GROUPS DATAWIDGET-SOURCE NOTE:
+- Bygger på SAFE168 import-only.
+- Ændrer kun Grupper → Hent liste, så eksisterende datawidgets/datasæt kan vælges som kilde til w.data.names.
+- Datawidget → bedste tekstkolonne via den eksisterende safe147DatasetSharedListItems().
+- Import går fortsat kun til synlig datawidget; ingen fælles listevælger, ingen demodata og ingen ændring i listebank/Gem liste.
+- Ingen ændring i gruppealgoritme, låste grupper, Dan grupper, Lykkehjulet, Afstemning, KahooPardy, papirkurv, navigation, render(), select() eller addWidget().
+-->
+<!--
+SAFE168 GROUPS IMPORT-ONLY NOTE:
+- Bygger på SAFE166-GROUPS-MAP, men kasserer de sene SAFE167/MM06/MM16 Grupper-overrides, så SAFE165/SAFE166-flowet igen er styrende.
+- Ændrer kun Grupper → Hent liste-importknappen: filimport opretter nu synlig datawidget i stedet for at skrive direkte til w.data.names.
+- Eksisterende gemte lister kan stadig vælges som før. Ingen datawidget-valg som kilde endnu.
+- Ingen ændring i gruppealgoritme, låste grupper, Dan grupper, Gem liste, Lykkehjulet, Afstemning, KahooPardy, papirkurv, navigation, render(), select() eller addWidget().
+-->
+<!--
+SAFE166-GROUPS-MAP NOTE – GRUPPER LISTEFLOW KORTLÆGNING KUN:
+- Bygger på SAFE165, som er senest testede virkende base.
+- Ingen funktionelle ændringer i denne fil.
+- Formål: kortlægge Grupper-widgettens eksisterende Hent liste / Gem liste / import-flow før næste patch.
+
+KORTLÆGNING – GRUPPER:
+- Grupper-widgetten renderes som w.type == 'groups' i fillContent().
+- Brugerfladen har knapperne .loadGroupList, .saveGroupList, .toGroups, .showGroupList og textarea.groupNames.
+- Navnepuljen ligger i w.data.names som array af linjer.
+- Tekstfeltet textarea.groupNames viser w.data.names.join('\n').
+- .toGroups kalder den eksisterende gruppealgoritme og skriver resultat i w.data.groups.
+- .loadGroupList åbner sin egen lokale modal og bruger wheelListBank() + wireImportListButton(useList).
+- Derfor importerer Grupper stadig direkte ind i w.data.names, hvis wireImportListButton() bruges uændret.
+- .saveGroupList gemmer sandsynligvis i samme gamle hjul-/listebank som Lykkehjulet, ikke som datawidget.
+
+RISIKO / NÆSTE SIKRE FASE:
+- Ret ikke hele Grupper-modalens listeflow på én gang.
+- Første funktionelle patch bør kun ændre importknappen, så import opretter datawidget i stedet for at sende linjer direkte ind i Grupper.
+- Vent med fælles listevælger, demodata og datawidgetvalg til efter import-only virker.
+- Rør ikke gruppealgoritmen, låste grupper, render(), select(), addWidget(), KahooPardy, Lykkehjulet eller Afstemning.
+-->
 <!--
 SAFE165 NOTE:
 - Fjerner kun Lykkehjulets “↻ Til hjul”-knap fra hovedvisningen.
@@ -6823,6 +6899,7 @@ body.focus-presentation .widget:not(.focused){
 .widget .chrome .mini button{flex:0 0 auto!important;min-width:30px!important;min-height:30px!important;padding:3px 7px!important;}
 .datasetListBuilder{display:grid;gap:10px;}
 .datasetListBuilder .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;max-height:220px;overflow:auto;background:#f8fafc;border-radius:12px;padding:10px;}
+.datasetListBuilder .colTools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
 .datasetListBuilder label{display:flex;gap:7px;align-items:center;font-weight:800;}
 .datasetListBuilder .sepRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .datasetListBuilder .preview{white-space:pre-wrap;background:#111827;color:white;border-radius:12px;padding:10px;max-height:190px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;}
@@ -10164,7 +10241,9 @@ function datasetPreviewHtml(ds){
   if(!ds)return '<div class="datasetCard"><div class="datasetTitle">📊 Datasæt</div><div class="datasetMeta"><span>Ingen data</span></div></div>';
   const cols=Array.isArray(ds.columns)?ds.columns:[];
   const rows=Array.isArray(ds.rows)?ds.rows:[];
-  const maxCols=Math.min(cols.length,8), maxRows=Math.min(rows.length,16);
+  const maxCols=Math.min(cols.length,8);
+  // SAFE174: grupperesultater må ikke visuelt afkortes til de første få grupper.
+  const maxRows=(ds.type==='groups-results') ? rows.length : Math.min(rows.length,16);
   const head=cols.slice(0,maxCols).map(c=>'<th>'+esc(safe87DecodeCell(c||'Kolonne'))+'</th>').join('')+(cols.length>maxCols?'<th>…</th>':'');
   const body=rows.slice(0,maxRows).map(r=>'<tr>'+Array.from({length:maxCols},(_,i)=>'<td>'+esc(safe87DecodeCell((r||[])[i]||''))+'</td>').join('')+(cols.length>maxCols?'<td>…</td>':'')+'</tr>').join('');
   return `<div class="datasetCard"><div class="datasetTitle">📊 ${esc(ds.name||'Datasæt')}</div><div class="datasetMeta"><span>${rows.length} rækker</span><span>${cols.length} kolonner</span><span>${esc((ds.type||'csv').toUpperCase())}</span></div><div class="datasetPreview"><table><thead><tr>${head}</tr></thead><tbody>${body||'<tr><td>Ingen rækker</td></tr>'}</tbody></table></div><div class="datasetActions"><button type="button" class="secondary" data-act="datasetDownloadCsv">CSV</button></div></div>`;
@@ -10181,7 +10260,7 @@ function openDatasetToListDialog(ds,sourceWidget){
     return true;
   }
   const colHtml=cols.map((c,i)=>`<label><input type="checkbox" data-col="${i}" ${isDefaultListColumn(c)?'checked':''}> ${esc(c||('Kolonne '+(i+1)))}</label>`).join('');
-  showModal(`<h2>Data → liste</h2><div class="datasetListBuilder"><p>Vælg én eller flere kolonner. Resultatet oprettes som en listewidget, så andre widgets kan hente listen uden ny filimport.</p><div class="cols">${colHtml}</div><div class="sepRow"><label>Separator<select id="dsListSep"><option value="space">mellemrum</option><option value="comma">komma</option><option value="dash">bindestreg</option><option value="custom">custom</option></select></label><label>Custom separator<input id="dsListCustom" value=" " placeholder="fx / eller ·"></label></div><b>Preview</b><div class="preview" id="dsListPreview"></div><div class="actions"><button id="dsCreateList">Opret liste-widget</button><button id="close">Luk</button></div></div>`);
+  showModal(`<h2>Data → liste</h2><div class="datasetListBuilder"><p>Vælg én eller flere kolonner. Resultatet oprettes som en listewidget, så andre widgets kan hente listen uden ny filimport.</p><div class="colTools"><button type="button" class="secondary" id="dsSelectAllCols">Vælg alle</button><button type="button" class="secondary" id="dsSelectNoCols">Vælg ingen</button></div><div class="cols">${colHtml}</div><div class="sepRow"><label>Separator<select id="dsListSep"><option value="space">mellemrum</option><option value="comma">komma</option><option value="dash">bindestreg</option><option value="custom">custom</option></select></label><label>Custom separator<input id="dsListCustom" value=" " placeholder="fx / eller ·"></label></div><b>Preview</b><div class="preview" id="dsListPreview"></div><div class="actions"><button id="dsCreateList">Opret liste-widget</button><button id="close">Luk</button></div></div>`);
   const root=modal.querySelector('.datasetListBuilder');
   const sepSel=modal.querySelector('#dsListSep');
   const custom=modal.querySelector('#dsListCustom');
@@ -10192,6 +10271,9 @@ function openDatasetToListDialog(ds,sourceWidget){
   function refresh(){const out=lines(); preview.textContent=(out.slice(0,20).join('\n') || 'Vælg mindst én kolonne')+(out.length>20?'\n… '+(out.length-20)+' flere linjer':'');}
   root.querySelectorAll('input,select').forEach(x=>x.addEventListener('input',refresh));
   root.querySelectorAll('[data-col]').forEach(x=>x.addEventListener('change',refresh));
+  const colChecks=()=>Array.from(root.querySelectorAll('[data-col]'));
+  modal.querySelector('#dsSelectAllCols').onclick=()=>{colChecks().forEach(x=>x.checked=true);refresh();};
+  modal.querySelector('#dsSelectNoCols').onclick=()=>{colChecks().forEach(x=>x.checked=false);refresh();};
   modal.querySelector('#dsCreateList').onclick=()=>{const out=lines(); if(!out.length){toast('Ingen listepunkter valgt');return;} const chosenCols=selectedCols(); const sep=separator();
       let title=prompt('Navn på ny liste:','Liste fra '+String(ds.name||'datasæt'));
       if(title===null)return;
@@ -10579,7 +10661,70 @@ function makeGroupsWithLocks(names,size,currentGroups,locks){
 /* Type-specifik render/wire-logik. Hold data-normalisering tæt på den widgettype, den tilhører. */
 function renderGroups(groups,locks=[]){if(!groups||!groups.length)return '<p>Ingen grupper endnu.</p>';const cls=groups.length>4?' groupCompact':'';return groups.map((g,i)=>{const locked=!!locks[i];return `<div class="groupCard${cls}" data-group-i="${i}"><button type="button" class="groupLock ${locked?'isLocked':''}" data-i="${i}" title="${locked?'Låst: bevares ved ny randomisering':'Åben: blandes med ved ny randomisering'}">${locked?'🔒':'🔓'}</button><b>Gruppe ${i+1}</b>${g.map(esc).join('<br>')}</div>`}).join('')}
 function drawGroupWheel(canvas,names,rot=0){const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=Math.min(W,H)*.46;ctx.clearRect(0,0,W,H);const list=names&&names.length?names:['Grupper'];const cols=['#ff6b6b','#ffd93d','#4ade80','#60a5fa','#c084fc','#fb923c'];list.forEach((name,i)=>{const a1=rot+i*2*Math.PI/list.length,a2=rot+(i+1)*2*Math.PI/list.length;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a1,a2);ctx.closePath();ctx.fillStyle=cols[i%cols.length];ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate((a1+a2)/2);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#111827';ctx.font=`800 ${Math.max(18,Math.min(36,180/list.length+10))}px system-ui`;let label=String(name||'');if(label.length>18)label=label.slice(0,17)+'…';ctx.fillText(label,r-18,0);ctx.restore()});ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,.10)';ctx.lineWidth=Math.max(10,W*.018);ctx.stroke()}
-function wireGroups(c,w){const canvas=c.querySelector('.groupWheel');drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),w.data.rot||0);const textarea=c.querySelector('.groupNames'),sizeInput=c.querySelector('.groupSize');normalizeGroupLocks(w);c.querySelectorAll('.groupLock').forEach(btn=>btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();normalizeGroupLocks(w);const i=Number(btn.dataset.i);w.data.groupLocks[i]=!w.data.groupLocks[i];fillContent(c.closest('.widget'),w);save();toast(w.data.groupLocks[i]?'Gruppe låst':'Gruppe åben')});const showBtn=c.querySelector('.showGroupList');if(showBtn)showBtn.onclick=()=>{w.data.listHidden=false;w.data.groupsVisible=false;fillContent(c.closest('.widget'),w);save()};c.querySelector('.toGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.rot=0;w.data.listHidden=true;w.data.groupsVisible=true;fillContent(c.closest('.widget'),w);save();toast('Grupper dannet')};c.querySelector('.newGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);if(!w.data.names.length){toast('Indsæt en liste først');return}const btn=c.querySelector('.groupSpinBtn');btn.disabled=true;const duration=1800+Math.random()*600,start=performance.now(),endRot=(5+Math.random()*2)*Math.PI*2;function frame(now){const p=Math.min(1,(now-start)/duration),rot=endRot*easeOutCubic(p);drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),rot);if(p<1)requestAnimationFrame(frame);else{w.data.rot=endRot;w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.listHidden=true;w.data.groupsVisible=true;btn.disabled=false;wheelLand();fillContent(c.closest('.widget'),w);setTimeout(()=>{const nb=c.closest('.widget').querySelector('.groupsBox');if(nb){nb.classList.add('flashGroups');setTimeout(()=>nb.classList.remove('flashGroups'),650)}},60);save()}}requestAnimationFrame(frame)};c.querySelector('.loadGroupList').onclick=()=>{const useList=(pick,items)=>{w.data.names=[...items];w.data.groups=[];w.data.groupLocks=[];w.data.rot=0;w.data.listHidden=false;w.data.groupsVisible=false;closeModal();fillContent(c.closest('.widget'),w);setTimeout(()=>{const inp=c.closest('.widget')?.querySelector('.groupSize');if(inp){inp.focus({preventScroll:true});inp.select()}},80);save();toast('Liste hentet')};const bank=wheelListBank();const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));showModal('<h2>Hent liste til grupper</h2><p>Vælg en gemt liste eller importér en tekstfil/CSV/regneark.</p>'+(keys.length?keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' '):'<p>Ingen gemte lister endnu.</p>')+'<hr>'+importedListButtonHtml()+' <button id="close">Luk</button>');modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.k;useList(pick,wheelListBank()[pick]||[])});wireImportListButton(useList);modal.querySelector('#close').onclick=closeModal};c.querySelector('.saveGroupList').onclick=()=>openSaveListModal({data:{names:textarea.value.split('\n').map(x=>x.trim()).filter(Boolean),chosen:[]}})}
+function wireGroups(c,w){const canvas=c.querySelector('.groupWheel');drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),w.data.rot||0);const textarea=c.querySelector('.groupNames'),sizeInput=c.querySelector('.groupSize');normalizeGroupLocks(w);c.querySelectorAll('.groupLock').forEach(btn=>btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();normalizeGroupLocks(w);const i=Number(btn.dataset.i);w.data.groupLocks[i]=!w.data.groupLocks[i];fillContent(c.closest('.widget'),w);save();toast(w.data.groupLocks[i]?'Gruppe låst':'Gruppe åben')});const showBtn=c.querySelector('.showGroupList');if(showBtn)showBtn.onclick=()=>{w.data.listHidden=false;w.data.groupsVisible=false;fillContent(c.closest('.widget'),w);save()};c.querySelector('.toGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.rot=0;w.data.listHidden=true;w.data.groupsVisible=true;fillContent(c.closest('.widget'),w);save();toast('Grupper dannet')};c.querySelector('.newGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);if(!w.data.names.length){toast('Indsæt en liste først');return}const btn=c.querySelector('.groupSpinBtn');btn.disabled=true;const duration=1800+Math.random()*600,start=performance.now(),endRot=(5+Math.random()*2)*Math.PI*2;function frame(now){const p=Math.min(1,(now-start)/duration),rot=endRot*easeOutCubic(p);drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),rot);if(p<1)requestAnimationFrame(frame);else{w.data.rot=endRot;w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.listHidden=true;w.data.groupsVisible=true;btn.disabled=false;wheelLand();fillContent(c.closest('.widget'),w);setTimeout(()=>{const nb=c.closest('.widget').querySelector('.groupsBox');if(nb){nb.classList.add('flashGroups');setTimeout(()=>nb.classList.remove('flashGroups'),650)}},60);save()}}requestAnimationFrame(frame)};/*
+SAFE166 GROUPS MAP ONLY:
+Dette er den følsomme Grupper-importindgang.
+- .loadGroupList bruger wheelListBank() og wireImportListButton(useList).
+- useList() skriver direkte til w.data.names og nulstiller grupper/låse/rotation.
+- Næste funktionelle patch bør kun erstatte importknappens direkte useList-import med “importér til datawidget”.
+- Undgå bred udskiftning af hele modalen, fordi SAFE166/167 brede forsøg ødelagde appen.
+*/
+/* SAFE170: Grupper bruger nu den fælles chooseSharedList()-modal. Selve anvendelsen er stadig lokal: kilde -> w.data.names, og eksisterende grupper/låse nulstilles. */
+c.querySelector('.loadGroupList').onclick=()=>{
+  const useList=(pick,items,meta)=>{
+    const cleaned=[...(items||[])].map(x=>String(x||'').trim()).filter(Boolean);
+    if(!cleaned.length){toast('Listen gav ingen navne');return}
+    w.data.names=cleaned;
+    w.data.groups=[];
+    w.data.groupLocks=[];
+    w.data.rot=0;
+    w.data.listHidden=false;
+    w.data.groupsVisible=false;
+    closeModal();
+    fillContent(c.closest('.widget'),w);
+    setTimeout(()=>{const inp=c.closest('.widget')?.querySelector('.groupSize');if(inp){inp.focus({preventScroll:true});inp.select()}},80);
+    save();
+    toast('Liste hentet');
+  };
+  if(typeof chooseSharedList==='function'){
+    chooseSharedList('Hent liste til grupper',useList);
+    return;
+  }
+  /* Fallback beholdes kun hvis chooseSharedList mangler i en ældre lokal fil. */
+  const bank=wheelListBank();
+  const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));
+  showModal('<h2>Hent liste til grupper</h2><p>Vælg en gemt liste.</p>'+(keys.length?keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' '):'<p>Ingen gemte lister endnu.</p>')+'<hr>'+importedDataWidgetButtonHtml()+' <button id="close">Luk</button>');
+  modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.k;useList(pick,wheelListBank()[pick]||[])});
+  wireImportDataWidgetButton();
+  modal.querySelector('#close').onclick=closeModal;
+};
+/* SAFE172 STABILISERING:
+   SAFE171 Grupper-flow er testet OK.
+   Denne handler er bevidst uændret: den læser kun w.data.groups og gemmer resultatet som datawidget.
+   Må ikke danne nye grupper, ændre låse, ændre algoritme eller skrive til listebank. */
+/* SAFE171: Grupper gemmer nu det dannede grupperesultat som en synlig datawidget.
+   Handleren læser kun w.data.groups; den danner ikke nye grupper og ændrer ikke låse/algoritme. */
+c.querySelector('.saveGroupList').onclick=()=>{
+  const groups=Array.isArray(w.data.groups)?w.data.groups:[];
+  const rows=[];
+  groups.forEach((g,gi)=>{
+    if(!Array.isArray(g))return;
+    g.forEach((name,pi)=>{
+      const clean=String(name||'').trim();
+      if(clean)rows.push(['Gruppe '+(gi+1),clean,String(pi+1)]);
+    });
+  });
+  if(!rows.length){toast('Dan grupper først');return}
+  const name=('Grupperesultat - '+(w.title||'Grupper')).slice(0,70);
+  const ds={id:uid(),name:name,type:'groups-results',columns:['Gruppe','Navn','Position'],rows:rows,sourceName:w.title||'Grupper',importedAt:Date.now()};
+  try{
+    updateDatasetInState(ds);
+    const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});
+    if(dw){dw.title='👥 '+name;dw.data=dw.data||{};dw.data.sourceType='groups-results';dw.data.sourceGroupsTitle=w.title||'Grupper';render();select(dw.id,{editText:false});save();}
+    toast('Grupper gemt som datawidget: '+rows.length+' rækker');
+  }catch(err){console.error(err);toast('Kunne ikke oprette grupper-datawidget')}
+}
+}
 
 
 
@@ -13767,7 +13912,7 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
 // --- WIDGET: KAHOOPARDY ---
  if(w.type==='kahoopardy'){normalizeKahoopardy(w);renderKahoopardy(el,w)}
 // --- WIDGET: GROUPS ---
- if(w.type==='groups'){w.data.names??=[];w.data.size??=2;w.data.groups??=[];w.data.groupLocks??=[];w.data.groupsVisible??=!!(w.data.groups&&w.data.groups.length);c.innerHTML=`<div class="groupsBox ${w.data.listHidden?'groupsListHidden':''} ${w.data.groupsVisible?'groupsShowResult':''}"><div class="groupSpin"><canvas class="groupWheel" width="700" height="700"></canvas><button class="groupSpinBtn newGroups">Dan grupper</button></div><div class="groupsControls"><div class="groupsRow"><button class="showGroupList">Vis/rediger liste</button></div><div class="groupsRow editOnly"><button class="loadGroupList">Hent liste</button><button class="saveGroupList">Gem liste</button></div><div class="groupsRow editOnly"><label>Personer pr. gruppe <input class="groupSize" type="number" min="1" max="12" value="${w.data.size}"></label><button class="toGroups">Grupper</button></div><textarea class="groupNames editOnly" placeholder="Én person/ting pr. linje">${esc((w.data.names||[]).join('\n'))}</textarea><div class="groupsResult">${renderGroups(w.data.groups,w.data.groupLocks)}</div></div></div>`;wireGroups(c,w)}
+ if(w.type==='groups'){w.data.names??=[];w.data.size??=2;w.data.groups??=[];w.data.groupLocks??=[];w.data.groupsVisible??=!!(w.data.groups&&w.data.groups.length);c.innerHTML=`<div class="groupsBox ${w.data.listHidden?'groupsListHidden':''} ${w.data.groupsVisible?'groupsShowResult':''}"><div class="groupSpin"><canvas class="groupWheel" width="700" height="700"></canvas><button class="groupSpinBtn newGroups">Dan grupper</button></div><div class="groupsControls"><div class="groupsRow"><button class="showGroupList">Vis/rediger liste</button></div><div class="groupsRow editOnly"><button class="loadGroupList">Hent liste</button><button class="saveGroupList">Gem grupper som datawidget</button></div><div class="groupsRow editOnly"><label>Personer pr. gruppe <input class="groupSize" type="number" min="1" max="12" value="${w.data.size}"></label><button class="toGroups">Grupper</button></div><textarea class="groupNames editOnly" placeholder="Én person/ting pr. linje">${esc((w.data.names||[]).join('\n'))}</textarea><div class="groupsResult">${renderGroups(w.data.groups,w.data.groupLocks)}</div></div></div>`;wireGroups(c,w)}
 // --- WIDGET: WORDCLOUD / SKY ---
  if(w.type==='wordcloud'){
   w.data.names??=[];
@@ -13829,7 +13974,8 @@ if(w.type==='poll'){
     c.innerHTML='<div class="datasetCard"><div class="datasetTitle">📊 Manglende datasæt</div><div class="datasetMeta"><span>Kun reference fundet</span></div><div></div></div>';
   }else{
     const cols=(ds.columns||[]).slice(0,5);
-    const rows=(ds.rows||[]).slice(0,8);
+    // SAFE174: Grupperesultat-datawidgets skal vise alle grupper/rækker, ikke kun et preview-udsnit.
+    const rows=(ds.type==='groups-results') ? (ds.rows||[]) : (ds.rows||[]).slice(0,8);
     c.innerHTML=`<div class="datasetCard">
       <div class="datasetTitle"><span>📊</span><span>${esc(ds.name||w.title||'Datasæt')}</span></div>
       <div class="datasetMeta"><span>${(ds.rows||[]).length} rækker</span><span>${(ds.columns||[]).length} kolonner</span></div>
@@ -18226,75 +18372,8 @@ document.addEventListener('click',function(e){
 })();
 
 </script>
-<script>
-(() => {
-  const __oldWireGroups = window.wireGroups;
-  if (__oldWireGroups) {
-    window.wireGroups = function(c, w) {
-      __oldWireGroups(c, w);
-      try {
-        const loadBtn = c.querySelector('.loadGroupList');
-        if (loadBtn) {
-          loadBtn.onclick = () => {
-            // Helper to update groups from selected list or dataset
-            const useList = (pick, items) => {
-              w.data.names = [...items];
-              w.data.groups = [];
-              w.data.groupLocks = [];
-              w.data.rot = 0;
-              w.data.listHidden = false;
-              w.data.groupsVisible = false;
-              closeModal();
-              fillContent(c.closest('.widget'), w);
-              setTimeout(() => {
-                const inp = c.closest('.widget')?.querySelector('.groupSize');
-                if (inp) {
-                  inp.focus({ preventScroll: true });
-                  inp.select();
-                }
-              }, 80);
-              save();
-              toast('Liste hentet');
-            };
-            const bank = wheelListBank();
-            const keys = Object.keys(bank).sort((a, b) => a.localeCompare(b, 'da'));
-            let dsHtml = '';
-            try {
-              const dsets = Array.isArray(state.datasets) ? state.datasets : [];
-              if (dsets.length) {
-                dsHtml += '<h3>Datasæt</h3>';
-                dsHtml += dsets.map(ds => {
-                  const cols = (ds.columns || []).map((col, i) => '<button class="pickDatasetCol" data-ds="' + esc(ds.id) + '" data-col="' + i + '">' + esc(col) + '</button>').join(' ');
-                  return '<div class="datasetPick"><span>' + esc(ds.name || 'Datasæt') + '</span> ' + cols + '</div>';
-                }).join('');
-              }
-            } catch (e) {}
-            const listHtml = keys.length ? keys.map(k => '<button class="pickList" data-k="' + esc(k) + '">' + esc(k) + '</button>').join(' ') : '<p>Ingen gemte lister endnu.</p>';
-            showModal('<h2>Hent liste til grupper</h2><p>Vælg en gemt liste, et datasæt eller importér en tekstfil/CSV/regneark.</p>' + listHtml + dsHtml + '<hr>' + importedListButtonHtml() + ' <button id="close">Luk</button>');
-            modal.querySelectorAll('.pickList').forEach(btn => btn.onclick = () => {
-              const pick = btn.dataset.k;
-              useList(pick, wheelListBank()[pick] || []);
-            });
-            modal.querySelectorAll('.pickDatasetCol').forEach(btn => btn.onclick = () => {
-              const dsId = btn.dataset.ds;
-              const colIndex = Number(btn.dataset.col);
-              try {
-                const dset = (state.datasets || []).find(ds => String(ds.id) === String(dsId));
-                if (dset) {
-                  const items = (dset.rows || []).map(row => String(row[colIndex] || '').trim()).filter(Boolean);
-                  useList(dset.name + ' – ' + ((dset.columns && dset.columns[colIndex]) || ('Kolonne ' + (colIndex + 1))), items);
-                }
-              } catch (err) {}
-            });
-            wireImportListButton(useList);
-            modal.querySelector('#close').onclick = closeModal;
-          };
-        }
-      } catch (err) {}
-    };
-  }
-})();
-</script>
+<!-- Removed discarded Grupper functional override containing: const __oldWireGroups = window.wireGroups; -->
+
 
 <script id="widget-overview-js">
 (function(){
@@ -19003,6 +19082,8 @@ document.addEventListener('click',function(e){
 /* dataset list modal layout fix: checkboxes and labels on iPad */
 .datasetListBuilder{gap:12px!important;max-height:calc(92vh - 90px)!important;overflow:auto!important;padding-right:2px!important;}
 .datasetListBuilder .cols{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important;gap:10px 14px!important;max-height:210px!important;overflow:auto!important;background:#f8fafc!important;border-radius:14px!important;padding:12px!important;align-items:start!important;}
+.datasetListBuilder .colTools{display:flex!important;gap:8px!important;flex-wrap:wrap!important;align-items:center!important;}
+.datasetListBuilder .colTools button{padding:7px 10px!important;border-radius:10px!important;}
 .datasetListBuilder .cols label{display:grid!important;grid-template-columns:26px minmax(0,1fr)!important;gap:8px!important;align-items:start!important;font-weight:850!important;line-height:1.18!important;min-width:0!important;}
 .datasetListBuilder input[type="checkbox"]{width:22px!important;height:22px!important;min-width:22px!important;margin:0!important;padding:0!important;appearance:auto!important;-webkit-appearance:checkbox!important;}
 .datasetListBuilder .sepRow{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;align-items:end!important;}
@@ -19031,472 +19112,12 @@ document.addEventListener('click',function(e){
 @media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
 
 </style>
-<script>
-(function(){
-  'use strict';
-  /* SAFE24 cleanup2:
-     Den gamle modal/localStorage-papirkurv fra v1.2.46 er fjernet.
-     Den fungerende papirkurv er nu board-baseret og findes i PAPIRKURV / INTERNAL TRASH BOARD.
-     Denne lille cleanup-hook bevares, fordi board-papirkurven kalder window.__tavleCleanupWidget
-     for at stoppe hjul/iframe-processer, før en widget flyttes eller slettes. */
-  function cleanupWidgetProcesses(id){
-    try{ if(window.__tavleStopWheel) window.__tavleStopWheel(id,true); }catch(e){}
-    try{ if(typeof activeIframeWidgetId!=='undefined' && activeIframeWidgetId&&String(activeIframeWidgetId)===String(id)) clearIframeControl(); }catch(e){}
-  }
-  window.__tavleCleanupWidget=cleanupWidgetProcesses;
-  function getWidgetByIdOnCurrent(id){
-    try{return (slide().widgets||[]).find(w=>String(w.id)===String(id))||null;}catch(e){return null;}
-  }
+<!-- Removed discarded Grupper functional override containing: <script id="maans-mm06-visible-widget-lists"> -->
 
-  // Wheel cleanup: cancel RAF/timeouts and make Stop/Space reliable.
-  const wheelJobs=new Map();
-  function jobFor(id){let j=wheelJobs.get(String(id)); if(!j){j={raf:0,timers:new Set(),token:0}; wheelJobs.set(String(id),j)} return j;}
-  function wheelSetTimeout(id,fn,ms){const j=jobFor(id); const t=setTimeout(()=>{j.timers.delete(t);fn()},ms); j.timers.add(t); return t;}
-  window.__tavleStopWheel=function(id,silent){
-    if(!id)return;
-    const j=jobFor(id); j.token++;
-    if(j.raf){cancelAnimationFrame(j.raf);j.raf=0}
-    j.timers.forEach(t=>clearTimeout(t)); j.timers.clear();
-    let w=null; try{w=(state.slides||[]).flatMap(sl=>sl.widgets||[]).find(x=>String(x.id)===String(id));}catch(e){}
-    if(w&&w.type==='wheel'){w.data=w.data||{}; w.data.autoRunning=false; w.data.spinning=false;}
-    if(!silent)try{toast('Hjul stoppet')}catch(e){}
-    try{render(); if(w)select(w.id,{editText:false}); save();}catch(e){}
-  };
-  if(typeof runWheelSpin==='function'){
-    runWheelSpin=function(c,w,{auto=false,onDone=null}={}){
-      const el=c.closest('.widget'); if(!el||!w)return;
-      const id=w.id; const j=jobFor(id); const token=++j.token;
-      const canv=el.querySelector('canvas'); const btn=el.querySelector('.spinCenter')||el.querySelector('.spin');
-      let names=[...(w.data.names||[])];
-      if(!names.length){toast('Puljen er tom'); if(onDone)onDone(false); return;}
-      w.data.spinning=true; if(btn){btn.disabled=false;btn.textContent='Stop';btn.classList.add('running')}
-      const idx=Math.floor(Math.random()*names.length), winner=names[idx];
-      const duration=auto?1050+Math.random()*350:2600+Math.random()*700;
-      const startRot=w.data.rot||0;
-      const endRot=startRot+targetRotationForIndex(idx,names.length,auto?3+Math.floor(Math.random()*2):6+Math.floor(Math.random()*3));
-      const startTime=performance.now(); let lastTick=0;
-      function finish(ok){w.data.spinning=false; if(btn){btn.disabled=false;btn.textContent=w.data.autoRunning?'Stop':'Drej';btn.classList.toggle('running',!!w.data.autoRunning)} if(onDone)onDone(ok,winner);}
-      function frame(nowTime){
-        if(j.token!==token || !document.body.contains(el) || !getWidgetByIdOnCurrent(id)){finish(false);return;}
-        const p=Math.min(1,(nowTime-startTime)/duration),rot=startRot+(endRot-startRot)*easeOutCubic(p);
-        drawWheel(canv,w,rot);
-        if(nowTime-lastTick>(auto?120:95) && p<.94){wheelTick();lastTick=nowTime}
-        if(p<1){j.raf=requestAnimationFrame(frame)}else{
-          j.raf=0; drawWheel(canv,w,endRot); wheelLand(); if(!auto)wheelSetTimeout(id,wheelLand,80); animateWinner(c,winner);
-          w.data.chosen=w.data.chosen||[]; w.data.chosen.push(winner);
-          if(!w.data.keepPool){ if(auto){w.data.names.splice(idx,1)} else if(confirm(winner+' blev valgt. Fjern fra puljen?')){w.data.names.splice(idx,1)} }
-          w.data.winner=''; w.data.rot=0; w.data.statsView=!!(w.data.statsView || auto); w.data.spinning=false;
-          fillContent(el,w); save(); finish(true);
-        }
-      }
-      j.raf=requestAnimationFrame(frame);
-    };
-  }
-  if(typeof startWheelAuto==='function'){
-    startWheelAuto=function(c,w){
-      const el=c.closest('.widget'); if(!el||!w)return;
-      if(w.data.autoRunning||w.data.spinning){window.__tavleStopWheel(w.id);return;}
-      w.data.autoRunning=true; w.data.statsView=true; fillContent(el,w); save();
-      let remaining=w.data.keepPool?Math.max(1,parseInt(w.data.autoCount||1,10)):Math.min(Math.max(1,parseInt(w.data.autoCount||1,10)),(w.data.names||[]).length);
-      const step=()=>{
-        if(!w.data.autoRunning || remaining<=0 || !(w.data.names||[]).length){w.data.autoRunning=false;w.data.spinning=false;fillContent(el,w);save();return;}
-        remaining--;
-        runWheelSpin(el.querySelector('.content')||el,w,{auto:true,onDone:(ok)=>{ if(ok&&w.data.autoRunning)wheelSetTimeout(w.id,step,180); else {w.data.spinning=false;w.data.autoRunning=false;save();} }});
-      };
-      wheelSetTimeout(w.id,step,60);
-    };
-  }
-  document.addEventListener('keydown',function(e){
-    const key=(e.key||'').toLowerCase();
-    if((e.code==='Space'||e.key===' ')&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
-      const tag=(e.target&&e.target.tagName||'').toLowerCase(); if(/input|textarea|select/.test(tag))return;
-      const w=selected?getWidgetByIdOnCurrent(selected):null; if(w&&w.type==='wheel'){
-        e.preventDefault(); if(w.data&&(w.data.autoRunning||w.data.spinning)) window.__tavleStopWheel(w.id); else {const el=document.querySelector('.widget[data-id="'+CSS.escape(String(w.id))+'"]'); if(el) runWheelSpin(el.querySelector('.content')||el,w,{auto:false});}
-      }
-    }
-  },true);
-
-  // Make the spin button a reliable Stop button when running.
-  document.addEventListener('click',function(e){
-    const btn=e.target.closest&&e.target.closest('.spinCenter'); if(!btn)return;
-    const el=btn.closest('.widget'); if(!el)return; const w=getWidgetByIdOnCurrent(el.dataset.id); if(!w||w.type!=='wheel')return;
-    if(w.data&&(w.data.autoRunning||w.data.spinning)){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.__tavleStopWheel(w.id);}
-  },true);
-
-  // Text/dataset: all text widgets can become dataset widgets; all dataset assets remain editable as text.
-  /* SAFE77 LOCAL MAP: data/listeflow
-   Formål:
-   - Datawidget og listewidget skal være appens fælles data-mellemstationer.
-   - Aktiviteter bør hente lister herfra i stedet for hver især at importere filer.
-   - Fremtidige ændringer bør samle flowet: import/drop -> data/liste -> aktivitet.
-   Særligt:
-   - Test CSV/TSV/XLSX, Æ/Ø/Å, kolonnevalg og eksport efter ændringer.
-   - Undgå datamodelændringer uden migration og backup-test.
-   - KahooPardy har følsomt template-/importområde og må ikke ændres her. */
-function createDatasetWidgetFromList(name,items){
-    items=(items||[]).map(x=>String(x||'').trim()).filter(Boolean);
-    if(!items.length){try{toast('Listen er tom')}catch(e){};return null;}
-    name=String(name||'Liste').trim()||'Liste';
-
-    // 1) Register in the shared list bank immediately, so all Hent liste modals can use it.
-    try{
-      const bank=(typeof wheelListBank==='function') ? wheelListBank() : {};
-      bank[name]=[...items];
-      if(typeof saveWheelListBank==='function') saveWheelListBank(bank);
-      else localStorage.setItem('maans_wheel_lists',JSON.stringify(bank));
-    }catch(e){console.warn('Kunne ikke gemme liste i fælles listebank',e)}
-
-    // 2) Create visible editable list-widget on the tavle.
-    const w=addDroppedWidget('text',{text:items.join('\n'),kind:'list',listAsset:true,createdFromDataset:true,sharedListName:name},{x:180,y:120},name);
-    if(w){
-      w.title=name;
-      w.data=w.data||{};
-      w.data.kind='list';
-      w.data.listAsset=true;
-      w.data.createdFromDataset=true;
-      w.data.sharedListName=name;
-      w.w=Math.min(520,Math.max(360,innerWidth*.36));
-      w.h=Math.min(520,Math.max(300,innerHeight*.40));
-      try{fitWidgetToViewport(w)}catch(e){}
-      render(); select(w.id,{editText:true}); save();
-      try{toast('Liste oprettet og gemt: '+items.length+' punkter')}catch(e){}
-    }
-    return w;
-  }
-  window.createDatasetWidgetFromList=createDatasetWidgetFromList;
-  const oldMakeWidget=makeWidget;
-  makeWidget=function(w){
-    oldMakeWidget(w);
-    try{
-      const el=document.querySelector('.widget[data-id="'+CSS.escape(String(w.id))+'"]'); if(!el)return;
-      if(w.type==='text'){
-        const mini=el.querySelector('.mini');
-        if(mini && !mini.querySelector('[data-act="textDatasetToggle"]')){
-          const b=document.createElement('button'); b.type='button'; b.dataset.act='textDatasetToggle'; b.title=w.data&&w.data.datasetId?'Skift/parse datasæt':'Vis som datasæt'; b.textContent=w.data&&w.data.datasetId?'📊':'T⇄📊';
-          mini.insertBefore(b,mini.querySelector('[data-act="max"]')||mini.firstChild);
-          b.onclick=function(e){e.preventDefault();e.stopPropagation();
-            w.data=w.data||{};
-            if(w.data.datasetId && w.data.datasetView!==false){w.data.datasetView=false; const ds=findDatasetById(w.data.datasetId); w.data.text=datasetToDelimitedText(ds||{columns:[],rows:[]},'\t');}
-            else {try{const parsed=parseDatasetFromText(w.data.text||'',String(w.title||'Datasæt').replace(/^📊\s*/,'')); if(!parsed)throw new Error('Ingen tabeldata fundet'); parsed.id=w.data.datasetId||parsed.id; updateDatasetInState(parsed); w.data.datasetId=parsed.id; w.data.datasetView=true; w.title='📊 '+(parsed.name||w.title||'Datasæt');}catch(err){toast('Kunne ikke vise som datasæt: '+(err&&err.message||'ukendt fejl'));return;}}
-            render(); select(w.id,{editText:false}); save();
-          };
-        }
-        // If in plain text mode, add a visible button above textarea as well.
-        if(!(w.data&&w.data.datasetId) || w.data.datasetView===false){
-          const content=el.querySelector('.content.text .text');
-          if(content && !content.querySelector('.datasetAsPreview')){
-            const bar=document.createElement('div'); bar.className='datasetTextTools';
-            const btn=document.createElement('button'); btn.type='button'; btn.className='datasetAsPreview'; btn.textContent=(w.data&&w.data.datasetId)?'Opdater datasæt / vis preview':'Vis som datasæt';
-            const hint=document.createElement('span'); hint.className='datasetTextHint'; hint.textContent='Skriv tabel som TSV/CSV og vis den som datasæt.';
-            bar.appendChild(btn); bar.appendChild(hint); content.insertBefore(bar,content.firstChild);
-            btn.onclick=function(e){e.preventDefault();e.stopPropagation();try{const parsed=parseDatasetFromText(w.data.text||'',String(w.title||'Datasæt').replace(/^📊\s*/,'')); if(!parsed)throw new Error('Ingen tabeldata fundet'); parsed.id=w.data.datasetId||parsed.id; updateDatasetInState(parsed); w.data.datasetId=parsed.id; w.data.datasetView=true; w.title='📊 '+(parsed.name||w.title||'Datasæt'); render();select(w.id,{editText:false});save();}catch(err){toast('Kunne ikke parse tabel: '+(err&&err.message||'ukendt fejl'))}};
-          }
-        }
-      }
-    }catch(e){console.warn('dataset postprocess failed',e)}
-  };
-
-  // Save list/result now creates a visible text/dataset widget instead of a hidden list asset.
-  openSaveListModal=function(w){
-    const items=wheelListNamesForSave(w).map(x=>String(x||'').trim()).filter(Boolean);
-    showModal(`<h2>Gem som tekst/datasæt-widget</h2><p>Listen bliver oprettet som en synlig widget på tavlen. Den kan redigeres, downloades og hentes af andre widgets som datasæt.</p><label>Navn<input id="listName" value="Min liste"></label><button id="createListWidget">Opret widget</button><button id="close">Luk</button>`);
-    const input=modal.querySelector('#listName'); setTimeout(()=>{try{input.focus();input.select()}catch(e){}},50);
-    modal.querySelector('#createListWidget').onclick=function(){const name=String(input.value||'Min liste').trim()||'Min liste'; if(!items.length){toast('Listen er tom');return;} closeModal(); createDatasetWidgetFromList(name,items);};
-    modal.querySelector('#close').onclick=closeModal;
-  };
-
-  // Download content: dataset widgets download raw CSV/TSV instead of preview text.
-  if(typeof collectEmbeddedMedia==='function'){
-    const oldCollect=collectEmbeddedMedia;
-    collectEmbeddedMedia=function(){
-      const items=oldCollect().filter(it=>!(it.type==='Tekst'&&/^📊\s*Datasæt:/m.test(decodeURIComponent(String(it.src||'').split(',')[1]||''))));
-      try{(state.slides||[]).forEach((sl,si)=>{const slideName=(typeof safeSlideTitle==='function'?safeSlideTitle(sl,si):('Tavle '+(si+1)));(sl.widgets||[]).forEach((w,wi)=>{if(w.type==='text'&&w.data&&w.data.datasetId){const ds=findDatasetById(w.data.datasetId); if(ds){const txt=datasetToDelimitedText(ds,'\t');items.push({type:'Datasæt',slide:slideName,name:(ds.name||w.title||`datasæt-${wi+1}`)+'.tsv',src:'data:text/tab-separated-values;charset=utf-8,'+encodeURIComponent(txt),ext:'tsv',filename:safeFileName((ds.name||w.title||`datasæt-${wi+1}`),'tsv'),label:'Datasæt',id:'datasetDl'+si+'_'+wi});}}})})}catch(e){}
-      return items;
-    };
-  }
-
-  // Import summary should also close on Enter.
-  document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('importSummaryCard')?.classList.contains('show')){closeImportSummary();}},true);
-})();
-</script>
-
-
-<script id="maans-mm06-visible-widget-lists">
-(function(){
-  'use strict';
-  if(window.__maansMM06VisibleWidgetLists) return;
-  window.__maansMM06VisibleWidgetLists = true;
-
-  function mm06Esc(v){
-    try{ return (typeof esc==='function') ? esc(v) : String(v==null?'':v).replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch];}); }
-    catch(_e){ return String(v==null?'':v); }
-  }
-  function mm06CurrentWidgets(){
-    try{
-      const sl = (typeof slide==='function') ? slide() : null;
-      return (sl && Array.isArray(sl.widgets)) ? sl.widgets : [];
-    }catch(_e){ return []; }
-  }
-  function mm06DatasetById(id){
-    try{
-      if(typeof findDatasetById==='function') return findDatasetById(id);
-      const arr = Array.isArray(state && state.datasets) ? state.datasets : [];
-      return arr.find(ds => String(ds && ds.id) === String(id));
-    }catch(_e){ return null; }
-  }
-  function mm06DatasetColumnItems(ds,colIndex){
-    try{
-      return (ds && Array.isArray(ds.rows) ? ds.rows : [])
-        .map(row => String((row || [])[colIndex] == null ? '' : (row || [])[colIndex]).trim())
-        .filter(Boolean);
-    }catch(_e){ return []; }
-  }
-  function mm06TextItems(txt){
-    return String(txt||'')
-      .split(/\r?\n|[,;]+/)
-      .map(x => String(x||'').trim())
-      .filter(Boolean)
-      .filter(x => !/^📊\s*Datasæt:?/i.test(x) && !/^\d+\s*rækker\s*[·,]/i.test(x) && !/^Tip:/i.test(x));
-  }
-  function mm06VisibleListSources(excludeId){
-    const out=[];
-    const seen=new Set();
-    const addSource=function(src){
-      const key=String(src.kind||'')+'|'+String(src.widgetId||'')+'|'+String(src.datasetId||'')+'|'+String(src.colIndex==null?'':src.colIndex)+'|'+String(src.name||'');
-      if(seen.has(key)) return;
-      seen.add(key); out.push(src);
-    };
-    mm06CurrentWidgets().forEach(function(w){
-      if(!w || String(w.id)===String(excludeId)) return;
-      const title=String(w.title || (w.type==='text'?'Tekst':'Widget')).replace(/^📊\s*/,'').trim() || 'Widget';
-      if(w.type==='text' && w.data){
-        if(w.data.datasetId){
-          const ds=mm06DatasetById(w.data.datasetId);
-          if(ds && Array.isArray(ds.rows) && ds.rows.length){
-            const cols=(Array.isArray(ds.columns) && ds.columns.length) ? ds.columns : ['Kolonne 1'];
-            if(cols.length===1){
-              addSource({kind:'widgetDatasetCol',widgetId:w.id,datasetId:ds.id,colIndex:0,name:title,items:mm06DatasetColumnItems(ds,0)});
-            }else{
-              cols.forEach(function(col,i){
-                addSource({kind:'widgetDatasetCol',widgetId:w.id,datasetId:ds.id,colIndex:i,name:title+' – '+String(col||('Kolonne '+(i+1))),items:mm06DatasetColumnItems(ds,i)});
-              });
-            }
-          }
-        }else{
-          const items=mm06TextItems(w.data.text||'');
-          if(items.length) addSource({kind:'widgetText',widgetId:w.id,name:title,items:items});
-        }
-      }
-    });
-    return out.filter(src => Array.isArray(src.items) && src.items.length);
-  }
-  function mm06SavedListButtons(keys){
-    return keys.length ? keys.map(k => '<button class="pickList" data-k="'+mm06Esc(k)+'">'+mm06Esc(k)+'</button>').join(' ') : '<p>Ingen gemte lister endnu.</p>';
-  }
-  function mm06AllDatasetHtml(){
-    let html='';
-    try{
-      const dsets=Array.isArray(state && state.datasets) ? state.datasets : [];
-      if(dsets.length){
-        html += '<h3>Alle datasæt</h3>';
-        html += dsets.map(function(ds){
-          const cols=(ds.columns||[]).map(function(col,i){return '<button class="pickDatasetCol" data-ds="'+mm06Esc(ds.id)+'" data-col="'+i+'">'+mm06Esc(col||('Kolonne '+(i+1)))+'</button>';}).join(' ');
-          return '<div class="datasetPick"><span>'+mm06Esc(ds.name||'Datasæt')+'</span> '+cols+'</div>';
-        }).join('');
-      }
-    }catch(_e){}
-    return html;
-  }
-  function mm06VisibleWidgetsHtml(sources){
-    if(!sources.length) return '';
-    return '<h3>Synlige liste-widgets</h3><div class="mm06WidgetLists">'+sources.map(function(src,i){
-      return '<button class="pickVisibleWidgetList" data-mm06-i="'+i+'">'+mm06Esc(src.name)+' <small>('+src.items.length+')</small></button>';
-    }).join(' ')+'</div>';
-  }
-  function mm06InstallGroupLoadHandler(c,w){
-    try{
-      const loadBtn=c && c.querySelector && c.querySelector('.loadGroupList');
-      if(!loadBtn) return;
-      loadBtn.onclick=function(ev){
-        if(ev){ev.preventDefault(); ev.stopPropagation();}
-        const useList=function(pick,items){
-          items=(items||[]).map(x=>String(x||'').trim()).filter(Boolean);
-          if(!items.length){ if(typeof toast==='function') toast('Listen er tom'); return; }
-          w.data=w.data||{};
-          w.data.names=[...items];
-          w.data.groups=[];
-          w.data.groupLocks=[];
-          w.data.rot=0;
-          w.data.listHidden=false;
-          w.data.groupsVisible=false;
-          if(typeof closeModal==='function') closeModal();
-          if(typeof fillContent==='function') fillContent(c.closest('.widget'),w);
-          setTimeout(function(){
-            try{const inp=c.closest('.widget') && c.closest('.widget').querySelector('.groupSize'); if(inp){inp.focus({preventScroll:true}); inp.select();}}
-            catch(_e){}
-          },80);
-          if(typeof save==='function') save();
-          if(typeof toast==='function') toast('Liste hentet: '+items.length);
-        };
-        const bank=(typeof wheelListBank==='function') ? wheelListBank() : {};
-        const keys=Object.keys(bank||{}).sort((a,b)=>a.localeCompare(b,'da'));
-        const visibleSources=mm06VisibleListSources(w.id);
-        const html='<h2>Hent liste til grupper</h2><p>Vælg en gemt liste eller en synlig liste-/datasæt-widget. Ny filimport bør gå via Gem/åbn eller en datawidget først.</p>'+
-          mm06SavedListButtons(keys)+
-          mm06VisibleWidgetsHtml(visibleSources)+
-          mm06AllDatasetHtml()+
-          '<hr>'+((typeof importedListButtonHtml==='function') ? importedListButtonHtml() : '')+' <button id="close">Luk</button>';
-        if(typeof showModal==='function') showModal(html); else return;
-        modal.querySelectorAll('.pickList').forEach(function(btn){
-          btn.onclick=function(){const pick=btn.dataset.k; useList(pick, ((typeof wheelListBank==='function') ? wheelListBank()[pick] : bank[pick]) || []);};
-        });
-        modal.querySelectorAll('.pickVisibleWidgetList').forEach(function(btn){
-          btn.onclick=function(){const src=visibleSources[Number(btn.dataset.mm06I)]; if(src) useList(src.name,src.items);};
-        });
-        modal.querySelectorAll('.pickDatasetCol').forEach(function(btn){
-          btn.onclick=function(){
-            const ds=mm06DatasetById(btn.dataset.ds); const colIndex=Number(btn.dataset.col);
-            if(ds) useList((ds.name||'Datasæt')+' – '+((ds.columns&&ds.columns[colIndex])||('Kolonne '+(colIndex+1))),mm06DatasetColumnItems(ds,colIndex));
-          };
-        });
-        try{ if(typeof wireImportListButton==='function') wireImportListButton(useList); }catch(_e){}
-        const close=modal.querySelector('#close'); if(close) close.onclick=closeModal;
-      };
-    }catch(err){ console.warn('mM-06 group list handler failed',err); }
-  }
-
-  const previousWireGroups = window.wireGroups;
-  if(typeof previousWireGroups==='function'){
-    window.wireGroups=function(c,w){
-      previousWireGroups(c,w);
-      mm06InstallGroupLoadHandler(c,w);
-    };
-  }
-  if(typeof window.fillContent==='function'){
-    // Existing rendered group widgets keep their handler after this script loads.
-    setTimeout(function(){
-      document.querySelectorAll('.widget[data-type="groups"] .content').forEach(function(c){
-        try{ const el=c.closest('.widget'); const ww=(typeof getWidgetByIdOnCurrent==='function') ? getWidgetByIdOnCurrent(el.dataset.id) : null; if(ww) mm06InstallGroupLoadHandler(c,ww); }catch(_e){}
-      });
-    },0);
-  }
-})();
-</script>
 
 <!-- v1.2.45-mM-16: direct safe Hent liste override. No capture/observer. -->
-<script>
-(function(){
-  'use strict';
-  if(window.__maansMM16DirectListPicker) return;
-  window.__maansMM16DirectListPicker=true;
+<!-- Removed discarded MM16 direct list picker override for Grupper/Lykkehjulet. -->
 
-  function e(v){
-    try{return (typeof esc==='function')?esc(v):String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
-    catch(_err){return String(v==null?'':v);}
-  }
-  function curWidgets(){
-    try{var s=(typeof slide==='function')?slide():null; if(s&&Array.isArray(s.widgets)) return s.widgets;}catch(_e){}
-    try{if(typeof state!=='undefined' && state && Array.isArray(state.slides)){var sl=state.slides[Number(state.current||state.active||0)]||state.slides[0];return (sl&&Array.isArray(sl.widgets))?sl.widgets:[];}}catch(_e){}
-    return [];
-  }
-  function getW(id){return curWidgets().find(function(w){return String(w.id)===String(id);})||null;}
-  function lines(txt){return String(txt||'').split(/\r?\n/).map(function(x){return x.trim();}).filter(Boolean);}
-  function savedBank(){try{return (typeof wheelListBank==='function')?wheelListBank():{};}catch(_e){return {};}}
-  function listSources(excludeId){
-    var out=[];
-    curWidgets().forEach(function(w){
-      if(!w || String(w.id)===String(excludeId)) return;
-      if(w.type!=='text' || !w.data || w.data.datasetId) return;
-      var title=String(w.title||'').replace(/^📊\s*/,'').trim();
-      var isList=(w.data.kind==='list') || w.data.listAsset===true || w.data.createdFromDataset===true || /^Liste fra\s+/i.test(title);
-      if(!isList) return;
-      var items=lines(w.data.text||'');
-      if(items.length) out.push({name:title||'Liste-widget',items:items});
-    });
-    return out;
-  }
-  function openGemAaben(){
-    try{ if(typeof closeModal==='function') closeModal(); }catch(_e){}
-    setTimeout(function(){
-      try{
-        if(typeof showSaveFileOptions==='function'){showSaveFileOptions();return;}
-        if(typeof saveModal==='function'){saveModal();return;}
-        if(typeof openBackupModal==='function'){openBackupModal();return;}
-        if(typeof showBackupModal==='function'){showBackupModal();return;}
-        if(typeof toast==='function')toast('Åbn Gem/åbn via Mere-menuen for at importere.');
-      }catch(err){console.warn('mM16 open Gem/åbn failed',err);try{if(typeof toast==='function')toast('Åbn Gem/åbn via Mere-menuen for at importere.');}catch(_e){}}
-    },0);
-  }
-  function showListPicker(title,callback,excludeId){
-    var bank=savedBank();
-    var keys=Object.keys(bank||{}).sort(function(a,b){return a.localeCompare(b,'da');});
-    var widgets=listSources(excludeId);
-    var savedHtml=keys.length?keys.map(function(k){var n=0;try{n=(bank[k]||[]).length;}catch(_e){}return '<button class="mm16Saved" data-k="'+e(k)+'">'+e(k)+(n?' <small>('+n+')</small>':'')+'</button>';}).join(' '):'<p style="opacity:.7">Ingen gemte lister endnu.</p>';
-    var widgetHtml=widgets.length?widgets.map(function(src,i){return '<button class="mm16Widget" data-i="'+i+'">📄 '+e(src.name)+' <small>('+src.items.length+')</small></button>';}).join(' '):'<p style="opacity:.7">Ingen listewidgets på tavlen endnu. Opret en liste fra en datasetwidget med → Liste først.</p>';
-    if(typeof showModal!=='function') return;
-    showModal('<style>.mm16Grid{display:flex;gap:8px;flex-wrap:wrap}.mm16Grid button{font-weight:900}
-
-/* v1.2.45-kahoopardy-phase1.12: ekte Jeopardy-board med kategorikolonner, full-fit grid og turregel */
-.kahoopardyJeopardy{min-height:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden!important}
-.kahoopardyJeopardyTurnBanner{text-align:center;font-weight:950;font-size:clamp(14px,1.6vw,24px);opacity:.92;background:rgba(255,255,255,.10);border-radius:999px;padding:7px 12px;justify-self:center}
-.kahoopardyJeopardyGrid{min-height:0;height:100%;display:grid!important;gap:8px!important;overflow:hidden!important;padding:4px!important;box-sizing:border-box!important}
-.kahoopardyJeopardyCat{border-radius:12px;background:rgba(255,255,255,.18);font-size:clamp(12px,1.55vw,24px);font-weight:950;text-align:center;padding:6px;display:grid;place-items:center;min-width:0;overflow:hidden;text-overflow:ellipsis;line-height:1.05;text-wrap:balance}
-.kahoopardyJeopardyCard{border:0;border-radius:12px;background:#1d4ed8;color:#facc15;font-size:clamp(18px,3.2vw,48px);font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.22);min-height:0;height:100%;padding:4px;display:grid;place-items:center;touch-action:manipulation}
-.kahoopardyJeopardyCard.used,.kahoopardyJeopardyBlank{background:rgba(255,255,255,.08);color:rgba(255,255,255,.28);box-shadow:none;border-radius:12px;min-height:0}
-.kahoopardyJeopardyCard.used{cursor:not-allowed;text-decoration:line-through}
-.kahoopardyJeopardyCard:not(.used):active{transform:scale(.98)}
-@media(max-width:700px){.kahoopardyJeopardyGrid{gap:5px!important}.kahoopardyJeopardyCard{font-size:clamp(15px,5vw,30px);border-radius:9px}.kahoopardyJeopardyCat{font-size:clamp(10px,3vw,16px);border-radius:9px}}
-
-</style><h2>'+e(title||'Hent data/liste')+'</h2><p>Vælg en gemt liste eller en listewidget. Datasæt og kolonner vælges inde i datawidgetten med → Listewidget, så filimport ikke spredes ud i hver enkelt aktivitetswidget.</p><h3>Gemte lister</h3><div class="mm16Grid">'+savedHtml+'</div><h3>Listewidgets på tavlen</h3><div class="mm16Grid">'+widgetHtml+'</div><hr><button id="mm16Import">Åbn Gem/åbn</button> <button id="close">Luk</button>');
-    modal.querySelectorAll('.mm16Saved').forEach(function(btn){btn.onclick=function(){var k=btn.dataset.k;var items=(savedBank()[k]||[]).map(function(x){return String(x||'').trim();}).filter(Boolean);callback(k,items);if(typeof closeModal==='function')closeModal();};});
-    modal.querySelectorAll('.mm16Widget').forEach(function(btn){btn.onclick=function(){var src=widgets[Number(btn.dataset.i)];if(src){callback(src.name,[].concat(src.items));if(typeof closeModal==='function')closeModal();}};});
-    var imp=modal.querySelector('#mm16Import'); if(imp) imp.onclick=openGemAaben;
-    var cl=modal.querySelector('#close'); if(cl) cl.onclick=closeModal;
-  }
-  function applyGroups(c,w,items){
-    items=(items||[]).map(function(x){return String(x||'').trim();}).filter(Boolean);
-    if(!items.length){try{toast('Listen er tom')}catch(_e){};return;}
-    w.data=w.data||{}; w.data.names=[].concat(items); w.data.groups=[]; w.data.groupLocks=[]; w.data.rot=0; w.data.listHidden=false; w.data.groupsVisible=false;
-    var el=c.closest('.widget'); if(typeof fillContent==='function')fillContent(el,w); if(typeof save==='function')save(); try{toast('Liste hentet: '+items.length)}catch(_e){}
-  }
-  function applyWheel(c,w,items){
-    items=(items||[]).map(function(x){return String(x||'').trim();}).filter(Boolean);
-    if(!items.length){try{toast('Listen er tom')}catch(_e){};return;}
-    w.data=w.data||{}; w.data.names=[].concat(items); w.data.original=[].concat(items); w.data.chosen=[]; w.data.winner=''; w.data.rot=0; w.data.editing=false;
-    var el=c.closest('.widget'); if(typeof fillContent==='function')fillContent(el,w); if(typeof save==='function')save(); try{toast('Liste hentet: '+items.length)}catch(_e){}
-  }
-  function installOnContent(c,w){
-    if(!c||!w)return;
-    try{
-      var root=c.closest('.widget'); var type=root&&root.dataset&&root.dataset.type;
-      if(type==='groups'){
-        var b=c.querySelector('.loadGroupList');
-        if(b){b.onclick=function(ev){if(ev){ev.preventDefault();ev.stopPropagation();}showListPicker('Hent data/liste til grupper',function(name,items){applyGroups(c,w,items);},w.id);return false;};}
-      }else if(type==='wheel'){
-        c.querySelectorAll('.loadList').forEach(function(b){b.onclick=function(ev){if(ev){ev.preventDefault();ev.stopPropagation();}showListPicker('Hent data/liste til lykkehjulet',function(name,items){applyWheel(c,w,items);},w.id);return false;};});
-      }
-    }catch(err){console.warn('mM16 install failed',err);}
-  }
-  var oldGroups=window.wireGroups;
-  if(typeof oldGroups==='function'){
-    window.wireGroups=function(c,w){oldGroups(c,w);installOnContent(c,w);};
-    try{wireGroups=window.wireGroups;}catch(_e){}
-  }
-  var oldWheel=window.wireWheel;
-  if(typeof oldWheel==='function'){
-    window.wireWheel=function(c,w){oldWheel(c,w);installOnContent(c,w);};
-    try{wireWheel=window.wireWheel;}catch(_e){}
-  }
-  var oldChoose=window.chooseSharedList;
-  window.chooseSharedList=function(title,callback){showListPicker(title||'Hent data/liste',callback,null);};
-  try{chooseSharedList=window.chooseSharedList;}catch(_e){}
-  setTimeout(function(){
-    try{document.querySelectorAll('.widget[data-type="groups"] .content').forEach(function(c){var el=c.closest('.widget');var w=getW(el&&el.dataset&&el.dataset.id); if(w&&window.wireGroups)window.wireGroups(c,w);});}catch(_e){}
-    try{document.querySelectorAll('.widget[data-type="wheel"] .content').forEach(function(c){var el=c.closest('.widget');var w=getW(el&&el.dataset&&el.dataset.id); if(w&&window.wireWheel)window.wireWheel(c,w);});}catch(_e){}
-  },0);
-  window.mm16ShowListPicker=showListPicker;
-})();
-</script>
 
 
 <!-- v1.2.45-mM-17: keep editable list-widget linked to shared list bank -->
@@ -20548,5 +20169,7 @@ function createDatasetWidgetFromList(name,items){
   z-index:2147483400!important;
 }
 </style>
+
+<!-- SAFE166-GROUPS-MAP: SAFE167 Grupper-funktionspatch fjernet; denne fil skal kun dokumentere eksisterende Grupper-flow. -->
 
 </body></html>
