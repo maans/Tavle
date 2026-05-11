@@ -904,6 +904,13 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 <link rel="manifest" href="manifest.webmanifest">
 <!-- Interaktiv tavle v1.0.13-dev – PDF keyboard navigation -->
 <style>
+
+/*
+SAFE175 EMBEDDED MEDIA DATASET FULL EXPORT
+- Download indlejrede medier må ikke downloade datawidgettens synlige previewtekst.
+- Hvis en tekstwidget er en datawidget med datasetId, eksporteres hele datasættet fra state.datasets som CSV.
+- Bevarer almindelige tekstwidgets, billeder, PDF, HTML og backup/import-flow uændret.
+*/
 /*
 CSS-KORT / RYDNINGSKORT
 - Grundlayout: :root, html/body, .app, .title, .topbar, modal/toast.
@@ -10738,6 +10745,7 @@ function extFromDataUrl(dataUrl,fallback='bin'){
   if(type.includes('gif'))return 'gif';
   if(type.includes('svg'))return 'svg';
   if(type.includes('html'))return 'html';
+  if(type.includes('csv'))return 'csv';
   if(type.includes('plain'))return 'txt';
   return fallback;
 }
@@ -16431,6 +16439,7 @@ function importJson(){
 
 
 
+/* SAFE175: Ved download af indlejrede medier skal datawidgets bruge hele datasættet fra localStorage/state.datasets, ikke preview-teksten i widgetten. */
 function collectEmbeddedMedia(){
   const items=[];
   const kindLabel=(src)=>{
@@ -16453,8 +16462,17 @@ function collectEmbeddedMedia(){
           items.push({type:'PDF',slide:slideName,name:w.data.name||`tavle-${si+1}-pdf-${wi+1}`,src:w.data.src||w.data.url});
         }
         if(w.type==='text'&&w.data&&typeof w.data.text==='string'){
-          const src='data:text/plain;charset=utf-8,'+encodeURIComponent(w.data.text);
-          items.push({type:'Tekst',slide:slideName,name:w.data.name||w.title||`tavle-${si+1}-tekst-${wi+1}.txt`,src});
+          // SAFE175: Datawidgets gemmer kun preview i w.data.text. Download skal bruge hele datasættet.
+          const ds=w.data.datasetId?findDatasetById(w.data.datasetId):null;
+          if(ds&&Array.isArray(ds.rows)){
+            const csv=datasetToDelimitedText(ds,',');
+            const baseName=String((ds&&ds.name)||w.data.name||w.title||`tavle-${si+1}-datasæt-${wi+1}`).replace(/\.(txt|csv)$/i,'');
+            const src='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+            items.push({type:'CSV',slide:slideName,name:baseName,src});
+          }else{
+            const src='data:text/plain;charset=utf-8,'+encodeURIComponent(w.data.text);
+            items.push({type:'Tekst',slide:slideName,name:w.data.name||w.title||`tavle-${si+1}-tekst-${wi+1}.txt`,src});
+          }
         }
         if(w.type==='html'&&w.data&&typeof w.data.html==='string'){
           const src='data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html);
