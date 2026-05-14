@@ -1,5 +1,377 @@
 
 <!--
+SAFE400 CALENDAR WEEK FULL DAY SCROLL
+- Bygger på SAFE399.
+- Ugevisningen har nu altid et fuldt 00:00-24:00 tidsområde i scroll-containeren.
+- Visningen kan derfor bruges ved aktiviteter før kl. 06 og efter kl. 23:30.
+- Første åbning scroller stadig ned til skoledagens start/earliest relevant time, så normal brug ikke bliver dårligere.
+-->
+<!--
+SAFE399 CALENDAR WEEK SCROLL EXTENDED HOURS
+- Bygger på SAFE398.
+- Ugevisningen bruger stadig hele widgethøjden i normal skoledag.
+- Hvis ugen har aktiviteter før/efter standardområdet, får tidslinjen en reel intern højde og kan scrolles lodret.
+- Det gør aktiviteter efter kl. 23 eller før kl. 6 tilgængelige uden at presse hele døgnet fladt sammen.
+
+SAFE398 CALENDAR WEEK REAL FIT
+- Bygger på SAFE397.
+- Retter ugevisningens tomme bundfelt ved at måle widgettens .content-area og tvinge calendarBox + timeline til den faktiske resterende højde.
+- Tidskolonnerne får dynamisk højde efter header + heldagsrække, så skemaet fylder resten af widgetten i både normal og maksimeret størrelse.
+- Eventblokke reklassificeres efter deres reelle pixelhøjde efter fit, så små/overlappende blokke prioriterer titel og tid uden tekstoverlap.
+-->
+
+<!--
+SAFE397 CALENDAR WEEK MEASURED FIT
+- Bygger på SAFE396.
+- Stopper med kun at håbe på CSS-fyld.
+- Måler den reelle tilgængelige højde i widgetten og giver ugegrid/tidskolonner den højde direkte.
+- Tilføjer ResizeObserver så ugevisningen tilpasser sig når widgetten ændrer størrelse.
+
+SAFE396 CALENDAR WEEK TRUE FLEX HEIGHT
+- Bygger på SAFE395.
+- Retter ugevisningens grå bundfelt:
+  - Ugekalenderen bruger nu flex-layout i stedet for flere calc()-højder.
+  - Selve tidslinjen får lov at fylde resten af widgetten.
+  - Kalenderens indre grid får en minimumshøjde på 100%, så bunden bruges til kalender i stedet for tomt felt.
+  - Topområdet strammes yderligere en smule.
+-->
+<!--
+SAFE394 CALENDAR WEEK MORE SPACE + LESS TEXT OVERLAP
+SAFE395 CALENDAR WEEK FILL HEIGHT
+- Bygger på SAFE393.
+- Ugevisning:
+  - Bruger mere af widgettens højde i maksimeret/fokus.
+  - Timehøjden øges, så det grå felt under skemaet bliver mindre og kalenderen får mere tekstplads.
+  - Meget smalle/overlappende lektionsblokke viser mindre tekst for at undgå tekst oven i tekst.
+  - 2-sporede blokke viser titel + tid, men skjuler ekstra metadata.
+  - 3+ sporede blokke viser kun titel/tid meget kompakt.
+-->
+<!--
+SAFE391 CALENDAR WEEK CLEAR RECT BLOCKS
+- Bygger på SAFE390.
+- Retter ugevisningens lektionsblokke efter test:
+  - Ingen store pille-/kapsel-former.
+  - Lektionsblokke er rektangulære, farvede og læsevenlige.
+  - CSS bruger ikke color-mix, da det gav ustabil visning på iPad/Safari.
+  - Tekst står øverst/venstre og klippes ikke af i venstre side.
+  - Mindre grå masse og tydeligere farvekant.
+-->
+<!--
+SAFE390 CALENDAR WEEK READABLE BLOCKS
+- Bygger på SAFE388.
+- Retter ugevisningen efter iPadOS/Viggo-inspiration:
+  - Ugevisning er igen en ægte tidslinje, men langt mere komprimeret.
+  - Standard-visning viser cirka skoledagen i stedet for midt om natten.
+  - Lange aktiviteter tegnes som sammenhængende blokke uden at forsvinde ud af overblikket.
+  - Heldagsbegivenheder ligger i en kompakt top-række.
+  - Klik på en ugeaktivitet bruger samme event-preview-modal som dagsvisningen.
+- Forbereder plads til senere kalendervælger i venstre side.
+-->
+<!--
+SAFE388 CALENDAR WEEK COMPACT SCHOOLGRID
+- Bygger på SAFE387.
+- Retter ugevisning efter test:
+  - Tidslinjen komprimeres kraftigt, så man kan danne sig overblik over hele ugen.
+  - Lange begivenheder tegnes ikke længere som høje søjler.
+  - Skemaet bruger i stedet kompakte rækker ud fra brugte starttidspunkter.
+  - Varighed vises som tekst inde i aktiviteten, ikke som fysisk højde.
+  - Heldagsbegivenheder vises i en tydelig øverste række og ikke som lange natsøjler.
+- Ugedage er stadig kolonner, tidspunkter står yderst til venstre.
+-->
+<!--
+SAFE387 CALENDAR WEEK VIGGO-STYLE TIMELINE
+- Bygger på SAFE386.
+- Retter ugevisningen igen:
+  - Skemaet bliver nu en egentlig tidslinje som Viggo-inspirationen.
+  - Tider ligger i venstre side.
+  - Ugedage ligger som kolonner.
+  - Aktiviteter tegnes som hele blokke med top/højde efter start/slut.
+  - Lange aktiviteter klippes ikke længere i stykker mellem rækker.
+  - Heldagsbegivenheder ligger i en separat række øverst.
+- Bevarer klik på aktivitet, dagsheader, uge-navigation og datakildekoblinger.
+-->
+<!--
+SAFE386 CALENDAR WEEK TIMETABLE
+- Bygger på SAFE385.
+- Retter ugevisningen:
+  - Ugevisning er nu et skoleskema/grid i stedet for en rodet liste.
+  - Ugedage står som kolonneheaders.
+  - Tidspunkter står i venstre side.
+  - Aktiviteter placeres i celler efter dag og starttidspunkt.
+  - "Hele dagen" får egen række øverst ved behov.
+- Klik på en aktivitet åbner fortsat event-preview.
+- Klik på en dagsheader åbner dagen som dagsvisning.
+-->
+<!--
+SAFE385 CALENDAR WEEK VIEW
+- Bygger på SAFE384.
+- Kalenderens ugenumre i månedsvisning er nu klikbare.
+- Klik på et ugenummer åbner en ugeskema-visning for den valgte uge.
+- Ugevisningen viser mandag-søndag med dagens aktiviteter.
+- I ugevisning:
+  - ‹ og › skifter uge.
+  - I dag går til aktuel uge.
+  - Måned går tilbage til fuld månedskalender.
+  - Dag går til datokort/dagsvisning.
+- Bevarer eksisterende kalender-, datawidget- og papirkurvsrettelser.
+-->
+<!--
+SAFE384 MOVE MODAL NO TRASH LATE REPATCH
+- Bygger på SAFE383.
+- SAFE383 kunne blive overskrevet af senere/sene patches i appen.
+- Denne version lægger en ekstra sen og gentaget re-patch på widgetMoveModal efter alle scripts:
+  - Papirkurven filtreres ud af "Flyt eller kopiér widget".
+  - Alle knapper, der alligevel peger mod papirkurven, fjernes lige før modalen vises.
+  - Flyt/kopi til papirkurv afvises.
+-->
+<!--
+SAFE383 MOVE MODAL NO TRASH
+- Bygger på SAFE382.
+- Retter "Flyt eller kopiér widget"-modalen:
+  - Papirkurven vises ikke længere som flyt-/kopimål.
+  - Flyt/kopi-funktionerne afviser altid papirkurven som mål, også hvis en ældre handler forsøger.
+  - "Ny tavle + flyt/kopiér" opretter ny normal tavle før papirkurven.
+- Papirkurven er fortsat kun til slettede widgets.
+-->
+<!--
+SAFE382 DATASOURCE OPEN PRESERVE SIZE + LOCK POSITION
+- Bygger på SAFE381.
+- For midlertidigt viste datakilder:
+  - Bredde og højde bevares nu, når datawidgetten åbnes fra en koblet widget.
+  - Rotation, redigeringstilstand og øvrig widget-state bevares som før.
+  - Hvis datawidgetten er låst, bevares også x/y-positionen.
+  - Hvis datawidgetten ikke er låst, åbnes den stadig kontekstuelt tæt ved den widget, der klikkede på 🔗.
+- Formål:
+  - Samme datawidget kan bruges af flere kalenderwidgets uden at dens størrelse hele tiden ændres.
+  - Låst datakilde fungerer som en fast placeret datakilde, uanset hvilken widget der åbner den.
+-->
+<!--
+SAFE381 HIDDEN LINKED DATAWIDGETS
+- Bygger på SAFE380.
+- Ny oprydningsstrategi for datawidgets:
+  - Datawidgets der bruges som kilde af andre widgets skjules fra tavlefladen.
+  - Ukoblede datawidgets vises fortsat normalt.
+  - Klik på 🔗 i en koblet widget åbner datawidgetten midlertidigt ved siden af den widget.
+  - Klik på 🔗 i den midlertidigt viste datawidget skjuler den igen.
+  - Datawidgets findes stadig i vælg-/koblingsmodaler, backup og state.datasets.
+- Første version virker for eksisterende sourceDatasetId-koblinger, især Kalender ↔ datawidget.
+-->
+<!--
+SAFE380 DELETED BOARD WIDGETS TRASH LAYOUT
+- Bygger på SAFE379.
+- Retter sletning af tavle:
+  - Når en tavles widgets flyttes til papirkurven, køres papirkurvens layout-normalisering.
+  - Widgets fra slettet tavle lægges nu i papirkurvens oversigtsgrid i stedet for at beholde gamle positioner/størrelser oven på andre widgets.
+  - Hver flyttet widget får slettetidspunkt og oprindelig geometri bevaret til gendannelse.
+- Ingen ændring i almindelig widgetsletning, gendannelse eller permanent sletning.
+-->
+<!--
+SAFE379 BOARD OVERVIEW DELETE KEY
+- Bygger på SAFE378.
+- Tavleoversigt:
+  - Når en tavle er markeret, kan Backspace eller Delete åbne samme slet-bekræftelse som Slet-knappen.
+  - Papirkurv og sidste normale tavle kan stadig ikke slettes.
+  - Hinttekst opdateres kort med "Delete sletter".
+- Ingen ændring af almindelige Delete-genveje udenfor Tavleoversigt.
+-->
+<!--
+SAFE378 CALENDAR RENAME
+- Bygger på SAFE377.
+- Kalendere kan nu omdøbes.
+- Der tilføjes en lille navneknap i kalenderens værktøjslinje:
+  - 🏷 åbner "Omdøb kalender".
+  - Navnet gemmes i widget.title.
+  - Koblingsvisninger bruger derefter det nye navn, fx datawidgettens "🔗 Musik-kalender".
+- Minimal dagkort-visning beholder måned/år i widget-fanen, men selve kalendernavnet bruges i links og fuld visning.
+-->
+<!--
+SAFE377 DATAWIDGET LINK LABEL + CLICK FIX
+- Bygger på SAFE376.
+- Retter datawidget → bruger-widget-koblingen:
+  - Datawidget viser nu navnet på koblet widget, når der kun er én bruger, fx "🔗 Kalender".
+  - Ved flere brugere vises fx "🔗 3 widgets".
+  - Klik på linket i datawidgetten virker nu inde i datawidgettens egen render/wire-kode.
+  - Klik hopper til den koblede widget eller viser en kort brugerliste ved flere brugere.
+- Afklarer i kodekommentar: næste fase kan give kalenderen flere datakilder via sourceDatasetIds.
+-->
+<!--
+SAFE376 SHARED DATA LINKS FOUNDATION
+- Bygger på SAFE375.
+- Første fælles model for widget ↔ datawidget-koblinger:
+  - Flere widgets kan bruge samme datawidget.
+  - Kalender viser en lille 🔗-status, når den er koblet til en datawidget.
+  - Klik på 🔗 i kalenderen hopper til den koblede datawidget, også på anden tavle/papirkurv.
+  - Datawidget viser "🔗 N" når den bruges af andre widgets.
+  - Klik på "🔗 N" hopper til bruger-widgetten eller viser en kort liste, hvis flere widgets bruger samme datawidget.
+- Ingen automatisk sletning, ingen automatisk konvertering af listewidgets endnu.
+-->
+<!--
+SAFE375 NO WIDGET OR NAV INTO TRASH
+- Bygger på SAFE374.
+- Retter Cmd/Ctrl+pil med valgt widget:
+  - Widget flyttes kun mellem normale tavler.
+  - Papirkurven springes altid over.
+  - Hvis man flytter til højre efter sidste normale tavle, oprettes en ny normal tavle før papirkurven.
+  - Widget kan ikke lande i papirkurven via flyt-genvej.
+- Retter Cmd/Ctrl+pil uden valgt widget:
+  - Tavler flyttes kun blandt normale tavler.
+  - Papirkurven indgår ikke i flytning, og aktiv tavle kan ikke blive papirkurv.
+- Tavleskift med almindelige pile bruger fortsat safe134NormalStep og springer papirkurv over.
+-->
+<!--
+SAFE374 BOARD OVERVIEW ESCAPE + RESCUE THREE BOARDS
+- Bygger på SAFE373.
+- Retter Tavleoverblik, hvor piletast-handleren kunne blive hængende efter Enter/Esc/klik udenfor.
+  - closeModal() kalder nu Tavleoverblik-cleanup, hvis den findes.
+  - Tavleoverblik-keyhandleren regner kun modalen som aktiv, når modalBack faktisk vises.
+  - cleanup-funktionen eksponeres midlertidigt på window og nulstilles ved cleanup.
+- Retter Redningsbælte → Sortér i 3 tavler:
+  - Opretter altid alle tre sorteringstavler: Aktiviteter, Data og tekst, Indhold og visning.
+  - Også selv om en kategori har 0 widgets.
+  - Tavletæller/topbar opdateres efter oprettelse.
+- Ingen ændring af piletastpolitik endnu.
+-->
+<!--
+SAFE373 FOCUS FREEZE + RESCUE REFRESH
+- Bygger på SAFE372.
+- Retter videre på fokus-hop:
+  - Widget-geometri fryses før/under/efter fokus-initialisering.
+  - Inline transform/left/top/width/height genanvendes, så fokus ikke kan flytte widgetten.
+- Retter redningsbælte "Sortér i 3 tavler":
+  - Efter oprettelse af sorteringstavler opdateres tavletæller, oversigtsknap og render-flow straks.
+  - Modalens "Bliv her" efterlader ikke længere topbaren i 1/1-tilstand, hvis der nu findes flere tavler.
+- Ingen ændring af piletast-systemet endnu; se konfliktliste i svar.
+-->
+<!--
+SAFE372 FOCUS NO WIDGET JUMP
+- Bygger på SAFE371.
+- Retter fokus-tilstand, hvor en widget kunne hoppe nedad og sætte sig fast.
+- Årsag: en gammel fokus-CSS-regel satte left:auto/top:auto på widgets i normal fokus.
+  Appen placerer widgets med transform: translate(x,y), så auto-position kunne få browseren til
+  at genberegne widgettens statiske position, især når chrome/topbar skjules i fokus.
+- Ret:
+  - Widgets forankres eksplicit med left:0/top:0.
+  - Normal fokus må ikke ændre widgettens geometriske placering.
+  - Kun visuel dæmpning/ramme/chrome-skjul bevares.
+-->
+<!--
+SAFE371 CALENDAR DEDUP DATAWIDGET REFRESH
+- Bygger på SAFE370.
+- Retter at "Kalender + datawidget" kunne opdatere state.datasets uden at den synlige datawidget ændrede sig på tavlen.
+- Når en kalender skriver tilbage til sin datawidget:
+  - dataset.rows opdateres
+  - alle datawidget-tekstwidgets med samme datasetId får opdateret deres tekst-cache
+  - tavlen re-renderes, så datawidgetten synligt viser færre rækker
+- Toast viser nu også datawidgettens nye rækkeantal.
+-->
+<!--
+SAFE370 CALENDAR DAY EXPAND TOGGLE FIX
+- Bygger på SAFE369.
+- Retter dagvisningens pil og klikområder:
+  - Minimal datokort-visning viser › og udvider til dagsprogram.
+  - Udvidet dagsvisning viser ‹ og går tilbage til minimal datokort-visning.
+  - Klik midt på datokortet/datoen skifter til fuld kalender.
+  - Klikhåndtering bruger pointerup + click, så det virker i både redigerings- og præsentationstilstand.
+-->
+<!--
+SAFE369 CALENDAR LINKS + QUICK ADD FIX
+- Bygger på SAFE368.
+- Retter hurtigoprettelse fra den lille datolinje i dagvisning:
+  - virker nu også i redigeringstilstand
+  - bruger tavlens titel som aktivitetstitel, ikke kalender-widgettens titel
+- Forbedrer koblingen mellem kalender og datawidget:
+  - Dubletdialogen kan nu vælge en eksisterende kalender-datawidget, hvis kalenderen ikke allerede kender sin kilde.
+  - "Kalender + datawidget" skriver den rensede kalender tilbage til den valgte/tilknyttede datawidget.
+- Dette er første skridt mod idéen om at alle widgets senere kan oprette kalenderbegivenheder i valgfri kalender.
+-->
+<!--
+SAFE368 CALENDAR DEDUP SYNC DATAWIDGET
+- Bygger på SAFE367.
+- Når kalenderen fjerner dubletter, kan brugeren nu vælge:
+  1) Fjern kun fra kalenderwidgetten.
+  2) Fjern fra kalenderwidgetten og skriv den rensede kalender tilbage til den tilknyttede datawidget.
+- Hvis kalenderen ikke har en tilknyttet datawidget, kan brugeren stadig fjerne dubletter i kalenderen og gemme en ny datawidget bagefter.
+- Ved import "som datawidget/begge dele" gemmes reference til den oprettede datawidget i kalenderwidgetten, så senere dubletfjernelse kan synkroniseres.
+-->
+<!--
+SAFE367 CALENDAR MINIMAL DAY CARD AS WIDGET
+- Bygger på SAFE366.
+- Minimal dagvisning opfører sig nu som selve widgetten:
+  - Den indre kalender-toplinje og kalender-værktøjslinje vises ikke i minimal dagvisning.
+  - Datokortet fylder hele widgettens indholdsområde.
+  - Widget-fanens titel viser måneden/året i stedet for "Kalender" i minimal dagvisning.
+  - Pilen på højre side af kortet udvider til dagsprogrammet.
+  - Klik midt på dato/måned skifter til fuld kalender.
+- Udvidet dagsvisning og fuld kalender bevarer eksisterende kalenderfunktioner.
+-->
+<!--
+SAFE366 CALENDAR MINIMAL DAY CARD
+- Bygger på SAFE365.
+- Dagvisning får nu to niveauer:
+  1) Minimal dagvisning: kun riv-af-datokortet.
+  2) Udvidet dagvisning: datokort + dagens program som i SAFE365.
+- I minimal dagvisning:
+  - lille ›-pil i højre side af datokortet udvider til hele dagsvisningen.
+  - klik på dato/måned/midt på kortet åbner fuld kalender.
+- I udvidet dagvisning:
+  - datokortet kan stadig bruges til at vende tilbage til fuld kalender.
+- Eksisterende hurtigoprettelse via den lille datolinje øverst bevares.
+-->
+<!--
+SAFE365 CALENDAR DAY CLICK ACTIONS
+- Bygger på SAFE364.
+- Dagtilstand:
+  - Fuld-knappen fjernes fra dagvisningen.
+  - Klik på den store riv-af-dato til venstre skifter tilbage til fuld kalender.
+  - Klik på den lille datolinje øverst opretter en hurtig aktivitet på den viste dato.
+  - Hurtigaktiviteten får starttid sat til nuværende klokkeslæt.
+  - Hurtigaktiviteten får titel fra tavlens titel, så den hurtigt kan notere "det vi laver nu".
+  - Klik på den nyoprettede aktivitet kan bruges til at redigere flere oplysninger.
+- Eksisterende kalenderdata, ICS, dubletter, ugenumre, helligdage og popup-flow bevares.
+-->
+<!--
+SAFE364 CALENDAR DAY MODE + LAYOUT START
+- Bygger på SAFE363.
+- Tilføjer to tydelige kalendertilstande:
+  1) Dag: en enkel "riv-af-kalender"/dagstavle med dagens program og aktuel/næste aktivitet.
+  2) Fuld: den eksisterende måned/liste-kalender.
+- Starter layoutoprydning:
+  - Kalenderens værktøjer flyttes mod ikonknapper med title/aria-label.
+  - Dagtilstand har færre og mere lærer-venlige kontroller.
+  - I præsentation/fokus skjules fortsat redigeringsværktøjer.
+- Kalenderdata, ICS-import, dubletfjernelse, helligdage, ugenumre og note-popup bevares.
+-->
+<!--
+SAFE363 CALENDAR AGGRESSIVE VISIBLE DUPLICATE FIX
+- Bygger på SAFE362.
+- Retter dubletlogikken:
+  - SAFE362 var for streng og sammenlignede også note, slut, status m.m.
+  - Viggo/ICS-dubletter kan have små forskelle i DESCRIPTION/DTEND, selv om de er samme synlige aktivitet.
+  - Dubletter vurderes nu ud fra synlig identitet: dato, starttid, titel, sted, type og hold.
+  - Note, status, farve og slut ignoreres ved dubletnøgle.
+  - Beholder den første forekomst og fjerner resten.
+- Dubletknappen virker nu på de dubletter, der tydeligt vises dobbelt i kalenderen.
+-->
+<!--
+SAFE362 CALENDAR DEDUPLICATE EVENTS
+- Bygger på SAFE361.
+- Tilføjer dubletfjernelse til kalenderen:
+  - Dubletter vurderes på dato, start, slut, titel, sted, note, type, hold og status.
+  - Der fjernes automatisk dubletter efter ICS-/feed-/dataimport.
+  - Der tilføjes en synlig knap "Dubletter" i kalenderens værktøjslinje.
+  - Knappen fjerner dubletter manuelt og viser hvor mange der blev fjernet.
+- Ingen ændring i visninger, ugenumre, helligdage, note-popup eller ICS-rens.
+-->
+<!--
+SAFE361 CALENDAR LIST TITLE CLASS FIX
+- Bygger på SAFE360.
+- Retter Liste-visning i Kalender:
+  - Kalenderens liste-events brugte class="title", som kolliderede med appens globale tavletitel-CSS.
+  - Det gav store røde/glødende "titel"-piller oven på kalenderen.
+  - Eventtitler i kalenderlisten hedder nu calendarEventTitle og isoleres fra global .title.
+- Ingen ændring i kalenderdata, ICS-import, ugenumre, helligdage eller note-popup.
+-->
+<!--
 SAFE360 CALENDAR READABLE EVENT NOTES
 - Bygger på SAFE359.
 - Retter gamle importerede kalendernoter, der stadig kan indeholde rå HTML i redigeringsfeltet.
@@ -2016,6 +2388,109 @@ body:has(.app.present) .topbar #trashTop{
 .datasetTitleTools{display:inline-flex;gap:6px;align-items:center;flex-shrink:0}
 .datasetTitleTools button{appearance:none!important;border:1px solid #cbd5e1!important;background:#fff!important;color:#111827!important;border-radius:999px!important;box-shadow:0 1px 4px rgba(15,23,42,.08)!important;font-weight:900!important;padding:6px 9px!important;line-height:1!important;cursor:pointer!important}
 .datasetTitleTools button:hover{background:#f8fafc!important;border-color:#94a3b8!important}
+
+/* SAFE372: Normal fokus må aldrig flytte widgets. Appen bruger transform:translate(x,y). */
+body.focus-mode:not(.focus-maximized) .widget,
+body.focus-edit:not(.focus-maximized) .widget,
+body.focus-presentation:not(.focus-maximized) .widget{
+  left:0!important;
+  top:0!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:var(--widget-w)!important;
+  height:var(--widget-h)!important;
+}
+body.focus-mode:not(.focus-maximized) .widget.focusTarget,
+body.focus-edit:not(.focus-maximized) .widget.focusTarget,
+body.focus-presentation:not(.focus-maximized) .widget.focusTarget{
+  left:0!important;
+  top:0!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:var(--widget-w)!important;
+  height:var(--widget-h)!important;
+}
+
+.safe376DataLinkBtn{
+  border:0!important;
+  border-radius:999px!important;
+  padding:5px 9px!important;
+  background:#e0f2fe!important;
+  color:#075985!important;
+  font-weight:950!important;
+  box-shadow:none!important;
+  cursor:pointer!important;
+  white-space:nowrap!important;
+}
+.safe376DataLinkBtn.missing{background:#fee2e2!important;color:#991b1b!important}
+.datasetTitleTools .safe376DataLinkBtn{margin-left:6px}
+.safe376LinkList{display:grid;gap:8px;margin:10px 0}
+.safe376LinkRow{
+  display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
+  padding:10px 12px;border:1px solid #e5e7eb;border-radius:14px;background:#fff;
+  text-align:left;font-weight:850;color:#111827;cursor:pointer
+}
+.safe376LinkRow small{display:block;color:#64748b;font-weight:800}
+
+/* SAFE385: Kalender ugevisning */
+.calendarWeekNo{
+  cursor:pointer;
+  border:0;
+  font:inherit;
+  font-weight:950;
+}
+.calendarWeekNo:hover{filter:brightness(.96);outline:3px solid rgba(14,165,233,.35)}
+.calendarWeekView{
+  min-height:0;
+  overflow:auto;
+  padding:10px;
+}
+.calendarWeekGrid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(115px,1fr));
+  gap:10px;
+  min-height:0;
+}
+.calendarWeekDay{
+  background:rgba(248,250,252,.92);
+  border:1px solid rgba(15,23,42,.10);
+  border-radius:20px;
+  padding:10px;
+  min-height:240px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.calendarWeekDay.today{outline:4px solid rgba(234,179,8,.75)}
+.calendarWeekDayHeader{
+  border:0;
+  background:transparent;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+  padding:0 0 6px;
+}
+.calendarWeekDayHeader b{display:block;font-size:18px;text-transform:capitalize}
+.calendarWeekDayHeader small{display:block;color:#64748b;font-weight:900}
+.calendarWeekEvent{
+  border:0;
+  border-left:7px solid var(--cal-color,#0ea5e9);
+  background:#fff;
+  border-radius:14px;
+  padding:8px 9px;
+  text-align:left;
+  font:inherit;
+  font-weight:850;
+  box-shadow:0 2px 8px rgba(15,23,42,.08);
+}
+.calendarWeekEvent .time{display:block;color:#334155;font-weight:1000;font-size:13px}
+.calendarWeekEvent b{display:block;line-height:1.05}
+.calendarWeekEvent small{display:block;color:#64748b;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendarWeekEmpty{color:#94a3b8;font-weight:850;font-size:13px;margin-top:auto}
+@media(max-width:900px){
+  .calendarWeekGrid{grid-template-columns:1fr}
+  .calendarWeekDay{min-height:130px}
+}
 </style> <style id="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!imp
 - focus-mode: ="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!important;top:0!important;left:0!important}   /* v_focus_zfix: focused widget must stay above all others */ body.focus-edit .widget.focused, body.focus-presentation .widget.focused, .app.
 - focus-mode: nt;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!important;top:0!important;left:0!important}   /* v_focus_zfix: focused widget must stay above all others */ body.focus-edit .widget.focused, body.focus-presentation .widget.focused, .app.focusMode .widget.focused, .widget.focused{   z-index:9999!important; } body.focus-edit .widget:not(.focused), body.focus-presentation .widget:not(.focused){   z-index:20!important; }    /* FASE
@@ -12299,10 +12774,35 @@ body.focus-presentation .content.kahoopardy .kahoopardyEditHelp{
 .calendarEventDots{display:flex;gap:3px;align-items:end;flex-wrap:wrap;align-self:end}.calendarDot{width:10px;height:10px;border-radius:999px;background:var(--cal-color,#4f46e5);box-shadow:0 0 0 1px rgba(0,0,0,.16) inset}
 .calendarList{min-height:0;overflow:auto;background:rgba(255,255,255,.74);border-radius:16px;padding:8px;border:1px solid rgba(15,23,42,.10)}
 .calendarListDay{font-weight:950;margin:8px 0 4px;color:#1e293b}.calendarListEvent{display:flex;align-items:center;gap:8px;padding:7px 8px;margin:4px 0;border-radius:12px;background:white;border-left:7px solid var(--cal-color,#4f46e5);box-shadow:0 1px 5px rgba(15,23,42,.08)}
-.calendarListEvent .time{font-weight:950;color:#475569;min-width:70px}.calendarListEvent .main{min-width:0;flex:1}.calendarListEvent .title{font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.calendarListEvent .meta{font-size:12px;color:#64748b;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendarListEvent .time{font-weight:950;color:#475569;min-width:70px}.calendarListEvent .main{min-width:0;flex:1}.calendarListEvent .calendarEventTitle{display:block!important;position:static!important;transform:none!important;inset:auto!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:transparent!important;color:inherit!important;text-shadow:none!important;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:inherit;line-height:1.15}.calendarListEvent .meta{display:block;font-size:12px;color:#64748b;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .calendarEmpty{display:grid;place-items:center;height:100%;opacity:.65;font-weight:900;text-align:center}.calendarSmallHint{font-size:12px;color:#64748b;font-weight:800}
 .calendarModalEvents{display:grid;gap:8px;margin:8px 0 12px}.calendarModalEvent{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:8px;border-radius:12px;background:#f8fafc;border-left:7px solid var(--cal-color,#4f46e5)}
 .calendarFormGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.calendarFormGrid label{display:grid;gap:3px;font-weight:900}.calendarFormGrid input,.calendarFormGrid select,.calendarFormGrid textarea{font:inherit;border:1px solid #cbd5e1;border-radius:10px;padding:7px;background:white}.calendarFormGrid textarea{grid-column:1/-1;min-height:150px;font-size:16px;line-height:1.35;white-space:pre-wrap}.calendarNotePreview{margin-top:10px;padding:12px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;white-space:pre-wrap;font-size:16px;line-height:1.45;max-height:38vh;overflow:auto}.calendarDetailGrid{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:10px 0}.calendarDetailGrid b{color:#334155}.calendarModalEvent{cursor:pointer}.calendarModalEvent button{cursor:pointer}.calendarColorRow{grid-column:1/-1;display:flex;align-items:end;gap:8px;flex-wrap:wrap}.calendarColorPresets{display:flex;gap:5px;flex-wrap:wrap;align-items:center}.calendarColorPreset{width:28px;height:28px;border-radius:999px!important;padding:0!important;border:2px solid rgba(15,23,42,.18)!important;background:var(--preset-color)!important}.calendarColorPreset.active{outline:3px solid #111827}.calendarModalBtns{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+.calendarTools button,.calendarNav button{min-width:38px;min-height:34px}
+.calendarTools .txt{display:inline}.calendarTools .ico{font-size:1.05em}
+.calendarModeBtn{background:#111827!important;color:white!important}
+.calendarDayMode{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px}
+.calendarTear{min-height:0;display:grid;grid-template-columns:minmax(130px,0.9fr) minmax(0,2fr);gap:12px;height:100%}.calendarTear.compact{grid-template-columns:minmax(180px,420px);justify-content:start}.calendarTear.compact .calendarTearSheet{max-width:420px}.calendarDayOnly{grid-template-rows:minmax(0,1fr)!important;padding:0}.calendarDayOnly .calendarTear.compact{height:100%;grid-template-columns:1fr;justify-content:stretch}.calendarDayOnly .calendarTear.compact .calendarTearSheet{max-width:none;width:100%;height:100%;border-radius:0 0 18px 18px}.calendarDayOnly .calendarTearTop{border-radius:0}.calendarDayOnly .calendarTearDate{padding:clamp(12px,2vw,28px)}.calendarDayOnly .calendarTearDate .dayno{font-size:clamp(96px,20vw,260px)}.calendarDayOnly .calendarNowCard{margin:0 clamp(14px,2vw,28px) clamp(14px,2vw,28px)}.calendarExpandDay{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:42px;height:74px;border-radius:999px!important;background:rgba(15,23,42,.10)!important;color:#111827!important;font-size:36px!important;line-height:1!important;box-shadow:none!important;z-index:3}.calendarExpandDay:hover{background:rgba(79,70,229,.18)!important}.calendarTearSheet{position:relative}
+.calendarTearSheet{border-radius:20px;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);box-shadow:0 8px 24px rgba(15,23,42,.12);border:1px solid rgba(15,23,42,.12);display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+.calendarTearTop{background:#ef4444;color:white;font-weight:950;text-align:center;padding:8px 10px;letter-spacing:.04em;text-transform:uppercase}
+.calendarTearDate{display:grid;place-items:center;text-align:center;padding:10px;cursor:pointer}.calendarTearDate:hover{background:rgba(79,70,229,.04)}.calendarTitle.calQuickAdd{cursor:pointer}.calendarTitle.calQuickAdd:hover{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px}
+.calendarTearDate .weekday{font-size:clamp(18px,2.6vw,34px);font-weight:950;color:#111827;text-transform:capitalize}
+.calendarTearDate .dayno{font-size:clamp(72px,11vw,160px);font-weight:1000;line-height:.9;color:#111827}
+.calendarTearDate .monthyear{font-size:clamp(16px,2vw,26px);font-weight:900;color:#475569}
+.calendarTearDate .weekno{margin-top:6px;font-size:clamp(14px,1.5vw,20px);font-weight:900;color:#64748b}
+.calendarNowCard{margin:0 10px 12px;padding:10px;border-radius:16px;background:#eef2ff;color:#111827;border-left:8px solid var(--cal-color,#4f46e5)}
+.calendarNowCard b{display:block;font-size:clamp(15px,1.6vw,22px)}
+.calendarNowCard small{font-weight:850;color:#475569}
+.calendarDayAgenda{min-height:0;overflow:auto;background:rgba(255,255,255,.78);border:1px solid rgba(15,23,42,.10);border-radius:20px;padding:10px}
+.calendarDayAgenda h3{margin:0 0 8px;font-size:clamp(18px,2vw,28px)}
+.calendarAgendaEvent{width:100%;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;text-align:left;margin:7px 0;padding:10px 12px;border-radius:16px;background:#fff;border-left:8px solid var(--cal-color,#4f46e5);box-shadow:0 2px 8px rgba(15,23,42,.08)}
+.calendarAgendaEvent .time{font-weight:1000;color:#334155;min-width:82px}
+.calendarAgendaEvent .main b{display:block;font-size:clamp(15px,1.5vw,22px);line-height:1.05}
+.calendarAgendaEvent .main small{display:block;font-weight:850;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendarAgendaEvent .edit{opacity:.7}
+@media(max-width:700px){.calendarTear{grid-template-columns:1fr}.calendarTearSheet{min-height:220px}.calendarTools .txt{display:none}.calendarBox button{padding:7px 9px}}
+
 .present .calendarTools,body.focus-presentation .calendarTools{display:none!important}
 .present .content.calendar .calendarBox,body.focus-presentation .content.calendar .calendarBox{padding:8px}.present .calendarDay{box-shadow:none}.present .calendarBox button{box-shadow:none}
 @media(max-width:720px){.calendarBox{padding:7px}.calendarTitle{font-size:18px}.calendarGrid{gap:3px;grid-template-rows:repeat(6,minmax(42px,1fr))}.calendarRow{gap:3px;grid-template-columns:34px repeat(7,1fr)}.calendarWeekNo{font-size:10px;border-radius:9px}.calendarDay{border-radius:10px;padding:5px}.calendarDayNo{font-size:13px}.calendarBox button{padding:6px 8px}.calendarWeekdays{font-size:10px;grid-template-columns:34px repeat(7,1fr)}.calendarDot{width:8px;height:8px}.calendarFormGrid{grid-template-columns:1fr}.calendarHeadLine{grid-template-columns:1fr}.calendarNav{order:2}.calendarActionLine{justify-content:flex-start}}
@@ -13774,7 +14274,7 @@ window.rescueSelectedWidgetToViewport=rescueSelectedWidgetToViewport;
 // WIDGET CORE
 ////////////////////////////////////////////////////////////
 /* render-flow: rydder DOM-widgets, anvender baggrund/grid, bygger widgets og opdaterer papirkurv. Rør ikke uden fuld regressionstest. */
-function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=safe134SlideInfoText();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>makeWidget(w));updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
+function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=safe134SlideInfoText();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>{if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w))return;makeWidget(w)});updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
 /* addWidget(): opretter widget-objekt, fitter til viewport, kalder makeWidget(), select() og save(). Bevar rækkefølgen. */
 function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:(type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll'||type==='kahoopardy'||type==='calendar')?860:(type==='dataset'?390:(type==='text'?420:520)),h:type==='wheel'?560:(type==='calendar'?560:(type==='kahoopardy'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='timer'?260: type==='link'?230:320))))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',kahoopardy:'KaPardy',timer:'Timer',calendar:'Kalender',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
@@ -14059,6 +14559,144 @@ function safe87DecodeCell(v){
   }catch(_e){}
   return s;
 }
+function safe376AllWidgetsWithSlide(){
+  const out=[];
+  try{
+    (state.slides||[]).forEach((sl,si)=>{
+      (sl.widgets||[]).forEach(w=>out.push({w,slide:sl,slideIndex:si}));
+    });
+  }catch(_e){}
+  return out;
+}
+function safe376DatasetWidgetInfo(dsId){
+  return safe376AllWidgetsWithSlide().find(x=>x.w&&x.w.type==='text'&&x.w.data&&String(x.w.data.datasetId)===String(dsId))||null;
+}
+function safe381IsLinkedDataWidget(w){
+  return !!(w&&w.type==='text'&&w.data&&w.data.datasetId&&safe376UsersOfDataset(w.data.datasetId).length);
+}
+function safe381IsHiddenLinkedDataWidget(w){
+  return safe381IsLinkedDataWidget(w) && !(w.data&&w.data.sourceOpen);
+}
+function safe381MoveWidgetToSlide(widgetId,targetSlideIndex){
+  const hit=safe376AllWidgetsWithSlide().find(x=>String(x.w&&x.w.id)===String(widgetId));
+  if(!hit||!Number.isInteger(targetSlideIndex)||targetSlideIndex<0||targetSlideIndex>=state.slides.length)return null;
+  if(hit.slideIndex===targetSlideIndex)return hit;
+  const arr=hit.slide.widgets||[];
+  const idx=arr.findIndex(w=>String(w.id)===String(widgetId));
+  if(idx<0)return hit;
+  const w=arr.splice(idx,1)[0];
+  state.slides[targetSlideIndex].widgets=state.slides[targetSlideIndex].widgets||[];
+  state.slides[targetSlideIndex].widgets.push(w);
+  return {w,slide:state.slides[targetSlideIndex],slideIndex:targetSlideIndex};
+}
+function safe381OpenDatasetSourceNearWidget(dsId,ownerW){
+  const hit=safe376DatasetWidgetInfo(dsId);
+  if(!hit){toast('Datawidget blev ikke fundet');return false;}
+  const ownerHit=safe376AllWidgetsWithSlide().find(x=>String(x.w&&x.w.id)===String(ownerW&&ownerW.id));
+  const targetSlideIndex=ownerHit?ownerHit.slideIndex:hit.slideIndex;
+  const moved=safe381MoveWidgetToSlide(hit.w.id,targetSlideIndex)||hit;
+  const dw=moved.w;
+  dw.data=dw.data||{};
+  dw.data.sourceOpen=true;
+  dw.data.sourceOpenedFromWidgetId=ownerW&&ownerW.id;
+  const ow=ownerW||{};
+  // SAFE382: Datakilden er den samme widget hver gang. Bevar størrelse og rotation.
+  // Kun ulåste datakilder flyttes kontekstuelt hen til den widget, der åbner dem.
+  const keepW=Number(dw.w)||560;
+  const keepH=Number(dw.h)||360;
+  dw.w=keepW;
+  dw.h=keepH;
+  if(!dw.locked){
+    dw.x=Math.max(24,Math.min(Number(ow.x||120)+40,innerWidth-keepW-30));
+    dw.y=Math.max(78,Math.min(Number(ow.y||120)+40,innerHeight-keepH-40));
+  }else{
+    dw.x=Number(dw.x)||140;
+    dw.y=Number(dw.y)||130;
+  }
+  dw.z=++z;
+  state.active=targetSlideIndex;
+  selected=dw.id;
+  if(window.UIState)UIState.selectedWidgetId=dw.id;
+  render();
+  setTimeout(()=>select(dw.id,{editText:false}),30);
+  save({silent:true});
+  toast('Datakilde vist');
+  return true;
+}
+function safe381HideDataSourceWidgetByDataset(dsId){
+  const hit=safe376DatasetWidgetInfo(dsId);
+  if(!hit)return false;
+  hit.w.data=hit.w.data||{};
+  hit.w.data.sourceOpen=false;
+  delete hit.w.data.sourceOpenedFromWidgetId;
+  if(String(selected)===String(hit.w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
+  render();
+  save({silent:true});
+  toast('Datakilde skjult');
+  return true;
+}
+function safe376UsersOfDataset(dsId){
+  return safe376AllWidgetsWithSlide().filter(x=>{
+    const w=x.w||{};
+    if(w.type==='text'&&w.data&&String(w.data.datasetId)===String(dsId))return false;
+    return !!(w.data && String(w.data.sourceDatasetId||'')===String(dsId));
+  });
+}
+function safe376WidgetLabel(w){
+  const typeNames={calendar:'Kalender',kahoopardy:'KaPardy',groups:'Grupper',wheel:'Lykkehjulet',poll:'Afstemning',wordcloud:'Ordsky',text:'Tekst',pdf:'PDF',link:'Link',html:'HTML',image:'Billede',timer:'Timer'};
+  return String((w&&w.title)||typeNames[w&&w.type]||'Widget');
+}
+function safe376SlideLabel(sl,si){
+  try{return safeSlideTitle(sl,si)}catch(_e){return String((sl&&sl.title)||('Tavle '+(Number(si)+1)))}
+}
+function safe376GoToWidget(widgetId){
+  const hit=safe376AllWidgetsWithSlide().find(x=>String(x.w&&x.w.id)===String(widgetId));
+  if(!hit){toast('Koblet widget blev ikke fundet');return false;}
+  state.active=hit.slideIndex;
+  selected=null;
+  if(window.UIState){UIState.selectedWidgetId=null;UIState.focusedWidgetId=null;}
+  closeModal();
+  render();
+  setTimeout(()=>{
+    try{select(widgetId,{editText:false});}catch(_e){}
+    try{
+      const el=document.querySelector('.widget[data-id="'+CSS.escape(String(widgetId))+'"]');
+      if(el){
+        el.scrollIntoView({block:'center',inline:'center',behavior:'smooth'});
+        el.animate([{outline:'8px solid rgba(14,165,233,.95)'},{outline:'0 solid rgba(14,165,233,0)'}],{duration:900,iterations:1});
+      }
+    }catch(_e){}
+  },40);
+  save({silent:true});
+  return true;
+}
+function safe376OpenDatasetSource(dsId){
+  const hit=safe376DatasetWidgetInfo(dsId);
+  if(hit)return safe376GoToWidget(hit.w.id);
+  toast('Datawidget blev ikke fundet');
+  return false;
+}
+function safe376OpenDatasetUsers(dsId){
+  const users=safe376UsersOfDataset(dsId);
+  if(!users.length){toast('Ingen widgets bruger denne datawidget endnu');return false;}
+  if(users.length===1)return safe376GoToWidget(users[0].w.id);
+  showModal(`<h2>Bruges af ${users.length} widgets</h2><div class="safe376LinkList">${users.map(x=>`<button class="safe376LinkRow" data-safe376-go="${esc(x.w.id)}"><span>🔗</span><span><b>${esc(safe376WidgetLabel(x.w))}</b><small>${esc(safe376SlideLabel(x.slide,x.slideIndex))}</small></span><span>›</span></button>`).join('')}</div><div class="calendarModalBtns"><button id="close">Luk</button></div>`);
+  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelectorAll('[data-safe376-go]').forEach(btn=>btn.onclick=()=>safe376GoToWidget(btn.dataset.safe376Go));
+  return true;
+}
+try{
+  window.safe376OpenDatasetUsers=safe376OpenDatasetUsers;
+  window.safe376OpenDatasetSource=safe376OpenDatasetSource;
+  window.safe376GoToWidget=safe376GoToWidget;
+}catch(_e){}
+function safe376DatasetLinkButtonForCalendar(w){
+  const id=w&&w.data&&w.data.sourceDatasetId;
+  if(!id)return '';
+  const ds=findDatasetById(id);
+  const label=ds?(ds.name||'Datawidget'):'Kilde mangler';
+  return `<button type="button" class="safe376DataLinkBtn calDataLink ${ds?'':'missing'}" title="Gå til koblet datawidget">🔗 <span class="txt">${esc(label)}</span></button>`;
+}
 function datasetPreviewHtml(ds){
   if(!ds)return '<div class="datasetCard"><div class="datasetTitle">📊 Datasæt</div><div class="datasetMeta"><span>Ingen data</span></div></div>';
   const cols=Array.isArray(ds.columns)?ds.columns:[];
@@ -14068,7 +14706,12 @@ function datasetPreviewHtml(ds){
   const maxRows=(ds.type==='groups-results') ? rows.length : Math.min(rows.length,16);
   const head=cols.slice(0,maxCols).map(c=>'<th>'+esc(safe87DecodeCell(c||'Kolonne'))+'</th>').join('')+(cols.length>maxCols?'<th>…</th>':'');
   const body=rows.slice(0,maxRows).map(r=>'<tr>'+Array.from({length:maxCols},(_,i)=>'<td>'+esc(safe87DecodeCell((r||[])[i]||''))+'</td>').join('')+(cols.length>maxCols?'<td>…</td>':'')+'</tr>').join('');
-  return `<div class="datasetCard"><div class="datasetTitle"><span class="datasetTitleMain"><span>📊</span><span class="datasetTitleName">${esc(ds.name||'Datasæt')}</span></span><span class="datasetTitleTools widget-control"><button type="button" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">📥</button></span></div><div class="datasetMeta"><span>${rows.length} rækker</span><span>${cols.length} kolonner</span><span>${esc((ds.type||'csv').toUpperCase())}</span></div><div class="datasetPreview"><table><thead><tr>${head}</tr></thead><tbody>${body||'<tr><td>Ingen rækker</td></tr>'}</tbody></table></div><div class="datasetActions"><button type="button" class="secondary" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">⬇️ Indsæt CSV</button><button type="button" class="secondary" data-act="datasetDownloadCsv">CSV</button></div></div>`;
+  const usedBy=safe376UsersOfDataset(ds.id||'');
+  const dataWidgetHit=safe376DatasetWidgetInfo(ds.id||'');
+  const isTempOpen=!!(dataWidgetHit&&dataWidgetHit.w&&dataWidgetHit.w.data&&dataWidgetHit.w.data.sourceOpen);
+  const linkLabel=isTempOpen?'Skjul':(usedBy.length===1 ? safe376WidgetLabel(usedBy[0].w) : (usedBy.length+' widgets'));
+  const linkBtn=usedBy.length?`<button type="button" class="safe376DataLinkBtn" data-safe376-users="${esc(ds.id)}" title="${isTempOpen?'Skjul datakilde':'Vis widgets der bruger denne datawidget'}">🔗 ${esc(linkLabel)}</button>`:'';
+  return `<div class="datasetCard"><div class="datasetTitle"><span class="datasetTitleMain"><span>📊</span><span class="datasetTitleName">${esc(ds.name||'Datasæt')}</span></span><span class="datasetTitleTools widget-control">${linkBtn}<button type="button" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">📥</button></span></div><div class="datasetMeta"><span>${rows.length} rækker</span><span>${cols.length} kolonner</span><span>${esc((ds.type||'csv').toUpperCase())}</span></div><div class="datasetPreview"><table><thead><tr>${head}</tr></thead><tbody>${body||'<tr><td>Ingen rækker</td></tr>'}</tbody></table></div><div class="datasetActions"><button type="button" class="secondary" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">⬇️ Indsæt CSV</button><button type="button" class="secondary" data-act="datasetDownloadCsv">CSV</button></div></div>`;
 }
 function openDatasetToListDialog(ds,sourceWidget){
   if(!ds||!Array.isArray(ds.rows)||!ds.rows.length){toast('Ingen data at lave liste af');return;}
@@ -14445,7 +15088,14 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const titleHtml='<span class="titleText">'+(w.title||titles[w.type])+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));let widgetTitle=(w.title||titles[w.type]);
+try{
+  if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
+    const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
+    widgetTitle=d.toLocaleDateString('da-DK',{month:'long',year:'numeric'});
+  }
+}catch(_e){}
+const titleHtml='<span class="titleText">'+esc(widgetTitle)+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button><button type="button" data-act="del" title="Luk">×</button></div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -15578,6 +16228,407 @@ body.focus-maximized .hintBar{
 }
 </style>
 
+
+<style id="safe392-calendar-week-tighter-readable-css">
+/* SAFE392: bedre ugevisning efter brugertest
+   - ingen tom 3. grid-række under ugevisning
+   - mindre luft mellem værktøjslinje og ugedage
+   - mere rolig, let gennemsigtig header
+   - tekst overlap reduceres via størrelseklasser */
+.calendarBox[data-view="week"]{
+  grid-template-rows:auto minmax(0,1fr)!important;
+  gap:4px!important;
+}
+.calendarBox[data-view="week"] .calendarTop{
+  gap:4px!important;
+  min-width:0!important;
+}
+.calendarBox[data-view="week"] .calendarActionLine{
+  gap:4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimeline{
+  height:auto!important;
+  min-height:0!important;
+  padding:0 8px 6px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  gap:2px!important;
+  min-width:820px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekCorner,
+.calendarBox[data-view="week"] .calendarWeekHeader{
+  position:sticky!important;
+  top:0!important;
+  z-index:4!important;
+}
+.calendarBox[data-view="week"] .calendarWeekHeader{
+  background:rgba(238,242,247,.86)!important;
+  -webkit-backdrop-filter:blur(5px)!important;
+  backdrop-filter:blur(5px)!important;
+  box-shadow:0 1px 0 rgba(15,23,42,.07)!important;
+}
+.calendarBox[data-view="week"] .calendarWeekCorner{
+  background:rgba(238,242,247,.92)!important;
+  box-shadow:0 1px 0 rgba(15,23,42,.07)!important;
+}
+.calendarBox[data-view="week"] .calendarWeekHeader b{
+  font-size:13px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekHeader small{
+  font-size:10px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-items:flex-start!important;
+  gap:2px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock b,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock span,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock b{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  white-space:normal!important;
+  word-break:break-word!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock span{
+  white-space:nowrap!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  color:#475569!important;
+  white-space:normal!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs{
+  padding:3px 4px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs b{
+  font-size:9.7px!important;
+  line-height:1.03!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs span{
+  font-size:8.2px!important;
+  line-height:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs small,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm{
+  padding:4px 5px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm b{
+  font-size:10.2px!important;
+  line-height:1.04!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm span{
+  font-size:8.7px!important;
+  line-height:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md{
+  padding:5px 6px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md b{
+  font-size:10.9px!important;
+  line-height:1.06!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md span{
+  font-size:9.1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md small{
+  font-size:8.5px!important;
+  line-height:1.03!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg{
+  padding:6px 6px 5px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg b{
+  font-size:11.3px!important;
+  line-height:1.08!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg span{
+  font-size:9.5px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg small{
+  font-size:8.8px!important;
+  line-height:1.05!important;
+  -webkit-line-clamp:2!important;
+}
+@media(max-width:900px){
+  .calendarBox[data-view="week"] .calendarWeekTimeline{padding:0 6px 6px!important}
+  .calendarBox[data-view="week"] .calendarWeekTimelineGrid{min-width:790px!important}
+}
+</style>
+
+
+<style id="safe393-calendar-week-overlap-and-allday-fix-css">
+/* SAFE393: overlap + heldagsfix */
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  left:calc(var(--cal-left,0%) + 3px)!important;
+  width:calc(var(--cal-width,100%) - 6px)!important;
+  right:auto!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow{
+  padding:4px 4px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow b{
+  font-size:10px!important;
+  line-height:1.03!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow span{
+  font-size:8.5px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow small{
+  font-size:8px!important;
+  line-height:1!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight{
+  padding:3px 3px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight b{
+  font-size:9.2px!important;
+  line-height:1.02!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight span{
+  font-size:7.8px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekAllDayCell{
+  min-height:44px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekAllDayBlock{
+  min-height:36px!important;
+}
+</style>
+
+
+<style id="safe394-calendar-week-more-space-less-overlap-css">
+/* SAFE394: brug mere af vinduet og stop tekstoverlap i smalle blokke */
+.calendarBox[data-view="week"] .calendarWeekTimeline{
+  height:calc(100% - 72px)!important;
+  min-height:0!important;
+  padding:0 8px 4px!important;
+  overflow:auto!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  min-height:calc(100% - 2px)!important;
+  align-content:stretch!important;
+}
+.calendarBox[data-view="week"] .calendarWeekDayColumn,
+.calendarBox[data-view="week"] .calendarWeekTimes{
+  min-height:100%!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  overflow:hidden!important;
+  contain:layout paint!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock b,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock span,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  display:block!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs{
+  padding:2px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs b{
+  font-size:9px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs span{
+  font-size:7.8px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm{
+  padding:3px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm b{
+  font-size:9.6px!important;
+  line-height:1.02!important;
+  -webkit-line-clamp:1!important;
+  white-space:nowrap!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm span{
+  font-size:8.2px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm small{
+  display:none!important;
+}
+/* Når aktiviteter overlapper og derfor bliver smalle, prioriter titel/tid over metadata. */
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow{
+  padding:3px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow b{
+  font-size:9.2px!important;
+  line-height:1.02!important;
+  white-space:normal!important;
+  display:-webkit-box!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow span{
+  font-size:7.9px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight{
+  padding:2px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight b{
+  font-size:8.4px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight span{
+  font-size:7.2px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight small{
+  display:none!important;
+}
+</style>
+
+
+<style id="safe395-calendar-week-fill-height-css">
+/* SAFE395: brug det grå bundområde bedre i ugevisning */
+.calendarBox[data-view="week"]{
+  height:100%!important;
+}
+.calendarBox[data-view="week"] .calendarTop{
+  gap:2px!important;
+}
+.calendarBox[data-view="week"] .calendarActionLine{
+  margin-bottom:0!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimeline{
+  height:calc(100% - 58px)!important;
+  padding:0 6px 0!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  min-height:100%!important;
+}
+</style>
+
+
+<style id="safe396-calendar-week-true-flex-height-css">
+/* SAFE396: flex-retter det tomme grå bundfelt i ugevisningen */
+.widget .content .calendarBox[data-view="week"],
+.calendarBox[data-view="week"]{
+  height:100%!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  grid-template-rows:none!important;
+  gap:3px!important;
+  overflow:hidden!important;
+}
+
+.calendarBox[data-view="week"] .calendarTop{
+  flex:0 0 auto!important;
+  min-height:0!important;
+  gap:2px!important;
+  padding-bottom:0!important;
+  margin-bottom:0!important;
+}
+
+.calendarBox[data-view="week"] .calendarHeadLine,
+.calendarBox[data-view="week"] .calendarActionLine{
+  flex:0 0 auto!important;
+  margin:0!important;
+}
+
+.calendarBox[data-view="week"] .calendarTools{
+  row-gap:3px!important;
+}
+
+.calendarBox[data-view="week"] .calendarWeekTimeline{
+  flex:1 1 auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:auto!important;
+  padding:0 6px 4px!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  background:transparent!important;
+}
+
+.calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  min-height:100%!important;
+  height:auto!important;
+  align-content:stretch!important;
+}
+
+/* Tidskolonnerne skal fylde den tilgængelige højde, men må stadig kunne scrolles hvis ugen er lang */
+.calendarBox[data-view="week"] .calendarWeekTimes,
+.calendarBox[data-view="week"] .calendarWeekDayColumn{
+  min-height:100%!important;
+}
+
+/* Lidt mere finger-venlighed uden at presse teksten over hinanden */
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  min-height:30px!important;
+}
+
+/* På små vinduer: endnu mindre top-luft, mere skema */
+@media(max-width:900px){
+  .calendarBox[data-view="week"] .calendarWeekTimeline{
+    padding:0 4px 4px!important;
+  }
+  .calendarBox[data-view="week"] .calendarTop{
+    gap:1px!important;
+  }
+}
+</style>
+
+
+<style id="safe397-calendar-week-measured-fit-css">
+/* SAFE397: stærkere højdeoverstyring til ugevisningen */
+.calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  grid-template-rows:auto auto minmax(0,1fr)!important;
+  align-items:start!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimes,
+.calendarBox[data-view="week"] .calendarWeekDayColumn{
+  height:auto!important;
+}
+</style>
+
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
   if(t==='pdf')addWidget('pdf',{});
@@ -15665,6 +16716,7 @@ function setFocusTarget(el){
   // capture id in central state and sync DOM
   try{UIState.focusedWidgetId=String(el.dataset.id||null);}catch(_e){UIState.focusedWidgetId=null;}
   try{applyUIState();}catch(_e){}
+  try{safe373FreezeWidgetGeometry();setTimeout(safe373FreezeWidgetGeometry,30);}catch(_e){}
 }
 function updateFocusButtons(){
   const editBtn=document.querySelector('[data-tool="focus"]');
@@ -15849,8 +16901,33 @@ function syncFocusBodyClasses(){
   document.body.classList.toggle('focus-maximized', maxOn);
 }
 
+function safe373FreezeWidgetGeometry(){
+  try{
+    (slide().widgets||[]).forEach(w=>{
+      const el=document.querySelector('.widget[data-id="'+CSS.escape(String(w.id))+'"]');
+      if(!el)return;
+      el.style.left='0px';
+      el.style.top='0px';
+      el.style.right='auto';
+      el.style.bottom='auto';
+      el.style.width=Number(w.w||360)+'px';
+      el.style.height=Number(w.h||240)+'px';
+      el.style.setProperty('--widget-w',Number(w.w||360)+'px');
+      el.style.setProperty('--widget-h',Number(w.h||240)+'px');
+      el.style.transform=transformFor(w);
+    });
+  }catch(e){console.warn('SAFE373 freeze geometry failed',e)}
+}
+function safe373RefreshBoardChrome(){
+  try{
+    const info=document.getElementById('slideInfo');
+    if(info&&typeof safe134SlideInfoText==='function')info.textContent=safe134SlideInfoText();
+    if(typeof updateSlidesOverviewVisibility==='function')updateSlidesOverviewVisibility();
+  }catch(e){}
+}
 function setFocusMode(mode){
-  setTimeout(()=>{try{syncFocusBodyClasses();}catch(_e){}},0);
+  safe373FreezeWidgetGeometry();
+  setTimeout(()=>{try{syncFocusBodyClasses();safe373FreezeWidgetGeometry();}catch(_e){}},0);
   focusMode=mode;
   UIState.focusMode=mode||null;
   // Normal fokus må aldrig arve maksimeret tilstand.
@@ -15891,6 +16968,7 @@ function setFocusMode(mode){
   syncEmergencyExit();
   try{positionFocusExitPrimary();}catch(_e){}
   try{ positionFocusExitPrimary && positionFocusExitPrimary(); }catch(_e){}
+  safe373FreezeWidgetGeometry();setTimeout(safe373FreezeWidgetGeometry,30);setTimeout(safe373FreezeWidgetGeometry,160);
   if(!focusMode && !focusMaximized)clearFocusTarget();
   updateFocusButtons();
   try{
@@ -16367,6 +17445,301 @@ body.focus-presentation .widget[data-type="video"].focusTarget .content{
 
 /* I maksimeret tilstand er × max allerede nødudgang; mode-hintchippen ligner for meget en knap. */
 body.focus-maximized .hintBar{
+  display:none!important;
+}
+</style>
+
+
+<style id="safe392-calendar-week-tighter-readable-css">
+/* SAFE392: bedre ugevisning efter brugertest
+   - ingen tom 3. grid-række under ugevisning
+   - mindre luft mellem værktøjslinje og ugedage
+   - mere rolig, let gennemsigtig header
+   - tekst overlap reduceres via størrelseklasser */
+.calendarBox[data-view="week"]{
+  grid-template-rows:auto minmax(0,1fr)!important;
+  gap:4px!important;
+}
+.calendarBox[data-view="week"] .calendarTop{
+  gap:4px!important;
+  min-width:0!important;
+}
+.calendarBox[data-view="week"] .calendarActionLine{
+  gap:4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimeline{
+  height:auto!important;
+  min-height:0!important;
+  padding:0 8px 6px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  gap:2px!important;
+  min-width:820px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekCorner,
+.calendarBox[data-view="week"] .calendarWeekHeader{
+  position:sticky!important;
+  top:0!important;
+  z-index:4!important;
+}
+.calendarBox[data-view="week"] .calendarWeekHeader{
+  background:rgba(238,242,247,.86)!important;
+  -webkit-backdrop-filter:blur(5px)!important;
+  backdrop-filter:blur(5px)!important;
+  box-shadow:0 1px 0 rgba(15,23,42,.07)!important;
+}
+.calendarBox[data-view="week"] .calendarWeekCorner{
+  background:rgba(238,242,247,.92)!important;
+  box-shadow:0 1px 0 rgba(15,23,42,.07)!important;
+}
+.calendarBox[data-view="week"] .calendarWeekHeader b{
+  font-size:13px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekHeader small{
+  font-size:10px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-items:flex-start!important;
+  gap:2px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock b,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock span,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock b{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  white-space:normal!important;
+  word-break:break-word!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock span{
+  white-space:nowrap!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  color:#475569!important;
+  white-space:normal!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs{
+  padding:3px 4px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs b{
+  font-size:9.7px!important;
+  line-height:1.03!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs span{
+  font-size:8.2px!important;
+  line-height:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs small,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm{
+  padding:4px 5px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm b{
+  font-size:10.2px!important;
+  line-height:1.04!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm span{
+  font-size:8.7px!important;
+  line-height:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md{
+  padding:5px 6px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md b{
+  font-size:10.9px!important;
+  line-height:1.06!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md span{
+  font-size:9.1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md small{
+  font-size:8.5px!important;
+  line-height:1.03!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg{
+  padding:6px 6px 5px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg b{
+  font-size:11.3px!important;
+  line-height:1.08!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg span{
+  font-size:9.5px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg small{
+  font-size:8.8px!important;
+  line-height:1.05!important;
+  -webkit-line-clamp:2!important;
+}
+@media(max-width:900px){
+  .calendarBox[data-view="week"] .calendarWeekTimeline{padding:0 6px 6px!important}
+  .calendarBox[data-view="week"] .calendarWeekTimelineGrid{min-width:790px!important}
+}
+</style>
+
+
+<style id="safe393-calendar-week-overlap-and-allday-fix-css">
+/* SAFE393: overlap + heldagsfix */
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  left:calc(var(--cal-left,0%) + 3px)!important;
+  width:calc(var(--cal-width,100%) - 6px)!important;
+  right:auto!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow{
+  padding:4px 4px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow b{
+  font-size:10px!important;
+  line-height:1.03!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow span{
+  font-size:8.5px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow small{
+  font-size:8px!important;
+  line-height:1!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight{
+  padding:3px 3px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight b{
+  font-size:9.2px!important;
+  line-height:1.02!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight span{
+  font-size:7.8px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekAllDayCell{
+  min-height:44px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekAllDayBlock{
+  min-height:36px!important;
+}
+</style>
+
+
+<style id="safe394-calendar-week-more-space-less-overlap-css">
+/* SAFE394: brug mere af vinduet og stop tekstoverlap i smalle blokke */
+.calendarBox[data-view="week"] .calendarWeekTimeline{
+  height:calc(100% - 72px)!important;
+  min-height:0!important;
+  padding:0 8px 4px!important;
+  overflow:auto!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  min-height:calc(100% - 2px)!important;
+  align-content:stretch!important;
+}
+.calendarBox[data-view="week"] .calendarWeekDayColumn,
+.calendarBox[data-view="week"] .calendarWeekTimes{
+  min-height:100%!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  overflow:hidden!important;
+  contain:layout paint!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock b,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock span,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  display:block!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs{
+  padding:2px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs b{
+  font-size:9px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs span{
+  font-size:7.8px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm{
+  padding:3px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm b{
+  font-size:9.6px!important;
+  line-height:1.02!important;
+  -webkit-line-clamp:1!important;
+  white-space:nowrap!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm span{
+  font-size:8.2px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm small{
+  display:none!important;
+}
+/* Når aktiviteter overlapper og derfor bliver smalle, prioriter titel/tid over metadata. */
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow{
+  padding:3px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow b{
+  font-size:9.2px!important;
+  line-height:1.02!important;
+  white-space:normal!important;
+  display:-webkit-box!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow span{
+  font-size:7.9px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight{
+  padding:2px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight b{
+  font-size:8.4px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight span{
+  font-size:7.2px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight small{
   display:none!important;
 }
 </style>
@@ -19322,7 +20695,7 @@ function safe351ImportIcsFiles(w,el,mode){
           if(!all.length){toast('Ingen ICS-aktiviteter fundet');return;}
           all.sort((a,b)=>a.date.localeCompare(b.date)||(a.start||'').localeCompare(b.start||''));
           if(mode==='calendar'||mode==='both'){
-            safe351NormalizeEvents(w);w.data.events=(w.data.events||[]).concat(all);
+            safe351NormalizeEvents(w);w.data.events=(w.data.events||[]).concat(all);safe362DeduplicateCalendarEvents(w);
             const d=new Date(all[0].date+'T12:00:00');w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;
           }
           if(mode==='data'||mode==='both'){
@@ -19348,7 +20721,7 @@ function safe357ImportIcsTextToCalendar(w,el,txt,mode,sourceName){
   if(!evs.length){toast('Ingen aktiviteter fundet i ICS-teksten');return false;}
   evs.sort((a,b)=>a.date.localeCompare(b.date)||(a.start||'').localeCompare(b.start||''));
   if(mode==='calendar'||mode==='both'){
-    w.data.events=(w.data.events||[]).concat(evs);
+    w.data.events=(w.data.events||[]).concat(evs);safe362DeduplicateCalendarEvents(w);
     const d=new Date(evs[0].date+'T12:00:00');w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;
   }
   if(mode==='data'||mode==='both'){
@@ -19389,7 +20762,7 @@ function safe355OpenIcsImportChoice(w,el){
 }
 
 function safe354DatasetFromEvents(events,name,sourceName){return {id:uid(),name:name||'Kalenderfeed',type:'calendar-events',columns:['Dato','Start','Slut','Titel','Type','Hold','Sted','Note','Farve','Status'],rows:safe351CsvRowsFromEvents(events||[]),sourceName:sourceName||name||'Kalenderfeed',importedAt:Date.now()}}
-function safe354AddDatasetWidgetFromEvents(events,name,sourceName,w){const ds=safe354DatasetFromEvents(events,name,sourceName);updateDatasetInState(ds);const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min(((w&&w.x)||140)+55,innerWidth-700)),y:Math.max(80,Math.min(((w&&w.y)||130)+55,innerHeight-440))});if(dw){dw.title='📅 '+(ds.name||'Kalenderfeed');render();select(dw.id,{editText:false});save()}return ds;}
+function safe354AddDatasetWidgetFromEvents(events,name,sourceName,w){const ds=safe354DatasetFromEvents(events,name,sourceName);updateDatasetInState(ds);if(w)safe368RememberDatasetLink(w,ds);const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min(((w&&w.x)||140)+55,innerWidth-700)),y:Math.max(80,Math.min(((w&&w.y)||130)+55,innerHeight-440))});if(dw){dw.title='📅 '+(ds.name||'Kalenderfeed');render();select(dw.id,{editText:false});save()}return ds;}
 function safe354FeedNameFromUrl(url,i){try{const u=new URL(url);const path=u.pathname.split('/').filter(Boolean).slice(-2).join(' / ');return 'Kalenderfeed '+(path||u.hostname||('#'+(i+1)));}catch(e){return 'Kalenderfeed '+(i+1)}}
 async function safe354FetchIcsUrl(url){const res=await fetch(url,{method:'GET',cache:'no-store',credentials:'omit'});if(!res.ok)throw new Error('HTTP '+res.status);return await res.text();}
 function safe355FeedStoreKey(){return 'maans_tavle_calendar_feed_urls_v1'}
@@ -19465,9 +20838,320 @@ function safe354OpenFeedImporter(w,el){
 }
 
 function safe351ColorPresetButtons(selected){return Object.entries(SAFE351_CAL_TYPES).map(([name,color])=>`<button type="button" class="calendarColorPreset ${String(selected).toLowerCase()===String(color).toLowerCase()?'active':''}" data-color="${esc(color)}" title="${esc(name)}" style="--preset-color:${esc(color)}"></button>`).join('')}
-function safe351RenderCalendar(w){safe351NormalizeEvents(w);const y=Number(w.data.year),m=Number(w.data.month),today=safe351TodayISO();const first=new Date(y,m-1,1);const startOffset=(first.getDay()+6)%7;const daysInMonth=new Date(y,m,0).getDate();const prevDays=new Date(y,m-1,0).getDate();const showWeeks=w.data.showWeekNumbers!==false;const showHolidays=w.data.showHolidays!==false;let cells=[];for(let i=0;i<42;i++){let day=i-startOffset+1,cm=m,cy=y,out=false;if(day<1){cm=m-1;cy=y;if(cm<1){cm=12;cy--}day=prevDays+day;out=true}else if(day>daysInMonth){day=day-daysInMonth;cm=m+1;cy=y;if(cm>12){cm=1;cy++}out=true}const date=cy+'-'+safe351Pad(cm)+'-'+safe351Pad(day);const evs=safe353VisibleEventsForDate(w,date);const hols=safe353HolidaysForDate(w,date);const holTitle=hols.map(h=>h.title).join(', ');cells.push(`<button type="button" class="calendarDay ${out?'out':''} ${date===today?'today':''} ${hols.length?'holiday':''}" data-date="${date}" title="${esc([date,holTitle].filter(Boolean).join(' · '))}"><span class="calendarDayNo">${day}</span>${hols.length?`<span class="calendarHolidayName">${esc(hols[0].title)}</span>`:`<span class="calendarDayCount">${evs.length?evs.length+' aktivitet'+(evs.length>1?'er':''):''}</span>`}<span class="calendarEventDots">${evs.slice(0,6).map(ev=>`<i class="calendarDot" style="--cal-color:${esc(safe351EventColor(ev))}" title="${esc(ev.title)}"></i>`).join('')}</span></button>`)}let rows=[];for(let r=0;r<6;r++){const rowDate=new Date(y,m-1,1-startOffset+r*7);const weekNo=safe353IsoWeek(rowDate);rows.push(`<div class="calendarRow ${showWeeks?'':'noWeeks'}">${showWeeks?`<div class="calendarWeekNo" title="Uge ${weekNo}">${weekNo}</div>`:''}${cells.slice(r*7,r*7+7).join('')}</div>`)}const list=safe351RenderCalendarList(w);return `<div class="calendarBox" data-view="${esc(w.data.view)}"><div class="calendarTop"><div class="calendarHeadLine"><div class="calendarNav"><button class="calPrev" title="Forrige måned">‹</button><button class="calToday">I dag</button><button class="calNext" title="Næste måned">›</button></div><div class="calendarTitle">📅 ${esc(safe351MonthLabel(y,m))}</div></div><div class="calendarActionLine"><div class="calendarTools"><button class="calView active">${w.data.view==='list'?'Måned':'Liste'}</button><button class="calWeekBtn ${showWeeks?'active':''}" title="Vis/skjul ugenumre">Uger</button><button class="calHolidayBtn ${showHolidays?'active':''}" title="Vis/skjul danske helligdage">Helligdage</button><button class="calAdd primary">+ aktivitet</button><button class="calDataBtn">Hent data</button><button class="calIcsBtn">Importér ICS</button><button class="calFeedBtn">Hent feed</button><button class="calSaveBtn">Gem data</button></div></div></div>${w.data.view==='list'?`<div></div>${list}`:`<div class="calendarWeekdays ${showWeeks?'':'noWeeks'}">${showWeeks?'<span>uge</span>':''}<span>man</span><span>tir</span><span>ons</span><span>tor</span><span>fre</span><span>lør</span><span>søn</span></div><div class="calendarGrid">${rows.join('')}</div>`}</div>`}
-function safe351RenderCalendarList(w){const y=Number(w.data.year),m=Number(w.data.month);const prefix=y+'-'+safe351Pad(m)+'-';let evs=safe351NormalizeEvents(w).filter(ev=>ev.date.startsWith(prefix));if(w.data.showHolidays!==false)evs=evs.concat(safe353DanishHolidays(y).filter(h=>h.date.startsWith(prefix)));evs=evs.sort((a,b)=>a.date.localeCompare(b.date)||(a.start||'99:99').localeCompare(b.start||'99:99')||String(a.title||'').localeCompare(String(b.title||''),'da'));if(!evs.length)return '<div class="calendarList"><div class="calendarEmpty">Ingen aktiviteter i denne måned</div></div>';let last='';return '<div class="calendarList">'+evs.map(ev=>{const head=ev.date!==last?(last=ev.date,`<div class="calendarListDay">${esc(new Date(ev.date+'T12:00:00').toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'}))}</div>`):'';const meta=[ev.type,ev.hold,ev.place,ev.status].filter(Boolean).join(' · ');const edit=ev.holiday?'':'<span>✎</span>';const data=ev.holiday?'':' data-event="'+esc(ev.id)+'"';return head+`<button type="button" class="calendarListEvent ${ev.holiday?'calendarHolidayEvent':''}"${data} style="--cal-color:${esc(safe351EventColor(ev))}"><span class="time">${esc(ev.start||'hele dagen')}</span><span class="main"><span class="title">${esc(ev.title)}</span><span class="meta">${esc(meta)}</span></span>${edit}</button>`}).join('')+'</div>'}
-function wireCalendar(c,w,el){safe351NormalizeEvents(w);const setMonth=(dy,dm)=>{let y=Number(w.data.year),m=Number(w.data.month)+dm;if(m<1){m=12;y--}if(m>12){m=1;y++}w.data.year=y;w.data.month=m;fillContent(el,w);save()};c.querySelector('.calPrev')?.addEventListener('click',e=>{e.stopPropagation();setMonth(0,-1)});c.querySelector('.calNext')?.addEventListener('click',e=>{e.stopPropagation();setMonth(0,1)});c.querySelector('.calToday')?.addEventListener('click',e=>{e.stopPropagation();const d=new Date();w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()});c.querySelector('.calView')?.addEventListener('click',e=>{e.stopPropagation();w.data.view=w.data.view==='list'?'month':'list';fillContent(el,w);save()});c.querySelector('.calWeekBtn')?.addEventListener('click',e=>{e.stopPropagation();w.data.showWeekNumbers=!(w.data.showWeekNumbers!==false);fillContent(el,w);save()});c.querySelector('.calHolidayBtn')?.addEventListener('click',e=>{e.stopPropagation();w.data.showHolidays=!(w.data.showHolidays!==false);fillContent(el,w);save()});c.querySelector('.calAdd')?.addEventListener('click',e=>{e.stopPropagation();safe351OpenEventModal(w,null,safe351TodayISO(),el)});c.querySelector('.calSaveBtn')?.addEventListener('click',e=>{e.stopPropagation();const ds=safe351DatasetFromCalendar(w);updateDatasetInState(ds);const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});if(dw){dw.title='📅 '+(ds.name||'Kalenderdata');render();select(dw.id,{editText:false});save()}toast('Kalender gemt som datawidget')});c.querySelector('.calDataBtn')?.addEventListener('click',e=>{e.stopPropagation();safe351OpenDataPicker(w,el)});c.querySelector('.calIcsBtn')?.addEventListener('click',e=>{e.stopPropagation();safe355OpenIcsImportChoice(w,el)});c.querySelector('.calFeedBtn')?.addEventListener('click',e=>{e.stopPropagation();safe354OpenFeedImporter(w,el)});c.querySelectorAll('.calendarDay').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();safe351OpenDayModal(w,btn.dataset.date,el)}));c.querySelectorAll('.calendarListEvent[data-event]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const ev=w.data.events.find(x=>String(x.id)===String(btn.dataset.event));if(ev)safe360OpenEventPreview(w,ev,ev.date,el)}));}
+function safe385ISODate(d){return d.getFullYear()+'-'+safe351Pad(d.getMonth()+1)+'-'+safe351Pad(d.getDate())}
+function safe385WeekStartFromDate(date){
+  const d=safe364DateFromISO(date||safe351TodayISO());
+  const day=(d.getDay()+6)%7;
+  d.setDate(d.getDate()-day);
+  return d;
+}
+function safe385RenderCalendarWeekMode(w){
+  safe351NormalizeEvents(w);
+  const base=w.data.weekDate||w.data.dayDate||safe351TodayISO();
+  const start=safe385WeekStartFromDate(base);
+  const weekNo=safe353IsoWeek(start);
+  const end=new Date(start);end.setDate(start.getDate()+6);
+
+  const toMin=s=>{
+    const m=String(s||'').trim().match(/^(\d{1,2})[:.](\d{2})/);
+    return m?Number(m[1])*60+Number(m[2]):null;
+  };
+  const fmtMin=m=>safe351Pad(Math.floor(m/60))+':'+safe351Pad(m%60);
+
+  const dayDates=[];
+  const byDay={};
+  let minStart=24*60, maxEnd=0;
+
+  for(let i=0;i<7;i++){
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const iso=safe385ISODate(d);
+    dayDates.push({date:iso,d});
+    let evs=safe353VisibleEventsForDate(w,iso);
+    if(w.data.showHolidays===false)evs=evs.filter(ev=>!ev.holiday);
+    evs=evs.sort((a,b)=>(a.start||'99:99').localeCompare(b.start||'99:99')||String(a.title||'').localeCompare(String(b.title||''),'da'));
+    byDay[iso]={allDay:[],timed:[]};
+    evs.forEach(ev=>{
+      const startTxt=String(ev.start||'').trim();
+      const endTxt=String(ev.end||ev.slut||'').trim();
+      const s=toMin(startTxt);
+      let e=toMin(endTxt);
+      const allDay=ev.holiday||s===null||startTxt.toLowerCase().includes('hele')||((startTxt==='00:00'||startTxt==='00.00')&&(!endTxt||endTxt==='00:00'||endTxt==='00.00'));
+      if(allDay){
+        byDay[iso].allDay.push(ev);
+      }else{
+        if(e===null||e<=s)e=s+45;
+        minStart=Math.min(minStart,s);
+        maxEnd=Math.max(maxEnd,e);
+        byDay[iso].timed.push({...ev,_startMin:s,_endMin:e});
+      }
+    });
+  }
+
+  // SAFE400: Ugeskemaet skal altid kunne scrolles til hele døgnet.
+  // Normal brug starter stadig omkring skoledagen, men 00:00-24:00 findes i selve scroll-indholdet.
+  const firstTimedStart=(minStart===24*60)?7*60:minStart;
+  const initialScrollStart=Math.max(0,Math.min(7*60,Math.floor(firstTimedStart/60)*60));
+  minStart=0;
+  maxEnd=24*60;
+
+  const rangeHours=(maxEnd-minStart)/60;
+  const hourHeight=56; // fuldt døgn scrolles; fast finger-venlig timehøjde i stedet for at klemme døgnet sammen
+  const dayHeight=Math.max(330,rangeHours*hourHeight);
+  const hours=[];
+  for(let t=minStart;t<=maxEnd;t+=60)hours.push(t);
+
+  const header=`<div class="calendarWeekCorner">Tid</div>${dayDates.map(({date,d})=>`<button type="button" class="calendarWeekHeader ${date===safe351TodayISO()?'today':''}" data-week-day="${date}" title="Åbn dagen"><b>${esc(d.toLocaleDateString('da-DK',{weekday:'short'}))}</b><small>${esc(d.toLocaleDateString('da-DK',{day:'numeric',month:'short'}))}</small></button>`).join('')}`;
+
+  const allDayRow=`<div class="calendarWeekTime allDay">hele dagen</div>${dayDates.map(({date})=>{
+    const evs=(byDay[date]&&byDay[date].allDay)||[];
+    return `<div class="calendarWeekAllDayCell">${evs.map(ev=>`<button type="button" class="calendarWeekAllDayBlock ${ev.holiday?'calendarHolidayEvent':''}" ${ev.holiday?'':'data-event="'+esc(ev.id)+'"'} style="--cal-color:${esc(safe351EventColor(ev))}"><b>${esc(ev.title)}</b><small>${esc([ev.type,ev.hold,ev.place,ev.status].filter(Boolean).join(' · '))}</small></button>`).join('')}</div>`;
+  }).join('')}`;
+
+  const timeCol=`<div class="calendarWeekTimes" style="height:${dayHeight}px">${hours.map(t=>`<div class="calendarWeekHourLabel" style="top:${((t-minStart)/(maxEnd-minStart))*100}%">${fmtMin(t)}</div>`).join('')}</div>`;
+
+  const dayCols=dayDates.map(({date})=>{
+    const evs=[...((byDay[date]&&byDay[date].timed)||[])].sort((a,b)=>a._startMin-b._startMin||a._endMin-b._endMin||String(a.title||'').localeCompare(String(b.title||''),'da'));
+    let cluster=[];
+    let clusterMaxEnd=-1;
+    let active=[];
+    let clusterCols=1;
+    const laid=[];
+    const finalizeCluster=()=>{
+      if(!cluster.length)return;
+      cluster.forEach(ev=>ev._cols=clusterCols||1);
+      laid.push(...cluster);
+      cluster=[]; active=[]; clusterCols=1; clusterMaxEnd=-1;
+    };
+    evs.forEach(ev=>{
+      if(cluster.length&&ev._startMin>=clusterMaxEnd)finalizeCluster();
+      active=active.filter(a=>a._endMin>ev._startMin);
+      const used=new Set(active.map(a=>a._lane));
+      let lane=0; while(used.has(lane))lane++;
+      ev._lane=lane;
+      clusterCols=Math.max(clusterCols,lane+1);
+      clusterMaxEnd=Math.max(clusterMaxEnd,ev._endMin);
+      active.push(ev);
+      cluster.push(ev);
+    });
+    finalizeCluster();
+    const blocks=laid.map(ev=>{
+      const top=((ev._startMin-minStart)/(maxEnd-minStart))*100;
+      const h=Math.max(26,((ev._endMin-ev._startMin)/(maxEnd-minStart))*100);
+      const pxH=Math.max(26,((ev._endMin-ev._startMin)/(maxEnd-minStart))*dayHeight);
+      const timeText=[ev.start,ev.end].filter(Boolean).join('–');
+      const meta=[ev.type,ev.hold,ev.place].filter(Boolean).join(' · ');
+      const sizeClass=pxH<48?'cw-xs':(pxH<78?'cw-sm':(pxH<118?'cw-md':'cw-lg'));
+      const narrowClass=ev._cols>=3?'cw-tight':(ev._cols===2?'cw-narrow':'');
+      const widthPct=100/(ev._cols||1);
+      const leftPct=(ev._lane||0)*widthPct;
+      return `<button type="button" class="calendarWeekTimedBlock ${sizeClass} ${narrowClass}" data-event="${esc(ev.id)}" style="--cal-color:${esc(safe351EventColor(ev))};--cal-left:${leftPct}%;--cal-width:${widthPct}%;top:${top}%;height:${h}%;" title="${esc([timeText,ev.title,ev.place].filter(Boolean).join(' · '))}"><b>${esc(ev.title)}</b><span>${esc(timeText)}</span>${meta?`<small>${esc(meta)}</small>`:''}</button>`;
+    }).join('');
+    return `<div class="calendarWeekDayColumn" data-date="${date}" style="height:${dayHeight}px">${hours.slice(0,-1).map(t=>`<i class="calendarWeekHourLine" style="top:${((t-minStart)/(maxEnd-minStart))*100}%"></i>`).join('')}${blocks}</div>`;
+  }).join('');
+
+  const title=`Uge ${weekNo} · ${start.toLocaleDateString('da-DK',{day:'numeric',month:'short'})} – ${end.toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'})}`;
+  return `<div class="calendarBox" data-view="week"><div class="calendarTop"><div class="calendarHeadLine"><div class="calendarNav"><button class="calWeekPrev" title="Forrige uge">‹</button><button class="calWeekToday">I dag</button><button class="calWeekNext" title="Næste uge">›</button></div><div class="calendarTitle">📅 ${esc(title)}</div></div><div class="calendarActionLine"><div class="calendarTools">${safe376DatasetLinkButtonForCalendar(w)}<button class="calRenameBtn" title="Omdøb kalender" aria-label="Omdøb kalender">🏷</button><button class="calModeFull calendarModeBtn" title="Månedskalender" aria-label="Måned">▦ <span class="txt">Måned</span></button><button class="calModeDay calendarModeBtn" title="Dagstavle / dagens program" aria-label="Dagstavle">📆 <span class="txt">Dag</span></button><button class="calAdd primary" title="Tilføj aktivitet" aria-label="Tilføj aktivitet">＋</button><button class="calDataBtn" title="Hent data fra datawidget" aria-label="Hent data">📊</button><button class="calIcsBtn" title="Importér ICS" aria-label="Importér ICS">📥</button><button class="calFeedBtn" title="Kalenderfeed" aria-label="Hent feed">🔗</button><button class="calDedupBtn" title="Fjern dubletter" aria-label="Fjern dubletter">≡</button><button class="calSaveBtn" title="Gem som datawidget" aria-label="Gem data">💾</button></div></div></div><div class="calendarWeekView calendarWeekTimeline" data-min-start="${minStart}" data-max-end="${maxEnd}" data-initial-start="${initialScrollStart}" data-day-height="${dayHeight}"><div class="calendarWeekTimelineGrid">${header}${allDayRow}${timeCol}${dayCols}</div></div></div>`;
+}
+function safe351RenderCalendar(w){safe351NormalizeEvents(w);if(w.data.mode==='day')return safe364RenderCalendarDayMode(w);if(w.data.mode==='week')return safe385RenderCalendarWeekMode(w);const y=Number(w.data.year),m=Number(w.data.month),today=safe351TodayISO();const first=new Date(y,m-1,1);const startOffset=(first.getDay()+6)%7;const daysInMonth=new Date(y,m,0).getDate();const prevDays=new Date(y,m-1,0).getDate();const showWeeks=w.data.showWeekNumbers!==false;const showHolidays=w.data.showHolidays!==false;let cells=[];for(let i=0;i<42;i++){let day=i-startOffset+1,cm=m,cy=y,out=false;if(day<1){cm=m-1;cy=y;if(cm<1){cm=12;cy--}day=prevDays+day;out=true}else if(day>daysInMonth){day=day-daysInMonth;cm=m+1;cy=y;if(cm>12){cm=1;cy++}out=true}const date=cy+'-'+safe351Pad(cm)+'-'+safe351Pad(day);const evs=safe353VisibleEventsForDate(w,date);const hols=safe353HolidaysForDate(w,date);const holTitle=hols.map(h=>h.title).join(', ');cells.push(`<button type="button" class="calendarDay ${out?'out':''} ${date===today?'today':''} ${hols.length?'holiday':''}" data-date="${date}" title="${esc([date,holTitle].filter(Boolean).join(' · '))}"><span class="calendarDayNo">${day}</span>${hols.length?`<span class="calendarHolidayName">${esc(hols[0].title)}</span>`:`<span class="calendarDayCount">${evs.length?evs.length+' aktivitet'+(evs.length>1?'er':''):''}</span>`}<span class="calendarEventDots">${evs.slice(0,6).map(ev=>`<i class="calendarDot" style="--cal-color:${esc(safe351EventColor(ev))}" title="${esc(ev.title)}"></i>`).join('')}</span></button>`)}let rows=[];for(let r=0;r<6;r++){const rowDate=new Date(y,m-1,1-startOffset+r*7);const weekNo=safe353IsoWeek(rowDate);rows.push(`<div class="calendarRow ${showWeeks?'':'noWeeks'}">${showWeeks?`<button type="button" class="calendarWeekNo calendarWeekOpen" data-week-date="${safe385ISODate(rowDate)}" title="Vis uge ${weekNo}">${weekNo}</button>`:''}${cells.slice(r*7,r*7+7).join('')}</div>`)}const list=safe351RenderCalendarList(w);return `<div class="calendarBox" data-view="${esc(w.data.view)}"><div class="calendarTop"><div class="calendarHeadLine"><div class="calendarNav"><button class="calPrev" title="Forrige måned">‹</button><button class="calToday">I dag</button><button class="calNext" title="Næste måned">›</button></div><div class="calendarTitle">📅 ${esc(safe351MonthLabel(y,m))}</div></div><div class="calendarActionLine"><div class="calendarTools">${safe376DatasetLinkButtonForCalendar(w)}<button class="calRenameBtn" title="Omdøb kalender" aria-label="Omdøb kalender">🏷</button><button class="calModeDay calendarModeBtn" title="Dagstavle / dagens program" aria-label="Dagstavle">📆 <span class="txt">Dag</span></button><button class="calView active" title="Skift mellem måned og liste" aria-label="Skift visning">${w.data.view==='list'?'▦ <span class="txt">Måned</span>':'☰ <span class="txt">Liste</span>'}</button><button class="calWeekBtn ${showWeeks?'active':''}" title="Vis/skjul ugenumre" aria-label="Ugenumre">#</button><button class="calHolidayBtn ${showHolidays?'active':''}" title="Vis/skjul danske helligdage" aria-label="Helligdage">✝</button><button class="calAdd primary" title="Tilføj aktivitet" aria-label="Tilføj aktivitet">＋</button><button class="calDataBtn" title="Hent data fra datawidget" aria-label="Hent data">📊</button><button class="calIcsBtn" title="Importér ICS-fil eller ICS-tekst" aria-label="Importér ICS">📥</button><button class="calFeedBtn" title="Kalenderfeed-links" aria-label="Hent feed">🔗</button><button class="calDedupBtn" title="Fjern ens kalenderaktiviteter" aria-label="Fjern dubletter">≡</button><button class="calSaveBtn" title="Gem kalender som datawidget" aria-label="Gem data">💾</button></div></div></div>${w.data.view==='list'?`<div></div>${list}`:`<div class="calendarWeekdays ${showWeeks?'':'noWeeks'}">${showWeeks?'<span>uge</span>':''}<span>man</span><span>tir</span><span>ons</span><span>tor</span><span>fre</span><span>lør</span><span>søn</span></div><div class="calendarGrid">${rows.join('')}</div>`}</div>`}
+function safe364DateFromISO(date){return new Date(String(date||safe351TodayISO())+'T12:00:00')}
+function safe364DayLabel(date,opts){return safe364DateFromISO(date).toLocaleDateString('da-DK',opts||{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+function safe364CurrentOrNextEvent(evs,date){
+  const now=new Date();
+  const today=safe351TodayISO();
+  if(date!==today)return evs.find(ev=>!ev.holiday)||evs[0]||null;
+  const mins=now.getHours()*60+now.getMinutes();
+  const toMin=s=>{const m=String(s||'').match(/^(\d{1,2})[:.](\d{2})/);return m?Number(m[1])*60+Number(m[2]):null};
+  return evs.find(ev=>{const a=toMin(ev.start),b=toMin(ev.end);return a!==null&&b!==null&&mins>=a&&mins<=b}) || evs.find(ev=>{const a=toMin(ev.start);return a!==null&&a>=mins}) || evs.find(ev=>!ev.holiday) || evs[0] || null;
+}
+function safe364RenderCalendarDayMode(w){
+  safe351NormalizeEvents(w);
+  const date=w.data.dayDate||safe351TodayISO();
+  const expanded=!!w.data.dayExpanded;
+  const d=safe364DateFromISO(date);
+  const evs=safe353VisibleEventsForDate(w,date).sort((a,b)=>(a.start||'99:99').localeCompare(b.start||'99:99')||String(a.title||'').localeCompare(String(b.title||''),'da'));
+  const current=safe364CurrentOrNextEvent(evs,date);
+  const agenda=evs.length?evs.map(ev=>`<button type="button" class="calendarAgendaEvent ${ev.holiday?'calendarHolidayEvent':''}" ${ev.holiday?'':'data-event="'+esc(ev.id)+'"'} style="--cal-color:${esc(safe351EventColor(ev))}"><span class="time">${esc(ev.start||'hele dagen')}</span><span class="main"><b>${esc(ev.title)}</b><small>${esc([ev.type,ev.hold,ev.place,ev.status].filter(Boolean).join(' · '))}</small></span>${ev.holiday?'':'<span class="edit">✎</span>'}</button>`).join(''):'<div class="calendarEmpty">Ingen aktiviteter i dag</div>';
+  const arrow=expanded?'‹':'›';
+  const arrowTitle=expanded?'Vis kun datokort':'Vis hele dagsprogrammet';
+  const card=`<div class="calendarTearSheet"><button class="calendarExpandDay" title="${arrowTitle}" aria-label="${arrowTitle}">${arrow}</button><div class="calendarTearTop">${esc(d.toLocaleDateString('da-DK',{month:'long',year:'numeric'}))}</div><div class="calendarTearDate" title="Skift til fuld kalender"><div class="weekday">${esc(d.toLocaleDateString('da-DK',{weekday:'long'}))}</div><div class="dayno">${d.getDate()}</div><div class="monthyear">${esc(d.toLocaleDateString('da-DK',{month:'long',year:'numeric'}))}</div><div class="weekno">uge ${safe353IsoWeek(d)}</div></div>${current?`<div class="calendarNowCard" style="--cal-color:${esc(safe351EventColor(current))}"><small>${date===safe351TodayISO()?'Nu / næste':'Første aktivitet'}</small><b>${esc(current.start||'hele dagen')} · ${esc(current.title||'Aktivitet')}</b><small>${esc([current.type,current.place,current.status].filter(Boolean).join(' · '))}</small></div>`:''}</div>`;
+  if(!expanded){
+    return `<div class="calendarBox calendarDayMode calendarDayOnly" data-view="day-compact"><div class="calendarTear compact">${card}</div></div>`;
+  }
+  return `<div class="calendarBox calendarDayMode" data-view="day-expanded"><div class="calendarTop"><div class="calendarHeadLine"><div class="calendarNav"><button class="calDayPrev" title="Forrige dag">‹</button><button class="calDayToday">I dag</button><button class="calDayNext" title="Næste dag">›</button></div><div class="calendarTitle calQuickAdd" title="Opret hurtig aktivitet på denne dato">📆 ${esc(safe364DayLabel(date,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))}</div></div><div class="calendarActionLine"><div class="calendarTools">${safe376DatasetLinkButtonForCalendar(w)}<button class="calRenameBtn" title="Omdøb kalender" aria-label="Omdøb kalender">🏷</button><button class="calAdd primary" title="Tilføj aktivitet" aria-label="Tilføj aktivitet">＋</button><button class="calDataBtn" title="Hent data fra datawidget" aria-label="Hent data">📊</button><button class="calIcsBtn" title="Importér ICS" aria-label="Importér ICS">📥</button><button class="calFeedBtn" title="Kalenderfeed" aria-label="Hent feed">🔗</button><button class="calDedupBtn" title="Fjern dubletter" aria-label="Fjern dubletter">≡</button></div></div></div><div class="calendarTear expanded">${card}<div class="calendarDayAgenda"><h3>Dagens program</h3>${agenda}</div></div></div>`;
+}
+function safe351RenderCalendarList(w){const y=Number(w.data.year),m=Number(w.data.month);const prefix=y+'-'+safe351Pad(m)+'-';let evs=safe351NormalizeEvents(w).filter(ev=>ev.date.startsWith(prefix));if(w.data.showHolidays!==false)evs=evs.concat(safe353DanishHolidays(y).filter(h=>h.date.startsWith(prefix)));evs=evs.sort((a,b)=>a.date.localeCompare(b.date)||(a.start||'99:99').localeCompare(b.start||'99:99')||String(a.title||'').localeCompare(String(b.title||''),'da'));if(!evs.length)return '<div class="calendarList"><div class="calendarEmpty">Ingen aktiviteter i denne måned</div></div>';let last='';return '<div class="calendarList">'+evs.map(ev=>{const head=ev.date!==last?(last=ev.date,`<div class="calendarListDay">${esc(new Date(ev.date+'T12:00:00').toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'}))}</div>`):'';const meta=[ev.type,ev.hold,ev.place,ev.status].filter(Boolean).join(' · ');const edit=ev.holiday?'':'<span>✎</span>';const data=ev.holiday?'':' data-event="'+esc(ev.id)+'"';return head+`<button type="button" class="calendarListEvent ${ev.holiday?'calendarHolidayEvent':''}"${data} style="--cal-color:${esc(safe351EventColor(ev))}"><span class="time">${esc(ev.start||'hele dagen')}</span><span class="main"><span class="calendarEventTitle">${esc(ev.title)}</span><span class="meta">${esc(meta)}</span></span>${edit}</button>`}).join('')+'</div>'}
+function safe365CurrentTimeHHMM(){
+  const d=new Date();
+  return safe351Pad(d.getHours())+':'+safe351Pad(d.getMinutes());
+}
+function safe365QuickActivityTitle(w){
+  try{
+    const s=(state&&state.slides&&state.slides[state.active])?state.slides[state.active]:null;
+    const t=safeSlideTitle(s,state.active);
+    if(String(t||'').trim())return String(t).trim();
+  }catch(_e){}
+  return 'Tavleaktivitet';
+}
+function safe365AddQuickCalendarActivity(w,el){
+  safe351NormalizeEvents(w);
+  const date=w.data.dayDate||safe351TodayISO();
+  const ev={id:uid(),date,start:safe365CurrentTimeHHMM(),end:'',title:safe365QuickActivityTitle(w),type:'Undervisning',hold:'',place:'',note:'',color:SAFE351_CAL_TYPES.Undervisning||'#4f46e5',status:'planlagt'};
+  w.data.events.push(ev);
+  safe362DeduplicateCalendarEvents(w);
+  fillContent(el,w);save();
+  toast('Aktivitet oprettet: '+ev.start+' · '+ev.title);
+}
+function safe378OpenRenameCalendar(w,el){
+  const current=String((w&&w.title)||'Kalender').trim()||'Kalender';
+  showModal(`<h2>Omdøb kalender</h2><p class="calendarSmallHint">Giv kalenderen et kort navn, fx Musik, Dansk eller Overblik.</p><input id="calRenameInput" style="width:100%;box-sizing:border-box;font:inherit;border:1px solid #cbd5e1;border-radius:12px;padding:10px;margin:8px 0" value="${esc(current)}"><div class="calendarModalBtns"><button id="saveRename" class="primary">Gem</button><button id="close">Annuller</button></div>`);
+  const input=modal.querySelector('#calRenameInput');
+  const saveBtn=modal.querySelector('#saveRename');
+  const closeBtn=modal.querySelector('#close');
+  const commit=()=>{
+    const name=String(input.value||'').trim()||'Kalender';
+    w.title=name;
+    closeModal();
+    render();
+    setTimeout(()=>select(w.id,{editText:false}),0);
+    save();
+    toast('Kalender omdøbt: '+name);
+  };
+  if(input){
+    setTimeout(()=>{try{input.focus({preventScroll:true});input.select();}catch(_e){}},30);
+    input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit()}});
+  }
+  if(saveBtn)saveBtn.onclick=commit;
+  if(closeBtn)closeBtn.onclick=closeModal;
+}
+
+function safe398ClassifyWeekBlocks(grid, colsH){
+  try{
+    const colH=Math.max(1, Number(colsH)||1);
+    grid.querySelectorAll('.calendarWeekTimedBlock').forEach(btn=>{
+      const hPct=parseFloat(String(btn.style.height||'').replace('%',''))||0;
+      const pxH=Math.max(0,(hPct/100)*colH);
+      btn.classList.remove('cw-xs','cw-sm','cw-md','cw-lg');
+      btn.classList.add(pxH<46?'cw-xs':(pxH<74?'cw-sm':(pxH<112?'cw-md':'cw-lg')));
+    });
+  }catch(_e){}
+}
+
+function safe398FitCalendarWeekHeight(c,el){
+  try{
+    if(!c||!el)return;
+    const box=c.querySelector('.calendarBox[data-view="week"]');
+    if(!box)return;
+    const top=box.querySelector('.calendarTop');
+    const timeline=box.querySelector('.calendarWeekTimeline');
+    const grid=box.querySelector('.calendarWeekTimelineGrid');
+    if(!timeline||!grid)return;
+
+    // SAFE399: mål widgettens content-area, men lad selve tidslinje-indholdet blive højere end viewporten,
+    // når ugen dækker mange timer. Så kan man scrolle til tidlige/sene aktiviteter i stedet for at få dem klemt flade.
+    const content=el.querySelector('.content')||c;
+    const contentStyle=window.getComputedStyle?getComputedStyle(content):null;
+    const padY=contentStyle?(parseFloat(contentStyle.paddingTop)||0)+(parseFloat(contentStyle.paddingBottom)||0):0;
+    const contentH=Math.max(0,(content.clientHeight||0)-padY);
+    if(contentH<120)return;
+
+    box.style.height=contentH+'px';
+    box.style.minHeight='0';
+    box.style.maxHeight=contentH+'px';
+    box.style.display='flex';
+    box.style.flexDirection='column';
+    box.style.overflow='hidden';
+
+    const topH=top?Math.ceil(top.getBoundingClientRect().height):0;
+    const timelineH=Math.max(190, contentH-topH-2);
+    timeline.style.flex='1 1 auto';
+    timeline.style.height=timelineH+'px';
+    timeline.style.minHeight='0';
+    timeline.style.maxHeight=timelineH+'px';
+    timeline.style.overflowY='auto';
+    timeline.style.overflowX='auto';
+    timeline.style.boxSizing='border-box';
+    timeline.style.webkitOverflowScrolling='touch';
+
+    const tStyle=window.getComputedStyle?getComputedStyle(timeline):null;
+    const tPadY=tStyle?(parseFloat(tStyle.paddingTop)||0)+(parseFloat(tStyle.paddingBottom)||0):0;
+    const innerH=Math.max(160,timeline.clientHeight-tPadY);
+
+    const corner=grid.querySelector('.calendarWeekCorner');
+    const allDay=grid.querySelector('.calendarWeekTime.allDay');
+    const headH=corner?Math.ceil(corner.getBoundingClientRect().height):38;
+    const allDayH=allDay?Math.ceil(allDay.getBoundingClientRect().height):46;
+    const gap=6;
+    const visibleColsH=Math.max(150,innerH-headH-allDayH-gap);
+
+    const minStart=parseInt(timeline.dataset.minStart||'420',10);
+    const maxEnd=parseInt(timeline.dataset.maxEnd||'1020',10);
+    const rangeHours=Math.max(1,(maxEnd-minStart)/60);
+    const isExtended=(minStart<6*60)||(maxEnd>23*60)||(rangeHours>14);
+    const touchHourPx=isExtended?54:0;
+    const contentColsH=isExtended?Math.max(visibleColsH,Math.ceil(rangeHours*touchHourPx)):visibleColsH;
+    const gridH=headH+allDayH+gap+contentColsH;
+
+    grid.style.minHeight=innerH+'px';
+    grid.style.height=gridH+'px';
+    grid.style.alignContent='start';
+    grid.querySelectorAll('.calendarWeekTimes,.calendarWeekDayColumn').forEach(node=>{
+      node.style.height=contentColsH+'px';
+      node.style.minHeight=contentColsH+'px';
+      node.style.maxHeight=contentColsH+'px';
+    });
+
+    // SAFE400: Ny render åbner som normal skoledag, men brugeren kan scrolle hele vejen til 00:00 og 24:00.
+    // Flaget ligger på DOM-noden, så resize ikke hele tiden hiver brugeren tilbage.
+    if(!timeline.__safe400InitialScrolled){
+      timeline.__safe400InitialScrolled=true;
+      const initial=parseInt(timeline.dataset.initialStart||String(7*60),10);
+      const pxPerMin=contentColsH/Math.max(1,(maxEnd-minStart));
+      timeline.scrollTop=Math.max(0,Math.round((initial-minStart)*pxPerMin));
+    }
+
+    safe398ClassifyWeekBlocks(grid,contentColsH);
+  }catch(_e){}
+}
+
+function safe397FitCalendarWeekHeight(c,el){
+  // SAFE398: bevar det gamle funktionsnavn, fordi wireCalendar allerede kalder setup-kæden.
+  return safe398FitCalendarWeekHeight(c,el);
+}
+function safe397SetupCalendarWeekSizing(c,el){
+  try{
+    if(el&&el.__safe397WeekRO){try{el.__safe397WeekRO.disconnect()}catch(_e){};el.__safe397WeekRO=null;}
+    const hasWeek=!!(c&&c.querySelector&&c.querySelector('.calendarBox[data-view="week"]'));
+    if(!hasWeek)return;
+    const run=()=>safe398FitCalendarWeekHeight(c,el);
+    requestAnimationFrame(()=>requestAnimationFrame(run));
+    setTimeout(run,40);
+    setTimeout(run,180);
+    setTimeout(run,420);
+    if(window.ResizeObserver && el){
+      let raf=0;
+      const ro=new ResizeObserver(()=>{
+        if(raf)cancelAnimationFrame(raf);
+        raf=requestAnimationFrame(()=>{raf=0;run();});
+      });
+      ro.observe(el);
+      const content=el.querySelector('.content');
+      if(content)ro.observe(content);
+      const box=c.querySelector('.calendarBox[data-view="week"]');
+      if(box)ro.observe(box);
+      el.__safe397WeekRO=ro;
+    }
+  }catch(_e){}
+}
+
+function wireCalendar(c,w,el){safe351NormalizeEvents(w);safe397SetupCalendarWeekSizing(c,el);c.querySelector('.calDataLink')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const id=w&&w.data&&w.data.sourceDatasetId;if(id)safe381OpenDatasetSourceNearWidget(id,w);else toast('Ingen koblet datawidget')});c.querySelector('.calRenameBtn')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();safe378OpenRenameCalendar(w,el)});const setMonth=(dy,dm)=>{let y=Number(w.data.year),m=Number(w.data.month)+dm;if(m<1){m=12;y--}if(m>12){m=1;y++}w.data.year=y;w.data.month=m;fillContent(el,w);save()};const setDay=(delta)=>{const base=safe364DateFromISO(w.data.dayDate||safe351TodayISO());base.setDate(base.getDate()+delta);w.data.dayDate=base.getFullYear()+'-'+safe351Pad(base.getMonth()+1)+'-'+safe351Pad(base.getDate());w.data.year=base.getFullYear();w.data.month=base.getMonth()+1;fillContent(el,w);save()};c.querySelector('.calPrev')?.addEventListener('click',e=>{e.stopPropagation();setMonth(0,-1)});c.querySelector('.calNext')?.addEventListener('click',e=>{e.stopPropagation();setMonth(0,1)});c.querySelector('.calToday')?.addEventListener('click',e=>{e.stopPropagation();const d=new Date();w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;w.data.dayDate=safe351TodayISO();fillContent(el,w);save()});c.querySelector('.calDayPrev')?.addEventListener('click',e=>{e.stopPropagation();setDay(-1)});c.querySelector('.calDayNext')?.addEventListener('click',e=>{e.stopPropagation();setDay(1)});c.querySelector('.calDayToday')?.addEventListener('click',e=>{e.stopPropagation();const d=new Date();w.data.dayDate=safe351TodayISO();w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()});c.querySelector('.calModeDay')?.addEventListener('click',e=>{e.stopPropagation();w.data.mode='day';w.data.dayExpanded=false;w.data.dayDate=w.data.dayDate||safe351TodayISO();fillContent(el,w);save()});c.querySelector('.calModeFull')?.addEventListener('click',e=>{e.stopPropagation();w.data.mode='full';fillContent(el,w);save()});{const dateCard=c.querySelector('.calendarTearDate');if(dateCard){let last=0;const openFull=e=>{try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}const now=Date.now();if(now-last<350)return;last=now;w.data.mode='full';fillContent(el,w);save()};dateCard.addEventListener('pointerup',openFull,{passive:false});dateCard.addEventListener('click',openFull);}}
+{const expandBtn=c.querySelector('.calendarExpandDay');if(expandBtn){let last=0;const toggleDay=e=>{try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}const now=Date.now();if(now-last<350)return;last=now;w.data.dayExpanded=!w.data.dayExpanded;fillContent(el,w);save()};expandBtn.addEventListener('pointerup',toggleDay,{passive:false});expandBtn.addEventListener('click',toggleDay);}}{const qa=c.querySelector('.calQuickAdd');if(qa){let last=0;const doQuick=e=>{try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}const now=Date.now();if(now-last<350)return;last=now;safe365AddQuickCalendarActivity(w,el)};qa.addEventListener('pointerup',doQuick,{passive:false});qa.addEventListener('click',doQuick);}}c.querySelector('.calView')?.addEventListener('click',e=>{e.stopPropagation();w.data.view=w.data.view==='list'?'month':'list';fillContent(el,w);save()});c.querySelector('.calWeekBtn')?.addEventListener('click',e=>{e.stopPropagation();w.data.showWeekNumbers=!(w.data.showWeekNumbers!==false);fillContent(el,w);save()});c.querySelector('.calHolidayBtn')?.addEventListener('click',e=>{e.stopPropagation();w.data.showHolidays=!(w.data.showHolidays!==false);fillContent(el,w);save()});c.querySelector('.calAdd')?.addEventListener('click',e=>{e.stopPropagation();safe351OpenEventModal(w,null,w.data.mode==='day'?(w.data.dayDate||safe351TodayISO()):(w.data.mode==='week'?(w.data.weekDate||w.data.dayDate||safe351TodayISO()):safe351TodayISO()),el)});c.querySelector('.calSaveBtn')?.addEventListener('click',e=>{e.stopPropagation();const ds=safe351DatasetFromCalendar(w);updateDatasetInState(ds);safe368RememberDatasetLink(w,ds);const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});if(dw){dw.title='📅 '+(ds.name||'Kalenderdata');render();select(dw.id,{editText:false});save()}toast('Kalender gemt som datawidget')});c.querySelector('.calDataBtn')?.addEventListener('click',e=>{e.stopPropagation();safe351OpenDataPicker(w,el)});c.querySelector('.calIcsBtn')?.addEventListener('click',e=>{e.stopPropagation();safe355OpenIcsImportChoice(w,el)});c.querySelector('.calFeedBtn')?.addEventListener('click',e=>{e.stopPropagation();safe354OpenFeedImporter(w,el)});c.querySelector('.calDedupBtn')?.addEventListener('click',e=>{e.stopPropagation();safe368OpenDedupChoice(w,el)});
+c.querySelectorAll('.calendarWeekOpen').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();w.data.mode='week';w.data.weekDate=btn.dataset.weekDate;const d=safe364DateFromISO(w.data.weekDate);w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()}));
+const setWeek=(delta)=>{const d=safe385WeekStartFromDate(w.data.weekDate||w.data.dayDate||safe351TodayISO());d.setDate(d.getDate()+delta*7);w.data.weekDate=safe385ISODate(d);w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()};
+c.querySelector('.calWeekPrev')?.addEventListener('click',e=>{e.stopPropagation();setWeek(-1)});
+c.querySelector('.calWeekNext')?.addEventListener('click',e=>{e.stopPropagation();setWeek(1)});
+c.querySelector('.calWeekToday')?.addEventListener('click',e=>{e.stopPropagation();const d=safe385WeekStartFromDate(safe351TodayISO());w.data.weekDate=safe385ISODate(d);w.data.dayDate=safe351TodayISO();w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()});
+c.querySelectorAll('[data-week-day]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();w.data.dayDate=btn.dataset.weekDay;w.data.mode='day';w.data.dayExpanded=true;const d=safe364DateFromISO(w.data.dayDate);w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()}));
+c.querySelectorAll('.calendarDay').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();w.data.dayDate=btn.dataset.date;safe351OpenDayModal(w,btn.dataset.date,el)}));c.querySelectorAll('.calendarListEvent[data-event],.calendarAgendaEvent[data-event],.calendarWeekTimedBlock[data-event],.calendarWeekAllDayBlock[data-event],.calendarWeekCompactBlock[data-event]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const ev=w.data.events.find(x=>String(x.id)===String(btn.dataset.event));if(ev)safe360OpenEventPreview(w,ev,ev.date,el)}));}
 function safe351OpenDayModal(w,date,el){const evs=safe353VisibleEventsForDate(w,date);const dateLabel=new Date(date+'T12:00:00').toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long',year:'numeric'});showModal(`<h2>📅 ${esc(dateLabel)} <small style="font-size:60%;font-weight:800;opacity:.7">uge ${safe353IsoWeek(new Date(date+'T12:00:00'))}</small></h2><div class="calendarModalEvents">${evs.length?evs.map(ev=>`<div class="calendarModalEvent" data-view-event="${esc(ev.id||'')}" style="--cal-color:${esc(safe351EventColor(ev))}"><b>${esc(ev.start||'')}</b><span><b>${esc(ev.title)}</b><br><small>${esc([ev.type,ev.hold,ev.place].filter(Boolean).join(' · '))}</small></span>${ev.holiday?'':`<button type="button" data-edit-event="${esc(ev.id)}">Rediger</button>`}</div>`).join(''):'<p>Ingen aktiviteter.</p>'}</div><div class="calendarModalBtns"><button id="calAddDay" class="primary">+ Tilføj aktivitet</button><button id="close">Luk</button></div>`);modal.querySelector('#close').onclick=closeModal;modal.querySelector('#calAddDay').onclick=()=>safe351OpenEventModal(w,null,date,el);modal.querySelectorAll('[data-view-event]').forEach(row=>row.onclick=e=>{if(e.target&&e.target.closest&&e.target.closest('[data-edit-event]'))return;const ev=w.data.events.find(x=>String(x.id)===String(row.dataset.viewEvent));if(ev)safe360OpenEventPreview(w,ev,date,el)});modal.querySelectorAll('[data-edit-event]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();const ev=w.data.events.find(x=>String(x.id)===String(btn.dataset.editEvent));safe351OpenEventModal(w,ev,date,el)});}
 function safe360CleanCalendarText(s){
   let t=String(s||'');
@@ -19490,6 +21174,128 @@ function safe360CleanEvent(ev){
   ['title','place','note','hold'].forEach(k=>{ if(ev[k]) ev[k]=safe360CleanCalendarText(ev[k]); });
   return ev;
 }
+function safe362EventKey(ev){
+  ev=safe360CleanEvent(Object.assign({},ev||{}));
+  const norm=s=>String(s||'').trim().replace(/\s+/g,' ').toLowerCase();
+  const time=s=>String(s||'').trim().replace(/[.]/g,':').replace(/^(\d{1,2})(?::(\d{2}))?.*$/,(_,h,m)=>String(h).padStart(2,'0')+':'+(m||'00'));
+  // SAFE363: Brug synlig identitet. ICS/Viggo-dubletter kan have forskellig DESCRIPTION,
+  // DTEND, farve eller status, selv om aktiviteten er den samme for læreren.
+  return [
+    norm(ev.date),
+    time(ev.start),
+    norm(ev.title),
+    norm(ev.place),
+    norm(ev.type),
+    norm(ev.hold)
+  ].join('|');
+}
+function safe362DeduplicateCalendarEvents(w){
+  safe351NormalizeEvents(w);
+  const seen=new Set(), next=[];
+  let removed=0;
+  (w.data.events||[]).forEach(ev=>{
+    safe360CleanEvent(ev);
+    const key=safe362EventKey(ev);
+    if(seen.has(key)){ removed++; return; }
+    seen.add(key); next.push(ev);
+  });
+  w.data.events=next;
+  return removed;
+}
+function safe368LinkedCalendarDataset(w){
+  const id=w&&w.data&&w.data.sourceDatasetId;
+  return id?findDatasetById(id):null;
+}
+function safe371RefreshDatasetWidgets(ds){
+  if(!ds||!ds.id)return 0;
+  let count=0;
+  try{
+    (state.slides||[]).forEach(slide=>{
+      (slide.widgets||[]).forEach(widget=>{
+        if(widget&&widget.type==='text'&&widget.data&&String(widget.data.datasetId)===String(ds.id)){
+          widget.data.text=formatDatasetAsTextWidgetContent(ds);
+          widget.data.datasetView=true;
+          widget.title=widget.title||('📊 '+(ds.name||'Datasæt'));
+          count++;
+        }
+      });
+    });
+  }catch(e){console.warn('Kunne ikke opdatere synlige datawidgets',e)}
+  return count;
+}
+function safe368WriteCalendarToLinkedDataset(w){
+  const ds=safe368LinkedCalendarDataset(w);
+  if(!ds)return false;
+  safe351NormalizeEvents(w);
+  const rows=safe351CsvRowsFromEvents(w.data.events);
+  ds.columns=['Dato','Start','Slut','Titel','Type','Hold','Sted','Note','Farve','Status'];
+  ds.rows=rows;
+  ds.type=ds.type||'calendar-events';
+  ds.sourceName=ds.sourceName||w.title||'Kalender';
+  ds.updatedAt=Date.now();
+  updateDatasetInState(ds);
+  safe371RefreshDatasetWidgets(ds);
+  return true;
+}
+function safe368RememberDatasetLink(w,ds){
+  if(!w||!ds||!ds.id)return;
+  w.data=w.data||{};
+  w.data.sourceDatasetId=ds.id;
+  w.data.sourceDatasetName=ds.name||'Kalenderdata';
+}
+function safe369CalendarDatasets(){
+  state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+  return state.datasets.filter(ds=>{
+    const cols=(ds.columns||[]).map(c=>String(c||'').toLowerCase().trim());
+    return cols.includes('dato')&&cols.includes('titel')&&(cols.includes('start')||cols.includes('slut')||String(ds.type||'').includes('calendar'));
+  });
+}
+function safe369DatasetOptionsHtml(selectedId){
+  const dss=safe369CalendarDatasets();
+  if(!dss.length)return '<p class="calendarSmallHint">Ingen kalender-datawidgets fundet.</p>';
+  return `<label style="display:grid;gap:6px;font-weight:900;margin:8px 0">Tilknyt datawidget<select id="dedupDatasetPick" style="font:inherit;border:1px solid #cbd5e1;border-radius:10px;padding:8px;background:white"><option value="">Vælg datawidget…</option>${dss.map(ds=>`<option value="${esc(ds.id)}" ${String(ds.id)===String(selectedId)?'selected':''}>${esc(ds.name||'Kalenderdata')} · ${(ds.rows||[]).length} rækker</option>`).join('')}</select></label>`;
+}
+function safe369SetCalendarDatasetLinkFromModal(w){
+  const sel=modal&&modal.querySelector('#dedupDatasetPick');
+  if(!sel||!sel.value)return null;
+  const ds=findDatasetById(sel.value);
+  if(ds)safe368RememberDatasetLink(w,ds);
+  return ds||null;
+}
+function safe368OpenDedupChoice(w,el){
+  safe351NormalizeEvents(w);
+  const linked=safe368LinkedCalendarDataset(w);
+  const datasetPicker=safe369DatasetOptionsHtml(linked&&linked.id);
+  const linkedText=linked?`<p class="calendarSmallHint">Tilknyttet datawidget: <b>${esc(linked.name||'Kalenderdata')}</b></p>`:`<p class="calendarSmallHint">Kalenderen kender ikke sikkert sin datawidget endnu. Vælg den her, hvis dubletter også skal skrives tilbage til datawidgetten.</p>`;
+  showModal(`<h2>Fjern dubletter</h2><p>Fjern dubletter i kalenderen. Du kan også skrive den rensede kalender tilbage til en tilknyttet datawidget.</p>${linkedText}${datasetPicker}<div class="calendarModalBtns"><button id="dedupCalendar" class="primary">Kun kalender</button><button id="dedupBoth" class="primary">Kalender + datawidget</button><button id="dedupLinkOnly">Tilknyt kun</button><button id="close">Luk</button></div>`);
+  modal.querySelector('#close').onclick=closeModal;
+  const run=(sync)=>{
+    const chosen=safe369SetCalendarDatasetLinkFromModal(w)||safe368LinkedCalendarDataset(w);
+    const n=safe362DeduplicateCalendarEvents(w);
+    let synced=false;
+    if(sync&&chosen)synced=safe368WriteCalendarToLinkedDataset(w);
+    closeModal();
+    if(synced){
+      render();
+      try{select(w.id,{editText:false});}catch(_e){}
+    }else{
+      fillContent(el,w);
+    }
+    save();
+    if(sync&&!chosen){toast('Ingen datawidget valgt · dubletter fjernet i kalenderen: '+n);return;}
+    const linkedNow=safe368LinkedCalendarDataset(w);
+    const rowInfo=(synced&&linkedNow)?(' · '+((linkedNow.rows||[]).length)+' rækker i datawidget'):'';
+    if(n)toast('Dubletter fjernet: '+n+(synced?' · datawidget opdateret':'')+rowInfo);
+    else toast((synced?'Datawidget opdateret · ':'')+'Ingen synlige dubletter fundet'+rowInfo);
+  };
+  modal.querySelector('#dedupCalendar').onclick=()=>run(false);
+  modal.querySelector('#dedupBoth').onclick=()=>run(true);
+  modal.querySelector('#dedupLinkOnly').onclick=()=>{
+    const ds=safe369SetCalendarDatasetLinkFromModal(w);
+    if(ds){closeModal();save();toast('Kalender koblet til datawidget: '+(ds.name||'Kalenderdata'))}
+    else toast('Vælg en datawidget først');
+  };
+}
 function safe360OpenEventPreview(w,ev,date,el){
   ev=safe360CleanEvent(Object.assign({},ev||{}));
   const meta=[ev.type,ev.hold,ev.place].filter(Boolean).join(' · ');
@@ -19501,8 +21307,8 @@ function safe360OpenEventPreview(w,ev,date,el){
   const edit=modal.querySelector('#calEditFromPreview');
   if(edit)edit.onclick=()=>{const real=(w.data.events||[]).find(x=>String(x.id)===String(ev.id))||ev;safe351OpenEventModal(w,real,ev.date||date,el)};
 }
-function safe351OpenEventModal(w,ev,date,el){safe351NormalizeEvents(w);const isNew=!ev;if(ev)safe360CleanEvent(ev);ev=ev||{id:uid(),date:date||safe351TodayISO(),start:'',end:'',title:'',type:'Undervisning',hold:'',place:'',note:'',color:'',status:'planlagt'};const typeOpts=Object.keys(SAFE351_CAL_TYPES).map(t=>`<option ${ev.type===t?'selected':''}>${esc(t)}</option>`).join('');const currentColor=ev.color||SAFE351_CAL_TYPES[ev.type]||'#4f46e5';showModal(`<h2>${isNew?'+ Aktivitet':'Redigér aktivitet'}</h2><div class="calendarFormGrid"><label>Dato<input id="calDate" type="date" value="${esc(ev.date)}"></label><label>Titel<input id="calTitle" value="${esc(ev.title)}" placeholder="Aktivitet"></label><label>Start<input id="calStart" type="time" value="${esc(ev.start)}"></label><label>Slut<input id="calEnd" type="time" value="${esc(ev.end)}"></label><label>Type<select id="calType">${typeOpts}</select></label><label>Hold/klasse<input id="calHold" value="${esc(ev.hold)}"></label><label>Sted<input id="calPlace" value="${esc(ev.place)}"></label><label>Status<select id="calStatus"><option ${ev.status==='planlagt'?'selected':''}>planlagt</option><option ${ev.status==='vigtig'?'selected':''}>vigtig</option><option ${ev.status==='færdig'?'selected':''}>færdig</option><option ${ev.status==='aflyst'?'selected':''}>aflyst</option></select></label><div class="calendarColorRow"><label>Farve<input id="calColor" type="color" value="${esc(currentColor)}"></label><div class="calendarColorPresets" aria-label="Farvevalg">${safe351ColorPresetButtons(currentColor)}</div></div><textarea id="calNote" placeholder="Note">${esc(ev.note)}</textarea></div><div class="calendarModalBtns">${isNew?'':'<button id="calDelete" class="warn">Slet</button>'}<button id="calSave" class="primary">Gem</button><button id="close">Annuller</button></div>`);modal.querySelector('#close').onclick=closeModal;const typeSel=modal.querySelector('#calType'),colorInp=modal.querySelector('#calColor');function refreshPresetActive(){modal.querySelectorAll('.calendarColorPreset').forEach(b=>b.classList.toggle('active',String(b.dataset.color).toLowerCase()===String(colorInp.value).toLowerCase()))}typeSel.onchange=()=>{colorInp.value=SAFE351_CAL_TYPES[typeSel.value]||'#4f46e5';refreshPresetActive()};colorInp.oninput=refreshPresetActive;modal.querySelectorAll('.calendarColorPreset').forEach(btn=>btn.onclick=()=>{colorInp.value=btn.dataset.color||'#4f46e5';refreshPresetActive()});modal.querySelector('#calSave').onclick=()=>{const next={id:ev.id,date:modal.querySelector('#calDate').value||safe351TodayISO(),start:modal.querySelector('#calStart').value||'',end:modal.querySelector('#calEnd').value||'',title:modal.querySelector('#calTitle').value.trim()||'Aktivitet',type:typeSel.value||'Andet',hold:modal.querySelector('#calHold').value.trim(),place:modal.querySelector('#calPlace').value.trim(),note:safe360CleanCalendarText(modal.querySelector('#calNote').value),color:colorInp.value||'',status:modal.querySelector('#calStatus').value||'planlagt'};const i=w.data.events.findIndex(x=>String(x.id)===String(next.id));if(i>=0)w.data.events[i]=next;else w.data.events.push(next);const d=new Date(next.date+'T12:00:00');w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;closeModal();fillContent(el,w);save();toast('Aktivitet gemt')};const del=modal.querySelector('#calDelete');if(del)del.onclick=()=>{w.data.events=w.data.events.filter(x=>String(x.id)!==String(ev.id));closeModal();fillContent(el,w);save();toast('Aktivitet slettet')};setTimeout(()=>modal.querySelector('#calTitle')?.focus(),50);}
-function safe351OpenDataPicker(w,el){const datasets=(state.datasets||[]).filter(ds=>Array.isArray(ds.rows)&&ds.rows.length);showModal(`<h2>Hent kalenderdata</h2><p>Vælg en datawidget med kolonner som Dato, Start, Slut, Titel, Type, Hold, Sted, Note, Farve, Status.</p><div class="calendarModalEvents">${datasets.length?datasets.map(ds=>`<button type="button" data-ds="${esc(ds.id)}">📊 ${esc(ds.name||'Datasæt')} <small>· ${(ds.rows||[]).length} rækker</small></button>`).join(''):'<p>Ingen datawidgets med rækker fundet.</p>'}</div><div class="calendarModalBtns"><button id="close">Luk</button></div>`);modal.querySelector('#close').onclick=closeModal;modal.querySelectorAll('[data-ds]').forEach(btn=>btn.onclick=()=>{const ds=findDatasetById(btn.dataset.ds);const evs=safe351EventsFromDataset(ds);if(!evs.length){toast('Ingen kalenderdatoer fundet i datasættet');return}w.data.events=evs;const d=new Date(evs[0].date+'T12:00:00');w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;w.data.sourceDatasetId=ds.id;closeModal();fillContent(el,w);save();toast('Kalenderdata hentet: '+evs.length+' aktiviteter')});}
+function safe351OpenEventModal(w,ev,date,el){safe351NormalizeEvents(w);const isNew=!ev;if(ev)safe360CleanEvent(ev);ev=ev||{id:uid(),date:date||safe351TodayISO(),start:'',end:'',title:'',type:'Undervisning',hold:'',place:'',note:'',color:'',status:'planlagt'};const typeOpts=Object.keys(SAFE351_CAL_TYPES).map(t=>`<option ${ev.type===t?'selected':''}>${esc(t)}</option>`).join('');const currentColor=ev.color||SAFE351_CAL_TYPES[ev.type]||'#4f46e5';showModal(`<h2>${isNew?'+ Aktivitet':'Redigér aktivitet'}</h2><div class="calendarFormGrid"><label>Dato<input id="calDate" type="date" value="${esc(ev.date)}"></label><label>Titel<input id="calTitle" value="${esc(ev.title)}" placeholder="Aktivitet"></label><label>Start<input id="calStart" type="time" value="${esc(ev.start)}"></label><label>Slut<input id="calEnd" type="time" value="${esc(ev.end)}"></label><label>Type<select id="calType">${typeOpts}</select></label><label>Hold/klasse<input id="calHold" value="${esc(ev.hold)}"></label><label>Sted<input id="calPlace" value="${esc(ev.place)}"></label><label>Status<select id="calStatus"><option ${ev.status==='planlagt'?'selected':''}>planlagt</option><option ${ev.status==='vigtig'?'selected':''}>vigtig</option><option ${ev.status==='færdig'?'selected':''}>færdig</option><option ${ev.status==='aflyst'?'selected':''}>aflyst</option></select></label><div class="calendarColorRow"><label>Farve<input id="calColor" type="color" value="${esc(currentColor)}"></label><div class="calendarColorPresets" aria-label="Farvevalg">${safe351ColorPresetButtons(currentColor)}</div></div><textarea id="calNote" placeholder="Note">${esc(ev.note)}</textarea></div><div class="calendarModalBtns">${isNew?'':'<button id="calDelete" class="warn">Slet</button>'}<button id="calSave" class="primary">Gem</button><button id="close">Annuller</button></div>`);modal.querySelector('#close').onclick=closeModal;const typeSel=modal.querySelector('#calType'),colorInp=modal.querySelector('#calColor');function refreshPresetActive(){modal.querySelectorAll('.calendarColorPreset').forEach(b=>b.classList.toggle('active',String(b.dataset.color).toLowerCase()===String(colorInp.value).toLowerCase()))}typeSel.onchange=()=>{colorInp.value=SAFE351_CAL_TYPES[typeSel.value]||'#4f46e5';refreshPresetActive()};colorInp.oninput=refreshPresetActive;modal.querySelectorAll('.calendarColorPreset').forEach(btn=>btn.onclick=()=>{colorInp.value=btn.dataset.color||'#4f46e5';refreshPresetActive()});modal.querySelector('#calSave').onclick=()=>{const next={id:ev.id,date:modal.querySelector('#calDate').value||safe351TodayISO(),start:modal.querySelector('#calStart').value||'',end:modal.querySelector('#calEnd').value||'',title:modal.querySelector('#calTitle').value.trim()||'Aktivitet',type:typeSel.value||'Andet',hold:modal.querySelector('#calHold').value.trim(),place:modal.querySelector('#calPlace').value.trim(),note:safe360CleanCalendarText(modal.querySelector('#calNote').value),color:colorInp.value||'',status:modal.querySelector('#calStatus').value||'planlagt'};const i=w.data.events.findIndex(x=>String(x.id)===String(next.id));if(i>=0)w.data.events[i]=next;else w.data.events.push(next);safe362DeduplicateCalendarEvents(w);const d=new Date(next.date+'T12:00:00');w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;closeModal();fillContent(el,w);save();toast('Aktivitet gemt')};const del=modal.querySelector('#calDelete');if(del)del.onclick=()=>{w.data.events=w.data.events.filter(x=>String(x.id)!==String(ev.id));closeModal();fillContent(el,w);save();toast('Aktivitet slettet')};setTimeout(()=>modal.querySelector('#calTitle')?.focus(),50);}
+function safe351OpenDataPicker(w,el){const datasets=(state.datasets||[]).filter(ds=>Array.isArray(ds.rows)&&ds.rows.length);showModal(`<h2>Hent kalenderdata</h2><p>Vælg en datawidget med kolonner som Dato, Start, Slut, Titel, Type, Hold, Sted, Note, Farve, Status.</p><div class="calendarModalEvents">${datasets.length?datasets.map(ds=>`<button type="button" data-ds="${esc(ds.id)}">📊 ${esc(ds.name||'Datasæt')} <small>· ${(ds.rows||[]).length} rækker</small></button>`).join(''):'<p>Ingen datawidgets med rækker fundet.</p>'}</div><div class="calendarModalBtns"><button id="close">Luk</button></div>`);modal.querySelector('#close').onclick=closeModal;modal.querySelectorAll('[data-ds]').forEach(btn=>btn.onclick=()=>{const ds=findDatasetById(btn.dataset.ds);const evs=safe351EventsFromDataset(ds);if(!evs.length){toast('Ingen kalenderdatoer fundet i datasættet');return}w.data.events=evs;safe362DeduplicateCalendarEvents(w);const d=new Date(w.data.events[0].date+'T12:00:00');w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;w.data.sourceDatasetId=ds.id;w.data.sourceDatasetName=ds.name||'Kalenderdata';closeModal();fillContent(el,w);save();toast('Kalenderdata hentet: '+evs.length+' aktiviteter')});}
 
 function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type;// --- WIDGET: TEXT / DATASET ---
  if(w.type==='text'){
@@ -19511,6 +21317,23 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
   const ds=isDatasetText?findDatasetById(w.data.datasetId):null;
   if(isDatasetText && w.data.datasetView!==false){
     c.innerHTML=datasetPreviewHtml(ds);
+    const safe376UsersBtn=c.querySelector('[data-safe376-users]');
+    if(safe376UsersBtn){
+      let safe376Busy=false;
+      const openUsers=e=>{
+        try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+        if(safe376Busy)return;
+        safe376Busy=true;
+        try{
+          const dsid=safe376UsersBtn.getAttribute('data-safe376-users')||'';
+          if(w&&w.data&&w.data.sourceOpen)safe381HideDataSourceWidgetByDataset(dsid);
+          else safe376OpenDatasetUsers(dsid);
+        }catch(err){console.warn(err);toast('Kunne ikke åbne koblet widget')}
+        setTimeout(()=>{safe376Busy=false;},250);
+      };
+      try{safe376UsersBtn.addEventListener('pointerup',openUsers,{passive:false});}catch(_e){}
+      safe376UsersBtn.addEventListener('click',openUsers);
+    }
     const copyBtn=c.querySelector('[data-act="datasetCopyList"]');
     if(copyBtn)copyBtn.onclick=e=>{e.preventDefault();e.stopPropagation();openDatasetToListDialog(ds,w)};
     c.querySelectorAll('[data-act="datasetPasteCsv"]').forEach(pasteBtn=>{
@@ -21621,7 +23444,7 @@ function wireWheel(c,w){
  const spin=c.querySelector('.spinCenter'); if(spin)spin.onclick=()=>{if(w.data.auto){startWheelAuto(c,w)}else{runWheelSpin(c,w,{auto:false})}};
 }
 function pickFile(accept,cb){fileInput.accept=accept;fileInput.onchange=()=>{const f=fileInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result,f);r.readAsDataURL(f);fileInput.value=''};fileInput.click()}
-function showModal(html){modal.classList.toggle('moveWidgetModal',String(html).includes('moveWidgetDialog'));modal.innerHTML=html;modalBack.style.display='flex'} function closeModal(){modal.classList.remove('moveWidgetModal');modalBack.style.display='none'} modalBack.onclick=e=>{if(e.target===modalBack)closeModal()}
+function showModal(html){modal.classList.toggle('moveWidgetModal',String(html).includes('moveWidgetDialog'));modal.innerHTML=html;modalBack.style.display='flex'} function closeModal(){try{if(window.__safe374BoardOverviewCleanup)window.__safe374BoardOverviewCleanup();}catch(_e){}modal.classList.remove('moveWidgetModal');modalBack.style.display='none'} modalBack.onclick=e=>{if(e.target===modalBack)closeModal()}
 function askVideo(w){showModal(`<h2>Video</h2><input id="vurl" placeholder="YouTube-link" value="${esc(w.data.url||'')}"><button id="ok">Gem</button><button id="cancel">Luk</button><p>Hvis YouTube blokerer embed, vises link/åbn eksternt.</p>`);modal.querySelector('#ok').onclick=()=>{w.data.url=modal.querySelector('#vurl').value;closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
 function canEditWidgets(){
   return !app.classList.contains('present') &&
@@ -23137,6 +24960,9 @@ function safe269BoardOverviewModal(preferredBoard=null){
           w._trashDeletedAt=stamp+n;
           trash.widgets.push(w);
         });
+        // SAFE380: Bulk-sletning af en tavle skal bruge samme papirkurv-layout
+        // som almindelig widgetsletning, ellers ligger de flyttede widgets oven i hinanden.
+        try{trashOverviewLayout(trash);}catch(_e){}
         state.slides.splice(idx,1);
         // Hvis papirkurven stod efter den slettede tavle, er dens index nu ændret; det er ok.
         const normals=state.slides.map((sl,n)=>({sl,n})).filter(x=>!isTrashBoard(x.sl));
@@ -23215,8 +25041,8 @@ function safe269BoardOverviewModal(preferredBoard=null){
       <p>Klik på en tavle for at gå til den.</p>
       <div class="boardOverviewList">${normalHtml}${trashHtml}</div>
       <div class="boardOverviewHint">${isPresentationOverview
-        ? 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · Esc lukker'
-        : 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · Cmd/Ctrl+pil flytter · Esc lukker'}</div>
+        ? 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · Delete sletter · Esc lukker'
+        : 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · Delete sletter · Cmd/Ctrl+pil flytter · Esc lukker'}</div>
     </div>`);
     const boardItems=Array.from(modal.querySelectorAll('.boardOverviewItem[data-slide-index]'));
     let selectedBoardPos=0;
@@ -23327,7 +25153,9 @@ function safe269BoardOverviewModal(preferredBoard=null){
           window.__safe291BoardOverviewKeyHandler=null;
         }
       }catch(_e){}
+      try{if(window.__safe374BoardOverviewCleanup===cleanupBoardOverviewKeys)window.__safe374BoardOverviewCleanup=null;}catch(_e){}
     };
+    try{window.__safe374BoardOverviewCleanup=cleanupBoardOverviewKeys;}catch(_e){}
 
     try{
       if(window.__safe291BoardOverviewKeyHandler){
@@ -23387,6 +25215,17 @@ function safe269BoardOverviewModal(preferredBoard=null){
           return;
         }
 
+        if((key==='Delete'||key==='Backspace') && !e.metaKey && !e.ctrlKey && !e.altKey){
+          stop();
+          const el=freshItems[selectedBoardPos]||freshItems[0];
+          const idx=el?Number(el.dataset.slideIndex):NaN;
+          if(Number.isInteger(idx)){
+            cleanupBoardOverviewKeys();
+            deleteBoard(idx);
+          }
+          return;
+        }
+
         if(key==='ArrowDown'||key==='ArrowUp'||key==='ArrowLeft'||key==='ArrowRight'){
           stop();
           if(!freshItems.length)return;
@@ -23412,7 +25251,7 @@ function safe269BoardOverviewModal(preferredBoard=null){
       document.addEventListener('keydown',window.__safe291BoardOverviewKeyHandler,true);
     }catch(_e){}
     const onBoardOverviewKey=(e)=>{
-      const hasOverview=!!(modal && modal.querySelector && modal.querySelector('.safe271BoardOverview'));
+      const hasOverview=!!(modal && modal.querySelector && modal.querySelector('.safe271BoardOverview') && modalBack && modalBack.style.display==='flex');
       if(!hasOverview){
         cleanupBoardOverviewKeys();
         return;
@@ -23432,6 +25271,19 @@ function safe269BoardOverviewModal(preferredBoard=null){
           if(window.UIState)UIState.selectedWidgetId=null;
           render();
           save({silent:true});
+        }
+        return;
+      }
+
+      if((key==='Delete'||key==='Backspace') && !e.metaKey && !e.ctrlKey && !e.altKey){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        const el=boardItems[selectedBoardPos]||boardItems[0];
+        const idx=el?Number(el.dataset.slideIndex):NaN;
+        if(Number.isInteger(idx)){
+          cleanupBoardOverviewKeys();
+          deleteBoard(idx);
         }
         return;
       }
@@ -24015,16 +25867,31 @@ function selectAdjacentWidget(dir){
 
 function moveActiveSlideByDirection(dir){
   if(selected) return false;
-  const from=state.active;
-  const to=from+dir;
-  if(to<0 || to>=state.slides.length){
+  if(typeof isTrashBoard==='function' && isTrashBoard(slide())){
+    toast('Papirkurven kan ikke flyttes som tavle');
+    return true;
+  }
+  const normals=(state.slides||[]).filter(s=>!(typeof isTrashBoard==='function' && isTrashBoard(s)));
+  if(normals.length<2){
+    toast('Der er kun én normal tavle');
+    return true;
+  }
+  const board=slide();
+  const pos=normals.indexOf(board);
+  if(pos<0){
+    toast('Papirkurven indgår ikke i tavleflytning');
+    return true;
+  }
+  const newPos=pos+dir;
+  if(newPos<0 || newPos>=normals.length){
     toast(dir>0?'Tavlen er allerede sidst':'Tavlen er allerede først');
     return true;
   }
-  const tmp=state.slides[from];
-  state.slides[from]=state.slides[to];
-  state.slides[to]=tmp;
-  state.active=to;
+  normals.splice(pos,1);
+  normals.splice(newPos,0,board);
+  const trash=(state.slides||[]).filter(s=>(typeof isTrashBoard==='function' && isTrashBoard(s)));
+  state.slides=[...normals,...trash];
+  state.active=state.slides.indexOf(board);
   render();
   save();
   toast('Tavle flyttet');
@@ -24034,14 +25901,10 @@ function moveActiveSlideByDirection(dir){
 function moveSelectedWidgetBySlideDirection(dir){
   if(!selected) return false;
   const currentIndex=state.active;
-  let targetIndex=currentIndex + dir;
-  if(targetIndex<0){
-    toast('Ingen forrige tavle');
+  const slides=state.slides||[];
+  if(typeof isTrashBoard==='function' && isTrashBoard(slides[currentIndex])){
+    toast('Flyt først widgetten ud af papirkurven');
     return true;
-  }
-  if(targetIndex>=state.slides.length){
-    state.slides.push(createThemedSlide());
-    targetIndex=state.slides.length-1;
   }
   const found=findWidgetOnSlide(currentIndex, selected);
   if(!found.widget) return false;
@@ -24049,6 +25912,51 @@ function moveSelectedWidgetBySlideDirection(dir){
     toast('Widget er låst');
     return true;
   }
+
+  let normals=safe134NormalSlideIndices ? safe134NormalSlideIndices() : slides.map((_,i)=>i).filter(i=>!(typeof isTrashBoard==='function'&&isTrashBoard(slides[i])));
+  let pos=normals.indexOf(currentIndex);
+  if(pos<0){
+    toast('Papirkurven indgår ikke i widgetflytning');
+    return true;
+  }
+  let targetPos=pos+dir;
+
+  if(targetPos<0){
+    toast('Ingen forrige tavle');
+    return true;
+  }
+
+  let targetIndex;
+  if(targetPos>=normals.length){
+    if(dir>0){
+      // Opret ny normal tavle før papirkurven, så widget aldrig passerer/lander i papirkurv.
+      if(typeof safe297InsertNewBoardBeforeTrash==='function'){
+        const oldActive=state.active;
+        targetIndex=safe297InsertNewBoardBeforeTrash();
+        state.active=oldActive;
+      }else if(typeof safe134InsertNormalSlideBeforeTrash==='function'){
+        const oldActive=state.active;
+        targetIndex=safe134InsertNormalSlideBeforeTrash();
+        state.active=oldActive;
+      }else{
+        const ns=createThemedSlide();
+        const trashIndex=slides.findIndex(s=>typeof isTrashBoard==='function'&&isTrashBoard(s));
+        if(trashIndex>=0){slides.splice(trashIndex,0,ns);targetIndex=trashIndex;}
+        else{slides.push(ns);targetIndex=slides.length-1;}
+      }
+    }else{
+      toast('Ingen næste tavle');
+      return true;
+    }
+  }else{
+    targetIndex=normals[targetPos];
+  }
+
+  if(typeof isTrashBoard==='function' && isTrashBoard(state.slides[targetIndex])){
+    toast('Widgets kan kun flyttes til normale tavler');
+    return true;
+  }
+
   clearPdfKeyboardControl && clearPdfKeyboardControl();
   moveWidgetToSlide(selected, targetIndex, currentIndex);
   return true;
@@ -25265,7 +27173,7 @@ document.addEventListener('click',function(e){
     const summary=[];
     labels.forEach(label=>{
       const items=buckets[label]||[];
-      if(!items.length)return;
+      // SAFE374: Opret alle tre sorteringstavler, også når kategorien er tom.
       const idx=rescueFindOrCreateNamedSlide(label);
       const target=state.slides[idx];
       if(!Array.isArray(target.widgets))target.widgets=[];
@@ -25275,6 +27183,7 @@ document.addEventListener('click',function(e){
     });
 
     try{save({silent:true})}catch(_e){}
+    try{safe373RefreshBoardChrome();render();safe373RefreshBoardChrome();}catch(_e){}
     try{toast('Kopieret til 3 sorteringstavler: '+widgets.length+' widgets')}catch(_e){}
     try{
       showModal(`<div class="moveWidgetDialog"><h2>Sorteret i 3 tavler</h2>
@@ -25288,7 +27197,7 @@ document.addEventListener('click',function(e){
       </div>`);
       const stay=modal.querySelector('#rescueSortStay');
       const first=modal.querySelector('#rescueSortFirst');
-      if(stay)stay.onclick=()=>{closeModal();finishRescue(btn)};
+      if(stay)stay.onclick=()=>{closeModal();try{safe373RefreshBoardChrome();render();safe373RefreshBoardChrome();}catch(_e){}finishRescue(btn)};
       if(first)first.onclick=()=>{
         const idx=state.slides.findIndex(s=>!isTrashBoard(s)&&String(s.title||'').trim()==='Aktiviteter');
         if(idx>=0){state.active=idx;selected=null;if(window.UIState)UIState.selectedWidgetId=null;render();save({silent:true});}
@@ -27995,6 +29904,1323 @@ body.focus-presentation .widget[data-type="video"].focusTarget .content{
 body.focus-maximized .hintBar{
   display:none!important;
 }
+
+/* SAFE373: Fokus må ikke flytte widgets; inline transform bevares af JS. */
+body.focus-mode:not(.focus-maximized) .widget,
+body.focus-edit:not(.focus-maximized) .widget,
+body.focus-presentation:not(.focus-maximized) .widget,
+body.focus-mode:not(.focus-maximized) .widget.focusTarget,
+body.focus-edit:not(.focus-maximized) .widget.focusTarget,
+body.focus-presentation:not(.focus-maximized) .widget.focusTarget{
+  left:0!important;
+  top:0!important;
+  right:auto!important;
+  bottom:auto!important;
+}
 </style>
 
+
+<script id="safe376-shared-data-links-handler">
+(function(){
+  document.addEventListener('click',function(e){
+    const btn=e.target&&e.target.closest?e.target.closest('[data-safe376-users]'):null;
+    if(!btn)return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    try{
+      const dsid=btn.getAttribute('data-safe376-users')||'';
+      const widgetEl=btn.closest&&btn.closest('.widget[data-id]');
+      const hit=widgetEl?safe376AllWidgetsWithSlide().find(x=>String(x.w&&x.w.id)===String(widgetEl.dataset.id)):null;
+      if(hit&&hit.w&&hit.w.data&&hit.w.data.sourceOpen)safe381HideDataSourceWidgetByDataset(dsid);
+      else safe376OpenDatasetUsers(dsid);
+    }catch(err){console.warn(err)}
+  },true);
+})();
+</script>
+
+<script id="safe383-move-modal-no-trash">
+(function(){
+  'use strict';
+  function isTrashSlide(s){
+    try{
+      if(typeof isTrashBoard==='function' && isTrashBoard(s))return true;
+      const t=String((s&&s.title)||'').toLowerCase();
+      return !!(s&&(s.isTrashBoard===true||s.bgImageSource==='trash'||t.includes('papirkurv')||t.includes('trash')));
+    }catch(_e){return false}
+  }
+  function slides(){try{return (state&&Array.isArray(state.slides))?state.slides:[]}catch(_e){return[]}}
+  function normalSlideIndices(){
+    const arr=slides(), out=[];
+    arr.forEach((s,i)=>{if(!isTrashSlide(s))out.push(i)});
+    return out;
+  }
+  function escLocal(v){
+    try{return typeof esc==='function'?esc(v):String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+    catch(_e){return String(v||'')}
+  }
+  function slideTitle(s,i){
+    try{return typeof safeSlideTitle==='function'?safeSlideTitle(s,i):(s&&s.title)||('Tavle '+(i+1))}
+    catch(_e){return (s&&s.title)||('Tavle '+(i+1))}
+  }
+  function findWidget(slideIndex,widgetId){
+    const s=slides()[slideIndex];
+    if(!s||!Array.isArray(s.widgets))return {slide:null,index:-1,widget:null};
+    const index=s.widgets.findIndex(x=>String(x.id)===String(widgetId));
+    return {slide:s,index,widget:index>=0?s.widgets[index]:null};
+  }
+  function ensureVisible(w){
+    try{if(typeof ensureVisibleOnSlide==='function')ensureVisibleOnSlide(w)}catch(_e){}
+  }
+  function selectLater(id){
+    try{render();}catch(_e){}
+    setTimeout(()=>{try{select(id,{editText:false})}catch(_e){try{select(id)}catch(_e2){}}},20);
+    try{save()}catch(_e){}
+  }
+  function moveReal(widgetId,targetReal,sourceIndex){
+    if(targetReal<0||targetReal>=slides().length||isTrashSlide(slides()[targetReal])){
+      try{toast('Papirkurven kan ikke vælges som tavle')}catch(_e){}
+      return false;
+    }
+    const found=findWidget(sourceIndex,widgetId);
+    if(!found.widget)return false;
+    if(targetReal===sourceIndex){
+      state.active=sourceIndex;
+      selectLater(widgetId);
+      try{toast('Widget er allerede på denne tavle')}catch(_e){}
+      return true;
+    }
+    const w=found.slide.widgets.splice(found.index,1)[0];
+    ensureVisible(w);
+    slides()[targetReal].widgets=slides()[targetReal].widgets||[];
+    slides()[targetReal].widgets.push(w);
+    state.active=targetReal;
+    selected=w.id;
+    if(window.UIState)UIState.selectedWidgetId=w.id;
+    selectLater(w.id);
+    try{toast('Flyttet til tavle '+(normalSlideIndices().indexOf(targetReal)+1))}catch(_e){}
+    return true;
+  }
+  function copyReal(widgetId,targetReal,sourceIndex){
+    if(targetReal<0||targetReal>=slides().length||isTrashSlide(slides()[targetReal])){
+      try{toast('Papirkurven kan ikke vælges som tavle')}catch(_e){}
+      return false;
+    }
+    const found=findWidget(sourceIndex,widgetId);
+    if(!found.widget)return false;
+    const copy=JSON.parse(JSON.stringify(found.widget));
+    copy.id=(typeof uid==='function')?uid():('w'+Date.now()+Math.random());
+    copy.x=Number(copy.x||0)+30; copy.y=Number(copy.y||0)+30; copy.z=++z;
+    ensureVisible(copy);
+    slides()[targetReal].widgets=slides()[targetReal].widgets||[];
+    slides()[targetReal].widgets.push(copy);
+    state.active=targetReal;
+    selected=copy.id;
+    if(window.UIState)UIState.selectedWidgetId=copy.id;
+    selectLater(copy.id);
+    try{toast('Kopieret til tavle '+(normalSlideIndices().indexOf(targetReal)+1))}catch(_e){}
+    return true;
+  }
+  function insertNormalSlide(){
+    if(typeof safe297InsertNewBoardBeforeTrash==='function'){
+      const old=state.active;
+      const idx=safe297InsertNewBoardBeforeTrash();
+      state.active=old;
+      return idx;
+    }
+    const ns=(typeof createThemedSlide==='function')?createThemedSlide():{title:'Ny tavle',widgets:[]};
+    const arr=slides();
+    const trashIndex=arr.findIndex(isTrashSlide);
+    if(trashIndex>=0){arr.splice(trashIndex,0,ns);return trashIndex}
+    arr.push(ns);return arr.length-1;
+  }
+
+  const previousMove=typeof moveWidgetToSlide==='function'?moveWidgetToSlide:null;
+  const previousCopy=typeof copyWidgetToSlide==='function'?copyWidgetToSlide:null;
+
+  moveWidgetToSlide=function(widgetId,targetIndex,sourceIndex=state.active){
+    const target=Number(targetIndex);
+    if(isTrashSlide(slides()[target])){
+      try{toast('Papirkurven kan ikke vælges som tavle')}catch(_e){}
+      return false;
+    }
+    // Bevar ældre kald hvor targetIndex er et synligt normal-tavle-nummer.
+    const normals=normalSlideIndices();
+    const real=(slides()[target]&&!isTrashSlide(slides()[target]))?target:(normals[target]!==undefined?normals[target]:target);
+    if(isTrashSlide(slides()[real])){
+      try{toast('Papirkurven kan ikke vælges som tavle')}catch(_e){}
+      return false;
+    }
+    if(previousMove)return previousMove(widgetId,real,sourceIndex);
+    return moveReal(widgetId,real,sourceIndex);
+  };
+  copyWidgetToSlide=function(widgetId,targetIndex,sourceIndex=state.active){
+    const target=Number(targetIndex);
+    if(isTrashSlide(slides()[target])){
+      try{toast('Papirkurven kan ikke vælges som tavle')}catch(_e){}
+      return false;
+    }
+    const normals=normalSlideIndices();
+    const real=(slides()[target]&&!isTrashSlide(slides()[target]))?target:(normals[target]!==undefined?normals[target]:target);
+    if(isTrashSlide(slides()[real])){
+      try{toast('Papirkurven kan ikke vælges som tavle')}catch(_e){}
+      return false;
+    }
+    if(previousCopy)return previousCopy(widgetId,real,sourceIndex);
+    return copyReal(widgetId,real,sourceIndex);
+  };
+  newSlideForWidget=function(widgetId,action='move',sourceIndex=state.active){
+    const idx=insertNormalSlide();
+    return action==='copy'?copyReal(widgetId,idx,sourceIndex):moveReal(widgetId,idx,sourceIndex);
+  };
+  widgetMoveModal=function(w){
+    const sourceIndex=state.active;
+    const sourceTitle=slideTitle(slides()[sourceIndex],sourceIndex);
+    const widgetTitle=escLocal((w&&w.title)||(typeof titles!=='undefined'&&titles[w&&w.type])||'Widget');
+    const normals=normalSlideIndices();
+    const rows=normals.map((realIndex,visibleIndex)=>{
+      const s=slides()[realIndex];
+      const isCurrent=realIndex===sourceIndex;
+      return `<div class="slideMoveRow">
+        <b>${visibleIndex+1}. ${escLocal(slideTitle(s,realIndex))}${isCurrent?' (nu)':''}</b>
+        <div class="actions">
+          <button data-action="move" data-real="${realIndex}" ${isCurrent?'disabled title="Widgetten er allerede på denne tavle"':''}>Flyt</button>
+          <button data-action="copy" data-real="${realIndex}">Kopiér</button>
+        </div>
+      </div>`;
+    }).join('');
+    showModal(`<div class="moveWidgetDialog"><h2>Flyt eller kopiér widget</h2>
+      <p class="moveWidgetTitle"><b>${widgetTitle}</b><br><span style="opacity:.72;font-weight:800">Fra: ${escLocal(sourceTitle)}</span></p>
+      <p style="margin-top:0;opacity:.8;font-weight:800">Vælg en almindelig tavle. Papirkurven bruges kun ved sletning.</p>
+      <div class="slideList">${rows}</div>
+      <div class="moveWidgetActions">
+        <button id="moveNew">Flyt til ny tavle</button>
+        <button id="copyNew">Kopiér til ny tavle</button>
+        <button id="close">Luk</button>
+      </div></div>`);
+    modal.querySelectorAll('[data-action][data-real]').forEach(btn=>btn.onclick=()=>{
+      const real=Number(btn.dataset.real);
+      const action=btn.dataset.action;
+      closeModal();
+      if(action==='copy')copyReal(w.id,real,sourceIndex);
+      else moveReal(w.id,real,sourceIndex);
+    });
+    const moveNew=modal.querySelector('#moveNew');
+    const copyNew=modal.querySelector('#copyNew');
+    const close=modal.querySelector('#close');
+    if(moveNew)moveNew.onclick=()=>{closeModal();newSlideForWidget(w.id,'move',sourceIndex)};
+    if(copyNew)copyNew.onclick=()=>{closeModal();newSlideForWidget(w.id,'copy',sourceIndex)};
+    if(close)close.onclick=closeModal;
+  };
+})();
+</script>
+
+<script id="safe384-move-modal-no-trash-late-repatch">
+(function(){
+  'use strict';
+  function isTrashSlide(s){
+    try{
+      if(typeof isTrashBoard==='function' && isTrashBoard(s))return true;
+      const t=String((s&&s.title)||'').toLowerCase();
+      return !!(s&&(s.isTrashBoard===true||s.bgImageSource==='trash'||t.includes('papirkurv')||t.includes('trash')));
+    }catch(_e){return false}
+  }
+  function slides(){try{return (state&&Array.isArray(state.slides))?state.slides:[]}catch(_e){return[]}}
+  function normalIndices(){
+    const out=[]; slides().forEach((s,i)=>{if(!isTrashSlide(s))out.push(i)});
+    return out;
+  }
+  function escLocal(v){
+    try{return typeof esc==='function'?esc(v):String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+    catch(_e){return String(v||'')}
+  }
+  function slideTitle(s,i){
+    try{return typeof safeSlideTitle==='function'?safeSlideTitle(s,i):(s&&s.title)||('Tavle '+(i+1))}
+    catch(_e){return (s&&s.title)||('Tavle '+(i+1))}
+  }
+  function findWidgetLocal(slideIndex,widgetId){
+    const s=slides()[slideIndex];
+    if(!s||!Array.isArray(s.widgets))return {slide:null,index:-1,widget:null};
+    const index=s.widgets.findIndex(x=>String(x.id)===String(widgetId));
+    return {slide:s,index,widget:index>=0?s.widgets[index]:null};
+  }
+  function ensureNormalNewSlide(){
+    if(typeof safe297InsertNewBoardBeforeTrash==='function'){
+      const old=state.active;
+      const idx=safe297InsertNewBoardBeforeTrash();
+      state.active=old;
+      return idx;
+    }
+    const ns=(typeof createThemedSlide==='function')?createThemedSlide():{title:'Ny tavle',widgets:[]};
+    const arr=slides();
+    const ti=arr.findIndex(isTrashSlide);
+    if(ti>=0){arr.splice(ti,0,ns);return ti}
+    arr.push(ns);return arr.length-1;
+  }
+  function doMove(widgetId,targetReal,sourceIndex){
+    if(isTrashSlide(slides()[targetReal])){toast('Papirkurven kan ikke vælges som tavle');return false}
+    const found=findWidgetLocal(sourceIndex,widgetId);
+    if(!found.widget)return false;
+    if(targetReal===sourceIndex){state.active=sourceIndex;render();select(widgetId,{editText:false});toast('Widget er allerede på denne tavle');return true}
+    const w=found.slide.widgets.splice(found.index,1)[0];
+    try{if(typeof ensureVisibleOnSlide==='function')ensureVisibleOnSlide(w)}catch(_e){}
+    slides()[targetReal].widgets=slides()[targetReal].widgets||[];
+    slides()[targetReal].widgets.push(w);
+    state.active=targetReal; selected=w.id; if(window.UIState)UIState.selectedWidgetId=w.id;
+    render(); setTimeout(()=>{try{select(w.id,{editText:false})}catch(_e){}},20); save();
+    toast('Flyttet til tavle '+(normalIndices().indexOf(targetReal)+1));
+    return true;
+  }
+  function doCopy(widgetId,targetReal,sourceIndex){
+    if(isTrashSlide(slides()[targetReal])){toast('Papirkurven kan ikke vælges som tavle');return false}
+    const found=findWidgetLocal(sourceIndex,widgetId);
+    if(!found.widget)return false;
+    const copy=JSON.parse(JSON.stringify(found.widget));
+    copy.id=(typeof uid==='function')?uid():('w'+Date.now()+Math.random());
+    copy.x=Number(copy.x||0)+30; copy.y=Number(copy.y||0)+30; copy.z=++z;
+    try{if(typeof ensureVisibleOnSlide==='function')ensureVisibleOnSlide(copy)}catch(_e){}
+    slides()[targetReal].widgets=slides()[targetReal].widgets||[];
+    slides()[targetReal].widgets.push(copy);
+    state.active=targetReal; selected=copy.id; if(window.UIState)UIState.selectedWidgetId=copy.id;
+    render(); setTimeout(()=>{try{select(copy.id,{editText:false})}catch(_e){}},20); save();
+    toast('Kopieret til tavle '+(normalIndices().indexOf(targetReal)+1));
+    return true;
+  }
+  function patchedMoveModal(w){
+    const sourceIndex=state.active;
+    const sourceTitle=slideTitle(slides()[sourceIndex],sourceIndex);
+    const titleMap=(typeof titles!=='undefined')?titles:{};
+    const widgetTitle=escLocal((w&&w.title)||titleMap[w&&w.type]||'Widget');
+    const normals=normalIndices();
+    const rows=normals.map((real,visible)=>{
+      const isCurrent=real===sourceIndex;
+      return `<div class="slideMoveRow">
+        <b>${visible+1}. ${escLocal(slideTitle(slides()[real],real))}${isCurrent?' (nu)':''}</b>
+        <div class="actions">
+          <button data-safe384-action="move" data-safe384-real="${real}" ${isCurrent?'disabled title="Widgetten er allerede på denne tavle"':''}>Flyt</button>
+          <button data-safe384-action="copy" data-safe384-real="${real}">Kopiér</button>
+        </div>
+      </div>`;
+    }).join('');
+    showModal(`<div class="moveWidgetDialog safe384MoveWidgetDialog"><h2>Flyt eller kopiér widget</h2>
+      <p class="moveWidgetTitle"><b>${widgetTitle}</b><br><span style="opacity:.72;font-weight:800">Fra: ${escLocal(sourceTitle)}</span></p>
+      <p style="margin-top:0;opacity:.8;font-weight:800">Vælg en almindelig tavle. Papirkurven bruges kun ved sletning.</p>
+      <div class="slideList">${rows}</div>
+      <div class="moveWidgetActions">
+        <button id="safe384MoveNew">Flyt til ny tavle</button>
+        <button id="safe384CopyNew">Kopiér til ny tavle</button>
+        <button id="safe384Close">Luk</button>
+      </div></div>`);
+    modal.querySelectorAll('[data-safe384-action][data-safe384-real]').forEach(btn=>btn.onclick=()=>{
+      const real=Number(btn.dataset.safe384Real);
+      const act=btn.dataset.safe384Action;
+      closeModal();
+      if(act==='copy')doCopy(w.id,real,sourceIndex); else doMove(w.id,real,sourceIndex);
+    });
+    const mn=modal.querySelector('#safe384MoveNew');
+    const cn=modal.querySelector('#safe384CopyNew');
+    const cl=modal.querySelector('#safe384Close');
+    if(mn)mn.onclick=()=>{closeModal();doMove(w.id,ensureNormalNewSlide(),sourceIndex)};
+    if(cn)cn.onclick=()=>{closeModal();doCopy(w.id,ensureNormalNewSlide(),sourceIndex)};
+    if(cl)cl.onclick=closeModal;
+  }
+  function install(){
+    try{
+      window.widgetMoveModal=patchedMoveModal;
+      if(typeof widgetMoveModal!=='undefined')widgetMoveModal=patchedMoveModal;
+    }catch(_e){}
+  }
+  function scrubOpenMoveModal(){
+    try{
+      if(!modal||!modal.querySelector||!modal.querySelector('.moveWidgetDialog'))return;
+      modal.querySelectorAll('[data-target],[data-target-visible]').forEach(btn=>{
+        const raw=btn.getAttribute('data-target')||btn.getAttribute('data-target-visible');
+        const n=Number(raw);
+        const real=btn.hasAttribute('data-target-visible')?(normalIndices()[n]??n):n;
+        if(isTrashSlide(slides()[real])){
+          const row=btn.closest('.slideMoveRow');
+          if(row)row.remove();
+        }
+      });
+      modal.querySelectorAll('.slideMoveRow').forEach(row=>{
+        if(/papirkurv|trash/i.test(row.textContent||''))row.remove();
+      });
+    }catch(_e){}
+  }
+  install();
+  setTimeout(install,0);
+  setTimeout(install,300);
+  setTimeout(install,1200);
+  setInterval(()=>{install();scrubOpenMoveModal();},700);
+})();
+</script>
+
+<style id="safe386-calendar-week-timetable-css">
+/* SAFE386: Skoleskema-lignende ugegrid */
+.calendarWeekTimetable{
+  height:calc(100% - 88px);
+  min-height:0;
+  overflow:auto!important;
+  padding:10px 12px 14px!important;
+  box-sizing:border-box;
+}
+.calendarWeekSchedule{
+  display:grid!important;
+  grid-template-columns:minmax(66px,86px) repeat(7,minmax(120px,1fr))!important;
+  grid-auto-rows:auto!important;
+  gap:6px!important;
+  align-items:stretch!important;
+  min-width:980px;
+}
+.calendarWeekCorner,
+.calendarWeekHeader,
+.calendarWeekTime,
+.calendarWeekSlot{
+  box-sizing:border-box;
+}
+.calendarWeekCorner{
+  position:sticky;top:0;left:0;z-index:4;
+  background:#e2e8f0;
+  border-radius:14px;
+  padding:10px 8px;
+  font-weight:950;
+  color:#334155;
+  text-align:center;
+}
+.calendarWeekHeader{
+  position:sticky;top:0;z-index:3;
+  border:0;
+  border-radius:14px;
+  background:#111827;
+  color:white;
+  padding:8px 8px;
+  text-align:center;
+  font:inherit;
+  font-weight:950;
+  cursor:pointer;
+}
+.calendarWeekHeader.today{
+  outline:4px solid rgba(234,179,8,.85);
+}
+.calendarWeekHeader b{
+  display:block;
+  text-transform:capitalize;
+  font-size:15px;
+  line-height:1.05;
+}
+.calendarWeekHeader small{
+  display:block;
+  opacity:.78;
+  font-weight:850;
+  margin-top:2px;
+}
+.calendarWeekTime{
+  position:sticky;left:0;z-index:2;
+  border-radius:14px;
+  background:#e2e8f0;
+  color:#334155;
+  padding:10px 8px;
+  font-weight:1000;
+  text-align:center;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  min-height:54px;
+}
+.calendarWeekSlot{
+  min-height:54px;
+  border-radius:14px;
+  background:rgba(248,250,252,.92);
+  border:1px solid rgba(15,23,42,.09);
+  padding:5px;
+  display:grid;
+  gap:5px;
+  align-content:start;
+}
+.calendarWeekSlot.hasEvents{
+  background:rgba(255,255,255,.96);
+}
+.calendarWeekBlock{
+  display:block;
+  width:100%;
+  border:0;
+  border-left:7px solid var(--cal-color,#0ea5e9);
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 2px 7px rgba(15,23,42,.10);
+  padding:7px 8px;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+}
+.calendarWeekBlock b{
+  display:block;
+  font-weight:1000;
+  font-size:13px;
+  line-height:1.08;
+  color:#111827;
+  white-space:normal;
+}
+.calendarWeekBlock small{
+  display:block;
+  color:#64748b;
+  font-weight:800;
+  font-size:11px;
+  line-height:1.12;
+  margin-top:2px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@media(max-width:900px){
+  .calendarWeekSchedule{min-width:900px;grid-template-columns:70px repeat(7,120px)!important}
+}
+</style>
+
+<style id="safe387-calendar-week-timeline-css">
+/* SAFE387: Viggo-inspireret uge-tidslinje */
+.calendarWeekTimeline{
+  height:calc(100% - 88px);
+  min-height:0;
+  overflow:auto!important;
+  padding:10px 12px 16px!important;
+  box-sizing:border-box;
+}
+.calendarWeekTimelineGrid{
+  display:grid!important;
+  grid-template-columns:minmax(68px,82px) repeat(7,minmax(122px,1fr))!important;
+  gap:4px!important;
+  min-width:980px;
+  align-items:start!important;
+}
+.calendarWeekCorner{
+  position:sticky;top:0;left:0;z-index:8;
+  background:#e2e8f0;border-radius:14px;padding:10px 8px;
+  font-weight:1000;color:#334155;text-align:center;
+}
+.calendarWeekHeader{
+  position:sticky;top:0;z-index:7;
+  border:0;border-radius:14px;background:#e5e7eb;color:#111827;
+  padding:8px 8px;text-align:center;font:inherit;font-weight:1000;cursor:pointer;
+}
+.calendarWeekHeader.today{outline:4px solid rgba(234,179,8,.85);background:#fff7ed}
+.calendarWeekHeader b{display:block;text-transform:capitalize;font-size:16px;line-height:1.05}
+.calendarWeekHeader small{display:block;color:#475569;font-size:12px;font-weight:900}
+.calendarWeekTime{
+  position:sticky;left:0;z-index:6;
+  background:#e2e8f0;color:#334155;border-radius:12px;
+  min-height:54px;padding:8px 6px;display:flex;align-items:center;justify-content:center;
+  font-weight:1000;text-align:center;
+}
+.calendarWeekTime.allDay{min-height:68px}
+.calendarWeekAllDayCell{
+  min-height:68px;background:rgba(241,245,249,.92);border:1px solid rgba(15,23,42,.08);
+  border-radius:12px;padding:5px;display:grid;gap:4px;align-content:start;
+}
+.calendarWeekAllDayBlock{
+  border:0;border-left:7px solid var(--cal-color,#0ea5e9);border-radius:12px;background:#fff;
+  padding:6px 7px;text-align:left;font:inherit;box-shadow:0 2px 7px rgba(15,23,42,.10);
+}
+.calendarWeekAllDayBlock b{display:block;font-size:12px;line-height:1.05}
+.calendarWeekAllDayBlock small{display:block;color:#64748b;font-size:10px;font-weight:850;line-height:1.1}
+.calendarWeekTimes{
+  position:sticky;left:0;z-index:5;
+  background:rgba(248,250,252,.92);border:1px solid rgba(15,23,42,.08);
+  border-radius:12px;
+}
+.calendarWeekHourLabel{
+  position:absolute;left:0;right:0;transform:translateY(-50%);
+  border-top:1px solid rgba(148,163,184,.45);
+  padding-top:2px;text-align:center;color:#475569;font-weight:900;font-size:13px;
+}
+.calendarWeekDayColumn{
+  position:relative;background:linear-gradient(#fff,#f8fafc);
+  border:1px solid rgba(15,23,42,.10);border-radius:12px;overflow:hidden;
+}
+.calendarWeekHourLine{
+  position:absolute;left:0;right:0;height:0;border-top:1px solid rgba(148,163,184,.28);
+}
+.calendarWeekHourLine:nth-of-type(even){border-top-style:dashed}
+.calendarWeekTimedBlock{
+  position:absolute;left:5px;right:5px;
+  border:0;border-left:7px solid var(--cal-color,#0ea5e9);
+  border-radius:12px;background:rgba(255,255,255,.96);
+  padding:7px 8px;text-align:left;font:inherit;overflow:hidden;
+  box-shadow:0 2px 9px rgba(15,23,42,.16);cursor:pointer;
+}
+.calendarWeekTimedBlock b{
+  display:block;color:#111827;font-size:13px;font-weight:1000;line-height:1.05;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.calendarWeekTimedBlock span{
+  display:block;color:#334155;font-size:11px;font-weight:950;line-height:1.05;margin-top:2px;
+}
+.calendarWeekTimedBlock small{
+  display:block;color:#64748b;font-size:10px;font-weight:850;line-height:1.12;margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;
+}
+@media(max-width:900px){
+  .calendarWeekTimelineGrid{min-width:900px;grid-template-columns:70px repeat(7,118px)!important}
+  .calendarWeekTimeline{padding:8px!important}
+}
+</style>
+
+<style id="safe388-calendar-week-compact-css">
+/* SAFE388: Kompakt skoleskema-ugevisning */
+.calendarWeekCompact{
+  height:calc(100% - 86px);
+  min-height:0;
+  overflow:auto!important;
+  padding:8px 10px 14px!important;
+  box-sizing:border-box;
+}
+.calendarWeekCompactGrid{
+  display:grid!important;
+  grid-template-columns:minmax(62px,78px) repeat(7,minmax(122px,1fr))!important;
+  gap:4px!important;
+  min-width:940px;
+  align-items:stretch!important;
+}
+.calendarWeekCorner,
+.calendarWeekHeader,
+.calendarWeekTime,
+.calendarWeekCompactCell{
+  box-sizing:border-box;
+}
+.calendarWeekCorner{
+  position:sticky;top:0;left:0;z-index:8;
+  background:#e2e8f0;
+  border-radius:14px;
+  padding:9px 6px;
+  font-weight:1000;
+  color:#334155;
+  text-align:center;
+}
+.calendarWeekHeader{
+  position:sticky;top:0;z-index:7;
+  border:0;
+  border-radius:16px;
+  background:#e5e7eb;
+  color:#111827;
+  padding:8px 6px;
+  text-align:center;
+  font:inherit;
+  font-weight:1000;
+  cursor:pointer;
+}
+.calendarWeekHeader.today{outline:4px solid rgba(234,179,8,.85);background:#fff7ed}
+.calendarWeekHeader b{display:block;text-transform:capitalize;font-size:15px;line-height:1.05}
+.calendarWeekHeader small{display:block;color:#64748b;font-size:12px;font-weight:900}
+.calendarWeekTime{
+  position:sticky;left:0;z-index:6;
+  min-height:50px;
+  background:#e2e8f0;
+  border-radius:13px;
+  color:#334155;
+  padding:7px 5px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-weight:1000;
+  font-size:14px;
+}
+.calendarWeekTime.allDay{
+  min-height:54px;
+  font-size:13px;
+}
+.calendarWeekCompactCell{
+  min-height:50px;
+  border-radius:13px;
+  border:1px solid rgba(15,23,42,.08);
+  background:rgba(248,250,252,.90);
+  padding:4px;
+  display:grid;
+  gap:4px;
+  align-content:start;
+}
+.calendarWeekCompactCell.hasEvents,
+.calendarWeekCompactCell.allDayCell{
+  background:rgba(255,255,255,.96);
+}
+.calendarWeekCompactCell.allDayCell{
+  min-height:54px;
+}
+.calendarWeekCompactBlock{
+  display:block;
+  width:100%;
+  border:0;
+  border-left:7px solid var(--cal-color,#0ea5e9);
+  border-radius:12px;
+  background:#e5e7eb;
+  padding:6px 7px;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+  overflow:hidden;
+  box-shadow:0 1px 5px rgba(15,23,42,.10);
+}
+.calendarWeekCompactBlock b{
+  display:block;
+  color:#111827;
+  font-weight:1000;
+  font-size:12px;
+  line-height:1.05;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.calendarWeekCompactBlock span{
+  display:block;
+  color:#334155;
+  font-weight:950;
+  font-size:10.5px;
+  line-height:1.05;
+  margin-top:2px;
+}
+.calendarWeekCompactBlock small{
+  display:block;
+  color:#64748b;
+  font-weight:850;
+  font-size:10px;
+  line-height:1.1;
+  margin-top:2px;
+  max-height:22px;
+  overflow:hidden;
+}
+.calendarWeekCompactBlock.allDayBlock{
+  background:#f1f5f9;
+}
+@media(max-width:900px){
+  .calendarWeekCompactGrid{
+    min-width:880px;
+    grid-template-columns:64px repeat(7,116px)!important;
+  }
+  .calendarWeekCompact{padding:7px!important}
+}
+</style>
+
+<style id="safe389-calendar-week-ipados-timeline-css">
+/* SAFE390: mere læsbar uge-tidslinje med rektangulære og farvede lektionsblokke */
+.calendarWeekTimeline{
+  height:calc(100% - 84px);
+  min-height:0;
+  overflow:auto!important;
+  padding:8px 10px 14px!important;
+  box-sizing:border-box;
+}
+.calendarWeekTimelineGrid{
+  display:grid!important;
+  grid-template-columns:minmax(56px,68px) repeat(7,minmax(118px,1fr))!important;
+  gap:4px!important;
+  min-width:930px;
+  align-items:start!important;
+}
+.calendarWeekCorner{
+  position:sticky;top:0;left:0;z-index:8;
+  background:#dde5f2;border-radius:10px;padding:8px 5px;
+  font-weight:1000;color:#334155;text-align:center;
+}
+.calendarWeekHeader{
+  position:sticky;top:0;z-index:7;
+  border:0;border-radius:12px;background:#e5e7eb;color:#111827;
+  padding:7px 5px;text-align:center;font:inherit;font-weight:1000;cursor:pointer;
+}
+.calendarWeekHeader.today{outline:3px solid rgba(234,179,8,.8);background:#fff7ed}
+.calendarWeekHeader b{display:block;text-transform:capitalize;font-size:15px;line-height:1.05}
+.calendarWeekHeader small{display:block;color:#64748b;font-size:11px;font-weight:900;line-height:1.05}
+.calendarWeekTime{
+  position:sticky;left:0;z-index:6;
+  background:#e2e8f0;color:#334155;border-radius:10px;
+  min-height:44px;padding:5px 4px;display:flex;align-items:center;justify-content:center;
+  font-weight:1000;text-align:center;font-size:12px;
+}
+.calendarWeekTime.allDay{min-height:44px;font-size:11px}
+.calendarWeekAllDayCell{
+  min-height:44px;background:rgba(241,245,249,.92);border:1px solid rgba(15,23,42,.08);
+  border-radius:10px;padding:4px;display:grid;gap:4px;align-content:start;
+}
+.calendarWeekAllDayBlock{
+  border:1px solid color-mix(in srgb,var(--cal-color,#0ea5e9) 38%, #ffffff);
+  border-left:5px solid var(--cal-color,#0ea5e9);
+  border-radius:7px;
+  background:color-mix(in srgb,var(--cal-color,#0ea5e9) 14%, #ffffff);
+  padding:5px 6px;text-align:left;font:inherit;box-shadow:0 1px 4px rgba(15,23,42,.08);
+}
+.calendarWeekAllDayBlock b{display:block;font-size:11px;line-height:1.1;white-space:normal;overflow:hidden;text-overflow:ellipsis}
+.calendarWeekAllDayBlock small{display:block;color:#475569;font-size:9px;font-weight:850;line-height:1.1;white-space:normal;overflow:hidden;text-overflow:ellipsis}
+.calendarWeekTimes{
+  position:sticky;left:0;z-index:5;
+  background:rgba(248,250,252,.96);border:1px solid rgba(15,23,42,.08);
+  border-radius:10px;
+}
+.calendarWeekHourLabel{
+  position:absolute;left:0;right:0;transform:translateY(-50%);
+  border-top:1px solid rgba(148,163,184,.40);
+  padding-top:2px;text-align:center;color:#475569;font-weight:900;font-size:12px;
+}
+.calendarWeekDayColumn{
+  position:relative;background:linear-gradient(#fff,#fbfdff);
+  border:1px solid rgba(15,23,42,.10);border-radius:10px;overflow:hidden;
+}
+.calendarWeekHourLine{
+  position:absolute;left:0;right:0;height:0;border-top:1px solid rgba(148,163,184,.26);
+}
+.calendarWeekHourLine:nth-of-type(even){border-top-style:dashed}
+.calendarWeekTimedBlock{
+  position:absolute;left:5px;right:5px;
+  border:1px solid color-mix(in srgb,var(--cal-color,#0ea5e9) 42%, #ffffff);
+  border-left:6px solid var(--cal-color,#0ea5e9);
+  border-radius:8px;
+  background:color-mix(in srgb,var(--cal-color,#0ea5e9) 16%, #ffffff);
+  padding:7px 8px 6px;text-align:left;font:inherit;overflow:hidden;
+  box-shadow:0 1px 4px rgba(15,23,42,.12);cursor:pointer;
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;
+}
+.calendarWeekTimedBlock b{
+  display:block;color:#0f172a;font-size:12.5px;font-weight:1000;line-height:1.1;
+  white-space:normal;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;
+}
+.calendarWeekTimedBlock span{
+  display:block;color:#334155;font-size:10.5px;font-weight:950;line-height:1.1;margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.calendarWeekTimedBlock small{
+  display:block;color:#475569;font-size:9.5px;font-weight:850;line-height:1.12;margin-top:3px;
+  white-space:normal;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;
+}
+@media(max-width:900px){
+  .calendarWeekTimelineGrid{min-width:860px;grid-template-columns:58px repeat(7,112px)!important}
+  .calendarWeekTimeline{padding:7px!important}
+  .calendarWeekTimedBlock{left:4px;right:4px;padding:6px 7px 5px}
+}
+</style>
+
+<style id="safe391-calendar-week-clear-rect-blocks-css">
+/* SAFE391: hård override af ugevisningens blokke — ingen kapsler, ingen color-mix */
+.calendarWeekTimeline{
+  height:calc(100% - 82px)!important;
+  overflow:auto!important;
+  padding:8px 10px 14px!important;
+  box-sizing:border-box!important;
+}
+.calendarWeekTimelineGrid{
+  display:grid!important;
+  grid-template-columns:54px repeat(7,minmax(108px,1fr))!important;
+  gap:4px!important;
+  min-width:840px!important;
+  align-items:start!important;
+}
+.calendarWeekCorner,
+.calendarWeekHeader,
+.calendarWeekTime,
+.calendarWeekAllDayCell,
+.calendarWeekTimes,
+.calendarWeekDayColumn{
+  border-radius:6px!important;
+}
+.calendarWeekHeader{
+  background:#eef2f7!important;
+  border:1px solid rgba(15,23,42,.10)!important;
+  color:#111827!important;
+  padding:6px 4px!important;
+}
+.calendarWeekHeader.today{
+  background:#fff7d6!important;
+  outline:3px solid rgba(234,179,8,.75)!important;
+}
+.calendarWeekHeader b{font-size:14px!important;line-height:1.05!important}
+.calendarWeekHeader small{font-size:10.5px!important;line-height:1.05!important}
+
+.calendarWeekDayColumn{
+  background:#ffffff!important;
+  border:1px solid rgba(15,23,42,.14)!important;
+  overflow:hidden!important;
+}
+.calendarWeekHourLine{
+  border-top:1px solid rgba(148,163,184,.25)!important;
+}
+.calendarWeekHourLine:nth-of-type(even){
+  border-top-style:dashed!important;
+}
+.calendarWeekHourLabel{
+  font-size:11.5px!important;
+  color:#475569!important;
+}
+.calendarWeekAllDayCell{
+  min-height:36px!important;
+  background:#f8fafc!important;
+  padding:3px!important;
+}
+.calendarWeekAllDayBlock{
+  border-radius:4px!important;
+  border:1px solid rgba(15,23,42,.12)!important;
+  border-left:5px solid var(--cal-color,#0ea5e9)!important;
+  background:#eef6ff!important;
+  color:#0f172a!important;
+  padding:4px 5px!important;
+  text-align:left!important;
+  overflow:hidden!important;
+}
+.calendarWeekTimedBlock{
+  left:3px!important;
+  right:3px!important;
+  border-radius:4px!important;
+  border:1px solid rgba(15,23,42,.16)!important;
+  border-left:6px solid var(--cal-color,#0ea5e9)!important;
+  background:#eef6ff!important;
+  color:#0f172a!important;
+  padding:6px 6px 5px!important;
+  box-shadow:0 1px 3px rgba(15,23,42,.12)!important;
+  text-align:left!important;
+  overflow:hidden!important;
+  display:block!important;
+  min-height:28px!important;
+}
+.calendarWeekTimedBlock::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--cal-color,#0ea5e9);
+  opacity:.10;
+  pointer-events:none;
+}
+.calendarWeekTimedBlock > *,
+.calendarWeekAllDayBlock > *{
+  position:relative;
+  z-index:1;
+}
+.calendarWeekTimedBlock b{
+  display:block!important;
+  color:#0f172a!important;
+  font-size:11.5px!important;
+  font-weight:1000!important;
+  line-height:1.08!important;
+  white-space:normal!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+}
+.calendarWeekTimedBlock span{
+  display:block!important;
+  color:#1f2937!important;
+  font-size:9.8px!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+  margin-top:2px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.calendarWeekTimedBlock small{
+  display:block!important;
+  color:#475569!important;
+  font-size:9.3px!important;
+  font-weight:850!important;
+  line-height:1.06!important;
+  margin-top:2px!important;
+  white-space:normal!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+}
+.calendarWeekAllDayBlock b{
+  font-size:10.5px!important;
+  line-height:1.05!important;
+  white-space:normal!important;
+}
+.calendarWeekAllDayBlock small{
+  font-size:9px!important;
+  line-height:1.05!important;
+}
+@media(max-width:900px){
+  .calendarWeekTimelineGrid{
+    grid-template-columns:52px repeat(7,minmax(102px,1fr))!important;
+    min-width:800px!important;
+  }
+  .calendarWeekTimedBlock{
+    left:2px!important;
+    right:2px!important;
+    padding:5px 5px 4px!important;
+  }
+  .calendarWeekTimedBlock b{font-size:10.8px!important}
+  .calendarWeekTimedBlock span{font-size:9.2px!important}
+  .calendarWeekTimedBlock small{font-size:8.8px!important}
+}
+</style>
+
+<style id="safe392-calendar-week-tighter-readable-css">
+/* SAFE392: bedre ugevisning efter brugertest
+   - ingen tom 3. grid-række under ugevisning
+   - mindre luft mellem værktøjslinje og ugedage
+   - mere rolig, let gennemsigtig header
+   - tekst overlap reduceres via størrelseklasser */
+.calendarBox[data-view="week"]{
+  grid-template-rows:auto minmax(0,1fr)!important;
+  gap:4px!important;
+}
+.calendarBox[data-view="week"] .calendarTop{
+  gap:4px!important;
+  min-width:0!important;
+}
+.calendarBox[data-view="week"] .calendarActionLine{
+  gap:4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimeline{
+  height:auto!important;
+  min-height:0!important;
+  padding:0 8px 6px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  gap:2px!important;
+  min-width:820px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekCorner,
+.calendarBox[data-view="week"] .calendarWeekHeader{
+  position:sticky!important;
+  top:0!important;
+  z-index:4!important;
+}
+.calendarBox[data-view="week"] .calendarWeekHeader{
+  background:rgba(238,242,247,.86)!important;
+  -webkit-backdrop-filter:blur(5px)!important;
+  backdrop-filter:blur(5px)!important;
+  box-shadow:0 1px 0 rgba(15,23,42,.07)!important;
+}
+.calendarBox[data-view="week"] .calendarWeekCorner{
+  background:rgba(238,242,247,.92)!important;
+  box-shadow:0 1px 0 rgba(15,23,42,.07)!important;
+}
+.calendarBox[data-view="week"] .calendarWeekHeader b{
+  font-size:13px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekHeader small{
+  font-size:10px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-items:flex-start!important;
+  gap:2px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock b,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock span,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock b{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  white-space:normal!important;
+  word-break:break-word!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock span{
+  white-space:nowrap!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  color:#475569!important;
+  white-space:normal!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs{
+  padding:3px 4px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs b{
+  font-size:9.7px!important;
+  line-height:1.03!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs span{
+  font-size:8.2px!important;
+  line-height:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs small,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm{
+  padding:4px 5px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm b{
+  font-size:10.2px!important;
+  line-height:1.04!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm span{
+  font-size:8.7px!important;
+  line-height:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md{
+  padding:5px 6px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md b{
+  font-size:10.9px!important;
+  line-height:1.06!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md span{
+  font-size:9.1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-md small{
+  font-size:8.5px!important;
+  line-height:1.03!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg{
+  padding:6px 6px 5px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg b{
+  font-size:11.3px!important;
+  line-height:1.08!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg span{
+  font-size:9.5px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-lg small{
+  font-size:8.8px!important;
+  line-height:1.05!important;
+  -webkit-line-clamp:2!important;
+}
+@media(max-width:900px){
+  .calendarBox[data-view="week"] .calendarWeekTimeline{padding:0 6px 6px!important}
+  .calendarBox[data-view="week"] .calendarWeekTimelineGrid{min-width:790px!important}
+}
+</style>
+
+
+<style id="safe393-calendar-week-overlap-and-allday-fix-css">
+/* SAFE393: overlap + heldagsfix */
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  left:calc(var(--cal-left,0%) + 3px)!important;
+  width:calc(var(--cal-width,100%) - 6px)!important;
+  right:auto!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow{
+  padding:4px 4px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow b{
+  font-size:10px!important;
+  line-height:1.03!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow span{
+  font-size:8.5px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow small{
+  font-size:8px!important;
+  line-height:1!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight{
+  padding:3px 3px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight b{
+  font-size:9.2px!important;
+  line-height:1.02!important;
+  -webkit-line-clamp:2!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight span{
+  font-size:7.8px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekAllDayCell{
+  min-height:44px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekAllDayBlock{
+  min-height:36px!important;
+}
+</style>
+
+
+<style id="safe394-calendar-week-more-space-less-overlap-css">
+/* SAFE394: brug mere af vinduet og stop tekstoverlap i smalle blokke */
+.calendarBox[data-view="week"] .calendarWeekTimeline{
+  height:calc(100% - 72px)!important;
+  min-height:0!important;
+  padding:0 8px 4px!important;
+  overflow:auto!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  min-height:calc(100% - 2px)!important;
+  align-content:stretch!important;
+}
+.calendarBox[data-view="week"] .calendarWeekDayColumn,
+.calendarBox[data-view="week"] .calendarWeekTimes{
+  min-height:100%!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  overflow:hidden!important;
+  contain:layout paint!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock b,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock span,
+.calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  display:block!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs{
+  padding:2px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs b{
+  font-size:9px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs span{
+  font-size:7.8px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm{
+  padding:3px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm b{
+  font-size:9.6px!important;
+  line-height:1.02!important;
+  -webkit-line-clamp:1!important;
+  white-space:nowrap!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm span{
+  font-size:8.2px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm small{
+  display:none!important;
+}
+/* Når aktiviteter overlapper og derfor bliver smalle, prioriter titel/tid over metadata. */
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow{
+  padding:3px 4px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow b{
+  font-size:9.2px!important;
+  line-height:1.02!important;
+  white-space:normal!important;
+  display:-webkit-box!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow span{
+  font-size:7.9px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow small{
+  display:none!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight{
+  padding:2px 3px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight b{
+  font-size:8.4px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  -webkit-line-clamp:1!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight span{
+  font-size:7.2px!important;
+  line-height:1!important;
+  margin-top:1px!important;
+}
+.calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight small{
+  display:none!important;
+}
+</style>
+
+
+
+<style id="safe398-calendar-week-real-fit-css">
+/* SAFE398: ugevisningen skal udfylde widgettens content-area, ikke efterlade grå bund. */
+.content.calendar{
+  overflow:hidden!important;
+}
+.content.calendar .calendarBox[data-view="week"]{
+  height:100%!important;
+  min-height:0!important;
+  max-height:100%!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarTop{
+  flex:0 0 auto!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimeline{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:auto!important;
+  box-sizing:border-box!important;
+  padding:0 6px 4px!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  grid-template-rows:auto auto minmax(0,1fr)!important;
+  align-items:start!important;
+  align-content:stretch!important;
+  gap:3px!important;
+  box-sizing:border-box!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimes,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekDayColumn{
+  min-height:0!important;
+  overflow:hidden!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  box-sizing:border-box!important;
+  min-height:30px!important;
+  contain:layout paint!important;
+  touch-action:manipulation;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock b,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock span,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock small{
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs small,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm small,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-narrow small,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight small{
+  display:none!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-xs b,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-sm b{
+  white-space:nowrap!important;
+  -webkit-line-clamp:1!important;
+}
+
+/* SAFE399: når tidsområdet er langt, skal timeline være en rigtig scroll-container på iPad. */
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimeline{
+  overflow-y:auto!important;
+  overflow-x:auto!important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimelineGrid{
+  align-content:start!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekAllDayCell{
+  max-height:72px!important;
+  overflow:auto!important;
+}
+</style>
 </body></html>
