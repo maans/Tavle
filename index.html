@@ -1,3 +1,122 @@
+<!--
+SAFE415 UNIFIED DOWNLOAD POOL + IMAGE CONTROL CLEANUP
+- Bygger på SAFE414.
+- Billedwidgetten viser kun én Download-knap i stedet for to separate eksportvalg.
+- Download-knapper i billed-/PDF-/HTML-widgetter åbner den fælles “Download data og medier”-pulje.
+- Tavleshot-valget “Kun billede” / “Billede + tavledata” ligger dermed kun i den fælles downloadmodal.
+- Billedwidgettens handlingsknapper strammes visuelt op og grupperes mere roligt.
+-->
+<!--
+
+SAFE414 BOARDSHOT EXPORT IMAGE OR DATA
+- Bygger på SAFE413.
+- Tavleshot-billedwidgets kan eksporteres på to måder:
+  1) Kun billede/WebP.
+  2) Billede + tavledata som .tavleshot.json.
+- Download data og medier-modal viser samme valg for tavleshots.
+- En tom billedwidget kan importere en .tavleshot.json og derefter gendanne tavlen.
+SAFE412 IMAGE CAMERA NO STARTUP PREVIEW + REAL SELFIE MIRROR
+- Bygger på SAFE411.
+- Fjerner SAFE411s synlige inline kamera-overlay, som på iPad kunne blive stående ved load.
+- Kameraoptagelse bruger nu et ikke-visuelt video-element, der først oprettes efter brugerens kameravalg og fjernes straks bagefter.
+- Tilføjer oprydning af eventuelle efterladte SAFE411 kamera-overlays ved load/pageshow.
+- Selfie spejlvendes nu direkte i canvas-billeddata, så spejlvendingen ikke afhænger af CSS-visning.
+-->
+<!--
+SAFE411 IMAGE CAMERA INLINE OVERLAY + SELFIE DISPLAY MIRROR
+- Bygger på SAFE410.
+- Retter kameraoptagelse i billedwidgetten efter iPad-test:
+  - Kamera-videoen placeres nu i en lille synlig inline-overlay i appen under optagelsen i stedet for offscreen/skjult video, fordi iPad/Safari ellers stadig kan åbne videoen i fuldskærm.
+  - Selfie markeres som spejlet i widgetdata og vises med scaleX(-1), så den opleves som et almindeligt spejl-selfie.
+  - Kamera-stream stoppes og overlay fjernes straks efter optagelse.
+- Ingen ændring i tavleshot/gendan tavleshot, kalender, afstemning eller browser/link-widget.
+-->
+<!--
+SAFE410 IMAGE CAMERA INLINE + SELFIE MIRROR
+- Bygger på SAFE409.
+- Billedwidgettens kameraoptagelse strammes:
+  - Selfie/frontkamera tegnes eksplicit spejlvendt på canvas, så billedet føles som et almindeligt spejl-selfie.
+  - Skjult video-element får playsinline/webkit-playsinline og holdes offscreen/non-interactive, så iPad/Safari ikke bør åbne et fuldskærms-preview efter kameratilladelse.
+  - Kamera-stream stoppes og video-element fjernes straks efter optagelse.
+- Ingen ændring i Tavleshot-state, gendannelse, kalender, afstemning eller øvrige widgets.
+-->
+<!--
+SAFE409 IMAGE BOARDSHOT RESTORE STATE
+- Bygger på SAFE408.
+- Tavleshot i billedwidget gemmer nu ikke kun et stiliseret WebP-billede, men også en let tavle-state.
+- Billedwidgetter med tavleshot får knappen “↩ Gendan tavleshot”.
+- Gendan opretter en NY tavle før papirkurven og genopretter de synlige widgets fra shottet med position, størrelse, rotation, lås, titel, type og data.
+- Gendannelse er bevidst ikke destruktiv: den overskriver ikke den aktuelle tavle.
+-->
+<!--
+SAFE408 IMAGE CAMERA / BOARDSHOT + POLL RESULT RESTORE
+- Bygger på SAFE407.
+- Retter afstemningswidgetten, så resultatsøjler/antal/procent igen vises i almindelig redigering, når Vis resultater er aktiv.
+- Tilføjer kameramenu til billedwidgetten:
+  - Selfie bruger front/selfie-kamera uden separat preview.
+  - Front bruger det udadvendte/bagkamera uden separat preview.
+  - Tavleshot laver et stiliseret WebP-shot af tavlen direkte ind i den åbne billedwidget.
+- Billedwidgetten opdateres direkte; der oprettes ikke en ekstra snapshot-widget fra billedwidgettens kameramenu.
+-->
+<!--
+SAFE407 CALENDAR QUICK ADD WEBP SNAPSHOT
+- Bygger på SAFE406.
+- Quick add forsøger nu at lave et WebP-snapshot af den aktuelle tavle.
+- Snapshot gemmes som billedwidget på tavlen og eventet får snapshotWidgetId.
+- Event-preview får knappen “📸 Vis snapshot”, som hopper til billedwidgetten og forsøger at åbne den maksimeret.
+- Iframes erstattes i snapshot med en neutral placeholder, fordi browseren normalt ikke må læse iframe-indhold.
+
+SAFE406 CALENDAR QUICK ADD WIDGET NOTE
+- Bygger på SAFE405.
+- Quick add skriver nu et snapshot i note-feltet over de widgets, der ligger på den aktive tavle ved oprettelsen.
+- Snapshot bruger korte widget-ikoner og widgettitler, så kalenderaktiviteten kan huske tavlens kontekst.
+- Kalenderwidgetten selv og skjulte koblede datawidgets udelades fra snapshot.
+- Ingen ændring i ugevisningens sticky-heldag, kalenderdata, ICS/import, browser/link-widget eller øvrige tavlefunktioner.
+-->
+<!--
+SAFE405 CALENDAR DAY QUICK ADD BUTTON
+- Bygger på SAFE404.
+- Dagvisningens hurtigoprettelse flyttes fra skjult klik på datolinjen til en synlig "＋ Quick add"-knap.
+- Knappen ligger ud for og på linje med dag/dato-titlen øverst.
+- Titellinjen er ikke længere den primære skjulte quick-add-kontrol.
+- Ingen ændring i ugevisningens sticky-heldag, kalenderdata, ICS/import, browser/link-widget eller øvrige tavlefunktioner.
+-->
+<!--
+SAFE404 CALENDAR DAY CHEVRON DIRECTION
+- Bygger på SAFE403.
+- Retter dagkortets fold-ud/fold-ind-pile, så de følger den synlige panelbevægelse:
+  - Kompakt datokort viser ‹, fordi kortet foldes mod venstre og dagsprogrammet åbner.
+  - Udvidet dagsprogram viser ›, fordi visningen foldes tilbage til datokortet.
+- Ingen ændring i ugevisningens sticky-heldag, kalenderdata, ICS/import eller browser/link-widget.
+-->
+<!--
+SAFE403 CALENDAR WEEK STICKY EXISTING ALL-DAY ONLY
+- Bygger på SAFE402.
+- Heldags/fridøgn-rækken er stadig placeret under ugedagstitlerne i ugevisning.
+- Kun dage der faktisk har heldagsbegivenheder/fridøgn får sticky heldagsfelt ved lodret scroll.
+- Tomme heldagsfelter bliver ikke hængende som fjollede blanke felter.
+- Venstre "hele dagen"-mærke er kun sticky, hvis ugen overhovedet har heldagsbegivenheder.
+- Ændrer kun kalenderens uge-layout/rendering/CSS.
+-->
+<!--
+SAFE402 CALENDAR WEEK STICKY ALL-DAY ROW
+- Bygger på SAFE401.
+- Ugevisning: heldagsrækken bliver hængende øverst under ugedagstitlerne, mens tidslinjen scrolles.
+- Header og heldagsmarkeringer forbliver synlige sammen, så fridøgn/heldagsbegivenheder ikke forsvinder ved scroll til tidlige/sene timer.
+- Ændrer kun kalenderens uge-layout/CSS og fit-måling.
+-->
+<!--
+SAFE401 LINK IFRAME MINI-BROWSER
+- Bygger på SAFE400.
+- Forbedrer link/iframe-widgetten med idéer fra TiddlyTools Browser:
+  - mere robust URL-normalisering, også relative/file/data/blob/adresser
+  - YouTube watch/short/youtu.be omskrives til embed-visning i iframe
+  - iframe får gemt zoom pr. widget
+  - zoom ind/ud-knapper i widgetbjælken
+  - iframe-skala bruges uden at ændre widgetstørrelse
+  - tydelig, ikke-blokerende fallback-hint om at åbne i ny fane, hvis siden nægter iframe
+- Ingen forsøg på at omgå X-Frame-Options/CSP frame-ancestors.
+-->
 
 <!--
 SAFE400 CALENDAR WEEK FULL DAY SCROLL
@@ -2491,6 +2610,178 @@ body.focus-presentation:not(.focus-maximized) .widget.focusTarget{
   .calendarWeekGrid{grid-template-columns:1fr}
   .calendarWeekDay{min-height:130px}
 }
+
+/* SAFE401 link/iframe mini-browser */
+.widget[data-type="link"] .safe401MiniBrowser .linkIframeFallbackHint{
+  position:absolute!important;
+  left:10px!important;
+  right:10px!important;
+  bottom:8px!important;
+  z-index:3!important;
+  pointer-events:none!important;
+  display:flex!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  align-items:center!important;
+  padding:7px 10px!important;
+  border-radius:999px!important;
+  background:rgba(15,23,42,.72)!important;
+  color:#fff!important;
+  font-size:12px!important;
+  font-weight:850!important;
+  opacity:.18!important;
+  transition:opacity .15s ease!important;
+  max-width:calc(100% - 20px)!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.widget[data-type="link"] .safe401MiniBrowser:hover .linkIframeFallbackHint,
+.widget[data-type="link"].selected .safe401MiniBrowser .linkIframeFallbackHint{
+  opacity:.86!important;
+}
+.widget[data-type="link"] .safe401LinkHint{
+  display:block!important;
+  margin-top:10px!important;
+  color:#64748b!important;
+  font-weight:750!important;
+  font-size:13px!important;
+  line-height:1.25!important;
+}
+.widget[data-type="link"] .mini [data-act="linkZoomOut"],
+.widget[data-type="link"] .mini [data-act="linkZoomIn"]{
+  min-width:28px!important;
+  padding-left:7px!important;
+  padding-right:7px!important;
+}
+
+/* SAFE408: Afstemningsresultater skal igen være synlige i redigering, når de findes.
+   SAFE192 skjulte resultatsøjler i almindelig redigering; det er uheldigt når "Vis resultater" er markeret. */
+.app:not(.present) .widget[data-type="poll"] .pollResults{
+  display:grid!important;
+}
+.app:not(.present) .widget[data-type="poll"] .pollNoResultsNote{
+  display:block!important;
+}
+/* SAFE408: diskret kameramenu i billedwidgetten */
+
+/* SAFE415: Strammere billedwidget-knapper + fælles downloadpulje */
+.widget[data-type="image"] .mediaActions{
+  top:10px!important;
+  right:10px!important;
+  left:10px!important;
+  width:auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+  flex-wrap:wrap!important;
+  pointer-events:auto!important;
+}
+.widget[data-type="image"] .mediaActions button,
+.widget[data-type="image"] .mediaActions .safe413RestoreButtons button{
+  min-height:30px!important;
+  border-radius:14px!important;
+  padding:6px 10px!important;
+  font-size:13px!important;
+  line-height:1.1!important;
+  font-weight:850!important;
+  letter-spacing:.01em!important;
+  background:rgba(15,23,42,.78)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.18)!important;
+  backdrop-filter:blur(8px)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  white-space:nowrap!important;
+}
+.widget[data-type="image"] .mediaActions .cameraImg{background:rgba(15,118,110,.82)!important;}
+.widget[data-type="image"] .mediaActions .downloadImg{background:rgba(79,70,229,.82)!important;}
+.widget[data-type="image"] .mediaActions .restoreBoardShot{background:rgba(30,64,175,.82)!important;}
+.widget[data-type="image"] .mediaActions .chooseRestoreBoardShot{background:rgba(51,65,85,.82)!important;}
+.widget[data-type="image"] .mediaActions .safe413RestoreButtons{
+  display:inline-flex!important;
+  gap:6px!important;
+  flex-wrap:wrap!important;
+}
+.widget[data-type="image"] .imageFrame{
+  width:100%;
+  height:100%;
+}
+.widget[data-type="image"] .imageFrame img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+.widget[data-type="image"] .imageChoice{gap:12px}
+.widget[data-type="image"] .mediaActions{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.widget[data-type="image"] .cameraImg{
+  background:#0f766e!important;
+  color:white!important;
+}
+.safe408CameraGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(120px,1fr));
+  gap:10px;
+  margin:12px 0;
+}
+.safe408CameraGrid button{
+  min-height:72px;
+  font-size:18px;
+}
+.safe408CameraNote{
+  color:#475569;
+  font-weight:700;
+  line-height:1.35;
+}
+@media(max-width:620px){.safe408CameraGrid{grid-template-columns:1fr}}
+
+/* SAFE412: No persistent/visible camera preview.
+   Any old SAFE411 inline overlays are force-hidden/removed by JS cleanup. */
+.safe411CameraInlineCapture,
+.safe412CameraCaptureVideo{
+  position:fixed!important;
+  left:-10000px!important;
+  top:-10000px!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+.widget[data-type="image"] .imageFrame img.safe411MirrorSelfie{
+  transform:none!important; /* SAFE412 mirrors selfie into the image data itself. */
+}
+
+
+/* SAFE413: isolated boardshot restore chooser */
+.safe413RestoreModal{box-sizing:border-box;width:min(760px,calc(100vw - 32px));max-height:min(82vh,720px);overflow:auto;background:#fff;color:#111827;border-radius:18px;padding:18px;box-shadow:0 20px 70px rgba(0,0,0,.28);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+.safe413RestoreModal *{box-sizing:border-box;}
+.safe413RestoreModal h2{margin:0 0 6px;font-size:1.25rem;line-height:1.2;}
+.safe413RestoreModal p{margin:.25rem 0 .75rem;color:#4b5563;font-weight:650;}
+.safe413RestoreGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.safe413RestoreCard{border:1px solid #d8dee9;border-radius:14px;background:#f8fafc;padding:12px;}
+.safe413RestoreCard h3{font-size:1rem;margin:0 0 8px;color:#111827;}
+.safe413RestoreModal label{display:flex;align-items:center;gap:8px;min-height:34px;font-weight:750;color:#111827;}
+.safe413RestoreModal input[type="checkbox"]{width:20px;height:20px;accent-color:#4f46e5;flex:0 0 auto;}
+.safe413WidgetList{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto;padding-right:2px;}
+.safe413WidgetRow{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:7px 9px;}
+.safe413WidgetRow small{display:block;color:#6b7280;font-weight:650;margin-left:28px;margin-top:-2px;}
+.safe413RestoreActions{position:sticky;bottom:-18px;background:linear-gradient(rgba(255,255,255,.94),#fff);display:flex;gap:8px;justify-content:flex-end;align-items:center;padding-top:12px;margin-top:12px;border-top:1px solid #edf0f5;}
+.safe413RestoreActions button,.safe413MiniActions button{border:0;border-radius:12px;padding:10px 13px;font-weight:850;background:#eef2ff;color:#111827;}
+.safe413RestoreActions button.primary{background:#4f46e5;color:#fff;}
+.safe413RestoreActions button.danger{background:#f3f4f6;color:#374151;}
+.safe413MiniActions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0;}
+.safe413MiniActions button{padding:8px 11px;background:#e5e7eb;}
+.safe413RestoreButtons{display:inline-flex;gap:6px;flex-wrap:wrap;}
+.safe413RestoreButtons button{white-space:nowrap;}
+@media (max-width:700px){.safe413RestoreGrid{grid-template-columns:1fr}.safe413RestoreActions{justify-content:stretch;flex-wrap:wrap}.safe413RestoreActions button{flex:1 1 auto}}
 </style> <style id="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!imp
 - focus-mode: ="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!important;top:0!important;left:0!important}   /* v_focus_zfix: focused widget must stay above all others */ body.focus-edit .widget.focused, body.focus-presentation .widget.focused, .app.
 - focus-mode: nt;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!important;top:0!important;left:0!important}   /* v_focus_zfix: focused widget must stay above all others */ body.focus-edit .widget.focused, body.focus-presentation .widget.focused, .app.focusMode .widget.focused, .widget.focused{   z-index:9999!important; } body.focus-edit .widget:not(.focused), body.focus-presentation .widget:not(.focused){   z-index:20!important; }    /* FASE
@@ -12756,7 +13047,10 @@ body.focus-presentation .content.kahoopardy .kahoopardyEditHelp{
 .content.calendar{background:linear-gradient(135deg,#f8fafc,#eef2ff);color:#111827;overflow:hidden!important}
 .calendarBox{height:100%;box-sizing:border-box;padding:10px;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:8px;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .calendarTop{display:grid;grid-template-columns:1fr;grid-template-rows:auto auto;gap:7px;min-width:0}.calendarHeadLine{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px;min-width:0}.calendarActionLine{display:flex;align-items:center;justify-content:flex-end;gap:6px;min-width:0;flex-wrap:wrap}
-.calendarTitle{font-weight:950;font-size:clamp(17px,2vw,28px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111827;min-width:0;text-align:left}
+.calendarTitleLine{display:flex;align-items:center;gap:8px;min-width:0}
+.calendarTitle{font-weight:950;font-size:clamp(17px,2vw,28px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111827;min-width:0;text-align:left;flex:0 1 auto}
+.calendarBox button.calQuickAddBtn{min-height:34px;border-radius:999px!important;padding:7px 12px;background:#4f46e5;color:white;white-space:nowrap;box-shadow:0 2px 8px rgba(79,70,229,.22);flex:0 0 auto}
+.calendarModalBtns button.calSnapshotBtn{background:#0f766e;color:white}.calendarNotePreview .snapshotRef{font-weight:950;color:#0f766e}
 .calendarNav,.calendarTools{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.calendarNav{flex-wrap:nowrap}.calendarTools{justify-content:flex-end}
 .calendarBox button{border:0;border-radius:999px;padding:7px 10px;font-weight:950;background:#e5e7eb;color:#111827;box-shadow:0 1px 0 rgba(0,0,0,.10);cursor:pointer}
 .calendarBox button.primary{background:#4f46e5;color:white}.calendarBox button.warn{background:#fee2e2;color:#991b1b}.calendarBox button.active{background:#111827;color:white}
@@ -12786,7 +13080,7 @@ body.focus-presentation .content.kahoopardy .kahoopardyEditHelp{
 .calendarTear{min-height:0;display:grid;grid-template-columns:minmax(130px,0.9fr) minmax(0,2fr);gap:12px;height:100%}.calendarTear.compact{grid-template-columns:minmax(180px,420px);justify-content:start}.calendarTear.compact .calendarTearSheet{max-width:420px}.calendarDayOnly{grid-template-rows:minmax(0,1fr)!important;padding:0}.calendarDayOnly .calendarTear.compact{height:100%;grid-template-columns:1fr;justify-content:stretch}.calendarDayOnly .calendarTear.compact .calendarTearSheet{max-width:none;width:100%;height:100%;border-radius:0 0 18px 18px}.calendarDayOnly .calendarTearTop{border-radius:0}.calendarDayOnly .calendarTearDate{padding:clamp(12px,2vw,28px)}.calendarDayOnly .calendarTearDate .dayno{font-size:clamp(96px,20vw,260px)}.calendarDayOnly .calendarNowCard{margin:0 clamp(14px,2vw,28px) clamp(14px,2vw,28px)}.calendarExpandDay{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:42px;height:74px;border-radius:999px!important;background:rgba(15,23,42,.10)!important;color:#111827!important;font-size:36px!important;line-height:1!important;box-shadow:none!important;z-index:3}.calendarExpandDay:hover{background:rgba(79,70,229,.18)!important}.calendarTearSheet{position:relative}
 .calendarTearSheet{border-radius:20px;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);box-shadow:0 8px 24px rgba(15,23,42,.12);border:1px solid rgba(15,23,42,.12);display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
 .calendarTearTop{background:#ef4444;color:white;font-weight:950;text-align:center;padding:8px 10px;letter-spacing:.04em;text-transform:uppercase}
-.calendarTearDate{display:grid;place-items:center;text-align:center;padding:10px;cursor:pointer}.calendarTearDate:hover{background:rgba(79,70,229,.04)}.calendarTitle.calQuickAdd{cursor:pointer}.calendarTitle.calQuickAdd:hover{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px}
+.calendarTearDate{display:grid;place-items:center;text-align:center;padding:10px;cursor:pointer}.calendarTearDate:hover{background:rgba(79,70,229,.04)}.calQuickAddBtn:hover{filter:brightness(1.03)}
 .calendarTearDate .weekday{font-size:clamp(18px,2.6vw,34px);font-weight:950;color:#111827;text-transform:capitalize}
 .calendarTearDate .dayno{font-size:clamp(72px,11vw,160px);font-weight:1000;line-height:.9;color:#111827}
 .calendarTearDate .monthyear{font-size:clamp(16px,2vw,26px);font-weight:900;color:#475569}
@@ -13163,15 +13457,47 @@ function tavleIsSameAppUrl(url){
     return u.origin===here.origin && norm(u.pathname)===norm(here.pathname);
   }catch(e){return false}
 }
+function tavleYoutubeEmbedUrl(raw){
+  try{
+    const u=new URL(String(raw||''),window.location.href);
+    const host=u.hostname.replace(/^www\./,'').toLowerCase();
+    let id='';
+    if(host==='youtu.be') id=u.pathname.split('/').filter(Boolean)[0]||'';
+    if(host==='youtube.com'||host==='m.youtube.com'||host==='music.youtube.com'||host==='youtube-nocookie.com'){
+      if(u.pathname==='/watch') id=u.searchParams.get('v')||'';
+      else if(u.pathname.startsWith('/shorts/')) id=u.pathname.split('/').filter(Boolean)[1]||'';
+      else if(u.pathname.startsWith('/embed/')) id=u.pathname.split('/').filter(Boolean)[1]||'';
+    }
+    id=String(id||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,64);
+    if(!id)return '';
+    const out=new URL('https://www.youtube-nocookie.com/embed/'+id);
+    const start=u.searchParams.get('t')||u.searchParams.get('start');
+    if(start){
+      const sec=String(start).match(/^\d+$/)?start:String(start).replace(/[^0-9]/g,'');
+      if(sec)out.searchParams.set('start',sec);
+    }
+    return out.href;
+  }catch(e){return ''}
+}
 function tavleIframeSrc(url,w){
   try{
+    const yt=tavleYoutubeEmbedUrl(url);
+    if(yt)return yt;
     const u=new URL(String(url||''),window.location.href);
     if(tavleIsSameAppUrl(u.href)){
       u.searchParams.set('tavle_embed_scope',(w&&w.id)?String(w.id):('widget_'+Date.now()));
       return u.href;
     }
+    return u.href;
   }catch(e){}
   return url;
+}
+function tavleLinkZoom(w,delta){
+  w.data=w.data||{};
+  const current=Number(w.data.zoom||1);
+  const next=Math.max(0.5,Math.min(3,Math.round((current+delta)*100)/100));
+  w.data.zoom=next;
+  return next;
 }
 
   /*
@@ -15088,7 +15414,7 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -20902,9 +21228,13 @@ function safe385RenderCalendarWeekMode(w){
 
   const header=`<div class="calendarWeekCorner">Tid</div>${dayDates.map(({date,d})=>`<button type="button" class="calendarWeekHeader ${date===safe351TodayISO()?'today':''}" data-week-day="${date}" title="Åbn dagen"><b>${esc(d.toLocaleDateString('da-DK',{weekday:'short'}))}</b><small>${esc(d.toLocaleDateString('da-DK',{day:'numeric',month:'short'}))}</small></button>`).join('')}`;
 
-  const allDayRow=`<div class="calendarWeekTime allDay">hele dagen</div>${dayDates.map(({date})=>{
+  // SAFE403: kun de heldagsfelter der faktisk har indhold skal være sticky.
+  // Tomme dage må ikke blive hængende som en blank række, når tidslinjen scrolles.
+  const hasAnyAllDay=dayDates.some(({date})=>((byDay[date]&&byDay[date].allDay)||[]).length>0);
+  const allDayRow=`<div class="calendarWeekTime allDay ${hasAnyAllDay?'hasAnyAllDay':'noAllDay'}">hele dagen</div>${dayDates.map(({date})=>{
     const evs=(byDay[date]&&byDay[date].allDay)||[];
-    return `<div class="calendarWeekAllDayCell">${evs.map(ev=>`<button type="button" class="calendarWeekAllDayBlock ${ev.holiday?'calendarHolidayEvent':''}" ${ev.holiday?'':'data-event="'+esc(ev.id)+'"'} style="--cal-color:${esc(safe351EventColor(ev))}"><b>${esc(ev.title)}</b><small>${esc([ev.type,ev.hold,ev.place,ev.status].filter(Boolean).join(' · '))}</small></button>`).join('')}</div>`;
+    const hasAllDay=evs.length>0;
+    return `<div class="calendarWeekAllDayCell ${hasAllDay?'hasAllDay':'emptyAllDay'}">${evs.map(ev=>`<button type="button" class="calendarWeekAllDayBlock ${ev.holiday?'calendarHolidayEvent':''}" ${ev.holiday?'':'data-event="'+esc(ev.id)+'"'} style="--cal-color:${esc(safe351EventColor(ev))}"><b>${esc(ev.title)}</b><small>${esc([ev.type,ev.hold,ev.place,ev.status].filter(Boolean).join(' · '))}</small></button>`).join('')}</div>`;
   }).join('')}`;
 
   const timeCol=`<div class="calendarWeekTimes" style="height:${dayHeight}px">${hours.map(t=>`<div class="calendarWeekHourLabel" style="top:${((t-minStart)/(maxEnd-minStart))*100}%">${fmtMin(t)}</div>`).join('')}</div>`;
@@ -20971,13 +21301,13 @@ function safe364RenderCalendarDayMode(w){
   const evs=safe353VisibleEventsForDate(w,date).sort((a,b)=>(a.start||'99:99').localeCompare(b.start||'99:99')||String(a.title||'').localeCompare(String(b.title||''),'da'));
   const current=safe364CurrentOrNextEvent(evs,date);
   const agenda=evs.length?evs.map(ev=>`<button type="button" class="calendarAgendaEvent ${ev.holiday?'calendarHolidayEvent':''}" ${ev.holiday?'':'data-event="'+esc(ev.id)+'"'} style="--cal-color:${esc(safe351EventColor(ev))}"><span class="time">${esc(ev.start||'hele dagen')}</span><span class="main"><b>${esc(ev.title)}</b><small>${esc([ev.type,ev.hold,ev.place,ev.status].filter(Boolean).join(' · '))}</small></span>${ev.holiday?'':'<span class="edit">✎</span>'}</button>`).join(''):'<div class="calendarEmpty">Ingen aktiviteter i dag</div>';
-  const arrow=expanded?'‹':'›';
+  const arrow=expanded?'›':'‹';
   const arrowTitle=expanded?'Vis kun datokort':'Vis hele dagsprogrammet';
   const card=`<div class="calendarTearSheet"><button class="calendarExpandDay" title="${arrowTitle}" aria-label="${arrowTitle}">${arrow}</button><div class="calendarTearTop">${esc(d.toLocaleDateString('da-DK',{month:'long',year:'numeric'}))}</div><div class="calendarTearDate" title="Skift til fuld kalender"><div class="weekday">${esc(d.toLocaleDateString('da-DK',{weekday:'long'}))}</div><div class="dayno">${d.getDate()}</div><div class="monthyear">${esc(d.toLocaleDateString('da-DK',{month:'long',year:'numeric'}))}</div><div class="weekno">uge ${safe353IsoWeek(d)}</div></div>${current?`<div class="calendarNowCard" style="--cal-color:${esc(safe351EventColor(current))}"><small>${date===safe351TodayISO()?'Nu / næste':'Første aktivitet'}</small><b>${esc(current.start||'hele dagen')} · ${esc(current.title||'Aktivitet')}</b><small>${esc([current.type,current.place,current.status].filter(Boolean).join(' · '))}</small></div>`:''}</div>`;
   if(!expanded){
     return `<div class="calendarBox calendarDayMode calendarDayOnly" data-view="day-compact"><div class="calendarTear compact">${card}</div></div>`;
   }
-  return `<div class="calendarBox calendarDayMode" data-view="day-expanded"><div class="calendarTop"><div class="calendarHeadLine"><div class="calendarNav"><button class="calDayPrev" title="Forrige dag">‹</button><button class="calDayToday">I dag</button><button class="calDayNext" title="Næste dag">›</button></div><div class="calendarTitle calQuickAdd" title="Opret hurtig aktivitet på denne dato">📆 ${esc(safe364DayLabel(date,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))}</div></div><div class="calendarActionLine"><div class="calendarTools">${safe376DatasetLinkButtonForCalendar(w)}<button class="calRenameBtn" title="Omdøb kalender" aria-label="Omdøb kalender">🏷</button><button class="calAdd primary" title="Tilføj aktivitet" aria-label="Tilføj aktivitet">＋</button><button class="calDataBtn" title="Hent data fra datawidget" aria-label="Hent data">📊</button><button class="calIcsBtn" title="Importér ICS" aria-label="Importér ICS">📥</button><button class="calFeedBtn" title="Kalenderfeed" aria-label="Hent feed">🔗</button><button class="calDedupBtn" title="Fjern dubletter" aria-label="Fjern dubletter">≡</button></div></div></div><div class="calendarTear expanded">${card}<div class="calendarDayAgenda"><h3>Dagens program</h3>${agenda}</div></div></div>`;
+  return `<div class="calendarBox calendarDayMode" data-view="day-expanded"><div class="calendarTop"><div class="calendarHeadLine"><div class="calendarNav"><button class="calDayPrev" title="Forrige dag">‹</button><button class="calDayToday">I dag</button><button class="calDayNext" title="Næste dag">›</button></div><div class="calendarTitleLine"><div class="calendarTitle">📆 ${esc(safe364DayLabel(date,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))}</div><button type="button" class="calQuickAdd calQuickAddBtn" title="Opret hurtig aktivitet med tavlens titel på denne dato" aria-label="Quick add aktivitet">＋ Quick add</button></div></div><div class="calendarActionLine"><div class="calendarTools">${safe376DatasetLinkButtonForCalendar(w)}<button class="calRenameBtn" title="Omdøb kalender" aria-label="Omdøb kalender">🏷</button><button class="calAdd primary" title="Tilføj aktivitet" aria-label="Tilføj aktivitet">＋</button><button class="calDataBtn" title="Hent data fra datawidget" aria-label="Hent data">📊</button><button class="calIcsBtn" title="Importér ICS" aria-label="Importér ICS">📥</button><button class="calFeedBtn" title="Kalenderfeed" aria-label="Hent feed">🔗</button><button class="calDedupBtn" title="Fjern dubletter" aria-label="Fjern dubletter">≡</button></div></div></div><div class="calendarTear expanded">${card}<div class="calendarDayAgenda"><h3>Dagens program</h3>${agenda}</div></div></div>`;
 }
 function safe351RenderCalendarList(w){const y=Number(w.data.year),m=Number(w.data.month);const prefix=y+'-'+safe351Pad(m)+'-';let evs=safe351NormalizeEvents(w).filter(ev=>ev.date.startsWith(prefix));if(w.data.showHolidays!==false)evs=evs.concat(safe353DanishHolidays(y).filter(h=>h.date.startsWith(prefix)));evs=evs.sort((a,b)=>a.date.localeCompare(b.date)||(a.start||'99:99').localeCompare(b.start||'99:99')||String(a.title||'').localeCompare(String(b.title||''),'da'));if(!evs.length)return '<div class="calendarList"><div class="calendarEmpty">Ingen aktiviteter i denne måned</div></div>';let last='';return '<div class="calendarList">'+evs.map(ev=>{const head=ev.date!==last?(last=ev.date,`<div class="calendarListDay">${esc(new Date(ev.date+'T12:00:00').toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'}))}</div>`):'';const meta=[ev.type,ev.hold,ev.place,ev.status].filter(Boolean).join(' · ');const edit=ev.holiday?'':'<span>✎</span>';const data=ev.holiday?'':' data-event="'+esc(ev.id)+'"';return head+`<button type="button" class="calendarListEvent ${ev.holiday?'calendarHolidayEvent':''}"${data} style="--cal-color:${esc(safe351EventColor(ev))}"><span class="time">${esc(ev.start||'hele dagen')}</span><span class="main"><span class="calendarEventTitle">${esc(ev.title)}</span><span class="meta">${esc(meta)}</span></span>${edit}</button>`}).join('')+'</div>'}
 function safe365CurrentTimeHHMM(){
@@ -20992,14 +21322,214 @@ function safe365QuickActivityTitle(w){
   }catch(_e){}
   return 'Tavleaktivitet';
 }
-function safe365AddQuickCalendarActivity(w,el){
+function safe406WidgetIcon(type,w){
+  if(w&&w.data&&w.data.datasetId)return '📊';
+  const map={text:'📝',dataset:'📊',html:'🧩',video:'🎬',wheel:'🎲',groups:'👥',wordcloud:'☁️',poll:'🙂',kahoopardy:'🎯',timer:'⏳',calendar:'📅',image:'🖼️',link:'🔗',pdf:'📄'};
+  return map[String(type||'')]||'□';
+}
+function safe406WidgetLabel(w){
+  const type=String(w&&w.type||'');
+  const fallback=(typeof titles==='object'&&titles&&titles[type])?titles[type]:type||'Widget';
+  const raw=String((w&&w.title)||fallback).trim()||fallback;
+  return raw.replace(/\s+/g,' ').slice(0,80);
+}
+function safe406QuickActivityNote(calendarWidgetId){
+  let board=null,boardTitle='Tavle';
+  try{
+    board=(state&&state.slides&&state.slides[state.active])?state.slides[state.active]:slide();
+    boardTitle=safeSlideTitle(board,state.active)||'Tavle';
+  }catch(_e){try{board=slide();}catch(__e){board=null}}
+  const widgets=(board&&Array.isArray(board.widgets))?board.widgets:[];
+  const visible=widgets.filter(x=>{
+    if(!x||String(x.id)===String(calendarWidgetId))return false;
+    try{if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(x))return false;}catch(_e){}
+    return true;
+  });
+  const lines=[];
+  lines.push('Quick add fra tavle: '+String(boardTitle||'Tavle').trim());
+  lines.push('Widgets på tavlen ved oprettelse:');
+  if(!visible.length){
+    lines.push('— Ingen andre widgets');
+  }else{
+    visible.forEach(x=>{lines.push('— '+safe406WidgetIcon(x.type,x)+' '+safe406WidgetLabel(x));});
+  }
+  return lines.join('\n');
+}
+function safe407VisibleBoardWidgets(calendarWidgetId){
+  let board=null;
+  try{board=(state&&state.slides&&state.slides[state.active])?state.slides[state.active]:slide();}catch(_e){try{board=slide();}catch(__e){board=null}}
+  const widgets=(board&&Array.isArray(board.widgets))?board.widgets:[];
+  return widgets.filter(x=>{
+    if(!x||String(x.id)===String(calendarWidgetId))return false;
+    try{if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(x))return false;}catch(_e){}
+    return true;
+  });
+}
+function safe407SnapshotFileName(){
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  return 'tavle-snapshot-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes())+'.webp';
+}
+function safe407ReplaceIframesInClone(clone){
+  try{
+    clone.querySelectorAll('iframe,object,embed,video').forEach(node=>{
+      const url=node.getAttribute('src')||node.getAttribute('data')||'';
+      const ph=document.createElement('div');
+      ph.setAttribute('style','width:100%;height:100%;display:grid;place-items:center;text-align:center;background:#e5e7eb;color:#111827;font:800 18px system-ui;border:2px dashed #94a3b8;border-radius:10px;padding:14px;box-sizing:border-box;');
+      ph.textContent=url?'Ekstern webside/iframe: '+url:'Eksternt indhold kan ikke fotograferes';
+      node.parentNode&&node.parentNode.replaceChild(ph,node);
+    });
+  }catch(_e){}
+}
+function safe407InlineStyles(src,dst){
+  try{
+    const cs=getComputedStyle(src);
+    let txt='';
+    for(let i=0;i<cs.length;i++){const k=cs[i];txt+=k+':'+cs.getPropertyValue(k)+';'}
+    dst.setAttribute('style',(dst.getAttribute('style')||'')+';'+txt);
+    const a=src.children||[],b=dst.children||[];
+    for(let i=0;i<a.length&&i<b.length;i++)safe407InlineStyles(a[i],b[i]);
+  }catch(_e){}
+}
+function safe407SchematicSnapshotWebP(calendarWidgetId){
+  const appEl=document.getElementById('app')||app;
+  const rect=appEl.getBoundingClientRect();
+  const W=Math.max(900,Math.min(1400,Math.round(rect.width||1200)));
+  const H=Math.max(600,Math.min(900,Math.round(rect.height||800)));
+  const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  const bg=getComputedStyle(appEl).background||'#eef2ff';
+  ctx.fillStyle='#eef2ff';ctx.fillRect(0,0,W,H);
+  try{
+    const title=(typeof safeSlideTitle==='function')?safeSlideTitle(slide(),state.active):'Tavle';
+    ctx.fillStyle='rgba(17,24,39,.86)';ctx.fillRect(22,18,Math.min(W-44,420),54);
+    ctx.fillStyle='white';ctx.font='800 24px system-ui';ctx.fillText(title,42,53);
+  }catch(_e){}
+  const widgets=safe407VisibleBoardWidgets(calendarWidgetId);
+  widgets.forEach(w=>{
+    const x=Math.max(0,Math.min(W-60,Number(w.x)||80));
+    const y=Math.max(80,Math.min(H-60,Number(w.y)||100));
+    const ww=Math.max(90,Math.min(W-x-10,Number(w.w)||220));
+    const hh=Math.max(70,Math.min(H-y-10,Number(w.h)||150));
+    ctx.save();ctx.translate(x+ww/2,y+hh/2);ctx.rotate((Number(w.rotation)||0)*Math.PI/180);ctx.translate(-ww/2,-hh/2);
+    ctx.fillStyle='white';ctx.strokeStyle='rgba(15,23,42,.35)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.roundRect(0,0,ww,hh,14);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#30394a';ctx.beginPath();ctx.roundRect(0,0,ww,34,12);ctx.fill();
+    ctx.fillStyle='white';ctx.font='800 16px system-ui';ctx.fillText((safe406WidgetIcon(w.type,w)+' '+safe406WidgetLabel(w)).slice(0,42),10,23);
+    ctx.fillStyle='#475569';ctx.font='700 14px system-ui';ctx.fillText('Snapshot-placeholder',12,62);
+    ctx.restore();
+  });
+  try{return canvas.toDataURL('image/webp',0.82)}catch(_e){return canvas.toDataURL('image/png')}
+}
+async function safe407CaptureBoardWebP(calendarWidgetId){
+  const appEl=document.getElementById('app')||app;
+  try{
+    const rect=appEl.getBoundingClientRect();
+    const fullW=Math.max(320,Math.round(rect.width||innerWidth||1200));
+    const fullH=Math.max(240,Math.round(rect.height||innerHeight||800));
+    const maxW=1280;
+    const scale=Math.min(1,maxW/fullW);
+    const W=Math.round(fullW*scale),H=Math.round(fullH*scale);
+    const clone=appEl.cloneNode(true);
+    clone.querySelectorAll('.topbar,.toolbar,.drawLayer,.resize,.rotater,#toolbarPeek,#toolbarWakeZone,#toolbarPinFloat,#focusExit,#maxEmergencyExit,.mediaActions').forEach(n=>n.remove());
+    clone.querySelectorAll('.widget').forEach(node=>{
+      if(String(node.dataset.id||'')===String(calendarWidgetId))node.remove();
+    });
+    clone.querySelectorAll('.mini').forEach(n=>n.remove());
+    safe407ReplaceIframesInClone(clone);
+    safe407InlineStyles(appEl,clone);
+    clone.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+    clone.style.margin='0';clone.style.width=fullW+'px';clone.style.height=fullH+'px';
+    const xml=new XMLSerializer().serializeToString(clone);
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+fullW+' '+fullH+'"><foreignObject width="100%" height="100%">'+xml+'</foreignObject></svg>';
+    const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const img=new Image();
+    const loaded=new Promise((resolve,reject)=>{img.onload=()=>resolve();img.onerror=reject;});
+    img.src=url;
+    await loaded;
+    const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+    const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,W,H);
+    URL.revokeObjectURL(url);
+    try{return canvas.toDataURL('image/webp',0.82)}catch(_e){return canvas.toDataURL('image/png')}
+  }catch(err){
+    console.warn('SAFE407 DOM snapshot failed, using schematic snapshot',err);
+    return safe407SchematicSnapshotWebP(calendarWidgetId);
+  }
+}
+function safe407AddSnapshotImageWidget(dataUrl,calendarWidgetId){
+  if(!dataUrl)return null;
+  const name=safe407SnapshotFileName();
+  const w=addWidget('image',{src:dataUrl,name,snapshot:true,createdAt:new Date().toISOString(),source:'calendar-quick-add'});
+  if(w){
+    w.title='📸 Snapshot '+new Date().toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});
+    try{
+      const cal=findWidget(calendarWidgetId);
+      if(cal){w.x=Math.max(24,Math.min((cal.x||140)+60,innerWidth-620));w.y=Math.max(80,Math.min((cal.y||130)+60,innerHeight-430));}
+      w.w=Math.min(640,Math.max(420,innerWidth*.44));
+      w.h=Math.min(430,Math.max(300,innerHeight*.38));
+      w.z=++z;
+      render();select(w.id,{editText:false});
+    }catch(_e){}
+  }
+  return w;
+}
+function safe407OpenSnapshotWidget(widgetId){
+  if(!widgetId){toast('Snapshot mangler');return}
+  let si=-1,w=null;
+  try{
+    for(let i=0;i<(state.slides||[]).length;i++){
+      const found=(state.slides[i].widgets||[]).find(x=>String(x.id)===String(widgetId));
+      if(found){si=i;w=found;break}
+    }
+  }catch(_e){}
+  if(si<0||!w){toast('Snapshot-billedet findes ikke længere');return}
+  closeModal();
+  state.active=si;
+  try{w.z=++z;}catch(_e){}
+  render();
+  setTimeout(()=>{
+    try{
+      select(widgetId,{editText:false});
+      const node=document.querySelector(`.widget[data-id="${CSS.escape(String(widgetId))}"]`);
+      if(node){
+        setFocusTarget(node);
+        if(!document.body.classList.contains('focus-maximized')&&typeof toggleFocusMaximized==='function')toggleFocusMaximized();
+      }
+      save();
+    }catch(err){console.warn(err);}
+  },40);
+}
+async function safe365AddQuickCalendarActivity(w,el){
   safe351NormalizeEvents(w);
   const date=w.data.dayDate||safe351TodayISO();
-  const ev={id:uid(),date,start:safe365CurrentTimeHHMM(),end:'',title:safe365QuickActivityTitle(w),type:'Undervisning',hold:'',place:'',note:'',color:SAFE351_CAL_TYPES.Undervisning||'#4f46e5',status:'planlagt'};
+  const start=safe365CurrentTimeHHMM();
+  const title=safe365QuickActivityTitle(w);
+  const ev={id:uid(),date,start,end:'',title,type:'Undervisning',hold:'',place:'',note:safe406QuickActivityNote(w&&w.id),color:SAFE351_CAL_TYPES.Undervisning||'#4f46e5',status:'planlagt'};
+  let snap=null;
+  try{
+    toast('Laver tavle-snapshot…');
+    const img=await safe407CaptureBoardWebP(w&&w.id);
+    snap=safe407AddSnapshotImageWidget(img,w&&w.id);
+    if(snap){
+      ev.snapshotWidgetId=snap.id;
+      ev.snapshotSlideIndex=state.active;
+      ev.note += '\n\n📸 Snapshot: Se tavlebillede';
+    }else{
+      ev.note += '\n\n📸 Snapshot kunne ikke gemmes.';
+    }
+  }catch(err){
+    console.warn(err);
+    ev.note += '\n\n📸 Snapshot kunne ikke oprettes.';
+  }
   w.data.events.push(ev);
   safe362DeduplicateCalendarEvents(w);
-  fillContent(el,w);save();
-  toast('Aktivitet oprettet: '+ev.start+' · '+ev.title);
+  render();
+  try{select(w.id,{editText:false});}catch(_e){}
+  const newEl=document.querySelector(`.widget[data-id="${CSS.escape(String(w.id))}"]`)||el;
+  if(newEl)fillContent(newEl,w);
+  save();
+  toast('Aktivitet oprettet'+(snap?' med snapshot: ':': ')+ev.start+' · '+ev.title);
 }
 function safe378OpenRenameCalendar(w,el){
   const current=String((w&&w.title)||'Kalender').trim()||'Kalender';
@@ -21081,6 +21611,12 @@ function safe398FitCalendarWeekHeight(c,el){
     const headH=corner?Math.ceil(corner.getBoundingClientRect().height):38;
     const allDayH=allDay?Math.ceil(allDay.getBoundingClientRect().height):46;
     const gap=6;
+    // SAFE402: heldagsrækken skal hænge fast lige under ugedagstitlerne, når tidslinjen scrolles.
+    const stickyAllDayTop=Math.max(0,headH+gap);
+    grid.style.setProperty('--safe402-week-header-h',headH+'px');
+    grid.style.setProperty('--safe402-week-all-day-top',stickyAllDayTop+'px');
+    timeline.style.setProperty('--safe402-week-header-h',headH+'px');
+    timeline.style.setProperty('--safe402-week-all-day-top',stickyAllDayTop+'px');
     const visibleColsH=Math.max(150,innerH-headH-allDayH-gap);
 
     const minStart=parseInt(timeline.dataset.minStart||'420',10);
@@ -21298,16 +21834,21 @@ function safe368OpenDedupChoice(w,el){
 }
 function safe360OpenEventPreview(w,ev,date,el){
   ev=safe360CleanEvent(Object.assign({},ev||{}));
+  const real=(w&&w.data&&Array.isArray(w.data.events))?(w.data.events.find(x=>String(x.id)===String(ev.id))||ev):ev;
+  if(real&&real.snapshotWidgetId)ev.snapshotWidgetId=real.snapshotWidgetId;
   const meta=[ev.type,ev.hold,ev.place].filter(Boolean).join(' · ');
   const time=[ev.start,ev.end].filter(Boolean).join(' – ');
   const dateLabel=(ev.date||date)?new Date((ev.date||date)+'T12:00:00').toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
   const note=safe360CleanCalendarText(ev.note||'');
-  showModal(`<h2>${esc(ev.title||'Aktivitet')}</h2><div class="calendarDetailGrid"><b>Dato</b><span>${esc(dateLabel)}</span>${time?`<b>Tid</b><span>${esc(time)}</span>`:''}${meta?`<b>Info</b><span>${esc(meta)}</span>`:''}${ev.status?`<b>Status</b><span>${esc(ev.status)}</span>`:''}</div>${note?`<div class="calendarNotePreview">${esc(note)}</div>`:'<p class="calendarSmallHint">Ingen note.</p>'}<div class="calendarModalBtns">${ev.holiday?'':`<button id="calEditFromPreview" class="primary">Redigér</button>`}<button id="close">Luk</button></div>`);
+  const snapshotBtn=ev.snapshotWidgetId?`<button id="calSnapshotFromPreview" class="calSnapshotBtn">📸 Vis snapshot</button>`:'';
+  showModal(`<h2>${esc(ev.title||'Aktivitet')}</h2><div class="calendarDetailGrid"><b>Dato</b><span>${esc(dateLabel)}</span>${time?`<b>Tid</b><span>${esc(time)}</span>`:''}${meta?`<b>Info</b><span>${esc(meta)}</span>`:''}${ev.status?`<b>Status</b><span>${esc(ev.status)}</span>`:''}</div>${note?`<div class="calendarNotePreview">${esc(note)}</div>`:'<p class="calendarSmallHint">Ingen note.</p>'}<div class="calendarModalBtns">${snapshotBtn}${ev.holiday?'':`<button id="calEditFromPreview" class="primary">Redigér</button>`}<button id="close">Luk</button></div>`);
   modal.querySelector('#close').onclick=closeModal;
+  const snap=modal.querySelector('#calSnapshotFromPreview');
+  if(snap)snap.onclick=()=>safe407OpenSnapshotWidget(ev.snapshotWidgetId);
   const edit=modal.querySelector('#calEditFromPreview');
   if(edit)edit.onclick=()=>{const real=(w.data.events||[]).find(x=>String(x.id)===String(ev.id))||ev;safe351OpenEventModal(w,real,ev.date||date,el)};
 }
-function safe351OpenEventModal(w,ev,date,el){safe351NormalizeEvents(w);const isNew=!ev;if(ev)safe360CleanEvent(ev);ev=ev||{id:uid(),date:date||safe351TodayISO(),start:'',end:'',title:'',type:'Undervisning',hold:'',place:'',note:'',color:'',status:'planlagt'};const typeOpts=Object.keys(SAFE351_CAL_TYPES).map(t=>`<option ${ev.type===t?'selected':''}>${esc(t)}</option>`).join('');const currentColor=ev.color||SAFE351_CAL_TYPES[ev.type]||'#4f46e5';showModal(`<h2>${isNew?'+ Aktivitet':'Redigér aktivitet'}</h2><div class="calendarFormGrid"><label>Dato<input id="calDate" type="date" value="${esc(ev.date)}"></label><label>Titel<input id="calTitle" value="${esc(ev.title)}" placeholder="Aktivitet"></label><label>Start<input id="calStart" type="time" value="${esc(ev.start)}"></label><label>Slut<input id="calEnd" type="time" value="${esc(ev.end)}"></label><label>Type<select id="calType">${typeOpts}</select></label><label>Hold/klasse<input id="calHold" value="${esc(ev.hold)}"></label><label>Sted<input id="calPlace" value="${esc(ev.place)}"></label><label>Status<select id="calStatus"><option ${ev.status==='planlagt'?'selected':''}>planlagt</option><option ${ev.status==='vigtig'?'selected':''}>vigtig</option><option ${ev.status==='færdig'?'selected':''}>færdig</option><option ${ev.status==='aflyst'?'selected':''}>aflyst</option></select></label><div class="calendarColorRow"><label>Farve<input id="calColor" type="color" value="${esc(currentColor)}"></label><div class="calendarColorPresets" aria-label="Farvevalg">${safe351ColorPresetButtons(currentColor)}</div></div><textarea id="calNote" placeholder="Note">${esc(ev.note)}</textarea></div><div class="calendarModalBtns">${isNew?'':'<button id="calDelete" class="warn">Slet</button>'}<button id="calSave" class="primary">Gem</button><button id="close">Annuller</button></div>`);modal.querySelector('#close').onclick=closeModal;const typeSel=modal.querySelector('#calType'),colorInp=modal.querySelector('#calColor');function refreshPresetActive(){modal.querySelectorAll('.calendarColorPreset').forEach(b=>b.classList.toggle('active',String(b.dataset.color).toLowerCase()===String(colorInp.value).toLowerCase()))}typeSel.onchange=()=>{colorInp.value=SAFE351_CAL_TYPES[typeSel.value]||'#4f46e5';refreshPresetActive()};colorInp.oninput=refreshPresetActive;modal.querySelectorAll('.calendarColorPreset').forEach(btn=>btn.onclick=()=>{colorInp.value=btn.dataset.color||'#4f46e5';refreshPresetActive()});modal.querySelector('#calSave').onclick=()=>{const next={id:ev.id,date:modal.querySelector('#calDate').value||safe351TodayISO(),start:modal.querySelector('#calStart').value||'',end:modal.querySelector('#calEnd').value||'',title:modal.querySelector('#calTitle').value.trim()||'Aktivitet',type:typeSel.value||'Andet',hold:modal.querySelector('#calHold').value.trim(),place:modal.querySelector('#calPlace').value.trim(),note:safe360CleanCalendarText(modal.querySelector('#calNote').value),color:colorInp.value||'',status:modal.querySelector('#calStatus').value||'planlagt'};const i=w.data.events.findIndex(x=>String(x.id)===String(next.id));if(i>=0)w.data.events[i]=next;else w.data.events.push(next);safe362DeduplicateCalendarEvents(w);const d=new Date(next.date+'T12:00:00');w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;closeModal();fillContent(el,w);save();toast('Aktivitet gemt')};const del=modal.querySelector('#calDelete');if(del)del.onclick=()=>{w.data.events=w.data.events.filter(x=>String(x.id)!==String(ev.id));closeModal();fillContent(el,w);save();toast('Aktivitet slettet')};setTimeout(()=>modal.querySelector('#calTitle')?.focus(),50);}
+function safe351OpenEventModal(w,ev,date,el){safe351NormalizeEvents(w);const isNew=!ev;if(ev)safe360CleanEvent(ev);ev=ev||{id:uid(),date:date||safe351TodayISO(),start:'',end:'',title:'',type:'Undervisning',hold:'',place:'',note:'',color:'',status:'planlagt'};const typeOpts=Object.keys(SAFE351_CAL_TYPES).map(t=>`<option ${ev.type===t?'selected':''}>${esc(t)}</option>`).join('');const currentColor=ev.color||SAFE351_CAL_TYPES[ev.type]||'#4f46e5';showModal(`<h2>${isNew?'+ Aktivitet':'Redigér aktivitet'}</h2><div class="calendarFormGrid"><label>Dato<input id="calDate" type="date" value="${esc(ev.date)}"></label><label>Titel<input id="calTitle" value="${esc(ev.title)}" placeholder="Aktivitet"></label><label>Start<input id="calStart" type="time" value="${esc(ev.start)}"></label><label>Slut<input id="calEnd" type="time" value="${esc(ev.end)}"></label><label>Type<select id="calType">${typeOpts}</select></label><label>Hold/klasse<input id="calHold" value="${esc(ev.hold)}"></label><label>Sted<input id="calPlace" value="${esc(ev.place)}"></label><label>Status<select id="calStatus"><option ${ev.status==='planlagt'?'selected':''}>planlagt</option><option ${ev.status==='vigtig'?'selected':''}>vigtig</option><option ${ev.status==='færdig'?'selected':''}>færdig</option><option ${ev.status==='aflyst'?'selected':''}>aflyst</option></select></label><div class="calendarColorRow"><label>Farve<input id="calColor" type="color" value="${esc(currentColor)}"></label><div class="calendarColorPresets" aria-label="Farvevalg">${safe351ColorPresetButtons(currentColor)}</div></div><textarea id="calNote" placeholder="Note">${esc(ev.note)}</textarea></div><div class="calendarModalBtns">${isNew?'':'<button id="calDelete" class="warn">Slet</button>'}<button id="calSave" class="primary">Gem</button><button id="close">Annuller</button></div>`);modal.querySelector('#close').onclick=closeModal;const typeSel=modal.querySelector('#calType'),colorInp=modal.querySelector('#calColor');function refreshPresetActive(){modal.querySelectorAll('.calendarColorPreset').forEach(b=>b.classList.toggle('active',String(b.dataset.color).toLowerCase()===String(colorInp.value).toLowerCase()))}typeSel.onchange=()=>{colorInp.value=SAFE351_CAL_TYPES[typeSel.value]||'#4f46e5';refreshPresetActive()};colorInp.oninput=refreshPresetActive;modal.querySelectorAll('.calendarColorPreset').forEach(btn=>btn.onclick=()=>{colorInp.value=btn.dataset.color||'#4f46e5';refreshPresetActive()});modal.querySelector('#calSave').onclick=()=>{const next={id:ev.id,date:modal.querySelector('#calDate').value||safe351TodayISO(),start:modal.querySelector('#calStart').value||'',end:modal.querySelector('#calEnd').value||'',title:modal.querySelector('#calTitle').value.trim()||'Aktivitet',type:typeSel.value||'Andet',hold:modal.querySelector('#calHold').value.trim(),place:modal.querySelector('#calPlace').value.trim(),note:safe360CleanCalendarText(modal.querySelector('#calNote').value),color:colorInp.value||'',status:modal.querySelector('#calStatus').value||'planlagt',snapshotWidgetId:ev.snapshotWidgetId||'',snapshotSlideIndex:ev.snapshotSlideIndex};const i=w.data.events.findIndex(x=>String(x.id)===String(next.id));if(i>=0)w.data.events[i]=next;else w.data.events.push(next);safe362DeduplicateCalendarEvents(w);const d=new Date(next.date+'T12:00:00');w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;closeModal();fillContent(el,w);save();toast('Aktivitet gemt')};const del=modal.querySelector('#calDelete');if(del)del.onclick=()=>{w.data.events=w.data.events.filter(x=>String(x.id)!==String(ev.id));closeModal();fillContent(el,w);save();toast('Aktivitet slettet')};setTimeout(()=>modal.querySelector('#calTitle')?.focus(),50);}
 function safe351OpenDataPicker(w,el){const datasets=(state.datasets||[]).filter(ds=>Array.isArray(ds.rows)&&ds.rows.length);showModal(`<h2>Hent kalenderdata</h2><p>Vælg en datawidget med kolonner som Dato, Start, Slut, Titel, Type, Hold, Sted, Note, Farve, Status.</p><div class="calendarModalEvents">${datasets.length?datasets.map(ds=>`<button type="button" data-ds="${esc(ds.id)}">📊 ${esc(ds.name||'Datasæt')} <small>· ${(ds.rows||[]).length} rækker</small></button>`).join(''):'<p>Ingen datawidgets med rækker fundet.</p>'}</div><div class="calendarModalBtns"><button id="close">Luk</button></div>`);modal.querySelector('#close').onclick=closeModal;modal.querySelectorAll('[data-ds]').forEach(btn=>btn.onclick=()=>{const ds=findDatasetById(btn.dataset.ds);const evs=safe351EventsFromDataset(ds);if(!evs.length){toast('Ingen kalenderdatoer fundet i datasættet');return}w.data.events=evs;safe362DeduplicateCalendarEvents(w);const d=new Date(w.data.events[0].date+'T12:00:00');w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;w.data.sourceDatasetId=ds.id;w.data.sourceDatasetName=ds.name||'Kalenderdata';closeModal();fillContent(el,w);save();toast('Kalenderdata hentet: '+evs.length+' aktiviteter')});}
 
 function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type;// --- WIDGET: TEXT / DATASET ---
@@ -21569,7 +22110,7 @@ if(w.type==='poll'){
   const interact=c.querySelector('.htmlInteract');
   if(prev)prev.onclick=e=>{e.stopPropagation();setMode('preview')};
   if(edit)edit.onclick=e=>{e.stopPropagation();setMode('edit')};
-  if(dl)dl.onclick=e=>{e.stopPropagation();downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html||''),w.data.name||w.title||'side.html')};
+  if(dl)dl.onclick=e=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html||''),w.data.name||w.title||'side.html')};
   if(interact)interact.onclick=e=>{e.stopPropagation();el.classList.add('htmlInteractive');setIframeControl(w.id,true);toast('HTML-side aktiv. ESC slipper kontrollen.')};
   const iframe=c.querySelector('iframe');
   if(iframe){
@@ -21618,35 +22159,473 @@ if(w.type==='poll'){
 }
 // --- WIDGET: LINK / IFRAME ---
  if(w.type==='link'){
+  w.data=w.data||{};
   const url=normalizeLinkUrl(w.data.url||'');
   const view=w.data.view||'link';
   if(view==='iframe' && (url||w.data.srcdoc)){
+    const zoom=Math.max(0.5,Math.min(3,Number(w.data.zoom||1)));
+    const iframeStyle=`transform:scale(${zoom});transform-origin:0 0;width:${100/zoom}%;height:${100/zoom}%;`;
     const iframeAttr=w.data.srcdoc
       ? `srcdoc="${esc(w.data.srcdoc)}"`
       : `src="${esc(tavleIframeSrc(url,w))}"`;
-    c.innerHTML=`<div class="linkIframeBox">
+    const hint=url?`Hvis siden er tom, nægter den sandsynligvis iframe. Brug ↗ Åbn i ny fane.`:`Indsæt en adresse med ✎.`;
+    c.innerHTML=`<div class="linkIframeBox safe401MiniBrowser" data-zoom="${esc(String(zoom))}">
       <div class="linkIframeFrame">
-        <iframe ${iframeAttr} allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
+        <iframe ${iframeAttr} style="${esc(iframeStyle)}" allow="fullscreen; clipboard-read; clipboard-write; autoplay; encrypted-media" allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
+        <div class="linkIframeFallbackHint">${esc(hint)} <span>${Math.round(zoom*100)}%</span></div>
         <div class="linkIframeShield"></div>
       </div>
     </div>`;
-    const iframe=c.querySelector('iframe');
   }else{
-    c.innerHTML=`<div class="linkBox"><a target="_blank" href="${esc(url||'#')}">${esc(w.data.text||'Klikbart link')}</a></div>`;
+    c.innerHTML=`<div class="linkBox"><a target="_blank" rel="noopener" href="${esc(url||'#')}">${esc(w.data.text||'Klikbart link')}</a><small class="safe401LinkHint">▣ skifter til mini-browser/iframe. Hvis siden blokerer iframe, brug ny fane.</small></div>`;
   }
   c.ondblclick=e=>{if(!canEditWidgets())return;e.preventDefault();e.stopPropagation();select(w.id,{editText:false});askLink(w)};
 }
+
+
+// --- SAFE409: BOARD SHOT RESTORABLE STATE HELPERS ---
+function safe409PruneWidgetDataForBoardState(data){
+  let d;
+  try{d=JSON.parse(JSON.stringify(data||{}));}catch(_e){d={};}
+  try{
+    // Avoid recursive snapshots inside snapshots. The visible image can still keep src,
+    // but restore-state metadata is removed from nested image widgets.
+    delete d.boardState;
+    delete d.restoreState;
+  }catch(_e){}
+  return d;
+}
+function safe409CaptureBoardState(excludeWidgetId){
+  let s=null;
+  try{s=(state&&state.slides&&state.slides[state.active])?state.slides[state.active]:slide();}catch(_e){try{s=slide();}catch(__e){s=null}}
+  if(!s)return null;
+  const widgets=(Array.isArray(s.widgets)?s.widgets:[]).filter(w=>{
+    if(!w)return false;
+    if(String(w.id)===String(excludeWidgetId))return false;
+    try{if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w))return false;}catch(_e){}
+    return true;
+  }).map(w=>({
+    id:String(w.id||''),
+    type:w.type,
+    x:Number(w.x)||0,
+    y:Number(w.y)||0,
+    w:Number(w.w)||520,
+    h:Number(w.h)||320,
+    z:Number(w.z)||1,
+    rotation:Number(w.rotation)||0,
+    locked:!!w.locked,
+    title:w.title||'',
+    data:safe409PruneWidgetDataForBoardState(w.data)
+  }));
+  return {
+    version:'SAFE409-boardshot-state-v1',
+    capturedAt:new Date().toISOString(),
+    sourceSlideTitle:String((typeof safeSlideTitle==='function'?safeSlideTitle(s,state.active):s.title)||'Tavle'),
+    board:{
+      title:String(s.title||'Gendannet tavleshot'),
+      bg:s.bg||'linear-gradient(135deg,#edf6ff,#dff8e8)',
+      bgImage:s.bgImage||'',
+      bgImageSource:s.bgImageSource||'',
+      bgImageTitle:s.bgImageTitle||'',
+      bgImageName:s.bgImageName||'',
+      bgImageVersion:s.bgImageVersion||'',
+      bgFit:s.bgFit||'cover',
+      bgFilter:s.bgFilter||'none',
+      grid:!!s.grid,
+      draw:s.draw||''
+    },
+    widgets
+  };
+}
+function safe409CloneRestoredWidget(w){
+  const nw={
+    id:uid(),
+    type:w.type,
+    x:Number(w.x)||80,
+    y:Number(w.y)||90,
+    w:Number(w.w)||520,
+    h:Number(w.h)||320,
+    z:++z,
+    rotation:Number(w.rotation)||0,
+    locked:!!w.locked,
+    title:w.title||((typeof titles==='object'&&titles&&titles[w.type])?titles[w.type]:w.type||'Widget'),
+    data:safe409PruneWidgetDataForBoardState(w.data)
+  };
+  try{fitWidgetToViewport(nw,{resetRotation:false});}catch(_e){}
+  return nw;
+}
+function safe409RestoreBoardShot(boardState){
+  if(!boardState||!Array.isArray(boardState.widgets)){toast('Tavleshot-state mangler');return;}
+  const b=boardState.board||{};
+  const restored={
+    title:'↩ '+String(boardState.sourceSlideTitle||b.title||'Gendannet tavleshot').slice(0,70),
+    bg:b.bg||'linear-gradient(135deg,#edf6ff,#dff8e8)',
+    bgImage:b.bgImage||'',
+    bgImageSource:b.bgImageSource||'',
+    bgImageTitle:b.bgImageTitle||'',
+    bgImageName:b.bgImageName||'',
+    bgImageVersion:b.bgImageVersion||'',
+    bgFit:b.bgFit||'cover',
+    bgFilter:b.bgFilter||'none',
+    grid:!!b.grid,
+    draw:b.draw||'',
+    widgets:boardState.widgets.map(safe409CloneRestoredWidget)
+  };
+  const slides=(state&&Array.isArray(state.slides))?state.slides:[];
+  let insertAt=slides.length;
+  try{
+    const trashIdx=slides.findIndex(s=>typeof safe134IsTrashSlideForNav==='function'&&safe134IsTrashSlideForNav(s));
+    if(trashIdx>=0)insertAt=trashIdx;
+  }catch(_e){}
+  slides.splice(insertAt,0,restored);
+  state.active=insertAt;
+  selected=null;
+  try{if(window.UIState)window.UIState.selectedWidgetId=null;}catch(_e){}
+  render();
+  save();
+  toast('Tavleshot gendannet som ny tavle med '+restored.widgets.length+' widgets');
+}
+
+// --- SAFE413: BOARDSHOT RESTORE CHOOSER ---
+function safe413WidgetLabelForRestore(w){
+  const iconMap={text:'📝',data:'📊',image:'🖼',pdf:'📄',link:'🔗',iframe:'🌐',wheel:'🎲',random:'🎲',groups:'👥',poll:'📊',vote:'📊',cloud:'☁️',timer:'⏳',calendar:'📅',kahoopardy:'❓',html:'🧩'};
+  const t=String(w&&w.type||'widget');
+  const icon=iconMap[t]||'▣';
+  const title=String((w&&w.title)||((typeof titles==='object'&&titles&&titles[t])?titles[t]:t)||'Widget');
+  return {icon,title,type:t};
+}
+function safe413BuildRestoredSlideFromBoardShot(boardState,opts){
+  opts=opts||{};
+  const b=(boardState&&boardState.board)||{};
+  const selectedMap=opts.selectedMap||{};
+  const useWidgets=Array.isArray(boardState&&boardState.widgets)?boardState.widgets.filter((w,i)=>selectedMap[i]!==false):[];
+  const restored={
+    title:opts.title===false?'↩ Gendannet tavleshot':'↩ '+String(boardState.sourceSlideTitle||b.title||'Gendannet tavleshot').slice(0,70),
+    bg:opts.background===false?'linear-gradient(135deg,#edf6ff,#dff8e8)':(b.bg||'linear-gradient(135deg,#edf6ff,#dff8e8)'),
+    bgImage:opts.background===false?'':(b.bgImage||''),
+    bgImageSource:opts.background===false?'':(b.bgImageSource||''),
+    bgImageTitle:opts.background===false?'':(b.bgImageTitle||''),
+    bgImageName:opts.background===false?'':(b.bgImageName||''),
+    bgImageVersion:opts.background===false?'':(b.bgImageVersion||''),
+    bgFit:opts.background===false?'cover':(b.bgFit||'cover'),
+    bgFilter:opts.background===false?'none':(b.bgFilter||'none'),
+    grid:opts.grid===false?false:!!b.grid,
+    draw:opts.draw===false?'':(b.draw||''),
+    widgets:useWidgets.map(safe409CloneRestoredWidget)
+  };
+  return restored;
+}
+function safe413InsertRestoredBoardShot(boardState,opts){
+  if(!boardState||!Array.isArray(boardState.widgets)){toast('Tavleshot-state mangler');return;}
+  const restored=safe413BuildRestoredSlideFromBoardShot(boardState,opts||{});
+  const slides=(state&&Array.isArray(state.slides))?state.slides:[];
+  let insertAt=slides.length;
+  try{
+    const trashIdx=slides.findIndex(s=>typeof safe134IsTrashSlideForNav==='function'&&safe134IsTrashSlideForNav(s));
+    if(trashIdx>=0)insertAt=trashIdx;
+  }catch(_e){}
+  slides.splice(insertAt,0,restored);
+  state.active=insertAt;
+  selected=null;
+  try{if(window.UIState)window.UIState.selectedWidgetId=null;}catch(_e){}
+  closeModal();
+  render();
+  save();
+  toast('Tavleshot gendannet som ny tavle med '+restored.widgets.length+' widgets');
+}
+function safe413OpenBoardShotRestoreChooser(boardState){
+  if(!boardState||!Array.isArray(boardState.widgets)){toast('Tavleshot-state mangler');return;}
+  const widgets=boardState.widgets||[];
+  const rows=widgets.map((w,i)=>{
+    const info=safe413WidgetLabelForRestore(w);
+    const geom=Math.round(Number(w.x)||0)+','+Math.round(Number(w.y)||0)+' · '+Math.round(Number(w.w)||0)+'×'+Math.round(Number(w.h)||0)+' · '+Math.round(Number(w.rotation)||0)+'°';
+    return `<div class="safe413WidgetRow"><label><input type="checkbox" class="safe413WidgetCheck" data-i="${i}" checked><span>${esc(info.icon+' '+info.title)}</span></label><small>${esc(info.type+' · '+geom)}</small></div>`;
+  }).join('')||'<p>Ingen widgets gemt i dette tavleshot.</p>';
+  const title=String(boardState.sourceSlideTitle||((boardState.board||{}).title)||'Tavleshot');
+  showModal(`<div class="safe413RestoreModal">
+    <h2>↩ Gendan tavleshot</h2>
+    <p>Vælg hvad der skal gendannes på en ny tavle. Den aktuelle tavle overskrives ikke.</p>
+    <div class="safe413RestoreGrid">
+      <section class="safe413RestoreCard">
+        <h3>Tavle</h3>
+        <label><input type="checkbox" id="safe413Title" checked> Tavlens titel <small>${esc(title)}</small></label>
+        <label><input type="checkbox" id="safe413Background" checked> Baggrund og baggrundsfilter</label>
+        <label><input type="checkbox" id="safe413Grid" checked> Grid-indstilling</label>
+        <label><input type="checkbox" id="safe413Draw" checked> Tegninger på tavlen</label>
+      </section>
+      <section class="safe413RestoreCard">
+        <h3>Widgets</h3>
+        <div class="safe413MiniActions"><button id="safe413All" type="button">Vælg alle</button><button id="safe413None" type="button">Vælg ingen</button></div>
+        <div class="safe413WidgetList">${rows}</div>
+      </section>
+    </div>
+    <div class="safe413RestoreActions">
+      <button id="safe413Direct" type="button">↩ Gendan alt direkte</button>
+      <button id="safe413Cancel" type="button" class="danger">Annuller</button>
+      <button id="safe413Do" type="button" class="primary">Gendan valgte</button>
+    </div>
+  </div>`);
+  const q=sel=>modal.querySelector(sel);
+  const checks=()=>Array.from(modal.querySelectorAll('.safe413WidgetCheck'));
+  const setAll=v=>checks().forEach(ch=>{ch.checked=!!v});
+  const collect=()=>{
+    const selectedMap={};
+    checks().forEach(ch=>{selectedMap[Number(ch.dataset.i)]=!!ch.checked;});
+    return {
+      title:!!q('#safe413Title')?.checked,
+      background:!!q('#safe413Background')?.checked,
+      grid:!!q('#safe413Grid')?.checked,
+      draw:!!q('#safe413Draw')?.checked,
+      selectedMap
+    };
+  };
+  const allBtn=q('#safe413All'), noneBtn=q('#safe413None'), cancelBtn=q('#safe413Cancel'), doBtn=q('#safe413Do'), directBtn=q('#safe413Direct');
+  if(allBtn)allBtn.onclick=()=>setAll(true);
+  if(noneBtn)noneBtn.onclick=()=>setAll(false);
+  if(cancelBtn)cancelBtn.onclick=closeModal;
+  if(directBtn)directBtn.onclick=()=>safe413InsertRestoredBoardShot(boardState,{title:true,background:true,grid:true,draw:true,selectedMap:{}});
+  if(doBtn)doBtn.onclick=()=>safe413InsertRestoredBoardShot(boardState,collect());
+}
+
+// --- SAFE408: IMAGE CAMERA / BOARD SHOT HELPERS ---
+function safe408ImageFileName(prefix,ext){
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  return (prefix||'billede')+'-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes())+'.'+(ext||'webp');
+}
+async function safe408CaptureCameraWebP(mode){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Kamera understøttes ikke i denne browser');
+  safe412CleanupCameraPreview();
+  const facing=mode==='selfie'?'user':'environment';
+  let stream=null;
+  let video=null;
+  try{
+    // SAFE412: Do NOT create a visible preview overlay. On iPad/Safari SAFE411
+    // could leave a black preview box visible on load/pageshow. This video is
+    // created only after the user has chosen camera, kept non-visual, and then
+    // removed immediately after the frame is drawn.
+    stream=await navigator.mediaDevices.getUserMedia({
+      audio:false,
+      video:{
+        facingMode:{ideal:facing},
+        width:{ideal:1600},
+        height:{ideal:1200}
+      }
+    });
+    video=document.createElement('video');
+    video.muted=true;
+    video.defaultMuted=true;
+    video.autoplay=true;
+    video.playsInline=true;
+    video.controls=false;
+    video.setAttribute('playsinline','playsinline');
+    video.setAttribute('webkit-playsinline','webkit-playsinline');
+    video.setAttribute('muted','muted');
+    video.setAttribute('autoplay','autoplay');
+    video.setAttribute('disablepictureinpicture','');
+    try{video.disablePictureInPicture=true;}catch(_e){}
+    video.className='safe412CameraCaptureVideo';
+    video.style.cssText='position:fixed;left:-10000px;top:-10000px;width:1px;height:1px;opacity:0;pointer-events:none;';
+    video.srcObject=stream;
+    // Appending after srcObject is more reliable on Safari, but it is never visible.
+    document.body.appendChild(video);
+    try{await video.play();}catch(_e){}
+    await new Promise((resolve,reject)=>{
+      const t=setTimeout(()=>reject(new Error('Kamera timeout')),7000);
+      const done=()=>{
+        if(video.videoWidth||video.readyState>=2){clearTimeout(t);resolve();}
+      };
+      video.onloadedmetadata=done;
+      video.onloadeddata=done;
+      video.oncanplay=done;
+      if(video.videoWidth||video.readyState>=2)done();
+      video.onerror=()=>{clearTimeout(t);reject(new Error('Kamera kunne ikke starte'));};
+    });
+    await new Promise(r=>setTimeout(r,180));
+    const vw=video.videoWidth||1280,vh=video.videoHeight||720;
+    const maxW=1400;
+    const scale=Math.min(1,maxW/vw);
+    const W=Math.max(320,Math.round(vw*scale)),H=Math.max(240,Math.round(vh*scale));
+    const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+    const ctx=canvas.getContext('2d');
+    // SAFE412: mirror selfie directly into the stored image data. This avoids
+    // relying on CSS transform state that did not work reliably in testing.
+    if(mode==='selfie'){
+      ctx.save();
+      ctx.translate(W,0);
+      ctx.scale(-1,1);
+      ctx.drawImage(video,0,0,W,H);
+      ctx.restore();
+    }else{
+      ctx.drawImage(video,0,0,W,H);
+    }
+    try{return canvas.toDataURL('image/webp',0.86)}catch(_e){return canvas.toDataURL('image/jpeg',0.88)}
+  }finally{
+    try{if(video){video.pause();video.srcObject=null;video.remove();}}catch(_e){}
+    try{if(stream)stream.getTracks().forEach(t=>t.stop());}catch(_e){}
+    safe412CleanupCameraPreview();
+  }
+}
+function safe412CleanupCameraPreview(){
+  try{
+    document.querySelectorAll('.safe411CameraInlineCapture,.safe412CameraCaptureVideo').forEach(n=>{
+      try{
+        n.querySelectorAll('video').forEach(v=>{
+          try{if(v.srcObject)v.srcObject.getTracks().forEach(t=>t.stop());}catch(_e){}
+          try{v.pause();v.srcObject=null;}catch(_e){}
+        });
+        if(n.tagName&&n.tagName.toLowerCase()==='video'){
+          try{if(n.srcObject)n.srcObject.getTracks().forEach(t=>t.stop());}catch(_e){}
+          try{n.pause();n.srcObject=null;}catch(_e){}
+        }
+        n.remove();
+      }catch(_e){}
+    });
+  }catch(_e){}
+}
+try{
+  safe412CleanupCameraPreview();
+  window.addEventListener('pageshow',safe412CleanupCameraPreview,{passive:true});
+  document.addEventListener('DOMContentLoaded',safe412CleanupCameraPreview,{once:true});
+}catch(_e){}
+
+async function safe408CaptureBoardIntoImage(w,el){
+  const boardState=(typeof safe409CaptureBoardState==='function')?safe409CaptureBoardState(w&&w.id):null;
+  const dataUrl=(typeof safe407CaptureBoardWebP==='function')
+    ? await safe407CaptureBoardWebP(w&&w.id)
+    : (typeof safe407SchematicSnapshotWebP==='function'?safe407SchematicSnapshotWebP(w&&w.id):'');
+  if(!dataUrl)throw new Error('Tavleshot kunne ikke oprettes');
+  w.data=w.data||{};
+  w.data.src=dataUrl;
+  w.data.name=safe408ImageFileName('tavleshot','webp');
+  w.data.source='image-widget-boardshot';
+  delete w.data.mirror;
+  w.data.createdAt=new Date().toISOString();
+  if(boardState)w.data.boardState=boardState;
+  w.title='🖼 Tavleshot '+new Date().toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});
+  fillContent(el,w);save();toast('Tavleshot sat ind i billedwidgetten'+(boardState?' + gendan-state':''));
+}
+async function safe408CaptureCameraIntoImage(w,el,mode){
+  const label=mode==='selfie'?'Selfie':'Front';
+  toast('Åbner kamera…');
+  const dataUrl=await safe408CaptureCameraWebP(mode);
+  w.data=w.data||{};
+  w.data.src=dataUrl;
+  w.data.name=safe408ImageFileName(mode==='selfie'?'selfie':'front','webp');
+  w.data.source=mode==='selfie'?'camera-selfie':'camera-front';
+  // SAFE412: selfie is mirrored into the actual image data, so no CSS mirror flag is needed.
+  delete w.data.mirror;
+  w.data.createdAt=new Date().toISOString();
+  w.title=(mode==='selfie'?'🤳 Selfie ':'📷 Front ')+new Date().toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});
+  fillContent(el,w);save();toast(label+' sat ind i billedwidgetten');
+}
+function safe408OpenImageCameraMenu(w,el){
+  showModal(`<h2>📷 Billede fra kamera/tavle</h2>
+    <p class="safe408CameraNote">Vælg en kilde. Billedet sættes direkte ind i den billedwidget, du har åben.</p>
+    <div class="safe408CameraGrid">
+      <button id="safe408Selfie">🤳<br>Selfie</button>
+      <button id="safe408Front">📷<br>Front</button>
+      <button id="safe408Board">🖼<br>Tavleshot</button>
+    </div>
+    <p class="safe408CameraNote">Kamera kræver browserens tilladelse. Tavleshot er et stiliseret WebP-shot; eksterne iframes/websider vises som placeholder.</p>
+    <button id="close">Annuller</button>`);
+  modal.querySelector('#close').onclick=closeModal;
+  const run=async(kind)=>{
+    try{
+      closeModal();
+      if(kind==='board')await safe408CaptureBoardIntoImage(w,el);
+      else await safe408CaptureCameraIntoImage(w,el,kind);
+    }catch(err){console.warn(err);toast(err&&err.message?err.message:'Kunne ikke oprette billede');}
+  };
+  modal.querySelector('#safe408Selfie').onclick=()=>run('selfie');
+  modal.querySelector('#safe408Front').onclick=()=>run('front');
+  modal.querySelector('#safe408Board').onclick=()=>run('board');
+}
+
+
+// --- SAFE414: BOARDSHOT EXPORT / IMPORT PACKAGE ---
+function safe414BoardShotPackageFromImageWidget(w){
+  const data=(w&&w.data)||{};
+  if(!data.boardState){toast('Denne billedwidget har ikke tavledata');return null;}
+  const preview=String(data.src||'');
+  if(!preview.startsWith('data:image/')){toast('Tavleshot mangler preview-billede');return null;}
+  return {
+    type:'min-undervisningstavle-boardshot',
+    version:1,
+    exportedAt:new Date().toISOString(),
+    name:String(data.name||w.title||'tavleshot'),
+    title:String(w.title||'Tavleshot'),
+    previewWebp:preview,
+    boardState:data.boardState
+  };
+}
+function safe414BoardShotFileName(w){
+  const base=String((w&&w.data&&w.data.name)||w&&w.title||'tavleshot').replace(/\.(webp|png|jpg|jpeg|json)$/i,'');
+  return safeFileName(base,'json').replace(/\.json$/i,'.tavleshot.json');
+}
+function safe414DownloadBoardShotPackage(w){
+  const pkg=safe414BoardShotPackageFromImageWidget(w);
+  if(!pkg)return;
+  safeDownload(safe414BoardShotFileName(w),JSON.stringify(pkg,null,2),'application/json;charset=utf-8');
+  try{toast('Tavleshot eksporteret med billede + tavledata')}catch(_e){}
+}
+function safe414ApplyBoardShotPackageToImageWidget(w,el,pkg,fileName){
+  if(!pkg||pkg.type!=='min-undervisningstavle-boardshot'||!pkg.boardState||!pkg.previewWebp){toast('Filen er ikke en tavleshot-fil');return false;}
+  if(!String(pkg.previewWebp||'').startsWith('data:image/')){toast('Tavleshot-filen mangler preview-billede');return false;}
+  w.data=w.data||{};
+  w.data.src=String(pkg.previewWebp||'');
+  w.data.name=String(pkg.name||fileName||'tavleshot').replace(/\.tavleshot\.json$/i,'.webp');
+  w.data.source='imported-boardshot-package';
+  w.data.boardState=pkg.boardState;
+  w.data.createdAt=pkg.exportedAt||new Date().toISOString();
+  delete w.data.mirror;
+  w.title=String(pkg.title||'🖼 Tavleshot').slice(0,80);
+  fillContent(el,w);
+  save();
+  try{toast('Tavleshot-fil indlæst i billedwidgetten')}catch(_e){}
+  return true;
+}
+function safe414PickBoardShotFile(w,el){
+  const input=document.createElement('input');
+  input.type='file';
+  input.accept='.tavleshot.json,application/json,.json';
+  input.onchange=()=>{
+    const f=input.files&&input.files[0];
+    if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const pkg=JSON.parse(String(r.result||''));
+        safe414ApplyBoardShotPackageToImageWidget(w,el,pkg,f.name||'tavleshot.tavleshot.json');
+      }catch(err){console.warn(err);toast('Kunne ikke læse tavleshot-filen')}
+    };
+    r.onerror=()=>toast('Kunne ikke læse tavleshot-filen');
+    r.readAsText(f,'utf-8');
+  };
+  input.click();
+}
+
 // --- WIDGET: IMAGE ---
  if(w.type==='image'){
   if(w.data.src){
     const embedded=String(w.data.src).startsWith('data:');
-    c.innerHTML=`${embedded?`<div class="mediaActions widget-control"><button class="downloadImg">Download billede</button></div>`:''}<div class="imageFrame"><img src="${esc(w.data.src)}" alt=""></div>`;
+    const restoreBtn=w.data.boardState?`<span class="safe413RestoreButtons"><button class="restoreBoardShot" title="Gendan hele tavleshottet direkte som ny tavle">↩ Gendan alt</button><button class="chooseRestoreBoardShot" title="Vælg titel, baggrund og widgets før gendannelse">⚙ Vælg</button></span>`:'';
+    const mirrorCls=w.data&&w.data.mirror?' safe411MirrorSelfie':'';
+    c.innerHTML=`<div class="mediaActions widget-control"><button class="cameraImg" title="Tag nyt billede eller tavleshot">📷 Kamera</button>${restoreBtn}${embedded?`<button class="downloadImg" title="Åbn fælles downloadpulje">⬇ Download</button>`:''}</div><div class="imageFrame"><img class="${mirrorCls}" src="${esc(w.data.src)}" alt=""></div>`;
+    const cam=c.querySelector('.cameraImg');
+    if(cam)cam.onclick=(e)=>{e.stopPropagation();safe408OpenImageCameraMenu(w,el)};
+    const restore=c.querySelector('.restoreBoardShot');
+    if(restore)restore.onclick=(e)=>{e.stopPropagation();safe409RestoreBoardShot(w.data&&w.data.boardState)};
+    const chooseRestore=c.querySelector('.chooseRestoreBoardShot');
+    if(chooseRestore)chooseRestore.onclick=(e)=>{e.stopPropagation();safe413OpenBoardShotRestoreChooser(w.data&&w.data.boardState)};
     const dl=c.querySelector('.downloadImg');
-    if(dl)dl.onclick=(e)=>{e.stopPropagation();downloadDataUrl(w.data.src,w.data.name||'billede')};
+    if(dl)dl.onclick=(e)=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else downloadDataUrl(w.data.src,w.data.name||'billede')};
   }else{
-    c.innerHTML=`<div class="imageChoice"><button class="localImg">Indsæt billede fra enhed</button><button class="urlImg">Indsæt billede fra URL</button></div>`;
-    c.querySelector('.localImg').onclick=()=>pickFile('image/*',(src,file)=>{w.data.src=src;w.data.name=(file&&file.name)||'billede';fillContent(el,w);save()});
+    c.innerHTML=`<div class="imageChoice"><button class="localImg">Indsæt billede fra enhed</button><button class="urlImg">Indsæt billede fra URL</button><button class="cameraImg">📷 Kamera / tavleshot</button><button class="boardshotFileImg">Indsæt tavleshot-fil</button></div>`;
+    c.querySelector('.localImg').onclick=()=>pickFile('image/*',(src,file)=>{w.data.src=src;w.data.name=(file&&file.name)||'billede';delete w.data.boardState;fillContent(el,w);save()});
     c.querySelector('.urlImg').onclick=()=>askImageUrl(w);
+    c.querySelector('.cameraImg').onclick=(e)=>{e.stopPropagation();safe408OpenImageCameraMenu(w,el)};
+    c.querySelector('.boardshotFileImg').onclick=(e)=>{e.stopPropagation();safe414PickBoardShotFile(w,el)};
   }
 }
 // --- WIDGET: PDF ---
@@ -21657,7 +22636,7 @@ if(w.type==='poll'){
   c.innerHTML=`<div class="pdfControls widget-control">
       <button class="pdfLocal">Vælg lokal PDF</button>
       <button class="pdfUrl">PDF fra URL</button>
-      ${isEmbeddedPdf(src)?'<button class="pdfDownload">Download PDF</button>':''}
+      ${isEmbeddedPdf(src)?'<button class="pdfDownload">Download</button>':''}
       <button class="pdfPrev" title="Forrige side">‹</button>
       <span class="pdfPageLabel">${src?('Side '+page+(pages?' / '+pages:'')):'Side –'}</span>
       <button class="pdfNext" title="Næste side">›</button>
@@ -21678,7 +22657,7 @@ if(w.type==='poll'){
     toast('PDF indlejret i tavlen');
   })};
   const pdfDownload=c.querySelector('.pdfDownload');
-  if(pdfDownload)pdfDownload.onclick=(e)=>{e.stopPropagation();downloadDataUrl(src,w.data.name||'pdf')};
+  if(pdfDownload)pdfDownload.onclick=(e)=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else downloadDataUrl(src,w.data.name||'pdf')};
   const urlBtn=c.querySelector('.pdfUrl');
   if(urlBtn)urlBtn.onclick=(e)=>{
     e.stopPropagation();
@@ -22661,7 +23640,7 @@ function wireWidget(el,w){
   if(downloadHtmlBtn)downloadHtmlBtn.onclick=e=>{
     e.preventDefault();e.stopPropagation();
     w.data=w.data||{};
-    downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html||''),w.data.name||w.title||'side.html');
+    if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html||''),w.data.name||w.title||'side.html');
   };
  const toggleLinkViewBtn=el.querySelector('[data-act=toggleLinkView]');
   if(toggleLinkViewBtn)toggleLinkViewBtn.onclick=e=>{
@@ -22692,6 +23671,30 @@ function wireWidget(el,w){
     activateLinkIframeBtn.classList.toggle('active',!isActive);
     activateLinkIframeBtn.textContent=!isActive?'🖱✓':'🖱';
     activateLinkIframeBtn.title=!isActive?'Lås webside igen':'Lås op for webside-interaktion';
+  };
+
+  const linkZoomOutBtn=el.querySelector('[data-act=linkZoomOut]');
+  if(linkZoomOutBtn)linkZoomOutBtn.onclick=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    if(!canEditWidgets())return;
+    const z=tavleLinkZoom(w,-0.1);
+    save();
+    render();
+    setTimeout(()=>select(w.id,{editText:false}),0);
+    toast('Iframe zoom '+Math.round(z*100)+'%');
+  };
+
+  const linkZoomInBtn=el.querySelector('[data-act=linkZoomIn]');
+  if(linkZoomInBtn)linkZoomInBtn.onclick=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    if(!canEditWidgets())return;
+    const z=tavleLinkZoom(w,0.1);
+    save();
+    render();
+    setTimeout(()=>select(w.id,{editText:false}),0);
+    toast('Iframe zoom '+Math.round(z*100)+'%');
   };
 
   const reloadLinkIframeBtn=el.querySelector('[data-act=reloadLinkIframe]');
@@ -23455,7 +24458,12 @@ function canEditWidgets(){
 function normalizeLinkUrl(url){
   url=String(url||'').trim();
   if(!url)return '';
-  if(!/^https?:\/\//i.test(url))url='https://'+url;
+  // Bevar adresser som allerede er gyldige i browseren.
+  // Inspireret af TiddlyTools Browser: tilføj kun https:// til almindelige domæner.
+  if(/^(https?:|file:|data:|blob:|about:|mailto:|tel:)/i.test(url))return url;
+  if(/^(\.\/|\.\.\/|\/|#)/.test(url))return url;
+  if(/^www\./i.test(url))return 'https://'+url;
+  if(/^[^\s/]+\.[^\s]+/.test(url))return 'https://'+url;
   return url;
 }
 function askLink(w){
@@ -24309,7 +25317,11 @@ function collectEmbeddedMedia(){
       }
       (sl.widgets||[]).forEach((w,wi)=>{
         if(w.type==='image'&&w.data&&String(w.data.src||'').startsWith('data:')){
-          items.push({type:'Billede',slide:slideName,name:w.data.name||`tavle-${si+1}-billede-${wi+1}`,src:w.data.src});
+          const imgItem={type:(w.data.boardState?'Tavleshot billede':'Billede'),slide:slideName,name:w.data.name||`tavle-${si+1}-billede-${wi+1}`,src:w.data.src};
+          if(w.data.boardState){
+            try{imgItem.boardShotPackage={type:'min-undervisningstavle-boardshot',version:1,exportedAt:new Date().toISOString(),name:String(w.data.name||w.title||'tavleshot'),title:String(w.title||'Tavleshot'),previewWebp:String(w.data.src||''),boardState:w.data.boardState};}catch(_e){}
+          }
+          items.push(imgItem);
         }
         if(w.type==='pdf'&&w.data&&String(w.data.src||w.data.url||'').startsWith('data:')){
           items.push({type:'PDF',slide:slideName,name:w.data.name||`tavle-${si+1}-pdf-${wi+1}`,src:w.data.src||w.data.url});
@@ -24352,16 +25364,28 @@ function downloadAllEmbeddedMedia(){
         <b>${i+1}. ${esc(it.filename)}</b>
         <small>${esc(it.label)} · ${esc(it.slide||'Tavle')}</small>
       </div>
-      <button class="mediaDownloadBtn" data-i="${i}">Hent fil</button>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+        <button class="mediaDownloadBtn" data-i="${i}">${it.boardShotPackage?'Kun billede':'Hent fil'}</button>
+        ${it.boardShotPackage?`<button class="mediaDownloadBoardShotBtn" data-i="${i}">Billede + tavledata</button>`:''}
+      </div>
     </div>`).join('');
   showModal(`<h2>Download data og medier</h2>
-    <p>Hent datawidgets, tekstlister og indlejrede filer én ad gangen. På iPad kan lokale data:/Quine-filer stadig blokere download; GitHub Pages er normalt mere stabilt.</p>
+    <p>Fælles downloadpulje for datawidgets, tekstlister og indlejrede filer. Downloadknapper i widgets åbner også denne pulje. Tavleshots kan eksporteres enten som kun billede eller som billede + tavledata. På iPad kan lokale data:/Quine-filer stadig blokere download; GitHub Pages er normalt mere stabilt.</p>
     <div class="mediaDownloadList">${rows}</div>
     <button id="closeMediaDownloads">Luk</button>`);
   modal.querySelectorAll('.mediaDownloadBtn').forEach(btn=>{
     btn.onclick=()=>{
       const it=items[Number(btn.dataset.i)];
       if(it&&it.src)downloadDataUrl(it.src,it.filename||it.name||'download');
+    };
+  });
+  modal.querySelectorAll('.mediaDownloadBoardShotBtn').forEach(btn=>{
+    btn.onclick=()=>{
+      const it=items[Number(btn.dataset.i)];
+      if(!it||!it.boardShotPackage){toast('Tavledata mangler');return;}
+      const base=String(it.name||it.filename||'tavleshot').replace(/\.(webp|png|jpg|jpeg|json)$/i,'');
+      const filename=safeFileName(base,'json').replace(/\.json$/i,'.tavleshot.json');
+      safeDownload(filename,JSON.stringify(it.boardShotPackage,null,2),'application/json;charset=utf-8');
     };
   });
   const close=modal.querySelector('#closeMediaDownloads');
@@ -31223,4 +32247,77 @@ body.focus-presentation:not(.focus-maximized) .widget.focusTarget{
   overflow:auto!important;
 }
 </style>
+
+
+<style id="safe402-calendar-week-sticky-allday-css">
+/* SAFE402: Hold heldags/fridøgn synligt sammen med ugedagstitlerne under lodret scroll. */
+.content.calendar .calendarBox[data-view="week"] .calendarWeekCorner,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekHeader{
+  position:sticky!important;
+  top:0!important;
+  z-index:30!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekCorner{
+  left:0!important;
+  z-index:34!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTime.allDay,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekAllDayCell{
+  position:sticky!important;
+  top:var(--safe402-week-all-day-top,46px)!important;
+  z-index:24!important;
+  box-shadow:0 2px 8px rgba(15,23,42,.10)!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTime.allDay{
+  left:0!important;
+  z-index:32!important;
+  background:rgba(226,232,240,.98)!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekAllDayCell{
+  background:rgba(241,245,249,.98)!important;
+  -webkit-backdrop-filter:blur(4px);
+  backdrop-filter:blur(4px);
+}
+/* Tidskolonnerne skal løbe ind under den faste top, ikke lægge sig oven på heldagsrækken. */
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimes,
+.content.calendar .calendarBox[data-view="week"] .calendarWeekDayColumn{
+  z-index:1!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTimedBlock{
+  z-index:2!important;
+}
+</style>
+
+
+<style id="safe403-calendar-week-sticky-existing-allday-css">
+/* SAFE403: sticky kun på heldagsfelter med faktisk indhold.
+   Dage uden heldagsbegivenhed må ikke blive hængende som tomme felter under ugedagstitlen. */
+.content.calendar .calendarBox[data-view="week"] .calendarWeekAllDayCell.emptyAllDay{
+  position:relative!important;
+  top:auto!important;
+  z-index:3!important;
+  box-shadow:none!important;
+  background:rgba(248,250,252,.72)!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekAllDayCell.hasAllDay{
+  position:sticky!important;
+  top:var(--safe402-week-all-day-top,46px)!important;
+  z-index:25!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTime.allDay.noAllDay{
+  position:relative!important;
+  top:auto!important;
+  z-index:3!important;
+  box-shadow:none!important;
+}
+.content.calendar .calendarBox[data-view="week"] .calendarWeekTime.allDay.hasAnyAllDay{
+  position:sticky!important;
+  top:var(--safe402-week-all-day-top,46px)!important;
+  left:0!important;
+  z-index:32!important;
+}
+</style>
+
 </body></html>
