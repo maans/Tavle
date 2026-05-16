@@ -38912,4 +38912,96 @@ body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
   new MutationObserver(function(){ if(menu()) setTimeout(init,0); }).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
+
+
+<script id="safe454c-background-contextmenu-more-only">
+(function(){
+  'use strict';
+  /* SAFE454c — meget forsigtig baggrunds-højreklik.
+     Kun contextmenu på selve tavlebaggrunden åbner Mere.
+     Må ikke ramme widgets, modaler, topbar, toolbar, titel, inputs, iFrames/PDF'er eller tegnetilstand. */
+  function safe454cIsVisible(el){
+    if(!el)return false;
+    try{
+      if(el.hidden)return false;
+      var cs=getComputedStyle(el);
+      return cs.display!=='none' && cs.visibility!=='hidden' && Number(cs.opacity)!==0 && !!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+    }catch(_e){return true;}
+  }
+  function safe454cModalOpen(){
+    try{
+      var mb=document.getElementById('modalBack');
+      if(mb && (mb.classList.contains('show') || safe454cIsVisible(mb))){
+        var cs=getComputedStyle(mb);
+        if(cs.pointerEvents!=='none' && cs.display!=='none' && cs.visibility!=='hidden')return true;
+      }
+    }catch(_e){}
+    return !!document.querySelector('.moreMenu,.moreMenuBackdrop,.moveWidgetDialog,.kpPromptTool:not(.kpPromptHidden)');
+  }
+  function safe454cIsInteractiveOrWidgetTarget(target){
+    if(!target || !target.closest)return true;
+    return !!target.closest([
+      '.widget',
+      '.topbar',
+      '.toolbar',
+      '.toolbarPeek',
+      '.toolbarPinFloat',
+      '.moreMenu',
+      '.moreMenuBackdrop',
+      '.modalBackdrop',
+      '.modal',
+      '.drawPanel',
+      '.focusExit',
+      '.maxEmergencyExit',
+      '.globalClock',
+      '#title',
+      '#hintBar',
+      '#modeBadge',
+      'button',
+      'input',
+      'textarea',
+      'select',
+      'a',
+      'iframe',
+      'embed',
+      'object',
+      '[contenteditable="true"]'
+    ].join(','));
+  }
+  function safe454cIsBoardBackgroundTarget(target){
+    var app=document.getElementById('app');
+    var draw=document.getElementById('draw');
+    return target===app || target===draw;
+  }
+  function safe454cOpenMoreFromBackground(e){
+    var app=document.getElementById('app');
+    if(!app || !e || !e.target)return;
+    if(app.classList.contains('present'))return;
+    if(app.classList.contains('trashBoardActive'))return;
+    if(app.classList.contains('drawActive') || document.body.classList.contains('mode-draw'))return;
+    if(safe454cModalOpen())return;
+    if(!safe454cIsBoardBackgroundTarget(e.target))return;
+    if(safe454cIsInteractiveOrWidgetTarget(e.target))return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    try{
+      if(typeof window.showMoreTools==='function'){
+        window.showMoreTools();
+      }
+    }catch(_e){}
+    return false;
+  }
+  function safe454cInstall(){
+    var app=document.getElementById('app');
+    if(!app || app.__safe454cContextMenuInstalled)return;
+    app.__safe454cContextMenuInstalled=true;
+    app.addEventListener('contextmenu',safe454cOpenMoreFromBackground,false);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',safe454cInstall,{once:true});
+  else safe454cInstall();
+  setTimeout(safe454cInstall,0);
+  setTimeout(safe454cInstall,500);
+})();
+</script>
 </body></html>
