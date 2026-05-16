@@ -16022,6 +16022,8 @@ Aktuelle centrale genveje i denne fil:
       }
       if(e.defaultPrevented) return;
       if(isTyping(e) || modalOpen()) return;
+      // SAFE454a: Når Mere-menuen allerede er åben, skal dens egen tastaturnavigation eje pil/Enter/Space/Esc.
+      if(document.querySelector('.moreMenu')) return;
       if((e.metaKey || e.ctrlKey) && !e.altKey){
         const modKey=normalizeShortcutKey(e);
         const api=window.tavleShortcutAPI||{};
@@ -20998,6 +21000,9 @@ body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
 }
 </style>
 
+
+<!-- SAFE454b: Tavleoverblik-genveje only. Tilføjer S=Tavleshot og G=Gendannelsespunkter inde i Tavleoversigt. Ingen højreklik/UR/modalændringer. -->
+<!-- SAFE454b4: Tavleoverblik S/G bruger nu eksisterende knapper/klikflows i stedet for egen direkte logik. -->
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
   if(t==='pdf')addWidget('pdf',{});
@@ -25525,6 +25530,17 @@ function kahoopardyHandleKeyboard(e){
     if(!isEnter)return;
     const open=safe449a18ActiveModal();
     if(!open)return;
+    // SAFE454b7: Gendannelsespunkter-modal har sin egen lokale Enter/Esc-logik.
+    // Den tidlige KaPardy/modal-Enter-guard må ikke stoppe Enter her,
+    // ellers når tastetrykket aldrig frem til restore-keyhandleren.
+    try{
+      if(open.querySelector && open.querySelector('.safe429RestoreModal,.safe428RestorePointsModal,[data-safe430-card],[data-safe428-card]')){
+        return;
+      }
+      if(open.classList && (open.classList.contains('safe429RestoreModal') || open.classList.contains('safe428RestorePointsModal'))){
+        return;
+      }
+    }catch(_e){}
     const active=document.activeElement;
     // Tekstfelter må beholde Enter lokalt, men eventen må stadig ikke nå KaPardy.
     if(safe449a18IsTextInput(active)){
@@ -28968,6 +28984,13 @@ document.addEventListener('keydown',function(e){
     return;
   }
   if(plain && lower==='t'){
+    try{
+      const boardOverviewOpen = modalBack && modalBack.style && modalBack.style.display==='flex' && modal && modal.querySelector && modal.querySelector('.safe271BoardOverview');
+      if(boardOverviewOpen){
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        return false;
+      }
+    }catch(_e){}
     e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
     openTrashBoard();
     return false;
@@ -31939,7 +31962,27 @@ function safe430OpenAllRestorePointsModal(opts){
     if(!points.length){
       showModal(`<div class="safe428RestorePointsModal safe429RestoreModal"><h2>↩ Gendannelsespunkter</h2><div class="safe430RestoreEmpty">Der er endnu ingen gendannelsespunkter. Brug 📸 Tavleshot i Tavleoversigt for at gemme den aktuelle tavle.</div><div class="safe429RestoreFooter"><span></span><button type="button" id="safe430CloseRestorePoints">Luk</button></div></div>`);
       const close=modal.querySelector('#safe430CloseRestorePoints');
-      if(close)close.onclick=()=>{closeModal();if(returnToOverview)try{safe269BoardOverviewModal();}catch(_e){}};
+      function safe454b3CleanupEmptyRestoreKeys(){
+        try{document.removeEventListener('keydown',safe454b3EmptyRestoreKeyHandler,true);}catch(_e){}
+      }
+      function safe454b3CloseEmptyRestore(){
+        safe454b3CleanupEmptyRestoreKeys();
+        closeModal();
+        if(returnToOverview)try{safe269BoardOverviewModal();}catch(_e){}
+      }
+      function safe454b3EmptyRestoreKeyHandler(e){
+        try{
+          if(!modalBack || modalBack.style.display!=='flex')return;
+          if(!modal || !modal.querySelector('.safe429RestoreModal .safe430RestoreEmpty'))return;
+          if(e.key==='Escape' || e.key==='Enter'){
+            e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+            safe454b3CloseEmptyRestore();
+            return false;
+          }
+        }catch(_e){}
+      }
+      if(close)close.onclick=safe454b3CloseEmptyRestore;
+      document.addEventListener('keydown',safe454b3EmptyRestoreKeyHandler,true);
       return;
     }
     const initialIndex=Math.max(0,points.findIndex(p=>selectedId&&String(p&&p.id)===selectedId));
@@ -32245,8 +32288,8 @@ function safe269BoardOverviewModal(preferredBoard=null){
       <p>Klik på en tavle for at gå til den.</p>
       <div class="boardOverviewList">${normalHtml}${trashHtml}</div>
       <div class="boardOverviewHint">${isPresentationOverview
-        ? 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · Delete sletter · Esc lukker'
-        : 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · Delete sletter · Cmd/Ctrl+pil flytter · Esc lukker'}</div>
+        ? 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · S = Tavleshot · G = Gendannelsespunkter · Delete sletter · Esc lukker'
+        : 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · S = Tavleshot · G = Gendannelsespunkter · Delete sletter · Cmd/Ctrl+pil flytter · Esc lukker'}</div>
     </div>`);
     const boardItems=Array.from(modal.querySelectorAll('.boardOverviewItem[data-slide-index]'));
     let selectedBoardPos=0;
@@ -32446,6 +32489,27 @@ function safe269BoardOverviewModal(preferredBoard=null){
           return;
         }
 
+        if((key==='s'||key==='S') && !e.metaKey && !e.ctrlKey && !e.altKey){
+          stop();
+          try{
+            activateSelectedBoardInBackground();
+            const btn=modal&&modal.querySelector&&modal.querySelector('#safe429TakeBoardShot');
+            if(btn)btn.click();
+            else safe429CaptureActiveBoardRestorePoint();
+          }catch(_e){ try{toast('Kunne ikke tage tavleshot')}catch(_t){} }
+          return;
+        }
+
+        if((key==='g'||key==='G') && !e.metaKey && !e.ctrlKey && !e.altKey){
+          stop();
+          try{
+            const btn=modal&&modal.querySelector&&modal.querySelector('#safe430OpenRestorePoints');
+            if(btn)btn.click();
+            else safe430OpenAllRestorePointsModal();
+          }catch(_e){ try{toast('Kunne ikke åbne gendannelsespunkter')}catch(_t){} }
+          return;
+        }
+
         if((key==='Delete'||key==='Backspace') && !e.metaKey && !e.ctrlKey && !e.altKey){
           stop();
           const el=freshItems[selectedBoardPos]||freshItems[0];
@@ -32503,6 +32567,31 @@ function safe269BoardOverviewModal(preferredBoard=null){
           render();
           save({silent:true});
         }
+        return;
+      }
+
+      if((key==='s'||key==='S') && !e.metaKey && !e.ctrlKey && !e.altKey){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        try{
+          activateSelectedBoardInBackground();
+          const btn=modal&&modal.querySelector&&modal.querySelector('#safe429TakeBoardShot');
+          if(btn)btn.click();
+          else safe429CaptureActiveBoardRestorePoint();
+        }catch(_e){ try{toast('Kunne ikke tage tavleshot')}catch(_t){} }
+        return;
+      }
+
+      if((key==='g'||key==='G') && !e.metaKey && !e.ctrlKey && !e.altKey){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        try{
+          const btn=modal&&modal.querySelector&&modal.querySelector('#safe430OpenRestorePoints');
+          if(btn)btn.click();
+          else safe430OpenAllRestorePointsModal();
+        }catch(_e){ try{toast('Kunne ikke åbne gendannelsespunkter')}catch(_t){} }
         return;
       }
 
@@ -36238,7 +36327,7 @@ document.addEventListener('click',function(e){
       if(sid&&window.__tavlePermanentDeleteWidget){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.__tavlePermanentDeleteWidget(sid);return false;}
     }
     if(plain&&(e.code==='Space'||key===' ')){
-      if(!document.querySelector('.widget.selected[data-id]')){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();openMore();return false;}
+      if(!document.querySelector('.moreMenu') && !document.querySelector('.widget.selected[data-id]')){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();openMore();return false;}
     }
   },true);
 })();
@@ -36294,7 +36383,7 @@ document.addEventListener('click',function(e){
       e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); rebind(); if(window.__tavleOpenTrashBoard)window.__tavleOpenTrashBoard(); return false;
     }
     if(plain&&(e.code==='Space'||key===' ')){
-      if(!selectedId()&&typeof window.showMoreTools==='function'){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); window.showMoreTools(); return false;}
+      if(!document.querySelector('.moreMenu')&&!selectedId()&&typeof window.showMoreTools==='function'){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); window.showMoreTools(); return false;}
     }
     if(plain&&(key==='Delete'||key==='Backspace')){
       var id=selectedId(); if(id&&window.__trashBoardDelete){e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); rebind(); window.__trashBoardDelete(id); return false;}
@@ -38682,4 +38771,145 @@ body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
 }
 </style>
 
+
+
+<style id="safe454a-more-keyboard-nav-css">
+/* SAFE454a: Tastaturnavigation i Mere-menuen. Kun visuel markering; ingen layoutændring. */
+.moreMenu button.safe454aMoreSelected{
+  outline:4px solid rgba(255,255,255,.92)!important;
+  box-shadow:0 0 0 4px rgba(109,93,252,.72),0 12px 26px rgba(0,0,0,.28)!important;
+  transform:translateY(-1px);
+}
+.moreMenu button.safe454aMoreSelected .txt{
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+</style>
+<script id="safe454a-more-keyboard-nav-script">
+(function(){
+  'use strict';
+  /* SAFE454a — Mere-modal keyboard navigation only.
+     - Space åbner allerede Mere globalt; denne blok ændrer kun adfærden MENS Mere er åben.
+     - Ingen højreklik, ingen Tavleoverblik-genveje, ingen tool-handlere ændres. */
+  var selectedIndex = 0;
+
+  function menu(){ return document.querySelector('.moreMenu'); }
+  function backdrop(){ return document.querySelector('.moreMenuBackdrop'); }
+  function buttons(){
+    var m=menu();
+    return m ? Array.prototype.slice.call(m.querySelectorAll('button[data-more-tool]')) : [];
+  }
+  function isTyping(e){
+    var t=(e&&e.target)||document.activeElement;
+    return !!(t && (
+      (t.matches && t.matches('input,textarea,select,[contenteditable="true"]')) ||
+      t.isContentEditable ||
+      (t.closest && t.closest('input,textarea,select,[contenteditable="true"]'))
+    ));
+  }
+  function closeMenu(){
+    try{ backdrop()&&backdrop().remove(); }catch(_e){}
+    try{ menu()&&menu().remove(); }catch(_e){}
+  }
+  function mark(i){
+    var bs=buttons();
+    if(!bs.length)return false;
+    if(i<0)i=0;
+    if(i>=bs.length)i=bs.length-1;
+    selectedIndex=i;
+    bs.forEach(function(b,n){
+      b.classList.toggle('safe454aMoreSelected',n===selectedIndex);
+      b.setAttribute('tabindex', n===selectedIndex ? '0' : '-1');
+      if(n===selectedIndex){ b.setAttribute('aria-selected','true'); }
+      else { b.removeAttribute('aria-selected'); }
+    });
+    try{ bs[selectedIndex].focus({preventScroll:true}); }catch(_e){}
+    return true;
+  }
+  function init(){
+    var bs=buttons();
+    if(!bs.length)return;
+    bs.forEach(function(b,n){
+      if(b.__safe454aMoreNav)return;
+      b.__safe454aMoreNav=true;
+      b.addEventListener('mouseenter',function(){mark(buttons().indexOf(b));},true);
+      b.addEventListener('pointerdown',function(){mark(buttons().indexOf(b));},true);
+      b.addEventListener('focus',function(){mark(buttons().indexOf(b));},true);
+    });
+    mark(Math.min(selectedIndex,bs.length-1));
+  }
+  function bestByDirection(dir){
+    var bs=buttons();
+    if(!bs.length)return -1;
+    var cur=bs[selectedIndex]||bs[0];
+    var cr=cur.getBoundingClientRect();
+    var cx=cr.left+cr.width/2, cy=cr.top+cr.height/2;
+    var best=-1, bestScore=Infinity;
+    bs.forEach(function(b,i){
+      if(b===cur)return;
+      var r=b.getBoundingClientRect();
+      var x=r.left+r.width/2, y=r.top+r.height/2;
+      var dx=x-cx, dy=y-cy, ok=false, score=Infinity;
+      if(dir==='right' && dx>6){ok=true; score=dx*3+Math.abs(dy);}
+      if(dir==='left' && dx<-6){ok=true; score=(-dx)*3+Math.abs(dy);}
+      if(dir==='down' && dy>6){ok=true; score=dy*3+Math.abs(dx);}
+      if(dir==='up' && dy<-6){ok=true; score=(-dy)*3+Math.abs(dx);}
+      if(ok && score<bestScore){bestScore=score; best=i;}
+    });
+    return best;
+  }
+  function activate(){
+    var bs=buttons();
+    var b=bs[selectedIndex];
+    if(!b)return false;
+    b.click();
+    return true;
+  }
+
+  var originalShow=null;
+  function wrapShowMore(){
+    if(!window.showMoreTools || window.showMoreTools.__safe454aWrapped)return;
+    originalShow=window.showMoreTools;
+    window.showMoreTools=function(){
+      var ret=originalShow.apply(this,arguments);
+      setTimeout(init,0);
+      setTimeout(init,60);
+      return ret;
+    };
+    window.showMoreTools.__safe454aWrapped=true;
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wrapShowMore,{once:true});
+  else wrapShowMore();
+  setTimeout(wrapShowMore,0);
+  setTimeout(wrapShowMore,300);
+
+  document.addEventListener('keydown',function(e){
+    if(!menu())return;
+    if(isTyping(e))return;
+    var plain=!e.metaKey&&!e.ctrlKey&&!e.altKey&&!e.shiftKey;
+    if(!plain)return;
+    var key=String(e.key||'');
+    var handled=false;
+    if(key==='Escape'){ closeMenu(); handled=true; }
+    else if(key==='Enter' || e.code==='Space' || key===' '){ handled=activate(); }
+    else if(key==='ArrowRight'){ var r=bestByDirection('right'); handled=r>=0 && mark(r); }
+    else if(key==='ArrowLeft'){ var l=bestByDirection('left'); handled=l>=0 && mark(l); }
+    else if(key==='ArrowDown'){ var d=bestByDirection('down'); handled=d>=0 && mark(d); }
+    else if(key==='ArrowUp'){ var u=bestByDirection('up'); handled=u>=0 && mark(u); }
+    if(handled){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      return false;
+    }
+  },true);
+
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest&&e.target.closest('.moreMenu button[data-more-tool]');
+    if(b) mark(buttons().indexOf(b));
+  },true);
+
+  new MutationObserver(function(){ if(menu()) setTimeout(init,0); }).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
 </body></html>
