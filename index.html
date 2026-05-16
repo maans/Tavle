@@ -1,4 +1,184 @@
 <!--
+SAFE452e1 GROUPS EMPTY INITIAL WHEEL ONLY
+- Bygger direkte på brugerens uploadede SAFE452d som sidst virkende baseline.
+- Retter kun Grupper-widgettens tomme initialtilstand: gruppehjulet viser ikke længere teksten “Grupper” som falsk deltager, når der ikke er indlæst/koblet en liste.
+- Ingen ændring i knaprække, listeredigering, scroll, + Tilføj, midterknapplacering, gruppealgoritme, LISTE-kobling, Lykkehjulet, KaPardy, Kalender/ICS, baggrund, topbar eller tavlenavigation.
+-->
+<!--
+SAFE452d GROUPS BORROW WHEEL LIST EDITOR LAYOUT ONLY
+- Bygger på SAFE452c.
+- Retter kun Grupper-widgettens layout: resultat-/listeknap i fast topknaprække, scrollende listeredigering efter Lykkehjulets cellelayout, fjernet hjælpetekst, af N på personer-pr-gruppe-linjen og mere robust centrering af Dan-knappen i hjulet.
+- Ingen ændring i gruppealgoritme, låse, LISTE-kobling, Lykkehjulet, KaPardy, Kalender/ICS, baggrund, topbar eller tavlenavigation.
+-->
+<!--
+SAFE452c GROUPS RESULT/LIST BUTTON FIX + SCROLL EDITOR + COUNT ROW + CENTER BUTTON
+- Bygger på SAFE452b.
+- Retter kun Grupper-widgetten: Liste-knap i topknaprækken, scrollende celle-redigering, fjernet hjælpetekst, "af N" ved personer pr. gruppe og mere præcis centrering af Dan-knappen i gruppehjulet.
+- Ingen ændring i gruppealgoritme, låse, Lykkehjulet, KaPardy, Kalender/ICS, baggrund, topbar eller tavlenavigation.
+-->
+<!--
+SAFE452b GROUPS BUTTON ORDER + CELL EDITOR + CENTER BUTTON
+- Bygger på SAFE452a.
+- Retter kun Grupper-widgetten: fast ikonknap-række med Gem/Dan(Liste)/Kilde, Liste-knap i topbjælken ved resultat, navneliste-redigering som celler med + Tilføj, og knappen i gruppehjulet forankres i selve hjulets centrum.
+- Bevarer kobling til datawidget via LISTE, gruppealgoritme, låse og øvrige widgets.
+-->
+<!--
+SAFE452a GROUPS LIKE WHEEL DATA LINK + ICON BUTTONS
+- Bygger på SAFE451h.
+- Grupper får samme koblingsprincip som Lykkehjulet: Hent liste fra datawidget/demoliste kobler som Deltagerliste/Liste via SAFE450 linkedDataSources.
+- Demolister til Grupper oprettes som skjult koblet datawidget og åbnes ikke automatisk; LISTE-linket åbner/skjuler datakilden.
+- Grupper får roligere ikonknapper i stil med Lykkehjulets Kilde/Dan/Gem/Liste.
+- Ingen ændring i gruppealgoritme, låse, spin/stop, Lykkehjulet, KaPardy, Kalender/ICS, baggrund, topbar eller tavlenavigation.
+-->
+<!--
+SAFE451c WHEEL STATS FILL + AUTOSCROLL ONLY
+- Bygger direkte på SAFE451b.
+- Retter kun Lykkehjulets statistikfelt: panelet får lov at fylde resten af højresiden uden tom grå bundkant.
+- Statistiklisten scroller automatisk til rækken for seneste valg, så den sidst udtrukne kan ses.
+- Ingen ændring i spin/stop/Space, kilde-/puljekobling, KaPardy, Kalender/ICS, Grupper, baggrund, topbar eller tavlenavigation.
+-->
+<!--
+SAFE451b WHEEL IMPORT AUTOCOUNT ONLY
+- Bygger direkte på SAFE451a.
+- Retter kun Lykkehjulet: når en liste/pulje indlæses via Kilde, sættes Auto → Antal automatisk til antal importerede valgmuligheder.
+- Antal-feltet forbliver manuelt redigérbart bagefter.
+- Ingen ændring i spin/stop/Space, layout, KaPardy, Kalender/ICS, Grupper, baggrund, topbar eller tavlenavigation.
+-->
+<!--
+SAFE451a WHEEL DEMO POOL DATAWIDGET LINK CONTAINER ONLY
+- Bygger på brugerens uploadede SAFE450v/SAFE450s Lykkehjul-baseline.
+- Retter kun Lykkehjulets demopulje-flow: den oprettede demo-datawidget åbnes straks via den eksisterende linked-data sourceOpen-mekanik.
+- Dermed renderes datawidgetten som midlertidigt åbnet koblet datakilde med 🔗 i topbjælken i stedet for X.
+- Ingen ændring i Lykkehjulets layout, spin/stop/Space, KaPardy, Kalender/ICS, Grupper, baggrund, topbar eller tavlenavigation.
+-->
+<!--
+SAFE451g WHEEL LINK POOL WITHOUT OPENING DATAWIDGET
+- Bygger på SAFE451f.
+- Når Lykkehjulet kobles til en demopulje, oprettes og kobles datawidgetten stadig, men den åbnes ikke automatisk på tavlen.
+- PULJE-linket på Lykkehjulet bruges som bevidst vis/skjul-adgang til den koblede datakilde.
+- Ingen ændring i spin/stop/Space, Auto/Antal, statistiklayout, KaPardy, Kalender/ICS, Grupper, baggrund, topbar eller tavlenavigation.
+-->
+<!--
+SAFE450v WHEEL CONFIRM MODAL GRAPHICS CSS ONLY
+- Bygger på SAFE450u / rollback til SAFE450s.
+- Retter kun Lykkehjulets efter-spin bekræftelsesmodal grafisk.
+- Gør modal-kortet mindre/renere og fjerner den mørke fuldskærmsflade, som gav grafiske rektangler/linjer.
+- Ingen ændring i demopulje-kobling, datawidget-rendering, baggrund, globale knapper, spin-logik, KaPardy, Kalender/ICS eller papirkurv.
+-->
+<!--
+SAFE450s WHEEL DEMO POOL LINK LIVE OWNER FIX
+- Bygger på SAFE450r / rollback til SAFE450p.
+- Retter kun Lykkehjulets demopuljer: når en demoliste oprettes som pulje-datawidget, sættes PULJE-koblingen på den live Lykkehjul-widget efter addDatasetWidget() har re-renderet.
+- Opdaterer den synlige Lykkehjul-DOM direkte uden bred render/select-reassert.
+- Ingen ændring i baggrund, globale knapper, spin/stop/Space, Kilde-flow for almindelige datawidgets, Rediger pulje, Ny pulje, KaPardy eller Kalender/ICS.
+-->
+<!--
+SAFE450p WHEEL DEMO POOL LINKS + EFTERSKOLE CLASS DEMO
+- Bygger på SAFE450o.
+- Lykkehjulets demolister oprettes nu som rigtige pulje-datawidgets og kobles automatisk som PULJE, når de vælges.
+- Tilføjer en Lykkehjulet-demo med typiske efterskolenavne i cirka klassestørrelse.
+- Ingen ændring i spin/stop/Space, Ny pulje, autoskrivning, KaPardy, Kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450o WHEEL EMPTY UNTIL POOL CHOSEN
+- Bygger på SAFE450n.
+- Lykkehjulet får ikke længere en forudfyldt demopulje, når der ikke findes en koblet pulje.
+- Nye Lykkehjul starter med tom pulje og viser derfor kun PULJE-status, indtil brugeren vælger/kobler en kilde eller redigerer puljen.
+- Legacy-standardpuljen Anna/Bertram/Caroline/Emil/Ida ryddes kun, når den ligner en urørt gammel demopulje uden koblet pulje og uden resultater.
+- Ingen ændring i spin/stop/Space, puljekobling, Ny pulje, KaPardy, Kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450n WHEEL ADD OPTION SCROLL INTO VIEW ONLY
+- Bygger på SAFE450m.
+- Retter kun Lykkehjulets Rediger pulje: Når + Tilføj bruges, scrolles det nye felt synligt og får fokus.
+- Ingen ændring i autoskrivning til koblet pulje, Ny pulje, spin/stop/Space, Kilde-flow, KaPardy, Kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450m WHEEL EDIT LINKED POOL AUTOSAVE ONLY
+- Bygger på SAFE450l.
+- Lykkehjulets Rediger pulje autoskriver nu ændringer til den koblede PULJE-datawidget, når en sådan findes.
+- Ingen særskilt Gem ændringer-flow til puljeredigering; Ny pulje bevares som resultat → ny koblet pulje.
+- Ingen ændring i spin/stop/Space, Kilde-flow, Ny pulje-flow, KaPardy, Kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450l WHEEL SAVE RESULT AS NEW LINKED POOL
+- Bygger på SAFE450k.
+- Ændrer kun Lykkehjulets Gem/Ny pulje-knap: resultatlisten gemmes nu som en ny pulje-datawidget og kobles automatisk som PULJE.
+- Den nye pulje bruger de aktuelle valgte/resultater fra w.data.chosen; hvis listen er redigeret før/under resultatet, kommer de navne med, når de findes i resultatlisten.
+- Efter gem indlæses den nye pulje i hjulet ligesom ved Vælg kilde, og resultatlisten nulstilles for den nye runde.
+- Ingen ændring i spin/stop/Space, Vælg kilde-flow, importformat, KaPardy, kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+
+<!--
+SAFE450k WHEEL LINK BAR NEUTRAL ICON STYLE ONLY
+- Bygger på SAFE450j.
+- Ændrer kun Lykkehjulets nederste PULJE-koblingsbjælkes CSS, så den matcher de neutrale ikonknapper.
+- Ingen ændring i link-/koblingsfunktion, spin, stop, Space, import, KaPardy, kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450j WHEEL INACTIVE BUTTONS VISIBLE ONLY
+- Bygger på SAFE450i_wheel_save_button_in_topbar_more_results_space.
+- Retter kun Lykkehjulets ikonknapper, så Kilde/Pulje/Nulstil/Gem ikke skjules, når widgetten ikke er aktiv/valgt i almindelig redigering.
+- Knapperne skjules stadig i præsentation/fokus.
+- Gem er fortsat flyttet op i ikonrækken fra SAFE450i, så resultatfeltet kan bruge mere lodret plads.
+- Ingen ændring i spin/stop/Space, puljekobling, import, KaPardy, kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450i WHEEL SAVE BUTTON IN TOPBAR / MORE RESULT SPACE
+- Bygger på SAFE450h_wheel_icon_buttons_calendar_like_css.
+- Flytter kun Lykkehjulets Gem-knap op i samme ikonknaprække som Kilde, Pulje og Nulstil.
+- Fjerner den nederste Gem-række, så Statistik/resultatfeltet kan bruge mere lodret plads.
+- Bevarer eksisterende classes/handlers: loadList, editNames, resetPool og saveChosenList.
+- Ingen ændring i spin/stop/Space, puljekobling, importformat, KaPardy, kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450g WHEEL ICON BUTTONS ONLY
+- Bygger på SAFE450f_wheel_link_bar_visible_when_inactive_only.
+- Ændrer kun Lykkehjulets synlige handlingsknapper til ikonknapper med title/aria-label: Vælg kilde, Rediger/Luk pulje, Nulstil og Gem.
+- Bevarer eksisterende classes/handlers: loadList, editNames, resetPool og saveChosenList.
+- Ingen ændring i spin/stop/Space, puljekobling, importformat, KaPardy, kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450f WHEEL LINK BAR VISIBLE WHEN INACTIVE ONLY
+- Bygger på SAFE450e_wheel_link_bar_visible_and_gem_button.
+- Retter kun Lykkehjulets nederste PULJE-linkbjælke, så den ikke arver den generelle .widget-control-skjulning på ikke-valgte widgets.
+- PULJE-linkbjælken er fortsat skjult i præsentation/fokus.
+- Ingen ændring i Lykkehjulets spin/stop/Space, Vælg kilde, Rediger pulje, Gem, import, KaPardy, kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450e WHEEL LINK BAR VISIBLE + GEM BUTTON
+- Bygger på SAFE450d_wheel_linked_pool_open_close_consistency.
+- Lykkehjulets nederste PULJE-linkbjælke vises også, når widgetten ikke er aktiv/valgt.
+- PULJE-linkbjælken skjules fortsat i præsentation/fokus sammen med øvrige visningskontroller.
+- Lykkehjulets resultatknap får mindre teknisk tekst: “Gem”.
+- Resultatknappen skjules hårdere i fokus/præsentation.
+- Ingen ændring i spin/stop/Space, puljeindlæsning, importformat, KaPardy, kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450d WHEEL LINKED POOL OPEN/CLOSE CONSISTENCY
+- Bygger på SAFE450c_wheel_choose_pool_sets_link_and_names.
+- Retter kun koblet pulje-adfærd for Lykkehjulet og fælles linked-data registrering.
+- Datawidgetten der åbnes som koblet pulje genkendes nu som midlertidigt åbnet datakilde og får 🔗 i topbjælken i stedet for X.
+- Lykkehjulets PULJE-bjælke bevares som samme toggle: klik åbner/lukker den koblede pulje.
+- Fælles brugerregistrering finder nu også SAFE450 linkedDataSources, ikke kun legacy sourceDatasetId.
+- Ingen ændring i spin, stop, mellemrumstast, puljeindhold, importformat, KaPardy, kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450c WHEEL CHOOSE POOL SETS LINK AND NAMES
+- Bygger på SAFE450b_wheel_linked_pool_status_bar_only.
+- Lykkehjulets Vælg kilde/Vælg pulje kobler nu en valgt datawidget/datakilde som PULJE, når kilden kan spores til en datawidget.
+- Lykkehjulets Gem liste får et genkendeligt standardnavn med Lykkehjul-pulje.
+- Ingen ændring i Lykkehjulets spin/stop, auto, Space, importformat, KaPardy, Kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
+SAFE450b WHEEL LINKED POOL STATUS BAR ONLY
+- Bygger på SAFE450a_linked_data_common_helpers_only.
+- Tilføjer kun Lykkehjulets nederste koblingsbjælke for PULJE.
+- Bjælken viser Ingen koblet pulje eller navnet på koblet datawidget via SAFE450a-helperne.
+- Klik på bjælken toggler kun eksisterende koblet datawidget; ingen ny vælg-modal endnu.
+- Ingen ændring i Lykkehjulets spin/stop, Hent liste-flow, import, puljeforbrug, gem/hent-lister, KaPardy, Kalender/ICS, papirkurv, kamera eller globale genveje.
+-->
+<!--
 SAFE449a35_kapardy_ai_cast_options_titles_trophy_icon
 - KaPardy AI-faser omdøbes til Overrask mig / Kast rammerne / Finjustér.
 - Kast får flere tilfældige valg: antal kategorier, spørgsmål pr. kategori, hold, varighed og point.
@@ -3220,6 +3400,726 @@ body.focus-presentation:not(.focus-maximized) .widget.focusTarget{
 .safe430RestoreAllBtn:disabled{opacity:.45;filter:grayscale(.4);}
 .safe430RestoreEmpty{padding:18px;border-radius:16px;background:#f8fafc;border:1px dashed rgba(15,23,42,.18);font-weight:800;color:#64748b;}
 .safe430RestoreSource{font-size:11px;color:#475569;font-weight:900;}
+
+
+
+/* SAFE450b: Lykkehjulets nederste koblingsbjælke for koblet pulje. */
+.widget[data-type="wheel"] .wheel{
+  grid-template-rows:minmax(0,1fr) auto!important;
+}
+.widget[data-type="wheel"] .wheelLinkedPoolBar{
+  grid-column:1 / -1!important;
+  min-width:0!important;
+}
+.widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus{
+  width:100%!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+  border:1px solid rgba(15,23,42,.14)!important;
+  border-radius:12px!important;
+  background:#f8fafc!important;
+  color:#111827!important;
+  box-shadow:0 1px 4px rgba(15,23,42,.08)!important;
+  padding:7px 10px!important;
+  min-height:34px!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  line-height:1.15!important;
+  cursor:pointer!important;
+  text-align:left!important;
+  box-sizing:border-box!important;
+}
+.widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus.empty{
+  color:#475569!important;
+  background:#f1f5f9!important;
+}
+.widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus.open{
+  background:#eef2ff!important;
+  border-color:#a5b4fc!important;
+  box-shadow:0 0 0 3px rgba(99,102,241,.16),0 1px 4px rgba(15,23,42,.08)!important;
+}
+.widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .linkIcon{
+  flex:0 0 auto!important;
+}
+.widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .label{
+  flex:0 0 auto!important;
+  letter-spacing:.04em!important;
+}
+.widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .name{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  font-weight:850!important;
+}
+.widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus:hover{
+  background:#eef2ff!important;
+  border-color:#c7d2fe!important;
+}
+
+
+/* SAFE450e: PULJE-linket er en status/koblingsbjælke, ikke en almindelig redigeringskontrol.
+   Derfor skal den også kunne ses, når Lykkehjulet ikke er valgt. */
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar.widget-control{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+/* I visning/fokus skal Lykkehjulet være roligt: ingen koblingsbjælke og ingen resultat-gemmeknap. */
+.app.present .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-mode .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-edit .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-presentation .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar,
+.app.present .widget[data-type="wheel"] .saveChosenList,
+body.focus-mode .widget[data-type="wheel"] .saveChosenList,
+body.focus-edit .widget[data-type="wheel"] .saveChosenList,
+body.focus-presentation .widget[data-type="wheel"] .saveChosenList,
+body.focus-maximized .widget[data-type="wheel"] .saveChosenList{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+
+
+/* SAFE450h: Lykkehjulets ikonknapper får roligere, kalenderlignende udtryk.
+   Kun visuel CSS/markup: eksisterende class-navne og handlers bevares. */
+.widget[data-type="wheel"] .wheelIconTopBar{
+  justify-content:flex-end!important;
+  align-items:center!important;
+  gap:10px!important;
+  flex-wrap:wrap!important;
+  margin-bottom:10px!important;
+}
+.widget[data-type="wheel"] .wheelIconBtn{
+  min-width:64px!important;
+  min-height:56px!important;
+  height:auto!important;
+  padding:7px 10px 6px!important;
+  display:inline-flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  border:0!important;
+  border-radius:14px!important;
+  background:#e5e7eb!important;
+  color:#111827!important;
+  box-shadow:0 1px 0 rgba(0,0,0,.10)!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+}
+.widget[data-type="wheel"] .wheelIconBtn:hover{
+  background:#dbeafe!important;
+  filter:none!important;
+}
+.widget[data-type="wheel"] .wheelIconBtn .wheelBtnIcon{
+  display:block!important;
+  font-size:27px!important;
+  line-height:1!important;
+}
+.widget[data-type="wheel"] .wheelIconBtn .wheelBtnText{
+  display:block!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+  letter-spacing:.01em!important;
+}
+.widget[data-type="wheel"] .wheelBottom{
+  display:flex!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  margin-top:10px!important;
+}
+.widget[data-type="wheel"] .saveChosenList.wheelIconBtn{
+  width:auto!important;
+  min-width:70px!important;
+  max-width:none!important;
+  flex:0 0 auto!important;
+  justify-self:start!important;
+}
+
+/* SAFE450i: Gem flyttes op i ikonrækken. Nederste gem-række bruges ikke længere,
+   så statistikfeltet får mere lodret plads i sidepanelet. */
+.widget[data-type="wheel"] .wheelIconTopBar .saveChosenList.wheelIconBtn{
+  display:inline-flex!important;
+}
+.widget[data-type="wheel"] .wheelBottom{
+  display:none!important;
+  margin:0!important;
+  padding:0!important;
+  height:0!important;
+}
+.widget[data-type="wheel"] .wheelSide{
+  grid-template-rows:auto auto auto minmax(0,1fr)!important;
+}
+.widget[data-type="wheel"] .wheelStatsPanel{
+  min-height:0!important;
+  height:auto!important;
+  overflow:auto!important;
+}
+.widget[data-type="wheel"] .wheelResultNow{
+  min-height:auto!important;
+}
+
+@media(max-width:720px){
+  .widget[data-type="wheel"] .wheelIconBtn{
+    min-width:56px!important;
+    min-height:52px!important;
+    padding:6px 8px!important;
+  }
+  .widget[data-type="wheel"] .wheelIconBtn .wheelBtnIcon{font-size:24px!important;}
+  .widget[data-type="wheel"] .wheelIconBtn .wheelBtnText{font-size:10px!important;}
+}
+
+
+/* SAFE452a: Grupper får Lykkehjulet-lignende ikonknapper og LISTE-koblingsbjælke. */
+.widget[data-type="groups"] .groupSpin{
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  place-items:center!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.widget[data-type="groups"] .groupsLinkedListBar{
+  grid-row:2!important;
+  width:100%!important;
+  min-width:0!important;
+  align-self:end!important;
+}
+.widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus{
+  width:100%!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+  border:1px solid rgba(15,23,42,.14)!important;
+  border-radius:12px!important;
+  background:#f8fafc!important;
+  color:#111827!important;
+  box-shadow:0 1px 4px rgba(15,23,42,.08)!important;
+  padding:7px 10px!important;
+  min-height:34px!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  line-height:1.15!important;
+  cursor:pointer!important;
+  text-align:left!important;
+  box-sizing:border-box!important;
+}
+.widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus.empty{color:#475569!important;background:#f1f5f9!important;}
+.widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus.open{background:#eef2ff!important;border-color:#a5b4fc!important;box-shadow:0 0 0 3px rgba(99,102,241,.16),0 1px 4px rgba(15,23,42,.08)!important;}
+.widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus .linkIcon{flex:0 0 auto!important;}
+.widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus .label{flex:0 0 auto!important;letter-spacing:.04em!important;text-transform:uppercase!important;}
+.widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus .name{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-weight:850!important;}
+.widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus:hover{background:#eef2ff!important;border-color:#c7d2fe!important;}
+.widget[data-type="groups"] .groupsIconTopBar{
+  justify-content:flex-end!important;
+  align-items:center!important;
+  gap:10px!important;
+  flex-wrap:wrap!important;
+  margin-bottom:2px!important;
+}
+.widget[data-type="groups"] .groupsIconBtn{
+  min-width:64px!important;
+  min-height:56px!important;
+  height:auto!important;
+  padding:7px 10px 6px!important;
+  display:inline-flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  border:0!important;
+  border-radius:14px!important;
+  background:#e5e7eb!important;
+  color:#111827!important;
+  box-shadow:0 1px 0 rgba(0,0,0,.10)!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+}
+.widget[data-type="groups"] .groupsIconBtn:hover{background:#dbeafe!important;filter:none!important;}
+.widget[data-type="groups"] .groupsIconBtn .groupsBtnIcon{display:block!important;font-size:27px!important;line-height:1!important;}
+.widget[data-type="groups"] .groupsIconBtn .groupsBtnText{display:block!important;font-size:11px!important;line-height:1.05!important;font-weight:950!important;letter-spacing:.01em!important;}
+.widget[data-type="groups"] .groupsSizeRow{justify-content:flex-end!important;}
+.widget[data-type="groups"] .groupsSizeRow label{font-weight:900!important;color:#111827!important;}
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar.widget-control,
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus{display:flex!important;visibility:visible!important;pointer-events:auto!important;}
+.app.present .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-mode .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-edit .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-presentation .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-maximized .widget[data-type="groups"] .groupsLinkedListBar{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+@media(max-width:720px){
+  .widget[data-type="groups"] .groupsIconBtn{min-width:56px!important;min-height:52px!important;padding:6px 8px!important;}
+  .widget[data-type="groups"] .groupsIconBtn .groupsBtnIcon{font-size:24px!important;}
+  .widget[data-type="groups"] .groupsIconBtn .groupsBtnText{font-size:10px!important;}
+}
+
+
+/* SAFE452b: Grupper-knapper, celle-editor og centrering af Dan-knap. */
+.widget[data-type="groups"] .groupSpin{
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  place-items:stretch!important;
+  align-items:stretch!important;
+  gap:10px!important;
+}
+.widget[data-type="groups"] .groupWheelWrap{
+  grid-row:1!important;
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  min-width:0!important;
+  min-height:0!important;
+  width:100%!important;
+  height:100%!important;
+}
+.widget[data-type="groups"] .groupWheelWrap .groupWheel{
+  width:min(100%,56vh)!important;
+  max-height:100%!important;
+  height:auto!important;
+  aspect-ratio:1/1!important;
+  display:block!important;
+}
+.widget[data-type="groups"] .groupWheelWrap .groupSpinBtn{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:2!important;
+}
+.widget[data-type="groups"] .groupsIconTopBar{
+  display:grid!important;
+  grid-template-columns:64px 64px 64px!important;
+  justify-content:end!important;
+  align-items:center!important;
+  gap:10px!important;
+  flex-wrap:nowrap!important;
+}
+.widget[data-type="groups"] .groupsIconTopBar .groupsIconBtn{
+  width:64px!important;
+  min-width:64px!important;
+}
+.widget[data-type="groups"] .groupsControls{
+  grid-template-rows:auto auto minmax(0,1fr)!important;
+}
+.widget[data-type="groups"] .groupsNameEditor{
+  min-height:0!important;
+  height:100%!important;
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr) auto!important;
+  overflow:hidden!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .safe163OptionRows{
+  min-height:0!important;
+  overflow:auto!important;
+  padding-right:4px!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .safe163OptionRow{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 44px!important;
+  gap:8px!important;
+  align-items:center!important;
+  margin:0 0 7px!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .safe163OptionInput{
+  width:100%!important;
+  min-height:44px!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:12px!important;
+  padding:8px 12px!important;
+  font-size:18px!important;
+  font-weight:850!important;
+  box-sizing:border-box!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .groupRemoveName{
+  min-width:44px!important;
+  height:44px!important;
+  border:0!important;
+  border-radius:12px!important;
+  background:#fee2e2!important;
+  color:#991b1b!important;
+  font-size:22px!important;
+  font-weight:950!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .groupAddName{
+  border:0!important;
+  border-radius:12px!important;
+  background:#eef2ff!important;
+  color:#3730a3!important;
+  font-weight:950!important;
+  padding:10px 14px!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .editTools{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  background:#f8fafc!important;
+  border-radius:12px!important;
+  padding:8px!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .editHint{
+  display:flex!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  font-weight:900!important;
+  color:#475569!important;
+  padding:0 2px 8px!important;
+}
+.widget[data-type="groups"] .groupNames{display:none!important;}
+.widget[data-type="groups"] .groupsResultSave{display:none!important;}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResultSave{
+  display:grid!important;
+  grid-row:1!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls{
+  grid-template-rows:auto minmax(0,1fr)!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResult{
+  grid-row:2 / -1!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsShowRow,
+.widget[data-type="groups"] .groupsBox.groupsListHidden .groupsShowRow,
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsShowRow{
+  display:none!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .showGroupList{
+  position:static!important;
+  left:auto!important;
+  bottom:auto!important;
+  z-index:auto!important;
+  opacity:1!important;
+  padding:7px 10px 6px!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden .editOnly{display:none!important;}
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsResult{display:none!important;}
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsResultSave{display:none!important;}
+@media(max-width:720px){
+  .widget[data-type="groups"] .groupsIconTopBar{grid-template-columns:56px 56px 56px!important;gap:8px!important;}
+  .widget[data-type="groups"] .groupsIconTopBar .groupsIconBtn{width:56px!important;min-width:56px!important;}
+}
+
+
+/* SAFE452c: Grupper-layout rettet efter Lykkehjulet.
+   - Liste/Dan-knappen bliver i topknaprækken mellem Gem og Kilde.
+   - Liste-editoren scroller, og + Tilføj bliver synlig nederst.
+   - Hjælpetekster fjernes; antal navne vises på Personer pr. gruppe-linjen. */
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResultSave{
+  display:grid!important;
+  grid-row:1!important;
+  grid-template-columns:64px 64px 64px!important;
+  justify-content:end!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResultSave .showGroupList{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  z-index:auto!important;
+  display:inline-flex!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  width:64px!important;
+  min-width:64px!important;
+}
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsControls{
+  grid-template-rows:auto auto minmax(0,1fr)!important;
+  min-height:0!important;
+}
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsNameEditor{
+  min-height:0!important;
+  height:100%!important;
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  overflow:hidden!important;
+}
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsNameEditor .safe163OptionRows{
+  min-height:0!important;
+  overflow:auto!important;
+  padding:0 4px 8px 0!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .editHint,
+.widget[data-type="groups"] .groupsNameEditor .safe164LiveHint{
+  display:none!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .editTools{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+  padding:8px 0 0!important;
+  background:#fff!important;
+  border-radius:0!important;
+  flex-shrink:0!important;
+}
+.widget[data-type="groups"] .groupsSizeRow{
+  justify-content:flex-end!important;
+  align-items:center!important;
+  gap:10px!important;
+  white-space:nowrap!important;
+}
+.widget[data-type="groups"] .groupsSizeRow label{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:0!important;
+}
+.widget[data-type="groups"] .groupsTotalCount{
+  font-weight:900!important;
+  color:#475569!important;
+}
+.widget[data-type="groups"] .groupWheelWrap .groupSpinBtn{
+  left:var(--safe452c-group-btn-x,50%)!important;
+  top:var(--safe452c-group-btn-y,50%)!important;
+  transform:translate(-50%,-50%)!important;
+}
+@media(max-width:720px){
+  .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResultSave{
+    grid-template-columns:56px 56px 56px!important;
+    gap:8px!important;
+  }
+  .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResultSave .showGroupList{
+    width:56px!important;
+    min-width:56px!important;
+  }
+}
+
+
+
+/* SAFE452d: Grupper låner Lykkehjulets listeredigering og faste knapplacering.
+   Mål: ingen bund-Liste-knap, ingen hjælpetekster, scrolbar navneliste og stabil hjulknap. */
+.widget[data-type="groups"] .groupsBox{
+  min-height:0!important;
+  overflow:hidden!important;
+}
+.widget[data-type="groups"] .groupSpin{
+  min-height:0!important;
+}
+.widget[data-type="groups"] .groupsControls{
+  min-height:0!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+/* I begge tilstande er topknaprækken samme sted og har samme 3 slots: Gem | Dan/Liste | Kilde. */
+.widget[data-type="groups"] .groupsIconTopBar,
+.widget[data-type="groups"] .groupsResultSave.groupsIconTopBar{
+  display:grid!important;
+  grid-template-columns:64px 64px 64px!important;
+  justify-content:end!important;
+  justify-items:stretch!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+  margin:0 0 2px!important;
+}
+.widget[data-type="groups"] .groupsIconTopBar .groupsIconBtn{
+  width:64px!important;
+  min-width:64px!important;
+  max-width:64px!important;
+}
+/* Resultatvisning: den gamle bund-Liste må aldrig dukke op; Liste bor i topknaprækken. */
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResultSave{
+  display:grid!important;
+  grid-row:1!important;
+  grid-template-columns:64px 64px 64px!important;
+  justify-content:end!important;
+  justify-items:stretch!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResultSave .showGroupList{
+  position:static!important;
+  inset:auto!important;
+  display:inline-flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  width:64px!important;
+  min-width:64px!important;
+  max-width:64px!important;
+  padding:7px 10px 6px!important;
+  transform:none!important;
+}
+.widget[data-type="groups"] .groupsShowRow,
+.widget[data-type="groups"] .groupsBox .groupsShowRow,
+.widget[data-type="groups"] .groupsBox.groupsListHidden .groupsShowRow,
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsShowRow{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls{
+  grid-template-rows:auto minmax(0,1fr)!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResult{
+  grid-row:2!important;
+  min-height:0!important;
+  overflow:auto!important;
+}
+/* Listevisning: topbar, antal-linje, og så editoren der fylder resten. */
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsControls{
+  grid-template-rows:auto auto minmax(0,1fr)!important;
+  min-height:0!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsResult,
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsResultSave{
+  display:none!important;
+}
+.widget[data-type="groups"] .groupsSizeRow{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:10px!important;
+  flex-wrap:nowrap!important;
+  white-space:nowrap!important;
+  margin:0!important;
+}
+.widget[data-type="groups"] .groupsSizeRow label{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:0!important;
+  font-weight:900!important;
+}
+.widget[data-type="groups"] .groupsSizeRow .groupSize{
+  width:76px!important;
+  min-width:76px!important;
+}
+.widget[data-type="groups"] .groupsTotalCount{
+  display:inline-flex!important;
+  align-items:center!important;
+  font-weight:900!important;
+  color:#475569!important;
+}
+/* Redigering låner Lykkehjulets model: rounded panel, scrollende rækker, fast + Tilføj nederst. */
+.widget[data-type="groups"] .groupsNameEditor.safe163OptionEditor{
+  min-height:0!important;
+  height:100%!important;
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  overflow:hidden!important;
+  background:#f8fafc!important;
+  border:1px solid #e2e8f0!important;
+  border-radius:14px!important;
+  padding:10px!important;
+  box-sizing:border-box!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .safe163OptionRows,
+.widget[data-type="groups"] .groupsNameEditor .groupOptionRows{
+  min-height:0!important;
+  height:100%!important;
+  overflow:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  padding:0 4px 8px 0!important;
+  box-sizing:border-box!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .safe163OptionRow,
+.widget[data-type="groups"] .groupsNameEditor .groupOptionRow{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 44px!important;
+  gap:8px!important;
+  align-items:center!important;
+  margin:0 0 7px!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .safe163OptionInput,
+.widget[data-type="groups"] .groupsNameEditor .groupOptionInput{
+  width:100%!important;
+  min-height:44px!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:12px!important;
+  padding:8px 12px!important;
+  font-size:18px!important;
+  font-weight:850!important;
+  background:#fff!important;
+  box-sizing:border-box!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .safe163RemoveOption,
+.widget[data-type="groups"] .groupsNameEditor .groupRemoveName{
+  min-width:44px!important;
+  width:44px!important;
+  height:44px!important;
+  border:0!important;
+  border-radius:12px!important;
+  background:#fee2e2!important;
+  color:#991b1b!important;
+  font-size:22px!important;
+  font-weight:950!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .editTools,
+.widget[data-type="groups"] .groupsNameEditor .safe164EditTools{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+  padding:8px 0 0!important;
+  margin:0!important;
+  background:transparent!important;
+  border-radius:0!important;
+  flex-shrink:0!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .groupAddName{
+  border:0!important;
+  border-radius:12px!important;
+  background:#eef2ff!important;
+  color:#3730a3!important;
+  font-weight:950!important;
+  padding:10px 14px!important;
+}
+.widget[data-type="groups"] .groupsNameEditor .editHint,
+.widget[data-type="groups"] .groupsNameEditor .safe164LiveHint,
+.widget[data-type="groups"] .groupsNameEditor .safe452Hint,
+.widget[data-type="groups"] .groupsNameEditor .groupsEditHint{
+  display:none!important;
+}
+/* Robust midterknap: placer efter faktisk canvas-rektangel i stedet for wrapperens højde. */
+.widget[data-type="groups"] .groupWheelWrap .groupSpinBtn{
+  position:absolute!important;
+  left:var(--safe452c-group-btn-x,50%)!important;
+  top:var(--safe452c-group-btn-y,50%)!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:2!important;
+}
+@media(max-width:720px){
+  .widget[data-type="groups"] .groupsIconTopBar,
+  .widget[data-type="groups"] .groupsResultSave.groupsIconTopBar,
+  .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResultSave{
+    grid-template-columns:56px 56px 56px!important;
+    gap:8px!important;
+  }
+  .widget[data-type="groups"] .groupsIconTopBar .groupsIconBtn,
+  .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsResultSave .showGroupList{
+    width:56px!important;
+    min-width:56px!important;
+    max-width:56px!important;
+  }
+}
 
 </style> <style id="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!imp
 - focus-mode: ="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!important;top:0!important;left:0!important}   /* v_focus_zfix: focused widget must stay above all others */ body.focus-edit .widget.focused, body.focus-presentation .widget.focused, .app.
@@ -13605,6 +14505,1310 @@ body.focus-presentation .content.kahoopardy .kahoopardyEditHelp{
   .title#title{max-width:46vw!important;}
 }
 </style>
+
+<style id="safe450j-wheel-inactive-buttons-visible-only">
+/* SAFE450j: Lykkehjulets primære ikonknapper er ikke almindelige skjulte widget-controls.
+   De skal kunne ses og bruges i normal redigering, også når widgetten ikke er valgt. */
+.app:not(.present) .widget[data-type="wheel"] .wheelIconTopBar,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .wheelIconTopBar{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelIconTopBar .wheelIconBtn,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .wheelIconTopBar .wheelIconBtn,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .loadList,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .editNames,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .resetPool,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .saveChosenList{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+/* Gentag den rolige kalenderagtige knapstil sent, så ældre .wheel button-regler ikke maler dem lilla. */
+.app:not(.present) .widget[data-type="wheel"] .wheelIconBtn{
+  min-width:64px!important;
+  min-height:56px!important;
+  padding:7px 10px 6px!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  border:1px solid rgba(15,23,42,.12)!important;
+  border-radius:14px!important;
+  background:#f1f5f9!important;
+  color:#111827!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelIconBtn:hover{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  filter:none!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelIconBtn .wheelBtnIcon{
+  display:block!important;
+  font-size:27px!important;
+  line-height:1!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelIconBtn .wheelBtnText{
+  display:block!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+}
+/* Præsentation/fokus skal fortsat være rene. */
+.app.present .widget[data-type="wheel"] .wheelIconTopBar,
+body.focus-mode .widget[data-type="wheel"] .wheelIconTopBar,
+body.focus-edit .widget[data-type="wheel"] .wheelIconTopBar,
+body.focus-presentation .widget[data-type="wheel"] .wheelIconTopBar,
+body.focus-maximized .widget[data-type="wheel"] .wheelIconTopBar{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="wheel"] .wheelIconBtn{
+    min-width:56px!important;
+    min-height:52px!important;
+    padding:6px 8px!important;
+  }
+}
+</style>
+
+<style id="safe450v-wheel-confirm-graphics-css">
+/* SAFE450v: Lykkehjulets bekræftelsesmodal må ikke tegne en stor mørk rektangelflade.
+   CSS-only patch: ingen ændring i modal-/spin-logik. */
+.modalBackdrop.wheelConfirmBackdrop{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.modalBackdrop.wheelConfirmBackdrop .modal{
+  width:min(430px,calc(100vw - 56px))!important;
+  max-width:430px!important;
+  padding:22px 24px!important;
+  border-radius:18px!important;
+  overflow:visible!important;
+  box-shadow:0 18px 44px rgba(15,23,42,.28)!important;
+}
+.wheelConfirmModal{
+  gap:14px!important;
+}
+.wheelConfirmMessage{
+  font-size:clamp(24px,3vw,34px)!important;
+  line-height:1.12!important;
+  overflow-wrap:anywhere!important;
+}
+.wheelConfirmButtons{
+  justify-content:flex-start!important;
+  gap:10px!important;
+  flex-wrap:wrap!important;
+}
+.wheelConfirmButtons button{
+  max-width:none!important;
+  white-space:nowrap!important;
+}
+.wheelConfirmHelp{
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+</style>
+
+<style id="safe451c-wheel-stats-fill-autoscroll-css">
+/* SAFE451c: Lykkehjulets statistikfelt skal fylde højresiden og scrolle til seneste valg. */
+.content .wheel.safe159Wheel:not(.editing) > .wheelSide,
+.widget[data-type="wheel"] .safe159Wheel:not(.editing) > .wheelSide{
+  display:grid!important;
+  grid-template-rows:auto auto auto minmax(0,1fr)!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  align-content:stretch!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelStatsPanel,
+.widget[data-type="wheel"] .safe159Wheel:not(.editing) .wheelStatsPanel{
+  align-self:stretch!important;
+  min-height:0!important;
+  height:100%!important;
+  max-height:none!important;
+  overflow:auto!important;
+  margin-bottom:0!important;
+  overscroll-behavior:contain!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelStatsPanel .wheelStatRow.latest,
+.widget[data-type="wheel"] .safe159Wheel:not(.editing) .wheelStatsPanel .wheelStatRow.latest{
+  outline:2px solid rgba(37,99,235,.35)!important;
+  outline-offset:1px!important;
+  background:#eff6ff!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelBottom,
+.widget[data-type="wheel"] .safe159Wheel:not(.editing) .wheelBottom{
+  display:none!important;
+  height:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+}
+</style>
+
+
+<style id="safe451e-wheel-stats-right-column-full-height-safe-rollback">
+/* SAFE451e:
+   Bygger på SAFE451c (ikke SAFE451d).
+   Minimal CSS-only rettelse af Lykkehjulets ikke-redigeringslayout:
+   - PULJE-linket ligger kun i venstre kolonne under hjulet.
+   - Højre kolonne spænder over begge rækker, så statistikfeltet kan bruge bunden.
+   - Ingen ændring i JS, spin, kobling, KaPardy, Kalender/ICS eller Grupper. */
+.content .wheel.safe159Wheel:not(.editing),
+.widget[data-type="wheel"] .safe159Wheel:not(.editing){
+  display:grid!important;
+  grid-template-columns:minmax(260px,58%) minmax(220px,42%)!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  gap:12px!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+.content .wheel.safe159Wheel:not(.editing) > .wheelBox,
+.widget[data-type="wheel"] .safe159Wheel:not(.editing) > .wheelBox{
+  grid-column:1!important;
+  grid-row:1!important;
+  min-height:0!important;
+}
+.content .wheel.safe159Wheel:not(.editing) > .wheelLinkedPoolBar,
+.widget[data-type="wheel"] .safe159Wheel:not(.editing) > .wheelLinkedPoolBar{
+  grid-column:1!important;
+  grid-row:2!important;
+  align-self:end!important;
+  min-width:0!important;
+}
+.content .wheel.safe159Wheel:not(.editing) > .wheelSide,
+.widget[data-type="wheel"] .safe159Wheel:not(.editing) > .wheelSide{
+  grid-column:2!important;
+  grid-row:1 / 3!important;
+  display:grid!important;
+  grid-template-rows:auto auto auto minmax(0,1fr)!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  align-content:stretch!important;
+}
+.content .wheel.safe159Wheel:not(.editing) .wheelStatsPanel,
+.widget[data-type="wheel"] .safe159Wheel:not(.editing) .wheelStatsPanel{
+  min-height:0!important;
+  height:100%!important;
+  max-height:none!important;
+  overflow:auto!important;
+  margin-bottom:0!important;
+  align-self:stretch!important;
+}
+@media(max-width:700px){
+  .content .wheel.safe159Wheel:not(.editing),
+  .widget[data-type="wheel"] .safe159Wheel:not(.editing){
+    grid-template-columns:1fr!important;
+    grid-template-rows:minmax(240px,1fr) minmax(0,auto) auto!important;
+  }
+  .content .wheel.safe159Wheel:not(.editing) > .wheelBox,
+  .widget[data-type="wheel"] .safe159Wheel:not(.editing) > .wheelBox{
+    grid-column:1!important;
+    grid-row:1!important;
+  }
+  .content .wheel.safe159Wheel:not(.editing) > .wheelSide,
+  .widget[data-type="wheel"] .safe159Wheel:not(.editing) > .wheelSide{
+    grid-column:1!important;
+    grid-row:2!important;
+    height:auto!important;
+    max-height:45vh!important;
+  }
+  .content .wheel.safe159Wheel:not(.editing) > .wheelLinkedPoolBar,
+  .widget[data-type="wheel"] .safe159Wheel:not(.editing) > .wheelLinkedPoolBar{
+    grid-column:1!important;
+    grid-row:3!important;
+  }
+}
+</style>
+
+
+
+<style id="safe451f-wheel-edit-pool-column-full-height-only">
+/* SAFE451f:
+   Bygger på SAFE451e.
+   Minimal CSS-only rettelse for Lykkehjulets rediger-pulje-visning:
+   - PULJE-linket reserverer kun bundplads i venstre hjulkolonne.
+   - Højre redigeringskolonne spænder ned over link-rækken.
+   - Listefeltet kan derfor bruge hele højden, mens + Tilføj bliver inde i redigeringspanelets bund.
+   - Ingen JS-ændring og ingen ændring i spin, kobling, KaPardy, Kalender/ICS eller Grupper. */
+.content .wheel.safe159Wheel.editing,
+.widget[data-type="wheel"] .safe159Wheel.editing{
+  display:grid!important;
+  grid-template-columns:minmax(280px,.9fr) minmax(340px,1.1fr)!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  gap:12px!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+.content .wheel.safe159Wheel.editing > .wheelBox,
+.widget[data-type="wheel"] .safe159Wheel.editing > .wheelBox{
+  grid-column:1!important;
+  grid-row:1!important;
+  min-height:0!important;
+}
+.content .wheel.safe159Wheel.editing > .wheelLinkedPoolBar,
+.widget[data-type="wheel"] .safe159Wheel.editing > .wheelLinkedPoolBar{
+  grid-column:1!important;
+  grid-row:2!important;
+  align-self:end!important;
+  min-width:0!important;
+}
+.content .wheel.safe159Wheel.editing > .wheelSide,
+.widget[data-type="wheel"] .safe159Wheel.editing > .wheelSide{
+  grid-column:2!important;
+  grid-row:1 / 3!important;
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  align-content:stretch!important;
+}
+.content .wheel.safe159Wheel.editing .editArea.safe159EditArea.safe163OptionEditor,
+.widget[data-type="wheel"] .safe159Wheel.editing .editArea.safe159EditArea.safe163OptionEditor{
+  min-height:0!important;
+  height:100%!important;
+  overflow:hidden!important;
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr) auto!important;
+}
+.content .wheel.safe159Wheel.editing .safe163OptionRows,
+.widget[data-type="wheel"] .safe159Wheel.editing .safe163OptionRows{
+  min-height:0!important;
+  height:100%!important;
+  overflow:auto!important;
+  overscroll-behavior:contain!important;
+}
+.content .wheel.safe159Wheel.editing .editTools.safe164EditTools,
+.widget[data-type="wheel"] .safe159Wheel.editing .editTools.safe164EditTools{
+  flex:0 0 auto!important;
+  margin-top:0!important;
+  align-self:stretch!important;
+}
+@media(max-width:700px){
+  .content .wheel.safe159Wheel.editing,
+  .widget[data-type="wheel"] .safe159Wheel.editing{
+    grid-template-columns:1fr!important;
+    grid-template-rows:minmax(240px,1fr) minmax(0,auto) auto!important;
+  }
+  .content .wheel.safe159Wheel.editing > .wheelBox,
+  .widget[data-type="wheel"] .safe159Wheel.editing > .wheelBox{
+    grid-column:1!important;
+    grid-row:1!important;
+  }
+  .content .wheel.safe159Wheel.editing > .wheelSide,
+  .widget[data-type="wheel"] .safe159Wheel.editing > .wheelSide{
+    grid-column:1!important;
+    grid-row:2!important;
+    height:auto!important;
+    max-height:45vh!important;
+  }
+  .content .wheel.safe159Wheel.editing > .wheelLinkedPoolBar,
+  .widget[data-type="wheel"] .safe159Wheel.editing > .wheelLinkedPoolBar{
+    grid-column:1!important;
+    grid-row:3!important;
+  }
+}
+</style>
+
+
+
+<!--
+SAFE452e2c GROUPS BUTTON ROW ONLY
+- Bygger direkte på SAFE452e1b.
+- Retter kun Grupper-widgettens knaprække i Fase 2.
+- Listevisning: Gem – Dan – Kilde. Resultatvisning: Gem – Liste – Kilde.
+- Skjuler den gamle bund-Liste-række defensivt og holder topknapperne inden for widgetten.
+- Ingen ændring i Lykkehjulet, listeeditor, scroll, + Tilføj, midterknap, gruppealgoritme, LISTE-kobling eller øvrige widgets.
+-->
+<style id="safe452e2c-groups-button-row-only">
+/* SAFE452e2c: præcis sen override kun for Grupper-knaprækken.
+   Kortlægning: markup har allerede to topbars:
+   - .groupsResultSave.groupsIconTopBar = Gem | Liste | Kilde i resultatvisning
+   - .groupsIconTopBar.editOnly = Gem | Dan | Kilde i listevisning
+   Ældre CSS længere oppe placerer .showGroupList absolut i bunden; derfor nulstilles kun den konkrete topknap
+   og den gamle .groupsShowRow skjules. */
+.widget[data-type="groups"] .groupsBox .groupsShowRow{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+.widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,64px))!important;
+  justify-content:end!important;
+  justify-items:stretch!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:min(100%,212px)!important;
+  max-width:100%!important;
+  margin-left:auto!important;
+  margin-right:0!important;
+  overflow:visible!important;
+}
+.widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly > .groupsIconBtn,
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .groupsIconBtn{
+  width:100%!important;
+  min-width:0!important;
+  max-width:64px!important;
+  box-sizing:border-box!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .showGroupList{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  display:inline-flex!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  z-index:auto!important;
+}
+.widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsControls > .groupsResultSave.groupsIconTopBar{
+  display:none!important;
+}
+.widget[data-type="groups"] .groupsBox.groupsListHidden .groupsControls > .groupsIconTopBar.editOnly{
+  display:none!important;
+}
+@media(max-width:720px){
+  .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+  .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+    grid-template-columns:repeat(3,minmax(0,56px))!important;
+    gap:8px!important;
+    width:min(100%,184px)!important;
+  }
+  .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly > .groupsIconBtn,
+  .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .groupsIconBtn{
+    max-width:56px!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2d-groups-button-row-position-only">
+/* SAFE452e2d: kun finjustering af placeringen af Grupper-topknapperne.
+   Bevarer rækkefølge, handlers og skjulingen af den gamle bund-Liste-knap fra SAFE452e2c.
+   Målet er en roligere placering inspireret af Lykkehjulets knapgruppe: samlet i en lille klynge,
+   men ikke skubbet helt ud mod højre kant. */
+.widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  justify-content:start!important;
+  justify-items:start!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin-left:0!important;
+  margin-right:auto!important;
+  padding-left:2px!important;
+}
+.widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly > .groupsIconBtn,
+.widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .groupsIconBtn{
+  justify-self:start!important;
+}
+@media(max-width:720px){
+  .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+  .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+    width:max-content!important;
+    padding-left:0!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2e-groups-button-style-like-wheel">
+/* SAFE452e2e: kun visuel tilpasning af Grupper-topknapperne,
+   så de får samme rolige kort-knapstil som Lykkehjulet.
+   Ingen ændring i rækkefølge, placering, handlers eller funktion. */
+.app:not(.present) .widget[data-type="groups"] .groupsIconBtn{
+  border:1px solid rgba(15,23,42,.12)!important;
+  border-radius:14px!important;
+  background:#f1f5f9!important;
+  color:#111827!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsIconBtn:hover{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  filter:none!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsIconBtn .groupsBtnIcon{
+  display:block!important;
+  font-size:27px!important;
+  line-height:1!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsIconBtn .groupsBtnText{
+  display:block!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+}
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .groupsIconBtn{
+    min-width:56px!important;
+    min-height:52px!important;
+    padding:6px 8px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .groupsIconBtn .groupsBtnIcon{font-size:24px!important;}
+  .app:not(.present) .widget[data-type="groups"] .groupsIconBtn .groupsBtnText{font-size:10px!important;}
+}
+</style>
+
+
+<style id="safe452e2f-groups-save-button-tune-only">
+/* SAFE452e2f: kun finjustering af Gem-knappen i Grupper.
+   Problem: floppy-ikonet fylder optisk mere end de andre ikoner og får teksten til at sidde mindre pænt.
+   Løsning: kun Gem-knappen får en lidt mindre ikonstørrelse og roligere lodret balance. */
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+  padding-top:6px!important;
+  padding-bottom:8px!important;
+  gap:2px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnIcon{
+  font-size:24px!important;
+  line-height:1!important;
+  transform:translateY(-1px)!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnText{
+  line-height:1!important;
+  transform:translateY(-1px)!important;
+}
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnIcon{
+    font-size:22px!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2g-groups-save-label-gap-only">
+/* SAFE452e2g: kun mikrofiksering af Grupper-topknapperne.
+   1) lidt mere luft mellem ikon og tekst som på Lykkehjulet
+   2) Gem omdøbes visuelt til "Nyt hold"
+   3) save-knappen får lidt mindre ikon og lidt mere rolig balance */
+.app:not(.present) .widget[data-type="groups"] .groupsIconBtn{
+  gap:4px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+  min-width:68px!important;
+  padding-top:6px!important;
+  padding-bottom:7px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnIcon{
+  font-size:22px!important;
+  line-height:1!important;
+  transform:none!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnText{
+  font-size:10px!important;
+  line-height:1.05!important;
+  letter-spacing:0!important;
+  transform:none!important;
+}
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+    min-width:62px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnIcon{
+    font-size:20px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnText{
+    font-size:9px!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2h-groups-save-label-list-match">
+/* SAFE452e2h: kun finjustering af Grupper-topknapperne.
+   - "Nyt hold" ændres til "Gem grupper" (mere præcis funktion)
+   - Liste-knappen får samme rolige stack/balance som de andre
+   - Gem grupper får lidt mere luft til ikonet og lidt bredere felt til 2-linjers label
+   Ingen ændring i handlers eller funktion. */
+.app:not(.present) .widget[data-type="groups"] .groupsIconBtn{
+  gap:5px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsIconBtn .groupsBtnText{
+  display:block!important;
+  text-align:center!important;
+  white-space:normal!important;
+}
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn{
+  min-width:64px!important;
+  padding-top:7px!important;
+  padding-bottom:7px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnIcon{
+  font-size:22px!important;
+  line-height:1!important;
+}
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnText{
+  font-size:10px!important;
+  line-height:1.05!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+  min-width:78px!important;
+  padding-top:7px!important;
+  padding-bottom:7px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnIcon{
+  font-size:22px!important;
+  line-height:1!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnText{
+  font-size:10px!important;
+  line-height:1.05!important;
+  max-width:62px!important;
+}
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .groupsIconBtn{gap:4px!important;}
+  .app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn{min-width:60px!important;}
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{min-width:72px!important;}
+  .app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnIcon,
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnIcon{font-size:20px!important;}
+  .app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnText,
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnText{font-size:9px!important;}
+}
+</style>
+
+
+<style id="safe452e2i-groups-save-singleline-link-visible">
+/* SAFE452e2i: små målrettede Grupper-forbedringer.
+   1) "Gem grupper" holdes på én linje i en bredere knap
+   2) koblingsbjælken styles som Lykkehjulets nederste linkknap
+   3) topknapper + koblingsbjælke forbliver synlige, også når widgetten ikke er valgt
+   Ingen ændring i handlers, algoritme eller listekobling. */
+
+/* 1) Bredere 1-linjers Gem grupper-knap, uden ekstra højde */
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  grid-template-columns:92px 64px 64px!important;
+  width:max-content!important;
+  max-width:100%!important;
+  gap:10px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+  min-width:92px!important;
+  max-width:92px!important;
+  min-height:56px!important;
+  padding:7px 12px 6px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnText{
+  white-space:nowrap!important;
+  font-size:10px!important;
+  line-height:1.05!important;
+  max-width:none!important;
+}
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn{
+  min-width:64px!important;
+  max-width:64px!important;
+}
+
+/* Liste-knappen skal bruge samme vertikale rytme som de andre ikonknapper */
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnIcon,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn .groupsBtnIcon,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn .groupsBtnIcon,
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnIcon{
+  font-size:24px!important;
+  line-height:1!important;
+}
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnText,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn .groupsBtnText,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn .groupsBtnText,
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnText{
+  display:block!important;
+  text-align:center!important;
+}
+
+/* 2) Koblingsbjælke som Lykkehjulets rolige nederste linkknap */
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar,
+.app:not(.present) .widget[data-type="groups"]:not(.selected) .groupsLinkedListBar,
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar.widget-control{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus,
+.app:not(.present) .widget[data-type="groups"]:not(.selected) .groupsLinkedListBar .safe450LinkedDataStatus{
+  width:auto!important;
+  max-width:min(360px,100%)!important;
+  min-height:52px!important;
+  margin:0!important;
+  padding:7px 12px!important;
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:7px!important;
+  border:1px solid rgba(15,23,42,.12)!important;
+  border-radius:14px!important;
+  background:#f1f5f9!important;
+  background-image:none!important;
+  color:#111827!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+  text-align:left!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus.empty{
+  background:#f1f5f9!important;
+  color:#111827!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus.open{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus:hover{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  filter:none!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus .linkIcon{
+  font-size:24px!important;
+  line-height:1!important;
+  flex:0 0 auto!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus .label{
+  font-size:11px!important;
+  line-height:1.05!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  flex:0 0 auto!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus .name{
+  min-width:0!important;
+  max-width:240px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+  font-weight:900!important;
+}
+
+/* 3) Grupper-topknapper skal være synlige som på Lykkehjulet, også når widgetten ikke er valgt */
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+.app:not(.present) .widget[data-type="groups"]:not(.selected) .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar,
+.app:not(.present) .widget[data-type="groups"]:not(.selected) .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"]:not(.selected) .groupsIconBtn{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+/* Ryd præsentation/fokus */
+.app.present .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-mode .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-edit .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-presentation .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-maximized .widget[data-type="groups"] .groupsLinkedListBar,
+.app.present .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+body.focus-mode .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+body.focus-edit .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+body.focus-presentation .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+body.focus-maximized .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+.app.present .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar,
+body.focus-mode .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar,
+body.focus-edit .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar,
+body.focus-presentation .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar,
+body.focus-maximized .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+  .app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+    grid-template-columns:84px 56px 56px!important;
+    gap:8px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+    min-width:84px!important;
+    max-width:84px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn{
+    min-width:56px!important;
+    max-width:56px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .groupsLinkedListBar .safe450LinkedDataStatus{
+    min-height:48px!important;
+    padding:6px 10px!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2j-groups-top-buttons-column-fix">
+/* SAFE452e2j: kun korrektion af Grupper-topknappernes interne layout.
+   Problemet i SAFE452e2i var, at topknap-teksterne kunne havne ved siden af ikonet.
+   Her tvinges topknapperne tilbage til Lykkehjulets lodrette ikon-over-tekst-udtryk.
+   Nederste LISTE-kobling røres ikke, da den nu ser rigtig ud. */
+
+/* Bevar bred Gem grupper-knap, men med lodret stack som i Lykkehjulet */
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  grid-template-columns:104px 64px 64px!important;
+  width:max-content!important;
+  max-width:100%!important;
+  gap:10px!important;
+}
+
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly > .groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .groupsIconBtn{
+  display:inline-flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  gap:4px!important;
+  line-height:1.05!important;
+}
+
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+  min-width:104px!important;
+  max-width:104px!important;
+  width:104px!important;
+  min-height:56px!important;
+  padding:7px 12px 6px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnIcon{
+  display:block!important;
+  font-size:22px!important;
+  line-height:1!important;
+}
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnText{
+  display:block!important;
+  white-space:nowrap!important;
+  font-size:10px!important;
+  line-height:1.05!important;
+  max-width:none!important;
+}
+
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn{
+  min-width:64px!important;
+  max-width:64px!important;
+  width:64px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnIcon,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn .groupsBtnIcon,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn .groupsBtnIcon{
+  display:block!important;
+  font-size:24px!important;
+  line-height:1!important;
+}
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnText,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn .groupsBtnText,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn .groupsBtnText{
+  display:block!important;
+  white-space:nowrap!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+}
+
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+  .app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+    grid-template-columns:96px 56px 56px!important;
+    gap:8px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+    min-width:96px!important;
+    max-width:96px!important;
+    width:96px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn{
+    min-width:56px!important;
+    max-width:56px!important;
+    width:56px!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2k-groups-topbar-symmetry-only">
+/* SAFE452e2k: kun symmetri/visning af Grupper-topknapper.
+   Problem i SAFE452e2j:
+   - optisk ekstra mellemrum mellem 1. og 2. knap
+   - i resultatvisning kunne begge topbarrer blive synlige samtidig
+   Løsning:
+   - brug flex i stedet for 3-spors grid, så afstanden måles mellem knapkanter
+   - behold Gem grupper lidt bredere, men ikke så bred som før
+   - vis kun den relevante topbar i hver tilstand */
+
+/* Kun én topbar ad gangen */
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsControls > .groupsIconTopBar.editOnly{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsControls > .groupsResultSave.groupsIconTopBar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsIconTopBar.editOnly{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+/* Ensartet, optisk symmetrisk række som i Lykkehjulet */
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  justify-content:flex-start!important;
+  align-items:flex-start!important;
+  gap:10px!important;
+  width:max-content!important;
+  max-width:100%!important;
+}
+
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly > .groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .groupsIconBtn{
+  flex:0 0 auto!important;
+}
+
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+  width:98px!important;
+  min-width:98px!important;
+  max-width:98px!important;
+}
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn{
+  width:64px!important;
+  min-width:64px!important;
+  max-width:64px!important;
+}
+
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+  .app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+    gap:8px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn{
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn{
+    width:56px!important;
+    min-width:56px!important;
+    max-width:56px!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2l-groups-equal-top-button-sizes">
+/* SAFE452e2l: kun ensretning af størrelsen på Grupper-topknapperne.
+   Mål:
+   - Dan og Kilde skal opleves lige så store som Gem grupper og Liste
+   - samme knapbredde i både listevisning og resultatvisning
+   - ingen ændring i handlers, rækkefølge eller andre widgets */
+
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn{
+  width:92px!important;
+  min-width:92px!important;
+  max-width:92px!important;
+  min-height:56px!important;
+  padding:7px 10px 6px!important;
+}
+
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnIcon,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn .groupsBtnIcon,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn .groupsBtnIcon{
+  font-size:24px!important;
+  line-height:1!important;
+}
+
+.app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn .groupsBtnText,
+.app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn .groupsBtnText,
+.app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn .groupsBtnText,
+.app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn .groupsBtnText{
+  font-size:10px!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+}
+
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .saveGroupList.groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .showGroupList.groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .toGroups.groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .loadGroupList.groupsIconBtn{
+    width:84px!important;
+    min-width:84px!important;
+    max-width:84px!important;
+    min-height:54px!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2m-groups-editor-scroll-only">
+/* SAFE452e2m: kun Grupper-listeeditorens scroll/indre højde.
+   Mål:
+   - lange navnelister bliver inde i højre kolonne
+   - navnerækkerne scroller i editorfeltet
+   - + Tilføj bliver stående nederst og forbliver synlig
+   - ingen ændring i knapper, gruppealgoritme, LISTE-kobling eller Lykkehjulet */
+
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden){
+  overflow:hidden!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsControls{
+  min-height:0!important;
+  height:100%!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+  display:grid!important;
+  grid-template-rows:auto auto minmax(0,1fr)!important;
+  align-content:stretch!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsNameEditor.safe163OptionEditor{
+  min-height:0!important;
+  height:100%!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+  align-content:stretch!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsNameEditor .safe163OptionRows,
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsNameEditor .groupOptionRows{
+  min-height:0!important;
+  height:auto!important;
+  max-height:100%!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  padding:0 4px 12px 0!important;
+  box-sizing:border-box!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsNameEditor .editTools,
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsNameEditor .safe164EditTools{
+  flex:0 0 auto!important;
+  align-self:stretch!important;
+  position:relative!important;
+  z-index:2!important;
+  margin:0!important;
+  padding:8px 0 0!important;
+  background:transparent!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsNameEditor .groupOptionInput{
+  min-width:0!important;
+}
+</style>
+
+
+<style id="safe452e2o-groups-size-row-cleanup-only">
+/* SAFE452e2o: kun oprydning i Grupper-linjen for gruppestørrelse/antal.
+   - Teksten "af N navne" forkortes visuelt til "N navne"
+   - label/input/antal får en roligere, kompakt række
+   - hjælpetekster holdes skjult
+   Ingen ændring i algoritme, + Tilføj, synkronisering, hjul, knapper eller datakobling. */
+.app:not(.present) .widget[data-type="groups"] .groupsSizeRow{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  margin:0 0 6px!important;
+  white-space:nowrap!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsSizeRow label{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:0!important;
+  font-weight:900!important;
+  color:#111827!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsSizeRow .groupsSizeLabel{
+  display:inline-block!important;
+  font-size:16px!important;
+  line-height:1.1!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsSizeRow .groupSize{
+  width:64px!important;
+  min-width:64px!important;
+  height:42px!important;
+  border-radius:12px!important;
+  text-align:center!important;
+  font-weight:900!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsSizeRow .groupsTotalCount{
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:34px!important;
+  padding:0 10px!important;
+  border-radius:999px!important;
+  background:#f1f5f9!important;
+  border:1px solid rgba(15,23,42,.10)!important;
+  color:#334155!important;
+  font-size:14px!important;
+  font-weight:950!important;
+  line-height:1!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsNameEditor .editHint,
+.app:not(.present) .widget[data-type="groups"] .groupsNameEditor .safe164LiveHint,
+.app:not(.present) .widget[data-type="groups"] .groupsNameEditor .safe452Hint,
+.app:not(.present) .widget[data-type="groups"] .groupsNameEditor .groupsEditHint{
+  display:none!important;
+}
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .groupsSizeRow{
+    gap:8px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .groupsSizeRow .groupsSizeLabel{
+    font-size:14px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .groupsSizeRow .groupSize{
+    width:56px!important;
+    min-width:56px!important;
+    height:38px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .groupsSizeRow .groupsTotalCount{
+    font-size:13px!important;
+    padding:0 8px!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2p-groups-center-button-visual-only">
+/* SAFE452e2p: kun visuel centrering af midterknappen i Grupper-hjulet.
+   Knappen placeres fortsat ud fra den faktiske canvas-midte fra safe452cAlignGroupCenterButton(),
+   men får et lille optisk løft, så den opleves centreret i selve cirklen trods 2-linjers tekst.
+   Ingen ændring i algoritme, handlers, listeeditor, LISTE-kobling eller Lykkehjulet. */
+.widget[data-type="groups"] .groupWheelWrap .groupSpinBtn{
+  left:var(--safe452c-group-btn-x,50%)!important;
+  top:calc(var(--safe452c-group-btn-y,50%) - 7px)!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:2!important;
+}
+.widget[data-type="groups"] .groupWheelWrap .groupSpinBtn.newGroups{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:1.08!important;
+}
+@media(max-width:720px){
+  .widget[data-type="groups"] .groupWheelWrap .groupSpinBtn{
+    top:calc(var(--safe452c-group-btn-y,50%) - 6px)!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2q-groups-center-button-restore-canvas-center">
+/* SAFE452e2q: rollback/korrektion af SAFE452e2p's optiske løft.
+   Problem: knappen lå for højt fra start og blev endnu højere efter gruppedannelse.
+   Løsning: brug igen den faktiske canvas-midte fra safe452cAlignGroupCenterButton()
+   uden ekstra minus-pixel. Ingen ændring i algoritme, handlers eller andre widgets. */
+.widget[data-type="groups"] .groupWheelWrap .groupSpinBtn{
+  left:var(--safe452c-group-btn-x,50%)!important;
+  top:var(--safe452c-group-btn-y,50%)!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:2!important;
+}
+.widget[data-type="groups"] .groupWheelWrap .groupSpinBtn.newGroups{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:1.08!important;
+}
+@media(max-width:720px){
+  .widget[data-type="groups"] .groupWheelWrap .groupSpinBtn{
+    top:var(--safe452c-group-btn-y,50%)!important;
+  }
+}
+</style>
+
+
+<style id="safe452e2v-groups-topbar-equal-grid-after-link-fix">
+/* SAFE452e2v: korrektion efter e2u-fejl.
+   Bygger på SAFE452e2t, ikke på e2u.
+   Mål: fasthold Grupper-topknapper vandret og symmetrisk efter klik på nederste LISTE-link.
+   Teknik: 3 ens grid-kolonner i stedet for variabel flex/ældre absolute-regler.
+   Rører ikke LISTE-dataflow, algoritme, hjul, editor eller Lykkehjulet. */
+
+/* Kun korrekt topbar i korrekt tilstand */
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsControls > .groupsIconTopBar.editOnly{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox:not(.groupsListHidden) .groupsControls > .groupsResultSave.groupsIconTopBar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsIconTopBar.editOnly{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+/* Vandret, lige stor 3-knapsrække: Gem grupper – Dan/Liste – Kilde */
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+  position:relative!important;
+  grid-row:1!important;
+  grid-template-columns:repeat(3,92px)!important;
+  grid-auto-flow:column!important;
+  grid-auto-columns:92px!important;
+  justify-content:start!important;
+  justify-items:stretch!important;
+  align-items:start!important;
+  gap:10px!important;
+  column-gap:10px!important;
+  row-gap:0!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin-left:0!important;
+  margin-right:auto!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+
+/* Knapper må ikke arve bund-Liste/absolute-regler */
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly > .groupsIconBtn,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .groupsIconBtn{
+  position:static!important;
+  inset:auto!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  z-index:auto!important;
+  width:92px!important;
+  min-width:92px!important;
+  max-width:92px!important;
+  min-height:56px!important;
+  margin:0!important;
+  padding:7px 10px 6px!important;
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  gap:4px!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly > .groupsIconBtn .groupsBtnIcon,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .groupsIconBtn .groupsBtnIcon{
+  display:block!important;
+  font-size:24px!important;
+  line-height:1!important;
+}
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly > .groupsIconBtn .groupsBtnText,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .groupsIconBtn .groupsBtnText{
+  display:block!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+  font-size:10px!important;
+  line-height:1.05!important;
+}
+
+/* Den gamle bund-Liste-række må aldrig dukke op igen */
+.app:not(.present) .widget[data-type="groups"] .groupsBox .groupsShowRow,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden .groupsShowRow,
+.app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsShowRow{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+@media(max-width:720px){
+  .app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly,
+  .app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar{
+    grid-template-columns:repeat(3,84px)!important;
+    grid-auto-columns:84px!important;
+    gap:8px!important;
+    column-gap:8px!important;
+  }
+  .app:not(.present) .widget[data-type="groups"] .groupsBox .groupsControls > .groupsIconTopBar.editOnly > .groupsIconBtn,
+  .app:not(.present) .widget[data-type="groups"] .groupsBox.groupsListHidden.groupsShowResult .groupsControls > .groupsResultSave.groupsIconTopBar > .groupsIconBtn{
+    width:84px!important;
+    min-width:84px!important;
+    max-width:84px!important;
+    min-height:54px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="app" class="app">
@@ -15465,10 +17669,18 @@ function safe381HideDataSourceWidgetByDataset(dsId){
   return true;
 }
 function safe376UsersOfDataset(dsId){
+  const target=String(dsId||'');
   return safe376AllWidgetsWithSlide().filter(x=>{
     const w=x.w||{};
-    if(w.type==='text'&&w.data&&String(w.data.datasetId)===String(dsId))return false;
-    return !!(w.data && String(w.data.sourceDatasetId||'')===String(dsId));
+    const d=w.data||{};
+    if(w.type==='text'&&d&&String(d.datasetId)===target)return false;
+    if(d && String(d.sourceDatasetId||'')===target)return true;
+    // SAFE450d: Fælles koblinger kan ligge i linkedDataSources pr. rolle
+    // (fx Lykkehjulet -> pool) og skal tælle som brugere af datawidgetten.
+    try{
+      const map=d.linkedDataSources||{};
+      return Object.keys(map).some(k=>String((map[k]&&map[k].datasetId)||'')===target);
+    }catch(_e){return false;}
   });
 }
 function safe376WidgetLabel(w){
@@ -15519,6 +17731,142 @@ try{
   window.safe376OpenDatasetSource=safe376OpenDatasetSource;
   window.safe376GoToWidget=safe376GoToWidget;
 }catch(_e){}
+
+/* SAFE450a — fælles koblingsmodel for data-/listebaserede widgets.
+   Kun helperfunktioner. Ingen UI kobles på i denne patch.
+   Formål: Lykkehjulet, Grupper, Afstemning, Sky og KaPardy kan senere bruge samme motor.
+   VIGTIGT: eksisterende felter (sourceDatasetId, questionBankDatasetId m.m.) bevares. */
+const SAFE450_LINKED_DATA_ROLES={
+  questionBank:{label:'Spørgsmålsbank',empty:'Ingen koblet spørgsmålsbank'},
+  pool:{label:'Pulje',empty:'Ingen koblet pulje'},
+  participants:{label:'Deltagerliste',empty:'Ingen koblet deltagerliste'},
+  voteOptions:{label:'Svarmuligheder',empty:'Ingen koblede svarmuligheder'},
+  wordCloudWords:{label:'Ord-/tekstliste',empty:'Ingen koblet ord-/tekstliste'},
+  calendarEvents:{label:'Kalenderdata',empty:'Ingen koblede kalenderdata'},
+  data:{label:'Datakilde',empty:'Ingen koblet datakilde'}
+};
+function safe450NormalizeRole(role){
+  const r=String(role||'data').trim()||'data';
+  return SAFE450_LINKED_DATA_ROLES[r]?r:'data';
+}
+function safe450FindWidgetById(widgetId){
+  const id=String(widgetId||'');
+  if(!id)return null;
+  return safe376AllWidgetsWithSlide().find(x=>String(x.w&&x.w.id)===id)||null;
+}
+function safe450FindDataWidgetByWidgetId(widgetId){
+  const hit=safe450FindWidgetById(widgetId);
+  return (hit&&hit.w&&hit.w.type==='text'&&hit.w.data&&hit.w.data.datasetId)?hit:null;
+}
+function safe450FindDataWidgetByDatasetId(datasetId){
+  return safe376DatasetWidgetInfo(datasetId)||null;
+}
+function safe450DatasetName(datasetId,fallback){
+  const ds=(typeof findDatasetById==='function')?findDatasetById(datasetId):null;
+  if(ds&&String(ds.name||'').trim())return String(ds.name).trim();
+  const hit=safe450FindDataWidgetByDatasetId(datasetId);
+  if(hit&&hit.w&&String(hit.w.title||'').trim())return String(hit.w.title).replace(/^📊\s*/,'').trim();
+  return String(fallback||'Datakilde');
+}
+function safe450GetLinkedDataRef(ownerW,role){
+  const d=(ownerW&&ownerW.data)||{};
+  const r=safe450NormalizeRole(role||d.linkedDataRole);
+  const fromMap=d.linkedDataSources&&d.linkedDataSources[r];
+  let datasetId=String((fromMap&&fromMap.datasetId)||d.linkedDataDatasetId||'').trim();
+  let widgetId=String((fromMap&&fromMap.widgetId)||d.linkedDataWidgetId||'').trim();
+  let name=String((fromMap&&fromMap.name)||d.linkedDataName||'').trim();
+
+  // Legacy/eksisterende koblinger: læses, men migreres ikke automatisk i SAFE450a.
+  if(!datasetId&&r==='questionBank')datasetId=String(d.questionBankDatasetId||'').trim();
+  if(!name&&r==='questionBank')name=String(d.questionBankName||'').trim();
+  if(!datasetId&&(r==='calendarEvents'||r==='data'))datasetId=String(d.sourceDatasetId||'').trim();
+  if(!name&&(r==='calendarEvents'||r==='data'))name=String(d.sourceDatasetName||'').trim();
+
+  if(!datasetId&&widgetId){
+    const hit=safe450FindDataWidgetByWidgetId(widgetId);
+    if(hit&&hit.w&&hit.w.data)datasetId=String(hit.w.data.datasetId||'').trim();
+  }
+  if(datasetId&&!widgetId){
+    const hit=safe450FindDataWidgetByDatasetId(datasetId);
+    if(hit&&hit.w)widgetId=String(hit.w.id||'');
+  }
+  if(datasetId&&!name)name=safe450DatasetName(datasetId);
+  return {role:r,datasetId,widgetId,name,label:SAFE450_LINKED_DATA_ROLES[r].label,empty:SAFE450_LINKED_DATA_ROLES[r].empty};
+}
+function safe450SetLinkedDataWidget(ownerW,dataWidgetOrId,role,name){
+  if(!ownerW)return null;
+  const r=safe450NormalizeRole(role);
+  const hit=(typeof dataWidgetOrId==='object'&&dataWidgetOrId&&dataWidgetOrId.w)?dataWidgetOrId:safe450FindDataWidgetByWidgetId(dataWidgetOrId);
+  const dw=hit&&hit.w;
+  if(!dw||dw.type!=='text'||!dw.data||!dw.data.datasetId){toast('Vælg en datawidget først');return null;}
+  ownerW.data=ownerW.data||{};
+  ownerW.data.linkedDataSources=ownerW.data.linkedDataSources||{};
+  ownerW.data.linkedDataSources[r]={widgetId:dw.id,datasetId:dw.data.datasetId,name:String(name||dw.title||safe450DatasetName(dw.data.datasetId)).replace(/^📊\s*/,'').trim(),role:r};
+  ownerW.data.linkedDataWidgetId=dw.id;
+  ownerW.data.linkedDataDatasetId=dw.data.datasetId;
+  ownerW.data.linkedDataRole=r;
+  ownerW.data.linkedDataName=ownerW.data.linkedDataSources[r].name;
+  // SAFE450d: Bevar kompatibilitet med ældre åbne/skjule-logik, der kigger efter sourceDatasetId.
+  // For Lykkehjulet betyder det, at en koblet pulje opfører sig som KaPardys/Kalenderens koblede datakilde.
+  if(r==='pool'){
+    ownerW.data.sourceDatasetId=dw.data.datasetId;
+    ownerW.data.sourceDatasetName=ownerW.data.linkedDataSources[r].name;
+  }
+  return ownerW.data.linkedDataSources[r];
+}
+function safe450ClearLinkedData(ownerW,role){
+  if(!ownerW||!ownerW.data)return false;
+  const r=safe450NormalizeRole(role||ownerW.data.linkedDataRole);
+  if(ownerW.data.linkedDataSources)delete ownerW.data.linkedDataSources[r];
+  if(safe450NormalizeRole(ownerW.data.linkedDataRole)===r){
+    delete ownerW.data.linkedDataWidgetId;
+    delete ownerW.data.linkedDataDatasetId;
+    delete ownerW.data.linkedDataRole;
+    delete ownerW.data.linkedDataName;
+  }
+  return true;
+}
+function safe450OpenLinkedData(ownerW,role){
+  const ref=safe450GetLinkedDataRef(ownerW,role);
+  if(!ref.datasetId){toast(ref.empty);return false;}
+  return (typeof safe381OpenDatasetSourceNearWidget==='function')?safe381OpenDatasetSourceNearWidget(ref.datasetId,ownerW):false;
+}
+function safe450HideLinkedData(ownerW,role){
+  const ref=safe450GetLinkedDataRef(ownerW,role);
+  if(!ref.datasetId)return false;
+  return (typeof safe381HideDataSourceWidgetByDataset==='function')?safe381HideDataSourceWidgetByDataset(ref.datasetId):false;
+}
+function safe450ToggleLinkedData(ownerW,role){
+  const ref=safe450GetLinkedDataRef(ownerW,role);
+  if(!ref.datasetId){toast(ref.empty);return false;}
+  const hit=safe450FindDataWidgetByDatasetId(ref.datasetId);
+  const isOpen=!!(hit&&hit.w&&hit.w.data&&hit.w.data.sourceOpen);
+  return isOpen?safe450HideLinkedData(ownerW,role):safe450OpenLinkedData(ownerW,role);
+}
+function safe450LinkedDataStatusHtml(ownerW,role,labelOverride){
+  const ref=safe450GetLinkedDataRef(ownerW,role);
+  const label=String(labelOverride||ref.label||'Datakilde').toUpperCase();
+  const name=ref.datasetId?(ref.name||'Datakilde'):ref.empty;
+  let isOpen=false;
+  try{
+    const hit=ref.datasetId?safe450FindDataWidgetByDatasetId(ref.datasetId):null;
+    isOpen=!!(hit&&hit.w&&hit.w.data&&hit.w.data.sourceOpen);
+  }catch(_e){}
+  const cls=['safe450LinkedDataStatus'];
+  if(!ref.datasetId)cls.push('empty');
+  if(isOpen)cls.push('open');
+  return `<button type="button" class="${cls.join(' ')}" data-safe450-role="${esc(ref.role)}" title="Vis/skjul koblet datakilde"><span class="linkIcon">🔗</span><span class="label">${esc(label)}</span><span class="name">${esc(name)}</span></button>`;
+}
+try{
+  window.safe450GetLinkedDataRef=safe450GetLinkedDataRef;
+  window.safe450SetLinkedDataWidget=safe450SetLinkedDataWidget;
+  window.safe450ClearLinkedData=safe450ClearLinkedData;
+  window.safe450OpenLinkedData=safe450OpenLinkedData;
+  window.safe450HideLinkedData=safe450HideLinkedData;
+  window.safe450ToggleLinkedData=safe450ToggleLinkedData;
+  window.safe450LinkedDataStatusHtml=safe450LinkedDataStatusHtml;
+}catch(_e){}
+
 function safe376DatasetLinkButtonForCalendar(w){
   const id=w&&w.data&&w.data.sourceDatasetId;
   if(!id)return '';
@@ -16255,73 +18603,331 @@ function makeGroupsWithLocks(names,size,currentGroups,locks){
 ////////////////////////////////////////////////////////////
 /* Type-specifik render/wire-logik. Hold data-normalisering tæt på den widgettype, den tilhører. */
 function renderGroups(groups,locks=[]){if(!groups||!groups.length)return '<p>Ingen grupper endnu.</p>';const cls=groups.length>4?' groupCompact':'';return groups.map((g,i)=>{const locked=!!locks[i];return `<div class="groupCard${cls}" data-group-i="${i}"><button type="button" class="groupLock ${locked?'isLocked':''}" data-i="${i}" title="${locked?'Låst: bevares ved ny randomisering':'Åben: blandes med ved ny randomisering'}">${locked?'🔒':'🔓'}</button><b>Gruppe ${i+1}</b>${g.map(esc).join('<br>')}</div>`}).join('')}
-function drawGroupWheel(canvas,names,rot=0){const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=Math.min(W,H)*.46;ctx.clearRect(0,0,W,H);const list=names&&names.length?names:['Grupper'];const cols=['#ff6b6b','#ffd93d','#4ade80','#60a5fa','#c084fc','#fb923c'];list.forEach((name,i)=>{const a1=rot+i*2*Math.PI/list.length,a2=rot+(i+1)*2*Math.PI/list.length;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a1,a2);ctx.closePath();ctx.fillStyle=cols[i%cols.length];ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate((a1+a2)/2);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#111827';ctx.font=`800 ${Math.max(18,Math.min(36,180/list.length+10))}px system-ui`;let label=String(name||'');if(label.length>18)label=label.slice(0,17)+'…';ctx.fillText(label,r-18,0);ctx.restore()});ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,.10)';ctx.lineWidth=Math.max(10,W*.018);ctx.stroke()}
-function wireGroups(c,w){const canvas=c.querySelector('.groupWheel');drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),w.data.rot||0);const textarea=c.querySelector('.groupNames'),sizeInput=c.querySelector('.groupSize');normalizeGroupLocks(w);c.querySelectorAll('.groupLock').forEach(btn=>btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();normalizeGroupLocks(w);const i=Number(btn.dataset.i);w.data.groupLocks[i]=!w.data.groupLocks[i];fillContent(c.closest('.widget'),w);save();toast(w.data.groupLocks[i]?'Gruppe låst':'Gruppe åben')});const showBtn=c.querySelector('.showGroupList');if(showBtn)showBtn.onclick=()=>{w.data.listHidden=false;w.data.groupsVisible=false;fillContent(c.closest('.widget'),w);save()};c.querySelector('.toGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.rot=0;w.data.listHidden=true;w.data.groupsVisible=true;fillContent(c.closest('.widget'),w);save();toast('Grupper dannet')};c.querySelector('.newGroups').onclick=()=>{w.data.names=textarea.value.split('\n').map(x=>x.trim()).filter(Boolean);w.data.size=Math.max(1,Number(sizeInput.value)||2);if(!w.data.names.length){toast('Indsæt en liste først');return}const btn=c.querySelector('.groupSpinBtn');btn.disabled=true;const duration=1800+Math.random()*600,start=performance.now(),endRot=(5+Math.random()*2)*Math.PI*2;function frame(now){const p=Math.min(1,(now-start)/duration),rot=endRot*easeOutCubic(p);drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),rot);if(p<1)requestAnimationFrame(frame);else{w.data.rot=endRot;w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.listHidden=true;w.data.groupsVisible=true;btn.disabled=false;wheelLand();fillContent(c.closest('.widget'),w);setTimeout(()=>{const nb=c.closest('.widget').querySelector('.groupsBox');if(nb){nb.classList.add('flashGroups');setTimeout(()=>nb.classList.remove('flashGroups'),650)}},60);save()}}requestAnimationFrame(frame)};/*
-SAFE166 GROUPS MAP ONLY:
-Dette er den følsomme Grupper-importindgang.
-- .loadGroupList bruger wheelListBank() og wireImportListButton(useList).
-- useList() skriver direkte til w.data.names og nulstiller grupper/låse/rotation.
-- Næste funktionelle patch bør kun erstatte importknappens direkte useList-import med “importér til datawidget”.
-- Undgå bred udskiftning af hele modalen, fordi SAFE166/167 brede forsøg ødelagde appen.
-*/
-/* SAFE170: Grupper bruger nu den fælles chooseSharedList()-modal. Selve anvendelsen er stadig lokal: kilde -> w.data.names, og eksisterende grupper/låse nulstilles. */
-c.querySelector('.loadGroupList').onclick=()=>{
-  const useList=(pick,items,meta)=>{
-    const cleaned=[...(items||[])].map(x=>String(x||'').trim()).filter(Boolean);
-    if(!cleaned.length){toast('Listen gav ingen navne');return}
-    w.data.names=cleaned;
-    w.data.groups=[];
-    w.data.groupLocks=[];
-    w.data.rot=0;
-    w.data.listHidden=false;
-    w.data.groupsVisible=false;
-    closeModal();
-    fillContent(c.closest('.widget'),w);
-    setTimeout(()=>{const inp=c.closest('.widget')?.querySelector('.groupSize');if(inp){inp.focus({preventScroll:true});inp.select()}},80);
-    save();
-    toast('Liste hentet');
-  };
-  if(typeof chooseSharedList==='function'){
-    chooseSharedList('Hent liste til grupper',useList);
-    return;
-  }
-  /* Fallback beholdes kun hvis chooseSharedList mangler i en ældre lokal fil. */
-  const bank=wheelListBank();
-  const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));
-  showModal('<h2>Hent liste til grupper</h2><p>Vælg en gemt liste.</p>'+(keys.length?keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' '):'<p>Ingen gemte lister endnu.</p>')+'<hr>'+importedDataWidgetButtonHtml()+' <button id="close">Luk</button>');
-  modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.k;useList(pick,wheelListBank()[pick]||[])});
-  wireImportDataWidgetButton();
-  modal.querySelector('#close').onclick=closeModal;
-};
-/* SAFE172 STABILISERING:
-   SAFE171 Grupper-flow er testet OK.
-   Denne handler er bevidst uændret: den læser kun w.data.groups og gemmer resultatet som datawidget.
-   Må ikke danne nye grupper, ændre låse, ændre algoritme eller skrive til listebank. */
-/* SAFE171: Grupper gemmer nu det dannede grupperesultat som en synlig datawidget.
-   Handleren læser kun w.data.groups; den danner ikke nye grupper og ændrer ikke låse/algoritme. */
-const saveGroupListHandler=()=>{
-  const groups=Array.isArray(w.data.groups)?w.data.groups:[];
-  const rows=[];
-  groups.forEach((g,gi)=>{
-    if(!Array.isArray(g))return;
-    g.forEach((name,pi)=>{
-      const clean=String(name||'').trim();
-      if(clean)rows.push(['Gruppe '+(gi+1),clean,String(pi+1)]);
-    });
-  });
-  if(!rows.length){toast('Dan grupper først');return}
-  const name=('Grupperesultat - '+(w.title||'Grupper')).slice(0,70);
-  const ds={id:uid(),name:name,type:'groups-results',columns:['Gruppe','Navn','Position'],rows:rows,sourceName:w.title||'Grupper',importedAt:Date.now()};
+function drawGroupWheel(canvas,names,rot=0){const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=Math.min(W,H)*.46;ctx.clearRect(0,0,W,H);const list=names&&names.length?names:[];const cols=['#ff6b6b','#ffd93d','#4ade80','#60a5fa','#c084fc','#fb923c'];if(!list.length){ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#eee';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,.10)';ctx.lineWidth=Math.max(10,W*.018);ctx.stroke();return}list.forEach((name,i)=>{const a1=rot+i*2*Math.PI/list.length,a2=rot+(i+1)*2*Math.PI/list.length;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a1,a2);ctx.closePath();ctx.fillStyle=cols[i%cols.length];ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate((a1+a2)/2);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#111827';ctx.font=`800 ${Math.max(18,Math.min(36,180/list.length+10))}px system-ui`;let label=String(name||'');if(label.length>18)label=label.slice(0,17)+'…';ctx.fillText(label,r-18,0);ctx.restore()});ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,.10)';ctx.lineWidth=Math.max(10,W*.018);ctx.stroke()}
+
+function safe452CreateLinkedGroupsDemoList(ownerW,items,pickName){
   try{
-    updateDatasetInState(ds);
-    const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});
-    if(dw){dw.title='👥 '+name;dw.data=dw.data||{};dw.data.sourceType='groups-results';dw.data.sourceGroupsTitle=w.title||'Grupper';render();select(dw.id,{editText:false});save();}
-    toast('Grupper gemt som datawidget: '+rows.length+' rækker');
-  }catch(err){console.error(err);toast('Kunne ikke oprette grupper-datawidget')}
-};
-c.querySelectorAll('.saveGroupList').forEach(btn=>btn.onclick=saveGroupListHandler);
+    if(!ownerW||!Array.isArray(items)||!items.length)return null;
+    const cleanItems=items.map(x=>String(x||'').trim()).filter(Boolean);
+    if(!cleanItems.length)return null;
+    const base=String(pickName||'Demoliste').replace(/^👥\s*/,'').trim()||'Demoliste';
+    const dsName=('Grupper-liste - '+base).slice(0,70);
+    const ds={
+      id:uid(),
+      name:dsName,
+      type:'groups-participants',
+      columns:['Navn'],
+      rows:cleanItems.map(x=>[x]),
+      sourceName:'Grupper demo',
+      sourceType:'groups-demo-list',
+      importedAt:Date.now()
+    };
+    if(typeof updateDatasetInState==='function')updateDatasetInState(ds);
+    else if(typeof addDataset==='function')addDataset(ds);
+    let dw=null;
+    if(typeof addDatasetWidget==='function'){
+      dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((ownerW.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((ownerW.y||130)+40,innerHeight-440))});
+      if(dw){
+        dw.title='👥 '+dsName;
+        dw.data=dw.data||{};
+        dw.data.sourceType='groups-participants';
+        dw.data.sourceOpen=false;
+      }
+    }
+    const liveOwner=(typeof findWidget==='function'?findWidget(ownerW.id):null)||ownerW;
+    if(liveOwner){
+      liveOwner.data=liveOwner.data||{};
+      liveOwner.data.names=[...cleanItems];
+      liveOwner.data.groups=[];
+      liveOwner.data.groupLocks=[];
+      liveOwner.data.rot=0;
+      liveOwner.data.listHidden=false;
+      liveOwner.data.groupsVisible=false;
+    }
+    if(dw&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(liveOwner,{w:dw,slide:slide()},'participants',dsName);
+    try{
+      if(dw&&dw.data){dw.data.sourceOpen=false;delete dw.data.sourceOpenedFromWidgetId;}
+      if(liveOwner){selected=liveOwner.id;if(window.UIState)UIState.selectedWidgetId=liveOwner.id;}
+      if(typeof render==='function'){
+        render();
+        setTimeout(()=>{try{select(liveOwner.id,{editText:false});}catch(_e){}},30);
+      }
+    }catch(_e){}
+    try{save();}catch(_e){}
+    return {ds,dw,name:dsName,owner:liveOwner};
+  }catch(err){console.warn('SAFE452a kunne ikke oprette koblet Grupper-demoliste',err);return null;}
+}
+function safe452WriteLinkedGroupsList(ownerW,items){
+  try{
+    if(!ownerW||typeof safe450GetLinkedDataRef!=='function'||typeof findDatasetById!=='function')return false;
+    const ref=safe450GetLinkedDataRef(ownerW,'participants');
+    if(!ref||!ref.datasetId)return false;
+    const ds=findDatasetById(ref.datasetId);
+    if(!ds)return false;
+    const clean=(items||[]).map(x=>String(x||'').trim()).filter(Boolean);
+    ds.columns=['Navn'];
+    ds.rows=clean.map(x=>[x]);
+    ds.type=ds.type||'groups-participants';
+    ds.modifiedAt=Date.now();
+    const hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null;
+    if(hit&&hit.w){
+      hit.w.data=hit.w.data||{};
+      hit.w.data.text=toCSV(ds.rows,ds.columns);
+      hit.w.data.datasetId=ds.id;
+      hit.w.data.datasetView=true;
+    }
+    if(typeof updateDatasetInState==='function')updateDatasetInState(ds);
+    // SAFE452e2t: opdatér alle synlige datawidget-visninger af samme dataset, ikke kun den første fundne.
+    try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}
+    return true;
+  }catch(err){console.warn('SAFE452a kunne ikke skrive grupper-listen til koblet datakilde',err);return false;}
 }
 
+/* SAFE452e2t — stabilisering af Grupper ↔ LISTE-kobling.
+   Formål: Hvis den koblede deltagerliste ændres direkte i datawidgetten, skal Grupper
+   kunne læse listen tilbage uden at ramme knapper, hjul, algoritme eller editorlayout. */
+function safe452tCleanGroupsNames(items){
+  return (items||[]).map(x=>String(x||'').trim()).filter(Boolean);
+}
+function safe452tNamesFromDataset(ds){
+  if(!ds||!Array.isArray(ds.rows)||!ds.rows.length)return null;
+  const cols=Array.isArray(ds.columns)?ds.columns:[];
+  let nameCol=cols.findIndex(c=>/^(navn|name|deltager|deltagere|person|personer)$/i.test(String(c||'').trim()));
+  if(nameCol<0)nameCol=0;
+  const names=ds.rows.map(row=>{
+    if(Array.isArray(row))return row[nameCol] ?? row[0] ?? '';
+    if(row&&typeof row==='object')return row.Navn||row.navn||row.Name||row.name||Object.values(row)[0]||'';
+    return row;
+  });
+  const clean=safe452tCleanGroupsNames(names);
+  return clean.length?clean:null;
+}
+function safe452tLinkedGroupsDataset(ownerW){
+  try{
+    if(!ownerW||typeof safe450GetLinkedDataRef!=='function')return null;
+    const ref=safe450GetLinkedDataRef(ownerW,'participants');
+    if(!ref||!ref.datasetId)return null;
+    let ds=(typeof findDatasetById==='function')?findDatasetById(ref.datasetId):null;
+    if(ds)return ds;
+    const hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ref.datasetId):null;
+    if(hit&&hit.w&&typeof datasetForDownloadWidget==='function')ds=datasetForDownloadWidget(hit.w);
+    return ds||null;
+  }catch(_e){return null;}
+}
+function safe452tRefreshGroupsFromLinkedList(ownerW){
+  try{
+    if(!ownerW||!ownerW.data)return false;
+    const ds=safe452tLinkedGroupsDataset(ownerW);
+    const incoming=safe452tNamesFromDataset(ds);
+    if(!incoming||!incoming.length)return false;
+    const current=safe452tCleanGroupsNames(ownerW.data.names||[]);
+    const a=current.join('\n'), b=incoming.join('\n');
+    if(a===b)return false;
+    ownerW.data.names=incoming;
+    ownerW.data._groupsAddBlank=false;
+    ownerW.data.groups=[];
+    ownerW.data.groupLocks=[];
+    ownerW.data.groupsVisible=false;
+    ownerW.data.listHidden=false;
+    ownerW.data._groupsLinkedHash=b;
+    return true;
+  }catch(err){console.warn('SAFE452e2t kunne ikke opdatere Grupper fra koblet LISTE',err);return false;}
+}
+try{
+  window.safe452tRefreshGroupsFromLinkedList=safe452tRefreshGroupsFromLinkedList;
+  window.safe452tNamesFromDataset=safe452tNamesFromDataset;
+}catch(_e){}
+
+function safe452cAlignGroupCenterButton(root){
+  try{
+    const wrap=root&&root.querySelector?root.querySelector('.groupWheelWrap'):null;
+    const canvas=root&&root.querySelector?root.querySelector('.groupWheel'):null;
+    const btn=root&&root.querySelector?root.querySelector('.groupSpinBtn'):null;
+    if(!wrap||!canvas||!btn)return;
+    const apply=()=>{
+      try{
+        const wr=wrap.getBoundingClientRect();
+        const cr=canvas.getBoundingClientRect();
+        if(!wr.width||!wr.height||!cr.width||!cr.height)return;
+        const x=(cr.left-wr.left)+(cr.width/2);
+        const y=(cr.top-wr.top)+(cr.height/2);
+        wrap.style.setProperty('--safe452c-group-btn-x',x+'px');
+        wrap.style.setProperty('--safe452c-group-btn-y',y+'px');
+      }catch(_e){}
+    };
+    requestAnimationFrame(apply);
+    setTimeout(apply,80);
+    if(!wrap.__safe452cResizeObserver && typeof ResizeObserver!=='undefined'){
+      const ro=new ResizeObserver(apply);
+      ro.observe(wrap); ro.observe(canvas);
+      wrap.__safe452cResizeObserver=ro;
+    }
+  }catch(_e){}
+}
+
+function wireGroups(c,w){
+  const canvas=c.querySelector('.groupWheel');
+  drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),w.data.rot||0);
+  try{safe452cAlignGroupCenterButton(c);}catch(_e){}
+  const sizeInput=c.querySelector('.groupSize');
+  const readNames=()=>Array.from(c.querySelectorAll('.groupOptionInput')).map(inp=>String(inp.value||'').trim()).filter(Boolean);
+  const syncNames=(writeLinked=true)=>{
+    w.data.names=readNames();
+    // Hvis + Tilføj har åbnet en tom redigeringsrække, bevares den kun mens den faktisk er tom.
+    // Så snart brugeren skriver i den, er rækken blevet et rigtigt navn og tæller med.
+    try{
+      const inputs=Array.from(c.querySelectorAll('.groupOptionInput'));
+      const last=inputs[inputs.length-1];
+      w.data._groupsAddBlank=!!(last && !String(last.value||'').trim() && inputs.length>(w.data.names||[]).length);
+      const count=c.querySelector('.groupsTotalCount');
+      if(count)count.textContent='af '+(w.data.names||[]).length+' navne';
+    }catch(_e){}
+    if(sizeInput)w.data.size=Math.max(1,Number(sizeInput.value)||2);
+    try{drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),w.data.rot||0);}catch(_e){}
+    if(writeLinked)try{safe452WriteLinkedGroupsList(w,w.data.names)}catch(_e){}
+    return w.data.names;
+  };
+  const rerenderEditor=(focusIndex)=>{
+    fillContent(c.closest('.widget'),w);
+    if(typeof focusIndex==='number')setTimeout(()=>{
+      const rows=c.closest('.widget')?.querySelectorAll('.groupOptionInput');
+      const inp=rows&&rows[Math.max(0,Math.min(focusIndex,rows.length-1))];
+      if(inp){inp.focus({preventScroll:true});try{inp.scrollIntoView({block:'nearest'});}catch(_e){}}
+    },30);
+  };
+  normalizeGroupLocks(w);
+  c.querySelectorAll('.groupLock').forEach(btn=>btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();normalizeGroupLocks(w);const i=Number(btn.dataset.i);w.data.groupLocks[i]=!w.data.groupLocks[i];fillContent(c.closest('.widget'),w);save();toast(w.data.groupLocks[i]?'Gruppe låst':'Gruppe åben')});
+  c.querySelectorAll('.groupOptionInput').forEach(inp=>{
+    inp.addEventListener('input',()=>{syncNames(true);save();});
+  });
+  c.querySelectorAll('.groupRemoveName').forEach(btn=>btn.onclick=(e)=>{
+    e.preventDefault();e.stopPropagation();
+    const row=btn.closest('.groupOptionRow');
+    const all=Array.from(c.querySelectorAll('.groupOptionRow'));
+    const idx=all.indexOf(row);
+    const names=Array.from(c.querySelectorAll('.groupOptionInput')).map(inp=>String(inp.value||'').trim());
+    if(names.length<=1){names[0]='';}else{names.splice(idx,1);}
+    w.data.names=names.map(x=>x.trim()).filter(Boolean);
+    w.data.groups=[];w.data.groupLocks=[];w.data.groupsVisible=false;w.data.listHidden=false;
+    try{safe452WriteLinkedGroupsList(w,w.data.names)}catch(_e){}
+    save();rerenderEditor(Math.max(0,idx-1));
+  });
+  const addNameBtn=c.querySelector('.groupAddName');
+  if(addNameBtn)addNameBtn.onclick=(e)=>{
+    e.preventDefault();e.stopPropagation();
+    // Opret en NY tom redigeringsrække. Tidligere blev den tomme række filtreret væk,
+    // så knappen endte med blot at fokusere/markere sidste navn.
+    const raw=Array.from(c.querySelectorAll('.groupOptionInput')).map(inp=>String(inp.value||'').trim()).filter(Boolean);
+    w.data.names=raw;
+    w.data._groupsAddBlank=true;
+    w.data.groups=[];w.data.groupLocks=[];w.data.groupsVisible=false;w.data.listHidden=false;
+    try{safe452WriteLinkedGroupsList(w,w.data.names)}catch(_e){}
+    save();
+    fillContent(c.closest('.widget'),w);
+    setTimeout(()=>{
+      const rows=c.closest('.widget')?.querySelectorAll('.groupOptionInput');
+      const inp=rows&&rows[rows.length-1];
+      if(inp){inp.focus({preventScroll:true});try{inp.scrollIntoView({block:'nearest'});}catch(_e){}}
+    },30);
+  };
+  if(sizeInput)sizeInput.addEventListener('input',()=>{w.data.size=Math.max(1,Number(sizeInput.value)||2);save();});
+  const showBtn=c.querySelector('.showGroupList');
+  if(showBtn)showBtn.onclick=()=>{w.data.listHidden=false;w.data.groupsVisible=false;fillContent(c.closest('.widget'),w);save()};
+  const makeNow=()=>{
+    syncNames(true);
+    w.data.size=Math.max(1,Number(sizeInput&&sizeInput.value)||Number(w.data.size)||2);
+    if(!w.data.names.length){toast('Indsæt en liste først');return false;}
+    w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);
+    w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);
+    w.data.rot=0;w.data.listHidden=true;w.data.groupsVisible=true;
+    return true;
+  };
+  c.querySelectorAll('.toGroups').forEach(btn=>btn.onclick=()=>{if(!makeNow())return;fillContent(c.closest('.widget'),w);save();toast('Grupper dannet')});
+  c.querySelector('.newGroups').onclick=()=>{
+    syncNames(true);
+    w.data.size=Math.max(1,Number(sizeInput&&sizeInput.value)||Number(w.data.size)||2);
+    if(!w.data.names.length){toast('Indsæt en liste først');return}
+    const btn=c.querySelector('.groupSpinBtn');btn.disabled=true;
+    const duration=1800+Math.random()*600,start=performance.now(),endRot=(5+Math.random()*2)*Math.PI*2;
+    function frame(now){const p=Math.min(1,(now-start)/duration),rot=endRot*easeOutCubic(p);drawGroupWheel(canvas,(w.data.names||[]).slice(0,18),rot);if(p<1)requestAnimationFrame(frame);else{w.data.rot=endRot;w.data.groups=makeGroupsWithLocks(w.data.names,w.data.size,w.data.groups,w.data.groupLocks);w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);w.data.listHidden=true;w.data.groupsVisible=true;btn.disabled=false;wheelLand();fillContent(c.closest('.widget'),w);setTimeout(()=>{const nb=c.closest('.widget').querySelector('.groupsBox');if(nb){nb.classList.add('flashGroups');setTimeout(()=>nb.classList.remove('flashGroups'),650)}},60);save()}}
+    requestAnimationFrame(frame)
+  };
+
+  c.querySelectorAll('.loadGroupList').forEach(loadBtn=>loadBtn.onclick=()=>{
+    const useList=(pick,items,meta)=>{
+      const cleaned=[...(items||[])].map(x=>String(x||'').trim()).filter(Boolean);
+      if(!cleaned.length){toast('Listen gav ingen navne');return}
+      w.data.names=cleaned;
+      w.data.groups=[];
+      w.data.groupLocks=[];
+      w.data.rot=0;
+      w.data.listHidden=false;
+      w.data.groupsVisible=false;
+      try{
+        let hit=null;
+        if(meta&&meta.widgetId&&typeof safe450FindDataWidgetByWidgetId==='function')hit=safe450FindDataWidgetByWidgetId(meta.widgetId);
+        if(!hit&&meta&&meta.sourceDatasetId&&typeof safe450FindDataWidgetByDatasetId==='function')hit=safe450FindDataWidgetByDatasetId(meta.sourceDatasetId);
+        if(!hit&&meta&&meta.dataset&&meta.dataset.id&&typeof safe450FindDataWidgetByDatasetId==='function')hit=safe450FindDataWidgetByDatasetId(meta.dataset.id);
+        if(hit&&hit.w&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,hit,'participants',pick||'Liste');
+        else if(meta&&meta.type==='demoList'&&typeof safe452CreateLinkedGroupsDemoList==='function')safe452CreateLinkedGroupsDemoList(w,cleaned,pick||'Demoliste');
+      }catch(_e){}
+      closeModal();
+      fillContent(c.closest('.widget'),w);
+      setTimeout(()=>{const inp=c.closest('.widget')?.querySelector('.groupSize');if(inp){inp.focus({preventScroll:true});inp.select()}},80);
+      save();
+      toast('Liste hentet');
+    };
+    if(typeof chooseSharedList==='function'){
+      chooseSharedList('Hent liste til grupper',useList);
+      return;
+    }
+    const bank=wheelListBank();
+    const keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));
+    showModal('<h2>Hent liste til grupper</h2><p>Vælg en gemt liste.</p>'+(keys.length?keys.map(k=>`<button class="pickList" data-k="${esc(k)}">${esc(k)}</button>`).join(' '):'<p>Ingen gemte lister endnu.</p>')+'<hr>'+importedDataWidgetButtonHtml()+' <button id="close">Luk</button>');
+    modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{const pick=btn.dataset.k;useList(pick,wheelListBank()[pick]||[])});
+    wireImportDataWidgetButton();
+    modal.querySelector('#close').onclick=closeModal;
+  });
+
+  const groupsListStatus=c.querySelector('.groupsLinkedListBar .safe450LinkedDataStatus');
+  if(groupsListStatus){
+    let safe452ListBusy=false;
+    const toggleList=e=>{
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+      if(safe452ListBusy)return;
+      safe452ListBusy=true;
+      try{
+        const ref=(typeof safe450GetLinkedDataRef==='function')?safe450GetLinkedDataRef(w,'participants'):{datasetId:'',empty:'Ingen koblet liste'};
+        if(ref&&ref.datasetId&&typeof safe450ToggleLinkedData==='function')safe450ToggleLinkedData(w,'participants');
+        else toast((ref&&ref.empty)||'Ingen koblet liste');
+      }catch(err){console.warn(err);toast('Kunne ikke åbne koblet liste')}
+      setTimeout(()=>{safe452ListBusy=false;},250);
+    };
+    try{groupsListStatus.addEventListener('pointerup',toggleList,{passive:false});}catch(_e){}
+    groupsListStatus.addEventListener('click',toggleList);
+  }
+  const saveGroupListHandler=()=>{
+    const groups=Array.isArray(w.data.groups)?w.data.groups:[];
+    const rows=[];
+    groups.forEach((g,gi)=>{
+      if(!Array.isArray(g))return;
+      g.forEach((name,pi)=>{
+        const clean=String(name||'').trim();
+        if(clean)rows.push(['Gruppe '+(gi+1),clean,String(pi+1)]);
+      });
+    });
+    if(!rows.length){toast('Dan grupper først');return}
+    const name=('Grupperesultat - '+(w.title||'Grupper')).slice(0,70);
+    const ds={id:uid(),name:name,type:'groups-results',columns:['Gruppe','Navn','Position'],rows:rows,sourceName:w.title||'Grupper',importedAt:Date.now()};
+    try{
+      updateDatasetInState(ds);
+      const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});
+      if(dw){dw.title='👥 '+name;dw.data=dw.data||{};dw.data.sourceType='groups-results';dw.data.sourceGroupsTitle=w.title||'Grupper';render();select(dw.id,{editText:false});save();}
+      toast('Grupper gemt som datawidget: '+rows.length+' rækker');
+    }catch(err){console.error(err);toast('Kunne ikke oprette grupper-datawidget')}
+  };
+  c.querySelectorAll('.saveGroupList').forEach(btn=>btn.onclick=saveGroupListHandler);
+}
 
 
 function extFromDataUrl(dataUrl,fallback='bin'){
@@ -16810,6 +19416,7 @@ function safe184DemoListChoices(title){
     {name:'Roller i gruppearbejde',items:['Ordstyrer','Skriver','Tidtager','Fremlægger','Materialeansvarlig','Opsamler']}
   ];
   if(t.includes('lykkehjulet')||t.includes('hjul'))return [
+    {name:'Efterskoleklasse · 24 navne',items:['Alma','Anton','Clara','Emil','Freja','Ida','Johan','Liva','Mads','Noah','Sofie','Villads','Agnes','Aksel','Ella','Felix','Hannah','Karl','Laura','Malthe','Nora','Oscar','Selma','Viggo']},
     {name:'Hvem starter?',items:['Den yngste starter','Den ældste starter','Den med kortest hår starter','Den med længst navn starter','Den der sidst har været udenfor starter','Den der melder sig frivilligt starter']},
     {name:'Brainbreaks',items:['Rejs jer og stræk armene','30 sekunders stilhed','Find tre ting i rummet','Skift plads med en makker','Lav fem rolige vejrtrækninger','Sig et ord om dagens emne']},
     {name:'Små spørgsmål',items:['Hvad lagde du mærke til?','Hvad undrer du dig over?','Hvad var vigtigst?','Hvad vil du spørge om?','Hvad kan bruges videre?']}
@@ -17749,6 +20356,117 @@ body.focus-maximized .hintBar{
 .calendarBox[data-view="week"] .calendarWeekTimes,
 .calendarBox[data-view="week"] .calendarWeekDayColumn{
   height:auto!important;
+}
+</style>
+
+
+
+<style id="safe450f-wheel-link-bar-visible-when-inactive-only">
+/* SAFE450f: Lykkehjulets PULJE-link er en statusbjælke, ikke en almindelig redigeringsknap.
+   Den skal derfor kunne ses/klikkes, også når Lykkehjulet ikke er valgt. */
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .wheelLinkedPoolBar,
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar.widget-control{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .wheelLinkedPoolBar .safe450LinkedDataStatus{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+/* Visningstilstande skal stadig være rene. */
+.app.present .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-mode .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-edit .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-presentation .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+</style>
+
+
+
+<style id="safe450k-wheel-link-bar-neutral-icon-style-only">
+/* SAFE450k: Gør Lykkehjulets nederste PULJE-kobling visuelt rolig som ikonknapperne.
+   Funktionaliteten og synlighedsreglerne ændres ikke. */
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar{
+  justify-content:flex-start!important;
+  align-items:center!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus{
+  width:auto!important;
+  max-width:min(360px,100%)!important;
+  min-height:52px!important;
+  margin:0!important;
+  padding:7px 12px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:7px!important;
+  border:1px solid rgba(15,23,42,.12)!important;
+  border-radius:14px!important;
+  background:#f1f5f9!important;
+  background-image:none!important;
+  color:#111827!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+  text-align:left!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus.empty{
+  background:#f1f5f9!important;
+  color:#111827!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus.open{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus:hover{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  filter:none!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .linkIcon{
+  font-size:24px!important;
+  line-height:1!important;
+  flex:0 0 auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .label{
+  font-size:11px!important;
+  line-height:1.05!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  flex:0 0 auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .name{
+  min-width:0!important;
+  max-width:240px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+  font-weight:900!important;
+}
+/* Bevar ren præsentation/fokus. */
+.app.present .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-mode .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-edit .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-presentation .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
 }
 </style>
 
@@ -18864,6 +21582,117 @@ body.focus-maximized .hintBar{
 }
 .calendarBox[data-view="week"] .calendarWeekTimedBlock.cw-tight small{
   display:none!important;
+}
+</style>
+
+
+
+<style id="safe450f-wheel-link-bar-visible-when-inactive-only">
+/* SAFE450f: Lykkehjulets PULJE-link er en statusbjælke, ikke en almindelig redigeringsknap.
+   Den skal derfor kunne ses/klikkes, også når Lykkehjulet ikke er valgt. */
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .wheelLinkedPoolBar,
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar.widget-control{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .wheelLinkedPoolBar .safe450LinkedDataStatus{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+/* Visningstilstande skal stadig være rene. */
+.app.present .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-mode .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-edit .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-presentation .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+</style>
+
+
+
+<style id="safe450k-wheel-link-bar-neutral-icon-style-only">
+/* SAFE450k: Gør Lykkehjulets nederste PULJE-kobling visuelt rolig som ikonknapperne.
+   Funktionaliteten og synlighedsreglerne ændres ikke. */
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar{
+  justify-content:flex-start!important;
+  align-items:center!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus{
+  width:auto!important;
+  max-width:min(360px,100%)!important;
+  min-height:52px!important;
+  margin:0!important;
+  padding:7px 12px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:7px!important;
+  border:1px solid rgba(15,23,42,.12)!important;
+  border-radius:14px!important;
+  background:#f1f5f9!important;
+  background-image:none!important;
+  color:#111827!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+  text-align:left!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus.empty{
+  background:#f1f5f9!important;
+  color:#111827!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus.open{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus:hover{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  filter:none!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .linkIcon{
+  font-size:24px!important;
+  line-height:1!important;
+  flex:0 0 auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .label{
+  font-size:11px!important;
+  line-height:1.05!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  flex:0 0 auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .name{
+  min-width:0!important;
+  max-width:240px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+  font-weight:900!important;
+}
+/* Bevar ren præsentation/fokus. */
+.app.present .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-mode .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-edit .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-presentation .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
 }
 </style>
 
@@ -24099,8 +26928,19 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
  if(w.type==='calendar'){c.innerHTML=safe351RenderCalendar(w);wireCalendar(c,w,el)}
 // --- WIDGET: WHEEL / LYKKEHJUL ---
  if(w.type==='wheel'){
-  w.data.names??=['Anna','Bertram','Caroline','Emil','Ida'];
+  // SAFE450o: Lykkehjulet må ikke længere starte med en forudfyldt demopulje,
+  // når der ikke findes en koblet pulje. Tom pulje er mindre forvirrende: brugeren
+  // vælger/kobler selv en kilde eller redigerer puljen.
+  w.data.names??=[];
   if(!Array.isArray(w.data.names)) w.data.names=String(w.data.names||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean);
+  try{
+    const demo=['Anna','Bertram','Caroline','Emil','Ida'];
+    const names=(w.data.names||[]).map(x=>String(x||'').trim());
+    const original=(Array.isArray(w.data.original)?w.data.original:[]).map(x=>String(x||'').trim());
+    const hasLinkedPool=(typeof safe450GetLinkedDataRef==='function' && !!safe450GetLinkedDataRef(w,'pool'));
+    const untouchedDemo=names.length===demo.length && names.every((x,i)=>x===demo[i]) && (!original.length || (original.length===demo.length && original.every((x,i)=>x===demo[i]))) && !(w.data.chosen&&w.data.chosen.length);
+    if(!hasLinkedPool && untouchedDemo){w.data.names=[];w.data.original=[];}
+  }catch(_e){}
   w.data.original??=[...w.data.names];
   w.data.chosen??=[];
   w.data.editing??=false;
@@ -24115,35 +26955,70 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
   const stats=[...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'da'));
   const maxCount=stats[0]?.[1]||1;
   const latest=chosen.length?chosen[chosen.length-1]:'';
-  const statsRows=stats.length?stats.map(([name,n])=>{const pct=Math.round(n*100/total);return `<div class="wheelStatRow"><span class="name">${esc(name)}</span><span class="count">${n}</span><span class="pct">${pct}%</span></div>`}).join(''):'<div class="wheelNoStats">Ingen resultater endnu. Drej hjulet for at opbygge statistik.</div>';
+  const statsRows=stats.length?stats.map(([name,n])=>{const pct=Math.round(n*100/total);const isLatest=latest&&String(name)===String(latest);return `<div class="wheelStatRow${isLatest?' latest':''}" data-wheel-stat-name="${esc(name)}"><span class="name">${esc(name)}</span><span class="count">${n}</span><span class="pct">${pct}%</span></div>`}).join(''):'<div class="wheelNoStats">Ingen resultater endnu. Drej hjulet for at opbygge statistik.</div>';
+  // SAFE450b: Kun visuel koblingsbjælke for Lykkehjulets PULJE; ingen ændring i liste-/import-flow.
+  const safe450bWheelPoolStatus=(typeof safe450LinkedDataStatusHtml==='function')
+    ? safe450LinkedDataStatusHtml(w,'pool','Pulje')
+    : '<button type="button" class="safe450LinkedDataStatus empty"><span class="linkIcon">🔗</span><span class="label">PULJE</span><span class="name">Ingen koblet pulje</span></button>';
   // SAFE163: Rediger pulje som felter, ikke ét textarea.
   const safe163EditorNames=((w.data.names||[]).length?(w.data.names||[]):['']).map(x=>String(x||''));
   const safe163EditorRows=safe163EditorNames.map((name,i)=>`<div class="safe163OptionRow"><input class="safe163OptionInput" data-i="${i}" value="${esc(name)}" placeholder="Valgmulighed ${i+1}"><button type="button" class="safe163RemoveOption" title="Fjern valgmulighed">−</button></div>`).join('');
   c.innerHTML=`<div class="wheel recon safe159Wheel ${w.data.editing?'editing':''}">
     <div class="wheelBox"><canvas class="wheelCanvas" width="900" height="900"></canvas><button class="spin spinCenter ${w.data.autoRunning?'running':''}">${w.data.autoRunning?'Stop':'Drej'}</button></div>
     <div class="wheelSide">
-      <div class="wheelTopBar">
-        <button class="loadList">Vælg kilde</button>
-        <button class="editNames">${w.data.editing?'Luk':'Rediger pulje'}</button>
-        <button class="resetPool">Nulstil</button>
+      <div class="wheelTopBar wheelIconTopBar">
+        <button class="loadList wheelIconBtn" title="Vælg kilde" aria-label="Vælg kilde"><span class="wheelBtnIcon">🗂️</span><span class="wheelBtnText">Kilde</span></button>
+        <button class="editNames wheelIconBtn" title="${w.data.editing?'Luk redigering':'Rediger pulje'}" aria-label="${w.data.editing?'Luk redigering':'Rediger pulje'}"><span class="wheelBtnIcon">${w.data.editing?'✓':'✎'}</span><span class="wheelBtnText">${w.data.editing?'Luk':'Pulje'}</span></button>
+        <button class="resetPool wheelIconBtn" title="Nulstil" aria-label="Nulstil"><span class="wheelBtnIcon">↺</span><span class="wheelBtnText">Nulstil</span></button>
+        ${w.data.editing?'':`<button class="saveChosenList wheelIconBtn" title="Gem resultat som ny pulje" aria-label="Gem resultat som ny pulje"><span class="wheelBtnIcon">💾</span><span class="wheelBtnText">Ny pulje</span></button>`}
       </div>
       ${w.data.editing?`
-        <div class="editArea safe159EditArea safe163OptionEditor"><div class="editHint"><span>Aktuel pulje</span><span>${(w.data.names||[]).length} valg · gemmes live</span></div><div class="safe163OptionRows">${safe163EditorRows}</div><div class="editTools safe164EditTools"><button type="button" class="safe163AddOption">+ Tilføj</button><span class="safe164LiveHint">Ændringer opdaterer hjulet med det samme</span></div></div>
+        <div class="editArea safe159EditArea safe163OptionEditor"><div class="editHint"><span>Aktuel pulje</span><span>${(w.data.names||[]).length} valg · gemmes automatisk</span></div><div class="safe163OptionRows">${safe163EditorRows}</div><div class="editTools safe164EditTools"><button type="button" class="safe163AddOption">+ Tilføj</button><span class="safe164LiveHint">Ændringer opdaterer hjulet og den koblede pulje</span></div></div>
       `:`
         <div class="wheelSettings"><label><input class="keepPool" type="checkbox" ${w.data.keepPool?'checked':''}> Behold i puljen</label><label><input class="autoToggle" type="checkbox" ${w.data.auto?'checked':''}> Auto</label>${w.data.auto?`<label class="autoCountLabel">Antal <input class="autoCount" type="number" min="1" max="999" value="${esc(w.data.autoCount)}"></label>`:''}</div>
         <div class="wheelResultNow"><small>Seneste valg</small><b>${esc(latest||'Ingen endnu')}</b></div>
         <div class="wheelStatsPanel"><h3>Statistik (${chosen.length} valg)</h3>${statsRows}</div>
-        <div class="wheelBottom"><button class="saveChosenList" title="Gem resultat som datawidget">💾 Gem resultat som datawidget</button></div>
       `}
     </div>
+    <div class="wheelLinkedPoolBar widget-control">${safe450bWheelPoolStatus}</div>
   </div>`;
   drawWheel(c.querySelector('canvas'),w,w.data.rot||0);
   wireWheel(c,w);
+  safe451cScrollWheelStatsToLatest(c,w);
 }
 // --- WIDGET: KAHOOPARDY ---
  if(w.type==='kahoopardy'){normalizeKahoopardy(w);renderKahoopardy(el,w)}
 // --- WIDGET: GROUPS ---
- if(w.type==='groups'){w.data.names??=[];w.data.size??=2;w.data.groups??=[];w.data.groupLocks??=[];w.data.groupsVisible??=!!(w.data.groups&&w.data.groups.length);c.innerHTML=`<div class="groupsBox ${w.data.listHidden?'groupsListHidden':''} ${w.data.groupsVisible?'groupsShowResult':''}"><div class="groupSpin"><canvas class="groupWheel" width="700" height="700"></canvas><button class="groupSpinBtn newGroups">Dan grupper</button></div><div class="groupsControls"><div class="groupsRow groupsResultSave"><button class="groupsResultSaveSpacer" tabindex="-1" aria-hidden="true">Hent liste</button><button class="saveGroupList">Gem grupper som datawidget</button></div><div class="groupsRow groupsShowRow"><button class="showGroupList">Vis/rediger navneliste</button></div><div class="groupsRow editOnly"><button class="loadGroupList">Hent liste</button><button class="saveGroupList">Gem grupper som datawidget</button></div><div class="groupsRow editOnly"><label>Personer pr. gruppe <input class="groupSize" type="number" min="1" max="12" value="${w.data.size}"></label><button class="toGroups">Dan grupper</button></div><textarea class="groupNames editOnly" placeholder="Én person/ting pr. linje">${esc((w.data.names||[]).join('\n'))}</textarea><div class="groupsResult">${renderGroups(w.data.groups,w.data.groupLocks)}</div></div></div>`;wireGroups(c,w)}
+ if(w.type==='groups'){
+ w.data.names??=[];w.data.size??=2;w.data.groups??=[];w.data.groupLocks??=[];w.data.groupsVisible??=!!(w.data.groups&&w.data.groups.length);
+ try{if(typeof safe452tRefreshGroupsFromLinkedList==='function')safe452tRefreshGroupsFromLinkedList(w);}catch(_e){}
+ const safe452GroupsListStatus=(typeof safe450LinkedDataStatusHtml==='function')
+   ? safe450LinkedDataStatusHtml(w,'participants','Liste')
+   : '<button type="button" class="safe450LinkedDataStatus empty"><span class="linkIcon">🔗</span><span class="label">LISTE</span><span class="name">Ingen koblet liste</span></button>';
+ const safe452bCleanNames=(w.data.names||[]).map(x=>String(x||'').trim()).filter(Boolean);
+ const safe452bNames=(safe452bCleanNames.length?safe452bCleanNames:['']).concat(w.data._groupsAddBlank?['']:[]);
+ const safe452bRows=safe452bNames.map((name,i)=>`<div class="safe163OptionRow groupOptionRow"><input class="safe163OptionInput groupOptionInput" data-i="${i}" value="${esc(name)}" placeholder="Navn ${i+1}"><button type="button" class="safe163RemoveOption groupRemoveName" title="Fjern navn">−</button></div>`).join('');
+ c.innerHTML=`<div class="groupsBox ${w.data.listHidden?'groupsListHidden':''} ${w.data.groupsVisible?'groupsShowResult':''}">
+  <div class="groupSpin">
+   <div class="groupWheelWrap"><canvas class="groupWheel" width="700" height="700"></canvas><button class="groupSpinBtn newGroups">Dan grupper</button></div>
+   <div class="groupsLinkedListBar widget-control">${safe452GroupsListStatus}</div>
+  </div>
+  <div class="groupsControls">
+   <div class="groupsRow groupsResultSave groupsIconTopBar">
+    <button class="saveGroupList groupsIconBtn" title="Gem grupper som datawidget" aria-label="Gem grupper som datawidget"><span class="groupsBtnIcon">💾</span><span class="groupsBtnText">Gem grupper</span></button>
+    <button class="showGroupList groupsIconBtn" title="Vis/rediger navneliste" aria-label="Vis/rediger navneliste"><span class="groupsBtnIcon">☰</span><span class="groupsBtnText">Liste</span></button>
+    <button class="loadGroupList groupsIconBtn" title="Vælg kilde" aria-label="Vælg kilde"><span class="groupsBtnIcon">🗂️</span><span class="groupsBtnText">Kilde</span></button>
+   </div>
+   <div class="groupsRow groupsIconTopBar editOnly">
+    <button class="saveGroupList groupsIconBtn" title="Gem grupper som datawidget" aria-label="Gem grupper som datawidget"><span class="groupsBtnIcon">💾</span><span class="groupsBtnText">Gem grupper</span></button>
+    <button class="toGroups groupsIconBtn" title="Dan grupper" aria-label="Dan grupper"><span class="groupsBtnIcon">👥</span><span class="groupsBtnText">Dan</span></button>
+    <button class="loadGroupList groupsIconBtn" title="Vælg kilde" aria-label="Vælg kilde"><span class="groupsBtnIcon">🗂️</span><span class="groupsBtnText">Kilde</span></button>
+   </div>
+   <div class="groupsRow groupsSizeRow editOnly"><label><span class="groupsSizeLabel">Personer pr. gruppe</span><input class="groupSize" type="number" min="1" max="12" value="${w.data.size}"></label><span class="groupsTotalCount">${safe452bCleanNames.length} navne</span></div>
+   <div class="groupsNameEditor editOnly safe163OptionEditor"><div class="safe163OptionRows groupOptionRows">${safe452bRows}</div><div class="editTools safe164EditTools"><button type="button" class="groupAddName">+ Tilføj</button></div></div>
+   <div class="groupsResult">${renderGroups(w.data.groups,w.data.groupLocks)}</div>
+  </div>
+ </div>`;wireGroups(c,w)}
 // --- WIDGET: WORDCLOUD / SKY ---
  if(w.type==='wordcloud'){
   w.data.names??=[];
@@ -26306,8 +29181,10 @@ function wheelListNamesForSave(w){return [...(w.data.names||[]),...(w.data.chose
 function openSaveListModal(w){
   const bank=wheelListBank(), keys=Object.keys(bank).sort((a,b)=>a.localeCompare(b,'da'));
   const rows=keys.length?keys.map(k=>`<div class="savedListRow"><b>${esc(k)}</b><div class="actions"><button data-over="${esc(k)}">Overskriv</button><button data-del="${esc(k)}">Slet</button></div></div>`).join(''):'<p>Ingen gemte lister endnu.</p>';
+  // SAFE450c: Når Lykkehjulet gemmer en pulje i listebanken, skal navnet kunne genkendes senere.
+  const safe450cDefaultListName=String((w&&w.data&&w.data.safe450cDefaultListName)||('Lykkehjul-pulje - '+((w&&w.title)||'Lykkehjulet'))).slice(0,70);
   showModal(`<h2>Gem liste</h2><div class="listManager">
-    <label>Listenavn:<input id="listName" value="${esc(keys[0]||'Min liste')}"></label>
+    <label>Listenavn:<input id="listName" value="${esc(safe450cDefaultListName)}"></label>
     <div><b>Gemte lister:</b><div class="savedLists">${rows}</div></div>
     <div><button id="saveNewList">Gem / overskriv liste</button><button id="close">Luk</button></div>
   </div>`);
@@ -26494,6 +29371,96 @@ function startWheelAuto(c,w){
  };
  setTimeout(step,60);
 }
+
+function safe450pCreateLinkedWheelDemoPool(ownerW,items,pickName){
+  try{
+    if(!ownerW||!Array.isArray(items)||!items.length)return null;
+    const cleanItems=items.map(x=>String(x||'').trim()).filter(Boolean);
+    if(!cleanItems.length)return null;
+    const base=String(pickName||'Demopulje').replace(/^🎡\s*/,'').trim()||'Demopulje';
+    const dsName=('Lykkehjul-pulje - '+base).slice(0,70);
+    const ds={
+      id:uid(),
+      name:dsName,
+      type:'wheel-pool',
+      columns:['Pulje'],
+      rows:cleanItems.map(x=>[x]),
+      sourceName:'Lykkehjulet demo',
+      sourceType:'wheel-demo-pool',
+      importedAt:Date.now()
+    };
+    if(typeof updateDatasetInState==='function')updateDatasetInState(ds);
+    else if(typeof addDataset==='function')addDataset(ds);
+    let dw=null;
+    if(typeof addDatasetWidget==='function'){
+      dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((ownerW.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((ownerW.y||130)+40,innerHeight-440))});
+      if(dw){
+        dw.title='🎡 '+dsName;
+        dw.data=dw.data||{};
+        dw.data.sourceType='wheel-pool';
+        dw.data.sourceOpen=false;
+      }
+    }
+    // SAFE450s: addDatasetWidget() re-renderer tavlen med det samme.
+    // Derfor skal koblingen sættes på den live widget i state EFTER oprettelsen,
+    // og den synlige Lykkehjul-DOM skal opdateres uden endnu et bredt render-hack.
+    const liveOwner=(typeof findWidget==='function'?findWidget(ownerW.id):null)||ownerW;
+    if(liveOwner){
+      liveOwner.data=liveOwner.data||{};
+      liveOwner.data.names=[...cleanItems];
+      liveOwner.data.original=[...cleanItems];
+      liveOwner.data.chosen=[];
+      liveOwner.data.winner='';
+      liveOwner.data.rot=0;
+      liveOwner.data.editing=false;
+      liveOwner.data.statsView=false;
+    }
+    if(dw&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(liveOwner,{w:dw,slide:slide()},'pool',dsName);
+    // SAFE451g: En koblet demopulje skal IKKE åbne datawidgetten automatisk.
+    // Datawidgetten gemmes/skjules som koblet datakilde; brugeren kan selv åbne den
+    // med Lykkehjulets PULJE-link. Det undgår et forvirrende pop-up på tavlen.
+    try{
+      if(dw&&dw.data){
+        dw.data.sourceOpen=false;
+        delete dw.data.sourceOpenedFromWidgetId;
+      }
+      if(liveOwner){
+        selected=liveOwner.id;
+        if(window.UIState)UIState.selectedWidgetId=liveOwner.id;
+      }
+      if(typeof render==='function'){
+        render();
+        setTimeout(()=>{try{select(liveOwner.id,{editText:false});}catch(_e){}},30);
+      }else{
+        const id=String((liveOwner&&liveOwner.id)||ownerW.id||'');
+        const sel=`.widget[data-id="${(window.CSS&&CSS.escape)?CSS.escape(id):id.replace(/"/g,'\\"')}"]`;
+        const wheelEl=document.querySelector(sel);
+        if(wheelEl&&typeof fillContent==='function')fillContent(wheelEl,liveOwner);
+      }
+    }catch(_e){}
+    try{save();}catch(_e){}
+    return {ds,dw,name:dsName,owner:liveOwner};
+  }catch(err){console.warn('SAFE450p kunne ikke oprette koblet demopulje',err);return null;}
+}
+
+
+function safe451cScrollWheelStatsToLatest(c,w){
+  try{
+    if(!c||!w||!w.data)return;
+    const chosen=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);
+    const latest=chosen.length?chosen[chosen.length-1]:'';
+    if(!latest)return;
+    const panel=c.querySelector&&c.querySelector('.wheelStatsPanel');
+    if(!panel)return;
+    const row=panel.querySelector('.wheelStatRow.latest')||[...panel.querySelectorAll('.wheelStatRow')].find(r=>String(r.getAttribute('data-wheel-stat-name')||'')===latest);
+    if(!row)return;
+    requestAnimationFrame(()=>{
+      try{ row.scrollIntoView({block:'nearest',inline:'nearest'}); }
+      catch(_e){ panel.scrollTop=Math.max(0,row.offsetTop-panel.clientHeight+row.offsetHeight+10); }
+    });
+  }catch(_e){}
+}
+
 function wireWheel(c,w){
  const el=c.closest('.widget');
  const keep=c.querySelector('.keepPool'); if(keep)keep.onchange=()=>{w.data.keepPool=keep.checked;save()};
@@ -26501,7 +29468,22 @@ function wireWheel(c,w){
  const autoCount=c.querySelector('.autoCount'); if(autoCount){autoCount.addEventListener('pointerdown',e=>e.stopPropagation(),true);autoCount.oninput=()=>{w.data.autoCount=Math.max(1,parseInt(autoCount.value||'1',10));save()}};
  const canv=c.querySelector('canvas');
  if(canv)canv.onclick=e=>{const idx=wheelIndexFromCanvasEvent(canv,e,w);if(idx>=0)moveWheelItemToChosen(c,w,idx)};
- const edit=c.querySelector('.editNames'); if(edit)edit.onclick=()=>{w.data.editing=!w.data.editing;fillContent(el,w);save()};
+ const edit=c.querySelector('.editNames'); if(edit)edit.onclick=()=>{
+   const wasEditing=!!w.data.editing;
+   if(wasEditing){
+     try{
+       const vals=[...c.querySelectorAll('.safe163OptionInput')].map(inp=>String(inp.value||'').trim()).filter(Boolean);
+       if(vals.length){
+         w.data.names=[...vals];
+         w.data.original=[...vals,...(w.data.chosen||[])];
+         // SAFE451h: Når redigeret pulje lukkes, skal Antal matche den aktuelle puljestørrelse.
+         // Brugeren kan stadig ændre Antal manuelt bagefter.
+         w.data.autoCount=Math.max(1,vals.length);
+       }
+     }catch(_e){}
+   }
+   w.data.editing=!w.data.editing;fillContent(el,w);save()
+ };
  const mode=c.querySelector('.modeToggle'); if(mode)mode.onclick=()=>{w.data.statsView=!w.data.statsView;fillContent(el,w);save()};
  const editor=c.querySelector('.nameEditor'); if(editor){
    editor.addEventListener('pointerdown',e=>e.stopPropagation(),true);
@@ -26509,6 +29491,32 @@ function wireWheel(c,w){
  }
  // SAFE163: Feltbaseret puljeeditor. Ét input = én valgmulighed.
  const readSafe163Options=()=>[...c.querySelectorAll('.safe163OptionInput')].map(inp=>String(inp.value||'').trim()).filter(Boolean);
+ // SAFE450m: Rediger pulje = redigér den koblede PULJE-kilde direkte.
+ // Der oprettes ikke en ny datakilde her; det gør kun "Ny pulje".
+ const safe450mWriteLinkedWheelPool=(vals)=>{
+   try{
+     if(typeof safe450GetLinkedDataRef!=='function'||typeof findDatasetById!=='function')return false;
+     const ref=safe450GetLinkedDataRef(w,'pool');
+     if(!ref||!ref.datasetId)return false;
+     const ds=findDatasetById(ref.datasetId);
+     if(!ds)return false;
+     ds.columns=['Pulje'];
+     ds.rows=[...vals].map(name=>[String(name||'').trim()]).filter(r=>r[0]);
+     ds.type=ds.type||'wheel-pool';
+     ds.sourceType=ds.sourceType||'wheel-pool';
+     ds.sourceName=ds.sourceName||w.title||'Lykkehjulet';
+     ds.updatedAt=Date.now();
+     updateDatasetInState(ds);
+     if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);
+     const hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null;
+     if(hit&&hit.w&&hit.w.data){
+       hit.w.data.datasetView=true;
+       hit.w.data.text=formatDatasetAsTextWidgetContent(ds);
+       hit.w.data.sourceType=hit.w.data.sourceType||'wheel-pool';
+     }
+     return true;
+   }catch(err){console.warn('SAFE450m kunne ikke autoskrive pulje',err);return false;}
+ };
  const syncSafe163Options=()=>{
    const vals=readSafe163Options();
    w.data.names=vals;
@@ -26516,6 +29524,7 @@ function wireWheel(c,w){
    w.data.rot=0;
    const canv=c.querySelector('canvas');
    if(canv)drawWheel(canv,w,0);
+   safe450mWriteLinkedWheelPool(vals);
    save();
  };
  c.querySelectorAll('.safe163OptionInput').forEach(inp=>{
@@ -26551,37 +29560,68 @@ function wireWheel(c,w){
    w.data.names=vals;
    w.data.original=[...vals.map(x=>String(x||'').trim()).filter(Boolean),...(w.data.chosen||[])];
    fillContent(el,w);
-   setTimeout(()=>{try{const inputs=el.querySelectorAll('.safe163OptionInput');const last=inputs[inputs.length-1];if(last)last.focus({preventScroll:true});}catch(_e){}},30);
+   setTimeout(()=>{try{
+     const inputs=el.querySelectorAll('.safe163OptionInput');
+     const last=inputs[inputs.length-1];
+     if(last){
+       const row=last.closest('.safe163OptionRow')||last;
+       const scroller=last.closest('.safe159EditArea,.editArea,.wheelSide');
+       if(scroller)scroller.scrollTop=scroller.scrollHeight;
+       if(row&&row.scrollIntoView)row.scrollIntoView({block:'nearest',inline:'nearest'});
+       try{last.focus({preventScroll:false});}catch(_e){last.focus();}
+     }
+   }catch(_e){}},50);
    save();
  };
  const useNames=()=>{const t=c.querySelector('.nameEditor');if(t){w.data.names=parseWheelNames(t.value);w.data.original=[...w.data.names];w.data.rot=0;}else if(c.querySelector('.safe163OptionInput')){const vals=readSafe163Options();w.data.names=[...vals];w.data.original=[...vals];w.data.rot=0;}w.data.editing=false;fillContent(el,w);toast('Listen er overført til hjulet');setTimeout(()=>flashWheel(el.querySelector('.content')),50);save()};
  const namesBtn=c.querySelector('.names'); if(namesBtn)namesBtn.onclick=useNames;
  const resetBtn=c.querySelector('.resetPool'); if(resetBtn)resetBtn.onclick=()=>{w.data.names=[...(w.data.original||w.data.names||[])];w.data.chosen=[];w.data.winner='';w.data.rot=0;w.data.statsView=false;fillContent(el,w);save()};
- const saveListBtns=c.querySelectorAll('.saveList'); saveListBtns.forEach(btn=>btn.onclick=()=>openSaveListModal({data:{names:[...(w.data.names||[])],chosen:[]}}));
+ const saveListBtns=c.querySelectorAll('.saveList'); saveListBtns.forEach(btn=>btn.onclick=()=>openSaveListModal({title:w.title||'Lykkehjulet',data:{names:[...(w.data.names||[])],chosen:[],safe450cDefaultListName:('Lykkehjul-pulje - '+(w.title||'Lykkehjulet')).slice(0,70)}}));
  const saveChosenList=c.querySelector('.saveChosenList'); if(saveChosenList)saveChosenList.onclick=()=>{
+   // SAFE450l: Gem betyder nu “Gem resultatlisten som en ny pulje” – ikke statistikrapport.
+   // Det matcher PULJE-koblingen: den nyoprettede datawidget bliver straks den koblede pulje.
    const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);
-   if(!selected.length){toast('Ingen valgte at gemme endnu');return}
-   const total=selected.length;
-   const counts=new Map();
-   selected.forEach((name,idx)=>{
-     const key=String(name||'').trim();
-     if(!key)return;
-     const rec=counts.get(key)||{n:0,order:[]};
-     rec.n++; rec.order.push(idx+1); counts.set(key,rec);
-   });
-   const rows=[...counts.entries()].sort((a,b)=>b[1].n-a[1].n||a[0].localeCompare(b[0],'da')).map(([name,rec])=>[String(name),String(rec.n),String(total?Math.round(rec.n/total*100):0),rec.order.join(' ')]);
-   const name=('Lykkehjul-resultat - '+(w.title||'Lykkehjulet')).slice(0,70);
-   const ds={id:uid(),name:name,type:'wheel-results',columns:['Valg','Antal','Procent','Rækkefølge'],rows:rows,sourceName:w.title||'Lykkehjulet',importedAt:Date.now()};
+   if(!selected.length){toast('Ingen resultater at gemme som ny pulje endnu');return}
+   const baseTitle=String(w.title||'Lykkehjulet').replace(/^🎡\s*/,'').trim()||'Lykkehjulet';
+   const name=('Lykkehjul-pulje - valgte fra '+baseTitle).slice(0,70);
+   const rows=selected.map(name=>[String(name)]);
+   const ds={
+     id:uid(),
+     name:name,
+     type:'wheel-pool',
+     columns:['Pulje'],
+     rows:rows,
+     sourceName:w.title||'Lykkehjulet',
+     sourceType:'wheel-results-as-pool',
+     importedAt:Date.now()
+   };
    try{
      updateDatasetInState(ds);
      const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});
-     if(dw){dw.title='🎡 '+name;dw.data=dw.data||{};dw.data.sourceType='wheel-results';dw.data.sourceWheelTitle=w.title||'Lykkehjulet';render();select(dw.id,{editText:false});save();}
-     toast('Lykkehjul-resultat gemt som datawidget');
-   }catch(err){console.error(err);toast('Kunne ikke oprette resultat-datawidget')}
+     if(dw){
+       dw.title='🎡 '+name;
+       dw.data=dw.data||{};
+       dw.data.sourceType='wheel-pool';
+       dw.data.sourceWheelTitle=w.title||'Lykkehjulet';
+       // Indlæs og koble den nye pulje præcis som hvis brugeren bagefter havde valgt den via Kilde.
+       w.data.names=[...selected];
+       w.data.original=[...selected];
+       w.data.chosen=[];
+       w.data.winner='';
+       w.data.rot=0;
+       w.data.editing=false;
+       w.data.statsView=false;
+       if(typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,{w:dw,slide:slide()},'pool',name);
+       render();
+       select(w.id,{editText:false});
+       save();
+     }
+     toast('Ny pulje gemt og koblet');
+   }catch(err){console.error(err);toast('Kunne ikke oprette ny pulje')}
  };
   const loadBtns=c.querySelectorAll('.loadList');
   loadBtns.forEach(loadList=>loadList.onclick=()=>{
-    const useList=(pick,items)=>{
+    const useList=(pick,items,meta)=>{
       items=[...(items||[])].map(x=>String(x||'').trim()).filter(Boolean);
       if(!items.length){toast('Kilden indeholdt ingen brugbar liste');return}
       w.data.names=[...items];
@@ -26590,16 +29630,28 @@ function wireWheel(c,w){
       w.data.winner='';
       w.data.rot=0;
       w.data.editing=false;
+      // SAFE451b: Når en ny pulje indlæses, skal Auto → Antal starte på puljens længde.
+      // Brugeren kan stadig ændre Antal manuelt bagefter for statistik/udtræk med gentagelser.
+      w.data.autoCount=Math.max(1,items.length);
+      // SAFE450c: Vælg pulje skal også koble Lykkehjulet til datawidgetten, når kilden er en datawidget/datakilde.
+      try{
+        let hit=null;
+        if(meta&&meta.widgetId&&typeof safe450FindDataWidgetByWidgetId==='function')hit=safe450FindDataWidgetByWidgetId(meta.widgetId);
+        if(!hit&&meta&&meta.sourceDatasetId&&typeof safe450FindDataWidgetByDatasetId==='function')hit=safe450FindDataWidgetByDatasetId(meta.sourceDatasetId);
+        if(!hit&&meta&&meta.dataset&&meta.dataset.id&&typeof safe450FindDataWidgetByDatasetId==='function')hit=safe450FindDataWidgetByDatasetId(meta.dataset.id);
+        if(hit&&hit.w&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,hit,'pool',pick||'Pulje');
+        else if(meta&&meta.type==='demoList'&&typeof safe450pCreateLinkedWheelDemoPool==='function')safe450pCreateLinkedWheelDemoPool(w,items,pick||'Demopulje');
+      }catch(_e){}
       closeModal();
       fillContent(el,w);
-      toast('Listen er indlæst i hjulet');
+      toast('Puljen er indlæst i hjulet');
       setTimeout(()=>flashWheel(el.querySelector('.content')),50);
       save();
     };
     // SAFE162: Brug samme fælles listevælger som Afstemning, men anvend valget som enkel hjulpulje.
     if(typeof chooseSharedList==='function'){
       chooseSharedList('Vælg kilde til Lykkehjulet',(name,items,meta)=>{
-        useList(name,items);
+        useList(name,items,meta);
       });
       return;
     }
@@ -26610,13 +29662,31 @@ function wireWheel(c,w){
     showModal('<h2>Hent liste</h2><p>Vælg en gemt liste, eller brug importknappen for at oprette en datawidget først.</p>' + listHtml + '<hr>' + importedDataWidgetButtonHtml() + ' <button id="close">Luk</button>');
     modal.querySelectorAll('.pickList').forEach(btn=>btn.onclick=()=>{
       const pick=btn.dataset.k;
-      useList(pick,wheelListBank()[pick]||[]);
+      useList(pick,wheelListBank()[pick]||[],{type:'savedBank',source:'savedBank'});
     });
     wireImportDataWidgetButton();
     modal.querySelector('#close').onclick=closeModal;
   });
  const chosenToWheel=c.querySelector('.chosenToWheel'); if(chosenToWheel)chosenToWheel.onclick=()=>{const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);if(!selected.length){toast('Ingen valgte endnu');return}w.data.names=[...selected];w.data.original=[...selected];w.data.chosen=[];w.data.statsView=false;w.data.rot=0;fillContent(el,w);save()};
  const spin=c.querySelector('.spinCenter'); if(spin)spin.onclick=()=>{if(w.data.auto){startWheelAuto(c,w)}else{runWheelSpin(c,w,{auto:false})}};
+ // SAFE450b: Klik på Lykkehjulets PULJE-bjælke toggler kun en allerede koblet datawidget.
+ const poolStatus=c.querySelector('.wheelLinkedPoolBar .safe450LinkedDataStatus');
+ if(poolStatus){
+   let safe450bPoolBusy=false;
+   const togglePool=e=>{
+     try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+     if(safe450bPoolBusy)return;
+     safe450bPoolBusy=true;
+     try{
+       const ref=(typeof safe450GetLinkedDataRef==='function')?safe450GetLinkedDataRef(w,'pool'):{datasetId:'',empty:'Ingen koblet pulje'};
+       if(ref&&ref.datasetId&&typeof safe450ToggleLinkedData==='function')safe450ToggleLinkedData(w,'pool');
+       else toast((ref&&ref.empty)||'Ingen koblet pulje');
+     }catch(err){console.warn(err);toast('Kunne ikke åbne koblet pulje')}
+     setTimeout(()=>{safe450bPoolBusy=false;},250);
+   };
+   try{poolStatus.addEventListener('pointerup',togglePool,{passive:false});}catch(_e){}
+   poolStatus.addEventListener('click',togglePool);
+ }
 }
 function pickFile(accept,cb){fileInput.accept=accept;fileInput.onchange=()=>{const f=fileInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result,f);r.readAsDataURL(f);fileInput.value=''};fileInput.click()}
 function showModal(html){modal.classList.toggle('moveWidgetModal',String(html).includes('moveWidgetDialog'));modal.innerHTML=html;modalBack.style.display='flex'} function closeModal(){try{if(window.__safe374BoardOverviewCleanup)window.__safe374BoardOverviewCleanup();}catch(_e){}modal.classList.remove('moveWidgetModal');modalBack.style.display='none'} modalBack.onclick=e=>{if(e.target===modalBack)closeModal()}
@@ -34973,4 +38043,115 @@ body.focus-presentation:not(.focus-maximized) .widget.focusTarget{
   };
 })();
 </script>
+
+
+<style id="safe450f-wheel-link-bar-visible-when-inactive-only">
+/* SAFE450f: Lykkehjulets PULJE-link er en statusbjælke, ikke en almindelig redigeringsknap.
+   Den skal derfor kunne ses/klikkes, også når Lykkehjulet ikke er valgt. */
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .wheelLinkedPoolBar,
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar.widget-control{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus,
+.app:not(.present) .widget[data-type="wheel"]:not(.selected) .wheelLinkedPoolBar .safe450LinkedDataStatus{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+/* Visningstilstande skal stadig være rene. */
+.app.present .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-mode .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-edit .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-presentation .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+</style>
+
+
+
+<style id="safe450k-wheel-link-bar-neutral-icon-style-only">
+/* SAFE450k: Gør Lykkehjulets nederste PULJE-kobling visuelt rolig som ikonknapperne.
+   Funktionaliteten og synlighedsreglerne ændres ikke. */
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar{
+  justify-content:flex-start!important;
+  align-items:center!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus{
+  width:auto!important;
+  max-width:min(360px,100%)!important;
+  min-height:52px!important;
+  margin:0!important;
+  padding:7px 12px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:7px!important;
+  border:1px solid rgba(15,23,42,.12)!important;
+  border-radius:14px!important;
+  background:#f1f5f9!important;
+  background-image:none!important;
+  color:#111827!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+  text-align:left!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus.empty{
+  background:#f1f5f9!important;
+  color:#111827!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus.open{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus:hover{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.25)!important;
+  filter:none!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .linkIcon{
+  font-size:24px!important;
+  line-height:1!important;
+  flex:0 0 auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .label{
+  font-size:11px!important;
+  line-height:1.05!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  flex:0 0 auto!important;
+}
+.app:not(.present) .widget[data-type="wheel"] .wheelLinkedPoolBar .safe450LinkedDataStatus .name{
+  min-width:0!important;
+  max-width:240px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  font-size:11px!important;
+  line-height:1.05!important;
+  font-weight:900!important;
+}
+/* Bevar ren præsentation/fokus. */
+.app.present .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-mode .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-edit .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-presentation .widget[data-type="wheel"] .wheelLinkedPoolBar,
+body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+</style>
+
 </body></html>
