@@ -20034,6 +20034,7 @@ function showDataSourcesModal(){
     .safe453DataSources::-webkit-scrollbar{width:8px}
     .safe453DataSources::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
     .safe453DataRow{display:grid;grid-template-columns:34px minmax(0,1.25fr) minmax(78px,.55fr) minmax(100px,.7fr) minmax(0,1.15fr) 34px;gap:10px;align-items:center;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:10px;color:#111827}
+    .safe453DataRow.safe453Selected{border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.22);background:#fff}
     .safe453DataHead{background:#e5e7eb;font-size:12px;text-transform:uppercase;letter-spacing:.03em;font-weight:950;color:#374151;position:sticky;top:0;z-index:2}
     .safe453Icon{font-size:23px;text-align:center;line-height:1}
     .safe453InspectBtn{width:30px;height:30px;border:0!important;border-radius:999px;background:transparent!important;color:#334155!important;font-size:21px;font-weight:950;display:inline-flex;align-items:center;justify-content:center;box-shadow:none!important;cursor:pointer;padding:0;justify-self:center}
@@ -20047,12 +20048,12 @@ function showDataSourcesModal(){
     .safe453Note{margin:0 0 10px 0;opacity:.76;font-weight:800;line-height:1.35}
     @media(max-width:720px){.safe453DataRow{grid-template-columns:30px minmax(0,1fr) 42px;gap:6px}.safe453DataHead{display:none}.safe453Type,.safe453Meta,.safe453Usage{grid-column:2}.safe453Usage{white-space:normal}.safe453InspectBtn{grid-column:3;grid-row:1 / span 3}}
   </style>`;
-  const body=rows.length?rows.map(r=>{
+  const body=rows.length?rows.map((r,i)=>{
     const canInspect=(r.kind==='dataset'||r.kind==='listWidget');
     const inspect=canInspect?`<button type="button" class="safe453InspectBtn" title="Åbn datakilde til inspektion" aria-label="Åbn datakilde" data-safe453-inspect="1" data-kind="${esc(r.kind||'')}" data-id="${esc(r.id||'')}" data-name="${esc(r.name||'')}">🔗</button>`:`<button type="button" class="safe453InspectBtn" title="Gemt liste har endnu ingen widget at åbne" aria-label="Ingen widget at åbne" disabled>🔗</button>`;
-    return `<div class="safe453DataRow"><div class="safe453Icon">${r.icon}</div><input class="safe453NameInput" value="${esc(r.name)}" title="Redigér titel direkte" data-safe453-title="1" data-kind="${esc(r.kind||'')}" data-id="${esc(r.id||'')}" data-name="${esc(r.name||'')}"><div class="safe453Type">${esc(r.type)}</div><div class="safe453Meta">${esc(r.count)}</div><div class="safe453Usage" title="${esc(r.usage)}">${esc(r.usage)}</div>${inspect}</div>`;
+    return `<div class="safe453DataRow" data-safe453-row="${i}"><div class="safe453Icon">${r.icon}</div><input class="safe453NameInput" value="${esc(r.name)}" title="Redigér titel direkte" data-safe453-title="1" data-kind="${esc(r.kind||'')}" data-id="${esc(r.id||'')}" data-name="${esc(r.name||'')}"><div class="safe453Type">${esc(r.type)}</div><div class="safe453Meta">${esc(r.count)}</div><div class="safe453Usage" title="${esc(r.usage)}">${esc(r.usage)}</div>${inspect}</div>`;
   }).join(''):`<p class="safe453Note">Der er endnu ingen datakilder at vise.</p>`;
-  showModal(style+`<h2>🗂️ Datakilder</h2><p class="safe453Note">Oversigt over appens fælles lister og datasets. Redigér titlen direkte i navnefeltet. Det ændrer kun titlen — ikke indholdet.</p><div class="safe453DataSources"><div class="safe453DataRow safe453DataHead"><div></div><div>Navn</div><div>Type</div><div>Indhold</div><div>Bruges af</div><div></div></div>${body}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button id="close">Luk</button></div>`);
+  showModal(style+`<h2>🗂️ Datakilder</h2><p class="safe453Note">Oversigt over appens fælles lister og datasets. Redigér titlen direkte i navnefeltet. Genvej: D åbner Datakilder · ↑/↓ vælger · Enter/Space åbner link · E/F2 redigerer titel · Esc lukker.</p><div class="safe453DataSources"><div class="safe453DataRow safe453DataHead"><div></div><div>Navn</div><div>Type</div><div>Indhold</div><div>Bruges af</div><div></div></div>${body}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button id="close">Luk</button></div>`);
   const close=modal&&modal.querySelector('#close');
   if(close)close.onclick=closeModal;
   (modal&&modal.querySelectorAll('[data-safe453-title]')||[]).forEach(input=>{
@@ -20077,6 +20078,127 @@ function showDataSourcesModal(){
       safe453dInspectDataSource(btn.dataset.kind||'',btn.dataset.id||'',btn.dataset.name||'');
     });
   });
+  if(typeof safe453hInitDataSourcesModalKeyboard==='function')safe453hInitDataSourcesModalKeyboard(rows.length);
+}
+
+/* SAFE453h: genvej og tastaturnavigation til Datakilder-modal.
+   D åbner Datakilder. I modalen vælger ↑/↓ række, Enter/Space åbner link,
+   E/F2 redigerer titel, Esc lukker. I Datakilder-inspektion vender D/Esc tilbage. */
+function safe453hIsTypingTarget(el){
+  try{
+    if(!el)return false;
+    const tag=String(el.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea'||tag==='select')return true;
+    if(el.isContentEditable)return true;
+  }catch(_e){}
+  return false;
+}
+function safe453hModalIsOpen(){
+  try{return !!(modalBack&&modalBack.style.display!=='none'&&modal&&modal.querySelector('.safe453DataSources'));}catch(_e){return false;}
+}
+function safe453hRows(){
+  try{return Array.from((modal&&modal.querySelectorAll('.safe453DataRow[data-safe453-row]'))||[]);}catch(_e){return [];}
+}
+function safe453hSelectDataSourceRow(index,opts){
+  const rows=safe453hRows();
+  if(!rows.length)return false;
+  let i=Number.isFinite(Number(index))?Number(index):0;
+  i=Math.max(0,Math.min(rows.length-1,i));
+  window.__safe453DataSourcesSelectedIndex=i;
+  rows.forEach((r,n)=>r.classList.toggle('safe453Selected',n===i));
+  if(!opts||opts.scroll!==false){try{rows[i].scrollIntoView({block:'nearest'});}catch(_e){}}
+  return true;
+}
+function safe453hSelectedRow(){
+  const rows=safe453hRows();
+  if(!rows.length)return null;
+  let i=Number(window.__safe453DataSourcesSelectedIndex||0);
+  if(!Number.isFinite(i)||i<0||i>=rows.length)i=0;
+  safe453hSelectDataSourceRow(i,{scroll:false});
+  return rows[i]||null;
+}
+function safe453hActivateSelectedDataSource(){
+  const row=safe453hSelectedRow();
+  const btn=row&&row.querySelector&&row.querySelector('[data-safe453-inspect]:not([disabled])');
+  if(btn){btn.click();return true;}
+  return false;
+}
+function safe453hEditSelectedDataSourceTitle(){
+  const row=safe453hSelectedRow();
+  const input=row&&row.querySelector&&row.querySelector('[data-safe453-title]');
+  if(input){input.focus();try{input.select();}catch(_e){}return true;}
+  return false;
+}
+function safe453hFindInspectionWidget(){
+  let found=null;
+  try{
+    (Array.isArray(state&&state.slides)?state.slides:[]).some(sl=>((sl&&sl.widgets)||[]).some(w=>{
+      if(w&&w.data&&w.data.sourceOpenedFromDataSourcesModal){found=w;return true;}
+      return false;
+    }));
+  }catch(_e){}
+  return found;
+}
+function safe453hReturnFromInspection(){
+  const w=safe453hFindInspectionWidget();
+  if(w&&typeof safe453fCloseDataSourcesInspectionWidget==='function')return !!safe453fCloseDataSourcesInspectionWidget(w);
+  return false;
+}
+function safe453hInitDataSourcesModalKeyboard(count){
+  const n=Number(count)||0;
+  if(!n)return;
+  let i=Number(window.__safe453DataSourcesSelectedIndex||0);
+  if(!Number.isFinite(i)||i<0)i=0;
+  if(i>=n)i=n-1;
+  safe453hSelectDataSourceRow(i,{scroll:false});
+}
+if(!window.__safe453hDataSourcesShortcutInstalled){
+  window.__safe453hDataSourcesShortcutInstalled=true;
+  document.addEventListener('keydown',function(e){
+    const key=String(e.key||'');
+    const lower=key.toLowerCase();
+    const bare=!e.metaKey&&!e.ctrlKey&&!e.altKey&&!e.shiftKey;
+    if(e.defaultPrevented)return;
+    if(safe453hModalIsOpen()){
+      if(safe453hIsTypingTarget(e.target))return;
+      if(key==='ArrowDown'||key==='ArrowUp'){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        const rows=safe453hRows();
+        if(rows.length){
+          const cur=Number(window.__safe453DataSourcesSelectedIndex||0);
+          safe453hSelectDataSourceRow(cur+(key==='ArrowDown'?1:-1));
+        }
+        return;
+      }
+      if(key==='Enter'||key===' '){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        safe453hActivateSelectedDataSource();
+        return;
+      }
+      if(key==='F2'||(bare&&lower==='e')){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        safe453hEditSelectedDataSourceTitle();
+        return;
+      }
+      if(key==='Escape'){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        try{closeModal();}catch(_e){}
+        return;
+      }
+      return;
+    }
+    if((key==='Escape' || (bare&&lower==='d')) && safe453hFindInspectionWidget()){
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      safe453hReturnFromInspection();
+      return;
+    }
+    if(bare&&lower==='d'){
+      if(safe453hIsTypingTarget(e.target))return;
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      try{showDataSourcesModal();}catch(_e){}
+      return;
+    }
+  },true);
 }
 
 
