@@ -18559,7 +18559,7 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&w.data.datasetId&&w.data.sourceOpen===true&&typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -19573,7 +19573,7 @@ function showMoreTools(){
     ['System',[
       ['backup','💾','Gem/åbn'],
       ['help','?','hjælp'],
-      ['appearance','🎨','udseende'],
+      ['dataSources','🗂️','datakilder'],
       ['trash','🗑','papirkurv']
     ],2]
   ];
@@ -19691,6 +19691,411 @@ function updateGridOverlay(){
 ////////////////////////////////////////////////////////////
 
 
+
+/* SAFE453a: Datakilder-modal, read-only.
+   Erstatter den redundante Udseende-knap i Mere → System.
+   Ingen omdøbning/sletning endnu. Ingen ændring af data eller koblinger. */
+function safe453DataSourceUsageLabel(kind,id,name){
+  const used=[];
+  try{
+    const idStr=String(id||'');
+    const nameNorm=String(name||'').trim().toLowerCase();
+    (Array.isArray(state&&state.slides)?state.slides:[]).forEach((sl,si)=>{
+      ((sl&&sl.widgets)||[]).forEach(w=>{
+        if(!w||!w.data)return;
+        const title=String(w.title||titles[w.type]||w.type||'Widget').replace(/^📊\s*/,'').trim();
+        const board=String((sl&&sl.title)||('Tavle '+(si+1))).trim();
+        const label=title+' · '+board;
+        if(kind==='dataset' && String(w.data.datasetId||'')===idStr)used.push(label);
+        if(kind==='listWidget' && String(w.id||'')===idStr)used.push(label);
+        const links=w.data.linkedDataSources||{};
+        Object.keys(links).forEach(k=>{
+          const l=links[k]||{};
+          if(kind==='dataset' && String(l.datasetId||'')===idStr)used.push(label);
+          if(kind==='listWidget' && String(l.widgetId||'')===idStr)used.push(label);
+          if(kind==='savedList' && nameNorm && String(l.name||'').trim().toLowerCase()===nameNorm)used.push(label);
+        });
+        if(kind==='dataset' && String(w.data.sourceDatasetId||'')===idStr)used.push(label);
+        if(kind==='savedList'){
+          const n=String(w.data.sourceName||w.data.sourceDatasetName||w.data.linkedDataName||'').trim().toLowerCase();
+          if(nameNorm && n===nameNorm)used.push(label);
+        }
+      });
+    });
+  }catch(_e){}
+  const uniq=[...new Set(used)].filter(Boolean);
+  if(!uniq.length)return '—';
+  if(uniq.length<=2)return uniq.join(', ');
+  return uniq.slice(0,2).join(', ')+' + '+(uniq.length-2)+' mere';
+}
+function safe453CollectDataSources(){
+  const rows=[];
+  try{
+    (Array.isArray(state&&state.datasets)?state.datasets:[]).forEach(ds=>{
+      if(!ds||!ds.id)return;
+      const name=String(ds.name||'Unavngivet datasæt').replace(/^📊\s*/,'').trim()||'Unavngivet datasæt';
+      const cols=Array.isArray(ds.columns)?ds.columns.length:0;
+      const r=Array.isArray(ds.rows)?ds.rows.length:0;
+      rows.push({kind:'dataset',id:String(ds.id),icon:'📊',type:'Dataset',name,count:r+' rækker'+(cols?(' · '+cols+' kolonner'):''),usage:safe453DataSourceUsageLabel('dataset',ds.id,name)});
+    });
+  }catch(_e){}
+  try{
+    const listWidgets=(typeof safe148VisibleListWidgetChoices==='function')?safe148VisibleListWidgetChoices():[];
+    listWidgets.forEach(src=>{
+      if(!src)return;
+      const name=String(src.name||'Unavngivet liste').replace(/^📊\s*/,'').trim()||'Unavngivet liste';
+      const n=Array.isArray(src.items)?src.items.length:0;
+      rows.push({kind:'listWidget',id:String(src.id),icon:'☰',type:'Listewidget',name,count:n+' linjer',usage:safe453DataSourceUsageLabel('listWidget',src.id,name)});
+    });
+  }catch(_e){}
+  try{
+    const bank=(typeof safe148RawSavedListBank==='function')?safe148RawSavedListBank():JSON.parse(localStorage.getItem('maans_wheel_lists')||'{}')||{};
+    Object.keys(bank||{}).sort((a,b)=>a.localeCompare(b,'da')).forEach(k=>{
+      const items=Array.isArray(bank[k])?bank[k]:[];
+      rows.push({kind:'savedList',id:String(k||''),icon:'💾',type:'Gemt liste',name:k||'Unavngivet liste',count:items.length+' linjer',usage:safe453DataSourceUsageLabel('savedList','',k)});
+    });
+  }catch(_e){}
+  return rows.sort((a,b)=>String(a.type+a.name).localeCompare(String(b.type+b.name),'da'));
+}
+function safe453bFindWidgetById(id){
+  let found=null;
+  try{
+    (Array.isArray(state&&state.slides)?state.slides:[]).some(sl=>{
+      return ((sl&&sl.widgets)||[]).some(w=>{
+        if(String(w&&w.id)===String(id)){found=w;return true;}
+        return false;
+      });
+    });
+  }catch(_e){}
+  return found;
+}
+function safe453bTitleLooksLikeDataSource(title,oldName,prefix){
+  const t=String(title||'').trim();
+  const clean=t.replace(/^📊\s*/,'').replace(/^☰\s*/,'').trim();
+  const old=String(oldName||'').trim();
+  if(!t)return true;
+  if(old && clean===old)return true;
+  if(prefix==='dataset' && /^📊\s*/.test(t))return true;
+  if(prefix==='list' && /^☰\s*/.test(t))return true;
+  return false;
+}
+function safe453bRenameReferences(kind,id,oldName,newName){
+  const idStr=String(id||'');
+  const oldNorm=String(oldName||'').trim().toLowerCase();
+  try{
+    (Array.isArray(state&&state.slides)?state.slides:[]).forEach(sl=>{
+      ((sl&&sl.widgets)||[]).forEach(w=>{
+        if(!w||!w.data)return;
+        const d=w.data;
+        const links=d.linkedDataSources||{};
+        Object.keys(links).forEach(k=>{
+          const l=links[k]||{};
+          if(kind==='dataset' && String(l.datasetId||'')===idStr)l.name=newName;
+          if(kind==='listWidget' && String(l.widgetId||'')===idStr)l.name=newName;
+          if(kind==='savedList' && oldNorm && String(l.name||'').trim().toLowerCase()===oldNorm)l.name=newName;
+        });
+        if(kind==='dataset'){
+          if(String(d.datasetId||'')===idStr){
+            d.datasetName=newName;
+            if(safe453bTitleLooksLikeDataSource(w.title,oldName,'dataset'))w.title='📊 '+newName;
+          }
+          if(String(d.sourceDatasetId||'')===idStr)d.sourceDatasetName=newName;
+          if(String(d.linkedDatasetId||'')===idStr)d.linkedDataName=newName;
+        }
+        if(kind==='listWidget'){
+          if(String(w.id||'')===idStr){
+            d.sharedListName=newName;
+            if(safe453bTitleLooksLikeDataSource(w.title,oldName,'list'))w.title='☰ '+newName;
+          }
+          if(String(d.sourceListWidgetId||'')===idStr)d.sourceName=newName;
+        }
+        if(kind==='savedList'){
+          ['sourceName','sourceDatasetName','linkedDataName','questionBankName'].forEach(prop=>{
+            if(oldNorm && String(d[prop]||'').trim().toLowerCase()===oldNorm)d[prop]=newName;
+          });
+        }
+      });
+    });
+  }catch(_e){}
+}
+function safe453cRenameDataSource(kind,id,oldName,newName){
+  const current=String(oldName||'').trim();
+  const next=String(newName||'').trim();
+  if(!next||next===current)return {ok:false,changed:false,message:''};
+  try{
+    if(kind==='dataset'){
+      const ds=findDatasetById(id);
+      if(!ds)return {ok:false,changed:false,message:'Kunne ikke finde datasættet'};
+      ds.name=next;
+      if(!ds.sourceName || String(ds.sourceName).trim()===current)ds.sourceName=next;
+      updateDatasetInState(ds);
+      safe453bRenameReferences('dataset',id,current,next);
+    }else if(kind==='listWidget'){
+      const w=safe453bFindWidgetById(id);
+      if(!w)return {ok:false,changed:false,message:'Kunne ikke finde listewidgetten'};
+      w.data=w.data||{};
+      w.data.sharedListName=next;
+      w.title='☰ '+next;
+      safe453bRenameReferences('listWidget',id,current,next);
+    }else if(kind==='savedList'){
+      const bank=(typeof safe148RawSavedListBank==='function')?safe148RawSavedListBank():(JSON.parse(localStorage.getItem('maans_wheel_lists')||'{}')||{});
+      if(!Object.prototype.hasOwnProperty.call(bank,current))return {ok:false,changed:false,message:'Kunne ikke finde den gemte liste'};
+      if(Object.prototype.hasOwnProperty.call(bank,next))return {ok:false,changed:false,message:'Der findes allerede en gemt liste med det navn'};
+      bank[next]=bank[current];
+      delete bank[current];
+      localStorage.setItem('maans_wheel_lists',JSON.stringify(bank));
+      safe453bRenameReferences('savedList','',current,next);
+    }else{return {ok:false,changed:false,message:''};}
+    save({silent:true});
+    render();
+    return {ok:true,changed:true,message:'Datakilde omdøbt'};
+  }catch(e){console.error(e);return {ok:false,changed:false,message:'Kunne ikke omdøbe datakilden'};}
+}
+function safe453cCommitTitleInput(input){
+  if(!input)return;
+  const kind=input.dataset.kind||'';
+  const id=input.dataset.id||'';
+  const oldName=input.dataset.name||'';
+  const newName=String(input.value||'').trim();
+  if(!newName){input.value=oldName;return;}
+  if(newName===oldName)return;
+  const res=safe453cRenameDataSource(kind,id,oldName,newName);
+  if(!res.ok){
+    input.value=oldName;
+    if(res.message)toast(res.message);
+    return;
+  }
+  input.dataset.name=newName;
+  if(res.message)toast(res.message);
+  showDataSourcesModal();
+}
+
+/* SAFE453d/e: Datakilder-modal får inspektionslink pr. datakilde.
+   SAFE453e: linkknappen er kun ikon/neutral, modal-listen er scrollbar.
+   SAFE453g: både datawidgets og listewidgets åbnes lokalt/centreret og vender tilbage via 🔗.
+   Ingen ændring af dataindhold, omdøbning eller widget-algoritmer. */
+function safe453dFindWidgetHitById(id){
+  const target=String(id||'');
+  let found=null;
+  try{
+    (Array.isArray(state&&state.slides)?state.slides:[]).some((sl,si)=>{
+      return ((sl&&sl.widgets)||[]).some(w=>{
+        if(String(w&&w.id)===target){found={w,slide:sl,slideIndex:si};return true;}
+        return false;
+      });
+    });
+  }catch(_e){}
+  return found;
+}
+function safe453dInspectDataSource(kind,id,name){
+  try{closeModal();}catch(_e){}
+  const k=String(kind||'');
+  const idStr=String(id||'');
+  let ok=false;
+  try{
+    if(k==='dataset'){
+      if(typeof safe453fOpenDatasetForModalInspection==='function'){
+        ok=!!safe453fOpenDatasetForModalInspection(idStr,name);
+      }
+    }else if(k==='listWidget'){
+      if(typeof safe453gOpenListWidgetForModalInspection==='function'){
+        ok=!!safe453gOpenListWidgetForModalInspection(idStr,name);
+      }
+    }else if(k==='savedList'){
+      toast('Gemt liste har endnu ingen widget at åbne');
+      ok=true;
+    }
+  }catch(e){console.error(e);ok=false;}
+  if(!ok)toast('Kunne ikke åbne datakilden');
+}
+
+
+/* SAFE453f: Datakilder-inspektion må ikke skifte tavle.
+   Datawidgetten åbnes midlertidigt på den aktuelle tavle med 🔗 i topbjælken.
+   Når 🔗 klikkes, gendannes widgettens oprindelige placering/tilstand og Datakilder-modalen åbnes igen. */
+function safe453gModalInspectionBounds(){
+  const b=(typeof visibleBoardBounds==='function')?visibleBoardBounds():null;
+  if(b&&Number.isFinite(Number(b.x))&&Number.isFinite(Number(b.w))){
+    return {x:Number(b.x),y:Number(b.y),w:Number(b.w),h:Number(b.h),right:Number(b.right),bottom:Number(b.bottom)};
+  }
+  return {x:28,y:78,w:Math.max(640,innerWidth-80),h:Math.max(420,innerHeight-160),right:Math.max(668,innerWidth-52),bottom:Math.max(498,innerHeight-82)};
+}
+function safe453gPlaceInspectionWidget(w,kind){
+  if(!w)return;
+  const b=safe453gModalInspectionBounds();
+  const isList=String(kind||'')==='listWidget';
+  const maxW=isList?Math.min(620,Math.max(420,Math.floor(b.w*.50))):Math.min(680,Math.max(460,Math.floor(b.w*.56)));
+  const maxH=isList?Math.min(460,Math.max(300,Math.floor(b.h*.54))):Math.min(460,Math.max(300,Math.floor(b.h*.56)));
+  w.w=maxW;
+  w.h=maxH;
+  w.x=Math.max(b.x,Math.round(b.x+(b.w-maxW)/2));
+  w.y=Math.max(b.y,Math.round(b.y+(b.h-maxH)/2));
+  if(typeof fitWidgetToViewport==='function')fitWidgetToViewport(w,{resetRotation:false});
+}
+function safe453gInspectionOriginal(hit,w){
+  w.data=w.data||{};
+  if(!w.data.safe453fInspectionOriginal){
+    w.data.safe453fInspectionOriginal={
+      slideIndex:hit.slideIndex,
+      x:Number(w.x)||140,
+      y:Number(w.y)||130,
+      w:Number(w.w)||560,
+      h:Number(w.h)||360,
+      z:Number(w.z)||1,
+      sourceOpen:!!w.data.sourceOpen,
+      sourceOpenedFromWidgetId:w.data.sourceOpenedFromWidgetId||null,
+      sourceOpenedFromDataSourcesModal:!!w.data.sourceOpenedFromDataSourcesModal
+    };
+  }
+}
+function safe453fOpenDatasetForModalInspection(dsId,name){
+  const hit=(typeof safe376DatasetWidgetInfo==='function')?safe376DatasetWidgetInfo(dsId):null;
+  if(!hit||!hit.w){toast('Datawidget blev ikke fundet');return false;}
+  const dw=hit.w;
+  safe453gInspectionOriginal(hit,dw);
+  const targetSlideIndex=Number(state&&state.active)||0;
+  const moved=(typeof safe381MoveWidgetToSlide==='function')?(safe381MoveWidgetToSlide(dw.id,targetSlideIndex)||hit):hit;
+  const w=moved.w||dw;
+  w.data=w.data||{};
+  w.data.sourceOpen=true;
+  w.data.sourceOpenedFromDataSourcesModal=true;
+  w.data.sourceOpenedFromWidgetId='__dataSourcesModal__';
+  safe453gPlaceInspectionWidget(w,'dataset');
+  w.z=++z;
+  selected=w.id;
+  if(window.UIState)UIState.selectedWidgetId=w.id;
+  window.__safe453ReturnToDataSourcesAfterHide=true;
+  window.__safe453LastInspectedDataSource={kind:'dataset',id:String(dsId||''),name:String(name||'')};
+  render();
+  setTimeout(()=>{try{select(w.id,{editText:false});}catch(_e){}},30);
+  save({silent:true});
+  toast('Datakilde vist');
+  return true;
+}
+function safe453gOpenListWidgetForModalInspection(widgetId,name){
+  const hit=safe453dFindWidgetHitById(widgetId);
+  if(!hit||!hit.w){toast('Listewidget blev ikke fundet');return false;}
+  const lw=hit.w;
+  lw.data=lw.data||{};
+  safe453gInspectionOriginal(hit,lw);
+  const targetSlideIndex=Number(state&&state.active)||0;
+  const moved=(typeof safe381MoveWidgetToSlide==='function')?(safe381MoveWidgetToSlide(lw.id,targetSlideIndex)||hit):hit;
+  const w=moved.w||lw;
+  w.data=w.data||{};
+  w.data.sourceOpen=true;
+  w.data.sourceOpenedFromDataSourcesModal=true;
+  w.data.sourceOpenedFromWidgetId='__dataSourcesModal__';
+  safe453gPlaceInspectionWidget(w,'listWidget');
+  w.z=++z;
+  selected=w.id;
+  if(window.UIState)UIState.selectedWidgetId=w.id;
+  window.__safe453ReturnToDataSourcesAfterHide=true;
+  window.__safe453LastInspectedDataSource={kind:'listWidget',id:String(widgetId||''),name:String(name||'')};
+  render();
+  setTimeout(()=>{try{select(w.id,{editText:false});}catch(_e){}},30);
+  save({silent:true});
+  toast('Listewidget vist');
+  return true;
+}
+function safe453fCloseDataSourcesInspectionWidget(w){
+  if(!w||!w.data||!w.data.sourceOpenedFromDataSourcesModal)return false;
+  const orig=w.data.safe453fInspectionOriginal||null;
+  if(orig){
+    const currentHit=(typeof safe376AllWidgetsWithSlide==='function')?safe376AllWidgetsWithSlide().find(x=>String(x.w&&x.w.id)===String(w.id)):null;
+    if(currentHit&&Number.isInteger(orig.slideIndex)&&orig.slideIndex>=0&&orig.slideIndex<(state.slides||[]).length&&currentHit.slideIndex!==orig.slideIndex&&typeof safe381MoveWidgetToSlide==='function'){
+      safe381MoveWidgetToSlide(w.id,orig.slideIndex);
+    }
+    w.x=Number(orig.x)||w.x;
+    w.y=Number(orig.y)||w.y;
+    w.w=Number(orig.w)||w.w;
+    w.h=Number(orig.h)||w.h;
+    w.z=Number(orig.z)||w.z;
+    w.data.sourceOpen=!!orig.sourceOpen;
+    if(orig.sourceOpenedFromWidgetId)w.data.sourceOpenedFromWidgetId=orig.sourceOpenedFromWidgetId;else delete w.data.sourceOpenedFromWidgetId;
+    if(orig.sourceOpenedFromDataSourcesModal)w.data.sourceOpenedFromDataSourcesModal=true;else delete w.data.sourceOpenedFromDataSourcesModal;
+  }else{
+    w.data.sourceOpen=false;
+    delete w.data.sourceOpenedFromWidgetId;
+    delete w.data.sourceOpenedFromDataSourcesModal;
+  }
+  delete w.data.safe453fInspectionOriginal;
+  if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
+  window.__safe453ReturnToDataSourcesAfterHide=false;
+  render();
+  save({silent:true});
+  setTimeout(()=>{try{showDataSourcesModal();}catch(_e){}},60);
+  return true;
+}
+
+function showDataSourcesModal(){
+  const rows=safe453CollectDataSources();
+  const style=`<style id="safe453c-data-sources-modal-style">
+    .safe453DataSources{display:grid;gap:10px;max-height:min(58vh,520px);overflow:auto;padding-right:4px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    .safe453DataSources::-webkit-scrollbar{width:8px}
+    .safe453DataSources::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:999px}
+    .safe453DataRow{display:grid;grid-template-columns:34px minmax(0,1.25fr) minmax(78px,.55fr) minmax(100px,.7fr) minmax(0,1.15fr) 34px;gap:10px;align-items:center;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:10px;color:#111827}
+    .safe453DataHead{background:#e5e7eb;font-size:12px;text-transform:uppercase;letter-spacing:.03em;font-weight:950;color:#374151;position:sticky;top:0;z-index:2}
+    .safe453Icon{font-size:23px;text-align:center;line-height:1}
+    .safe453InspectBtn{width:30px;height:30px;border:0!important;border-radius:999px;background:transparent!important;color:#334155!important;font-size:21px;font-weight:950;display:inline-flex;align-items:center;justify-content:center;box-shadow:none!important;cursor:pointer;padding:0;justify-self:center}
+    .safe453InspectBtn:hover{background:rgba(99,102,241,.16)!important;color:#4338ca!important}
+    .safe453InspectBtn[disabled]{opacity:.24;cursor:default;background:transparent!important;color:#94a3b8!important}
+    .safe453NameInput{width:100%;box-sizing:border-box;border:1px solid transparent;background:rgba(255,255,255,.72);border-radius:10px;padding:7px 9px;font:inherit;font-weight:950;color:#111827;min-width:0}
+    .safe453NameInput:hover{border-color:#cbd5e1;background:#fff}
+    .safe453NameInput:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.25);background:#fff}
+    .safe453Meta,.safe453Usage{font-size:12px;font-weight:800;color:#475569;line-height:1.2;overflow:hidden;text-overflow:ellipsis}
+    .safe453Type{font-weight:900;color:#111827}
+    .safe453Note{margin:0 0 10px 0;opacity:.76;font-weight:800;line-height:1.35}
+    @media(max-width:720px){.safe453DataRow{grid-template-columns:30px minmax(0,1fr) 42px;gap:6px}.safe453DataHead{display:none}.safe453Type,.safe453Meta,.safe453Usage{grid-column:2}.safe453Usage{white-space:normal}.safe453InspectBtn{grid-column:3;grid-row:1 / span 3}}
+  </style>`;
+  const body=rows.length?rows.map(r=>{
+    const canInspect=(r.kind==='dataset'||r.kind==='listWidget');
+    const inspect=canInspect?`<button type="button" class="safe453InspectBtn" title="Åbn datakilde til inspektion" aria-label="Åbn datakilde" data-safe453-inspect="1" data-kind="${esc(r.kind||'')}" data-id="${esc(r.id||'')}" data-name="${esc(r.name||'')}">🔗</button>`:`<button type="button" class="safe453InspectBtn" title="Gemt liste har endnu ingen widget at åbne" aria-label="Ingen widget at åbne" disabled>🔗</button>`;
+    return `<div class="safe453DataRow"><div class="safe453Icon">${r.icon}</div><input class="safe453NameInput" value="${esc(r.name)}" title="Redigér titel direkte" data-safe453-title="1" data-kind="${esc(r.kind||'')}" data-id="${esc(r.id||'')}" data-name="${esc(r.name||'')}"><div class="safe453Type">${esc(r.type)}</div><div class="safe453Meta">${esc(r.count)}</div><div class="safe453Usage" title="${esc(r.usage)}">${esc(r.usage)}</div>${inspect}</div>`;
+  }).join(''):`<p class="safe453Note">Der er endnu ingen datakilder at vise.</p>`;
+  showModal(style+`<h2>🗂️ Datakilder</h2><p class="safe453Note">Oversigt over appens fælles lister og datasets. Redigér titlen direkte i navnefeltet. Det ændrer kun titlen — ikke indholdet.</p><div class="safe453DataSources"><div class="safe453DataRow safe453DataHead"><div></div><div>Navn</div><div>Type</div><div>Indhold</div><div>Bruges af</div><div></div></div>${body}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button id="close">Luk</button></div>`);
+  const close=modal&&modal.querySelector('#close');
+  if(close)close.onclick=closeModal;
+  (modal&&modal.querySelectorAll('[data-safe453-title]')||[]).forEach(input=>{
+    input.addEventListener('keydown',ev=>{
+      if(ev.key==='Enter'){
+        ev.preventDefault();
+        safe453cCommitTitleInput(input);
+        input.blur();
+      }
+      if(ev.key==='Escape'){
+        ev.preventDefault();
+        input.value=input.dataset.name||'';
+        input.blur();
+      }
+    });
+    input.addEventListener('blur',()=>safe453cCommitTitleInput(input));
+  });
+  (modal&&modal.querySelectorAll('[data-safe453-inspect]')||[]).forEach(btn=>{
+    btn.addEventListener('click',ev=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      safe453dInspectDataSource(btn.dataset.kind||'',btn.dataset.id||'',btn.dataset.name||'');
+    });
+  });
+}
+
+
+/* SAFE453e: når en datawidget er åbnet fra Datakilder, skal topbjælkens 🔗 tilbage til Datakilder-modal. */
+if(!window.__safe453DataSourcesReturnHookInstalled){
+  window.__safe453DataSourcesReturnHookInstalled=true;
+  document.addEventListener('click',function(ev){
+    const btn=ev.target&&ev.target.closest&&ev.target.closest('[data-act="hideDataSource"]');
+    if(!btn)return;
+    if(!window.__safe453ReturnToDataSourcesAfterHide)return;
+    setTimeout(function(){
+      try{
+        window.__safe453ReturnToDataSourcesAfterHide=false;
+        if(typeof showDataSourcesModal==='function')showDataSourcesModal();
+      }catch(_e){}
+    },90);
+  },true);
+}
+
 function showAppearancePlaceholder(){
   /* SAFE67: Placeholder for fremtidig Udseende/Tema.
      Denne funktion ændrer intet i appens tema, state, widgets eller data.
@@ -19711,6 +20116,7 @@ function showAppearancePlaceholder(){
   if(close) close.onclick=()=>{mb.style.display='none';};
 }
 function handleTool(t){
+  if(t==='dataSources'){showDataSourcesModal();return;}
   if(t==='appearance'){showAppearancePlaceholder();return;}
 
   if(t==='help'){showQuickHelp();return}
@@ -28653,7 +29059,7 @@ function wireWidget(el,w){
    const isTap=!layerTap.moved && Date.now()-layerTap.t<320;
    if(isTap && (!layerTap.ignore || w.type==='text'))bringWidgetToFront(w,el);
    layerTap.t=0;
- },{passive:true});const hideDataSourceBtn=el.querySelector('[data-act=hideDataSource]');if(hideDataSourceBtn)hideDataSourceBtn.onclick=e=>{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();w.data=w.data||{};const dsid=w.data.datasetId||'';let hidden=false;if(dsid&&typeof safe381HideDataSourceWidgetByDataset==='function'){try{hidden=!!safe381HideDataSourceWidgetByDataset(dsid);}catch(_e){hidden=false;}}/* SAFE427: garanti for at netop DEN synlige widget, brugeren klikkede på, skjules. safe381HideDataSourceWidgetByDataset kan ramme en anden instans ved delt datasetId. */if(w.data&&w.data.sourceOpen){w.data.sourceOpen=false;delete w.data.sourceOpenedFromWidgetId;if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}render();save({silent:true});if(!hidden)toast('Datakilde skjult');}return false;};const delBtn=el.querySelector('[data-act=del]');if(delBtn)delBtn.onclick=e=>{e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); if(window.__tavleDeleteWidgetToTrash){window.__tavleDeleteWidgetToTrash(w.id);return;} if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
+ },{passive:true});const hideDataSourceBtn=el.querySelector('[data-act=hideDataSource]');if(hideDataSourceBtn)hideDataSourceBtn.onclick=e=>{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();w.data=w.data||{};if(w.data.sourceOpenedFromDataSourcesModal&&typeof safe453fCloseDataSourcesInspectionWidget==='function'){safe453fCloseDataSourcesInspectionWidget(w);return false;}const dsid=w.data.datasetId||'';let hidden=false;if(dsid&&typeof safe381HideDataSourceWidgetByDataset==='function'){try{hidden=!!safe381HideDataSourceWidgetByDataset(dsid);}catch(_e){hidden=false;}}/* SAFE427: garanti for at netop DEN synlige widget, brugeren klikkede på, skjules. safe381HideDataSourceWidgetByDataset kan ramme en anden instans ved delt datasetId. */if(w.data&&w.data.sourceOpen){w.data.sourceOpen=false;delete w.data.sourceOpenedFromWidgetId;if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}render();save({silent:true});if(!hidden)toast('Datakilde skjult');}return false;};const delBtn=el.querySelector('[data-act=del]');if(delBtn)delBtn.onclick=e=>{e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); if(window.__tavleDeleteWidgetToTrash){window.__tavleDeleteWidgetToTrash(w.id);return;} if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
  const datasetCopyListChromeBtn=el.querySelector('[data-act=datasetCopyListChrome]');
   if(datasetCopyListChromeBtn)datasetCopyListChromeBtn.onclick=e=>{
     e.preventDefault();e.stopPropagation();
