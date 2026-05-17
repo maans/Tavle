@@ -1,84 +1,187 @@
-# Interaktiv tavle v1.2.30
+# Min undervisningstavle
 
-![Interaktiv tavle v1.0.2](README_infografik.png)
+![Min undervisningstavle](README_infografik.png)
 
-En enkel, lokal webapp til at bygge interaktive undervisningstavler direkte i browseren.
+En lokal, browserbaseret undervisningstavle til oplæg, aktiviteter, lister, quizzer, grupper og visuel præsentation.
 
-Appen kan bruges til korte oplæg, klasseaktiviteter, gruppearbejde, afstemninger, lodtrækning, ordskyer, timere og visuelle tavler med tekst, billeder, video, links og PDF.
+Appen er lavet som en enkel webapp, der kan bruges direkte i browseren — både online og som lokal kopi. Den er tænkt som et fleksibelt værktøj til undervisning, hvor du kan samle indhold, data og aktiviteter ét sted.
 
-## Udgivelse
+---
 
-**Version:** 1.0  
-**Status:** stabil første udgivelse  
-**Format:** single-file webapp med lokale ikoner/manifest
+## Åbn appen
 
-## Brug appen online
-
+### Brug appen online
 Åbn appen direkte i browseren:
 
 https://maans.github.io/Tavle/
 
-Alt arbejde foregår lokalt i browseren. Der kræves ingen login, server eller database.
-
-## Download lokal kopi
-
-Vil du have en lokal kopi med `index.html`, ikoner, manifest og README:
+### Brug appen lokalt
+Hvis du vil have en lokal kopi med `index.html`, README, infografik, manifest og øvrige filer:
 
 https://github.com/maans/Tavle/archive/refs/heads/main.zip
 
 Pak ZIP-filen ud og åbn `index.html` i en moderne browser.
 
-## Værktøjer
+---
 
-Du kan indsætte tekst, YouTube-video, tegning, hjul, grupper, ordsky, afstemning, timer, billede, link, PDF, baggrund og ur.
+## Hvad kan appen?
 
-## Lister
+Appen er bygget op omkring tavler og widgets. Du kan oprette flere tavler, placere widgets frit og skifte mellem redigering, præsentation og fokus alt efter situationen i undervisningen.
 
-`Hent liste` kan bruges i hjul, grupper og ordsky. Det kan hente gemte lister og importere tekst-/CSV-/TSV-/regnearksfiler.
+### 1. Byg tavlen
+Du kan oprette og placere forskelligt indhold direkte på tavlen, bl.a.:
 
-Tekstwidgetten er bevidst holdt enkel og har ikke listeimport i v1.0.
+- tekst
+- noter
+- billeder
+- PDF
+- links
+- YouTube/video
+- HTML/iframe
+- tegning/markering
+- ur og timer
 
-## Tavler
+Widgets kan flyttes, ændres i størrelse, roteres og låses efter behov.
 
-Du kan have flere tavler i samme fil og skifte mellem dem med pilene.
+### 2. Brug data
+Appen kan arbejde med data og lister, så tavlen ikke kun er visuel, men også praktisk.
 
-## Redigering, præsentation og fokus
+Du kan bl.a. bruge:
 
-I redigering kan du flytte, rotere, ændre og oprette widgets.
+- datawidget
+- CSV / TSV / Excel
+- gemte lister
+- kalenderdata
+- ICS-kalenderimport
 
-I præsentation skjules redigeringsgrej, så tavlen er roligere foran elever.
+Det gør det muligt at genbruge navnelister, holddata, spørgelister, puljer og kalenderinformation direkte i widgets og aktiviteter.
 
-Fokus kan fremhæve én widget og dæmpe resten.
+### 3. Aktiviteter
+Appen rummer flere interaktive undervisningsaktiviteter:
 
-## Toolbar
+- **KaPardy**
+- **Grupper**
+- **Lykkehjulet**
+- **Afstemning**
+- **Ordsky**
 
-Værktøjslinjen styres med den faste vis/skjul-knap nederst til højre. Auto-hide og pin-funktion er fjernet for at gøre appen mere stabil på Mac, iPad, touch og mus.
+De kan bruges til quiz, tilfældig udvælgelse, gruppering, elevrespons og fælles klasseaktiviteter.
 
-## Browserapp / iPad
+### 4. Vis for elever
+Tavlen kan bruges i forskellige visningstilstande, alt efter om du bygger, viser eller fremhæver indhold.
 
-Releasepakken indeholder app-ikoner og `manifest.webmanifest`, så appen fungerer bedre som browserapp / “Føj til hjemmeskærm”.
+Du kan bruge:
 
-## Backup
+- **Præsentation** – roligere visning uden redigeringsgrej
+- **Fokus** – fremhæver én widget ad gangen
+- **Maksimering** – lader én widget fylde hele skærmen
+- **Tavleskift** – skift mellem flere tavler i samme forløb
 
-Brug `Mere → backup` til at gemme eller åbne tavlefiler.
+Det gør det nemt at gå fra forberedelse til elevvisning uden at skifte platform.
 
-## Privat og lokalt
+### 5. Gem og gendan
+Appen har værktøjer til at passe på dit arbejde og genbruge det senere.
 
-Appen gemmer som udgangspunkt data i browserens localStorage. Indholdet sendes ikke til en server.
+Du kan bruge:
 
-## Nyt: kontekstuelle hints
+- **Backup**
+- **Papirkurv**
+- **Gendannelsespunkter**
+- **Tavleshot**
 
-Appen viser nu små, diskrete hints nederst på tavlen i stedet for et tungt grafisk hjælpelag.
+Det gør det lettere at eksperimentere, fortryde og vende tilbage til tidligere tavlestadier.
 
-Hints skifter automatisk efter situationen:
+---
 
-- Når ingen widget er valgt: klik på en widget eller tilføj nyt indhold.
-- Når en widget er valgt: `F` for fokus og `Shift + F` for maksimering.
-- Når du skriver i tekst: `Esc` stopper skrivning og beholder widgetten valgt.
-- I præsentation: hints viser hvordan du vælger, fokuserer og vender tilbage.
+## Flere tavler i samme fil
 
-# Interaktiv tavle v1.2.14
+Du kan oprette flere tavler i samme projekt og bruge dem som sider i et undervisningsforløb.  
+Det er praktisk, hvis du vil samle fx:
 
+- startside
+- instruktioner
+- aktivitet
+- opsamling
+- materialer
+- reserveindhold
 
-## v1.0.42
-- Fix: rotation af link/iframe-widgets på iPad/Safari ved midlertidigt at slå iframe pointer-events fra under rotation.
+i én samlet tavlefil.
+
+---
+
+## Data og lister
+
+Lister og data kan bruges på tværs af flere widgets.
+
+Det betyder fx, at du kan:
+
+- hente en navneliste ind i Lykkehjulet
+- bruge samme data i Grupper
+- arbejde med datawidgets som kilde
+- importere regneark og gemme dem som lister
+- hente kalenderdata ind og bruge dem i tavlen
+
+På den måde kan tavlen fungere både som præsentation og som arbejdsredskab.
+
+---
+
+## Kalender og ICS
+
+Kalenderwidgetten kan bruges til at vise og arbejde med aktiviteter og planlægning.
+
+Du kan bl.a.:
+
+- importere `.ics`-filer
+- gemme kalenderdata som datawidget
+- bruge kalenderdata videre i tavlen
+- koble tavleindhold til planlagte aktiviteter
+
+Det gør appen anvendelig til programoversigter, ugeplaner, arrangementer og undervisningsforløb.
+
+---
+
+## Gemmes lokalt
+
+Appen arbejder lokalt i browseren.
+
+Det betyder i praksis:
+
+- ingen login
+- ingen server nødvendig
+- ingen database nødvendig
+- indhold gemmes i browserens lokale lagring
+- du kan tage backup og åbne tavlefiler igen senere
+
+Det gør appen enkel at bruge i undervisningssammenhæng og velegnet til lokal og hurtig brug.
+
+---
+
+## Browserapp og iPad
+
+Pakken indeholder også `manifest.webmanifest` og app-ikoner, så appen fungerer godt som browserapp og kan bruges via fx **“Føj til hjemmeskærm”** på iPad og andre enheder, der understøtter dette.
+
+---
+
+## Filoversigt
+
+Pakken indeholder bl.a.:
+
+- `index.html` – selve appen
+- `README.md` – denne fil
+- `README_infografik.png` – infografikken til README
+- `manifest.webmanifest` – webapp-manifest
+
+---
+
+## Kort fortalt
+
+**Min undervisningstavle** samler:
+
+- tavler
+- widgets
+- data
+- aktiviteter
+- præsentation
+- backup og gendannelse
+
+i én lokal webapp, som kan bruges direkte i undervisningen.
