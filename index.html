@@ -15807,13 +15807,96 @@ body.focus-maximized .widget[data-type="groups"] .groupsBox.groupsListHidden.gro
     min-height:54px!important;
   }
 }
+
+/* SAFE453: Fuldskærmsknap ved præsentationsknappen. */
+#fullscreenTop{
+  min-width:42px;
+}
+#fullscreenTop.fullscreenActive{
+  outline:3px solid rgba(245,158,11,.9);
+  background:#7c3aed;
+  color:#fff;
+}
+
 </style>
 
 </head>
 <body>
+
+<script id="safe455-early-fullscreen-shift-enter-guard">
+/*
+SAFE455 EARLY FULLSCREEN SHIFT+ENTER GUARD
+- Ligger bevidst før appens øvrige JavaScript, så KaPardy og andre widget-handlere ikke når at fange Shift+Enter.
+- Gælder kun Shift+Enter uden Ctrl/Cmd/Alt.
+- Bruger Fullscreen API direkte, fordi safe453ToggleFullscreen først findes senere i hovedscriptet.
+*/
+(function(){
+  if(window.__safe455EarlyFullscreenShiftEnterGuard)return;
+  window.__safe455EarlyFullscreenShiftEnterGuard=true;
+
+  function fsElement(){
+    return document.fullscreenElement ||
+           document.webkitFullscreenElement ||
+           document.mozFullScreenElement ||
+           document.msFullscreenElement ||
+           null;
+  }
+  function fsTarget(){
+    return document.getElementById('app') || document.documentElement;
+  }
+  function requestFs(el){
+    if(!el)return;
+    if(el.requestFullscreen){
+      try{return el.requestFullscreen({navigationUI:'hide'});}
+      catch(_e){return el.requestFullscreen();}
+    }
+    if(el.webkitRequestFullscreen)return el.webkitRequestFullscreen();
+    if(el.mozRequestFullScreen)return el.mozRequestFullScreen();
+    if(el.msRequestFullscreen)return el.msRequestFullscreen();
+  }
+  function exitFs(){
+    if(document.exitFullscreen)return document.exitFullscreen();
+    if(document.webkitExitFullscreen)return document.webkitExitFullscreen();
+    if(document.mozCancelFullScreen)return document.mozCancelFullScreen();
+    if(document.msExitFullscreen)return document.msExitFullscreen();
+  }
+  function updateButtonSoon(){
+    setTimeout(function(){
+      try{
+        if(typeof safe453UpdateFullscreenButton==='function')safe453UpdateFullscreenButton();
+        else{
+          var btn=document.getElementById('fullscreenTop');
+          if(btn)btn.classList.toggle('fullscreenActive',!!fsElement());
+        }
+      }catch(_e){}
+    },80);
+  }
+  function handle(ev){
+    try{
+      if(ev && ev.key==='Enter' && ev.shiftKey && !ev.ctrlKey && !ev.metaKey && !ev.altKey){
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+
+        if(fsElement())exitFs();
+        else requestFs(fsTarget());
+
+        updateButtonSoon();
+        return false;
+      }
+    }catch(_e){}
+  }
+
+  // Window capture er tidligst i event-kæden; document capture er fallback.
+  window.addEventListener('keydown',handle,true);
+  document.addEventListener('keydown',handle,true);
+})();
+</script>
+
+
 <div id="app" class="app">
   <div id="title" class="title" contenteditable="true">Min undervisningstavle</div>
-  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide" title="Ryd tavle" hidden aria-hidden="true" tabindex="-1" style="display:none!important">🧹</button><button id="rescueWidgets" title="Redningsbælte (Shift+O)">🛟</button><button id="trashTop" title="Papirkurv">🗑️</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="presentFocus" title="Fokus i præsentation">🎯</button><button id="present">🎬</button><button id="widgetCycle" class="widgetCycleBtn" title="Widget-overblik (Cmd/Ctrl+O)" hidden aria-hidden="true" tabindex="-1" style="display:none!important">⧉</button></div>
+  <div class="topbar"><button id="prev">◀</button><b id="slideInfo">1/1</b><button id="next">▶</button><button id="slidesOverview" title="Tavleoversigt" class="onlyMultiHidden" hidden style="display:none">☰ tavler</button><button id="addSlide">+ tavle</button><button id="clearSlide" title="Ryd tavle" hidden aria-hidden="true" tabindex="-1" style="display:none!important">🧹</button><button id="rescueWidgets" title="Redningsbælte (Shift+O)">🛟</button><button id="trashTop" title="Papirkurv">🗑️</button><button id="drawTop" title="Tegn til/fra">✎</button><button id="presentFocus" title="Fokus i præsentation">🎯</button><button id="present">🎬</button><button id="fullscreenTop" title="Fuld skærm (Shift+Enter)" aria-label="Fuld skærm">⛶</button><button id="widgetCycle" class="widgetCycleBtn" title="Widget-overblik (Cmd/Ctrl+O)" hidden aria-hidden="true" tabindex="-1" style="display:none!important">⧉</button></div>
   <div id="hintBar" class="hintBar hidden" aria-live="polite"></div>
   <div id="modeBadge" class="modeBadge" aria-live="polite">Redigering</div>
   <canvas id="draw" class="drawLayer"></canvas>
@@ -15958,6 +16041,7 @@ Aktuelle centrale genveje i denne fil:
         }}
       },
       shift: {
+        enter: {label:'Fuld skærm', run:api=>api.toggleFullscreenShortcut&&api.toggleFullscreenShortcut()},
         f: {label:'Maksimer valgt/fokuseret widget', run:api=>api.toggleMaximizedFocusShortcut&&api.toggleMaximizedFocusShortcut()},
         d: {label:'Duplikér aktiv tavle', run:api=>api.duplicateSlideShortcut&&api.duplicateSlideShortcut()},
         a: {label:'Tekst', widget:'a'},
@@ -15999,6 +16083,7 @@ Aktuelle centrale genveje i denne fil:
     function runShortcut(e, entry, api){
       e.preventDefault();
       e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
       if(e.stopImmediatePropagation) e.stopImmediatePropagation();
 
       if(entry.run){
@@ -21495,6 +21580,9 @@ function safe295ClearTitleFocusAfterNewSlide(){
 
 /* v1.0.10-dev: shared shortcut API used by the early capture keydown listener */
 window.tavleShortcutAPI={
+  toggleFullscreenShortcut(){
+    try{return safe453ToggleFullscreen();}catch(_e){return false;}
+  },
   newSlideShortcut(){
     /* SAFE298: også API-kald til ny tavle bruger kun SAFE297-vejen. */
     if(typeof window.safe297InsertNewBoardBeforeTrash==='function'){
@@ -33174,7 +33262,71 @@ document.addEventListener('keydown',e=>{
   clearActiveSlideToTrash();
   return false;
 },true);
+
+// SAFE453: Browser-fuldskærm. Minimal lokal helper uden ændring af appens egne præsentations-/fokus-tilstande.
+function safe453FullscreenElement(){
+  return document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || null;
+}
+function safe453FullscreenTarget(){
+  return app || document.documentElement;
+}
+function safe453UpdateFullscreenButton(){
+  try{
+    const btn=document.getElementById('fullscreenTop');
+    if(!btn)return;
+    const active=!!safe453FullscreenElement();
+    btn.classList.toggle('fullscreenActive',active);
+    btn.title=active?'Afslut fuld skærm (Shift+Enter)':'Fuld skærm (Shift+Enter)';
+    btn.setAttribute('aria-label',active?'Afslut fuld skærm':'Fuld skærm');
+  }catch(_e){}
+}
+function safe453ToggleFullscreen(){
+  try{
+    if(safe453FullscreenElement()){
+      if(document.exitFullscreen)return document.exitFullscreen();
+      if(document.webkitExitFullscreen)return document.webkitExitFullscreen();
+      if(document.mozCancelFullScreen)return document.mozCancelFullScreen();
+      if(document.msExitFullscreen)return document.msExitFullscreen();
+      return;
+    }
+    const el=safe453FullscreenTarget();
+    if(el.requestFullscreen){
+      try{return el.requestFullscreen({navigationUI:'hide'});}
+      catch(_e){return el.requestFullscreen();}
+    }
+    if(el.webkitRequestFullscreen)return el.webkitRequestFullscreen();
+    if(el.mozRequestFullScreen)return el.mozRequestFullScreen();
+    if(el.msRequestFullscreen)return el.msRequestFullscreen();
+    toast('Fuld skærm understøttes ikke fuldt i denne browser');
+  }catch(_e){
+    try{toast('Fuld skærm understøttes ikke fuldt i denne browser')}catch(_e2){}
+  }finally{
+    setTimeout(safe453UpdateFullscreenButton,80);
+  }
+}
+
+
+// SAFE454: Shift+Enter skal altid være fuldskærm før KaPardy/andre widget-handlere ser Enter.
+if(!window.__safe454FullscreenShiftEnterGuard){
+  window.__safe454FullscreenShiftEnterGuard=true;
+  document.addEventListener('keydown',function(e){
+    try{
+      if(e.key==='Enter' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        safe453ToggleFullscreen();
+        return false;
+      }
+    }catch(_e){}
+  },true);
+}
+
 document.getElementById('drawTop').onclick=()=>setDrawActive(!app.classList.contains('drawActive'));
+const safe453FullscreenBtn=document.getElementById('fullscreenTop');
+if(safe453FullscreenBtn)safe453FullscreenBtn.onclick=()=>safe453ToggleFullscreen();
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>document.addEventListener(ev,safe453UpdateFullscreenButton,true));
+setTimeout(safe453UpdateFullscreenButton,100);
 document.getElementById('present').onclick=()=>{
   // Toggle presentation mode and keep the current widget selection.
   const wasPresent = app.classList.contains('present');
