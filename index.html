@@ -15818,6 +15818,51 @@ body.focus-maximized .widget[data-type="groups"] .groupsBox.groupsListHidden.gro
   color:#fff;
 }
 
+
+/* SAFE457: Fuldskærm må ikke forlade fullscreen ved almindelig tavle-/widget-drag.
+   Kun CSS, ingen preventDefault-/touchmove-JS.
+   Begrænset til aktiv Fullscreen API-tilstand. */
+#app:fullscreen,
+#app:fullscreen body,
+#app:fullscreen .stage,
+#app:fullscreen .widget,
+#app:fullscreen .drawLayer{
+  overscroll-behavior:none!important;
+  touch-action:none;
+}
+#app:-webkit-full-screen,
+#app:-webkit-full-screen .stage,
+#app:-webkit-full-screen .widget,
+#app:-webkit-full-screen .drawLayer{
+  overscroll-behavior:none!important;
+  touch-action:none;
+}
+html:fullscreen,
+html:fullscreen body{
+  overscroll-behavior:none!important;
+}
+html:-webkit-full-screen,
+html:-webkit-full-screen body{
+  overscroll-behavior:none!important;
+}
+/* Bevar tekst- og scrollområder inde i fuldskærm. */
+#app:fullscreen input,
+#app:fullscreen textarea,
+#app:fullscreen select,
+#app:fullscreen [contenteditable="true"],
+#app:fullscreen iframe,
+#app:fullscreen .modal,
+#app:fullscreen .content,
+#app:-webkit-full-screen input,
+#app:-webkit-full-screen textarea,
+#app:-webkit-full-screen select,
+#app:-webkit-full-screen [contenteditable="true"],
+#app:-webkit-full-screen iframe,
+#app:-webkit-full-screen .modal,
+#app:-webkit-full-screen .content{
+  touch-action:auto;
+}
+
 </style>
 
 </head>
