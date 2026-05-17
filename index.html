@@ -23391,10 +23391,22 @@ function kahoopardyPromptCategoryList(fields){
   if(!titles.length){
     titles=String((fields&&fields.categories)||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean);
   }
+  // SAFE456a/456c: KaPardy-spillepladen er ikke egnet til meget brede spil.
+  // Hold promptværktøjet på højst 6 kategorier og afvis demo/placeholder-kategorier.
+  const maxCategories=6;
+  const theme=String((fields&&fields.theme)||'').trim();
+  const fallbackTitles=theme
+    ? [`Grundviden om ${theme}`,`Vigtige begreber`,`${theme} i praksis`,`Personer og steder`,`Myter og misforståelser`,`Sværere detaljer`]
+    : ['Begreber','Personer','Steder','Historie','Overraskelser','Sværere spørgsmål'];
+  const isBadTitle=(x)=>{
+    const t=String(x||'').trim().toLocaleLowerCase('da');
+    return !t || /^kategori\s*\d*$/i.test(t) || /^(demo|demokategori|test|eksempel|placeholder)$/i.test(t) || /^klik for kategori/i.test(t);
+  };
+  titles=titles.filter(x=>!isBadTitle(x));
   const fallbackCount=titles.length||5;
-  const count=Math.max(1,Math.min(12,Number.isFinite(rawCount)?rawCount:fallbackCount));
+  const count=Math.max(1,Math.min(maxCategories,Number.isFinite(rawCount)?rawCount:fallbackCount));
   const out=[];
-  for(let i=0;i<count;i++)out.push(titles[i]||('Kategori '+(i+1)));
+  for(let i=0;i<count;i++)out.push(titles[i]||fallbackTitles[i%fallbackTitles.length]);
   return out;
 }
 function kahoopardyPromptSlug(txt){
@@ -23419,6 +23431,14 @@ function kahoopardyAIPromptFromFields(fields){
   lines.push('Du skal lave en importklar CSV-fil til KaPardy.');
   lines.push('CSV’en skal kunne kopieres direkte til en .csv-fil eller ind i en datawidget og derefter hentes ind i KaPardy.');
   lines.push('');
+  lines.push('ROLLE / PERSONA:');
+  lines.push('Du er verdens førende ekspert i KaPardy-spil, quizredaktion og klasseværelsesdramaturgi.');
+  lines.push('KaPardy er et analogt klasseværelsesspil, der kombinerer energien fra Kahoot, kategorier/point fra Jeopardy og lærerens rolle som quizmaster.');
+  lines.push('Det spilles i rummet med hold, mundtlig styring og lærerens tempo. Derfor skal spørgsmålene være korte nok til oplæsning, klare nok til hurtige valg og gode nok til at skabe samtale, grin, faglighed og spænding.');
+  lines.push('Tænk som både underviser, spildesigner og skarp quizredaktør: vælg kun kategorier, der kan bære flere gode spørgsmål, og reducer hellere omfanget end at lave tynde eller tomme kategorier.');
+  lines.push('Professionel KaPardy-kvalitet kræver stærk sammenhæng mellem tema, kategorier og spørgsmål. En kategori må aldrig være generisk, tom eller hedde Demo, Test, Kategori 1 eller lignende.');
+  lines.push('Alle kategorier skal være tydeligt forankret i temaet, og hvert spørgsmål skal tydeligt høre hjemme i sin kategori. Hvis en kategori ikke kan bære gode spørgsmål, skal du omdøbe den eller fjerne den.');
+  lines.push('');
   lines.push('Jeg kan vedhæfte eller indsætte kilder sammen med denne prompt. Kilder kan være tekst, PDF, billeder, links, noter eller uddrag.');
   lines.push('');
   if(promptType==='surprise'){
@@ -23433,7 +23453,7 @@ function kahoopardyAIPromptFromFields(fields){
     lines.push('Du må ikke stille opklarende spørgsmål.');
     lines.push('Du skal selv vælge:');
     lines.push('- konkret quiztema');
-    lines.push('- passende antal kategorier');
+    lines.push('- passende antal kategorier, dog højst 6');
     lines.push('- tydelige kategorinavne');
     lines.push('- antal spørgsmål pr. kategori');
     lines.push('- pointtal');
@@ -23462,8 +23482,9 @@ function kahoopardyAIPromptFromFields(fields){
     lines.push('- tydelige kategorinavne og sværhedsfordeling vælges ud fra materialet.');
     lines.push('Forventet spilletid: cirka '+diceDuration+' minutter.');
     lines.push('Tilpas antal kategorier, antal spørgsmål pr. kategori, pointtal og spørgsmålenes længde, så spillet realistisk kan gennemføres på cirka '+diceDuration+' minutter.');
+    lines.push('KaPardy-spillepladen fungerer bedst med 5-6 kategorier som absolut maksimum. Lav aldrig mere end 6 kategorier, også selv om materialet er bredt.');
     lines.push('Hvis materialet er smalt, så lav hellere få gode kategorier end mange tynde kategorier.');
-    lines.push('Hvis materialet er bredt og tiden rækker, må du lave flere kategorier.');
+    lines.push('Hvis materialet er bredt og tiden rækker, må du lave op til 6 kategorier, men aldrig flere end 6.');
     lines.push('Pointtal skal stige med sværhedsgrad.');
     lines.push('');
     if(outputMode==='outline'){
@@ -23475,6 +23496,7 @@ function kahoopardyAIPromptFromFields(fields){
   }else if(promptType==='guided'){
     const catList=kahoopardyPromptCategoryList(fields);
     lines.push('Prompttype: Finjusteret opbygning.');
+    lines.push('KaPardy-spillepladen kan højst bruges fornuftigt med 6 kategorier. Hvis brugeren har ønsket flere, er listen her allerede begrænset til de første 6 brugbare kategorier.');
     lines.push('Antal kategorier: '+catList.length);
     lines.push('Kategorier: '+catList.join(', '));
     lines.push('Antal spørgsmål pr. kategori: '+(val('count')||'5'));
@@ -23485,6 +23507,10 @@ function kahoopardyAIPromptFromFields(fields){
   }
   lines.push('Krav:');
   lines.push('- Skriv på dansk.');
+  lines.push('- Kategorierne skal være relaterede til temaet. Brug aldrig kategorinavne som Demo, Test, Eksempel, Kategori 1, Kategori 2 eller andre placeholders.');
+  lines.push('- Der skal være tydelig konsistens mellem tema, kategori og spørgsmål: Hver kategori skal udspringe af temaet, og hvert spørgsmål skal passe naturligt til den kategori, det står i.');
+  lines.push('- Hvis du opdager en kategori, der er for bred, for tynd eller ikke passer til temaet, skal du erstatte den med en bedre kategori, før du laver CSV.');
+  lines.push('- Lav spørgsmål, der passer til målgruppen og den situation, spillet skal spilles i. En quiz for lærere, forældre, professorer, murere eller musikere skal føles anderledes end en quiz for efterskoleelever.');
   lines.push('- Lav spørgsmål, der passer til målgruppen.');
   lines.push('- Lav præcis én CSV-række pr. spørgsmål.');
   lines.push('- Første svarkolonne skal altid være det korrekte svar.');
@@ -23554,6 +23580,9 @@ function kahoopardyAIPromptFromFields(fields){
   lines.push('KONTROL FØR DU SVARER:');
   lines.push('Før du afleverer CSV’en, skal du kontrollere hver eneste række. Gør kontrollen internt og vis den ikke i svaret:');
   lines.push('- Har rækken præcis 10 kolonner?');
+  lines.push('- Er kategoriens navn konkret, tema-relevant og fri for Demo/Test/Eksempel/Kategori-placeholders?');
+  lines.push('- Passer spørgsmålet tydeligt til både temaet og den kategori, det står i?');
+  lines.push('- Er der ingen tomme kategorier, tynde kategorier eller kategorier uden stærke spørgsmål?');
   lines.push('- Har rækken et konkret spørgsmål i kolonnen Spørgsmål, ikke et pointtal, kategorinavn, svartekst eller tomt felt?');
   lines.push('- Har rækken et tal i kolonnen Point?');
   lines.push('- Står spørgsmålet i kolonne 2 og pointtallet i kolonne 3 – ikke omvendt?');
@@ -23565,6 +23594,7 @@ function kahoopardyAIPromptFromFields(fields){
   lines.push('- Er første svar efter Point det korrekte svar?');
   lines.push('Hvis en række ikke består kontrollen, skal du rette den eller kassere spørgsmålet og lave et nyt, før du afleverer CSV’en. Skriv ikke kontrollen i svaret. Aflever kun CSV’en.');
   lines.push('Du må aldrig udelade spørgsmålsfeltet. Hvis kolonnen Spørgsmål mangler, bliver CSV’en ugyldig i KaPardy.');
+  lines.push('Du må aldrig bruge "Demo", "Test", "Eksempel" eller "Kategori 1" som kategori. Sådanne kategorier får spillet til at virke ufærdigt og uprofessionelt.');
   lines.push('Ugyldigt eksempel, som du IKKE må lave: "Film",100,"Blade Runner","Dune","Alien","The Matrix",,,');
   lines.push('Korrekt form: "Film","Hvilken film er instrueret af Ridley Scott og foregår i en dystopisk fremtid?",100,"Blade Runner","Dune","Alien","The Matrix",,,');
   lines.push('');
@@ -24421,7 +24451,7 @@ function kahoopardyOpenAIPromptTool(w,el){
   const kpSuggestPools={
     theme:['Heste','Kaninunger','Danske opfindelser','Jydsk historie og topografi','Balkanmusik','Efterskoleliv','Verdens mærkelige dyr','Film fra 1980erne','Klimaforandringer','Vikinger','Kropssprog','Rumfart','Nordisk mytologi','Mad fra hele verden','Musikgenrer','Fodboldhistorie','Sprog og dialekter','Skotland','Elektronisk musik','Psykologi i hverdagen','Havet','Bjerge','Klatring','Cykelsport','Kunstig intelligens','Dansk grammatik','Noveller','Mundtlig danskprøve','Eventyr','Dyr i Danmark','Insekter','Kaffe og kakao','Japan','Færøerne','Verdens flag','Kroppen','Følelser og psykologi','Matematik i hverdagen','Store opdagelsesrejser','Mærkelige rekorder','Arkitektur','Middelalderen','Popkultur','Miljø og bæredygtighed','Filosofi for unge','Lyd og akustik','Svenske traditioner'],
     categoryCount:['3','4','5','6'],
-    audience:['Efterskoleelever','9. klasse','10. klasse','Niveau-delt danskhold','Musikholdet','Hele skolen','Begyndere','Nysgerrige unge','Elever der skal samarbejde','Elever der kan lide hurtige spørgsmål','Elever der ikke kender emnet på forhånd','Et blandet fællesskabshold','Danskhold med brug for korte spørgsmål','Elever der lærer bedst gennem leg','Små grupper på 3-4 elever','En sangtime/fortælletime','En weekendaktivitet','Elever der godt kan lide konkurrence'],
+    audience:['Efterskoleelever','9. klasse','10. klasse','Niveau-delt danskhold','Musikholdet','Hele skolen','Begyndere','Nysgerrige unge','Elever der skal samarbejde','Elever der kan lide hurtige spørgsmål','Elever der ikke kender emnet på forhånd','Et blandet fællesskabshold','Danskhold med brug for korte spørgsmål','Elever der lærer bedst gennem leg','Små grupper på 3-4 elever','En sangtime/fortælletime','En weekendaktivitet','Elever der godt kan lide konkurrence','Lærere','Forældre','Bedsteforældre','Professorer','Forskere','Murere','Musikere','Kunstnere','Håndværkere','Pædagoger','Sygeplejersker','Kontorfolk','IT-folk','Foreningsfolk','Kollegaer til personalemøde','Voksne begyndere','Voksne eksperter','Familier med blandede aldre','Gymnasieelever','Konfirmander','Børn og voksne sammen','Et blandet publikum','Nørder med forhåndsviden','Folk der ikke kender emnet på forhånd','Et hold der skal grine sammen'],
     count:['3','4','5','6','7'],
     teamCount:['2','3','4','5','6'],
     duration:['8','10','12','15','18','20','25','30','35','40'],
@@ -24491,7 +24521,7 @@ function kahoopardyOpenAIPromptTool(w,el){
     if(currentMode==='surprise'&&surpriseVal&&surpriseVal!=='Bland selv')theme=surpriseVal;
     if(!theme)theme=kpSuggestPick('theme','')||'Quiz';
     const audience=String(current.audience||kpSuggestPick('audience','')||'Efterskoleelever').trim()||'Efterskoleelever';
-    const catCount=Math.max(1,Math.min(12,parseInt(current.categoryCount||countSel&&countSel.value||5,10)||5));
+    const catCount=Math.max(1,Math.min(6,parseInt(current.categoryCount||countSel&&countSel.value||5,10)||5));
     const questionCount=String(current.count||kpSuggestPick('count','')||'5').trim()||'5';
     const teamCount=String(current.teamCount||kpSuggestPick('teamCount','')||'2').trim()||'2';
     const duration=String(current.duration||current.diceDuration||kpSuggestPick('duration','')||'20').trim()||'20';
@@ -24539,7 +24569,7 @@ function kahoopardyOpenAIPromptTool(w,el){
       const theme=modal.querySelector('#kpPromptTheme')?.value||'';
       next=kpPromptInheritedFileName();
     }else if(type==='category'){
-      const count=Math.max(1,Math.min(12,parseInt(countSel&&countSel.value,10)||5));
+      const count=Math.max(1,Math.min(6,parseInt(countSel&&countSel.value,10)||5));
       const suggested=kpSuggestThemeCategories(modal.querySelector('#kpPromptTheme')?.value||'',count);
       const idx=parseInt(btn.dataset.i,10)||0;
       next=suggested[idx]||kpSuggestPick('category',cur);
@@ -24602,7 +24632,7 @@ function kahoopardyOpenAIPromptTool(w,el){
   }
   const renderCatFields=(titles)=>{
     const box=modal.querySelector('#kpPromptCatFields');
-    const count=Math.max(1,Math.min(12,parseInt(countSel&&countSel.value,10)||5));
+    const count=Math.max(1,Math.min(6,parseInt(countSel&&countSel.value,10)||5));
     const list=Array.isArray(titles)?titles:currentTitles();
     if(!box)return;
     box.innerHTML=Array.from({length:count},(_,i)=>`<label>Kategori ${i+1}<button type="button" class="kpSuggestBtn" data-kp-suggest="category" data-kp-target="kpPromptCatTitle_${i}" data-i="${i}" title="Klik igen for ny kategori"><span class="kpSuggestLabel">${esc(list[i]||('Klik for kategori '+(i+1)))}</span><span class="kpSuggestDice">↻</span></button><input type="text" class="kpPromptCatTitle kpSuggestInput" id="kpPromptCatTitle_${i}" data-i="${i}" value="${esc(list[i]||'')}" placeholder="Kategori ${i+1}"></label>`).join('');
@@ -30794,192 +30824,288 @@ function wireQuickPinButton(){
 
 function showQuickHelp(){
   showModal(`<h2>Hjælp</h2>
+  <style id="safe455a-help-manual-css">
+    .helpQuickStart{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 12px}
+    .helpQuickCard{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:10px 12px;line-height:1.3}
+    .helpQuickCard b{display:block;margin-bottom:4px}
+    .helpKeyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+    .helpKeyBox{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:9px 10px;line-height:1.35}
+    .helpKeyBox b{display:block;margin-bottom:3px;color:#111827}
+    .helpToolBtn{font:inherit;text-align:left;color:inherit;cursor:pointer;width:100%}
+    .helpToolBtn:hover,.helpToolBtn:focus-visible{background:#eef2ff!important;outline:2px solid #818cf8;outline-offset:1px}
+    .safe455bHelpSectionCurrent>summary{background:#eef2ff;border-radius:10px;outline:2px solid #c7d2fe;outline-offset:2px}
+    .safe455bHelpWidgetCurrent{background:#eef2ff!important;outline:3px solid #818cf8!important;outline-offset:2px!important}
+    .helpMiniNote{font-size:13px;opacity:.78;margin-top:7px}
+    .helpTwoCol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .helpNavList li{margin-bottom:6px!important}
+    @media(max-width:760px){.helpQuickStart,.helpKeyGrid,.helpTwoCol{grid-template-columns:1fr}.helpIconGrid{grid-template-columns:1fr!important}}
+  </style>
+
   <div class="helpIntro">
-    <p><b>Min undervisningstavle</b> er et arbejdsbord med tavler og widgets. Brug <b>N</b> til en ny tavle med billedbaggrund, <b>Shift+B</b> til baggrundsvælger og <b>Cmd/Ctrl+B</b> til tilfældig baggrund.</p>
+    <p><b>Min undervisningstavle</b> er et arbejdsbord til undervisning: du bygger tavler af små felter, som kan vises, flyttes, fokuseres, gemmes og genbruges. Start simpelt: opret en widget, skriv/læg indhold i den, og brug tavlerne som sider i et forløb.</p>
     <label class="helpHintToggleRow">
       <input id="helpHintsToggle" type="checkbox" ${hintsEnabled?'checked':''}>
       <span>Vis kontekstuelle hints i redigering</span>
     </label>
   </div>
 
+  <div class="helpQuickStart">
+    <div class="helpQuickCard"><b>1. Byg tavlen</b> Brug værktøjslinjen nederst eller <b>Mere</b>. Træk widgets rundt, ændr størrelse og læg dem i lag.</div>
+    <div class="helpQuickCard"><b>2. Brug tavlen live</b> <b>P/R</b> skifter præsentation. <b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer.</div>
+    <div class="helpQuickCard"><b>3. Find hurtigt rundt</b> <b>Shift+T</b> åbner Tavleoverblik. <b>D</b> åbner Datakilder. <b>Mellemrum</b> åbner Mere, når ingen widget er valgt.</div>
+  </div>
+
   <div class="helpShortcutPrinciples" style="margin:10px 0 14px;padding:10px 12px;border-radius:12px;background:#eef2ff;color:#111827;font-size:14px;line-height:1.35">
-    <b>Genvejsprincip:</b> Enkle bogstaver bruges til live-flow, <b>Shift+bogstav</b> opretter eller åbner værktøjer, og <b>Cmd/Ctrl</b> bruges kun til tunge systemhandlinger som gem, backup, duplikér og overblik. Undgå bevidst <b>Cmd+T</b>, <b>Cmd+M</b> og Alt-tegn, så det passer bedre til dansk tastatur, iPad og Mac.
+    <b>Logikken bag genvejene:</b> Enkle bogstaver bruges til ting, du gør live. <b>Shift+bogstav</b> opretter/åbner værktøjer. <b>Cmd/Ctrl</b> bruges til tungere handlinger som gem, duplikér, backup og overblik. Genveje ignoreres, når du skriver i et tekstfelt.
   </div>
 
   <div class="helpFAQ">
     <details open>
-      <summary>Det vigtigste live-flow</summary>
+      <summary>Navigation på tavlen — det vigtigste at lære først</summary>
       <div class="answer">
-        <ul>
+        <ul class="helpNavList">
+          <li><b>← / →</b> skifter tavle. <b>1–9</b> går direkte til tavle 1–9. <b>0</b> går til tavle 10.</li>
+          <li><b>↑ / ↓</b> vælger widgets på tavlen. Den valgte widget lægges forrest, så du kan arbejde med den.</li>
           <li><b>P</b> eller <b>R</b> skifter mellem redigering og præsentation.</li>
-          <li><b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer valgt/fokuseret widget.</li>
-          <li><b>Esc</b> lukker fokus, maksimering, papirkurv, iframe/PDF-kontrol og modaler.</li>
-          <li><b>↑/↓</b> vælger widgets på almindelige tavler. Valgt widget lægges forrest.</li>
-          <li><b>Mellemrum</b> aktiverer valgt hjul, grupper eller afstemning. Uden valgt widget åbner mellemrum <b>Mere</b>.</li>
-          <li><b>T</b> åbner papirkurven. I papirkurven lukker <b>T</b>, <b>Esc</b> eller <b>Mellemrum</b>.</li>
-          <li><b>N</b> opretter en ny tavle med en billedbaggrund. Farveswatches bruges via <b>Shift+B</b> eller <b>Cmd/Ctrl+B</b>.</li>
+          <li><b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer valgt/fokuseret widget. <b>Esc</b> går tilbage.</li>
+          <li><b>Mellemrum</b> åbner <b>Mere</b>, når ingen widget er valgt. Hvis et hjul, grupper eller afstemning er valgt, bruges mellemrum til widgettens egen handling.</li>
+          <li><b>Højreklik på tom tavlebaggrund</b> åbner også <b>Mere</b>. Det skal ikke ske på widgets eller i modaler.</li>
+          <li><b>Shift+T</b> åbner Tavleoverblik. Her kan du hurtigt hoppe, flytte, slette, lave Tavleshot og se gendannelsespunkter.</li>
         </ul>
       </div>
     </details>
 
     <details open>
-      <summary>Topbar, tavler og overblik</summary>
+      <summary>Genvejskort — hurtigt overblik</summary>
       <div class="answer">
-        <ul>
-          <li><b>Tavlenummeret</b> øverst åbner <b>Tavleoversigt</b>.</li>
-          <li><b>Shift+T</b> åbner Tavleoversigt.</li>
-          <li>I Tavleoversigt: <b>↑/↓/←/→</b> markerer tavle, <b>Enter</b> åbner, <b>Esc</b> lukker, <b>1–9/0</b> går direkte til tavle.</li>
-          <li>I Tavleoversigt kan normale tavler slettes og flyttes. I præsentation skjules redigeringsknapperne.</li>
-          <li><b>Cmd/Ctrl+↑/↓/←/→</b> kan flytte markeret/aktiv tavle i rækkefølgen.</li>
-          <li><b>Cmd/Ctrl+O</b> åbner widget-overblik.</li>
-          <li><b>←/→</b> skifter tavle på almindelige tavler.</li>
-          <li><b>1–9</b> går til tavle 1–9. <b>0</b> går til tavle 10, medmindre en grupper-widget bruger tallene.</li>
-        </ul>
-      </div>
-    </details>
-
-    <details>
-      <summary>Baggrunde, farver og grid</summary>
-      <div class="answer">
-        <ul>
-          <li><b>Shift+B</b> åbner baggrundsvælgeren med billedbaggrunde og farveswatches.</li>
-          <li><b>Cmd/Ctrl+B</b> vælger en tilfældig baggrund på aktiv tavle. Den kan vælge både billeder og farver.</li>
-          <li><b>N</b> bruger kun billedbaggrunde, så farveswatch-flowet i baggrundsvælgeren ikke forstyrres.</li>
-          <li>I baggrundsvælgeren: <b>←/→</b> flytter én baggrund, <b>↑/↓</b> flytter en række, <b>1–6</b> vælger filter.</li>
-          <li><b>Space</b> previewer/toggler semitransparent visning. <b>Enter</b> vælger og lukker. <b>Esc</b> annullerer.</li>
-          <li><b>Shift+G</b> slår grid til/fra. Grid findes også i baggrundsvælgeren.</li>
-        </ul>
-      </div>
-    </details>
-
-    <details>
-      <summary>Redningsbælte og ryd tavle</summary>
-      <div class="answer">
-        <ul>
-          <li><b>Shift+O</b> åbner Redningsbæltet.</li>
-          <li>Redningsbæltet kan samle widgets ind på tavlen, åbne widget-overblik, sortere/rydde op og åbne ryd-tavle-flowet.</li>
-          <li>Redningsbælte og papirkurv-ikon skjules i topbaren i præsentationstilstand.</li>
-          <li><b>Cmd/Ctrl+Delete</b> eller <b>Cmd/Ctrl+Backspace</b> åbner “Ryd tavle?” og flytter tavlens widgets til papirkurven.</li>
-          <li><b>Cmd/Ctrl+Shift+Delete/Backspace</b> bevares som ældre genvej til samme ryd-tavle-flow.</li>
-        </ul>
-      </div>
-    </details>
-
-    <details>
-      <summary>Papirkurv</summary>
-      <div class="answer">
-        <ul>
-          <li><b>T</b>, papirkurv-ikonet eller <b>Mere → Papirkurv</b> åbner papirkurven.</li>
-          <li><b>Delete/Backspace</b> på en almindelig tavle flytter valgt widget til papirkurven.</li>
-          <li><b>Shift+Delete/Shift+Backspace</b> eller <b>Shift+klik på X</b> sletter permanent uden papirkurv.</li>
-          <li><b>Cmd/Ctrl+Z</b> gendanner senest slettede widget fra papirkurven.</li>
-          <li>I papirkurven: <b>klik</b> eller <b>Enter</b> gendanner valgt widget. <b>←/→/↑/↓</b> vælger mellem slettede widgets.</li>
-          <li><b>Delete/Backspace</b> i papirkurven sletter valgt widget permanent.</li>
-          <li><b>Gendan alle</b> gendanner alle widgets fra papirkurven.</li>
-        </ul>
-      </div>
-    </details>
-
-    <details>
-      <summary>Widgets og indhold</summary>
-      <div class="answer">
-        <ul>
-          <li><b>Shift+A</b> tekst · <b>Shift+V</b> video · <b>Shift+P</b> PDF · <b>Shift+I</b> billede · <b>Shift+L</b> link · <b>Shift+H</b> HTML.</li>
-          <li><b>Shift+K</b> timer · <b>Shift+U</b> ur.</li>
-          <li><b>Shift+W</b> Lykkehjulet · <b>Shift+R</b> grupper · <b>Shift+S</b> ordsky · <b>Shift+X</b> afstemning · <b>Shift+Q</b> KaPardy.</li>
-          <li><b>Cmd/Ctrl+D</b> duplikerer valgt widget.</li>
-          <li><b>Cmd/Ctrl+←/→</b> flytter valgt widget til forrige/næste tavle. Hvis ingen widget er valgt, kan tavlen flyttes i rækkefølgen.</li>
-          <li>Træk og slip billeder, PDF, tekstfiler, links, YouTube-links, CSV/TSV og Excel direkte på tavlen.</li>
-        </ul>
-      </div>
-    </details>
-
-    <details>
-      <summary>KaPardy</summary>
-      <div class="answer">
-        <ul>
-          <li><b>Shift+Q</b> opretter en KaPardy-widget.</li>
-          <li>Widgetten har tre spilletilstande: <b>Kahoot</b>, <b>Jeopardy</b> og <b>Mester</b>.</li>
-          <li><b>K</b>, <b>J</b> og <b>M</b> vælger direkte mellem Kahoot, Jeopardy og Mester, når KaPardy-widgetten er aktiv.</li>
-          <li>I redigering af spørgsmål skifter <b>Shift+Mellemrum</b> mellem de tre starttilstande. <b>Enter</b> starter den valgte tilstand.</li>
-          <li><b>Cmd/Ctrl+Enter</b> tilføjer en ny spørgsmålsrække i KaPardy-editoren.</li>
-          <li>Import kan ske fra CSV/Excel med kolonner som kategori, point, spørgsmål og svar. <b>Første svar er det korrekte</b>.</li>
-          <li>I Kahoot-spil vælger <b>1–4</b> svarmulighed. <b>Shift+Mellemrum</b> flytter svarmarkering, <b>Enter</b> vælger/fortsætter, og <b>Mellemrum</b> går videre i flowet.</li>
-          <li>I Jeopardy-boardet flytter <b>Tab</b> eller <b>Shift+Mellemrum</b> markering mellem pointkort, og <b>Enter</b> vælger det markerede kort.</li>
-          <li>Når der skal bedømmes svar i Jeopardy eller Mester: <b>1/R</b> = rigtigt, <b>2/H</b> = halvt, <b>3/F</b> = forkert. <b>Shift+Mellemrum</b> flytter mellem bedømmelsesknapper, og <b>Enter</b> vælger den markerede.</li>
-          <li><b>⚙️</b> åbner indstillinger/redigering af spørgsmål. I præsentation skjules redigeringsknapper.</li>
-        </ul>
-      </div>
-    </details>
-
-    <details>
-      <summary>Data, lister og import</summary>
-      <div class="answer">
-        <ul>
-          <li><b>Datawidgetten</b> er mellemstation for tabeller, CSV/TSV, Excel og struktureret tekst.</li>
-          <li><b>Listewidgetten</b> er mellemstation for navne, stikord og andre simple lister.</li>
-          <li>Brug <b>→</b> i en datawidget til at lave lister fra valgte kolonner.</li>
-          <li>Lister kan bruges videre i hjul, grupper, ordsky, afstemning og quiz.</li>
-          <li><b>Gem / åbn</b> bruges både til backup og import. Backup genskaber hele tavlepakken.</li>
-          <li><b>Cmd/Ctrl+S</b> og <b>Cmd/Ctrl+G</b> gemmer/backupper.</li>
-        </ul>
-      </div>
-    </details>
-
-    <details>
-      <summary>Præsentation, fokus, PDF og iframe</summary>
-      <div class="answer">
-        <ul>
-          <li>I præsentation skjules widget-titelbjælker og redigeringsværktøjer.</li>
-          <li>I maksimeret tilstand kan redigeringstilstand bruges, så titelbjælke og værktøjer er tilgængelige.</li>
-          <li>Klik i en <b>PDF</b> aktiverer PDF-kontrol. <b>Esc</b> slipper PDF-kontrollen.</li>
-          <li>Iframe/websidekontrol slippes også med <b>Esc</b>.</li>
-          <li>Baggrundsklik/hold kan stadig fungere som hurtigt preview/fokus af tavlen ved at skjule værktøjer kortvarigt.</li>
-        </ul>
+        <div class="helpKeyGrid">
+          <div class="helpKeyBox"><b>Live</b><b>P/R</b> præsentation · <b>F</b> fokus · <b>Shift+F</b> maksimer · <b>Esc</b> tilbage/luk</div>
+          <div class="helpKeyBox"><b>Tavler</b><b>N</b> ny tavle · <b>←/→</b> skift tavle · <b>Shift+T</b> Tavleoverblik · <b>Cmd/Ctrl+O</b> widget-overblik</div>
+          <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt til anden tavle</div>
+          <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
+          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid</div>
+          <div class="helpKeyBox"><b>Opret</b><b>Shift+A/P/I/L/H/V</b> tekst/PDF/billede/link/HTML/video · <b>Shift+W/R/S/X/Q</b> hjul/grupper/ordsky/afstemning/KaPardy</div>
+        </div>
+        <p class="helpMiniNote">I en modal betyder <b>Enter</b> ofte “vælg/åbn”, piletaster flytter markering, og <b>Esc</b> lukker. Det gælder bl.a. Datakilder, Mere, Tavleoverblik og flere vælgere.</p>
       </div>
     </details>
 
     <details open>
-      <summary>Komplet genvejskort</summary>
+      <summary>Prøv værktøjerne herfra</summary>
+      <div class="answer">
+        <p>Klik et ikon for at lukke Hjælp og oprette/åbne værktøjet. Brug det som en hurtig “prøv selv”-indgang.</p>
+        <div class="helpIconGrid">
+          <button class="helpIconItem helpToolBtn" data-help-tool="text"><span class="helpIcon">A</span><span><b>Tekst</b><small>Shift+A · instruktioner, noter, overskrifter</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="dataset"><span class="helpIcon">▦</span><span><b>Datawidget</b><small>tabeller, CSV/Excel, kolonner til lister</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="list"><span class="helpIcon">☰</span><span><b>Listewidget</b><small>navne, stikord og genbrugelige lister</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="wheel"><span class="helpIcon">🎲</span><span><b>Lykkehjulet</b><small>Shift+W · vælg tilfældigt fra en liste</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="groups"><span class="helpIcon">👥</span><span><b>Grupper</b><small>Shift+R · dan grupper fra en liste</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="poll"><span class="helpIcon">😊</span><span><b>Afstemning</b><small>Shift+X · hurtige elevsvar</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="wordcloud"><span class="helpIcon">☁️</span><span><b>Ordsky</b><small>Shift+S · ord og frekvenser</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="kahoopardy"><span class="helpIcon">🏆</span><span><b>KaPardy</b><small>Shift+Q · Kahoot, Jeopardy og Mester</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="pdf"><span class="helpIcon">📄</span><span><b>PDF</b><small>Shift+P · dokumenter og opgaver</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · billeder på tavlen</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="link"><span class="helpIcon">🔗</span><span><b>Link / iframe</b><small>Shift+L · websteder og indlejring</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="timer"><span class="helpIcon">⌛</span><span><b>Timer</b><small>Shift+K · nedtælling</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="clock"><span class="helpIcon">🕒</span><span><b>Ur</b><small>Shift+U · vis ur på tavlen</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="background"><span class="helpIcon">🎨</span><span><b>Baggrund</b><small>Shift+B · billeder, farver og filter</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="dataSources"><span class="helpIcon">🗂️</span><span><b>Datakilder</b><small>D · oversigt over lister og datasæt</small></span></button>
+        </div>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Tavleoverblik, Tavleshot og gendannelsespunkter</summary>
       <div class="answer">
         <ul>
-          <li><b>P/R</b> redigering/præsentation</li>
-          <li><b>F</b> fokus · <b>Shift+F</b> maksimer</li>
-          <li><b>N</b> ny tavle med billedbaggrund</li>
-          <li><b>T</b> papirkurv</li>
-          <li><b>Shift+T</b> Tavleoversigt</li>
-          <li><b>Cmd/Ctrl+O</b> widget-overblik</li>
-          <li><b>Shift+O</b> Redningsbælte</li>
-          <li><b>Shift+B</b> baggrundsvælger</li>
-          <li><b>Cmd/Ctrl+B</b> tilfældig baggrund</li>
-          <li><b>Shift+G</b> grid</li>
-          <li><b>Cmd/Ctrl+Delete/Backspace</b> ryd tavle til papirkurv</li>
-          <li><b>Delete/Backspace</b> slet valgt widget til papirkurv</li>
-          <li><b>Shift+Delete/Backspace</b> permanent sletning</li>
-          <li><b>Cmd/Ctrl+Z</b> gendan senest slettede widget</li>
-          <li><b>Cmd/Ctrl+D</b> dupliker valgt widget</li>
-          <li><b>Cmd/Ctrl+S</b> / <b>Cmd/Ctrl+G</b> gem/backup</li>
-          <li><b>Shift+A/P/I/L/H/V</b> tekst/PDF/billede/link/HTML/video</li>
-          <li><b>Shift+K/U</b> timer/ur</li>
-          <li><b>Shift+W/R/S/X/Q</b> hjul/grupper/ordsky/afstemning/KaPardy</li>
-          <li><b>K/J/M</b> vælger Kahoot/Jeopardy/Mester i aktiv KaPardy-widget</li>
-          <li><b>Shift+Mellemrum</b> skifter starttilstand eller bedømmelsesknap i KaPardy</li>
-          <li><b>Cmd/Ctrl+Enter</b> tilføjer spørgsmålsrække i KaPardy-editoren</li>
-          <li><b>1–9/0</b> tavle 1–10, gruppevalg i grupper-widget eller svar/bedømmelse i KaPardy</li>
+          <li><b>Shift+T</b> åbner Tavleoverblik. Brug <b>piletaster</b> til at markere en tavle og <b>Enter</b> til at åbne den.</li>
+          <li><b>S</b> i Tavleoverblik laver Tavleshot af den markerede tavle.</li>
+          <li><b>G</b> i Tavleoverblik åbner Gendannelsespunkter. Marker et punkt og tryk <b>Enter</b> for at gendanne som ny tavle.</li>
+          <li><b>Delete/Backspace</b> sletter en almindelig tavle. <b>Cmd/Ctrl + piletaster</b> flytter tavlen i rækkefølgen.</li>
+          <li>Tavleshots og gendannelsespunkter er tænkt som tryghed: prøv ting af, og gå tilbage uden at ødelægge din oprindelige tavle.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Datakilder — lister og datasæt ét sted</summary>
+      <div class="answer">
+        <ul>
+          <li><b>D</b> åbner Datakilder. Her kan du se og omdøbe lister/datasæt direkte i oversigten.</li>
+          <li><b>↑/↓</b> vælger datakilde. <b>Enter</b> eller <b>Space</b> åbner den valgte kilde til inspektion. <b>E</b> eller <b>F2</b> redigerer navnet.</li>
+          <li>Datawidgets og Listewidgets åbnes som midlertidige inspektionsvinduer med <b>🔗</b> i stedet for X. Klik <b>🔗</b> eller tryk <b>D/Esc</b> for at komme tilbage til Datakilder.</li>
+          <li><b>Datawidget</b> bruges til tabeller, CSV/TSV og Excel. <b>Listewidget</b> bruges til navne, stikord og simple linjelister.</li>
+          <li>Lister kan bruges af Lykkehjulet, Grupper, Ordsky, Afstemning og KaPardy.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Lykkehjulet og Grupper</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Shift+W</b> opretter Lykkehjulet. Brug det til tilfældige navne, spørgsmål, emner eller aktiviteter.</li>
+          <li><b>Shift+R</b> opretter Grupper. Vælg en liste, angiv personer pr. gruppe og klik/tryk <b>Dan</b>.</li>
+          <li>Begge kan kobles til lister/datakilder, så ændringer i listen kan bruges videre.</li>
+          <li>Når en hjul-/gruppewidget er valgt, bruges <b>Mellemrum</b> til widgettens egen handling i stedet for at åbne Mere.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>KaPardy — quiz og spil</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Shift+Q</b> opretter KaPardy.</li>
+          <li>Der er tre spilformer: <b>Kahoot</b>, <b>Jeopardy</b> og <b>Mester</b>.</li>
+          <li>Når KaPardy er aktiv, vælger <b>K</b>, <b>J</b> og <b>M</b> spilform.</li>
+          <li>I Kahoot bruges <b>1–4</b> til svar. I Jeopardy/Mester bruges <b>1/R</b>, <b>2/H</b>, <b>3/F</b> til rigtigt, halvt og forkert.</li>
+          <li>Importér gerne fra CSV/Excel via Datawidget. Første svar er det korrekte svar.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Baggrunde, grid og redningsbælte</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Shift+B</b> åbner baggrundsvælgeren. <b>Cmd/Ctrl+B</b> vælger en tilfældig baggrund.</li>
+          <li><b>Shift+G</b> slår grid til/fra.</li>
+          <li><b>Shift+O</b> åbner Redningsbælte, hvis widgets er havnet uden for skærmen, eller tavlen er blevet rodet.</li>
+          <li><b>Cmd/Ctrl+Delete/Backspace</b> rydder aktiv tavle til papirkurven efter bekræftelse.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Papirkurv, sletning og backup</summary>
+      <div class="answer">
+        <ul>
+          <li><b>T</b> åbner Papirkurv. I Papirkurv lukker <b>T</b>, <b>Esc</b> eller <b>Mellemrum</b>.</li>
+          <li><b>Delete/Backspace</b> flytter valgt widget til papirkurven.</li>
+          <li><b>Shift+Delete/Backspace</b> eller <b>Shift+klik på X</b> sletter permanent.</li>
+          <li><b>Cmd/Ctrl+Z</b> gendanner senest slettede widget.</li>
+          <li><b>Cmd/Ctrl+S</b> eller <b>Cmd/Ctrl+G</b> gemmer/backupper hele tavlepakken.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>PDF, iframe, fokus og præsentation</summary>
+      <div class="answer">
+        <ul>
+          <li>I præsentation skjules redigeringsværktøjer, så tavlen kan bruges foran elever.</li>
+          <li><b>F</b> bruges til at fremhæve én widget uden at forlade tavlen. <b>Shift+F</b> maksimerer.</li>
+          <li>Klik i PDF eller iframe kan give widgetten kontrol. <b>Esc</b> bruges til at slippe kontrollen igen.</li>
+          <li>Hvis noget virker “låst”, prøv først <b>Esc</b>, derefter <b>Redningsbælte</b> med <b>Shift+O</b>.</li>
         </ul>
       </div>
     </details>
   </div>
 
   <div class="helpPager">
-    <span>Tip: De vigtigste genveje er N, P/R, F, Shift+T, Shift+B, Shift+O, Shift+W og Shift+Q.</span>
+    <span>Hurtigst i gang: N · Shift+A · P/R · F · Shift+T · D · Mellemrum · I Hjælp: ↑↓ scroll · ←→ sektion · Mellemrum åbner Mere</span>
     <button id="closeHelp">Luk</button>
   </div>`);
   modal.querySelector('#closeHelp').onclick=closeModal;
+  try{
+    if(window.__safe455bHelpKeyHandler) document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);
+  }catch(_e){}
+  let safe455bHelpSectionIndex=0;
+  let safe455bHelpWidgetIndex=-1;
+  const safe455bHelpSections=Array.from(modal.querySelectorAll('.helpFAQ > details'));
+  function safe455bCurrentHelpTools(){
+    const sec=safe455bHelpSections[safe455bHelpSectionIndex];
+    return sec?Array.from(sec.querySelectorAll('[data-help-tool]')):[];
+  }
+  function safe455bMarkHelp(){
+    safe455bHelpSections.forEach(d=>d.classList.remove('safe455bHelpSectionCurrent'));
+    modal.querySelectorAll('.safe455bHelpWidgetCurrent').forEach(b=>b.classList.remove('safe455bHelpWidgetCurrent'));
+    const sec=safe455bHelpSections[safe455bHelpSectionIndex];
+    if(sec)sec.classList.add('safe455bHelpSectionCurrent');
+    const tools=safe455bCurrentHelpTools();
+    if(tools.length&&safe455bHelpWidgetIndex>=0){
+      safe455bHelpWidgetIndex=Math.max(0,Math.min(safe455bHelpWidgetIndex,tools.length-1));
+      tools[safe455bHelpWidgetIndex].classList.add('safe455bHelpWidgetCurrent');
+      try{tools[safe455bHelpWidgetIndex].focus({preventScroll:true});}catch(_e){}
+    }
+  }
+  function safe455bMoveHelpSection(delta){
+    if(!safe455bHelpSections.length)return;
+    safe455bHelpSectionIndex=Math.max(0,Math.min(safe455bHelpSections.length-1,safe455bHelpSectionIndex+delta));
+    safe455bHelpWidgetIndex=-1;
+    const sec=safe455bHelpSections[safe455bHelpSectionIndex];
+    if(sec){
+      sec.open=true;
+      safe455bMarkHelp();
+      try{sec.scrollIntoView({block:'start',behavior:'smooth'});}catch(_e){sec.scrollIntoView();}
+    }
+  }
+  function safe455bCycleHelpWidget(delta){
+    const tools=safe455bCurrentHelpTools();
+    if(!tools.length)return false;
+    safe455bHelpWidgetIndex=(safe455bHelpWidgetIndex<0)?0:(safe455bHelpWidgetIndex+delta+tools.length)%tools.length;
+    safe455bMarkHelp();
+    try{tools[safe455bHelpWidgetIndex].scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_e){}
+    return true;
+  }
+  function safe455bHelpIsOpen(){
+    return modalBack&&modalBack.style.display==='flex'&&modal&&modal.querySelector('#closeHelp');
+  }
+  window.__safe455bHelpKeyHandler=function(e){
+    if(!safe455bHelpIsOpen()){
+      try{document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
+      window.__safe455bHelpKeyHandler=null;
+      return;
+    }
+    const tag=(e.target&&e.target.tagName||'').toLowerCase();
+    const typing=tag==='input'||tag==='textarea'||tag==='select'||(e.target&&e.target.isContentEditable);
+    if(typing)return;
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      e.preventDefault();e.stopPropagation();
+      const dy=e.key==='ArrowDown'?120:-120;
+      try{modal.scrollBy({top:dy,behavior:'smooth'});}catch(_e){modal.scrollTop+=dy;}
+      return;
+    }
+    if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+      e.preventDefault();e.stopPropagation();
+      safe455bMoveHelpSection(e.key==='ArrowRight'?1:-1);
+      return;
+    }
+    if(e.key===' '||e.code==='Space'){
+      e.preventDefault();e.stopPropagation();
+      try{document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
+      window.__safe455bHelpKeyHandler=null;
+      closeModal();
+      setTimeout(()=>{try{ if(typeof showMoreTools==='function') showMoreTools(); }catch(_e){}},40);
+      return;
+    }
+    if(e.key==='Enter'){
+      return;
+    }
+    if(e.key==='Escape'){
+      e.preventDefault();e.stopPropagation();
+      closeModal();
+      return;
+    }
+  };
+  document.addEventListener('keydown', window.__safe455bHelpKeyHandler, true);
+  safe455bMarkHelp();
   const ht=modal.querySelector('#helpHintsToggle');
   if(ht)ht.onchange=e=>setHintsEnabled(e.target.checked);
+  modal.querySelectorAll('[data-help-tool]').forEach(btn=>{
+    btn.onclick=()=>{
+      const tool=btn.dataset.helpTool;
+      closeModal();
+      setTimeout(()=>{
+        try{
+          if(typeof handleTool==='function') handleTool(tool);
+          else if(tool && document.querySelector('button[data-tool="'+tool+'"]')) document.querySelector('button[data-tool="'+tool+'"]').click();
+        }catch(_e){ try{toast('Kunne ikke åbne værktøjet herfra');}catch(_t){} }
+      },40);
+    };
+  });
 }
-
 function maybeShowQuickHelp(){
   try{
     const k='maans_tavle_seen_quick_help_v162_test';
