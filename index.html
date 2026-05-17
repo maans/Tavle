@@ -25563,11 +25563,13 @@ function kahoopardyHandleKeyboard(e){
     // SAFE454b7: Gendannelsespunkter-modal har sin egen lokale Enter/Esc-logik.
     // Den tidlige KaPardy/modal-Enter-guard må ikke stoppe Enter her,
     // ellers når tastetrykket aldrig frem til restore-keyhandleren.
+    // SAFE456d: Redningsbælte-modal har også egen lokal Enter/Esc-logik.
+    // Lad derfor Enter passere, så markeret redningsvalg kan udføres.
     try{
-      if(open.querySelector && open.querySelector('.safe429RestoreModal,.safe428RestorePointsModal,[data-safe430-card],[data-safe428-card]')){
+      if(open.querySelector && open.querySelector('.safe429RestoreModal,.safe428RestorePointsModal,[data-safe430-card],[data-safe428-card],.rescueChoiceModal,.rescueChoiceCard')){
         return;
       }
-      if(open.classList && (open.classList.contains('safe429RestoreModal') || open.classList.contains('safe428RestorePointsModal'))){
+      if(open.classList && (open.classList.contains('safe429RestoreModal') || open.classList.contains('safe428RestorePointsModal') || open.classList.contains('rescueChoiceModal'))){
         return;
       }
     }catch(_e){}
