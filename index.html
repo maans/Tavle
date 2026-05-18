@@ -1,3 +1,39 @@
+<!-- SAFE453i69 HELP IMPORT MEDIA + SHORT IMAGE DRAWING TEXT:
+- Ren hjælpetekst-opdatering oven på SAFE453i68.
+- Tilføjer kort brugerafsnit om at trække filer direkte ind på tavlen.
+- Strammer Billeder/tegninger/Mine tegninger ned i samme praktiske hjælpetone.
+- Ingen funktionel kodeændring, ingen widgetlogik, ingen renderændring.
+-->
+<!-- SAFE453i68 CALENDAR LINKED DATA TOGGLE:
+- Lille kalenderrettelse oven på SAFE453i67.
+- Kalenderens 🔗-knap fungerer nu som vis/skjul: åbner koblet datakilde, og lukker den igen hvis den allerede er åben.
+- Den midlertidigt åbnede datawidgets egen 🔗-knap lukker fortsat datakilden igen.
+- Samme brugerprincip som Lykkehjulet og Grupper; ingen ændring af kalenderdata, import, render-flow eller widgettyper.
+-->
+<!-- SAFE453i67 HELP CALENDAR SECTION:
+- Ren hjælpetekst-opdatering oven på SAFE453i66.
+- Tilføjer brugerrettet Kalender-afsnit efter Datakilder.
+- Ingen funktionel kodeændring, ingen widgetlogik, ingen renderændring.
+-->
+<!-- SAFE453i66 HELP IMAGES DRAWINGS USER TEXT ONLY:
+- Ren hjælpetekst-opdatering oven på SAFE453i65.
+- Omskriver afsnittet Billeder, tegninger og Mine tegninger til brugerrettet formål/brugssituationer.
+- Fjerner det separate tekniske afsnit Tegnewidget, rotation og gennemsigtighed.
+- Ingen funktionel kodeændring, ingen renderændring og ingen widgetlogik ændret.
+-->
+<!-- SAFE453i65 NEW DRAWING FROM ARCHIVE:
+- Mine tegninger viser nu altid et + Ny tegning-kort.
+- Footer har også + Ny.
+- Når arkivet er tomt, er Mine tegninger stadig en startvej til første tegning.
+- Enter på + kortet eller + Ny opretter en tom tegnewidget.
+- Ingen ændring af billedimport, backup, render-flow eller eksisterende arkivhandlinger.
+-->
+<!-- SAFE453i64 HELP UPDATE DRAWINGS IMAGES BACKUP:
+- Ren hjælpetekst-opdatering oven på SAFE453i63.
+- Tilføjer afsnit om billeder, tegnewidget, Mine tegninger, fuld backup og rotation.
+- Opdaterer backup- og billedforklaringer.
+- Ingen funktionel kodeændring, ingen renderændring og ingen widgetlogik ændret.
+-->
 <!-- SAFE453i63 ARCHIVE INTERNAL RENAME + SHORT BUTTONS:
 - Erstatter system-prompt ved Omdøb med intern omdøbningslinje i Mine tegninger.
 - Enter i omdøbningsfeltet gemmer. Esc/Annuller lukker omdøbning.
@@ -163,7 +199,7 @@ SAFE453i13 ARCHIVE WARN BEFORE CLEAR CANVAS
 <!--
 SAFE453i10 ARCHIVE SHORTCUT HINT + OPEN AFTER CAMERA
 - Bygger på SAFE453i9.
-- Forkorter hjælpetekst i Mine tegninger: Pile vælger · Enter tegn videre · I indsæt · B baggrund · Delete slet · Esc luk.
+- Forkorter hjælpetekst i Mine tegninger: Pile vælger · Enter tegn/åbn · + Ny opretter tom tegning · I indsæt · B baggrund · Delete slet · Esc luk.
 - D bruges ikke længere i tegningsarkivet, så D kan fortsat tænkes som Datakilder andre steder.
 - Kamera-gemning åbner Mine tegninger efter succesfuld gemning og markerer nyeste tegning.
 - Ingen flytning af kamera/mappe i DOM, ingen toolbar-scroll, ingen ændring i render-flow.
@@ -28425,7 +28461,7 @@ function safe447cOpenCalendarSaveModal(w,el){
   };
 }
 
-function wireCalendar(c,w,el){safe351NormalizeEvents(w);safe397SetupCalendarWeekSizing(c,el);c.querySelector('.calDataLink')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const id=w&&w.data&&w.data.sourceDatasetId;if(id)safe381OpenDatasetSourceNearWidget(id,w);else toast('Ingen koblet datawidget')});c.querySelector('.calRenameBtn')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();safe378OpenRenameCalendar(w,el)});const setMonth=(dy,dm)=>{let y=Number(w.data.year),m=Number(w.data.month)+dm;if(m<1){m=12;y--}if(m>12){m=1;y++}w.data.year=y;w.data.month=m;fillContent(el,w);save()};const setDay=(delta)=>{const base=safe364DateFromISO(w.data.dayDate||safe351TodayISO());base.setDate(base.getDate()+delta);w.data.dayDate=base.getFullYear()+'-'+safe351Pad(base.getMonth()+1)+'-'+safe351Pad(base.getDate());w.data.year=base.getFullYear();w.data.month=base.getMonth()+1;fillContent(el,w);save()};c.querySelector('.calPrev')?.addEventListener('click',e=>{e.stopPropagation();setMonth(0,-1)});c.querySelector('.calNext')?.addEventListener('click',e=>{e.stopPropagation();setMonth(0,1)});c.querySelector('.calToday')?.addEventListener('click',e=>{e.stopPropagation();const d=new Date();w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;w.data.dayDate=safe351TodayISO();fillContent(el,w);save()});c.querySelector('.calDayPrev')?.addEventListener('click',e=>{e.stopPropagation();setDay(-1)});c.querySelector('.calDayNext')?.addEventListener('click',e=>{e.stopPropagation();setDay(1)});c.querySelector('.calDayToday')?.addEventListener('click',e=>{e.stopPropagation();const d=new Date();w.data.dayDate=safe351TodayISO();w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()});c.querySelector('.calModeDay')?.addEventListener('click',e=>{e.stopPropagation();w.data.mode='day';w.data.dayExpanded=false;w.data.dayDate=w.data.dayDate||safe351TodayISO();fillContent(el,w);save()});c.querySelector('.calModeFull')?.addEventListener('click',e=>{e.stopPropagation();w.data.mode='full';fillContent(el,w);save()});c.querySelector('.calModeWeek')?.addEventListener('click',e=>{e.stopPropagation();const y=Number(w.data.year)||new Date().getFullYear();const m=Number(w.data.month)||new Date().getMonth()+1;const monthPrefix=y+'-'+safe351Pad(m)+'-';const base=(w.data.dayDate&&String(w.data.dayDate).startsWith(monthPrefix))?w.data.dayDate:(monthPrefix+'01');w.data.mode='week';w.data.weekDate=safe385ISODate(safe385WeekStartFromDate(base));w.data.year=y;w.data.month=m;fillContent(el,w);save()});{const dateCard=c.querySelector('.calendarTearDate');if(dateCard){let last=0;const openFull=e=>{try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}const now=Date.now();if(now-last<350)return;last=now;w.data.mode='full';fillContent(el,w);save()};dateCard.addEventListener('pointerup',openFull,{passive:false});dateCard.addEventListener('click',openFull);}}
+function wireCalendar(c,w,el){safe351NormalizeEvents(w);safe397SetupCalendarWeekSizing(c,el);c.querySelector('.calDataLink')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();const id=w&&w.data&&w.data.sourceDatasetId;if(!id){toast('Ingen koblet datawidget');return;}let isOpen=false;try{const hit=(typeof safe376DatasetWidgetInfo==='function')?safe376DatasetWidgetInfo(id):null;isOpen=!!(hit&&hit.w&&hit.w.data&&hit.w.data.sourceOpen);}catch(_e){isOpen=false;}if(isOpen&&typeof safe381HideDataSourceWidgetByDataset==='function')safe381HideDataSourceWidgetByDataset(id);else if(typeof safe381OpenDatasetSourceNearWidget==='function')safe381OpenDatasetSourceNearWidget(id,w);});c.querySelector('.calRenameBtn')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();safe378OpenRenameCalendar(w,el)});const setMonth=(dy,dm)=>{let y=Number(w.data.year),m=Number(w.data.month)+dm;if(m<1){m=12;y--}if(m>12){m=1;y++}w.data.year=y;w.data.month=m;fillContent(el,w);save()};const setDay=(delta)=>{const base=safe364DateFromISO(w.data.dayDate||safe351TodayISO());base.setDate(base.getDate()+delta);w.data.dayDate=base.getFullYear()+'-'+safe351Pad(base.getMonth()+1)+'-'+safe351Pad(base.getDate());w.data.year=base.getFullYear();w.data.month=base.getMonth()+1;fillContent(el,w);save()};c.querySelector('.calPrev')?.addEventListener('click',e=>{e.stopPropagation();setMonth(0,-1)});c.querySelector('.calNext')?.addEventListener('click',e=>{e.stopPropagation();setMonth(0,1)});c.querySelector('.calToday')?.addEventListener('click',e=>{e.stopPropagation();const d=new Date();w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;w.data.dayDate=safe351TodayISO();fillContent(el,w);save()});c.querySelector('.calDayPrev')?.addEventListener('click',e=>{e.stopPropagation();setDay(-1)});c.querySelector('.calDayNext')?.addEventListener('click',e=>{e.stopPropagation();setDay(1)});c.querySelector('.calDayToday')?.addEventListener('click',e=>{e.stopPropagation();const d=new Date();w.data.dayDate=safe351TodayISO();w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()});c.querySelector('.calModeDay')?.addEventListener('click',e=>{e.stopPropagation();w.data.mode='day';w.data.dayExpanded=false;w.data.dayDate=w.data.dayDate||safe351TodayISO();fillContent(el,w);save()});c.querySelector('.calModeFull')?.addEventListener('click',e=>{e.stopPropagation();w.data.mode='full';fillContent(el,w);save()});c.querySelector('.calModeWeek')?.addEventListener('click',e=>{e.stopPropagation();const y=Number(w.data.year)||new Date().getFullYear();const m=Number(w.data.month)||new Date().getMonth()+1;const monthPrefix=y+'-'+safe351Pad(m)+'-';const base=(w.data.dayDate&&String(w.data.dayDate).startsWith(monthPrefix))?w.data.dayDate:(monthPrefix+'01');w.data.mode='week';w.data.weekDate=safe385ISODate(safe385WeekStartFromDate(base));w.data.year=y;w.data.month=m;fillContent(el,w);save()});{const dateCard=c.querySelector('.calendarTearDate');if(dateCard){let last=0;const openFull=e=>{try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}const now=Date.now();if(now-last<350)return;last=now;w.data.mode='full';fillContent(el,w);save()};dateCard.addEventListener('pointerup',openFull,{passive:false});dateCard.addEventListener('click',openFull);}}
 {const expandBtn=c.querySelector('.calendarExpandDay');if(expandBtn){let last=0;const toggleDay=e=>{try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}const now=Date.now();if(now-last<350)return;last=now;w.data.dayExpanded=!w.data.dayExpanded;fillContent(el,w);save()};expandBtn.addEventListener('pointerup',toggleDay,{passive:false});expandBtn.addEventListener('click',toggleDay);}}{const qa=c.querySelector('.calQuickAdd');if(qa){let last=0;const doQuick=e=>{try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}const now=Date.now();if(now-last<350)return;last=now;safe365AddQuickCalendarActivity(w,el)};qa.addEventListener('pointerup',doQuick,{passive:false});qa.addEventListener('click',doQuick);}}c.querySelector('.calView')?.addEventListener('click',e=>{e.stopPropagation();w.data.view=w.data.view==='list'?'month':'list';fillContent(el,w);save()});c.querySelector('.calWeekBtn')?.addEventListener('click',e=>{e.stopPropagation();w.data.showWeekNumbers=!(w.data.showWeekNumbers!==false);fillContent(el,w);save()});c.querySelector('.calHolidayBtn')?.addEventListener('click',e=>{e.stopPropagation();w.data.showHolidays=!(w.data.showHolidays!==false);fillContent(el,w);save()});c.querySelector('.calAdd')?.addEventListener('click',e=>{e.stopPropagation();safe351OpenEventModal(w,null,w.data.mode==='day'?(w.data.dayDate||safe351TodayISO()):(w.data.mode==='week'?(w.data.weekDate||w.data.dayDate||safe351TodayISO()):safe351TodayISO()),el)});c.querySelector('.calSaveBtn')?.addEventListener('click',e=>{e.stopPropagation();safe447cOpenCalendarSaveModal(w,el)});c.querySelector('.calDataBtn')?.addEventListener('click',e=>{e.stopPropagation();safe351OpenDataPicker(w,el)});c.querySelector('.calIcsBtn')?.addEventListener('click',e=>{e.stopPropagation();safe355OpenIcsImportChoice(w,el)});c.querySelector('.calFeedBtn')?.addEventListener('click',e=>{e.stopPropagation();safe354OpenFeedImporter(w,el)});c.querySelector('.calDedupBtn')?.addEventListener('click',e=>{e.stopPropagation();safe368OpenDedupChoice(w,el)});
 c.querySelectorAll('.calendarWeekOpen').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();w.data.mode='week';w.data.weekDate=btn.dataset.weekDate;const d=safe364DateFromISO(w.data.weekDate);w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()}));
 const setWeek=(delta)=>{const d=safe385WeekStartFromDate(w.data.weekDate||w.data.dayDate||safe351TodayISO());d.setDate(d.getDate()+delta*7);w.data.weekDate=safe385ISODate(d);w.data.year=d.getFullYear();w.data.month=d.getMonth()+1;fillContent(el,w);save()};
@@ -32742,7 +32778,7 @@ function showQuickHelp(){
           <button class="helpIconItem helpToolBtn" data-help-tool="wordcloud"><span class="helpIcon">☁️</span><span><b>Ordsky</b><small>Shift+S · ord og frekvenser</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="kahoopardy"><span class="helpIcon">🏆</span><span><b>KaPardy</b><small>Shift+Q · Kahoot, Jeopardy og Mester</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="pdf"><span class="helpIcon">📄</span><span><b>PDF</b><small>Shift+P · dokumenter og opgaver</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · billeder på tavlen</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · fra enhed, appen, URL eller kamera</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="link"><span class="helpIcon">🔗</span><span><b>Link / iframe</b><small>Shift+L · websteder og indlejring</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="timer"><span class="helpIcon">⌛</span><span><b>Timer</b><small>Shift+K · nedtælling</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="clock"><span class="helpIcon">🕒</span><span><b>Ur</b><small>Shift+U · vis ur på tavlen</small></span></button>
@@ -32774,6 +32810,21 @@ function showQuickHelp(){
           <li>Datawidgets og Listewidgets åbnes som midlertidige inspektionsvinduer med <b>🔗</b> i stedet for X. Klik <b>🔗</b> eller tryk <b>D/Esc</b> for at komme tilbage til Datakilder.</li>
           <li><b>Datawidget</b> bruges til tabeller, CSV/TSV og Excel. <b>Listewidget</b> bruges til navne, stikord og simple linjelister.</li>
           <li>Lister kan bruges af Lykkehjulet, Grupper, Ordsky, Afstemning og KaPardy.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Kalender</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Kalenderen</b> er til at få dagens, ugens eller månedens aktiviteter ind på tavlen, så programmet kan bruges direkte i undervisningen eller som fælles overblik.</li>
+          <li>Du kan bruge kalenderen som en enkel dagsplan, et ugeskema, en månedskalender eller en liste over kommende aktiviteter.</li>
+          <li>Kalenderen er især nyttig, når tavlen skal samle det praktiske omkring en time, en dag, en weekend, en rejse, et projekt eller en særlig skoleuge.</li>
+          <li>Du kan oprette aktiviteter direkte i kalenderen, eller du kan hente aktiviteter ind fra en kalenderfil, fx fra Viggo eller en anden kalender.</li>
+          <li>Hvis du gemmer kalenderen som datakilde, kan den bruges mere fleksibelt sammen med resten af tavlen og hentes frem igen senere.</li>
+          <li><b>Øjeblik</b> kan bruges til hurtigt at gemme det, tavlen viser lige nu, som en kalendernote — fx hvis en aktivitet, forklaring eller tavleopsætning skal kunne findes igen.</li>
+          <li>Kalenderen kan dermed både være programoversigt, planlægningsværktøj og hukommelse for det, der sker på tavlen.</li>
         </ul>
       </div>
     </details>
@@ -32815,6 +32866,45 @@ function showQuickHelp(){
       </div>
     </details>
 
+    <details open>
+      <summary>Billeder, tegninger og Mine tegninger</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Billeder</b> er til fotos, skærmbilleder, kort, opgaveark, illustrationer og andet visuelt materiale på tavlen.</li>
+          <li>Brug billeder som samtalestartere, baggrund for en forklaring eller som noget, eleverne skal undersøge, beskrive eller arbejde videre med.</li>
+          <li><b>Tegninger</b> er til hurtige markeringer: cirkl noget ind, tegn pile, understreg, lav en skitse eller byg videre på et billede.</li>
+          <li><b>Mine tegninger</b> gemmer de tegninger, du vil bruge igen — fx en forklaring, en elevidé, en gennemgået opgave eller en lille tavleskitse fra en tidligere time.</li>
+          <li>Du kan hente en gemt tegning frem igen, tegne videre på den, sætte den ind som billede eller bruge den som baggrund på en tavle.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Træk filer direkte ind på tavlen</summary>
+      <div class="answer">
+        <ul>
+          <li>Du kan ofte bare slippe filer oven på tavlen. Appen opretter selv widgets for de filtyper, den forstår.</li>
+          <li>Billeder, PDF’er, tekstfiler, regneark, kalenderfiler og backupfiler kan på den måde hurtigt blive til indhold på tavlen.</li>
+          <li>Det er praktisk, når du vil bygge en tavle op af eksisterende materiale: opgaver, billeder, programmer, lister, kalenderfiler eller tidligere backups.</li>
+          <li>Du kan også slippe flere filer på én gang, så tavlen hurtigt bliver fyldt med de materialer, du skal bruge.</li>
+          <li>Hvis en fil ikke kan bruges direkte, ignorerer appen den eller giver besked — dine eksisterende tavler bliver ikke ødelagt af det.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Backup, fuld backup og lokale tegninger</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Almindelig backup</b> gemmer tavler, widgets, placeringer, tekster, lister og indstillinger.</li>
+          <li><b>Fuld backup med tegninger</b> gemmer også <b>Mine tegninger</b> fra browserens lokale database, så de kan flyttes til en anden browser/enhed.</li>
+          <li><b>Skabelon</b> er til tomme eller genbrugelige tavleopsætninger og bør normalt ikke indeholde tegninger og store medier.</li>
+          <li><b>Ryd Mine tegninger</b> sletter tegningsarkivet i browseren. Brug først fuld backup, hvis du vil kunne genskabe dem.</li>
+          <li><b>Hent filer fra tavlen</b> bruges, når du vil hente enkelte indlejrede filer ud separat. Det er ikke det samme som en fuld tavlebackup.</li>
+        </ul>
+      </div>
+    </details>
+
     <details>
       <summary>Papirkurv, sletning og backup</summary>
       <div class="answer">
@@ -32823,7 +32913,7 @@ function showQuickHelp(){
           <li><b>Delete/Backspace</b> flytter valgt widget til papirkurven.</li>
           <li><b>Shift+Delete/Backspace</b> eller <b>Shift+klik på X</b> sletter permanent.</li>
           <li><b>Cmd/Ctrl+Z</b> gendanner senest slettede widget.</li>
-          <li><b>Cmd/Ctrl+S</b> eller <b>Cmd/Ctrl+G</b> gemmer/backupper hele tavlepakken.</li>
+          <li><b>Cmd/Ctrl+S</b> eller <b>Cmd/Ctrl+G</b> åbner Gem/åbn. Her kan du vælge almindelig backup, fuld backup med tegninger eller skabelon.</li>
         </ul>
       </div>
     </details>
@@ -32842,7 +32932,7 @@ function showQuickHelp(){
   </div>
 
   <div class="helpPager">
-    <span>Hurtigst i gang: N · Shift+A · P/R · F · Shift+T · D · Mellemrum · I Hjælp: ↑↓ scroll · ←→ sektion · Mellemrum åbner Mere</span>
+    <span>Hurtigst i gang: N · Shift+A · Shift+I · P/R · F · Shift+T · D · Mellemrum · I Hjælp: ↑↓ scroll · ←→ sektion · Mellemrum åbner Mere</span>
     <button id="closeHelp">Luk</button>
   </div>`);
   modal.querySelector('#closeHelp').onclick=closeModal;
@@ -36018,6 +36108,26 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
   max-height:min(56vh,620px)!important;
 }
 .safe453hDrawingArchive .safe453eDrawingCard{position:relative!important;cursor:pointer!important;outline:none!important;}
+.safe453hDrawingArchive .safe453i65NewCard{
+  border:2px dashed #c7d2fe!important;
+  background:#eef2ff!important;
+  color:#3730a3!important;
+  min-height:170px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  gap:8px!important;
+}
+.safe453hDrawingArchive .safe453i65Plus{
+  width:58px!important;height:58px!important;border-radius:999px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  background:#4f46e5!important;color:white!important;font-size:42px!important;font-weight:900!important;
+}
+.safe453hDrawingArchive .safe453i65NewTitle{font-size:18px!important;font-weight:950!important;}
+.safe453hDrawingArchive .safe453i65NewMeta{font-size:13px!important;font-weight:800!important;color:#475569!important;}
+
 .safe453hDrawingArchive .safe453eDrawingCard.kbSelected{
   border-color:#2563eb!important;
   background:#eff6ff!important;
@@ -36164,6 +36274,13 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
   function getSelectedItem(){
     return currentList.find(x=>String(x&&x.id)===String(selectedId)) || currentList[0] || null;
   }
+  function safe453i65NewCardSelected(){
+    try{
+      const c=document.querySelector('.safe453hDrawingArchive .safe453eDrawingCard.kbSelected');
+      return !!(c&&c.getAttribute('data-safe453i65-new')==='1');
+    }catch(_e){return false;}
+  }
+
   function renderDeleteConfirm(){
     const box=document.getElementById('safe453hConfirm');
     const del=document.getElementById('safe453hDelete');
@@ -36268,13 +36385,19 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
         (size?'<div class="safe453eDrawingMeta">'+size+'</div>':'')+ 
       '</div>';
     }).join('');
+    const newCard='<div class="safe453eDrawingCard safe453i65NewCard" role="button" tabindex="0" data-safe453i65-new="1" aria-label="Ny tegning">'+
+      '<div class="safe453i65Plus">+</div>'+
+      '<div class="safe453i65NewTitle">Ny tegning</div>'+
+      '<div class="safe453i65NewMeta">Start med en tom tegnewidget</div>'+
+    '</div>';
     return '<div class="safe453hDrawingArchive safe453fDrawingArchive safe429RestoreModal">'+
       '<div class="safe429OverviewHead"><h2>Mine tegninger</h2></div>'+ 
       '<p>Vælg en tegning, og tegn videre i en tegnewidget, indsæt den som billede eller brug den som baggrund.</p>'+ 
       '<p><b>Gemte tegninger:</b> '+currentList.length+'</p>'+ 
-      '<p class="safe453hShortcutHint">Pile vælger · Enter tegn videre · I indsæt · B baggrund · Delete slet · Esc luk</p>'+ 
-      (currentList.length?'<div class="safe453eDrawingGrid safe428RestoreGrid bgGrid v46" role="listbox" aria-label="Gemte tegninger">'+cards+'</div>':'<div class="safe453eEmpty">Der er endnu ingen gemte tegninger.</div>')+ 
+      '<p class="safe453hShortcutHint">Pile vælger · Enter tegn/åbn · + Ny opretter tom tegning · I indsæt · B baggrund · Delete slet · Esc luk</p>'+ 
+      '<div class="safe453eDrawingGrid safe428RestoreGrid bgGrid v46" role="listbox" aria-label="Gemte tegninger">'+newCard+cards+'</div>'+ 
       '<div class="safe453fDrawingFooter"><div id="safe453hConfirm" class="safe453hConfirm" aria-live="polite"><span id="safe453hConfirmMsg">Slet markeret tegning?</span><button id="safe453hCancelDelete" class="cancel" type="button">Annuller</button><button id="safe453hConfirmDelete" class="danger" type="button">Slet</button></div><div class="safe453hActions">'+
+        '<button id="safe453i65NewDrawing" class="primary">+ Ny</button>'+
         '<button id="safe453hReuse" class="primary" '+(currentList.length?'':'disabled')+'>Tegn</button>'+ 
         '<button id="safe453hDownload" class="secondary" '+(currentList.length?'':'disabled')+'>Billede</button>'+ 
         '<button id="safe453hBackground" class="secondary" '+(currentList.length?'':'disabled')+'>Baggrund</button>'+ 
@@ -36370,7 +36493,28 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
       try{toast('Kunne ikke genbruge tegningen')}catch(_e){alert('Kunne ikke genbruge tegningen');}
     }
   }
+  function safe453i65CreateNewDrawingWidget(){
+    try{
+      pendingDelete=false;
+      pendingAction=null;
+      try{closeModal();}catch(_close){}
+      let wNew=null;
+      if(typeof safe453i19CreateDrawcopy==='function'){
+        const emptySvg='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560"><rect width="100%" height="100%" fill="transparent"/></svg>');
+        safe453i19CreateDrawcopy(emptySvg,'Ny tegning');
+      }else{
+        wNew=addWidget('drawcopy',{src:'',name:'Ny tegning',overlay:'',mode:'pen',color:'#000000',size:6});
+        if(wNew){wNew.title='Tegnewidget · Ny tegning';render();select(wNew.id);save();}
+      }
+      try{toast('Ny tegnewidget oprettet')}catch(_t){}
+    }catch(err){
+      console.warn('SAFE453i65 new drawing failed',err);
+      try{toast('Kunne ikke oprette ny tegning')}catch(_e){}
+    }
+  }
+
   function drawSelectedAsCopyWidget(){
+    if(safe453i65NewCardSelected()){safe453i65CreateNewDrawingWidget();return;}
     if(warnBeforeClearingCanvas('drawcopy',drawSelectedAsCopyWidgetNow)) return;
     drawSelectedAsCopyWidgetNow();
   }
@@ -36516,6 +36660,7 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
   }
   function wireModal(){
     const close=document.getElementById('safe453hClose');
+    const newDrawing=document.getElementById('safe453i65NewDrawing');
     const reuse=document.getElementById('safe453hReuse');
     const dl=document.getElementById('safe453hDownload');
     const bg=document.getElementById('safe453hBackground');
@@ -36535,6 +36680,7 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
       }
     }catch(_e){}
     if(close) close.onclick=()=>closeModal();
+    if(newDrawing) newDrawing.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} safe453i65CreateNewDrawingWidget();};
     if(reuse) reuse.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} drawSelectedAsCopyWidget();};
     if(dl) dl.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} saveSelectedAsImageWidget();};
     if(bg) bg.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} useSelectedAsBoardBackground();};
@@ -36581,7 +36727,9 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
   document.addEventListener('click',function(ev){
     const card=ev.target&&ev.target.closest&&ev.target.closest('.safe453hDrawingArchive .safe453eDrawingCard');
     if(!card) return;
-    setSelectedByIndex(Number(card.getAttribute('data-safe453h-index')||0));
+    const cs=cards();
+    const found=cs.indexOf(card);
+    setSelectedByIndex(found>=0?found:Number(card.getAttribute('data-safe453h-index')||0));
   },true);
   document.addEventListener('contextmenu',function(ev){
     if(ev.target&&ev.target.closest&&ev.target.closest('.safe453hDrawingArchive .safe453eDrawingPreview')){
