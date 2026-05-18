@@ -1,3 +1,81 @@
+<!-- SAFE453i82 HELP LINKWIDGET SHORTER:
+- Ren hjælpetekst-opdatering oven på SAFE453i81.
+- Forkorter afsnittet Links, hjemmesider og linklister, så det matcher resten af hjælpens korte punktform.
+- Ingen ændring af linkwidget-logik, iframe, datawidgets, render-flow eller backup.
+-->
+<!-- SAFE453i81 HELP LINKWIDGET LINKLISTS:
+- Ren hjælpetekst-opdatering oven på SAFE453i80.
+- Tilføjer brugervenligt afsnit om Links, hjemmesider og linklister efter Datakilder.
+- Ingen ændring af linkwidget-logik, iframe, datawidgets, render-flow eller backup.
+-->
+<!-- SAFE453i80 LINKLIST ADD LINKS + FIRST LINK CREATES LIST:
+- Link/iframe-widgetten får + Link i topbjælken og linklistebjælken.
+- + Link åbner en linkwidget-modal med Titel, Adresse og Beskrivelse og skriver kun til koblet linkliste.
+- Hvis der ikke findes en koblet linkliste, opretter første link en ny linkliste med Navn på linkliste + første link.
+- Gem side åbner samme modal med aktuel adresse udfyldt, så oplysninger gemmes med.
+- Linklistevælgeren viser kun egentlige linklister eller datasæt der tydeligt ligner linklister; kalender/KaPardy/øvrige datasæt påvirkes ikke.
+- Bygger på SAFE453i79.
+-->
+<!-- SAFE453i79 LINKLIST ARROW CYCLE:
+- Link/iframe-widget med koblet linkliste får forrige/næste-pile omkring linktitlen.
+- I linkvisning står titlen fortsat som selve linket, med oplysninger under.
+- I iframe-visning kan linklisten også bladres, så længe iframe-siden ikke er aktiveret/låst op.
+- Fysiske piletaster venstre/højre bladrer i koblet linkliste, når linkwidgetten er valgt/fokuseret og man ikke skriver i et felt.
+- Ingen omskrivning af iframe/browsermotor, datawidget, backup eller render-flow.
+-->
+<!-- SAFE453i78 LINKLIST MUSIC + AUTOLOAD FIRST + LINK VIEW INFO:
+- Tilføjer Musikværktøjer som demoliste til link/iframe-widgettens Linkliste-modal.
+- Når en linkliste vælges/kobles, indlæses første link automatisk i linkwidgetten.
+- Når et link vælges fra listen, gemmes titel, URL og note/beskrivelse i linkwidgetten.
+- I almindelig linkvisning er linkets titel selve linkteksten, og oplysninger fra linklisten vises under linket.
+- Ingen ændring af iframe/mini-browser-motor, zoom, ekstern åbning eller datakildegrundmodel.
+-->
+<!-- SAFE453i77 LINKLIST TITLE AS ACTION:
+- Linkliste-modalens ekstra Brug-knapper er fjernet.
+- Titlen på en eksisterende linkliste eller demoliste er nu selve knappen, der kobler listen til linkwidgetten.
+- Bevarer i76-logik for midlertidige/uændrede linklister og automatisk bevaring ved ændringer.
+- Ingen ændring af iframe/browserlogik, linkåbning, gem-til-linkliste eller datawidget-redigering.
+-->
+<!-- SAFE453i76 LINKWIDGET START CHOOSE LINKLIST:
+- Bygger på SAFE453i75.
+- Linkdialogen får en tydelig Vælg linkliste-knap, så en ny link/iframe-widget kan starte med URL, demo eller tidligere gemt linkliste.
+- Linkliste-modalens ene handling er fortsat Brug; redigering sker ved at åbne den koblede datawidget.
+- Midlertidige uændrede linklister ryddes fortsat ved skift; ændrede lister bevares automatisk.
+- Ingen iframe/browserlogik omskrevet.
+-->
+<!-- SAFE453i75 LINKLIST TEMP CLEANUP:
+- Bygger på SAFE453i74.
+- Linkliste-modal har kun én handling: Brug.
+- Indbyggede demolister bruger mere iframe-egnede undervisningsværktøjer.
+- Når linkwidgetten skifter væk fra en midlertidig linkliste, slettes den gamle liste kun hvis den er uændret.
+- Hvis den midlertidige liste er ændret eller der er gemt link i den, bevares den automatisk som almindelig linkliste.
+- Ingen iframe/browserlogik omskrevet.
+-->
+<!-- SAFE453i74 LINKLIST DEMOS IFRAME SIMPLE:
+- Linkliste-modal har nu kun én handling pr. liste: Brug.
+- Brug + redigér fjernes fra eksisterende linklister og demolister.
+- Redigering foregår via den koblede datawidgets egen 🔗/visning, som i resten af appen.
+- Demolisterne udskiftes til mere iframe-egnede undervisningsværktøjer.
+- Ingen ændring af iframe/browserlogik, render-flow eller datawidget-format.
+-->
+<!-- SAFE453i73 LINKLIST CHOOSER SINGLE MODAL:
+- Link/iframe-widgettens Linkliste-modal viser nu både eksisterende linklister og indbyggede demolister i samme modal.
+- Eksisterende linklister kan vælges eller vælges + åbnes til redigering.
+- Demolister kan bruges direkte eller oprettes + åbnes til redigering.
+- Den separate demo-modal bevares ikke som hovedflow; ingen iframe-/browserlogik ændret.
+-->
+<!-- SAFE453i72 LINK IFRAME DEMO LINKLISTS:
+- Link/iframe-widgettens Linkliste-modal får Demolister med undervisningsvenlige hjemmesidelister.
+- Valg af demoliste opretter en datawidget som linkliste og kobler den automatisk til linkwidgetten.
+- Efter valg kan brugeren vælge link, redigere listen ved at åbne datawidgetten, eller lukke.
+- Ingen ændring af iframe/browserlogik, linknormalisering, backup, render-flow eller øvrige widgets.
+-->
+<!-- SAFE453i70 TEXT WIDGET POST-IT VISUAL STYLE:
+- Ren visuel CSS-opdatering oven på SAFE453i69.
+- Almindelige tekstwidgets får mere post-it-note-præg, især når de ikke er valgt.
+- Datawidgets/tekstwidgets med dataset-visning udelades bevidst, så tabeller og datakilder bevarer deres eksisterende udseende.
+- Ingen ændring af tekstdata, import, backup, widgetlogik, render-flow eller eventhandlers.
+-->
 <!-- SAFE453i69 HELP IMPORT MEDIA + SHORT IMAGE DRAWING TEXT:
 - Ren hjælpetekst-opdatering oven på SAFE453i68.
 - Tilføjer kort brugerafsnit om at trække filer direkte ind på tavlen.
@@ -4349,6 +4427,227 @@ body.focus-maximized .widget[data-type="groups"] .groupsLinkedListBar{display:no
     max-width:56px!important;
   }
 }
+
+
+
+/* SAFE453i71: Link/iframe-widget kan bruge en koblet linkliste fra datawidget. */
+.widget[data-type="link"] .linkLinkedListBar{
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  flex-wrap:wrap!important;
+  padding:7px 9px!important;
+  margin:0 0 8px 0!important;
+  border:1px solid rgba(15,23,42,.12)!important;
+  border-radius:14px!important;
+  background:#f8fafc!important;
+  box-shadow:0 1px 4px rgba(15,23,42,.06)!important;
+  font-size:12px!important;
+  font-weight:850!important;
+  color:#111827!important;
+}
+.widget[data-type="link"] .linkLinkedListBar button{
+  appearance:none!important;
+  border:1px solid rgba(15,23,42,.14)!important;
+  background:#fff!important;
+  color:#111827!important;
+  border-radius:999px!important;
+  padding:5px 8px!important;
+  min-height:26px!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  box-shadow:none!important;
+}
+.widget[data-type="link"] .linkLinkedListBar .linkListStatus{
+  max-width:100%;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  background:#eef2ff!important;
+}
+.widget[data-type="link"] .linkLinkedListBar .linkListStatus.empty{
+  background:#f1f5f9!important;
+  color:#475569!important;
+}
+.widget[data-type="link"] .linkLinkedListBar .linkListPick{background:#e0f2fe!important;color:#075985!important;}
+.widget[data-type="link"] .linkLinkedListBar .linkListSave{background:#dcfce7!important;color:#166534!important;}
+.app.present .widget[data-type="link"] .linkLinkedListBar,
+body.focus-mode .widget[data-type="link"] .linkLinkedListBar,
+body.focus-edit .widget[data-type="link"] .linkLinkedListBar,
+body.focus-presentation .widget[data-type="link"] .linkLinkedListBar,
+body.focus-maximized .widget[data-type="link"] .linkLinkedListBar{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.safe453i71LinkRows{display:grid;gap:8px;max-height:min(56vh,520px);overflow:auto;margin:10px 0;}
+.safe453i71LinkRow{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;
+  width:100%;text-align:left;border:1px solid #e5e7eb;background:#fff;color:#111827;
+  border-radius:14px;padding:10px 12px;font:inherit;font-weight:850;box-shadow:0 1px 4px rgba(15,23,42,.06);
+}
+.safe453i71LinkRow small{display:block;color:#64748b;font-weight:750;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.safe453i71LinkRow:hover{background:#f8fafc;border-color:#cbd5e1;}
+
+/* SAFE453i72: Demo-linklister til link/iframe-widgetten. */
+.safe453i72DemoGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;max-height:min(62vh,560px);overflow:auto;margin:12px 0;padding:2px;}
+.safe453i72DemoCard{display:flex;flex-direction:column;gap:8px;text-align:left;border:1px solid #e5e7eb;background:#fff;color:#111827;border-radius:16px;padding:12px;box-shadow:0 1px 4px rgba(15,23,42,.07);font:inherit;}
+.safe453i72DemoCard:hover{background:#f8fafc;border-color:#cbd5e1;}
+.safe453i72DemoCard b{font-size:15px;line-height:1.15;}
+.safe453i72DemoCard small{display:block;color:#64748b;font-weight:750;line-height:1.25;}
+.safe453i72DemoActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;}
+.safe453i72DemoActions button{border:0;border-radius:999px;padding:7px 10px;font-weight:900;background:#eef2ff;color:#111827;}
+.safe453i72DemoActions button.edit{background:#dcfce7;color:#166534;}
+.safe453i73ChooserSection{margin:12px 0 16px;}
+.safe453i73ChooserSection h3{margin:0 0 6px;font-size:15px;color:#0f172a;}
+.safe453i73ChooserHelp{margin:0 0 8px;color:#64748b;font-weight:750;font-size:13px;line-height:1.25;}
+.safe453i73LinkRowActions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+.safe453i73LinkRowActions button{border:0;border-radius:999px;padding:7px 10px;font-weight:900;background:#eef2ff;color:#111827;white-space:nowrap;}
+
+/* SAFE453i77: I linkliste-modal er titlen selve handlingen. */
+.safe453i77TitleBtn{
+  all:unset!important;
+  display:block!important;
+  color:#0f172a!important;
+  font-weight:950!important;
+  font-size:15px!important;
+  line-height:1.15!important;
+  cursor:pointer!important;
+  border-radius:8px!important;
+  padding:2px 4px!important;
+  margin:-2px -4px 1px -4px!important;
+}
+.safe453i77TitleBtn:hover,.safe453i77TitleBtn:focus-visible{
+  background:#eef2ff!important;
+  color:#1e3a8a!important;
+  outline:2px solid rgba(37,99,235,.30)!important;
+}
+.safe453i72DemoCard .safe453i77TitleBtn{font-size:15px!important;}
+
+
+/* SAFE453i78: Linkvisning med titel som linktekst og oplysninger fra linklisten under. */
+.widget[data-type="link"] .safe453i78LinkView{
+  gap:8px!important;
+  padding:18px!important;
+}
+.widget[data-type="link"] .safe453i78LinkView a{
+  display:inline-block!important;
+  max-width:100%!important;
+  overflow-wrap:anywhere!important;
+  line-height:1.08!important;
+}
+.widget[data-type="link"] .safe453i78LinkInfo{
+  display:block!important;
+  max-width:min(92%,760px)!important;
+  color:#475569!important;
+  font-weight:800!important;
+  font-size:13px!important;
+  line-height:1.25!important;
+  overflow-wrap:anywhere!important;
+}
+.widget:not(.selected)[data-type="link"] .safe453i78LinkInfo{
+  opacity:.82!important;
+}
+
+
+
+/* SAFE453i80: linkwidgettens + Link/Gem side-knapper følger samme rolige bjælke. */
+.widget[data-type="link"] .linkLinkedListBar .linkListAdd,
+.widget[data-type="link"] .linkLinkedListBar .linkListSave{
+  border:0!important;
+  border-radius:999px!important;
+  padding:6px 10px!important;
+  font-weight:900!important;
+  background:#eef2ff!important;
+  color:#111827!important;
+  white-space:nowrap!important;
+}
+.widget[data-type="link"] .linkLinkedListBar .linkListAdd:hover,
+.widget[data-type="link"] .linkLinkedListBar .linkListSave:hover{background:#dbeafe!important;}
+
+/* SAFE453i79: Bladring i linklister med pile omkring linktitel. */
+.widget[data-type="link"] .safe453i79LinkNav{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+  max-width:min(96%,820px)!important;
+  margin:0 auto 6px auto!important;
+}
+.widget[data-type="link"] .safe453i79LinkNavTitle{
+  min-width:0!important;
+  text-align:center!important;
+}
+.widget[data-type="link"] .safe453i79LinkNavTitle a{
+  display:inline-block!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.widget[data-type="link"] .safe453i79Arrow{
+  appearance:none!important;
+  border:1px solid rgba(15,23,42,.14)!important;
+  background:#ffffff!important;
+  color:#111827!important;
+  border-radius:999px!important;
+  min-width:34px!important;
+  width:34px!important;
+  height:34px!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:22px!important;
+  font-weight:950!important;
+  line-height:1!important;
+  box-shadow:0 1px 4px rgba(15,23,42,.10)!important;
+  cursor:pointer!important;
+}
+.widget[data-type="link"] .safe453i79Arrow:hover{
+  background:#eef2ff!important;
+  border-color:#c7d2fe!important;
+}
+.widget[data-type="link"] .safe453i79IframeNav{
+  max-width:100%!important;
+  margin:0 0 8px 0!important;
+  padding:6px 8px!important;
+  border:1px solid rgba(15,23,42,.10)!important;
+  border-radius:14px!important;
+  background:#f8fafc!important;
+}
+.widget[data-type="link"] .safe453i79IframeNav .safe453i79Arrow{
+  min-width:30px!important;
+  width:30px!important;
+  height:30px!important;
+  font-size:19px!important;
+}
+.widget[data-type="link"] .safe453i79IframeNav .safe453i79LinkNavTitle a{
+  font-size:14px!important;
+  font-weight:950!important;
+  color:#0f172a!important;
+  text-decoration:none!important;
+}
+.widget[data-type="link"].iframe-interaction-enabled .safe453i79IframeNav,
+.widget[data-type="link"].is-iframe-active .safe453i79IframeNav{
+  opacity:.45!important;
+}
+.widget[data-type="link"].iframe-interaction-enabled .safe453i79IframeNav .safe453i79Arrow,
+.widget[data-type="link"].is-iframe-active .safe453i79IframeNav .safe453i79Arrow{
+  pointer-events:none!important;
+}
+
+.safe453i77LinkActionHint{
+  display:inline-block!important;
+  color:#64748b!important;
+  font-size:12px!important;
+  font-weight:850!important;
+  white-space:nowrap!important;
+}
+.safe453i73LinkRowActions button.edit{background:#dcfce7;color:#166534;}
 
 </style> <style id="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!imp
 - focus-mode: ="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!important;top:0!important;left:0!important}   /* v_focus_zfix: focused widget must stay above all others */ body.focus-edit .widget.focused, body.focus-presentation .widget.focused, .app.
@@ -19274,7 +19573,7 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -29098,7 +29397,7 @@ if(w.type==='poll'){
       ? `srcdoc="${esc(w.data.srcdoc)}"`
       : `src="${esc(tavleIframeSrc(url,w))}"`;
     const hint=url?`Hvis siden er tom, nægter den sandsynligvis iframe. Brug ↗ Åbn i ny fane.`:`Indsæt en adresse med ✎.`;
-    c.innerHTML=`<div class="linkIframeBox safe401MiniBrowser" data-zoom="${esc(String(zoom))}">
+    c.innerHTML=`${safe453i71LinkListBarHtml(w)}${safe453i79LinkNavHtml(w,'iframe')}<div class="linkIframeBox safe401MiniBrowser" data-zoom="${esc(String(zoom))}">
       <div class="linkIframeFrame">
         <iframe ${iframeAttr} style="${esc(iframeStyle)}" allow="fullscreen; clipboard-read; clipboard-write; autoplay; encrypted-media" allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
         <div class="linkIframeFallbackHint">${esc(hint)} <span>${Math.round(zoom*100)}%</span></div>
@@ -29106,7 +29405,11 @@ if(w.type==='poll'){
       </div>
     </div>`;
   }else{
-    c.innerHTML=`<div class="linkBox"><a target="_blank" rel="noopener" href="${esc(url||'#')}">${esc(w.data.text||'Klikbart link')}</a><small class="safe401LinkHint">▣ skifter til mini-browser/iframe. Hvis siden blokerer iframe, brug ny fane.</small></div>`;
+    const linkTitle=String(w.data.text||'Klikbart link').trim()||'Klikbart link';
+    const linkNote=String(w.data.linkNote||'').trim();
+    const info=linkNote ? `${linkNote} · ${url}` : (url||'Indsæt en adresse med ✎ eller vælg en linkliste med 🔗.');
+    const navHtml=safe453i79LinkNavHtml(w,'link');
+    c.innerHTML=`${safe453i71LinkListBarHtml(w)}<div class="linkBox safe453i78LinkView">${navHtml||`<a target="_blank" rel="noopener" href="${esc(url||'#')}">${esc(linkTitle)}</a>`}<small class="safe453i78LinkInfo">${esc(info)}</small><small class="safe401LinkHint">▣ skifter til mini-browser/iframe. Hvis siden blokerer iframe, brug ny fane.</small></div>`;
   }
   c.ondblclick=e=>{if(!canEditWidgets())return;e.preventDefault();e.stopPropagation();select(w.id,{editText:false});askLink(w)};
 }
@@ -31009,6 +31312,64 @@ function wireWidget(el,w){
     select(w.id,{editText:false});
     askLink(w);
   };
+
+  // SAFE453i71: Link/iframe kan vælge og skrive tilbage til koblet linkliste.
+  const linkListBtn=el.querySelector('[data-act=linkList]');
+  if(linkListBtn)linkListBtn.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    select(w.id,{editText:false});
+    safe453i71OpenLinkListChooser(w);
+  };
+  const linkListStatus=el.querySelector('.linkListStatus');
+  if(linkListStatus)linkListStatus.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    select(w.id,{editText:false});
+    const ref=safe453i71LinkListRef(w);
+    if(ref.datasetId && typeof safe450ToggleLinkedData==='function')safe450ToggleLinkedData(w,'linkList');
+    else safe453i71OpenLinkListChooser(w);
+  };
+  const linkListPick=el.querySelector('.linkListPick');
+  if(linkListPick)linkListPick.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    select(w.id,{editText:false});
+    safe453i71OpenLinkPicker(w);
+  };
+  const linkListSave=el.querySelector('.linkListSave');
+  if(linkListSave)linkListSave.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    select(w.id,{editText:false});
+    safe453i71SaveCurrentLinkToList(w);
+  };
+  const addLinkBtn=el.querySelector('[data-act=addLink]');
+  if(addLinkBtn)addLinkBtn.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    select(w.id,{editText:false});
+    safe453i80OpenAddLinkModal(w,{current:false});
+  };
+  const linkListAdd=el.querySelector('.linkListAdd');
+  if(linkListAdd)linkListAdd.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    select(w.id,{editText:false});
+    safe453i80OpenAddLinkModal(w,{current:false});
+  };
+  const safe453i79Prev=el.querySelector('.safe453i79Prev');
+  if(safe453i79Prev)safe453i79Prev.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    select(w.id,{editText:false});
+    safe453i79NavigateLinkList(w,-1);
+  };
+  const safe453i79Next=el.querySelector('.safe453i79Next');
+  if(safe453i79Next)safe453i79Next.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    select(w.id,{editText:false});
+    safe453i79NavigateLinkList(w,1);
+  };
 const renameMediaBtn=el.querySelector('[data-act=renameMedia]');
   if(renameMediaBtn)renameMediaBtn.onclick=e=>{
     e.preventDefault();
@@ -31929,6 +32290,588 @@ function canEditWidgets(){
          !focusMaximized &&
          !document.body.classList.contains('focus-maximized');
 }
+
+/* SAFE453i71: Link/iframe-widget som bruger linkliste fra datawidget. */
+function safe453i71EnsureLinkListRole(){
+  try{
+    if(typeof SAFE450_LINKED_DATA_ROLES==='object' && SAFE450_LINKED_DATA_ROLES){
+      SAFE450_LINKED_DATA_ROLES.linkList={label:'Linkliste',empty:'Ingen koblet linkliste'};
+    }
+  }catch(_e){}
+}
+function safe453i71LooksLikeUrl(v){
+  const s=String(v||'').trim();
+  if(!s)return false;
+  return /^(https?:|file:|data:|blob:|about:|mailto:|tel:)/i.test(s)||/^www\./i.test(s)||/^[^\s/]+\.[^\s]+/.test(s);
+}
+function safe453i71LinkListRef(w){
+  safe453i71EnsureLinkListRole();
+  let ref=null;
+  try{if(typeof safe450GetLinkedDataRef==='function')ref=safe450GetLinkedDataRef(w,'linkList');}catch(_e){ref=null;}
+  const d=(w&&w.data)||{};
+  const datasetId=String((ref&&ref.datasetId)||d.linkListDatasetId||'').trim();
+  const name=String((ref&&ref.name)||d.linkListDatasetName||'Linkliste').trim();
+  const widgetId=String((ref&&ref.widgetId)||d.linkListWidgetId||'').trim();
+  return {datasetId,name,widgetId,label:'Linkliste',empty:'Ingen koblet linkliste'};
+}
+function safe453i75LinkListSignature(ds){
+  try{
+    const cols=Array.isArray(ds&&ds.columns)?ds.columns:[];
+    const rows=Array.isArray(ds&&ds.rows)?ds.rows:[];
+    return JSON.stringify({columns:cols,rows:rows});
+  }catch(_e){return '';}
+}
+function safe453i75RemoveDatasetAndWidget(dsId){
+  if(!dsId)return false;
+  let removed=false;
+  try{
+    state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+    const before=state.datasets.length;
+    state.datasets=state.datasets.filter(ds=>String(ds&&ds.id)!==String(dsId));
+    removed=removed || state.datasets.length!==before;
+  }catch(_e){}
+  try{
+    (state.slides||[]).forEach(sl=>{
+      sl.widgets=Array.isArray(sl.widgets)?sl.widgets:[];
+      const before=sl.widgets.length;
+      sl.widgets=sl.widgets.filter(x=>!(x&&x.type==='text'&&x.data&&String(x.data.datasetId)===String(dsId)));
+      removed=removed || sl.widgets.length!==before;
+    });
+  }catch(_e){}
+  return removed;
+}
+function safe453i75FinalizeOrDeletePreviousLinkList(ownerW,newDsId){
+  try{
+    const ref=safe453i71LinkListRef(ownerW);
+    const oldId=String((ref&&ref.datasetId)||'').trim();
+    if(!oldId || String(oldId)===String(newDsId||''))return;
+    const ds=findDatasetById(oldId);
+    if(!ds)return;
+    // Kun linkwidgettens egne midlertidige demo-/ny-lister må ryddes automatisk.
+    // Almindelige brugerdatawidgets må aldrig slettes ved skift af linkliste.
+    if(!ds.safe453i75TemporaryLinkList)return;
+    if(String(ds.safe453i75OwnerWidgetId||'') && String(ds.safe453i75OwnerWidgetId)!==String(ownerW&&ownerW.id||''))return;
+    const initial=String(ds.safe453i75InitialSignature||'');
+    const now=safe453i75LinkListSignature(ds);
+    const changed=!!ds.safe453i75UserSaved || (initial && now && initial!==now);
+    if(changed){
+      ds.safe453i75TemporaryLinkList=false;
+      ds.sourceType='link-list';
+      ds.type=ds.type||'link-list';
+      ds.updatedAt=Date.now();
+      updateDatasetInState(ds);
+      return;
+    }
+    safe453i75RemoveDatasetAndWidget(oldId);
+  }catch(err){console.warn('safe453i75 previous linklist cleanup failed',err);}
+}
+function safe453i71SetLinkList(w,dsId){
+  safe453i71EnsureLinkListRole();
+  const ds=(typeof findDatasetById==='function')?findDatasetById(dsId):null;
+  if(!w||!ds){toast('Linklisten blev ikke fundet');return false;}
+  w.data=w.data||{};
+  try{safe453i75FinalizeOrDeletePreviousLinkList(w,ds.id);}catch(_e){}
+  const name=String(ds.name||'Linkliste');
+  const hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null;
+  if(hit&&hit.w&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,hit,'linkList',name);
+  else{
+    w.data.linkedDataSources=w.data.linkedDataSources||{};
+    w.data.linkedDataSources.linkList={datasetId:ds.id,widgetId:(hit&&hit.w&&hit.w.id)||'',name,role:'linkList'};
+  }
+  w.data.linkListDatasetId=ds.id;
+  w.data.linkListDatasetName=name;
+  if(hit&&hit.w)w.data.linkListWidgetId=hit.w.id;
+  try{safe453i78LoadFirstLinkFromDataset(w,ds);}catch(_e){}
+  save();
+  toast('Linkliste koblet');
+  return true;
+}
+function safe453i71DatasetLinkColumns(ds){
+  const cols=Array.isArray(ds&&ds.columns)?ds.columns:[];
+  const rows=Array.isArray(ds&&ds.rows)?ds.rows:[];
+  const colCount=Math.max(cols.length,...rows.map(r=>(r||[]).length),1);
+  const lower=cols.map(c=>String(c||'').trim().toLowerCase());
+  let urlCol=lower.findIndex(c=>['url','link','adresse','web','website','side'].includes(c)||c.includes('url')||c.includes('link'));
+  if(urlCol<0){
+    let best=-1,bestCount=-1;
+    for(let i=0;i<colCount;i++){
+      const count=rows.reduce((n,r)=>n+(safe453i71LooksLikeUrl((r||[])[i])?1:0),0);
+      if(count>bestCount){best=i;bestCount=count;}
+    }
+    urlCol=bestCount>0?best:0;
+  }
+  let titleCol=lower.findIndex((c,i)=>i!==urlCol&&(['titel','title','navn','name','tekst','label'].includes(c)||c.includes('titel')||c.includes('navn')));
+  if(titleCol<0){
+    titleCol=Array.from({length:colCount},(_,i)=>i).find(i=>i!==urlCol)??urlCol;
+  }
+  let noteCol=lower.findIndex((c,i)=>i!==urlCol&&i!==titleCol&&(['note','noter','beskrivelse','description','kategori'].includes(c)||c.includes('note')));
+  return {urlCol,titleCol,noteCol};
+}
+function safe453i71LinkItemsFromDataset(ds){
+  if(!ds)return [];
+  const rows=Array.isArray(ds.rows)?ds.rows:[];
+  const {urlCol,titleCol,noteCol}=safe453i71DatasetLinkColumns(ds);
+  return rows.map((r,i)=>{
+    const url=normalizeLinkUrl((r||[])[urlCol]||'');
+    const rawTitle=String((r||[])[titleCol]||'').trim();
+    const note=noteCol>=0?String((r||[])[noteCol]||'').trim():'';
+    const title=rawTitle||url||('Link '+(i+1));
+    return {rowIndex:i,title,url,note};
+  }).filter(x=>x.url);
+}
+
+function safe453i79CurrentLinkIndex(w,items){
+  try{
+    if(!w||!Array.isArray(items)||!items.length)return -1;
+    const row=Number(w.data&&w.data.linkListRowIndex);
+    if(Number.isFinite(row)){
+      const byRow=items.findIndex(it=>Number(it.rowIndex)===row);
+      if(byRow>=0)return byRow;
+    }
+    const url=normalizeLinkUrl(w.data&&w.data.url||'');
+    if(url){
+      const byUrl=items.findIndex(it=>normalizeLinkUrl(it.url||'')===url);
+      if(byUrl>=0)return byUrl;
+    }
+  }catch(_e){}
+  return -1;
+}
+function safe453i79LinkNavHtml(w,mode){
+  try{
+    const ref=safe453i71LinkListRef(w);
+    const ds=ref.datasetId?findDatasetById(ref.datasetId):null;
+    const items=safe453i71LinkItemsFromDataset(ds);
+    if(!items.length)return '';
+    const idx=safe453i79CurrentLinkIndex(w,items);
+    const current=items[idx>=0?idx:0]||{};
+    const title=String((w&&w.data&&w.data.text)||current.title||'Link').trim()||'Link';
+    const url=normalizeLinkUrl((w&&w.data&&w.data.url)||current.url||'');
+    const klass=mode==='iframe'?'safe453i79LinkNav safe453i79IframeNav':'safe453i79LinkNav';
+    const label=items.length>1?((idx>=0?idx+1:1)+'/'+items.length):('1/'+items.length);
+    return `<div class="${klass}" data-link-nav="1" title="${esc(label+' i '+(ds&&ds.name||'linkliste'))}"><button type="button" class="safe453i79Arrow safe453i79Prev" title="Forrige link">‹</button><span class="safe453i79LinkNavTitle"><a target="_blank" rel="noopener" href="${esc(url||'#')}">${esc(title)}</a></span><button type="button" class="safe453i79Arrow safe453i79Next" title="Næste link">›</button></div>`;
+  }catch(_e){return '';}
+}
+function safe453i79NavigateLinkList(w,dir){
+  try{
+    if(!w||w.type!=='link')return false;
+    if(w.data&&w.data.view==='iframe'&&activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))return false;
+    const ref=safe453i71LinkListRef(w);
+    const ds=ref.datasetId?findDatasetById(ref.datasetId):null;
+    const items=safe453i71LinkItemsFromDataset(ds);
+    if(!items.length){try{toast('Linklisten har ingen links endnu')}catch(_e){};return false;}
+    const cur=safe453i79CurrentLinkIndex(w,items);
+    const base=cur>=0?cur:0;
+    const next=(base+(dir<0?-1:1)+items.length)%items.length;
+    safe453i78ApplyLinkItemToWidget(w,items[next]);
+    save();
+    render();
+    setTimeout(()=>{try{select(w.id,{editText:false})}catch(_e){}},0);
+    return true;
+  }catch(err){console.warn('safe453i79NavigateLinkList failed',err);return false;}
+}
+function safe453i79ActiveLinkWidgetForKeys(){
+  try{
+    let id='';
+    if(typeof selected!=='undefined'&&selected)id=String(selected);
+    if(!id&&window.UIState&&(UIState.focusedWidgetId||UIState.selectedWidgetId))id=String(UIState.focusedWidgetId||UIState.selectedWidgetId);
+    if(!id)return null;
+    let found=null;
+    (state.slides||[]).some(sl=>{
+      const w=(sl.widgets||[]).find(x=>x&&String(x.id)===id);
+      if(w){found=w;return true;}
+      return false;
+    });
+    return found&&found.type==='link'?found:null;
+  }catch(_e){return null;}
+}
+(function safe453i79InstallLinkArrowKeys(){
+  if(window.__safe453i79LinkArrowKeysInstalled)return;
+  window.__safe453i79LinkArrowKeysInstalled=true;
+  document.addEventListener('keydown',function(e){
+    try{
+      if(!e||!(e.key==='ArrowLeft'||e.key==='ArrowRight'))return;
+      if(e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;
+      if(document.getElementById('modalBack')&&document.getElementById('modalBack').style.display!=='none')return;
+      const ae=document.activeElement;
+      if(ae&&(ae.closest&&ae.closest('input,textarea,select,[contenteditable="true"]')))return;
+      const w=safe453i79ActiveLinkWidgetForKeys();
+      if(!w)return;
+      if(w.data&&w.data.view==='iframe'&&activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))return;
+      const ref=safe453i71LinkListRef(w);
+      const ds=ref.datasetId?findDatasetById(ref.datasetId):null;
+      if(!ds||safe453i71LinkItemsFromDataset(ds).length<2)return;
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      safe453i79NavigateLinkList(w,e.key==='ArrowLeft'?-1:1);
+    }catch(_e){}
+  },true);
+})();
+
+function safe453i78ApplyLinkItemToWidget(w,item,opts){
+  if(!w||!item||!item.url)return false;
+  opts=opts||{};
+  w.data=w.data||{};
+  w.data.url=normalizeLinkUrl(item.url);
+  w.data.text=String(item.title||'Link').trim()||'Link';
+  w.data.linkNote=String(item.note||'').trim();
+  w.data.linkListRowIndex=Number.isFinite(Number(item.rowIndex))?Number(item.rowIndex):null;
+  // Bevar brugerens valgte visning. Nye linkwidgets starter typisk i almindelig linkvisning.
+  if(!w.data.view)w.data.view='link';
+  return true;
+}
+function safe453i78LoadFirstLinkFromDataset(w,ds){
+  try{
+    const items=safe453i71LinkItemsFromDataset(ds);
+    if(!items.length)return false;
+    return safe453i78ApplyLinkItemToWidget(w,items[0],{first:true});
+  }catch(_e){return false;}
+}
+function safe453i71LikelyLinkDataset(ds){
+  const items=safe453i71LinkItemsFromDataset(ds);
+  if(items.length)return true;
+  const cols=(ds&&ds.columns||[]).map(c=>String(c||'').toLowerCase());
+  return cols.some(c=>c.includes('url')||c.includes('link')||c.includes('adresse'));
+}
+function safe453i71LinkListBarHtml(w){
+  try{
+    const ref=safe453i71LinkListRef(w);
+    const has=!!ref.datasetId;
+    const status=`<button type="button" class="linkListStatus ${has?'':'empty'}" title="${has?'Vis/skjul koblet linkliste':'Vælg linkliste'}">🔗 ${has?'Linkliste: '+esc(ref.name):'Ingen linkliste'}</button>`;
+    const pick=has?'<button type="button" class="linkListPick" title="Vælg link fra linklisten">Vælg link</button>':'';
+    const addBtn='<button type="button" class="linkListAdd" title="Tilføj link til linklisten">＋ Link</button>';
+    const saveBtn=has?'<button type="button" class="linkListSave" title="Gem den aktuelle adresse i linklisten med titel og beskrivelse">Gem side</button>':'<button type="button" class="linkListPick" title="Vælg eller opret linkliste">Vælg liste</button>';
+    return `<div class="linkLinkedListBar widget-control">${status}${pick}${addBtn}${saveBtn}</div>`;
+  }catch(_e){return '';}
+}
+function safe453i80IsLinkListDataset(ds){
+  try{
+    if(!ds)return false;
+    const type=String(ds.type||'').toLowerCase();
+    const sourceType=String(ds.sourceType||'').toLowerCase();
+    if(type==='link-list'||sourceType==='link-list'||sourceType==='link-list-demo')return true;
+    const cols=(Array.isArray(ds.columns)?ds.columns:[]).map(c=>String(c||'').trim().toLowerCase());
+    const hasUrl=cols.some(c=>['url','link','adresse','web','website','side'].includes(c)||c.includes('url')||c.includes('link'));
+    const hasTitle=cols.some(c=>['titel','title','navn','name','tekst','label'].includes(c)||c.includes('titel')||c.includes('navn'));
+    return hasUrl && (hasTitle || cols.some(c=>c.includes('note')||c.includes('beskrivelse')));
+  }catch(_e){return false;}
+}
+function safe453i71AllDatasetChoices(){
+  state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+  const all=[...state.datasets].filter(ds=>safe453i80IsLinkListDataset(ds));
+  return all.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'da'));
+}
+function safe453i71OpenLinkListChooser(w){
+  if(!canEditWidgets())return;
+  const dss=safe453i71AllDatasetChoices();
+  const current=safe453i71LinkListRef(w).datasetId;
+  const rows=dss.map(ds=>{
+    const items=safe453i71LinkItemsFromDataset(ds);
+    const likely=safe453i71LikelyLinkDataset(ds);
+    const selected=String(ds.id)===String(current)?' · valgt':'';
+    return `<div class="safe453i71LinkRow" data-linklist-row="${esc(ds.id)}"><span><button type="button" class="safe453i77TitleBtn" data-linklist-ds="${esc(ds.id)}">${esc(ds.name||'Datasæt')}${esc(selected)}</button><small>${items.length?items.length+' links':((ds.rows||[]).length+' rækker')} · linkliste</small></span><span class="safe453i77LinkActionHint">klik på titel</span></div>`;
+  }).join('') || '<p>Ingen datawidgets fundet endnu.</p>';
+  const demoCards=(typeof SAFE453I72_LINK_DEMOS!=='undefined'?SAFE453I72_LINK_DEMOS:[]).map((demo,i)=>`
+    <div class="safe453i72DemoCard">
+      <button type="button" class="safe453i77TitleBtn" data-demo-use="${i}">${esc(demo.name)}</button>
+      <small>${esc(demo.desc)} · ${(demo.rows||[]).length} links</small>
+    </div>`).join('') || '<p>Ingen demolister fundet.</p>';
+  showModal(`<h2>Linkliste</h2><p style="margin-top:0;opacity:.75;font-weight:800">Klik på titlen på en eksisterende linkliste eller en demoliste. Listen kobles til linkwidgetten og kan redigeres bagefter ved at åbne den koblede datawidget. Midlertidige uændrede demolister ryddes automatisk, når du vælger en ny liste.</p><section class="safe453i73ChooserSection"><h3>Mine linklister</h3><p class="safe453i73ChooserHelp">Datawidgets du allerede har lavet. Klik på titlen for at bruge listen; redigering foregår i selve datawidgetten.</p><div class="safe453i71LinkRows">${rows}</div></section><section class="safe453i73ChooserSection"><h3>Demolister</h3><p class="safe453i73ChooserHelp">Eksempler med undervisningsværktøjer, der normalt egner sig bedre til iframe/mini-browser end almindelige hjemmesider. Klik på titlen for at bruge listen.</p><div class="safe453i72DemoGrid">${demoCards}</div></section><div class="calendarModalBtns"><button id="newLinkList">Ny linkliste</button><button id="close">Luk</button></div>`);
+  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelector('#newLinkList').onclick=()=>safe453i71CreateNewLinkList(w);
+  modal.querySelectorAll('[data-linklist-ds]').forEach(btn=>btn.onclick=()=>{
+    const dsid=btn.getAttribute('data-linklist-ds');
+    safe453i71SetLinkList(w,dsid);
+    closeModal();
+    render();
+    setTimeout(()=>select(w.id,{editText:false}),0);
+  });
+  modal.querySelectorAll('[data-demo-use]').forEach(btn=>btn.onclick=()=>safe453i72CreateDemoDataset(w,SAFE453I72_LINK_DEMOS[Number(btn.getAttribute('data-demo-use'))],false));
+}
+function safe453i71CreateNewLinkList(w){
+  const title=String((w&&w.data&&w.data.text)||'').trim();
+  const url=normalizeLinkUrl(w&&w.data&&w.data.url||'');
+  const ds={id:uid(),name:'Linkliste',type:'link-list',columns:['Titel','URL','Note'],rows:url?[[title&&title!=='Klikbart link'?title:'Link',url,'']]:[],sourceName:'Link/iframe',sourceType:'link-list',importedAt:Date.now()};
+  ds.safe453i75TemporaryLinkList=true;
+  ds.safe453i75OwnerWidgetId=String(w&&w.id||'');
+  ds.safe453i75InitialSignature=safe453i75LinkListSignature(ds);
+  updateDatasetInState(ds);
+  let dw=null;
+  try{dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});}catch(_e){dw=null;}
+  try{if(dw){dw.title='📊 '+ds.name;dw.data=dw.data||{};dw.data.sourceType='link-list';dw.data.sourceOpen=false;}}catch(_e){}
+  const live=(typeof safe450FindWidgetById==='function'&&w&&w.id)?(safe450FindWidgetById(w.id)||{}).w:null;
+  const owner=live||w;
+  safe453i71SetLinkList(owner,ds.id);
+  closeModal();
+  render();
+  setTimeout(()=>select(owner.id,{editText:false}),30);
+}
+
+/* SAFE453i72: Demolister med undervisningsvenlige hjemmesider til link/iframe-widgetten. */
+const SAFE453I72_LINK_DEMOS=[
+  {
+    name:'Simuleringer og matematik',
+    desc:'Interaktive fagværktøjer, som ofte fungerer godt i iframe og kan bruges direkte på tavlen.',
+    rows:[
+      ['PhET · Kræfter og bevægelse','https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_all.html','Interaktiv fysiksimulation'],
+      ['PhET · Balancelaboratorium','https://phet.colorado.edu/sims/html/balancing-act/latest/balancing-act_all.html','Vægt, balance og moment'],
+      ['GeoGebra Classic','https://www.geogebra.org/classic','Geometri, algebra og grafer'],
+      ['GeoGebra Geometry','https://www.geogebra.org/geometry','Geometri og konstruktioner'],
+      ['Desmos Graphing Calculator','https://www.desmos.com/calculator','Funktionsgrafer og undersøgelser']
+    ]
+  },
+  {
+    name:'Tegne- og idéværktøjer',
+    desc:'Visuelle værktøjer til skitser, billedarbejde, idéudvikling og fælles forklaringer.',
+    rows:[
+      ['Excalidraw','https://excalidraw.com/','Skitser, figurer og fælles whiteboard'],
+      ['Photopea','https://www.photopea.com/','Billedredigering i browseren'],
+      ['Kleki','https://kleki.com/','Tegne- og maleværktøj'],
+      ['tldraw','https://www.tldraw.com/','Enkelt digitalt whiteboard'],
+      ['Witeboard','https://witeboard.com/','Hurtigt whiteboard']
+    ]
+  },
+  {
+    name:'Musikværktøjer',
+    desc:'Musik, noder, teori og lydværktøjer til fælles visning eller arbejde direkte i mini-browseren.',
+    rows:[
+      ['Musikipedia','https://www.musikipedia.dk/','Dansk musikteori og musikleksikon'],
+      ['Hacklily · LilyPond','https://www.hacklily.org/','Nodenotation med LilyPond i browseren'],
+      ['MuseScore','https://musescore.com/','Noder, partiturer og inspiration'],
+      ['BandLab','https://www.bandlab.com/','Online musikproduktion og samarbejde'],
+      ['Tone.js eksempler','https://tonejs.github.io/examples/','Lyd, synth og webbaserede musikforsøg']
+    ]
+  },
+  {
+    name:'Kort og verden',
+    desc:'Kort- og verdensværktøjer hvor embed/iframe-visning er mere sandsynlig end ved almindelige portalsider.',
+    rows:[
+      ['OpenStreetMap · embed','https://www.openstreetmap.org/export/embed.html?bbox=9.15%2C56.65%2C9.75%2C56.95&layer=mapnik','Kortudsnit omkring Himmerland'],
+      ['Windy · embed','https://embed.windy.com/embed2.html?lat=56.8&lon=9.5&detailLat=56.8&detailLon=9.5&width=650&height=450&zoom=7&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1','Vejrkort'],
+      ['Stellarium Web','https://stellarium-web.org/','Stjernehimmel og astronomi'],
+      ['Earth Nullschool','https://earth.nullschool.net/','Vind og vejrstrømme på kloden'],
+      ['MapChart · World','https://www.mapchart.net/world.html','Lav enkle verdenskort']
+    ]
+  },
+  {
+    name:'Tekst, kode og webskitser',
+    desc:'Små browserbaserede arbejdsrum til tekst, markdown og kreative kodeforsøg.',
+    rows:[
+      ['Markdown Live Preview','https://markdownlivepreview.com/','Skriv markdown og se resultatet'],
+      ['p5.js Web Editor','https://editor.p5js.org/','Kreativ kodning og små visuelle skitser'],
+      ['JSFiddle','https://jsfiddle.net/','HTML, CSS og JavaScript-forsøg'],
+      ['CodePen Pen','https://codepen.io/pen/','Hurtige webskitser'],
+      ['Mermaid Live Editor','https://mermaid.live/edit','Diagrammer som tekst']
+    ]
+  }
+];
+function safe453i72DatasetName(base){
+  const existing=new Set((state.datasets||[]).map(ds=>String(ds.name||'')));
+  let name=base,n=2;
+  while(existing.has(name)){name=base+' '+(n++);}
+  return name;
+}
+function safe453i72CreateDemoDataset(w,demo,openForEdit){
+  if(!demo)return;
+  const ds={
+    id:uid(),
+    name:safe453i72DatasetName('Linkliste · '+demo.name),
+    type:'link-list',
+    columns:['Titel','URL','Note'],
+    rows:(demo.rows||[]).map(r=>[String(r[0]||''),String(r[1]||''),String(r[2]||'')]),
+    sourceName:'Demoliste · '+demo.name,
+    sourceType:'link-list-demo',
+    importedAt:Date.now()
+  };
+  ds.safe453i75TemporaryLinkList=true;
+  ds.safe453i75OwnerWidgetId=String(w&&w.id||'');
+  ds.safe453i75InitialSignature=safe453i75LinkListSignature(ds);
+  updateDatasetInState(ds);
+  let dw=null;
+  try{dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+44,innerWidth-720)),y:Math.max(80,Math.min((w.y||130)+44,innerHeight-460))});}catch(_e){dw=null;}
+  try{
+    if(dw){
+      dw.title='📊 '+ds.name;
+      dw.data=dw.data||{};
+      dw.data.sourceType='link-list-demo';
+      dw.data.sourceOpen=false;
+    }
+  }catch(_e){}
+  const live=(typeof safe450FindWidgetById==='function'&&w&&w.id)?(safe450FindWidgetById(w.id)||{}).w:null;
+  const owner=live||w;
+  safe453i71SetLinkList(owner,ds.id);
+  closeModal();
+  render();
+  setTimeout(()=>{
+    try{select(owner.id,{editText:false});}catch(_e){}
+    try{toast('Demoliste koblet. Åbn 🔗-linklisten, hvis du vil redigere den.');}catch(_e){}
+  },40);
+}
+function safe453i72OpenDemoLinkLists(w){
+  if(!canEditWidgets())return;
+  const cards=SAFE453I72_LINK_DEMOS.map((demo,i)=>`
+    <div class="safe453i72DemoCard">
+      <button type="button" class="safe453i77TitleBtn" data-demo-use="${i}">${esc(demo.name)}</button>
+      <small>${esc(demo.desc)} · ${(demo.rows||[]).length} links</small>
+    </div>`).join('');
+  showModal(`<h2>Demolister med iframe-egnede undervisningslinks</h2><p style="margin-top:0;opacity:.75;font-weight:800">Vælg en liste. Den bliver oprettet som datawidget og koblet til linkwidgetten. Du kan redigere listen bagefter ved at åbne den koblede datawidget.</p><div class="safe453i72DemoGrid">${cards}</div><div class="calendarModalBtns"><button id="backToLinkLists">Tilbage</button><button id="close">Luk</button></div>`);
+  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelector('#backToLinkLists').onclick=()=>safe453i71OpenLinkListChooser(w);
+  modal.querySelectorAll('[data-demo-use]').forEach(btn=>btn.onclick=()=>safe453i72CreateDemoDataset(w,SAFE453I72_LINK_DEMOS[Number(btn.getAttribute('data-demo-use'))],false));
+}
+function safe453i72AfterDemoModal(w,ds){
+  try{toast('Linkliste koblet. Åbn 🔗-linklisten, hvis du vil redigere den.');}catch(_e){}
+}
+
+function safe453i71OpenLinkPicker(w){
+  const ref=safe453i71LinkListRef(w);
+  const ds=ref.datasetId?findDatasetById(ref.datasetId):null;
+  if(!ds){safe453i71OpenLinkListChooser(w);return;}
+  const items=safe453i71LinkItemsFromDataset(ds);
+  if(!items.length){toast('Linklisten har ingen links endnu');return;}
+  showModal(`<h2>Vælg link</h2><p style="margin-top:0;opacity:.75;font-weight:800">${esc(ds.name||'Linkliste')}</p><div class="safe453i71LinkRows">${items.map((it,i)=>`<button type="button" class="safe453i71LinkRow" data-link-row="${i}"><span><b>${esc(it.title)}</b><small>${esc(it.url)}${it.note?' · '+esc(it.note):''}</small></span><span>Åbn</span></button>`).join('')}</div><div class="calendarModalBtns"><button id="chooseList">Skift linkliste</button><button id="close">Luk</button></div>`);
+  modal.querySelector('#close').onclick=closeModal;
+  modal.querySelector('#chooseList').onclick=()=>safe453i71OpenLinkListChooser(w);
+  modal.querySelectorAll('[data-link-row]').forEach(btn=>btn.onclick=()=>{
+    const item=items[Number(btn.getAttribute('data-link-row'))];
+    if(!item)return;
+    safe453i78ApplyLinkItemToWidget(w,item);
+    closeModal();
+    render();
+    setTimeout(()=>select(w.id,{editText:false}),0);
+    save();
+  });
+}
+function safe453i71SaveCurrentLinkToList(w){
+  // SAFE453i80: Gem side skal ikke skrive en teknisk række direkte.
+  // Den åbner en bruger-modal, så titel og beskrivelse kan udfyldes.
+  return safe453i80OpenAddLinkModal(w,{current:true});
+}
+
+
+function safe453i80LinkListDefaultName(w){
+  try{
+    const title=String(w&&w.data&&w.data.text||'').trim();
+    if(title && title!=='Klikbart link' && title!=='Link')return 'Linkliste · '+title;
+  }catch(_e){}
+  return 'Linkliste';
+}
+function safe453i80EnsureLinkDatasetColumns(ds){
+  ds=ds||{};
+  if(!Array.isArray(ds.columns)||!ds.columns.length)ds.columns=['Titel','URL','Note'];
+  const lower=ds.columns.map(c=>String(c||'').trim().toLowerCase());
+  function ensure(name,aliases){
+    let idx=lower.findIndex(c=>aliases.some(a=>c===a||c.includes(a)));
+    if(idx<0){idx=ds.columns.length;ds.columns.push(name);lower.push(String(name).toLowerCase());}
+    return idx;
+  }
+  const titleCol=ensure('Titel',['titel','title','navn','name','tekst','label']);
+  const urlCol=ensure('URL',['url','link','adresse','web','website','side']);
+  const noteCol=ensure('Note',['note','noter','beskrivelse','description']);
+  return {titleCol,urlCol,noteCol};
+}
+function safe453i80MarkAsLinkList(ds){
+  if(!ds)return ds;
+  ds.type='link-list';
+  ds.sourceType=ds.sourceType||'link-list';
+  ds.sourceName=ds.sourceName||'Link/iframe';
+  ds.safe453i80LinkList=true;
+  return ds;
+}
+function safe453i80AppendLinkRow(w,ds,info){
+  try{
+    if(!ds)return false;
+    info=info||{};
+    const url=normalizeLinkUrl(info.url||'');
+    if(!url){toast('Skriv en adresse først');return false;}
+    safe453i80MarkAsLinkList(ds);
+    const cols=safe453i80EnsureLinkDatasetColumns(ds);
+    ds.rows=Array.isArray(ds.rows)?ds.rows:[];
+    const existing=safe453i71LinkItemsFromDataset(ds).some(it=>normalizeLinkUrl(it.url||'')===url);
+    if(existing){toast('Linket findes allerede i linklisten');return false;}
+    const len=ds.columns.length;
+    const row=Array.from({length:len},()=>'' );
+    row[cols.titleCol]=String(info.title||'').trim()||url;
+    row[cols.urlCol]=url;
+    row[cols.noteCol]=String(info.note||'').trim();
+    ds.rows.push(row);
+    ds.safe453i75UserSaved=true;
+    ds.safe453i75TemporaryLinkList=false;
+    ds.updatedAt=Date.now();
+    updateDatasetInState(ds);
+    try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}
+    const item={rowIndex:ds.rows.length-1,title:row[cols.titleCol],url:row[cols.urlCol],note:row[cols.noteCol]};
+    safe453i78ApplyLinkItemToWidget(w,item);
+    save();
+    return true;
+  }catch(err){console.warn('safe453i80AppendLinkRow failed',err);return false;}
+}
+function safe453i80CreateLinkListWithFirstLink(w,info){
+  try{
+    info=info||{};
+    const url=normalizeLinkUrl(info.url||'');
+    if(!url){toast('Skriv en adresse først');return false;}
+    const name=safe453i72DatasetName(String(info.listName||'').trim()||safe453i80LinkListDefaultName(w));
+    const ds={
+      id:uid(),
+      name,
+      type:'link-list',
+      columns:['Titel','URL','Note'],
+      rows:[[String(info.title||'').trim()||url,url,String(info.note||'').trim()]],
+      sourceName:'Link/iframe',
+      sourceType:'link-list',
+      importedAt:Date.now(),
+      updatedAt:Date.now(),
+      safe453i80LinkList:true,
+      safe453i75UserSaved:true
+    };
+    updateDatasetInState(ds);
+    let dw=null;
+    try{dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});}catch(_e){dw=null;}
+    try{if(dw){dw.title='📊 '+ds.name;dw.data=dw.data||{};dw.data.sourceType='link-list';dw.data.sourceOpen=false;}}catch(_e){}
+    const live=(typeof safe450FindWidgetById==='function'&&w&&w.id)?(safe450FindWidgetById(w.id)||{}).w:null;
+    const owner=live||w;
+    safe453i71SetLinkList(owner,ds.id);
+    safe453i78ApplyLinkItemToWidget(owner,{rowIndex:0,title:ds.rows[0][0],url:ds.rows[0][1],note:ds.rows[0][2]});
+    save();
+    return true;
+  }catch(err){console.warn('safe453i80CreateLinkListWithFirstLink failed',err);return false;}
+}
+function safe453i80OpenAddLinkModal(w,opts){
+  if(!canEditWidgets())return;
+  opts=opts||{};
+  const ref=safe453i71LinkListRef(w);
+  const ds=ref.datasetId?findDatasetById(ref.datasetId):null;
+  const hasList=!!ds;
+  const currentUrl=normalizeLinkUrl(w&&w.data&&w.data.url||'');
+  const currentTitle=String(w&&w.data&&w.data.text||'').trim();
+  const currentNote=String(w&&w.data&&w.data.linkNote||'').trim();
+  const prefillCurrent=!!opts.current;
+  const listName=hasList?String(ds.name||'Linkliste'):(safe453i80LinkListDefaultName(w));
+  showModal(`<h2>${hasList?'Tilføj link':'Ny linkliste'}</h2>
+    <p style="margin-top:0;opacity:.75;font-weight:800">${hasList?'Linket gemmes i den koblede linkliste: '+esc(listName):'Første link opretter samtidig en ny linkliste.'}</p>
+    ${hasList?'':`<label>Navn på linkliste<input id="safe453i80ListName" placeholder="Linkliste" value="${esc(listName)}"></label>`}
+    <label>Titel<input id="safe453i80Title" placeholder="Titel på linket" value="${esc(prefillCurrent&&currentTitle&&currentTitle!=='Klikbart link'?currentTitle:'')}"></label>
+    <label>Adresse<input id="safe453i80Url" placeholder="https://..." value="${esc(prefillCurrent?currentUrl:'')}"></label>
+    <label>Beskrivelse<input id="safe453i80Note" placeholder="Kort note om siden" value="${esc(prefillCurrent?currentNote:'')}"></label>
+    <div class="calendarModalBtns"><button id="safe453i80Save" class="primary">${hasList?'Tilføj link':'Opret linkliste'}</button><button id="close">Annuller</button></div>`);
+  const listInput=modal.querySelector('#safe453i80ListName');
+  const titleInput=modal.querySelector('#safe453i80Title');
+  const urlInput=modal.querySelector('#safe453i80Url');
+  const noteInput=modal.querySelector('#safe453i80Note');
+  function commit(){
+    const info={listName:listInput?listInput.value:'',title:titleInput.value,url:urlInput.value,note:noteInput.value};
+    const ok=hasList?safe453i80AppendLinkRow(w,ds,info):safe453i80CreateLinkListWithFirstLink(w,info);
+    if(!ok)return;
+    closeModal();
+    render();
+    setTimeout(()=>{try{select(w.id,{editText:false})}catch(_e){}},30);
+    toast(hasList?'Link tilføjet':'Linkliste oprettet');
+  }
+  modal.querySelector('#safe453i80Save').onclick=commit;
+  modal.querySelector('#close').onclick=closeModal;
+  [listInput,titleInput,urlInput,noteInput].filter(Boolean).forEach(input=>input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();}}));
+  setTimeout(()=>{try{(hasList?titleInput:(listInput||titleInput)).focus({preventScroll:true});}catch(_e){}},50);
+}
+
 function normalizeLinkUrl(url){
   url=String(url||'').trim();
   if(!url)return '';
@@ -31943,78 +32886,87 @@ function normalizeLinkUrl(url){
 function askLink(w){
   if(!canEditWidgets())return;
 
+  const ref=safe453i71LinkListRef(w);
+  const ds=ref.datasetId?findDatasetById(ref.datasetId):null;
+  const hasList=!!ds;
   const defaultTitle='Link';
   const currentTitle=String(w.data.text||'').trim();
   const titleValue=(currentTitle && currentTitle!=='Klikbart link') ? currentTitle : defaultTitle;
   const urlValue=String(w.data.url||'').trim();
+  const noteValue=String(w.data.linkNote||'').trim();
+  const listName=safe453i80LinkListDefaultName(w);
 
-  showModal(`<h2>Link</h2>
-    <p style="margin-top:0;opacity:.75;font-weight:800">Samme adresse kan vises som almindeligt link eller som indlejret webside/iframe via knappen i widgetens topbjælke.</p>
+  showModal(`<h2>${hasList?'Link':'Ny linkliste'}</h2>
+    <p style="margin-top:0;opacity:.75;font-weight:800">${hasList?'Ret linket i widgetten, eller tilføj/gem links i den koblede linkliste.':'Skriv første link, vælg en tidligere linkliste eller brug en demoliste. Første link opretter en ny linkliste.'}</p>
+    ${hasList?'':`<label>Navn på linkliste<input id="lln" placeholder="Linkliste" value="${esc(listName)}"></label>`}
     <label>Titel
       <input id="lt" placeholder="Link" value="${esc(titleValue)}">
     </label>
     <label>Adresse
       <input id="lu" placeholder="Indsæt URL" value="${esc(urlValue)}">
     </label>
-    <button id="ok">Gem</button>
-    <button id="cancel">Luk</button>`);
+    <label>Beskrivelse
+      <input id="ln" placeholder="Kort note om siden" value="${esc(noteValue)}">
+    </label>
+    <div class="calendarModalBtns"><button id="ok" class="primary">${hasList?'Gem link':'Opret linkliste'}</button>
+    <button id="chooseLinkListFromDialog">Vælg linkliste</button>
+    <button id="cancel">Luk</button></div>`);
 
+  const listInput=modal.querySelector('#lln');
   const titleInput=modal.querySelector('#lt');
   const urlInput=modal.querySelector('#lu');
+  const noteInput=modal.querySelector('#ln');
 
   function selectAllOnFocus(input){
     if(!input)return;
     let selectedOnce=false;
     const doSelect=()=>{
-      try{
-        input.focus({preventScroll:true});
-        input.setSelectionRange(0,String(input.value||'').length);
-        selectedOnce=true;
-      }catch(e){
-        try{input.select();selectedOnce=true;}catch(_e){}
-      }
+      try{input.focus({preventScroll:true});input.setSelectionRange(0,String(input.value||'').length);selectedOnce=true;}
+      catch(e){try{input.select();selectedOnce=true;}catch(_e){}}
     };
     input.addEventListener('focus',()=>setTimeout(doSelect,0));
-    input.addEventListener('pointerdown',()=>{
-      if(!selectedOnce)setTimeout(doSelect,0);
-    });
-    input.addEventListener('click',()=>{
-      if(!selectedOnce)setTimeout(doSelect,0);
-    });
+    input.addEventListener('pointerdown',()=>{if(!selectedOnce)setTimeout(doSelect,0);});
+    input.addEventListener('click',()=>{if(!selectedOnce)setTimeout(doSelect,0);});
     input.addEventListener('blur',()=>{selectedOnce=false;});
   }
-
-  selectAllOnFocus(titleInput);
-  selectAllOnFocus(urlInput);
+  [listInput,titleInput,urlInput,noteInput].filter(Boolean).forEach(selectAllOnFocus);
 
   function saveLink(){
-    w.data.text=titleInput.value.trim()||defaultTitle;
-    w.data.url=normalizeLinkUrl(urlInput.value);
-    if(!w.data.view)w.data.view='link';
-    closeModal();
-    render();
-    save();
+    const title=titleInput.value.trim()||defaultTitle;
+    const url=normalizeLinkUrl(urlInput.value);
+    const note=noteInput.value.trim();
+    if(!url){toast('Skriv en adresse først');return;}
+    if(hasList){
+      w.data.text=title;
+      w.data.url=url;
+      w.data.linkNote=note;
+      if(!w.data.view)w.data.view='link';
+      closeModal();
+      render();
+      save();
+    }else{
+      const ok=safe453i80CreateLinkListWithFirstLink(w,{listName:listInput?listInput.value:'',title,url,note});
+      if(!ok)return;
+      closeModal();
+      render();
+      save();
+    }
   }
 
   modal.querySelector('#ok').onclick=saveLink;
+  const chooseBtn=modal.querySelector('#chooseLinkListFromDialog');
+  if(chooseBtn)chooseBtn.onclick=()=>safe453i71OpenLinkListChooser(w);
   modal.querySelector('#cancel').onclick=closeModal;
-
-  [titleInput,urlInput].forEach(input=>{
-    input.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){
-        e.preventDefault();
-        saveLink();
-      }
-    });
+  [listInput,titleInput,urlInput,noteInput].filter(Boolean).forEach(input=>{
+    input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveLink();}});
   });
 
   setTimeout(()=>{
-    try{
-      titleInput.focus({preventScroll:true});
-      titleInput.setSelectionRange(0,String(titleInput.value||'').length);
-    }catch(e){try{titleInput.select()}catch(_e){}}
+    try{(hasList?titleInput:(listInput||titleInput)).focus({preventScroll:true});}
+    catch(e){try{titleInput.select()}catch(_e){}}
   },60);
 }
+
 
 /* SAFE453i41: Billedwidget kan vælge billede fra appen.
    Tilføjer kun en ekstra kildeknap i tom billedwidget: "Fra appen".
@@ -32813,6 +33765,21 @@ function showQuickHelp(){
         </ul>
       </div>
     </details>
+
+    <details>
+      <summary>Links, hjemmesider og linklister</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Linkwidgetten</b> bruges til hjemmesider, du vil have med på tavlen.</li>
+          <li>Skriv ét link, vælg en gemt linkliste eller start med en demoliste.</li>
+          <li>En linkliste er en lille samling hjemmesider, du kan bladre imellem — fx musikværktøjer, ordbøger, opgavebanker eller faglige ressourcer.</li>
+          <li>Når du vælger en linkliste, åbnes første link automatisk. Brug pilene ved titlen til at skifte link.</li>
+          <li>Du kan tilføje nye links direkte fra linkwidgetten og give dem titel og kort beskrivelse.</li>
+          <li>Nogle sider kan vises inde på tavlen. Andre åbner bedst i en ny fane, fordi siden selv bestemmer det.</li>
+        </ul>
+      </div>
+    </details>
+
 
     <details>
       <summary>Kalender</summary>
@@ -43000,6 +43967,66 @@ html body.focus-edit #app.gridOn.safe453i37GridLight::after{
   background-size:40px 40px !important;
   opacity:1 !important;
   mix-blend-mode:screen !important;
+}
+
+
+/* SAFE453i70: Almindelige tekstwidgets som post-it-noter.
+   Kun visuel CSS. Datawidgets/datakilder holdes ude, så deres tabel-/listevisning ikke ændres. */
+.widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]){
+  background:#fff4a8!important;
+  border-radius:18px!important;
+  box-shadow:0 14px 26px rgba(120,93,20,.26),0 2px 0 rgba(255,255,255,.62) inset!important;
+}
+.widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .chrome{
+  background:linear-gradient(180deg,#fff1a1,#ffe57a)!important;
+  color:#5f4700!important;
+  border-radius:18px 18px 0 0!important;
+  border-bottom:1px solid rgba(120,93,20,.18)!important;
+}
+.widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .chrome .titleText{
+  color:#5f4700!important;
+}
+.widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .mini button{
+  background:rgba(120,93,20,.18)!important;
+  color:#5f4700!important;
+}
+.widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content.text,
+.widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text{
+  background:#fff4a8!important;
+  border-radius:0 0 18px 18px!important;
+}
+.widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .textTools{
+  background:rgba(255,245,180,.72)!important;
+  border-bottom:1px solid rgba(120,93,20,.14)!important;
+}
+.widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea{
+  background:transparent!important;
+  color:#2f2500!important;
+  line-height:1.35!important;
+  padding:18px 20px!important;
+}
+.widget[data-type="text"]:not(.selected):not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]){
+  box-shadow:0 10px 22px rgba(120,93,20,.22),0 1px 0 rgba(255,255,255,.7) inset!important;
+}
+.widget[data-type="text"]:not(.selected):not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+.widget[data-type="text"]:not(.selected):not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content.text{
+  background:#fff4a8!important;
+  border-radius:0 0 18px 18px!important;
+  overflow:hidden!important;
+}
+.widget[data-type="text"]:not(.selected):not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .textTools{
+  display:none!important;
+}
+.widget[data-type="text"]:not(.selected):not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea{
+  cursor:default!important;
+}
+.app.present .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+.app.present .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content.text{
+  height:100%!important;
+  border-radius:18px!important;
+}
+.app.present .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea{
+  padding:22px 24px!important;
 }
 </style>
 
