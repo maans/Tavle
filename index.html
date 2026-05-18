@@ -1,3 +1,196 @@
+<!-- SAFE453i63 ARCHIVE INTERNAL RENAME + SHORT BUTTONS:
+- Erstatter system-prompt ved Omdøb med intern omdøbningslinje i Mine tegninger.
+- Enter i omdøbningsfeltet gemmer. Esc/Annuller lukker omdøbning.
+- Forkorter knapper: Tegn, Billede, Baggrund, Omdøb, Slet, Luk.
+- Ingen ændring af billedimport, render-flow, backup eller tegnewidget-gemmeflow.
+-->
+<!-- SAFE453i62 ARCHIVE RENAME PROMPT ONLY:
+- Meget lille fase oven på godkendt SAFE453i61.
+- Mine tegninger får Omdøb-knap, tilføjet dynamisk i wireModal.
+- Omdøb bruger browserens enkle prompt og skriver kun name/renamedAt til IndexedDB.
+- Ingen ændring af archiveHtml-template, Enter/Tegn videre-flow, titel-fallback, render eller billedimport.
+-->
+<!-- SAFE453i61 IMAGE TITLE AFTER IMPORT REFRESH:
+- Bygger på SAFE453i60.
+- w.title sættes stadig kun ved import/valg.
+- Efter import opdateres topbjælketeksten kort efter render, så brugeren ser navnet med det samme.
+- Ingen ændring af render-flow, Mine tegninger-modal, backup eller tegnewidget-gemmeflow.
+-->
+<!-- SAFE453i60 IMAGE TITLE SET ON IMPORT ONLY:
+- Billedwidgettitel sættes nu kun dér, hvor billedet importeres/ vælges.
+- Gælder Fra enhed, Fra appen og URL.
+- Ingen render-hack.
+- Ingen ændring af Mine tegninger-modal.
+- Ingen Omdøb i arkivet.
+- Bygger på godkendt SAFE453i59.
+-->
+<!-- SAFE453i59 ROLLBACK TO SAFE453i55 STABLE:
+Kasserer SAFE453i56, SAFE453i57, SAFE453i58 og SAFE453i58b-sporet.
+Årsag: grafik/visning og/eller app blev uresponsiv.
+Tilbage til SAFE453i55:
+- Billedwidget og tegnewidget har 🏷️ navngivningsknap.
+- Enter i navngivningsdialogen svarer til Gem navn og lukker modal.
+- Gem fra navngivet tegnewidget bruger widgetnavnet i Mine tegninger via SAFE453i53.
+- Ingen Omdøb i Mine tegninger.
+- Ingen titel-fallback i render.
+- Ingen direkte topbjælke-manipulation.
+- SAFE453i50, i49, i46, i45 bevares.
+-->
+<!-- SAFE453i55 RENAME ENTER CLOSES MODAL:
+- Navngivningsdialogen er nu en lille form, så Enter svarer til Gem navn.
+- Enter/Esc stoppes mere robust før appens globale genveje.
+- Guard mod dobbeltkald af Gem navn.
+- Ingen ændring af Mine tegninger-modal, backup, billedimport eller tegnewidget-gemmeflow. -->
+<!-- SAFE453i54 RENAME ENTER CONFIRM:
+- Enter i navngivningsdialogen gemmer navnet mere robust.
+- Esc lukker dialogen.
+- Ingen ændring af Mine tegninger-modal, backup, billedimport eller tegnewidget-gemmeflow. -->
+<!-- SAFE453i53 DRAW WIDGET SAVE USES WIDGET NAME:
+- Meget lille fase oven på SAFE453i52b/SAFE453i51.
+- Gem fra tegnewidget bruger nu w.data.name / w.title som navn i Mine tegninger.
+- Hvis tegnewidgetten ikke er navngivet, bruges stadig automatisk Tegning + dato.
+- Ingen ændring af Mine tegninger-modal, knapper, keyboard-flow eller IndexedDB-omdøbning.
+-->
+<!-- SAFE453i52b ROLLBACK:
+Kasserer defekt SAFE453i52, som gjorde appen uresponsiv.
+Tilbage til SAFE453i51:
+- billedwidget/tegnewidget har 🏷️ navngivningsknap
+- ingen ændring af Mine tegninger-modal
+- ingen ændring af IndexedDB-arkivnavne
+- SAFE453i50, i49, i46, i45 bevares via i51-baseline.
+-->
+<!-- SAFE453i51 RENAME IMAGE/DRAW WIDGETS:
+- Billedwidget og tegnewidget får en lille 🏷️-knap i topbjælken.
+- Knappen åbner en intern modal til at navngive billede/tegning.
+- Gemmer navnet i w.title og w.data.name.
+- Omdøber ikke IndexedDB-arkivet endnu.
+- Ingen ændring af kamera/mappe, baggrundsvælger, backup eller tegnewidget-gemmeflow. -->
+<!-- SAFE453i50 BACKGROUND AS EMBEDDED IMAGE:
+- Når en indbygget baggrund vælges via billedwidget > Fra appen, kopieres den ind som lokal billeddata.
+- Formålet er at gøre baggrunde mere stabile som billedwidgets og som grundlag for tegnewidget/gem.
+- Gemte tegninger bevares som før.
+- Ingen ændring af baggrundsvælger, kamera/mappe, IndexedDB-backup eller rotation-flow. -->
+<!-- SAFE453i49 DRAW WIDGET ROTATION RESET REFRESH:
+- Opdaterer roteret/ikke-roteret status igen når widget-style/class ændres.
+- Lytter også på rotationshåndtaget, så nulstilling via dobbeltklik åbner for tegning igen.
+- Hjælpetekst er gjort mere konkret: dobbeltklik på rotationsikonet.
+-->
+<!-- SAFE453i48 DRAW WIDGET ROTATION BLOCK ROBUST:
+- Robustere blokering af tegning i roteret tegnewidget.
+- Tjekker både widget-model og faktisk CSS-transform/matrix.
+- Roteret tegnewidget får pointer-events:none på canvas og dæmpet værktøjslinje.
+- Ingen ændring af kamera/mappe, tegningsarkiv, backup eller baggrundsvælger. -->
+<!-- SAFE453i47 DRAW WIDGET PRECISION:
+- Tegnewidgettens tegneflade har nu samme størrelse i aktiv/passiv tilstand.
+- Værktøjslinjen ligger ovenpå nederst i stedet for at ændre billedets/stagens størrelse.
+- Tegning/gemning blokeres, hvis tegnewidgetten er roteret, fordi roteret canvas giver forkert pointerplacering.
+- Ingen ændring af kamera/mappe, tegningsarkiv, backup eller baggrundsvælger. -->
+<!-- SAFE453i46 DOWNLOAD MEDIA USER TEXT:
+Gør “Download data og medier” mere brugerorienteret:
+- Knappen hedder “Hent filer fra tavlen”.
+- Modalteksten forklarer kort, hvad brugeren kan hente, uden tekniske udviklerord.
+- Ingen ændring af downloadlogik, backup, IndexedDB, tegninger eller widgets. -->
+<!-- SAFE453i45 FULL BACKUP DRAWINGS + CLEAR:
+- Gem / åbn har nu "Fuld backup med tegninger", som medtager IndexedDB-tegningsarkivet.
+- Import af sådan en fil genskaber tegningerne i IndexedDB.
+- Gem / åbn har nu "Ryd Mine tegninger" med intern bekræftelse.
+- Skabelonbackup medtager ikke tegninger.
+-->
+<!-- SAFE453i44 IMAGE WIDGET CLEANUP:
+Bygger på SAFE453i42b/SAFE453i41.
+Fjerner clipboard-knap/spor.
+Fjerner Kamera fra billedwidget, når billedet allerede er loadet.
+Kamera findes stadig kun i tom billedwidget.
+Ingen ændring af baggrundsvælger, tegningsarkiv, tegnewidget, kamera/mappe eller backup/export. -->
+<!-- SAFE453i42b ROLLBACK: Kasserer defekt SAFE453i42 paste-from-clipboard. Tilbage til SAFE453i41 med billedwidget > Fra appen. -->
+<!-- SAFE453i41 IMAGE WIDGET FROM APP: Tom billedwidget har nu knappen 'Fra appen' til gemte tegninger og indbyggede baggrunde. -->
+<!-- SAFE453i31b ROLLBACK: Kasserer defekt SAFE453i31 gitter-kontrastforsøg. Tilbage til SAFE453i30b/SAFE453i28 stabil baseline. -->
+<!-- SAFE453i30b ROLLBACK: Kasserer defekt SAFE453i30 Baggrund > Mine billeder. Tilbage til SAFE453i28/SAFE453i29b stabil baseline. -->
+<!-- SAFE453i29b ROLLBACK: Kasserer defekt SAFE453i29 media library. Tilbage til SAFE453i28 som sidst brugbare baseline. -->
+
+<!--
+SAFE453i28 DRAW WIDGET NO OUTER FRAME CSS ONLY
+- Bygger på SAFE453i27b rollback til i26 uden app-lås.
+- Fjerner kun ydre selected/focus/presentation-ramme for tegnewidget/drawcopy i alle tilstande.
+- Ingen observer, ingen JS, ingen kamera/mappe-ændring, ingen arkivændring.
+-->
+<!--
+SAFE453i26 DRAW WIDGET NO OUTER FOCUS FRAME
+- Bygger direkte på SAFE453i24c / godkendt SAFE453i23 rollback.
+- Retter kun tegnewidget/drawcopy i fokus- og præsentationstilstand:
+  tegnewidgetten bevarer gennemsigtig baggrund, får ingen ydre ramme/hvid kant,
+  topbjælke/værktøjer skjules, og det lille greb kan vises som diskret markering.
+- Ingen ændring i Mine tegninger, kamera/mappe, arkiv/sletning, backup/export eller mediebibliotek.
+-->
+<!--
+SAFE453i24c ROLLBACK TO SAFE453i23 MODAL RESTORE
+- Kasserer SAFE453i24 og SAFE453i24b, fordi de brød åbning af mappe/Mere → tegninger.
+- Dette er bevidst en ren rollback til den godkendte SAFE453i23-funktionalitet.
+- Ingen mediebibliotek-faner i denne fil.
+- Formål: genskab sikker åbning af Mine tegninger fra mappeknap og Mere-menu.
+-->
+
+
+<!--
+SAFE453i23 DRAW WIDGET PASSIVE GRIP RIGHT EDGE
+- Bygger på SAFE453i21.
+- Tegnewidgettens passive tilstand skjuler topbjælken helt og viser i stedet et lille diskret greb.
+- Grebet kan vælges/trækkes uden at vise hele bjælken som svagt spøgelse.
+- Ingen ændring i Mine tegninger, kamera/mappe, arkiv/sletning eller backup/export.
+-->
+<!--
+SAFE453i21 TRANSPARENT DRAW WIDGET
+- Bygger på SAFE453i20, hvor Tegn videre-modellen virker.
+- Gør tegnekopi-widgetten mere som en transparent tegnewidget: gennemsigtig stage/content, passiv tegning er ikke redigérbar ved fejltryk, og værktøjer er fortsat kun synlige på valgt widget.
+- Omdøber nye tegnekopier visuelt til Tegnewidget.
+- Ingen ændring i kamera/mappe-DOM, Mine tegninger-flow, sletning, backup/export eller arkiv-IndexedDB.
+-->
+<!--
+SAFE453i20 DRAW FURTHER MODEL
+- Bygger på SAFE453i19, som er senest testede fungerende spor hvor billedwidgettens ✏️ Tegn opretter tegnekopi-widget.
+- Forenkler Mine tegninger: Genbrug tegning udgår som globalt overlay-flow.
+- Primær handling er nu Tegn videre, som opretter en tegnekopi-widget.
+- Tilføjer Brug som baggrund for valgt arkivtegning.
+- Indsæt som billede bevares. Kamera/mappe-DOM, arkiv-sletning og backup/export røres ikke.
+-->
+<!--
+SAFE453i13 ARCHIVE WARN BEFORE CLEAR CANVAS
+- Bygger på SAFE453i10.
+- Tilføjer intern advarsel før Genbrug tegning / Indsæt som billede rydder eksisterende tegnecanvas.
+- Bygger på SAFE453i11; ingen footer-CSS fra defekt i12-spor.
+- Ingen ændring i kamera/mappe-DOM, arkivlayout, sletning, Mere-menu eller toolbar-scroll.
+-->
+<!--
+SAFE453i10 ARCHIVE SHORTCUT HINT + OPEN AFTER CAMERA
+- Bygger på SAFE453i9.
+- Forkorter hjælpetekst i Mine tegninger: Pile vælger · Enter tegn videre · I indsæt · B baggrund · Delete slet · Esc luk.
+- D bruges ikke længere i tegningsarkivet, så D kan fortsat tænkes som Datakilder andre steder.
+- Kamera-gemning åbner Mine tegninger efter succesfuld gemning og markerer nyeste tegning.
+- Ingen flytning af kamera/mappe i DOM, ingen toolbar-scroll, ingen ændring i render-flow.
+-->
+<!--
+SAFE453i8 ARCHIVE INSERT AS IMAGE TEXT ONLY ONLY
+- Bygger på SAFE453i6.
+- Ren tekst/UX-mikrorettelse oven på SAFE453i7.
+- Ændrer “Gem som billede” til “Indsæt som billede”, fordi funktionen opretter en billedwidget på tavlen, ikke downloader/gemmer en fil.
+- Kamera/mappe, Mere > tegninger, intern sletning, toolbar og render-flow ændres ikke.
+-->
+<!--
+SAFE453i19 IMAGE WIDGET DRAWCOPY DIRECT
+- Bygger direkte på SAFE453i14.
+- Dropper SAFE453i15-i18 overlay/efterpatch-spor.
+- Tilføjer kun en direkte Tegn-knap i billedwidgettens eksisterende image-rendergren.
+- Knappen opretter en tegnekopi-widget med billedet som underlag og canvas ovenpå.
+- Kamera/mappe/Mine tegninger-layout/sletning røres ikke.
+-->
+<!--
+SAFE453e2 DRAW ARCHIVE PREVIEW NO IOS CALLOUT
+- Bygger direkte på brugerens uploadede SAFE452e1 stabile baseline.
+- Kasserer SAFE453b/c localStorage-gemning, fordi iPad-test viste at gemning fejlede selv ved en lille prik.
+- Fase 2D gemmer kun tegnecanvas som beskåret transparent PNG i IndexedDB i stedet for localStorage.
+- 📁 viser kun antal og seneste navn. Ingen preview, download, sletning, billedwidget eller Tavleshot-ændring.
+- Ingen globale event-hacks og ingen ændring i render-/widget-flow.
+-->
 <!--
 SAFE452e1 GROUPS EMPTY INITIAL WHEEL ONLY
 - Bygger direkte på brugerens uploadede SAFE452d som sidst virkende baseline.
@@ -15865,6 +16058,346 @@ html:-webkit-full-screen body{
 
 </style>
 
+
+<!--
+SAFE453i2-CSS-ONLY ARCHIVE FIT
+- Bygger direkte på den virkende SAFE453i-CSS-ONLY test.
+- ÆNDRER KUN CSS for tegningsarkivets modal/grid.
+- Gør selve modalvinduet bredere KUN når det indeholder tegningsarkiv.
+- Arkivindholdet sættes til 100% af modalens indre bredde i stedet for 94vw inde i en 640px modal.
+- Ingen JavaScript ændret. Kamera/mappe/slet/download-handlerne er derfor 100% SAFE453h.
+- System-confirm ved sletning er bevidst ikke ændret i denne testfil.
+-->
+<style id="safe453i2CssOnlyArchiveFit">
+/* Bredere modal kun for tegningsarkivet. :has bruges bevidst, så andre modaler ikke påvirkes. */
+#modal:has(.safe453hDrawingArchive),
+#modal:has(.safe453gDrawingArchive),
+#modal:has(.safe453fDrawingArchive){
+  width:min(1040px,94vw)!important;
+  max-width:94vw!important;
+  max-height:88vh!important;
+  overflow:hidden!important;
+  padding:18px!important;
+  box-sizing:border-box!important;
+}
+.safe453hDrawingArchive,
+.safe453gDrawingArchive,
+.safe453fDrawingArchive{
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-x:hidden!important;
+}
+.safe453hDrawingArchive *,
+.safe453gDrawingArchive *,
+.safe453fDrawingArchive *{
+  box-sizing:border-box!important;
+  max-width:100%;
+}
+.safe453hDrawingArchive h2,
+.safe453gDrawingArchive h2,
+.safe453fDrawingArchive h2,
+.safe453hDrawingArchive p,
+.safe453gDrawingArchive p,
+.safe453fDrawingArchive p{
+  overflow-wrap:anywhere!important;
+  min-width:0!important;
+}
+.safe453hDrawingArchive .safe453eDrawingGrid,
+.safe453gDrawingArchive .safe453eDrawingGrid,
+.safe453fDrawingArchive .safe453eDrawingGrid{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow-x:hidden!important;
+  overscroll-behavior-x:contain!important;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;
+  gap:12px!important;
+  padding:6px!important;
+}
+.safe453hDrawingArchive .safe453eDrawingCard,
+.safe453gDrawingArchive .safe453eDrawingCard,
+.safe453fDrawingArchive .safe453eDrawingCard{
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.safe453hDrawingArchive .safe453eDrawingCard b,
+.safe453gDrawingArchive .safe453eDrawingCard b,
+.safe453fDrawingArchive .safe453eDrawingCard b,
+.safe453hDrawingArchive .safe453eDrawingCard small,
+.safe453gDrawingArchive .safe453eDrawingCard small,
+.safe453fDrawingArchive .safe453eDrawingCard small{
+  display:block!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.safe453hDrawingArchive .safe453eDrawingPreview,
+.safe453gDrawingArchive .safe453eDrawingPreview,
+.safe453fDrawingArchive .safe453eDrawingPreview{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.safe453hDrawingArchive .safe453eDrawingPreview img,
+.safe453gDrawingArchive .safe453eDrawingPreview img,
+.safe453fDrawingArchive .safe453eDrawingPreview img{
+  width:100%!important;
+  max-width:100%!important;
+  object-fit:contain!important;
+}
+.safe453hDrawingArchive .safe453fDrawingFooter,
+.safe453gDrawingArchive .safe453fDrawingFooter,
+.safe453fDrawingArchive .safe453fDrawingFooter{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  flex-wrap:wrap!important;
+  overflow:hidden!important;
+}
+.safe453hDrawingArchive .safe453gNavHint,
+.safe453gDrawingArchive .safe453gNavHint,
+.safe453fDrawingArchive .safe453gNavHint{
+  flex:1 1 320px!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow-wrap:anywhere!important;
+}
+.safe453hDrawingArchive .safe453hActions,
+.safe453gDrawingArchive .safe453hActions,
+.safe453fDrawingArchive .safe453hActions{
+  flex:0 1 auto!important;
+  max-width:100%!important;
+}
+@media(max-width:760px){
+  #modal:has(.safe453hDrawingArchive),
+  #modal:has(.safe453gDrawingArchive),
+  #modal:has(.safe453fDrawingArchive){
+    width:96vw!important;
+    max-width:96vw!important;
+    padding:14px!important;
+  }
+  .safe453hDrawingArchive .safe453eDrawingGrid,
+  .safe453gDrawingArchive .safe453eDrawingGrid,
+  .safe453fDrawingArchive .safe453eDrawingGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+}
+</style>
+
+
+<!--
+SAFE453i4-CSS-ONLY ARCHIVE MODAL LIKE BACKGROUND/DATA SOURCES
+- Bygger direkte på den virkende SAFE453i2 CSS-only archive-fit.
+- ÆNDRER KUN CSS: ingen JavaScript, ingen kamera/mappe, ingen slet/download-eventbindinger.
+- Gør “Mine tegninger” mere som Baggrundsvælger/Datakilder: roligere modalbredde, 2-3 kolonner, intern lodret scroll, ingen horisontal scroll.
+- System-confirm ved sletning bevares i denne fase.
+-->
+<style id="safe453i4ArchiveModalLikeBackgroundCssOnly">
+/* SAFE453i4: Overstyr kun tegningsarkivet efter SAFE453h/i2 CSS. */
+#modal:has(.safe453hDrawingArchive),
+#modal:has(.safe453gDrawingArchive),
+#modal:has(.safe453fDrawingArchive){
+  width:min(760px,92vw)!important;
+  max-width:92vw!important;
+  max-height:84vh!important;
+  padding:18px!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+
+.safe453hDrawingArchive,
+.safe453gDrawingArchive,
+.safe453fDrawingArchive{
+  width:100%!important;
+  max-width:100%!important;
+  max-height:calc(84vh - 36px)!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  box-sizing:border-box!important;
+}
+
+.safe453hDrawingArchive *,
+.safe453gDrawingArchive *,
+.safe453fDrawingArchive *{
+  box-sizing:border-box!important;
+}
+
+.safe453hDrawingArchive .safe429OverviewHead,
+.safe453gDrawingArchive .safe429OverviewHead,
+.safe453fDrawingArchive .safe429OverviewHead{
+  flex:0 0 auto!important;
+  min-width:0!important;
+}
+
+.safe453hDrawingArchive h2,
+.safe453gDrawingArchive h2,
+.safe453fDrawingArchive h2{
+  margin:0 0 10px 0!important;
+}
+
+.safe453hDrawingArchive p,
+.safe453gDrawingArchive p,
+.safe453fDrawingArchive p{
+  margin:0 0 10px 0!important;
+  min-width:0!important;
+  overflow-wrap:anywhere!important;
+}
+
+.safe453hDrawingArchive .safe453eDrawingGrid,
+.safe453gDrawingArchive .safe453eDrawingGrid,
+.safe453fDrawingArchive .safe453eDrawingGrid{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:12px!important;
+  padding:6px!important;
+  margin:8px 0 10px 0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  scroll-padding:12px!important;
+  align-content:start!important;
+}
+
+.safe453hDrawingArchive .safe453eDrawingCard,
+.safe453gDrawingArchive .safe453eDrawingCard,
+.safe453fDrawingArchive .safe453eDrawingCard{
+  min-width:0!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  padding:10px!important;
+}
+
+.safe453hDrawingArchive .safe453eDrawingPreview,
+.safe453gDrawingArchive .safe453eDrawingPreview,
+.safe453fDrawingArchive .safe453eDrawingPreview{
+  width:100%!important;
+  min-width:0!important;
+  height:92px!important;
+  overflow:hidden!important;
+}
+
+.safe453hDrawingArchive .safe453eDrawingPreview img,
+.safe453gDrawingArchive .safe453eDrawingPreview img,
+.safe453fDrawingArchive .safe453eDrawingPreview img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  object-fit:contain!important;
+}
+
+.safe453hDrawingArchive .safe453eDrawingCard b,
+.safe453gDrawingArchive .safe453eDrawingCard b,
+.safe453fDrawingArchive .safe453eDrawingCard b,
+.safe453hDrawingArchive .safe453eDrawingCard small,
+.safe453gDrawingArchive .safe453eDrawingCard small,
+.safe453fDrawingArchive .safe453eDrawingCard small{
+  display:block!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+.safe453hDrawingArchive .safe453fDrawingFooter,
+.safe453gDrawingArchive .safe453fDrawingFooter,
+.safe453fDrawingArchive .safe453fDrawingFooter{
+  flex:0 0 auto!important;
+  width:100%!important;
+  min-width:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  flex-wrap:nowrap!important;
+  overflow:hidden!important;
+  padding-top:6px!important;
+}
+
+.safe453hDrawingArchive .safe453gNavHint,
+.safe453gDrawingArchive .safe453gNavHint,
+.safe453fDrawingArchive .safe453gNavHint{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  line-height:1.25!important;
+}
+
+.safe453hDrawingArchive .safe453hActions,
+.safe453gDrawingArchive .safe453hActions,
+.safe453fDrawingArchive .safe453hActions{
+  flex:0 0 auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+  flex-wrap:nowrap!important;
+  max-width:100%!important;
+}
+
+.safe453hDrawingArchive .safe453hActions button,
+.safe453gDrawingArchive .safe453hActions button,
+.safe453fDrawingArchive .safe453hActions button{
+  white-space:nowrap!important;
+}
+
+@media(max-width:700px){
+  #modal:has(.safe453hDrawingArchive),
+  #modal:has(.safe453gDrawingArchive),
+  #modal:has(.safe453fDrawingArchive){
+    width:min(620px,94vw)!important;
+    max-width:94vw!important;
+    padding:16px!important;
+  }
+  .safe453hDrawingArchive .safe453eDrawingGrid,
+  .safe453gDrawingArchive .safe453eDrawingGrid,
+  .safe453fDrawingArchive .safe453eDrawingGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .safe453hDrawingArchive .safe453fDrawingFooter,
+  .safe453gDrawingArchive .safe453fDrawingFooter,
+  .safe453fDrawingArchive .safe453fDrawingFooter{
+    flex-wrap:wrap!important;
+  }
+  .safe453hDrawingArchive .safe453gNavHint,
+  .safe453gDrawingArchive .safe453gNavHint,
+  .safe453fDrawingArchive .safe453gNavHint{
+    flex-basis:100%!important;
+  }
+  .safe453hDrawingArchive .safe453hActions,
+  .safe453gDrawingArchive .safe453hActions,
+  .safe453fDrawingArchive .safe453hActions{
+    width:100%!important;
+  }
+  .safe453hDrawingArchive .safe453hActions button,
+  .safe453gDrawingArchive .safe453hActions button,
+  .safe453fDrawingArchive .safe453hActions button{
+    flex:1 1 auto!important;
+  }
+}
+
+@media(max-width:460px){
+  .safe453hDrawingArchive .safe453eDrawingGrid,
+  .safe453gDrawingArchive .safe453eDrawingGrid,
+  .safe453fDrawingArchive .safe453eDrawingGrid{
+    grid-template-columns:1fr!important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -15945,7 +16478,7 @@ SAFE455 EARLY FULLSCREEN SHIFT+ENTER GUARD
   <div id="hintBar" class="hintBar hidden" aria-live="polite"></div>
   <div id="modeBadge" class="modeBadge" aria-live="polite">Redigering</div>
   <canvas id="draw" class="drawLayer"></canvas>
-  <div class="drawPanel" id="drawPanel"><b>Tegn</b><input id="penColor" type="color" value="#000000"><input id="penSize" type="range" min="2" max="40" value="6"><button data-drawmode="pen" class="active">Fri</button><button data-drawmode="line">Linje</button><button data-drawmode="rect">Firkant</button><button data-drawmode="circle">Cirkel</button><button data-drawmode="eraser">Viskelæder</button><button id="drawClear">Ryd</button><button id="drawOff">Luk</button></div>
+  <div class="drawPanel" id="drawPanel"><b>Tegn</b><input id="penColor" type="color" value="#000000"><input id="penSize" type="range" min="2" max="40" value="6"><button data-drawmode="pen" class="active">Fri</button><button data-drawmode="line">Linje</button><button data-drawmode="rect">Firkant</button><button data-drawmode="circle">Cirkel</button><button data-drawmode="eraser">Viskelæder</button><button id="safe453DrawCamera" title="Gem kun tegningen">📷</button><button id="safe453DrawFolder" title="Mine tegninger">📁</button><button id="drawClear">Ryd</button><button id="drawOff">Luk</button></div>
   <!-- SAFE76 TOOLBAR MAP:
     Toolbaren er for live-aktiviteter i undervisningen.
     Timeren hører til her.
@@ -17181,6 +17714,20 @@ function applyBg(){
   const filterKey=s.bgFilter||'none';
   const overlay=bgFilterOverlay(filterKey);
   app.dataset.bgFilter=filterKey;
+  // SAFE453i36: Gitterkontrast opdateres samtidig med baggrunden/filteret.
+  try{
+    const title=String((s&&(s.bgImageTitle||s.bgImageName||s.bgImageVersion))||'').toLowerCase();
+    const src=String((s&&s.bgImage)||'').toLowerCase();
+    const bg=String((s&&s.bg)||'').toLowerCase();
+    const darkGrid = (
+      filterKey==='dark' || filterKey==='standard' || filterKey==='cool' ||
+      title.includes('mørk') || title.includes('dyb blå') || title.includes('kontrast') || title.includes('klassisk tavle') ||
+      src.includes('backgrounds/new/bg1') || src.includes('backgrounds/old/bg1') ||
+      src.includes('backgrounds/new/bg11') || src.includes('backgrounds/old/bg11') ||
+      bg.includes('#0') || bg.includes('#1') || bg.includes('black') || bg.includes('15,23,42')
+    );
+    app.classList.toggle('safe453i36LightGrid', !!darkGrid);
+  }catch(_safe453i36e){}
   app.style.background=baseBg;
   app.style.filter='none';
   if(s.bgImage){
@@ -18691,14 +19238,14 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
     widgetTitle=d.toLocaleDateString('da-DK',{month:'long',year:'numeric'});
   }
 }catch(_e){}
-const titleHtml='<span class="titleText">'+esc(widgetTitle)+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button>${linkedDataSourceOpen?'<button type="button" data-act="hideDataSource" title="Luk datakilde – forbindelsen bevares" aria-label="Luk datakilde – forbindelsen bevares">🔗</button>':'<button type="button" data-act="del" title="Luk">×</button>'}</div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+const titleHtml='<span class="titleText">'+esc(widgetTitle)+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}${mediaNameBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button>${linkedDataSourceOpen?'<button type="button" data-act="hideDataSource" title="Luk datakilde – forbindelsen bevares" aria-label="Luk datakilde – forbindelsen bevares">🔗</button>':'<button type="button" data-act="del" title="Luk">×</button>'}</div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -19696,7 +20243,8 @@ function showMoreTools(){
       ['image','🖼️','billede'],
       ['link','🔗','link'],
       ['pdf','PDF','pdf'],
-      ['html','&lt;/&gt;','html']
+      ['html','&lt;/&gt;','html'],
+      ['drawings','✏️','tegninger']
     ],2],
     ['Tavle',[
       ['bg','🎨','baggrund'],
@@ -19814,6 +20362,9 @@ function updateGridOverlay(){
   try{
     const on=!!(slide()&&slide().grid);
     app.classList.toggle('gridOn',on);
+    // SAFE453i40: Dropper manuel lys/mørk-gitter-valg.
+    // Rydder gamle eksperiment-klasser, så gitteret igen er appens normale Fra/Til.
+    app.classList.remove('safe453i35LightGrid','safe453i36LightGrid','safe453i37GridLight','safe453i37GridDark');
   }catch(e){}
 }
 
@@ -20370,6 +20921,12 @@ function showAppearancePlaceholder(){
   if(close) close.onclick=()=>{mb.style.display='none';};
 }
 function handleTool(t){
+  if(t==='drawings'){
+    const folder=document.getElementById('safe453DrawFolder');
+    if(folder){ folder.click(); }
+    else if(typeof toast==='function'){ toast('Tegningsarkivet er ikke klar endnu'); }
+    return;
+  }
   if(t==='dataSources'){showDataSourcesModal();return;}
   if(t==='appearance'){showAppearancePlaceholder();return;}
 
@@ -21133,6 +21690,310 @@ body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
 
 <!-- SAFE454b: Tavleoverblik-genveje only. Tilføjer S=Tavleshot og G=Gendannelsespunkter inde i Tavleoversigt. Ingen højreklik/UR/modalændringer. -->
 <!-- SAFE454b4: Tavleoverblik S/G bruger nu eksisterende knapper/klikflows i stedet for egen direkte logik. -->
+
+<!-- SAFE453i32 GRID LIGHT CSS ONLY:
+CSS-only forsøg. Ingen JavaScript. Ingen wrapping af applyBg/updateGridOverlay.
+Mål: Hvis appen allerede markerer mørk baggrund/filter i DOM, bliver gitteret lyst.
+Hvis appen ikke har disse DOM-markører, sker der ingen funktionel ændring. -->
+<style id="safe453i32GridLightCssOnly">
+/* Meget forsigtig CSS-only override for mørke baggrundsfiltre.
+   Rammer kun kendte/typiske grid-lag, hvis appen allerede har data-bg-filter/class. */
+
+/* Pseudo-element-baseret grid */
+#app[data-bg-filter="dark"].gridOn::after,
+#app[data-bg-filter="standard"].gridOn::after,
+#app[data-bg-filter="cool"].gridOn::after,
+#app[data-bg-filter="dark"].grid::after,
+#app[data-bg-filter="standard"].grid::after,
+#app[data-bg-filter="cool"].grid::after,
+#app.darkBg.gridOn::after,
+#app.darkBg.grid::after,
+.app[data-bg-filter="dark"].gridOn::after,
+.app[data-bg-filter="standard"].gridOn::after,
+.app[data-bg-filter="cool"].gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px) !important;
+}
+
+/* Separat grid-overlay hvis appen bruger sådan et element */
+#app[data-bg-filter="dark"] .gridOverlay,
+#app[data-bg-filter="standard"] .gridOverlay,
+#app[data-bg-filter="cool"] .gridOverlay,
+#app[data-bg-filter="dark"] #gridOverlay,
+#app[data-bg-filter="standard"] #gridOverlay,
+#app[data-bg-filter="cool"] #gridOverlay,
+#app.darkBg .gridOverlay,
+#app.darkBg #gridOverlay {
+  background-image:
+    linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px) !important;
+}
+
+/* Hvis body får filtermarkør i stedet for app-elementet */
+body[data-bg-filter="dark"] #app.gridOn::after,
+body[data-bg-filter="standard"] #app.gridOn::after,
+body[data-bg-filter="cool"] #app.gridOn::after,
+body.bg-dark #app.gridOn::after,
+body.darkBg #app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px) !important;
+}
+</style>
+
+
+<!-- SAFE453i33 GRID LIGHT ACTUAL SELECTOR:
+CSS-only. Rammer den faktiske gitterregel: .app.gridOn::after.
+Ingen JavaScript, ingen funktioner wrappes, ingen modal- eller baggrundsvælgerændring. -->
+<style id="safe453i33GridLightActualSelector">
+/* Den faktiske app-regel er .app.gridOn::after.
+   På mørke/standard/kølige filtre gør vi linjerne lyse og lidt tydeligere. */
+.app.gridOn[data-bg-filter="dark"]::after,
+.app.gridOn[data-bg-filter="standard"]::after,
+.app.gridOn[data-bg-filter="cool"]::after,
+.app.gridOn[data-bg-filter="damped"]::after,
+.app.gridOn[data-bg-filter="soft"]::after,
+.app.gridOn[data-bg-filter="mørk"]::after,
+.app.gridOn[data-bg-filter="koelig"]::after,
+.app.gridOn[data-bg-filter="kølig"]::after,
+.app.present.gridOn[data-bg-filter="dark"]::after,
+.app.present.gridOn[data-bg-filter="standard"]::after,
+.app.present.gridOn[data-bg-filter="cool"]::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.22) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+}
+
+/* Når brugeren har valgt det mørke filter i modalens chips, ses det på body/app forskelligt i nogle builds.
+   Disse rammer kun, hvis sådanne klasser/attributter allerede findes. */
+body[data-bg-filter="dark"] .app.gridOn::after,
+body[data-bg-filter="standard"] .app.gridOn::after,
+body[data-bg-filter="cool"] .app.gridOn::after,
+body.bg-dark .app.gridOn::after,
+body.darkBg .app.gridOn::after,
+.app.gridOn.darkBg::after,
+.app.gridOn.bg-dark::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.22) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+}
+</style>
+
+
+<!-- SAFE453i34 GRID LIGHT STRONGER CSS ONLY:
+CSS-only. Ingen JavaScript. Forstærker gitterstreger på mørk baggrund/filter.
+Rammer den faktiske grid-selector .app.gridOn::after og lægger reglen sent i filen. -->
+<style id="safe453i34GridLightStrongerCssOnly">
+/* Direkte stærkere override for den faktiske gittertegning.
+   Bruges når appen/modalen allerede har mørke filtermarkører. */
+.app.gridOn[data-bg-filter="dark"]::after,
+.app.gridOn[data-bg-filter="standard"]::after,
+.app.gridOn[data-bg-filter="cool"]::after,
+.app.gridOn[data-bg-filter="soft"]::after,
+.app.gridOn[data-bg-filter="mork"]::after,
+.app.gridOn[data-bg-filter="mørk"]::after,
+body[data-bg-filter="dark"] .app.gridOn::after,
+body[data-bg-filter="standard"] .app.gridOn::after,
+body[data-bg-filter="cool"] .app.gridOn::after,
+body.darkBg .app.gridOn::after,
+body.bg-dark .app.gridOn::after,
+.app.gridOn.darkBg::after,
+.app.gridOn.bg-dark::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.46) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.46) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Mens Baggrund-modalens mørke filterknap er valgt, findes aktiv chip i DOM.
+   :has() er CSS-only og bruges kun som visuel override, ikke til app-logik.
+   Den matcher dark-filter-knapper via data-attributter, hvis de findes. */
+body:has(.bgFilterChip.active[data-bg-filter="dark"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-bg-filter="standard"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-bg-filter="cool"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-filter="dark"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-filter="standard"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-filter="cool"]) .app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.50) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.50) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Fallback: Når baggrundsmodalen er åben, og gitter er slået til, gør vi gitteret lyst.
+   Det gælder kun mens modalens Baggrund-vælger er åben og påvirker ikke almindelig tavlebrug uden modal. */
+body:has(.bgLibraryWrap) .app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.38) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Hvis nogle builds bruger #app i stedet for .app */
+body:has(.bgLibraryWrap) #app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.38) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i35 GRID LIGHT DIRECT UPDATEGRIDOVERLAY:
+Lille direkte ændring af updateGridOverlay + CSS. Ingen wrapping.
+Når appen selv markerer .safe453i35LightGrid, tegnes gitteret lyst. -->
+<style id="safe453i35GridLightCss">
+.app.gridOn.safe453i35LightGrid::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.42) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.42) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+.app.present.gridOn.safe453i35LightGrid::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.42) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.42) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i36 GRID LIGHT APPLYBG DIRECT:
+Direkte koblet til applyBg(), som allerede kender aktuelt filter.
+Ingen modalændringer, ingen kamera/mappe/tegnewidget-ændringer. -->
+<style id="safe453i36GridLightCss">
+.app.gridOn.safe453i36LightGrid::after,
+.app.present.gridOn.safe453i36LightGrid::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.58) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.58) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i37 MANUAL GRID COLOR:
+Manuel gitterfarve: Baggrund-modalens gitterknap cykler Fra → Mørk → Lys → Fra.
+Ingen automatisk baggrundsgætning. -->
+<style id="safe453i37ManualGridColorCss">
+.app.gridOn.safe453i37GridLight::after,
+.app.present.gridOn.safe453i37GridLight::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.62) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.62) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+.app.gridOn.safe453i37GridDark::after,
+.app.present.gridOn.safe453i37GridDark::after{
+  background-image:
+    linear-gradient(rgba(17,24,39,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,24,39,.16) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Gør knappen lidt mere forklarende uden at ændre layout. */
+.bgGridToggleBtn.active{
+  box-shadow:0 2px 8px rgba(15,23,42,.18)!important;
+}
+</style>
+
+
+<!-- SAFE453i38 GRID LIGHT HARD CSS:
+Bygger på i37. Ingen ny JavaScript-logik.
+Forstærker kun CSS for manuel "Gitter: Lys". -->
+<style id="safe453i38GridLightHardCss">
+/* Højere specificitet + sidst i filen.
+   Rammer kun når i37 allerede har sat safe453i37GridLight. */
+html body #app.app.gridOn.safe453i37GridLight::after,
+html body .app.gridOn.safe453i37GridLight::after,
+html body #app.gridOn.safe453i37GridLight::after,
+html body .app.present.gridOn.safe453i37GridLight::after,
+html body #app.app.present.gridOn.safe453i37GridLight::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  pointer-events:none !important;
+  z-index:120 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,.78) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.78) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+}
+
+/* Mørk gitterfarve bevares eksplicit, så i37-cyklussen stadig giver forskel. */
+html body #app.app.gridOn.safe453i37GridDark::after,
+html body .app.gridOn.safe453i37GridDark::after,
+html body #app.gridOn.safe453i37GridDark::after{
+  background-image:
+    linear-gradient(rgba(17,24,39,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,24,39,.16) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i39 GRID LIGHT TOP LAYER:
+Bygger på i38. Ingen ny JavaScript.
+Hvis Gitter: Lys er valgt, lægges gitteret visuelt højere end baggrund/filter.
+Pointer-events er stadig none. -->
+<style id="safe453i39GridLightTopLayerCss">
+html body #app.app.gridOn.safe453i37GridLight::after,
+html body .app.gridOn.safe453i37GridLight::after,
+html body #app.gridOn.safe453i37GridLight::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  pointer-events:none !important;
+
+  /* Højere end baggrund/filter-lag, men stadig inde i appen. */
+  z-index:999 !important;
+
+  background-image:
+    linear-gradient(rgba(255,255,255,.85) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.85) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  background-position:0 0 !important;
+  opacity:1 !important;
+  mix-blend-mode:screen !important;
+}
+
+/* I præsentation/fokus skal det også være tydeligt. */
+html body .app.present.gridOn.safe453i37GridLight::after,
+html body #app.app.present.gridOn.safe453i37GridLight::after,
+html body.focus-presentation #app.gridOn.safe453i37GridLight::after,
+html body.focus-edit #app.gridOn.safe453i37GridLight::after{
+  z-index:999 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,.85) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.85) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+  mix-blend-mode:screen !important;
+}
+</style>
+
+
+<!-- SAFE453i40 DROP LIGHT GRID OPTION:
+Dropper Gitter: Lys/Mørk-eksperimentet.
+Gitterknappen er igen kun Fra/Til.
+Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og under widgets/værktøjer. -->
+
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
   if(t==='pdf')addWidget('pdf',{});
@@ -22361,6 +23222,310 @@ body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
   pointer-events:none!important;
 }
 </style>
+
+
+<!-- SAFE453i32 GRID LIGHT CSS ONLY:
+CSS-only forsøg. Ingen JavaScript. Ingen wrapping af applyBg/updateGridOverlay.
+Mål: Hvis appen allerede markerer mørk baggrund/filter i DOM, bliver gitteret lyst.
+Hvis appen ikke har disse DOM-markører, sker der ingen funktionel ændring. -->
+<style id="safe453i32GridLightCssOnly">
+/* Meget forsigtig CSS-only override for mørke baggrundsfiltre.
+   Rammer kun kendte/typiske grid-lag, hvis appen allerede har data-bg-filter/class. */
+
+/* Pseudo-element-baseret grid */
+#app[data-bg-filter="dark"].gridOn::after,
+#app[data-bg-filter="standard"].gridOn::after,
+#app[data-bg-filter="cool"].gridOn::after,
+#app[data-bg-filter="dark"].grid::after,
+#app[data-bg-filter="standard"].grid::after,
+#app[data-bg-filter="cool"].grid::after,
+#app.darkBg.gridOn::after,
+#app.darkBg.grid::after,
+.app[data-bg-filter="dark"].gridOn::after,
+.app[data-bg-filter="standard"].gridOn::after,
+.app[data-bg-filter="cool"].gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px) !important;
+}
+
+/* Separat grid-overlay hvis appen bruger sådan et element */
+#app[data-bg-filter="dark"] .gridOverlay,
+#app[data-bg-filter="standard"] .gridOverlay,
+#app[data-bg-filter="cool"] .gridOverlay,
+#app[data-bg-filter="dark"] #gridOverlay,
+#app[data-bg-filter="standard"] #gridOverlay,
+#app[data-bg-filter="cool"] #gridOverlay,
+#app.darkBg .gridOverlay,
+#app.darkBg #gridOverlay {
+  background-image:
+    linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px) !important;
+}
+
+/* Hvis body får filtermarkør i stedet for app-elementet */
+body[data-bg-filter="dark"] #app.gridOn::after,
+body[data-bg-filter="standard"] #app.gridOn::after,
+body[data-bg-filter="cool"] #app.gridOn::after,
+body.bg-dark #app.gridOn::after,
+body.darkBg #app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px) !important;
+}
+</style>
+
+
+<!-- SAFE453i33 GRID LIGHT ACTUAL SELECTOR:
+CSS-only. Rammer den faktiske gitterregel: .app.gridOn::after.
+Ingen JavaScript, ingen funktioner wrappes, ingen modal- eller baggrundsvælgerændring. -->
+<style id="safe453i33GridLightActualSelector">
+/* Den faktiske app-regel er .app.gridOn::after.
+   På mørke/standard/kølige filtre gør vi linjerne lyse og lidt tydeligere. */
+.app.gridOn[data-bg-filter="dark"]::after,
+.app.gridOn[data-bg-filter="standard"]::after,
+.app.gridOn[data-bg-filter="cool"]::after,
+.app.gridOn[data-bg-filter="damped"]::after,
+.app.gridOn[data-bg-filter="soft"]::after,
+.app.gridOn[data-bg-filter="mørk"]::after,
+.app.gridOn[data-bg-filter="koelig"]::after,
+.app.gridOn[data-bg-filter="kølig"]::after,
+.app.present.gridOn[data-bg-filter="dark"]::after,
+.app.present.gridOn[data-bg-filter="standard"]::after,
+.app.present.gridOn[data-bg-filter="cool"]::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.22) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+}
+
+/* Når brugeren har valgt det mørke filter i modalens chips, ses det på body/app forskelligt i nogle builds.
+   Disse rammer kun, hvis sådanne klasser/attributter allerede findes. */
+body[data-bg-filter="dark"] .app.gridOn::after,
+body[data-bg-filter="standard"] .app.gridOn::after,
+body[data-bg-filter="cool"] .app.gridOn::after,
+body.bg-dark .app.gridOn::after,
+body.darkBg .app.gridOn::after,
+.app.gridOn.darkBg::after,
+.app.gridOn.bg-dark::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.22) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+}
+</style>
+
+
+<!-- SAFE453i34 GRID LIGHT STRONGER CSS ONLY:
+CSS-only. Ingen JavaScript. Forstærker gitterstreger på mørk baggrund/filter.
+Rammer den faktiske grid-selector .app.gridOn::after og lægger reglen sent i filen. -->
+<style id="safe453i34GridLightStrongerCssOnly">
+/* Direkte stærkere override for den faktiske gittertegning.
+   Bruges når appen/modalen allerede har mørke filtermarkører. */
+.app.gridOn[data-bg-filter="dark"]::after,
+.app.gridOn[data-bg-filter="standard"]::after,
+.app.gridOn[data-bg-filter="cool"]::after,
+.app.gridOn[data-bg-filter="soft"]::after,
+.app.gridOn[data-bg-filter="mork"]::after,
+.app.gridOn[data-bg-filter="mørk"]::after,
+body[data-bg-filter="dark"] .app.gridOn::after,
+body[data-bg-filter="standard"] .app.gridOn::after,
+body[data-bg-filter="cool"] .app.gridOn::after,
+body.darkBg .app.gridOn::after,
+body.bg-dark .app.gridOn::after,
+.app.gridOn.darkBg::after,
+.app.gridOn.bg-dark::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.46) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.46) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Mens Baggrund-modalens mørke filterknap er valgt, findes aktiv chip i DOM.
+   :has() er CSS-only og bruges kun som visuel override, ikke til app-logik.
+   Den matcher dark-filter-knapper via data-attributter, hvis de findes. */
+body:has(.bgFilterChip.active[data-bg-filter="dark"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-bg-filter="standard"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-bg-filter="cool"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-filter="dark"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-filter="standard"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-filter="cool"]) .app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.50) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.50) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Fallback: Når baggrundsmodalen er åben, og gitter er slået til, gør vi gitteret lyst.
+   Det gælder kun mens modalens Baggrund-vælger er åben og påvirker ikke almindelig tavlebrug uden modal. */
+body:has(.bgLibraryWrap) .app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.38) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Hvis nogle builds bruger #app i stedet for .app */
+body:has(.bgLibraryWrap) #app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.38) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i35 GRID LIGHT DIRECT UPDATEGRIDOVERLAY:
+Lille direkte ændring af updateGridOverlay + CSS. Ingen wrapping.
+Når appen selv markerer .safe453i35LightGrid, tegnes gitteret lyst. -->
+<style id="safe453i35GridLightCss">
+.app.gridOn.safe453i35LightGrid::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.42) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.42) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+.app.present.gridOn.safe453i35LightGrid::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.42) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.42) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i36 GRID LIGHT APPLYBG DIRECT:
+Direkte koblet til applyBg(), som allerede kender aktuelt filter.
+Ingen modalændringer, ingen kamera/mappe/tegnewidget-ændringer. -->
+<style id="safe453i36GridLightCss">
+.app.gridOn.safe453i36LightGrid::after,
+.app.present.gridOn.safe453i36LightGrid::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.58) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.58) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i37 MANUAL GRID COLOR:
+Manuel gitterfarve: Baggrund-modalens gitterknap cykler Fra → Mørk → Lys → Fra.
+Ingen automatisk baggrundsgætning. -->
+<style id="safe453i37ManualGridColorCss">
+.app.gridOn.safe453i37GridLight::after,
+.app.present.gridOn.safe453i37GridLight::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.62) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.62) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+.app.gridOn.safe453i37GridDark::after,
+.app.present.gridOn.safe453i37GridDark::after{
+  background-image:
+    linear-gradient(rgba(17,24,39,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,24,39,.16) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Gør knappen lidt mere forklarende uden at ændre layout. */
+.bgGridToggleBtn.active{
+  box-shadow:0 2px 8px rgba(15,23,42,.18)!important;
+}
+</style>
+
+
+<!-- SAFE453i38 GRID LIGHT HARD CSS:
+Bygger på i37. Ingen ny JavaScript-logik.
+Forstærker kun CSS for manuel "Gitter: Lys". -->
+<style id="safe453i38GridLightHardCss">
+/* Højere specificitet + sidst i filen.
+   Rammer kun når i37 allerede har sat safe453i37GridLight. */
+html body #app.app.gridOn.safe453i37GridLight::after,
+html body .app.gridOn.safe453i37GridLight::after,
+html body #app.gridOn.safe453i37GridLight::after,
+html body .app.present.gridOn.safe453i37GridLight::after,
+html body #app.app.present.gridOn.safe453i37GridLight::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  pointer-events:none !important;
+  z-index:120 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,.78) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.78) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+}
+
+/* Mørk gitterfarve bevares eksplicit, så i37-cyklussen stadig giver forskel. */
+html body #app.app.gridOn.safe453i37GridDark::after,
+html body .app.gridOn.safe453i37GridDark::after,
+html body #app.gridOn.safe453i37GridDark::after{
+  background-image:
+    linear-gradient(rgba(17,24,39,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,24,39,.16) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i39 GRID LIGHT TOP LAYER:
+Bygger på i38. Ingen ny JavaScript.
+Hvis Gitter: Lys er valgt, lægges gitteret visuelt højere end baggrund/filter.
+Pointer-events er stadig none. -->
+<style id="safe453i39GridLightTopLayerCss">
+html body #app.app.gridOn.safe453i37GridLight::after,
+html body .app.gridOn.safe453i37GridLight::after,
+html body #app.gridOn.safe453i37GridLight::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  pointer-events:none !important;
+
+  /* Højere end baggrund/filter-lag, men stadig inde i appen. */
+  z-index:999 !important;
+
+  background-image:
+    linear-gradient(rgba(255,255,255,.85) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.85) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  background-position:0 0 !important;
+  opacity:1 !important;
+  mix-blend-mode:screen !important;
+}
+
+/* I præsentation/fokus skal det også være tydeligt. */
+html body .app.present.gridOn.safe453i37GridLight::after,
+html body #app.app.present.gridOn.safe453i37GridLight::after,
+html body.focus-presentation #app.gridOn.safe453i37GridLight::after,
+html body.focus-edit #app.gridOn.safe453i37GridLight::after{
+  z-index:999 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,.85) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.85) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+  mix-blend-mode:screen !important;
+}
+</style>
+
+
+<!-- SAFE453i40 DROP LIGHT GRID OPTION:
+Dropper Gitter: Lys/Mørk-eksperimentet.
+Gitterknappen er igen kun Fra/Til.
+Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og under widgets/værktøjer. -->
 
 </body></html>`,mode:'edit',name:'Ny HTML-widget'}],
       j:['wheel',{}],
@@ -28365,6 +29530,234 @@ function safe414PickBoardShotFile(w,el){
   input.click();
 }
 
+
+// --- SAFE453i19: drawcopy widget helpers DIRECTLY inside fillContent ---
+function safe453i19EnsureDrawcopyCss(){
+  if(document.getElementById('safe453i19DrawcopyCss'))return;
+  const st=document.createElement('style');
+  st.id='safe453i19DrawcopyCss';
+  st.textContent=`
+.widget[data-type="drawcopy"]{background:transparent!important;}
+.widget[data-type="drawcopy"] .content.drawcopy{padding:0!important;overflow:hidden!important;background:transparent!important;}
+.widget[data-type="drawcopy"]:not(.selected){box-shadow:none!important;}
+/* SAFE453i22: Passiv tegnewidget skal ikke vise en svag/spøgelsesagtig topbjælke. */
+.widget[data-type="drawcopy"]:not(.selected) .chrome{display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+.widget[data-type="drawcopy"]:not(.selected):hover .chrome{display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+.safe453i19DrawBox{height:100%;display:flex;flex-direction:column;min-height:0;background:transparent;}
+.safe453i19Stage{position:relative;flex:1 1 auto;min-height:120px;overflow:hidden;background:transparent;touch-action:none;}
+
+/* SAFE453i47:
+   Tegnefladen skal have samme størrelse i aktiv og passiv tilstand.
+   Værktøjerne lægges ovenpå nederst i stedet for at ændre selve stage-højden. */
+.widget[data-type="drawcopy"] .safe453i19DrawBox{position:relative;display:block!important;}
+.widget[data-type="drawcopy"] .safe453i19Stage{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;}
+.widget[data-type="drawcopy"] .safe453i19Tools{position:absolute!important;left:0!important;right:0!important;bottom:0!important;z-index:7!important;}
+.widget[data-type="drawcopy"]:not(.selected) .safe453i19Tools{display:none!important;}
+.widget[data-type="drawcopy"].selected .safe453i19Stage{background:rgba(238,242,247,.28);}
+.safe453i19Stage img.under{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none;}
+.safe453i19Stage canvas.ink{position:absolute;inset:0;width:100%;height:100%;touch-action:none;z-index:2;}
+.widget[data-type="drawcopy"]:not(.selected) .safe453i19Stage canvas.ink{pointer-events:none;}
+.safe453i22Grip{position:absolute;top:50%;right:8px;transform:translateY(-50%);z-index:6;display:none;align-items:center;justify-content:center;min-width:34px;min-height:34px;padding:4px 8px;border:0;border-radius:999px;background:rgba(17,24,39,.58);color:white;font-weight:900;font-size:16px;line-height:1;box-shadow:0 3px 10px rgba(0,0,0,.22);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);touch-action:none;cursor:grab;}
+.safe453i22Grip:active{cursor:grabbing;background:rgba(17,24,39,.76);}
+.widget[data-type="drawcopy"]:not(.selected) .safe453i22Grip{display:flex;}
+.widget[data-type="drawcopy"].selected .safe453i22Grip{display:none!important;}
+.app.present .safe453i22Grip, body.focus-mode .safe453i22Grip{display:none!important;}
+.safe453i19Tools{flex:0 0 auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:7px;background:rgba(255,255,255,.94);border-top:1px solid rgba(15,23,42,.12);}
+.safe453i19Tools b{font-weight:900;color:#111827;margin-right:2px;}
+.safe453i19Tools input[type=color]{width:34px;height:30px;padding:0;border:0;background:transparent;}
+.safe453i19Tools input[type=range]{width:min(105px,22vw);}
+.safe453i19Tools button{border:0;border-radius:999px;padding:7px 10px;font-weight:850;background:#e5e7eb;color:#111827;}
+.safe453i19Tools button.active{background:#6d5dfc;color:#fff;}
+.safe453i19Tools .save{background:#4f46e5;color:#fff;}
+.safe453i19Tools .danger{background:#fee2e2;color:#991b1b;}
+.app.present .safe453i19Tools{display:none!important;}
+/* SAFE453i48: Roteret tegnewidget kan ikke tegnes i, fordi pointer-koordinaterne bliver upræcise. */
+.widget[data-type="drawcopy"].safe453i48RotatedDrawBlocked canvas.ink{pointer-events:none!important;}
+.widget[data-type="drawcopy"].safe453i48RotatedDrawBlocked .safe453i19Tools{opacity:.68;}
+.widget[data-type="drawcopy"].safe453i48RotatedDrawBlocked .safe453i19Tools::after{
+  content:"Dobbeltklik på rotationsikonet for at nulstille rotation";
+  display:inline-flex;
+  align-items:center;
+  font-size:12px;
+  font-weight:900;
+  color:#991b1b;
+  background:#fee2e2;
+  border-radius:999px;
+  padding:6px 9px;
+}
+.widget[data-type="drawcopy"].safe453i48RotatedDrawBlocked .safe453i19Tools .save{opacity:.55;}
+
+`;
+  document.head.appendChild(st);
+}
+function safe453i19Pad(n){return String(n).padStart(2,'0');}
+function safe453i19Name(d){return 'Tegning '+d.getFullYear()+'-'+safe453i19Pad(d.getMonth()+1)+'-'+safe453i19Pad(d.getDate())+' '+safe453i19Pad(d.getHours())+'.'+safe453i19Pad(d.getMinutes());}
+function safe453i19OpenDrawDb(){
+  return new Promise((resolve,reject)=>{
+    if(!window.indexedDB){reject(new Error('IndexedDB er ikke tilgængelig'));return;}
+    const req=indexedDB.open('tavle_drawings_db',1);
+    req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains('drawings')){const st=db.createObjectStore('drawings',{keyPath:'id'});try{st.createIndex('createdAt','createdAt',{unique:false});}catch(_e){}}};
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error||new Error('Kunne ikke åbne tegningsarkiv'));
+  });
+}
+async function safe453i19PutDrawing(item){
+  const db=await safe453i19OpenDrawDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('drawings','readwrite');
+    tx.objectStore('drawings').put(item);
+    tx.oncomplete=()=>{try{db.close();}catch(_e){} resolve(true);};
+    tx.onerror=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Kunne ikke gemme tegningen'));};
+    tx.onabort=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Gemning blev afbrudt'));};
+  });
+}
+function safe453i19RenderDrawcopy(el,w){
+  safe453i19EnsureDrawcopyCss();
+  const cc=el.querySelector('.content');
+  if(!cc)return;
+  w.data=w.data||{};
+  const src=String(w.data.src||'');
+  cc.className='content drawcopy';
+  cc.innerHTML=`<div class="safe453i19DrawBox"><div class="safe453i19Stage"><img class="under" draggable="false" src="${esc(src)}" alt=""><canvas class="ink"></canvas><button type="button" class="safe453i22Grip" title="Vælg/flyt tegnewidget" aria-label="Vælg eller flyt tegnewidget">⠿</button></div><div class="safe453i19Tools widget-control"><b>Tegn</b><input class="color" type="color" value="${esc(w.data.color||'#000000')}"><input class="size" type="range" min="2" max="40" value="${esc(w.data.size||6)}"><button type="button" class="mode active" data-mode="pen">Fri</button><button type="button" class="mode" data-mode="line">Linje</button><button type="button" class="mode" data-mode="rect">Firkant</button><button type="button" class="mode" data-mode="circle">Cirkel</button><button type="button" class="mode" data-mode="eraser">Viskelæder</button><button type="button" class="save">📷 Gem</button><button type="button" class="danger clear">Ryd</button></div></div>`;
+  const stage=cc.querySelector('.safe453i19Stage');
+  const canvas=cc.querySelector('canvas.ink');
+  const img=cc.querySelector('img.under');
+  const grip=cc.querySelector('.safe453i22Grip');
+  const cx=canvas.getContext('2d');
+  let mode=w.data.mode||'pen', drawing=false, start=null, snap=null;
+  function setMode(m){mode=m;w.data.mode=m;cc.querySelectorAll('.mode').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));try{save();}catch(_e){}}
+  function p(ev){const r=canvas.getBoundingClientRect();return{x:ev.clientX-r.left,y:ev.clientY-r.top};}
+  function strokeSetup(){cx.lineCap='round';cx.lineJoin='round';cx.strokeStyle=cc.querySelector('.color').value;cx.fillStyle=cx.strokeStyle;cx.lineWidth=Number(cc.querySelector('.size').value)||6;}
+  function restore(){if(snap)cx.putImageData(snap,0,0);}
+  function draw(a,b){strokeSetup(); if(mode==='eraser'){cx.save();cx.globalCompositeOperation='destination-out';cx.lineWidth=(Number(cc.querySelector('.size').value)||6)*2;cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();cx.restore();return;} cx.globalCompositeOperation='source-over';cx.beginPath(); if(mode==='line'){cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}else if(mode==='rect'){cx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);}else if(mode==='circle'){const rx=(b.x-a.x)/2,ry=(b.y-a.y)/2;cx.ellipse(a.x+rx,a.y+ry,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2);cx.stroke();}else{cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.stroke();}}
+  function saveOverlay(){try{w.data.overlay=canvas.toDataURL('image/png');save();}catch(_e){}}
+  function drawOverlay(old){cx.clearRect(0,0,canvas.width,canvas.height); if(!old)return; const im=new Image(); im.onload=()=>{try{cx.drawImage(im,0,0,canvas.width/(window.devicePixelRatio||1),canvas.height/(window.devicePixelRatio||1));}catch(_e){}}; im.src=old;}
+  function resize(){const r=stage.getBoundingClientRect();const dpr=window.devicePixelRatio||1;const W=Math.max(1,Math.round(r.width*dpr)),H=Math.max(1,Math.round(r.height*dpr)); if(canvas.width===W&&canvas.height===H)return; const old=w.data.overlay||'';canvas.width=W;canvas.height=H;canvas.style.width=Math.max(1,Math.round(r.width))+'px';canvas.style.height=Math.max(1,Math.round(r.height))+'px';cx.setTransform(dpr,0,0,dpr,0,0);drawOverlay(old);}
+  function merged(){const r=stage.getBoundingClientRect();const W=Math.max(1,Math.round(r.width)),H=Math.max(1,Math.round(r.height));const out=document.createElement('canvas');out.width=W;out.height=H;const ox=out.getContext('2d');ox.fillStyle='rgba(255,255,255,0)';ox.clearRect(0,0,W,H);try{if(img.complete&&img.naturalWidth){const sc=Math.min(W/img.naturalWidth,H/img.naturalHeight);const iw=img.naturalWidth*sc,ih=img.naturalHeight*sc;ox.drawImage(img,(W-iw)/2,(H-ih)/2,iw,ih);}}catch(e){throw e;} ox.drawImage(canvas,0,0,W,H);return out.toDataURL('image/png');}
+  function safe453i53ArchiveName(now){
+    try{
+      const raw=String((w.data&&w.data.name)||w.title||'')
+        .replace(/^Tegnewidget ·\s*/,'')
+        .replace(/\.[a-z0-9]+$/i,'')
+        .trim()
+        .replace(/\s+/g,' ');
+      if(raw && !/^Tegning \d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0,80);
+    }catch(_e){}
+    return safe453i19Name(now);
+  }
+  async function archiveSave(){try{const now=new Date();const data=merged();const archiveName=safe453i53ArchiveName(now);await safe453i19PutDrawing({id:'drawing_'+now.getTime()+'_'+Math.random().toString(36).slice(2,7),name:archiveName,createdAt:now.toISOString(),imageData:data,width:Math.max(1,Math.round(stage.getBoundingClientRect().width)),height:Math.max(1,Math.round(stage.getBoundingClientRect().height)),source:'image-drawcopy-widget',sourceWidgetId:w.id||''});toast('Tegning gemt');try{const folder=document.getElementById('safe453DrawFolder');if(folder)setTimeout(()=>folder.click(),120);}catch(_e){}}catch(err){console.warn('SAFE453i19 save failed',err);toast('Kunne ikke gemme tegningen');}}
+  function safe453i47IsRotated(){
+    try{
+      const vals=[w&&w.r,w&&w.rotation,w&&w.rot,w&&w.angle,w&&w.data&&w.data.r,w&&w.data&&w.data.rotation,w&&w.data&&w.data.rot]
+        .map(v=>Number(v))
+        .filter(v=>Number.isFinite(v));
+      for(const v of vals){
+        const a=Math.abs(((v%360)+360)%360);
+        if(a>0.01 && Math.abs(a-360)>0.01)return true;
+      }
+    }catch(_e){}
+
+    // SAFE453i48: Fallback til den faktiske CSS-transform.
+    try{
+      const tr=getComputedStyle(el).transform;
+      if(tr && tr!=='none'){
+        const m=tr.match(/matrix\(([^)]+)\)/);
+        if(m){
+          const p=m[1].split(',').map(x=>Number(x.trim()));
+          const b=p[1]||0, c=p[2]||0;
+          if(Math.abs(b)>0.001 || Math.abs(c)>0.001)return true;
+        }
+        const m3=tr.match(/matrix3d\(([^)]+)\)/);
+        if(m3){
+          const p=m3[1].split(',').map(x=>Number(x.trim()));
+          const b=p[1]||0, c=p[4]||0;
+          if(Math.abs(b)>0.001 || Math.abs(c)>0.001)return true;
+        }
+      }
+    }catch(_e){}
+    return false;
+  }
+  function safe453i47WarnRotated(){
+    try{toast('Nulstil rotation før tegning – dobbeltklik på rotationsikonet');}catch(_e){}
+  }
+  function safe453i48RefreshRotatedState(){
+    try{
+      const rotated=safe453i47IsRotated();
+      el.classList.toggle('safe453i48RotatedDrawBlocked',rotated);
+      canvas.style.pointerEvents=rotated?'none':'';
+      const saveBtn=cc.querySelector('.save');
+      if(saveBtn)saveBtn.disabled=rotated;
+    }catch(_e){}
+  }
+  if(grip){
+    grip.addEventListener('pointerdown',ev=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(w.locked){
+        try{select(w.id,{editText:false});}catch(_e){}
+        return;
+      }
+      try{select(w.id,{editText:false});}catch(_e){}
+      try{setToolbarHidden(true);}catch(_e){}
+      const startDrag={x:ev.clientX,y:ev.clientY,wx:Number(w.x||0),wy:Number(w.y||0),moved:false};
+      const move=(e)=>{
+        startDrag.moved=true;
+        w.x=startDrag.wx+e.clientX-startDrag.x;
+        w.y=startDrag.wy+e.clientY-startDrag.y;
+        try{el.style.transform=transformFor(w);}catch(_e){}
+        if(e.cancelable)e.preventDefault();
+        e.stopPropagation();
+      };
+      const up=(e)=>{
+        document.removeEventListener('pointermove',move,true);
+        document.removeEventListener('pointerup',up,true);
+        document.removeEventListener('pointercancel',up,true);
+        try{save();}catch(_e){}
+        if(e){e.stopPropagation();}
+      };
+      document.addEventListener('pointermove',move,{capture:true,passive:false});
+      document.addEventListener('pointerup',up,{capture:true,passive:false});
+      document.addEventListener('pointercancel',up,{capture:true,passive:false});
+    },{passive:false});
+  }
+  canvas.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();safe453i48RefreshRotatedState();if(safe453i47IsRotated()){safe453i47WarnRotated();return;}resize();drawing=true;start=p(ev);try{canvas.setPointerCapture(ev.pointerId);}catch(_e){}try{snap=cx.getImageData(0,0,canvas.width,canvas.height);}catch(_e){snap=null;}},{passive:false});
+  canvas.addEventListener('pointermove',ev=>{if(!drawing)return;ev.preventDefault();ev.stopPropagation();const q=p(ev); if(mode==='pen'||mode==='eraser'){draw(start,q);start=q;}else{restore();draw(start,q);}},{passive:false});
+  function end(ev){if(!drawing)return;if(ev){ev.preventDefault();ev.stopPropagation();}const q=ev?p(ev):start;if(!(mode==='pen'||mode==='eraser')){restore();draw(start,q);}drawing=false;snap=null;saveOverlay();}
+  canvas.addEventListener('pointerup',end,{passive:false});canvas.addEventListener('pointercancel',end,{passive:false});
+  cc.querySelectorAll('.mode').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();setMode(b.dataset.mode||'pen');});
+  const color=cc.querySelector('.color'), size=cc.querySelector('.size'); if(color)color.oninput=()=>{w.data.color=color.value;try{save();}catch(_e){}}; if(size)size.oninput=()=>{w.data.size=size.value;try{save();}catch(_e){}};
+  const clear=cc.querySelector('.clear'); if(clear)clear.onclick=e=>{e.preventDefault();e.stopPropagation();cx.clearRect(0,0,canvas.width,canvas.height);w.data.overlay='';try{save();}catch(_e){}};
+  const saveBtn=cc.querySelector('.save'); if(saveBtn)saveBtn.onclick=e=>{e.preventDefault();e.stopPropagation();safe453i48RefreshRotatedState();if(safe453i47IsRotated()){safe453i47WarnRotated();return;}archiveSave();};
+  img.onload=()=>{resize();safe453i48RefreshRotatedState();};
+  setTimeout(()=>{resize();safe453i48RefreshRotatedState();},40);
+  setTimeout(()=>{resize();safe453i48RefreshRotatedState();},350);
+  try{new ResizeObserver(()=>{resize();safe453i48RefreshRotatedState();}).observe(stage);}catch(_e){}
+  try{
+    const mo=new MutationObserver(()=>{safe453i48RefreshRotatedState();});
+    mo.observe(el,{attributes:true,attributeFilter:['style','class']});
+    const rh=el.querySelector('.rotater');
+    if(rh){
+      const refreshLater=()=>{setTimeout(safe453i48RefreshRotatedState,0);setTimeout(safe453i48RefreshRotatedState,60);setTimeout(safe453i48RefreshRotatedState,220);};
+      rh.addEventListener('dblclick',refreshLater,true);
+      rh.addEventListener('pointerup',refreshLater,true);
+      rh.addEventListener('pointercancel',refreshLater,true);
+    }
+  }catch(_e){}
+  setMode(mode);
+  safe453i48RefreshRotatedState();
+}
+function safe453i19CreateDrawcopy(src,name){
+  if(!src){toast('Billedet mangler');return;}
+  try{
+    let nw=addWidget('drawcopy',{src:src,name:name||'Billede',overlay:'',mode:'pen',color:'#000000',size:6});
+    if(nw){nw.title='Tegnewidget · '+String(name||'Billede').replace(/\.[a-z0-9]+$/i,'').slice(0,50);try{nw.w=Math.max(nw.w||520,620);nw.h=Math.max(nw.h||320,430);fitWidgetToViewport(nw);}catch(_e){}render();select(nw.id);save();toast('Tegnewidget oprettet');}
+  }catch(err){console.warn('SAFE453i19 create failed',err);toast('Kunne ikke oprette tegnekopi');}
+}
+if(w.type==='drawcopy'){
+  safe453i19RenderDrawcopy(el,w);
+  return;
+}
+
 // --- WIDGET: IMAGE ---
  if(w.type==='image'){
   if(w.data.src){
@@ -28372,14 +29765,19 @@ function safe414PickBoardShotFile(w,el){
     // SAFE440: Gendannelse/tavleshot styres fra Tavleoversigt. Gamle boardState-data bevares,
     // men billedwidgetten viser ikke længere lokale “Gendan”-knapper.
     const mirrorCls=w.data&&w.data.mirror?' safe411MirrorSelfie':'';
-    c.innerHTML=`<div class="mediaActions widget-control"><button class="cameraImg" title="Tag nyt billede med kamera">📷 Kamera</button>${embedded?`<button class="downloadImg" title="Åbn fælles downloadpulje">⬇ Download</button>`:''}</div><div class="imageFrame"><img class="${mirrorCls}" src="${esc(w.data.src)}" alt=""></div>`;
-    const cam=c.querySelector('.cameraImg');
-    if(cam)cam.onclick=(e)=>{e.stopPropagation();safe408OpenImageCameraMenu(w,el)};
+    c.innerHTML=`<div class="mediaActions widget-control"><button type="button" class="drawCopyImg" title="Tegn videre på kopi">✏️ Tegn</button>${embedded?`<button type="button" class="downloadImg" title="Åbn fælles downloadpulje">⬇ Download</button>`:''}</div><div class="imageFrame"><img class="${mirrorCls}" src="${esc(w.data.src)}" alt=""></div>`;
+    const drawCopy=c.querySelector('.drawCopyImg');
+    if(drawCopy){
+      const go=(e)=>{e.preventDefault();e.stopPropagation();safe453i19CreateDrawcopy(w.data&&w.data.src,w.data&&w.data.name||w.title||'Billede');};
+      drawCopy.onclick=go;
+      drawCopy.onpointerup=go;
+    }
     const dl=c.querySelector('.downloadImg');
     if(dl)dl.onclick=(e)=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else downloadDataUrl(w.data.src,w.data.name||'billede')};
   }else{
-    c.innerHTML=`<div class="imageChoice"><button class="localImg">Indsæt billede fra enhed</button><button class="urlImg">Indsæt billede fra URL</button><button class="cameraImg">📷 Kamera</button></div>`;
-    c.querySelector('.localImg').onclick=()=>pickFile('image/*',(src,file)=>{w.data.src=src;w.data.name=(file&&file.name)||'billede';delete w.data.boardState;fillContent(el,w);save()});
+    c.innerHTML=`<div class="imageChoice"><button class="localImg">Indsæt billede fra enhed</button><button class="appImg">Fra appen</button><button class="urlImg">Indsæt billede fra URL</button><button class="cameraImg">📷 Kamera</button></div>`;
+    c.querySelector('.localImg').onclick=()=>pickFile('image/*',(src,file)=>{w.data.src=src;safe453i60SetImageTitleOnImport(w,(file&&file.name)||'billede');delete w.data.boardState;render();safe453i61RefreshImageTitleAfterImport(w);setTimeout(()=>select(w.id,{editText:false}),0);save()});
+    c.querySelector('.appImg').onclick=(e)=>{e.preventDefault();e.stopPropagation();safe453i41OpenImageFromApp(w,el)};
     c.querySelector('.urlImg').onclick=()=>askImageUrl(w);
     c.querySelector('.cameraImg').onclick=(e)=>{e.stopPropagation();safe408OpenImageCameraMenu(w,el)};
   }
@@ -29338,6 +30736,80 @@ function chooseFocusTargetFromTextWidget(target,e){
 }
 
 
+
+/* SAFE453i51: Navngiv billedwidget/tegnewidget direkte fra widgetten.
+   Ændrer kun widgettitel og w.data.name. IndexedDB-tegninger i arkivet omdøbes ikke i denne fase. */
+function safe453i51RenameMediaWidget(w){
+  if(!w || !(w.type==='image'||w.type==='drawcopy'))return;
+  w.data=w.data||{};
+  const isDraw=w.type==='drawcopy';
+  const label=isDraw?'tegning':'billede';
+  const current=String(w.data.name||w.title||'').replace(/^Tegnewidget ·\s*/,'').replace(/\.[a-z0-9]+$/i,'').trim();
+  showModal(`<h2>Navngiv ${label}</h2>
+    <p>Navnet bruges på widgetten og som forslag, når billedet eller tegningen bruges videre.</p>
+    <form id="safe453i55RenameForm">
+      <input id="safe453i51Name" type="text" value="${esc(current|| (isDraw?'Tegning':'Billede'))}" autocomplete="off">
+      <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px">
+        <button id="safe453i51Cancel" type="button">Annuller</button>
+        <button id="safe453i51Save" type="submit" style="background:#4f46e5;color:#fff">Gem navn</button>
+      </div>
+    </form>`);
+  const form=modal.querySelector('#safe453i55RenameForm');
+  const input=modal.querySelector('#safe453i51Name');
+  const cancel=modal.querySelector('#safe453i51Cancel');
+  const saveBtn=modal.querySelector('#safe453i51Save');
+  function cleanName(v){
+    return String(v||'').trim().replace(/\s+/g,' ').slice(0,80);
+  }
+  let didApply=false;
+  function apply(){
+    if(didApply)return;
+    const name=cleanName(input&&input.value);
+    if(!name){try{toast('Skriv et navn først')}catch(_e){} return;}
+    didApply=true;
+    w.data.name=name;
+    w.title=isDraw?('Tegnewidget · '+name):name;
+    try{closeModal();}catch(_e){}
+    try{save();render();setTimeout(()=>select(w.id,{editText:false}),0);}catch(_e){try{render();}catch(_r){}}
+    try{toast('Navn gemt')}catch(_t){}
+  }
+  if(form)form.onsubmit=e=>{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();apply();return false;};
+  if(cancel)cancel.onclick=e=>{e.preventDefault();e.stopPropagation();closeModal();};
+  if(saveBtn)saveBtn.onclick=e=>{e.preventDefault();e.stopPropagation();apply();};
+  if(input){
+    setTimeout(()=>{try{input.focus();input.select();}catch(_e){}},60);
+
+    // SAFE453i54: Enter skal godkende omdøbning, også hvis appens globale
+    // genveje ellers forsøger at fange Enter. Esc lukker dialogen.
+    const nameKeyHandler=function(e){
+      if(!document.getElementById('safe453i51Name')){
+        document.removeEventListener('keydown',nameKeyHandler,true);
+        return;
+      }
+      if(e.target!==input)return;
+      if(e.key==='Enter'){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        document.removeEventListener('keydown',nameKeyHandler,true);
+        apply();
+      }
+      if(e.key==='Escape'){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        document.removeEventListener('keydown',nameKeyHandler,true);
+        closeModal();
+      }
+    };
+    document.addEventListener('keydown',nameKeyHandler,true);
+    input.onkeydown=e=>{
+      if(e.key==='Enter'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();apply();}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();closeModal();}
+    };
+  }
+}
+
 function wireWidget(el,w){
  let layerTap={x:0,y:0,t:0,moved:false,ignore:false};
  el.addEventListener('pointerdown',e=>{
@@ -29500,6 +30972,14 @@ function wireWidget(el,w){
     if(!canEditWidgets())return;
     select(w.id,{editText:false});
     askLink(w);
+  };
+const renameMediaBtn=el.querySelector('[data-act=renameMedia]');
+  if(renameMediaBtn)renameMediaBtn.onclick=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    if(!canEditWidgets())return;
+    select(w.id,{editText:false});
+    safe453i51RenameMediaWidget(w);
   };
 el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
  let drag=false,rot=false,res=false,start={}; let rotHoldTimer=null, rotHoldStart=null, rotHoldDidReset=false; const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
@@ -30499,7 +31979,228 @@ function askLink(w){
     }catch(e){try{titleInput.select()}catch(_e){}}
   },60);
 }
-function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeholder="https://..." value="${esc(w.data.src||'')}"><p>Bemærk: Nogle billeder blokeres af hjemmesiden. Upload lokalt er mest stabilt offline.</p><button id="ok">Brug billede</button><button id="cancel">Luk</button>`);modal.querySelector('#ok').onclick=()=>{w.data.src=modal.querySelector('#iu').value.trim();closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
+
+/* SAFE453i41: Billedwidget kan vælge billede fra appen.
+   Tilføjer kun en ekstra kildeknap i tom billedwidget: "Fra appen".
+   Kilder i denne første fase: gemte tegninger + indbyggede baggrunde.
+   Ingen ændring af baggrundsvælger, tegningsarkiv, kamera/mappe eller render-flow. */
+async function safe453i41OpenImageFromApp(w,el){
+  const DB_NAME='tavle_drawings_db';
+  const STORE='drawings';
+  let items=[];
+  function escLocal(s){
+    try{ if(typeof esc==='function') return esc(s); }catch(_e){}
+    return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function openDb(){
+    return new Promise((resolve,reject)=>{
+      if(!window.indexedDB){resolve(null);return;}
+      const req=indexedDB.open(DB_NAME,1);
+      req.onupgradeneeded=()=>{try{const db=req.result;if(!db.objectStoreNames.contains(STORE)){db.createObjectStore(STORE,{keyPath:'id'});}}catch(_e){}};
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>resolve(null);
+    });
+  }
+  async function drawings(){
+    const db=await openDb();
+    if(!db)return [];
+    return new Promise(resolve=>{
+      try{
+        const tx=db.transaction(STORE,'readonly');
+        const req=tx.objectStore(STORE).getAll();
+        req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))));
+        req.onerror=()=>resolve([]);
+        tx.oncomplete=()=>{try{db.close();}catch(_e){}};
+      }catch(_e){try{db.close();}catch(_c){} resolve([]);}
+    });
+  }
+  try{
+    const ds=await drawings();
+    ds.forEach((d,i)=>{
+      const src=String(d&&d.imageData||'');
+      if(!src.startsWith('data:image/'))return;
+      items.push({
+        kind:'Tegning',
+        name:String(d.name||('Tegning '+(i+1))),
+        src:src,
+        meta:(d.width&&d.height)?(d.width+' × '+d.height+' px'):''
+      });
+    });
+  }catch(_e){}
+  try{
+    const bgs=(typeof TAVLE_BACKGROUNDS!=='undefined'&&Array.isArray(TAVLE_BACKGROUNDS))?TAVLE_BACKGROUNDS:[];
+    bgs.forEach((bg,i)=>{
+      if(!bg||!bg.src)return;
+      const src=(typeof resolveAssetPath==='function')?resolveAssetPath(bg.src):String(bg.src);
+      items.push({
+        kind:'Baggrund',
+        name:String(bg.title||('Baggrund '+(i+1)))+(bg.version?' ('+bg.version+')':''),
+        src:src,
+        meta:[bg.group,bg.desc].filter(Boolean).join(' · ')
+      });
+    });
+  }catch(_e){}
+
+  let selected=0;
+  function html(){
+    const cards=items.map((it,i)=>`
+      <button type="button" class="safe453i41Card ${i===selected?'selected':''}" data-i="${i}">
+        <span class="safe453i41Preview"><img src="${escLocal(it.src)}" alt="${escLocal(it.name)}" draggable="false"></span>
+        <span class="safe453i41Name">${escLocal(it.name)}</span>
+        <span class="safe453i41Meta">${escLocal([it.kind,it.meta].filter(Boolean).join(' · '))}</span>
+      </button>`).join('');
+    return `<div class="safe453i41Picker">
+      <h2>Fra appen</h2>
+      <p>Vælg en gemt tegning eller en indbygget baggrund som billede i denne billedwidget.</p>
+      ${items.length?`<div class="safe453i41Grid">${cards}</div>`:`<div class="safe453i41Empty">Der er ingen gemte tegninger eller baggrunde at vælge.</div>`}
+      <div class="safe453i41Actions">
+        <button id="safe453i41Use" class="primary" ${items.length?'':'disabled'}>Brug billede</button>
+        <button id="safe453i41Cancel">Luk</button>
+      </div>
+    </div>`;
+  }
+  function ensureCss(){
+    if(document.getElementById('safe453i41Css'))return;
+    const st=document.createElement('style');
+    st.id='safe453i41Css';
+    st.textContent=`
+#modal:has(.safe453i41Picker){width:min(860px,94vw)!important;max-width:860px!important;overflow:hidden!important;}
+.safe453i41Picker{box-sizing:border-box;max-width:100%;overflow:hidden;color:#111827;}
+.safe453i41Picker p{color:#475569;font-weight:800;line-height:1.3;}
+.safe453i41Grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-height:min(56vh,620px);overflow-y:auto;overflow-x:hidden;padding:4px 2px 8px;}
+.safe453i41Card{display:flex;flex-direction:column;gap:7px;text-align:left;border:1px solid rgba(15,23,42,.12);border-radius:16px;background:#f8fafc;color:#111827;padding:10px;cursor:pointer;min-width:0;}
+.safe453i41Card.selected{border-color:#2563eb!important;background:#eff6ff!important;box-shadow:0 0 0 4px rgba(37,99,235,.20)!important;}
+.safe453i41Preview{height:126px;border-radius:12px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(15,23,42,.10);}
+.safe453i41Preview img{width:100%;height:100%;object-fit:contain;display:block;}
+.safe453i41Name{font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.safe453i41Meta{font-size:12px;color:#64748b;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.safe453i41Empty{padding:18px;border:1px dashed rgba(15,23,42,.18);border-radius:16px;background:#f8fafc;color:#64748b;font-weight:900;}
+.safe453i41Actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb;}
+.safe453i41Actions button{border:0!important;border-radius:12px!important;padding:10px 13px!important;font-weight:900!important;background:#eef2ff!important;color:#111827!important;}
+.safe453i41Actions button.primary{background:#4f46e5!important;color:#fff!important;}
+@media(max-width:760px){.safe453i41Grid{grid-template-columns:repeat(2,minmax(0,1fr));}.safe453i41Actions button{flex:1 1 auto;}}
+@media(max-width:460px){.safe453i41Grid{grid-template-columns:1fr;}}
+`;
+    document.head.appendChild(st);
+  }
+  function safe453i50BlobToDataUrl(blob){
+    return new Promise((resolve,reject)=>{
+      const r=new FileReader();
+      r.onload=()=>resolve(String(r.result||''));
+      r.onerror=()=>reject(r.error||new Error('Kunne ikke læse billeddata'));
+      r.readAsDataURL(blob);
+    });
+  }
+  async function safe453i50MaterializeAppImage(it){
+    if(!it||!it.src)return '';
+    const src=String(it.src||'');
+    if(src.startsWith('data:image/'))return src;
+    if(it.kind!=='Baggrund')return src;
+    const res=await fetch(src,{mode:'cors',cache:'force-cache'});
+    if(!res.ok)throw new Error('Kunne ikke hente billedet');
+    const blob=await res.blob();
+    if(!String(blob.type||'').startsWith('image/'))throw new Error('Filen er ikke et billede');
+    return await safe453i50BlobToDataUrl(blob);
+  }
+  async function applySelection(){
+    const it=items[selected];
+    if(!it||!it.src)return;
+    const use=document.getElementById('safe453i41Use');
+    try{
+      if(use){use.disabled=true;use.textContent=(it.kind==='Baggrund')?'Kopierer billede…':'Brug billede';}
+      const materialized=await safe453i50MaterializeAppImage(it);
+      w.data.src=materialized;
+      safe453i60SetImageTitleOnImport(w,it.name||'billede');
+      w.data.source=(it.kind==='Baggrund')?'from-app-background-embedded':'from-app';
+      w.data.originalAppSource=it.kind==='Baggrund'?it.src:(w.data.originalAppSource||'');
+      delete w.data.boardState;
+      try{closeModal();}catch(_e){}
+      try{fillContent(el,w);}catch(_f){try{render();}catch(_r){}}
+      safe453i61RefreshImageTitleAfterImport(w);
+      try{save();}catch(_s){}
+      try{toast(it.kind==='Baggrund'?'Baggrund kopieret ind som billede':'Billede valgt fra appen')}catch(_t){}
+    }catch(err){
+      console.warn('SAFE453i50 applySelection failed',err);
+      if(use){use.disabled=false;use.textContent='Brug billede';}
+      try{toast('Kunne ikke kopiere billedet ind. Brug Fra enhed i stedet.')}catch(_t){}
+    }
+  }
+  function setSelected(i){
+    const cards=Array.from(document.querySelectorAll('.safe453i41Card'));
+    if(!cards.length)return;
+    selected=Math.max(0,Math.min(cards.length-1,Number(i)||0));
+    cards.forEach((c,n)=>c.classList.toggle('selected',n===selected));
+    try{cards[selected].focus({preventScroll:true});cards[selected].scrollIntoView({block:'nearest',inline:'nearest'});}catch(_e){}
+  }
+  function wire(){
+    document.querySelectorAll('.safe453i41Card').forEach((card,i)=>card.onclick=e=>{e.preventDefault();e.stopPropagation();setSelected(i);});
+    const use=document.getElementById('safe453i41Use');
+    const cancel=document.getElementById('safe453i41Cancel');
+    if(use)use.onclick=e=>{e.preventDefault();e.stopPropagation();applySelection();};
+    if(cancel)cancel.onclick=e=>{e.preventDefault();e.stopPropagation();closeModal();};
+  }
+  ensureCss();
+  showModal(html());
+  wire();
+  setTimeout(()=>setSelected(0),0);
+
+  const keyHandler=function(e){
+    if(!document.querySelector('.safe453i41Picker')){document.removeEventListener('keydown',keyHandler,true);return;}
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Enter','Escape'].includes(e.key))return;
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    if(e.key==='Escape'){document.removeEventListener('keydown',keyHandler,true);closeModal();return;}
+    if(e.key==='Enter'){document.removeEventListener('keydown',keyHandler,true);applySelection();return;}
+    const cards=Array.from(document.querySelectorAll('.safe453i41Card'));
+    if(!cards.length)return;
+    const cols=(()=>{try{return Math.max(1,getComputedStyle(document.querySelector('.safe453i41Grid')).gridTemplateColumns.split(' ').filter(Boolean).length||1);}catch(_e){return 1;}})();
+    let i=selected;
+    if(e.key==='ArrowRight')i=Math.min(cards.length-1,i+1);
+    else if(e.key==='ArrowLeft')i=Math.max(0,i-1);
+    else if(e.key==='ArrowDown')i=Math.min(cards.length-1,i+cols);
+    else if(e.key==='ArrowUp')i=Math.max(0,i-cols);
+    else if(e.key==='Home')i=0;
+    else if(e.key==='End')i=cards.length-1;
+    setSelected(i);
+  };
+  document.addEventListener('keydown',keyHandler,true);
+}
+
+
+/* SAFE453i60: Billedwidgettitel sættes kun ved import/valg af billede.
+   Ingen render-hack og ingen ændring af Mine tegninger. */
+function safe453i60CleanImageTitle(name,fallback){
+  let s=String(name||fallback||'Billede').trim();
+  try{s=decodeURIComponent(s);}catch(_e){}
+  s=s.split(/[?#]/)[0].split('/').pop().trim();
+  s=s.replace(/\.[a-z0-9]{2,5}$/i,'').trim();
+  s=s.replace(/\s+/g,' ');
+  return (s||'Billede').slice(0,80);
+}
+function safe453i60SetImageTitleOnImport(w,name){
+  if(!w)return;
+  w.data=w.data||{};
+  const title=safe453i60CleanImageTitle(name,'Billede');
+  w.data.name=title;
+  w.title=title;
+}
+function safe453i61RefreshImageTitleAfterImport(w){
+  // SAFE453i61: Kun efter import/valg, ikke i render-flow.
+  // Render kan være færdig lidt efter import på iPad, så vi prøver kort flere gange.
+  function one(){
+    try{
+      if(!w||!w.id)return;
+      const el=document.querySelector('.widget[data-id="'+w.id+'"]');
+      const titleEl=el&&el.querySelector('.chrome .titleText');
+      if(titleEl && w.title)titleEl.textContent=w.title;
+    }catch(_e){}
+  }
+  one();
+  setTimeout(one,0);
+  setTimeout(one,80);
+  setTimeout(one,220);
+}
+
+function askImageUrl(w){showModal(`<h2>Billede fra URL</h2><input id="iu" placeholder="https://..." value="${esc(w.data.src||'')}"><p>Bemærk: Nogle billeder blokeres af hjemmesiden. Upload lokalt er mest stabilt offline.</p><button id="ok">Brug billede</button><button id="cancel">Luk</button>`);modal.querySelector('#ok').onclick=()=>{const url=modal.querySelector('#iu').value.trim();w.data.src=url;safe453i60SetImageTitleOnImport(w,url||'Billede');closeModal();render();safe453i61RefreshImageTitleAfterImport(w);setTimeout(()=>select(w.id,{editText:false}),0);save()};modal.querySelector('#cancel').onclick=closeModal}
 function askPdfLink(w){showModal(`<h2>PDF-link</h2><input id="pt" placeholder="Tekst" value="${esc(w.data.text||'Åbn PDF')}"><input id="pu" placeholder="PDF URL" value="${esc(w.data.src||'')}"><button id="ok">Gem</button>`);modal.querySelector('#ok').onclick=()=>{w.data.text=modal.querySelector('#pt').value;w.data.src=modal.querySelector('#pu').value;closeModal();render()}}
 
 
@@ -30591,6 +32292,8 @@ function bgModal(){
   }
   function toggleBgGrid(){
     slide().grid=!slide().grid;
+    // SAFE453i40: Fjern evt. gemt gridTone fra de manuelle gitterforsøg.
+    try{delete slide().gridTone; delete slide().gridColor;}catch(_e){}
     updateGridOverlay();
     save();
     syncBgGridButton();
@@ -31429,8 +33132,9 @@ function downloadAllEmbeddedMedia(){
         ${it.boardShotPackage?`<button class="mediaDownloadBoardShotBtn" data-i="${i}">Billede + tavledata</button>`:''}
       </div>
     </div>`).join('');
-  showModal(`<h2>Download data og medier</h2>
-    <p>Fælles downloadpulje for datawidgets, tekstlister og indlejrede filer. Downloadknapper i widgets åbner også denne pulje. Tavleshots/gendannelsespunkter oprettes fra Tavleoversigt og kan eksporteres som billede + tavledata, når de findes som tavleshot-billedwidgets. På iPad kan lokale data:/Quine-filer stadig blokere download; GitHub Pages er normalt mere stabilt.</p>
+  showModal(`<h2>Hent filer fra tavlen</h2>
+    <p>Her kan du hente de filer, der ligger indlejret i tavlen — for eksempel billeder, gemte tavleshots eller andre filer, som appen kan pakke ud igen.</p>
+    <p>En almindelig tavlebackup gemmer selve tavlen. Denne liste er til, når du også vil hente enkelte filer ud separat.</p>
     <div class="mediaDownloadList">${rows}</div>
     <button id="closeMediaDownloads">Luk</button>`);
   modal.querySelectorAll('.mediaDownloadBtn').forEach(btn=>{
@@ -31462,11 +33166,11 @@ function estimateProjectSizeMB(){
 }
 function largeBackupGuidance(){
   showModal(`<h2>Sikker backup</h2>
-    <p>Gem tavlen som tavlefil. Hvis tavlen indeholder store billeder eller PDF’er, kan medierne også downloades separat.</p>
+    <p>Gem tavlen som tavlefil. Hvis tavlen indeholder store billeder eller PDF’er, kan enkelte filer også hentes ud separat.</p>
     <p><b>Anbefalet arbejdsgang:</b></p>
-    <ol><li>Gem tavlefil</li><li>Download data og medier ved behov</li><li>Gem filerne samlet i en mappe</li></ol>
+    <ol><li>Gem tavlefil</li><li>Hent enkelte filer fra tavlen ved behov</li><li>Gem filerne samlet i en mappe</li></ol>
     <button id="guideSave">Gem tavlefil</button>
-    <button id="guideMedia">Download data og medier</button>
+    <button id="guideMedia">Hent filer fra tavlen</button>
     <button id="guideClose">Luk</button>`);
   modal.querySelector('#guideSave').onclick=()=>downloadTavleSaveFile({startPresentation:false,templateOnly:false});
   modal.querySelector('#guideMedia').onclick=downloadAllEmbeddedMedia;
@@ -31753,6 +33457,103 @@ function cloneForSaveFile(options={}){
   return copy;
 }
 
+
+/* SAFE453i45: Mine tegninger i fuld backup + ryd tegningsarkiv.
+   IndexedDB-store: tavle_drawings_db / drawings. */
+function safe453i45OpenDrawDb(){
+  return new Promise((resolve,reject)=>{
+    if(!window.indexedDB){reject(new Error('IndexedDB er ikke tilgængelig'));return;}
+    const req=indexedDB.open('tavle_drawings_db',1);
+    req.onupgradeneeded=()=>{
+      try{
+        const db=req.result;
+        if(!db.objectStoreNames.contains('drawings')){
+          const st=db.createObjectStore('drawings',{keyPath:'id'});
+          try{st.createIndex('createdAt','createdAt',{unique:false});}catch(_e){}
+        }
+      }catch(_e){}
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error||new Error('Kunne ikke åbne tegningsarkivet'));
+  });
+}
+async function safe453i45GetAllDrawings(){
+  const db=await safe453i45OpenDrawDb();
+  return new Promise((resolve,reject)=>{
+    try{
+      const tx=db.transaction('drawings','readonly');
+      const req=tx.objectStore('drawings').getAll();
+      req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))));
+      req.onerror=()=>reject(req.error||new Error('Kunne ikke læse tegninger'));
+      tx.oncomplete=()=>{try{db.close();}catch(_e){}};
+    }catch(e){try{db.close();}catch(_e){} reject(e);}
+  });
+}
+async function safe453i45PutDrawings(drawings){
+  if(!Array.isArray(drawings)||!drawings.length)return 0;
+  const db=await safe453i45OpenDrawDb();
+  return new Promise((resolve,reject)=>{
+    let count=0;
+    try{
+      const tx=db.transaction('drawings','readwrite');
+      const store=tx.objectStore('drawings');
+      drawings.forEach((d,i)=>{
+        if(!d||!d.imageData)return;
+        const item=Object.assign({},d);
+        item.id=item.id||('imported_drawing_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2));
+        try{store.put(item);count++;}catch(_e){}
+      });
+      tx.oncomplete=()=>{try{db.close();}catch(_e){} resolve(count);};
+      tx.onerror=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Kunne ikke importere tegninger'));};
+      tx.onabort=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Import af tegninger blev afbrudt'));};
+    }catch(e){try{db.close();}catch(_e){} reject(e);}
+  });
+}
+async function safe453i45ClearDrawings(){
+  const db=await safe453i45OpenDrawDb();
+  return new Promise((resolve,reject)=>{
+    try{
+      const tx=db.transaction('drawings','readwrite');
+      tx.objectStore('drawings').clear();
+      tx.oncomplete=()=>{try{db.close();}catch(_e){} resolve(true);};
+      tx.onerror=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Kunne ikke rydde tegninger'));};
+      tx.onabort=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Rydning blev afbrudt'));};
+    }catch(e){try{db.close();}catch(_e){} reject(e);}
+  });
+}
+async function safe453i45DownloadFullBackupWithDrawings(){
+  try{
+    const drawings=await safe453i45GetAllDrawings();
+    downloadTavleSaveFile({startPresentation:false,templateOnly:false,includeDrawings:true,drawingsArchive:drawings});
+    toast('Fuld backup gemt med '+drawings.length+' tegninger');
+  }catch(e){
+    console.warn('SAFE453i45 full backup failed',e);
+    toast('Kunne ikke læse Mine tegninger til fuld backup');
+  }
+}
+function safe453i45ShowClearDrawingsConfirm(){
+  showModal(`<h2>Ryd Mine tegninger</h2>
+    <p><b>Dette sletter alle gemte tegninger i browserens lokale tegningsarkiv.</b></p>
+    <p>Tavler og widgets slettes ikke. Almindelige tavlebackups ændres ikke. Handlingen kan ikke fortrydes, medmindre du først har lavet en fuld backup med tegninger.</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px">
+      <button id="safe453i45CancelClear">Annuller</button>
+      <button id="safe453i45DoClear" style="background:#fee2e2;color:#991b1b">Ryd Mine tegninger</button>
+    </div>`);
+  const cancel=modal.querySelector('#safe453i45CancelClear');
+  const clear=modal.querySelector('#safe453i45DoClear');
+  if(cancel)cancel.onclick=closeModal;
+  if(clear)clear.onclick=async()=>{
+    try{
+      await safe453i45ClearDrawings();
+      closeModal();
+      toast('Mine tegninger er ryddet');
+    }catch(e){
+      console.warn('SAFE453i45 clear drawings failed',e);
+      toast('Kunne ikke rydde Mine tegninger');
+    }
+  };
+}
+
 function downloadTavleSaveFile(options={}){
   const saveData={
     app:'maans-interaktiv-tavle',
@@ -31768,7 +33569,12 @@ function downloadTavleSaveFile(options={}){
     wheelLists: options.templateOnly ? {} : wheelListBank(),
     lists: options.templateOnly ? {} : wheelListBank()
   };
-  const name = options.templateOnly ? 'tavle-skabelon.json' : 'tavle-gemmefil.json';
+  if(options.includeDrawings && !options.templateOnly){
+    saveData.drawingsArchive=Array.isArray(options.drawingsArchive)?options.drawingsArchive:[];
+    saveData.options.includeDrawings=true;
+    saveData.options.fullBackup=true;
+  }
+  const name = options.templateOnly ? 'tavle-skabelon.json' : (options.includeDrawings ? 'tavle-fuld-backup-med-tegninger.json' : 'tavle-gemmefil.json');
   tavleDownloadTextFile(name,JSON.stringify(saveData,null,2),'application/json;charset=utf-8');
   toast(options.templateOnly?'Skabelon gemt':'Gemmefil gemt');
 }
@@ -31784,11 +33590,21 @@ function openTavleSaveText(txt,file){
     if(typeof state.active!=='number')state.active=0;
     const openInPresentation=tavleShouldOpenInPresentation(data);
     save({silent:true});
+    const drawingsToImport=Array.isArray(data.drawingsArchive)?data.drawingsArchive:[];
     closeModal();
     render();
     if(openInPresentation)tavleSetPresentationMode(true);
     try{updateSlidesOverviewVisibility()}catch(e){}
-    toast('Tavlefil åbnet');
+    if(drawingsToImport.length && typeof safe453i45PutDrawings==='function'){
+      safe453i45PutDrawings(drawingsToImport).then(n=>{
+        toast('Tavlefil åbnet · '+n+' tegninger importeret');
+      }).catch(err=>{
+        console.warn('SAFE453i45 drawing import failed',err);
+        toast('Tavlefil åbnet, men tegninger kunne ikke importeres');
+      });
+    }else{
+      toast('Tavlefil åbnet');
+    }
     return true;
   }catch(e){
     console.error(e);
@@ -31833,16 +33649,20 @@ function showSaveFileOptions(){
       accept=".json,.tavle,.ics,.pdf,.png,.jpg,.jpeg,.webp,.gif,.svg,.txt,.md,.markdown,.html,.htm,.css,.js,.csv,.tsv,.xlsx,.xls,.gsheet,application/json,application/pdf,image/*,text/*">
 
     <div class="saveActions v40">
-      <button id="downloadMedia">Download data og medier</button>
+      <button id="downloadMedia">Hent filer fra tavlen</button>
       <button id="saveBackup">Gem backup</button>
+      <button id="saveFullBackupDrawings">Fuld backup med tegninger</button>
       <button id="saveTemplate">Gem skabelon</button>
+      <button id="clearDrawingsArchive">Ryd Mine tegninger</button>
       <button id="downloadEmpty">Hent tom app</button>
       <button id="closeSave" class="secondaryClose">Luk</button>
     </div>`);
 
   const qs=(id)=>modal.querySelector('#'+id);
   qs('saveBackup').onclick=()=>downloadTavleSaveFile({startPresentation:false,templateOnly:false});
+  qs('saveFullBackupDrawings').onclick=()=>safe453i45DownloadFullBackupWithDrawings();
   qs('saveTemplate').onclick=()=>downloadTavleSaveFile({startPresentation:false,templateOnly:true});
+  qs('clearDrawingsArchive').onclick=()=>safe453i45ShowClearDrawingsConfirm();
   qs('downloadMedia').onclick=downloadAllEmbeddedMedia;
   qs('downloadEmpty').onclick=downloadEmptyApp;
   qs('closeSave').onclick=closeModal;
@@ -33793,6 +35613,1118 @@ draw.addEventListener('pointerup',e=>{if(!isDrawing)return;const p=drawPt(e);if(
 draw.addEventListener('pointercancel',()=>{isDrawing=false;drawSnapshot=null;ctx.globalCompositeOperation='source-over'});
 document.querySelectorAll('[data-drawmode]').forEach(b=>b.onclick=()=>setDrawTool(b.dataset.drawmode));
 document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,innerHeight);slide().draw='';save()};
+
+
+(function(){
+  if(document.getElementById('safe453eDrawingArchiveCss')) return;
+  const st=document.createElement('style');
+  st.id='safe453eDrawingArchiveCss';
+  st.textContent=`
+/* SAFE453f: Tegningsarkivet lægger sig visuelt op ad baggrundsvælgeren og gendannelsespunkter. */
+.safe453fDrawingArchive{max-width:980px;width:min(980px,94vw);}
+.safe453fDrawingArchive h2{margin:0 0 8px;}
+.safe453fDrawingArchive p{margin:.25rem 0 .7rem;color:#475569;font-weight:750;line-height:1.25;}
+.safe453eDrawingGrid,
+.safe453fDrawingArchive .safe453eDrawingGrid{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr))!important;
+  gap:14px!important;
+  max-height:min(60vh,640px)!important;
+  overflow:auto!important;
+  padding:4px!important;
+  margin:12px 0!important;
+}
+.safe453eDrawingCard,
+.safe453fDrawingArchive .safe453eDrawingCard{
+  border:1px solid rgba(15,23,42,.14)!important;
+  border-radius:16px!important;
+  background:#f8fafc!important;
+  padding:10px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  min-width:0!important;
+  min-height:218px!important;
+  text-align:left!important;
+  box-shadow:0 1px 4px rgba(15,23,42,.06)!important;
+}
+.safe453eDrawingCard:hover{background:#eef2ff!important;border-color:#c7d2fe!important;}
+.safe453eDrawingPreview,
+.safe453fDrawingArchive .safe453eDrawingPreview{
+  height:118px!important;
+  border-radius:12px!important;
+  background:linear-gradient(45deg,#f1f5f9 25%,#e2e8f0 25%,#e2e8f0 50%,#f1f5f9 50%,#f1f5f9 75%,#e2e8f0 75%)!important;
+  background-size:18px 18px!important;
+  border:1px solid rgba(15,23,42,.10)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+.safe453eDrawingPreview img{max-width:100%!important;max-height:100%!important;object-fit:contain!important;display:block!important;-webkit-touch-callout:none!important;-webkit-user-select:none!important;user-select:none!important;-webkit-user-drag:none!important;pointer-events:none!important;}
+.safe453eDrawingPreview span{font-size:34px;opacity:.55;}
+.safe453eDrawingName{font-weight:950;color:#0f172a;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.safe453eDrawingMeta{font-size:12px;color:#64748b;font-weight:850;line-height:1.18;}
+.safe453eEmpty{padding:18px;border:1px dashed rgba(15,23,42,.20);border-radius:16px;background:#f8fafc;color:#64748b;font-weight:850;margin:12px 0;}
+.safe453fDrawingFooter{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;}
+.safe453fDrawingHint{font-size:12px;color:#64748b;font-weight:850;}
+@media(max-width:700px){.safe453eDrawingGrid,.safe453fDrawingArchive .safe453eDrawingGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;max-height:56vh!important}.safe453eDrawingPreview,.safe453fDrawingArchive .safe453eDrawingPreview{height:95px!important}.safe453eDrawingCard,.safe453fDrawingArchive .safe453eDrawingCard{min-height:190px!important}}
+`;
+  document.head.appendChild(st);
+})();
+
+
+/* SAFE453f: Tegningsarkiv Fase 3f — modal-layout som baggrundsvælger/gendannelsespunkter.
+   Bygger på godkendt SAFE453e2: preview og IndexedDB-gemning bevares.
+   Kun layout/visuelt udtryk ændres. Stadig ingen sletning, download eller indsætning. */
+(function(){
+  const DB_NAME='tavle_drawings_db';
+  const DB_VERSION=1;
+  const STORE='drawings';
+  function pad(n){return String(n).padStart(2,'0');}
+  function drawingName(d){return 'Tegning '+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+'.'+pad(d.getMinutes());}
+  function htmlEscape(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c));}
+  function openDrawDb(){
+    return new Promise((resolve,reject)=>{
+      if(!window.indexedDB){reject(new Error('IndexedDB er ikke tilgængelig i denne browser'));return;}
+      const req=indexedDB.open(DB_NAME,DB_VERSION);
+      req.onupgradeneeded=()=>{
+        const db=req.result;
+        if(!db.objectStoreNames.contains(STORE)){
+          const st=db.createObjectStore(STORE,{keyPath:'id'});
+          try{st.createIndex('createdAt','createdAt',{unique:false});}catch(_e){}
+        }
+      };
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error||new Error('Kunne ikke åbne tegningsarkiv'));
+      req.onblocked=()=>reject(new Error('Tegningsarkivet er blokeret af en anden fane'));
+    });
+  }
+  async function idbPut(item){
+    const db=await openDrawDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).put(item);
+      tx.oncomplete=()=>{try{db.close();}catch(_e){} resolve(true);};
+      tx.onerror=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Kunne ikke skrive tegningen'));};
+      tx.onabort=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Gemning blev afbrudt'));};
+    });
+  }
+  async function idbAll(){
+    const db=await openDrawDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readonly');
+      const req=tx.objectStore(STORE).getAll();
+      req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))));
+      req.onerror=()=>reject(req.error||new Error('Kunne ikke læse tegningsarkivet'));
+      tx.oncomplete=()=>{try{db.close();}catch(_e){}};
+    });
+  }
+  function findDrawingBounds(canvas){
+    const c=canvas&&canvas.getContext?canvas.getContext('2d'):null;
+    if(!canvas||!c||!canvas.width||!canvas.height) throw new Error('Tegnecanvas mangler');
+    const w=canvas.width,h=canvas.height;
+    let img;
+    try{ img=c.getImageData(0,0,w,h).data; }
+    catch(e){ throw new Error('Tegnecanvas kunne ikke læses: '+(e&&e.message?e.message:e)); }
+    let minX=w,minY=h,maxX=-1,maxY=-1;
+    for(let y=0;y<h;y++){
+      let row=y*w*4;
+      for(let x=0;x<w;x++){
+        if(img[row+x*4+3]>0){
+          if(x<minX)minX=x; if(y<minY)minY=y; if(x>maxX)maxX=x; if(y>maxY)maxY=y;
+        }
+      }
+    }
+    if(maxX<0||maxY<0) return null;
+    const m=32;
+    minX=Math.max(0,minX-m); minY=Math.max(0,minY-m);
+    maxX=Math.min(w-1,maxX+m); maxY=Math.min(h-1,maxY+m);
+    return {x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
+  }
+  function exportCroppedPng(canvas){
+    const b=findDrawingBounds(canvas);
+    if(!b) throw new Error('Ingen tegning at gemme');
+    const out=document.createElement('canvas');
+    out.width=Math.max(1,b.w);
+    out.height=Math.max(1,b.h);
+    const o=out.getContext('2d');
+    o.clearRect(0,0,out.width,out.height);
+    o.drawImage(canvas,b.x,b.y,b.w,b.h,0,0,out.width,out.height);
+    return {data:out.toDataURL('image/png'),width:out.width,height:out.height,sourceWidth:b.w,sourceHeight:b.h};
+  }
+  async function saveDrawing(){
+    const now=new Date();
+    const exported=exportCroppedPng(draw);
+    const item={
+      id:'drawing_'+now.getTime()+'_'+Math.random().toString(36).slice(2,7),
+      name:drawingName(now),
+      createdAt:now.toISOString(),
+      imageData:exported.data,
+      width:exported.width,
+      height:exported.height,
+      sourceWidth:exported.sourceWidth,
+      sourceHeight:exported.sourceHeight,
+      format:'image/png',
+      storage:'indexedDB',
+      cropped:true
+    };
+    await idbPut(item);
+    const list=await idbAll();
+    return {count:list.length,item};
+  }
+  function formatDateLabel(v){
+    try{
+      const d=new Date(v);
+      if(!isNaN(d.getTime())) return pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear()+' '+pad(d.getHours())+'.'+pad(d.getMinutes());
+    }catch(_e){}
+    return '';
+  }
+  function folderHtml(list){
+    list=Array.isArray(list)?list:[];
+    const cards=list.map(item=>{
+      const src=String(item&&item.imageData||'');
+      const safeSrc=src.startsWith('data:image/')?src:'';
+      const name=htmlEscape(item&&item.name||'Tegning');
+      const date=htmlEscape(formatDateLabel(item&&item.createdAt)||'');
+      const size=(item&&item.width&&item.height)?htmlEscape(item.width+' × '+item.height+' px'):'';
+      return '<div class="safe453eDrawingCard bgChoice v46 safe429RestoreChoice">'+
+        '<div class="safe453eDrawingPreview bgChoicePreview">'+(safeSrc?'<img draggable="false" src="'+safeSrc+'" alt="'+name+'">':'<span>🖼️</span>')+'</div>'+
+        '<div class="safe453eDrawingName">'+name+'</div>'+
+        (date?'<div class="safe453eDrawingMeta">'+date+'</div>':'')+
+        (size?'<div class="safe453eDrawingMeta">'+size+'</div>':'')+
+      '</div>';
+    }).join('');
+    return '<div class="safe453fDrawingArchive safe429RestoreModal">'+
+      '<div class="safe429OverviewHead"><h2>Mine tegninger</h2></div>'+ 
+      '<p>Vælg en tegning, og tegn videre i en tegnewidget, indsæt den som billede eller brug den som baggrund.</p>'+ 
+      '<p><b>Gemte tegninger:</b> '+list.length+'</p>'+ 
+      (list.length?'<div class="safe453eDrawingGrid safe428RestoreGrid bgGrid v46">'+cards+'</div>':'<div class="safe453eEmpty">Der er endnu ingen gemte tegninger.</div>')+ 
+      '<div class="safe453fDrawingFooter"><span class="safe453fDrawingHint">Sletning, download og indsætning kommer først i næste faser.</span><button onclick="closeModal()">Luk</button></div>'+ 
+      '</div>';
+  }
+
+  // SAFE453e2: iPad/Safari må ikke åbne systemets billedmenu på arkivpreviews.
+  document.addEventListener('contextmenu', function(ev){
+    try{
+      if(ev.target && ev.target.closest && ev.target.closest('.safe453eDrawingPreview')){
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+    }catch(_e){}
+  }, true);
+  const cam=document.getElementById('safe453DrawCamera');
+  const folder=document.getElementById('safe453DrawFolder');
+  if(cam){
+    cam.onclick=async(ev)=>{
+      try{ev&&ev.preventDefault&&ev.preventDefault();ev&&ev.stopPropagation&&ev.stopPropagation();}catch(_e){}
+      try{
+        const res=await saveDrawing();
+        try{toast('Tegning gemt · '+res.count);}catch(_t){alert('Tegning gemt');}
+      }catch(err){
+        const msg=String((err&&err.message)||err||'Ukendt fejl');
+        const text=msg.includes('Ingen tegning')?'Ingen tegning at gemme':'Kunne ikke gemme tegningen: '+msg.slice(0,90);
+        try{console.warn('SAFE453d drawing save failed',err);}catch(_e){}
+        try{toast(text);}catch(_t){alert(text);}
+      }
+    };
+  }
+  if(folder){
+    folder.onclick=async(ev)=>{
+      try{ev&&ev.preventDefault&&ev.preventDefault();ev&&ev.stopPropagation&&ev.stopPropagation();}catch(_e){}
+      try{ showModal(folderHtml(await idbAll())); }
+      catch(e){ showModal('<h2>Mine tegninger</h2><p>Kunne ikke åbne tegningsarkivet: '+htmlEscape((e&&e.message)||e)+'</p><div class="row"><button onclick="closeModal()">Luk</button></div>'); }
+    };
+  }
+})();
+
+
+/* SAFE453g: Tegningsarkivet får tastaturnavigation som baggrundsvælger/gendannelsespunkter.
+   Bygger på godkendt SAFE453f. Kun arkivmodalens navigation/scroll/markering ændres.
+   Stadig ingen sletning, download eller indsætning som billedwidget. */
+(function(){
+  if(!document.getElementById('safe453gDrawingArchiveNavCss')){
+    const st=document.createElement('style');
+    st.id='safe453gDrawingArchiveNavCss';
+    st.textContent=`
+.safe453gDrawingArchive{max-width:980px;width:min(980px,94vw);max-height:min(84vh,760px);display:flex;flex-direction:column;overflow:hidden;}
+.safe453gDrawingArchive .safe453eDrawingGrid{flex:1 1 auto;min-height:0;max-height:min(58vh,610px)!important;overflow:auto!important;scroll-padding:14px!important;}
+.safe453gDrawingArchive .safe453eDrawingCard{cursor:pointer;outline:none!important;}
+.safe453gDrawingArchive .safe453eDrawingCard.kbSelected,
+.safe453gDrawingArchive .safe453eDrawingCard:focus-visible{
+  border-color:#2563eb!important;
+  background:#eff6ff!important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.26),0 4px 12px rgba(15,23,42,.12)!important;
+}
+.safe453gDrawingArchive .safe453eDrawingCard.kbSelected::after{
+  content:'Valgt';
+  align-self:flex-start;
+  margin-top:auto;
+  font-size:11px;
+  font-weight:950;
+  color:#1e3a8a;
+  background:#dbeafe;
+  border-radius:999px;
+  padding:2px 8px;
+}
+.safe453gDrawingArchive .safe453gNavHint{font-size:12px;color:#64748b;font-weight:850;}
+@media(max-width:700px){.safe453gDrawingArchive{max-height:min(86vh,760px)}.safe453gDrawingArchive .safe453eDrawingGrid{max-height:58vh!important;}}
+`;
+    document.head.appendChild(st);
+  }
+
+  const DB_NAME='tavle_drawings_db';
+  const DB_VERSION=1;
+  const STORE='drawings';
+  function pad(n){return String(n).padStart(2,'0');}
+  function htmlEscape(s){return String(s||'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c));}
+  function openDrawDb(){
+    return new Promise((resolve,reject)=>{
+      if(!window.indexedDB){reject(new Error('IndexedDB er ikke tilgængelig i denne browser'));return;}
+      const req=indexedDB.open(DB_NAME,DB_VERSION);
+      req.onupgradeneeded=()=>{
+        const db=req.result;
+        if(!db.objectStoreNames.contains(STORE)){
+          const st=db.createObjectStore(STORE,{keyPath:'id'});
+          try{st.createIndex('createdAt','createdAt',{unique:false});}catch(_e){}
+        }
+      };
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error||new Error('Kunne ikke åbne tegningsarkiv'));
+      req.onblocked=()=>reject(new Error('Tegningsarkivet er blokeret af en anden fane'));
+    });
+  }
+  async function idbAll(){
+    const db=await openDrawDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readonly');
+      const req=tx.objectStore(STORE).getAll();
+      req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))));
+      req.onerror=()=>reject(req.error||new Error('Kunne ikke læse tegningsarkivet'));
+      tx.oncomplete=()=>{try{db.close();}catch(_e){}};
+    });
+  }
+  function formatDateLabel(v){
+    try{const d=new Date(v); if(!isNaN(d.getTime())) return pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear()+' '+pad(d.getHours())+'.'+pad(d.getMinutes());}catch(_e){}
+    return '';
+  }
+  function archiveHtml(list){
+    list=Array.isArray(list)?list:[];
+    const cards=list.map((item,i)=>{
+      const src=String(item&&item.imageData||'');
+      const safeSrc=src.startsWith('data:image/')?src:'';
+      const name=htmlEscape(item&&item.name||'Tegning');
+      const date=htmlEscape(formatDateLabel(item&&item.createdAt)||'');
+      const size=(item&&item.width&&item.height)?htmlEscape(item.width+' × '+item.height+' px'):'';
+      return '<div class="safe453eDrawingCard bgChoice v46 safe429RestoreChoice" role="button" tabindex="0" data-safe453g-index="'+i+'" aria-label="'+name+'">'+
+        '<div class="safe453eDrawingPreview bgChoicePreview">'+(safeSrc?'<img draggable="false" src="'+safeSrc+'" alt="'+name+'">':'<span>🖼️</span>')+'</div>'+ 
+        '<div class="safe453eDrawingName">'+name+'</div>'+ 
+        (date?'<div class="safe453eDrawingMeta">'+date+'</div>':'')+ 
+        (size?'<div class="safe453eDrawingMeta">'+size+'</div>':'')+ 
+      '</div>';
+    }).join('');
+    return '<div class="safe453gDrawingArchive safe453fDrawingArchive safe429RestoreModal">'+
+      '<div class="safe429OverviewHead"><h2>Mine tegninger</h2></div>'+ 
+      '<p>Vælg en tegning, og tegn videre i en tegnewidget, indsæt den som billede eller brug den som baggrund.</p>'+ 
+      '<p><b>Gemte tegninger:</b> '+list.length+'</p>'+ 
+      (list.length?'<div class="safe453eDrawingGrid safe428RestoreGrid bgGrid v46" role="listbox" aria-label="Gemte tegninger">'+cards+'</div>':'<div class="safe453eEmpty">Der er endnu ingen gemte tegninger.</div>')+ 
+      '<div class="safe453fDrawingFooter"><span class="safe453gNavHint">Brug piletaster, Home/End og Enter som i baggrundsvælgeren. Enter markerer kun i denne fase.</span><button onclick="closeModal()">Luk</button></div>'+ 
+      '</div>';
+  }
+  function getCards(){return Array.from(document.querySelectorAll('.safe453gDrawingArchive .safe453eDrawingCard'));}
+  function setSelected(idx, opts){
+    const cards=getCards();
+    if(!cards.length) return;
+    idx=Math.max(0,Math.min(cards.length-1,Number(idx)||0));
+    cards.forEach((c,i)=>c.classList.toggle('kbSelected',i===idx));
+    const card=cards[idx];
+    try{card.focus({preventScroll:true});}catch(_e){try{card.focus();}catch(_e2){}}
+    try{card.scrollIntoView({block:'nearest',inline:'nearest',behavior:(opts&&opts.smooth)?'smooth':'auto'});}catch(_e){try{card.scrollIntoView(false);}catch(_e2){}}
+  }
+  function selectedIndex(){
+    const cards=getCards();
+    const found=cards.findIndex(c=>c.classList.contains('kbSelected'));
+    return found>=0?found:0;
+  }
+  function gridColumns(){
+    const grid=document.querySelector('.safe453gDrawingArchive .safe453eDrawingGrid');
+    if(!grid) return 1;
+    try{
+      const cols=getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length;
+      return Math.max(1,cols||1);
+    }catch(_e){return 1;}
+  }
+  document.addEventListener('keydown',function(ev){
+    const root=document.querySelector('.safe453gDrawingArchive');
+    if(!root) return;
+    const cards=getCards();
+    if(!cards.length) return;
+    const key=ev.key;
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Enter',' '].includes(key)) return;
+    ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+    const n=cards.length, cols=gridColumns();
+    let i=selectedIndex();
+    if(key==='ArrowRight') i=Math.min(n-1,i+1);
+    else if(key==='ArrowLeft') i=Math.max(0,i-1);
+    else if(key==='ArrowDown') i=Math.min(n-1,i+cols);
+    else if(key==='ArrowUp') i=Math.max(0,i-cols);
+    else if(key==='Home') i=0;
+    else if(key==='End') i=n-1;
+    else if(key==='Enter' || key===' '){try{toast('Tegning valgt');}catch(_e){} return;}
+    setSelected(i,{smooth:true});
+  },true);
+  document.addEventListener('click',function(ev){
+    const card=ev.target&&ev.target.closest&&ev.target.closest('.safe453gDrawingArchive .safe453eDrawingCard');
+    if(!card) return;
+    const idx=Number(card.getAttribute('data-safe453g-index')||0);
+    setSelected(idx,{smooth:false});
+  },true);
+
+  const folder=document.getElementById('safe453DrawFolder');
+  if(folder){
+    folder.onclick=async(ev)=>{
+      try{ev&&ev.preventDefault&&ev.preventDefault();ev&&ev.stopPropagation&&ev.stopPropagation();}catch(_e){}
+      try{
+        showModal(archiveHtml(await idbAll()));
+        setTimeout(()=>setSelected(0,{smooth:false}),0);
+      }catch(e){
+        showModal('<h2>Mine tegninger</h2><p>Kunne ikke åbne tegningsarkivet: '+htmlEscape((e&&e.message)||e)+'</p><div class="row"><button onclick="closeModal()">Luk</button></div>');
+      }
+    };
+  }
+})();
+
+
+
+/* SAFE453i14: Tegningsarkiv — flyt hjælpetekst væk fra footer.
+   Bygger på SAFE453i13. Hjælpetekst/shortcuts vises nu under tæller i toppen, så footer ikke trunkerer den.
+   Ingen kamera/mappe-flytning, ingen ændring af slet/genbrug/indsæt-flow. */
+
+/* SAFE453i9: Tegningsarkiv — Genbrug tegning i tegnetilstand.
+   Bygger på SAFE453i8. Tilføjer kun arkivhandlingen “Genbrug tegning”.
+   Genbrug åbner valgt arkivtegning som udgangspunkt i tegnecanvas; kamera gemmer derefter et nyt resultat.
+   Ingen overskrivning af original, ingen flytning af kamera/mappe, ingen toolbar-scroll og ingen render-flow-ændring. */
+(function(){
+  if(document.getElementById('safe453hDrawingArchiveCss')) return;
+  const st=document.createElement('style');
+  st.id='safe453hDrawingArchiveCss';
+  st.textContent=`
+.safe453hDrawingArchive{max-width:980px;width:min(980px,94vw);overflow:hidden!important;}
+.safe453hDrawingArchive .safe453eDrawingGrid{
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  scroll-padding:12px!important;
+  max-height:min(56vh,620px)!important;
+}
+.safe453hDrawingArchive .safe453eDrawingCard{position:relative!important;cursor:pointer!important;outline:none!important;}
+.safe453hDrawingArchive .safe453eDrawingCard.kbSelected{
+  border-color:#2563eb!important;
+  background:#eff6ff!important;
+  box-shadow:0 0 0 4px rgba(37,99,235,.25),0 4px 14px rgba(15,23,42,.12)!important;
+}
+.safe453hDrawingArchive .safe453eDrawingCard.kbSelected::after{
+  content:'Valgt';
+  position:absolute;
+  left:12px;
+  bottom:8px;
+  border-radius:999px;
+  background:#dbeafe;
+  color:#1d4ed8;
+  padding:3px 8px;
+  font-size:11px;
+  font-weight:950;
+}
+.safe453hDrawingArchive .safe453hActions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.safe453hDrawingArchive .safe453hActions button{
+  border:0!important;
+  border-radius:12px!important;
+  padding:9px 11px!important;
+  font-weight:900!important;
+  background:#eef2ff!important;
+  color:#111827!important;
+  white-space:nowrap!important;
+}
+.safe453hDrawingArchive .safe453hActions button.primary{background:#4f46e5!important;color:#fff!important;}
+.safe453hDrawingArchive .safe453hActions button.secondary{background:#e0f2fe!important;color:#075985!important;}
+.safe453hDrawingArchive .safe453hActions button.danger{background:#fee2e2!important;color:#991b1b!important;}
+.safe453hDrawingArchive .safe453hActions button:disabled{opacity:.42!important;filter:grayscale(.35)!important;}
+.safe453hDrawingArchive .safe453hConfirm{
+  display:none;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:8px 10px;
+  border-radius:14px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  color:#7c2d12;
+  font-weight:900;
+}
+.safe453hDrawingArchive .safe453hConfirm.show{display:flex!important;}
+.safe453hDrawingArchive .safe453hConfirm button{
+  border:0!important;
+  border-radius:10px!important;
+  padding:8px 11px!important;
+  font-weight:950!important;
+}
+.safe453hDrawingArchive .safe453hConfirm .cancel{background:#f1f5f9!important;color:#111827!important;}
+.safe453hDrawingArchive .safe453hConfirm .danger{background:#dc2626!important;color:#fff!important;}
+.safe453hDrawingArchive .safe453hConfirm .primary{background:#4f46e5!important;color:#fff!important;}
+.safe453hDrawingArchive .safe453fDrawingFooter{align-items:center!important;}
+.safe453hDrawingArchive .safe453gNavHint{display:none!important;}
+.safe453hDrawingArchive .safe453hShortcutHint{
+  flex:0 0 auto!important;
+  margin:0 0 10px 0!important;
+  padding:7px 10px!important;
+  border-radius:12px!important;
+  background:#f1f5f9!important;
+  color:#475569!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  line-height:1.25!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+@media(max-width:700px){
+  .safe453hDrawingArchive .safe453hActions{justify-content:stretch;width:100%;}
+  .safe453hDrawingArchive .safe453hActions button{flex:1 1 auto;}
+}`;
+  document.head.appendChild(st);
+})();
+
+(function(){
+  const DB_NAME='tavle_drawings_db';
+  const DB_VERSION=1;
+  const STORE='drawings';
+  let selectedId=null;
+  let currentList=[];
+  let pendingDelete=false;
+  let pendingAction=null;
+
+  function pad(n){return String(n).padStart(2,'0');}
+  function htmlEscape(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c));}
+  function openDrawDb(){
+    return new Promise((resolve,reject)=>{
+      if(!window.indexedDB){reject(new Error('IndexedDB er ikke tilgængelig i denne browser'));return;}
+      const req=indexedDB.open(DB_NAME,DB_VERSION);
+      req.onupgradeneeded=()=>{
+        const db=req.result;
+        if(!db.objectStoreNames.contains(STORE)){
+          const st=db.createObjectStore(STORE,{keyPath:'id'});
+          try{st.createIndex('createdAt','createdAt',{unique:false});}catch(_e){}
+        }
+      };
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error||new Error('Kunne ikke åbne tegningsarkiv'));
+      req.onblocked=()=>reject(new Error('Tegningsarkivet er blokeret af en anden fane'));
+    });
+  }
+  async function idbAll(){
+    const db=await openDrawDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readonly');
+      const req=tx.objectStore(STORE).getAll();
+      req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))));
+      req.onerror=()=>reject(req.error||new Error('Kunne ikke læse tegningsarkivet'));
+      tx.oncomplete=()=>{try{db.close();}catch(_e){}};
+    });
+  }
+  async function idbDelete(id){
+    const db=await openDrawDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).delete(id);
+      tx.oncomplete=()=>{try{db.close();}catch(_e){} resolve(true);};
+      tx.onerror=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Kunne ikke slette tegningen'));};
+      tx.onabort=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Sletning blev afbrudt'));};
+    });
+  }
+  async function idbPut(item){
+    const db=await openDrawDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).put(item);
+      tx.oncomplete=()=>{try{db.close();}catch(_e){} resolve(true);};
+      tx.onerror=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Kunne ikke gemme ændringen'));};
+      tx.onabort=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Ændringen blev afbrudt'));};
+    });
+  }
+  function formatDateLabel(v){
+    try{const d=new Date(v); if(!isNaN(d.getTime())) return pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear()+' '+pad(d.getHours())+'.'+pad(d.getMinutes());}catch(_e){}
+    return '';
+  }
+  function getSelectedItem(){
+    return currentList.find(x=>String(x&&x.id)===String(selectedId)) || currentList[0] || null;
+  }
+  function renderDeleteConfirm(){
+    const box=document.getElementById('safe453hConfirm');
+    const del=document.getElementById('safe453hDelete');
+    const reuse=document.getElementById('safe453hReuse');
+    const dl=document.getElementById('safe453hDownload');
+    const bg=document.getElementById('safe453hBackground');
+    const msg=document.getElementById('safe453hConfirmMsg');
+    const confirm=document.getElementById('safe453hConfirmDelete');
+    const active=!!pendingDelete || !!pendingAction;
+    if(box) box.classList.toggle('show',active);
+    if(msg){
+      if(pendingAction&&pendingAction.kind==='rename'){
+        msg.innerHTML='Omdøb: <input id="safe453i63RenameInput" type="text" value="'+htmlEscape(pendingAction.renameName||'')+'" style="min-width:180px;max-width:280px;border-radius:8px;border:1px solid #cbd5e1;padding:7px 9px;font-weight:800">';
+      }else{
+        msg.textContent=pendingDelete?'Slet markeret tegning?':(pendingAction&&pendingAction.message||'');
+      }
+    }
+    if(confirm){
+      confirm.textContent=pendingDelete?'Slet':(pendingAction&&pendingAction.confirmText||'OK');
+      confirm.className=pendingDelete?'danger':'primary';
+    }
+    if(del) del.setAttribute('aria-pressed',pendingDelete?'true':'false');
+    if(reuse) reuse.disabled=active || !currentList.length;
+    if(dl) dl.disabled=active || !currentList.length;
+    if(bg) bg.disabled=active || !currentList.length;
+  }
+  function cancelDeleteConfirm(){
+    pendingDelete=false;
+    pendingAction=null;
+    renderDeleteConfirm();
+  }
+  function askDeleteConfirm(){
+    if(!getSelectedItem()){try{toast('Ingen valgt tegning')}catch(_e){} return;}
+    pendingAction=null;
+    pendingDelete=true;
+    renderDeleteConfirm();
+  }
+  function canvasHasVisibleDrawing(){
+    try{
+      if(!draw || !draw.getContext || !draw.width || !draw.height) return false;
+      const c=draw.getContext('2d');
+      const data=c.getImageData(0,0,draw.width,draw.height).data;
+      for(let i=3;i<data.length;i+=4){ if(data[i]>0) return true; }
+    }catch(_e){
+      try{return !!(slide()&&slide().draw&&String(slide().draw).length>80);}catch(_s){}
+    }
+    return false;
+  }
+  function clearCurrentDrawingCanvas(){
+    try{
+      if(draw && draw.getContext){
+        const c=draw.getContext('2d');
+        c.save(); c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,draw.width,draw.height); c.restore();
+      }
+      if(slide()) slide().draw='';
+      try{save();}catch(_save){}
+    }catch(_e){}
+  }
+  function warnBeforeClearingCanvas(kind,action){
+    if(!canvasHasVisibleDrawing()) return false;
+    pendingDelete=false;
+    const isDrawcopy=kind==='drawcopy';
+    pendingAction={
+      kind:kind,
+      message:isDrawcopy?'Der arbejdes allerede på en tegning. Hvis du åbner denne, erstattes det nuværende underlag. Gem først med kamera, hvis du vil beholde resultatet.':(kind==='insert'?'Tegnecanvas ryddes. Gem først med kamera, hvis du vil beholde den aktuelle tegning.':'Den aktuelle tegning ryddes. Gem først med kamera, hvis du vil beholde den.'),
+      confirmText:isDrawcopy?'Erstat og åbn':(kind==='insert'?'Indsæt alligevel':'OK'),
+      action:action
+    };
+    renderDeleteConfirm();
+    return true;
+  }
+  function confirmPendingAction(){
+    if(pendingDelete){
+      confirmDeleteSelected().catch(err=>showModal('<h2>Mine tegninger</h2><p>Kunne ikke slette: '+htmlEscape((err&&err.message)||err)+'</p><button onclick="closeModal()">Luk</button>'));
+      return;
+    }
+    if(pendingAction){
+      if(pendingAction.kind==='rename'){safe453i63ApplyRename();return;}
+      const fn=pendingAction.action;
+      pendingAction=null;
+      renderDeleteConfirm();
+      if(typeof fn==='function') fn();
+    }
+  }
+  function archiveHtml(list){
+    currentList=Array.isArray(list)?list:[];
+    if(!selectedId || !currentList.some(x=>String(x.id)===String(selectedId))){
+      selectedId=currentList[0]&&currentList[0].id || null;
+    }
+    const cards=currentList.map((item,i)=>{
+      const id=htmlEscape(item&&item.id||'');
+      const src=String(item&&item.imageData||'');
+      const safeSrc=src.startsWith('data:image/')?src:'';
+      const name=htmlEscape(item&&item.name||'Tegning');
+      const date=htmlEscape(formatDateLabel(item&&item.createdAt)||'');
+      const size=(item&&item.width&&item.height)?htmlEscape(item.width+' × '+item.height+' px'):'';
+      const sel=String(item&&item.id)===String(selectedId)?' kbSelected':'';
+      return '<div class="safe453eDrawingCard bgChoice v46 safe429RestoreChoice'+sel+'" role="button" tabindex="0" data-safe453h-id="'+id+'" data-safe453h-index="'+i+'" aria-label="'+name+'">'+
+        '<div class="safe453eDrawingPreview bgChoicePreview">'+(safeSrc?'<img draggable="false" src="'+safeSrc+'" alt="'+name+'">':'<span>🖼️</span>')+'</div>'+ 
+        '<div class="safe453eDrawingName">'+name+'</div>'+ 
+        (date?'<div class="safe453eDrawingMeta">'+date+'</div>':'')+ 
+        (size?'<div class="safe453eDrawingMeta">'+size+'</div>':'')+ 
+      '</div>';
+    }).join('');
+    return '<div class="safe453hDrawingArchive safe453fDrawingArchive safe429RestoreModal">'+
+      '<div class="safe429OverviewHead"><h2>Mine tegninger</h2></div>'+ 
+      '<p>Vælg en tegning, og tegn videre i en tegnewidget, indsæt den som billede eller brug den som baggrund.</p>'+ 
+      '<p><b>Gemte tegninger:</b> '+currentList.length+'</p>'+ 
+      '<p class="safe453hShortcutHint">Pile vælger · Enter tegn videre · I indsæt · B baggrund · Delete slet · Esc luk</p>'+ 
+      (currentList.length?'<div class="safe453eDrawingGrid safe428RestoreGrid bgGrid v46" role="listbox" aria-label="Gemte tegninger">'+cards+'</div>':'<div class="safe453eEmpty">Der er endnu ingen gemte tegninger.</div>')+ 
+      '<div class="safe453fDrawingFooter"><div id="safe453hConfirm" class="safe453hConfirm" aria-live="polite"><span id="safe453hConfirmMsg">Slet markeret tegning?</span><button id="safe453hCancelDelete" class="cancel" type="button">Annuller</button><button id="safe453hConfirmDelete" class="danger" type="button">Slet</button></div><div class="safe453hActions">'+
+        '<button id="safe453hReuse" class="primary" '+(currentList.length?'':'disabled')+'>Tegn</button>'+ 
+        '<button id="safe453hDownload" class="secondary" '+(currentList.length?'':'disabled')+'>Billede</button>'+ 
+        '<button id="safe453hBackground" class="secondary" '+(currentList.length?'':'disabled')+'>Baggrund</button>'+ 
+        '<button id="safe453hDelete" class="danger" '+(currentList.length?'':'disabled')+'>Slet</button>'+ 
+        '<button id="safe453hClose">Luk</button>'+ 
+      '</div></div>'+ 
+      '</div>';
+  }
+  function root(){return document.querySelector('.safe453hDrawingArchive');}
+  function grid(){return document.querySelector('.safe453hDrawingArchive .safe453eDrawingGrid');}
+  function cards(){return Array.from(document.querySelectorAll('.safe453hDrawingArchive .safe453eDrawingCard'));}
+  function selectedIndex(){
+    const cs=cards();
+    const found=cs.findIndex(c=>c.classList.contains('kbSelected'));
+    return found>=0?found:0;
+  }
+  function columns(){
+    const g=grid();
+    if(!g) return 1;
+    try{return Math.max(1,getComputedStyle(g).gridTemplateColumns.split(' ').filter(Boolean).length||1);}catch(_e){return 1;}
+  }
+  function ensureCardVisible(card){
+    const g=grid();
+    if(!g||!card) return;
+    const gr=g.getBoundingClientRect();
+    const cr=card.getBoundingClientRect();
+    const pad=12;
+    if(cr.top < gr.top+pad) g.scrollTop -= (gr.top+pad-cr.top);
+    else if(cr.bottom > gr.bottom-pad) g.scrollTop += (cr.bottom-(gr.bottom-pad));
+  }
+  function setSelectedByIndex(idx){
+    const cs=cards();
+    if(!cs.length) return;
+    idx=Math.max(0,Math.min(cs.length-1,Number(idx)||0));
+    cs.forEach((c,i)=>c.classList.toggle('kbSelected',i===idx));
+    selectedId=cs[idx].getAttribute('data-safe453h-id')||null;
+    if(pendingDelete||pendingAction){pendingDelete=false; pendingAction=null; renderDeleteConfirm();}
+    try{cs[idx].focus({preventScroll:true});}catch(_e){}
+    ensureCardVisible(cs[idx]);
+  }
+  async function openArchive(keepId){
+    if(keepId!==undefined) selectedId=keepId;
+    const list=await idbAll();
+    pendingDelete=false;
+    pendingAction=null;
+    showModal(archiveHtml(list));
+    wireModal();
+    setTimeout(()=>{
+      const idx=Math.max(0,currentList.findIndex(x=>String(x.id)===String(selectedId)));
+      setSelectedByIndex(idx<0?0:idx);
+    },0);
+  }
+  function reuseSelectedDrawingInCanvas(){
+    if(warnBeforeClearingCanvas('reuse',reuseSelectedDrawingInCanvasNow)) return;
+    reuseSelectedDrawingInCanvasNow();
+  }
+  function reuseSelectedDrawingInCanvasNow(){
+    const item=getSelectedItem();
+    if(!item||!String(item.imageData||'').startsWith('data:image/')){try{toast('Ingen valgt tegning')}catch(_e){} return;}
+    try{
+      const im=new Image();
+      im.onload=function(){
+        try{
+          const dpr=window.devicePixelRatio||1;
+          const cw=Math.max(1,app.clientWidth||innerWidth);
+          const ch=Math.max(1,app.clientHeight||innerHeight);
+          let dw=Math.max(1,(im.naturalWidth||item.width||cw)/(dpr||1));
+          let dh=Math.max(1,(im.naturalHeight||item.height||ch)/(dpr||1));
+          const scale=Math.min(1,(cw*.90)/dw,(ch*.80)/dh);
+          dw*=scale; dh*=scale;
+          const x=(cw-dw)/2;
+          const y=(ch-dh)/2;
+          ctx.save();
+          ctx.setTransform(1,0,0,1,0,0);
+          ctx.clearRect(0,0,draw.width,draw.height);
+          ctx.restore();
+          ctx.globalCompositeOperation='source-over';
+          ctx.drawImage(im,x,y,dw,dh);
+          try{if(slide())slide().draw=draw.toDataURL('image/png');}catch(_saveDraw){}
+          try{closeModal();}catch(_close){}
+          try{setDrawActive(true);}catch(_active){try{app.classList.add('drawActive');draw.classList.add('active');document.getElementById('drawPanel').classList.add('show');}catch(_e){}}
+          try{save();}catch(_save){}
+          try{toast('Tegning genbrugt · gem nyt resultat med kamera')}catch(_t){}
+        }catch(err){
+          console.warn('SAFE453i9 reuse drawing failed',err);
+          try{toast('Kunne ikke genbruge tegningen')}catch(_e){alert('Kunne ikke genbruge tegningen');}
+        }
+      };
+      im.onerror=function(){try{toast('Kunne ikke læse tegningen')}catch(_e){alert('Kunne ikke læse tegningen');}};
+      im.src=item.imageData;
+    }catch(err){
+      console.warn('SAFE453i9 reuse drawing setup failed',err);
+      try{toast('Kunne ikke genbruge tegningen')}catch(_e){alert('Kunne ikke genbruge tegningen');}
+    }
+  }
+  function drawSelectedAsCopyWidget(){
+    if(warnBeforeClearingCanvas('drawcopy',drawSelectedAsCopyWidgetNow)) return;
+    drawSelectedAsCopyWidgetNow();
+  }
+  function drawSelectedAsCopyWidgetNow(){
+    const item=getSelectedItem();
+    if(!item||!String(item.imageData||'').startsWith('data:image/')){try{toast('Ingen valgt tegning')}catch(_e){} return;}
+    const name=String(item.name||'Tegning');
+    clearCurrentDrawingCanvas();
+    try{setDrawActive(false);}catch(_drawOff){try{app.classList.remove('drawActive');draw.classList.remove('active');const p=document.getElementById('drawPanel');if(p)p.classList.remove('show');}catch(_e){}}
+    try{closeModal();}catch(_close){}
+    try{
+      if(typeof safe453i19CreateDrawcopy==='function') safe453i19CreateDrawcopy(item.imageData,name);
+      else {
+        const w=addWidget('drawcopy',{src:item.imageData,name:name,overlay:'',mode:'pen',color:'#000000',size:6});
+        if(w){w.title='Tegnewidget · '+name;render();select(w.id);save();}
+      }
+      try{toast('Tegnewidget oprettet')}catch(_t){}
+    }catch(err){
+      console.warn('SAFE453i20 draw further failed',err);
+      try{toast('Kunne ikke åbne tegningen i tegnewidget')}catch(_e){alert('Kunne ikke åbne tegningen i tegnewidget');}
+    }
+  }
+  function useSelectedAsBoardBackground(){
+    const item=getSelectedItem();
+    if(!item||!String(item.imageData||'').startsWith('data:image/')){try{toast('Ingen valgt tegning')}catch(_e){} return;}
+    try{
+      const s=slide();
+      const name=String(item.name||'Tegning');
+      s.bg='linear-gradient(135deg,#edf6ff,#dff8e8)';
+      s.bgImage=item.imageData;
+      s.bgImageName=name+'.png';
+      s.bgImageSource='drawing-archive';
+      s.bgImageTitle=name;
+      s.bgImageVersion='Tegning';
+      s.bgFit='contain';
+      s.bgFilter=s.bgFilter||'none';
+      try{closeModal();}catch(_close){}
+      render(); save();
+      try{toast('Tegning brugt som baggrund')}catch(_t){}
+    }catch(err){
+      console.warn('SAFE453i20 background failed',err);
+      try{toast('Kunne ikke bruge tegningen som baggrund')}catch(_e){alert('Kunne ikke bruge tegningen som baggrund');}
+    }
+  }
+
+  function saveSelectedAsImageWidget(){
+    if(warnBeforeClearingCanvas('insert',saveSelectedAsImageWidgetNow)) return;
+    saveSelectedAsImageWidgetNow();
+  }
+  function saveSelectedAsImageWidgetNow(){
+    clearCurrentDrawingCanvas();
+    const item=getSelectedItem();
+    if(!item||!String(item.imageData||'').startsWith('data:image/')){try{toast('Ingen valgt tegning')}catch(_e){} return;}
+    const name=String(item.name||'Tegning');
+    try{
+      setDrawActive(false);
+    }catch(_drawOff){
+      try{
+        app.classList.remove('drawActive');
+        draw.classList.remove('active');
+        const p=document.getElementById('drawPanel');
+        if(p) p.classList.remove('show');
+      }catch(_fallbackDrawOff){}
+    }
+    let w=null;
+    try{
+      w=addWidget('image',{
+        src:item.imageData,
+        name:name+'.png',
+        source:'drawing-archive',
+        drawingId:item.id||'',
+        createdAt:new Date().toISOString(),
+        originalCreatedAt:item.createdAt||'',
+        width:item.width||0,
+        height:item.height||0
+      });
+      if(w){
+        w.title=name;
+        try{fitWidgetToViewport(w);}catch(_fit){}
+      }
+      try{closeModal();}catch(_close){}
+      try{render(); if(w&&w.id)select(w.id); save();}catch(_render){}
+      try{toast('Tegning indsat som billede')}catch(_e){}
+    }catch(err){
+      console.warn('SAFE453i7 save drawing as image widget failed',err);
+      try{toast('Kunne ikke oprette billedwidget')}catch(_e){alert('Kunne ikke oprette billedwidget');}
+    }
+  }
+  function safe453i63CleanArchiveName(v){
+    return String(v||'').trim().replace(/\s+/g,' ').replace(/\.[a-z0-9]{2,5}$/i,'').slice(0,80);
+  }
+  function safe453i63ShowRenameSelectedDrawing(){
+    const item=getSelectedItem();
+    if(!item){try{toast('Ingen valgt tegning')}catch(_e){} return;}
+    pendingDelete=false;
+    pendingAction={
+      kind:'rename',
+      message:'',
+      confirmText:'Gem',
+      action:null,
+      renameId:item.id,
+      renameName:safe453i63CleanArchiveName(item.name||'Tegning')
+    };
+    renderDeleteConfirm();
+    setTimeout(()=>{
+      const input=document.getElementById('safe453i63RenameInput');
+      if(input){try{input.focus();input.select();}catch(_e){}}
+    },50);
+  }
+  async function safe453i63ApplyRename(){
+    const item=getSelectedItem();
+    const input=document.getElementById('safe453i63RenameInput');
+    if(!item||!input){cancelDeleteConfirm();return;}
+    const name=safe453i63CleanArchiveName(input.value);
+    if(!name){try{toast('Navnet må ikke være tomt')}catch(_e){} return;}
+    try{
+      const updated=Object.assign({},item,{name:name,renamedAt:new Date().toISOString()});
+      await idbPut(updated);
+      selectedId=updated.id;
+      pendingAction=null;
+      pendingDelete=false;
+      await openArchive(selectedId);
+      try{toast('Tegning omdøbt')}catch(_t){}
+    }catch(err){
+      console.warn('SAFE453i63 rename failed',err);
+      try{toast('Kunne ikke omdøbe tegningen')}catch(_e){}
+    }
+  }
+
+  async function confirmDeleteSelected(){
+    const item=getSelectedItem();
+    if(!item){cancelDeleteConfirm(); try{toast('Ingen valgt tegning')}catch(_e){} return;}
+    const oldIdx=Math.max(0,currentList.findIndex(x=>String(x.id)===String(item.id)));
+    await idbDelete(item.id);
+    const next=await idbAll();
+    const nextItem=next[Math.min(oldIdx,next.length-1)]||next[0]||null;
+    selectedId=nextItem&&nextItem.id||null;
+    pendingDelete=false;
+    showModal(archiveHtml(next));
+    wireModal();
+    setTimeout(()=>setSelectedByIndex(Math.max(0,next.findIndex(x=>String(x.id)===String(selectedId)))),0);
+    try{toast('Tegning slettet')}catch(_e){}
+  }
+  function wireModal(){
+    const close=document.getElementById('safe453hClose');
+    const reuse=document.getElementById('safe453hReuse');
+    const dl=document.getElementById('safe453hDownload');
+    const bg=document.getElementById('safe453hBackground');
+    const del=document.getElementById('safe453hDelete');
+    let rename=document.getElementById('safe453i62Rename');
+    try{
+      const actions=document.querySelector('.safe453hDrawingArchive .safe453hActions');
+      if(actions && !rename){
+        rename=document.createElement('button');
+        rename.id='safe453i62Rename';
+        rename.className='secondary';
+        rename.type='button';
+        rename.textContent='Omdøb';
+        rename.disabled=!currentList.length;
+        if(del && del.parentNode===actions)actions.insertBefore(rename,del);
+        else actions.appendChild(rename);
+      }
+    }catch(_e){}
+    if(close) close.onclick=()=>closeModal();
+    if(reuse) reuse.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} drawSelectedAsCopyWidget();};
+    if(dl) dl.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} saveSelectedAsImageWidget();};
+    if(bg) bg.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} useSelectedAsBoardBackground();};
+    if(rename) rename.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} safe453i63ShowRenameSelectedDrawing();};
+    const cancel=document.getElementById('safe453hCancelDelete');
+    const confirm=document.getElementById('safe453hConfirmDelete');
+    if(del) del.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} askDeleteConfirm();};
+    if(cancel) cancel.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} cancelDeleteConfirm();};
+    if(confirm) confirm.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} confirmPendingAction();};
+    renderDeleteConfirm();
+  }
+  document.addEventListener('keydown',function(ev){
+    if(!root()) return;
+    const cs=cards();
+    if(!cs.length) return;
+    const key=ev.key;
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Enter',' ','i','I','b','B','Delete','Backspace','Escape'].includes(key)) return;
+    ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+    if(key==='Escape'){if(pendingDelete||pendingAction) cancelDeleteConfirm(); else closeModal(); return;}
+    if(pendingDelete||pendingAction){
+      if(pendingAction&&pendingAction.kind==='rename'){
+        if(key==='Enter'){confirmPendingAction();return;}
+        if(key==='Escape'){cancelDeleteConfirm();return;}
+        return;
+      }
+      if(key==='Enter'||key==='Delete'||key==='Backspace') confirmPendingAction();
+      return;
+    }
+    if(key==='i'||key==='I'){saveSelectedAsImageWidget(); return;}
+    if(key==='b'||key==='B'){useSelectedAsBoardBackground(); return;}
+    if(key==='Enter'){drawSelectedAsCopyWidget(); return;}
+    if(key==='Delete'||key==='Backspace'){askDeleteConfirm(); return;}
+    const n=cs.length, cols=columns();
+    let i=selectedIndex();
+    if(key==='ArrowRight') i=Math.min(n-1,i+1);
+    else if(key==='ArrowLeft') i=Math.max(0,i-1);
+    else if(key==='ArrowDown') i=Math.min(n-1,i+cols);
+    else if(key==='ArrowUp') i=Math.max(0,i-cols);
+    else if(key==='Home') i=0;
+    else if(key==='End') i=n-1;
+    else if(key===' '){try{toast('Tegning valgt')}catch(_e){} return;}
+    setSelectedByIndex(i);
+  },true);
+  document.addEventListener('click',function(ev){
+    const card=ev.target&&ev.target.closest&&ev.target.closest('.safe453hDrawingArchive .safe453eDrawingCard');
+    if(!card) return;
+    setSelectedByIndex(Number(card.getAttribute('data-safe453h-index')||0));
+  },true);
+  document.addEventListener('contextmenu',function(ev){
+    if(ev.target&&ev.target.closest&&ev.target.closest('.safe453hDrawingArchive .safe453eDrawingPreview')){
+      ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+    }
+  },true);
+
+  const folder=document.getElementById('safe453DrawFolder');
+  if(folder){
+    folder.onclick=async(ev)=>{
+      try{ev&&ev.preventDefault&&ev.preventDefault();ev&&ev.stopPropagation&&ev.stopPropagation();}catch(_e){}
+      try{await openArchive(selectedId);}catch(e){showModal('<h2>Mine tegninger</h2><p>Kunne ikke åbne tegningsarkivet: '+htmlEscape((e&&e.message)||e)+'</p><button onclick="closeModal()">Luk</button>');}
+    };
+  }
+
+})();
+
+/* SAFE453i10: Kamera åbner Mine tegninger efter vellykket gemning.
+   Genbruger ikke/flytter ikke kamera- eller mappeknapperne i DOM. Overskriver kun kameraets onclick
+   med samme IndexedDB-gemning som SAFE453f og åbner derefter den eksisterende mappe/arkivåbner. */
+(function(){
+  const cam=document.getElementById('safe453DrawCamera');
+  const folder=document.getElementById('safe453DrawFolder');
+  if(!cam || !folder || cam.__safe453i10AutoOpenInstalled) return;
+  cam.__safe453i10AutoOpenInstalled=true;
+  const DB_NAME='tavle_drawings_db';
+  const DB_VERSION=1;
+  const STORE='drawings';
+  function pad(n){return String(n).padStart(2,'0');}
+  function drawingName(d){return 'Tegning '+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+'.'+pad(d.getMinutes());}
+  function openDrawDb(){
+    return new Promise((resolve,reject)=>{
+      if(!window.indexedDB){reject(new Error('IndexedDB er ikke tilgængelig i denne browser'));return;}
+      const req=indexedDB.open(DB_NAME,DB_VERSION);
+      req.onupgradeneeded=()=>{
+        const db=req.result;
+        if(!db.objectStoreNames.contains(STORE)){
+          const st=db.createObjectStore(STORE,{keyPath:'id'});
+          try{st.createIndex('createdAt','createdAt',{unique:false});}catch(_e){}
+        }
+      };
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error||new Error('Kunne ikke åbne tegningsarkiv'));
+      req.onblocked=()=>reject(new Error('Tegningsarkivet er blokeret af en anden fane'));
+    });
+  }
+  async function idbPut(item){
+    const db=await openDrawDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).put(item);
+      tx.oncomplete=()=>{try{db.close();}catch(_e){} resolve(true);};
+      tx.onerror=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Kunne ikke skrive tegningen'));};
+      tx.onabort=()=>{try{db.close();}catch(_e){} reject(tx.error||new Error('Gemning blev afbrudt'));};
+    });
+  }
+  async function idbAll(){
+    const db=await openDrawDb();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readonly');
+      const req=tx.objectStore(STORE).getAll();
+      req.onsuccess=()=>resolve((req.result||[]).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))));
+      req.onerror=()=>reject(req.error||new Error('Kunne ikke læse tegningsarkivet'));
+      tx.oncomplete=()=>{try{db.close();}catch(_e){}};
+    });
+  }
+  function findDrawingBounds(canvas){
+    const c=canvas&&canvas.getContext?canvas.getContext('2d'):null;
+    if(!canvas||!c||!canvas.width||!canvas.height) throw new Error('Tegnecanvas mangler');
+    const w=canvas.width,h=canvas.height;
+    let img;
+    try{ img=c.getImageData(0,0,w,h).data; }
+    catch(e){ throw new Error('Tegnecanvas kunne ikke læses: '+(e&&e.message?e.message:e)); }
+    let minX=w,minY=h,maxX=-1,maxY=-1;
+    for(let y=0;y<h;y++){
+      let row=y*w*4;
+      for(let x=0;x<w;x++){
+        if(img[row+x*4+3]>0){
+          if(x<minX)minX=x; if(y<minY)minY=y; if(x>maxX)maxX=x; if(y>maxY)maxY=y;
+        }
+      }
+    }
+    if(maxX<0||maxY<0) return null;
+    const m=32;
+    minX=Math.max(0,minX-m); minY=Math.max(0,minY-m);
+    maxX=Math.min(w-1,maxX+m); maxY=Math.min(h-1,maxY+m);
+    return {x:minX,y:minY,w:maxX-minX+1,h:maxY-minY+1};
+  }
+  function exportCroppedPng(canvas){
+    const b=findDrawingBounds(canvas);
+    if(!b) throw new Error('Ingen tegning at gemme');
+    const out=document.createElement('canvas');
+    out.width=Math.max(1,b.w);
+    out.height=Math.max(1,b.h);
+    const o=out.getContext('2d');
+    o.clearRect(0,0,out.width,out.height);
+    o.drawImage(canvas,b.x,b.y,b.w,b.h,0,0,out.width,out.height);
+    return {data:out.toDataURL('image/png'),width:out.width,height:out.height,sourceWidth:b.w,sourceHeight:b.h};
+  }
+  async function saveDrawing(){
+    const now=new Date();
+    const exported=exportCroppedPng(draw);
+    const item={
+      id:'drawing_'+now.getTime()+'_'+Math.random().toString(36).slice(2,7),
+      name:drawingName(now),
+      createdAt:now.toISOString(),
+      imageData:exported.data,
+      width:exported.width,
+      height:exported.height,
+      sourceWidth:exported.sourceWidth,
+      sourceHeight:exported.sourceHeight,
+      format:'image/png',
+      storage:'indexedDB',
+      cropped:true
+    };
+    await idbPut(item);
+    const list=await idbAll();
+    return {count:list.length,item};
+  }
+  function openArchiveAndSelectNewest(){
+    try{ folder.click(); }catch(_e){ try{folder.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));}catch(_e2){} }
+    setTimeout(()=>{
+      try{
+        const first=document.querySelector('.safe453hDrawingArchive .safe453eDrawingCard[data-safe453h-index="0"]') || document.querySelector('.safe453hDrawingArchive .safe453eDrawingCard');
+        if(first) first.click();
+      }catch(_e){}
+    },120);
+  }
+  cam.onclick=async(ev)=>{
+    try{ev&&ev.preventDefault&&ev.preventDefault();ev&&ev.stopPropagation&&ev.stopPropagation();}catch(_e){}
+    try{
+      const res=await saveDrawing();
+      try{toast('Tegning gemt · '+res.count);}catch(_t){alert('Tegning gemt');}
+      setTimeout(openArchiveAndSelectNewest,180);
+    }catch(err){
+      const msg=String((err&&err.message)||err||'Ukendt fejl');
+      const text=msg.includes('Ingen tegning')?'Ingen tegning at gemme':'Kunne ikke gemme tegningen: '+msg.slice(0,90);
+      try{console.warn('SAFE453i10 drawing save failed',err);}catch(_e){}
+      try{toast(text);}catch(_t){alert(text);}
+    }
+  };
+})();
+
 document.getElementById('drawOff').onclick=()=>setDrawActive(false);
 document.addEventListener('keydown',e=>{if(isIframeControlActive())return;if(e.key==='Escape')setDrawActive(false)});
 
@@ -39329,4 +42261,604 @@ body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
   setTimeout(safe454cInstall,500);
 })();
 </script>
+
+<style id="safe453i25DrawWidgetFocusTransparent">
+/* SAFE453i25: Tegnewidget skal også være et transparent lag i fokus/præsentation.
+   Undgår hvid kant mellem tegning og ramme ved at neutralisere generelle widget/content-regler kun for drawcopy. */
+.app.present .widget[data-type="drawcopy"],
+body.focus-mode .widget[data-type="drawcopy"],
+body.focus-edit .widget[data-type="drawcopy"],
+body.focus-presentation .widget[data-type="drawcopy"],
+body.focus-maximized .widget[data-type="drawcopy"]{
+  background:transparent!important;
+  box-shadow:none!important;
+  outline:none!important;
+  border:0!important;
+  overflow:visible!important;
+}
+.app.present .widget[data-type="drawcopy"].selected,
+.app.present .widget[data-type="drawcopy"].focusTarget,
+body.focus-mode .widget[data-type="drawcopy"].selected,
+body.focus-mode .widget[data-type="drawcopy"].focusTarget,
+body.focus-edit .widget[data-type="drawcopy"].selected,
+body.focus-edit .widget[data-type="drawcopy"].focusTarget,
+body.focus-presentation .widget[data-type="drawcopy"].selected,
+body.focus-presentation .widget[data-type="drawcopy"].focusTarget,
+body.focus-maximized .widget[data-type="drawcopy"].selected,
+body.focus-maximized .widget[data-type="drawcopy"].focusTarget{
+  outline:none!important;
+  box-shadow:none!important;
+}
+.app.present .widget[data-type="drawcopy"] .chrome,
+body.focus-mode .widget[data-type="drawcopy"] .chrome,
+body.focus-edit .widget[data-type="drawcopy"] .chrome,
+body.focus-presentation .widget[data-type="drawcopy"] .chrome,
+body.focus-maximized .widget[data-type="drawcopy"] .chrome,
+.app.present .widget[data-type="drawcopy"] .resize,
+body.focus-mode .widget[data-type="drawcopy"] .resize,
+body.focus-edit .widget[data-type="drawcopy"] .resize,
+body.focus-presentation .widget[data-type="drawcopy"] .resize,
+body.focus-maximized .widget[data-type="drawcopy"] .resize,
+.app.present .widget[data-type="drawcopy"] .rotater,
+body.focus-mode .widget[data-type="drawcopy"] .rotater,
+body.focus-edit .widget[data-type="drawcopy"] .rotater,
+body.focus-presentation .widget[data-type="drawcopy"] .rotater,
+body.focus-maximized .widget[data-type="drawcopy"] .rotater,
+.app.present .widget[data-type="drawcopy"] .safe453i19Tools,
+body.focus-mode .widget[data-type="drawcopy"] .safe453i19Tools,
+body.focus-edit .widget[data-type="drawcopy"] .safe453i19Tools,
+body.focus-presentation .widget[data-type="drawcopy"] .safe453i19Tools,
+body.focus-maximized .widget[data-type="drawcopy"] .safe453i19Tools{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.app.present .widget[data-type="drawcopy"] .content,
+body.focus-mode .widget[data-type="drawcopy"] .content,
+body.focus-edit .widget[data-type="drawcopy"] .content,
+body.focus-presentation .widget[data-type="drawcopy"] .content,
+body.focus-maximized .widget[data-type="drawcopy"] .content{
+  height:100%!important;
+  background:transparent!important;
+  border-radius:0!important;
+  overflow:visible!important;
+}
+.app.present .widget[data-type="drawcopy"] .safe453i19DrawBox,
+body.focus-mode .widget[data-type="drawcopy"] .safe453i19DrawBox,
+body.focus-edit .widget[data-type="drawcopy"] .safe453i19DrawBox,
+body.focus-presentation .widget[data-type="drawcopy"] .safe453i19DrawBox,
+body.focus-maximized .widget[data-type="drawcopy"] .safe453i19DrawBox,
+.app.present .widget[data-type="drawcopy"] .safe453i19Stage,
+body.focus-mode .widget[data-type="drawcopy"] .safe453i19Stage,
+body.focus-edit .widget[data-type="drawcopy"] .safe453i19Stage,
+body.focus-presentation .widget[data-type="drawcopy"] .safe453i19Stage,
+body.focus-maximized .widget[data-type="drawcopy"] .safe453i19Stage{
+  height:100%!important;
+  background:transparent!important;
+  overflow:visible!important;
+}
+/* I fokus/præsentation erstatter grebet den store ydre markering. */
+.app.present .widget[data-type="drawcopy"].focusTarget .safe453i22Grip,
+.app.present .widget[data-type="drawcopy"].selected .safe453i22Grip,
+body.focus-mode .widget[data-type="drawcopy"].focusTarget .safe453i22Grip,
+body.focus-mode .widget[data-type="drawcopy"].selected .safe453i22Grip,
+body.focus-edit .widget[data-type="drawcopy"].focusTarget .safe453i22Grip,
+body.focus-edit .widget[data-type="drawcopy"].selected .safe453i22Grip,
+body.focus-presentation .widget[data-type="drawcopy"].focusTarget .safe453i22Grip,
+body.focus-presentation .widget[data-type="drawcopy"].selected .safe453i22Grip,
+body.focus-maximized .widget[data-type="drawcopy"].focusTarget .safe453i22Grip,
+body.focus-maximized .widget[data-type="drawcopy"].selected .safe453i22Grip{
+  display:flex!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:.95!important;
+  background:rgba(17,24,39,.62)!important;
+  box-shadow:0 0 0 3px rgba(110,231,183,.45),0 4px 12px rgba(0,0,0,.22)!important;
+}
+</style>
+
+
+<style id="safe453i26DrawWidgetNoOuterFrame">
+/* SAFE453i26: Tegnewidget/drawcopy skal ikke have ydre markeringsramme i fokus/præsentation.
+   Markeringen ligger kun på det lille greb. Bruger både data-type og :has fallback, fordi nogle
+   ældre render-patches kan mangle/ændre data-type, mens DrawBox altid findes i tegnewidgetten. */
+.app.present .widget[data-type="drawcopy"],
+.app.present .widget[data-type="drawcopy"].selected,
+.app.present .widget[data-type="drawcopy"].focusTarget,
+body.focus-mode .widget[data-type="drawcopy"],
+body.focus-mode .widget[data-type="drawcopy"].selected,
+body.focus-mode .widget[data-type="drawcopy"].focusTarget,
+body.focus-edit .widget[data-type="drawcopy"],
+body.focus-edit .widget[data-type="drawcopy"].selected,
+body.focus-edit .widget[data-type="drawcopy"].focusTarget,
+body.focus-presentation .widget[data-type="drawcopy"],
+body.focus-presentation .widget[data-type="drawcopy"].selected,
+body.focus-presentation .widget[data-type="drawcopy"].focusTarget,
+body.focus-maximized .widget[data-type="drawcopy"],
+body.focus-maximized .widget[data-type="drawcopy"].selected,
+body.focus-maximized .widget[data-type="drawcopy"].focusTarget,
+.app.present .widget:has(.safe453i19DrawBox),
+.app.present .widget:has(.safe453i19DrawBox).selected,
+.app.present .widget:has(.safe453i19DrawBox).focusTarget,
+body.focus-mode .widget:has(.safe453i19DrawBox),
+body.focus-mode .widget:has(.safe453i19DrawBox).selected,
+body.focus-mode .widget:has(.safe453i19DrawBox).focusTarget,
+body.focus-edit .widget:has(.safe453i19DrawBox),
+body.focus-edit .widget:has(.safe453i19DrawBox).selected,
+body.focus-edit .widget:has(.safe453i19DrawBox).focusTarget,
+body.focus-presentation .widget:has(.safe453i19DrawBox),
+body.focus-presentation .widget:has(.safe453i19DrawBox).selected,
+body.focus-presentation .widget:has(.safe453i19DrawBox).focusTarget,
+body.focus-maximized .widget:has(.safe453i19DrawBox),
+body.focus-maximized .widget:has(.safe453i19DrawBox).selected,
+body.focus-maximized .widget:has(.safe453i19DrawBox).focusTarget{
+  background:transparent!important;
+  border:0!important;
+  outline:0!important;
+  outline-color:transparent!important;
+  box-shadow:none!important;
+  filter:none!important;
+  overflow:visible!important;
+}
+.app.present .widget[data-type="drawcopy"] .content,
+body.focus-mode .widget[data-type="drawcopy"] .content,
+body.focus-edit .widget[data-type="drawcopy"] .content,
+body.focus-presentation .widget[data-type="drawcopy"] .content,
+body.focus-maximized .widget[data-type="drawcopy"] .content,
+.app.present .widget:has(.safe453i19DrawBox) .content,
+body.focus-mode .widget:has(.safe453i19DrawBox) .content,
+body.focus-edit .widget:has(.safe453i19DrawBox) .content,
+body.focus-presentation .widget:has(.safe453i19DrawBox) .content,
+body.focus-maximized .widget:has(.safe453i19DrawBox) .content,
+.app.present .widget[data-type="drawcopy"] .safe453i19DrawBox,
+body.focus-mode .widget[data-type="drawcopy"] .safe453i19DrawBox,
+body.focus-edit .widget[data-type="drawcopy"] .safe453i19DrawBox,
+body.focus-presentation .widget[data-type="drawcopy"] .safe453i19DrawBox,
+body.focus-maximized .widget[data-type="drawcopy"] .safe453i19DrawBox,
+.app.present .widget:has(.safe453i19DrawBox) .safe453i19DrawBox,
+body.focus-mode .widget:has(.safe453i19DrawBox) .safe453i19DrawBox,
+body.focus-edit .widget:has(.safe453i19DrawBox) .safe453i19DrawBox,
+body.focus-presentation .widget:has(.safe453i19DrawBox) .safe453i19DrawBox,
+body.focus-maximized .widget:has(.safe453i19DrawBox) .safe453i19DrawBox,
+.app.present .widget[data-type="drawcopy"] .safe453i19Stage,
+body.focus-mode .widget[data-type="drawcopy"] .safe453i19Stage,
+body.focus-edit .widget[data-type="drawcopy"] .safe453i19Stage,
+body.focus-presentation .widget[data-type="drawcopy"] .safe453i19Stage,
+body.focus-maximized .widget[data-type="drawcopy"] .safe453i19Stage,
+.app.present .widget:has(.safe453i19DrawBox) .safe453i19Stage,
+body.focus-mode .widget:has(.safe453i19DrawBox) .safe453i19Stage,
+body.focus-edit .widget:has(.safe453i19DrawBox) .safe453i19Stage,
+body.focus-presentation .widget:has(.safe453i19DrawBox) .safe453i19Stage,
+body.focus-maximized .widget:has(.safe453i19DrawBox) .safe453i19Stage{
+  background:transparent!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  overflow:visible!important;
+}
+/* Skjul alle almindelige widgetkontroller på tegnewidgetten i fokus/præsentation. */
+.app.present .widget[data-type="drawcopy"] .chrome,
+.app.present .widget[data-type="drawcopy"] .resize,
+.app.present .widget[data-type="drawcopy"] .rotater,
+.app.present .widget[data-type="drawcopy"] .safe453i19Tools,
+body.focus-mode .widget[data-type="drawcopy"] .chrome,
+body.focus-mode .widget[data-type="drawcopy"] .resize,
+body.focus-mode .widget[data-type="drawcopy"] .rotater,
+body.focus-mode .widget[data-type="drawcopy"] .safe453i19Tools,
+body.focus-edit .widget[data-type="drawcopy"] .chrome,
+body.focus-edit .widget[data-type="drawcopy"] .resize,
+body.focus-edit .widget[data-type="drawcopy"] .rotater,
+body.focus-edit .widget[data-type="drawcopy"] .safe453i19Tools,
+body.focus-presentation .widget[data-type="drawcopy"] .chrome,
+body.focus-presentation .widget[data-type="drawcopy"] .resize,
+body.focus-presentation .widget[data-type="drawcopy"] .rotater,
+body.focus-presentation .widget[data-type="drawcopy"] .safe453i19Tools,
+body.focus-maximized .widget[data-type="drawcopy"] .chrome,
+body.focus-maximized .widget[data-type="drawcopy"] .resize,
+body.focus-maximized .widget[data-type="drawcopy"] .rotater,
+body.focus-maximized .widget[data-type="drawcopy"] .safe453i19Tools,
+.app.present .widget:has(.safe453i19DrawBox) .chrome,
+.app.present .widget:has(.safe453i19DrawBox) .resize,
+.app.present .widget:has(.safe453i19DrawBox) .rotater,
+.app.present .widget:has(.safe453i19DrawBox) .safe453i19Tools,
+body.focus-mode .widget:has(.safe453i19DrawBox) .chrome,
+body.focus-mode .widget:has(.safe453i19DrawBox) .resize,
+body.focus-mode .widget:has(.safe453i19DrawBox) .rotater,
+body.focus-mode .widget:has(.safe453i19DrawBox) .safe453i19Tools,
+body.focus-edit .widget:has(.safe453i19DrawBox) .chrome,
+body.focus-edit .widget:has(.safe453i19DrawBox) .resize,
+body.focus-edit .widget:has(.safe453i19DrawBox) .rotater,
+body.focus-edit .widget:has(.safe453i19DrawBox) .safe453i19Tools,
+body.focus-presentation .widget:has(.safe453i19DrawBox) .chrome,
+body.focus-presentation .widget:has(.safe453i19DrawBox) .resize,
+body.focus-presentation .widget:has(.safe453i19DrawBox) .rotater,
+body.focus-presentation .widget:has(.safe453i19DrawBox) .safe453i19Tools,
+body.focus-maximized .widget:has(.safe453i19DrawBox) .chrome,
+body.focus-maximized .widget:has(.safe453i19DrawBox) .resize,
+body.focus-maximized .widget:has(.safe453i19DrawBox) .rotater,
+body.focus-maximized .widget:has(.safe453i19DrawBox) .safe453i19Tools{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+/* Den eneste markering i fokus/præsentation: grebet. */
+.app.present .widget[data-type="drawcopy"] .safe453i22Grip,
+body.focus-mode .widget[data-type="drawcopy"] .safe453i22Grip,
+body.focus-edit .widget[data-type="drawcopy"] .safe453i22Grip,
+body.focus-presentation .widget[data-type="drawcopy"] .safe453i22Grip,
+body.focus-maximized .widget[data-type="drawcopy"] .safe453i22Grip,
+.app.present .widget:has(.safe453i19DrawBox) .safe453i22Grip,
+body.focus-mode .widget:has(.safe453i19DrawBox) .safe453i22Grip,
+body.focus-edit .widget:has(.safe453i19DrawBox) .safe453i22Grip,
+body.focus-presentation .widget:has(.safe453i19DrawBox) .safe453i22Grip,
+body.focus-maximized .widget:has(.safe453i19DrawBox) .safe453i22Grip{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:.95!important;
+  pointer-events:auto!important;
+  background:rgba(17,24,39,.64)!important;
+  box-shadow:0 0 0 3px rgba(110,231,183,.60),0 4px 12px rgba(0,0,0,.22)!important;
+}
+</style>
+
+<style id="safe453i28DrawWidgetNoOuterFrameCssOnly">
+/* SAFE453i28: Tegnewidgetten er et transparent lag.
+   Den må ikke få almindelig widget-markeringsramme; kun handle-ikonet markerer den.
+   CSS-only: ingen observer og ingen JS. */
+.widget[data-type="drawcopy"],
+.widget[data-type="drawcopy"].selected,
+.widget[data-type="drawcopy"].focusTarget,
+.widget[data-type="drawcopy"].maximized,
+.app.present .widget[data-type="drawcopy"],
+.app.present .widget[data-type="drawcopy"].selected,
+.app.present .widget[data-type="drawcopy"].focusTarget,
+body.focus-mode .widget[data-type="drawcopy"],
+body.focus-mode .widget[data-type="drawcopy"].selected,
+body.focus-mode .widget[data-type="drawcopy"].focusTarget,
+body.focus-edit .widget[data-type="drawcopy"],
+body.focus-edit .widget[data-type="drawcopy"].selected,
+body.focus-edit .widget[data-type="drawcopy"].focusTarget,
+body.focus-presentation .widget[data-type="drawcopy"],
+body.focus-presentation .widget[data-type="drawcopy"].selected,
+body.focus-presentation .widget[data-type="drawcopy"].focusTarget,
+body.focus-maximized .widget[data-type="drawcopy"],
+body.focus-maximized .widget[data-type="drawcopy"].selected,
+body.focus-maximized .widget[data-type="drawcopy"].focusTarget{
+  outline:0!important;
+  outline-width:0!important;
+  outline-style:none!important;
+  outline-color:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+  background:transparent!important;
+}
+.widget[data-type="drawcopy"] .content,
+.widget[data-type="drawcopy"] .content.drawcopy,
+.widget[data-type="drawcopy"] .safe453i19DrawBox,
+.widget[data-type="drawcopy"] .safe453i19Stage{
+  outline:0!important;
+  box-shadow:none!important;
+  border:0!important;
+  background:transparent!important;
+}
+.widget[data-type="drawcopy"] .safe453i22Grip{
+  display:flex;
+}
+.widget[data-type="drawcopy"] .safe453i22Grip,
+.widget[data-type="drawcopy"].selected .safe453i22Grip,
+.widget[data-type="drawcopy"].focusTarget .safe453i22Grip,
+.app.present .widget[data-type="drawcopy"] .safe453i22Grip,
+body.focus-mode .widget[data-type="drawcopy"] .safe453i22Grip,
+body.focus-edit .widget[data-type="drawcopy"] .safe453i22Grip,
+body.focus-presentation .widget[data-type="drawcopy"] .safe453i22Grip,
+body.focus-maximized .widget[data-type="drawcopy"] .safe453i22Grip{
+  box-shadow:0 0 0 3px rgba(110,231,183,.65),0 4px 12px rgba(0,0,0,.22)!important;
+}
+</style>
+
+<!-- SAFE453i32 GRID LIGHT CSS ONLY:
+CSS-only forsøg. Ingen JavaScript. Ingen wrapping af applyBg/updateGridOverlay.
+Mål: Hvis appen allerede markerer mørk baggrund/filter i DOM, bliver gitteret lyst.
+Hvis appen ikke har disse DOM-markører, sker der ingen funktionel ændring. -->
+<style id="safe453i32GridLightCssOnly">
+/* Meget forsigtig CSS-only override for mørke baggrundsfiltre.
+   Rammer kun kendte/typiske grid-lag, hvis appen allerede har data-bg-filter/class. */
+
+/* Pseudo-element-baseret grid */
+#app[data-bg-filter="dark"].gridOn::after,
+#app[data-bg-filter="standard"].gridOn::after,
+#app[data-bg-filter="cool"].gridOn::after,
+#app[data-bg-filter="dark"].grid::after,
+#app[data-bg-filter="standard"].grid::after,
+#app[data-bg-filter="cool"].grid::after,
+#app.darkBg.gridOn::after,
+#app.darkBg.grid::after,
+.app[data-bg-filter="dark"].gridOn::after,
+.app[data-bg-filter="standard"].gridOn::after,
+.app[data-bg-filter="cool"].gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px) !important;
+}
+
+/* Separat grid-overlay hvis appen bruger sådan et element */
+#app[data-bg-filter="dark"] .gridOverlay,
+#app[data-bg-filter="standard"] .gridOverlay,
+#app[data-bg-filter="cool"] .gridOverlay,
+#app[data-bg-filter="dark"] #gridOverlay,
+#app[data-bg-filter="standard"] #gridOverlay,
+#app[data-bg-filter="cool"] #gridOverlay,
+#app.darkBg .gridOverlay,
+#app.darkBg #gridOverlay {
+  background-image:
+    linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px) !important;
+}
+
+/* Hvis body får filtermarkør i stedet for app-elementet */
+body[data-bg-filter="dark"] #app.gridOn::after,
+body[data-bg-filter="standard"] #app.gridOn::after,
+body[data-bg-filter="cool"] #app.gridOn::after,
+body.bg-dark #app.gridOn::after,
+body.darkBg #app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.28) 1px, transparent 1px) !important;
+}
+</style>
+
+
+<!-- SAFE453i33 GRID LIGHT ACTUAL SELECTOR:
+CSS-only. Rammer den faktiske gitterregel: .app.gridOn::after.
+Ingen JavaScript, ingen funktioner wrappes, ingen modal- eller baggrundsvælgerændring. -->
+<style id="safe453i33GridLightActualSelector">
+/* Den faktiske app-regel er .app.gridOn::after.
+   På mørke/standard/kølige filtre gør vi linjerne lyse og lidt tydeligere. */
+.app.gridOn[data-bg-filter="dark"]::after,
+.app.gridOn[data-bg-filter="standard"]::after,
+.app.gridOn[data-bg-filter="cool"]::after,
+.app.gridOn[data-bg-filter="damped"]::after,
+.app.gridOn[data-bg-filter="soft"]::after,
+.app.gridOn[data-bg-filter="mørk"]::after,
+.app.gridOn[data-bg-filter="koelig"]::after,
+.app.gridOn[data-bg-filter="kølig"]::after,
+.app.present.gridOn[data-bg-filter="dark"]::after,
+.app.present.gridOn[data-bg-filter="standard"]::after,
+.app.present.gridOn[data-bg-filter="cool"]::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.22) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+}
+
+/* Når brugeren har valgt det mørke filter i modalens chips, ses det på body/app forskelligt i nogle builds.
+   Disse rammer kun, hvis sådanne klasser/attributter allerede findes. */
+body[data-bg-filter="dark"] .app.gridOn::after,
+body[data-bg-filter="standard"] .app.gridOn::after,
+body[data-bg-filter="cool"] .app.gridOn::after,
+body.bg-dark .app.gridOn::after,
+body.darkBg .app.gridOn::after,
+.app.gridOn.darkBg::after,
+.app.gridOn.bg-dark::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.22) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+}
+</style>
+
+
+<!-- SAFE453i34 GRID LIGHT STRONGER CSS ONLY:
+CSS-only. Ingen JavaScript. Forstærker gitterstreger på mørk baggrund/filter.
+Rammer den faktiske grid-selector .app.gridOn::after og lægger reglen sent i filen. -->
+<style id="safe453i34GridLightStrongerCssOnly">
+/* Direkte stærkere override for den faktiske gittertegning.
+   Bruges når appen/modalen allerede har mørke filtermarkører. */
+.app.gridOn[data-bg-filter="dark"]::after,
+.app.gridOn[data-bg-filter="standard"]::after,
+.app.gridOn[data-bg-filter="cool"]::after,
+.app.gridOn[data-bg-filter="soft"]::after,
+.app.gridOn[data-bg-filter="mork"]::after,
+.app.gridOn[data-bg-filter="mørk"]::after,
+body[data-bg-filter="dark"] .app.gridOn::after,
+body[data-bg-filter="standard"] .app.gridOn::after,
+body[data-bg-filter="cool"] .app.gridOn::after,
+body.darkBg .app.gridOn::after,
+body.bg-dark .app.gridOn::after,
+.app.gridOn.darkBg::after,
+.app.gridOn.bg-dark::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.46) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.46) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Mens Baggrund-modalens mørke filterknap er valgt, findes aktiv chip i DOM.
+   :has() er CSS-only og bruges kun som visuel override, ikke til app-logik.
+   Den matcher dark-filter-knapper via data-attributter, hvis de findes. */
+body:has(.bgFilterChip.active[data-bg-filter="dark"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-bg-filter="standard"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-bg-filter="cool"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-filter="dark"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-filter="standard"]) .app.gridOn::after,
+body:has(.bgFilterChip.active[data-filter="cool"]) .app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.50) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.50) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Fallback: Når baggrundsmodalen er åben, og gitter er slået til, gør vi gitteret lyst.
+   Det gælder kun mens modalens Baggrund-vælger er åben og påvirker ikke almindelig tavlebrug uden modal. */
+body:has(.bgLibraryWrap) .app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.38) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Hvis nogle builds bruger #app i stedet for .app */
+body:has(.bgLibraryWrap) #app.gridOn::after {
+  background-image:
+    linear-gradient(rgba(255,255,255,.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.38) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i35 GRID LIGHT DIRECT UPDATEGRIDOVERLAY:
+Lille direkte ændring af updateGridOverlay + CSS. Ingen wrapping.
+Når appen selv markerer .safe453i35LightGrid, tegnes gitteret lyst. -->
+<style id="safe453i35GridLightCss">
+.app.gridOn.safe453i35LightGrid::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.42) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.42) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+.app.present.gridOn.safe453i35LightGrid::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.42) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.42) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i36 GRID LIGHT APPLYBG DIRECT:
+Direkte koblet til applyBg(), som allerede kender aktuelt filter.
+Ingen modalændringer, ingen kamera/mappe/tegnewidget-ændringer. -->
+<style id="safe453i36GridLightCss">
+.app.gridOn.safe453i36LightGrid::after,
+.app.present.gridOn.safe453i36LightGrid::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.58) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.58) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i37 MANUAL GRID COLOR:
+Manuel gitterfarve: Baggrund-modalens gitterknap cykler Fra → Mørk → Lys → Fra.
+Ingen automatisk baggrundsgætning. -->
+<style id="safe453i37ManualGridColorCss">
+.app.gridOn.safe453i37GridLight::after,
+.app.present.gridOn.safe453i37GridLight::after{
+  background-image:
+    linear-gradient(rgba(255,255,255,.62) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.62) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+.app.gridOn.safe453i37GridDark::after,
+.app.present.gridOn.safe453i37GridDark::after{
+  background-image:
+    linear-gradient(rgba(17,24,39,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,24,39,.16) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+
+/* Gør knappen lidt mere forklarende uden at ændre layout. */
+.bgGridToggleBtn.active{
+  box-shadow:0 2px 8px rgba(15,23,42,.18)!important;
+}
+</style>
+
+
+<!-- SAFE453i38 GRID LIGHT HARD CSS:
+Bygger på i37. Ingen ny JavaScript-logik.
+Forstærker kun CSS for manuel "Gitter: Lys". -->
+<style id="safe453i38GridLightHardCss">
+/* Højere specificitet + sidst i filen.
+   Rammer kun når i37 allerede har sat safe453i37GridLight. */
+html body #app.app.gridOn.safe453i37GridLight::after,
+html body .app.gridOn.safe453i37GridLight::after,
+html body #app.gridOn.safe453i37GridLight::after,
+html body .app.present.gridOn.safe453i37GridLight::after,
+html body #app.app.present.gridOn.safe453i37GridLight::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  pointer-events:none !important;
+  z-index:120 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,.78) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.78) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+}
+
+/* Mørk gitterfarve bevares eksplicit, så i37-cyklussen stadig giver forskel. */
+html body #app.app.gridOn.safe453i37GridDark::after,
+html body .app.gridOn.safe453i37GridDark::after,
+html body #app.gridOn.safe453i37GridDark::after{
+  background-image:
+    linear-gradient(rgba(17,24,39,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17,24,39,.16) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+}
+</style>
+
+
+<!-- SAFE453i39 GRID LIGHT TOP LAYER:
+Bygger på i38. Ingen ny JavaScript.
+Hvis Gitter: Lys er valgt, lægges gitteret visuelt højere end baggrund/filter.
+Pointer-events er stadig none. -->
+<style id="safe453i39GridLightTopLayerCss">
+html body #app.app.gridOn.safe453i37GridLight::after,
+html body .app.gridOn.safe453i37GridLight::after,
+html body #app.gridOn.safe453i37GridLight::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  pointer-events:none !important;
+
+  /* Højere end baggrund/filter-lag, men stadig inde i appen. */
+  z-index:999 !important;
+
+  background-image:
+    linear-gradient(rgba(255,255,255,.85) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.85) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  background-position:0 0 !important;
+  opacity:1 !important;
+  mix-blend-mode:screen !important;
+}
+
+/* I præsentation/fokus skal det også være tydeligt. */
+html body .app.present.gridOn.safe453i37GridLight::after,
+html body #app.app.present.gridOn.safe453i37GridLight::after,
+html body.focus-presentation #app.gridOn.safe453i37GridLight::after,
+html body.focus-edit #app.gridOn.safe453i37GridLight::after{
+  z-index:999 !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,.85) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.85) 1px, transparent 1px) !important;
+  background-size:40px 40px !important;
+  opacity:1 !important;
+  mix-blend-mode:screen !important;
+}
+</style>
+
+
+<!-- SAFE453i40 DROP LIGHT GRID OPTION:
+Dropper Gitter: Lys/Mørk-eksperimentet.
+Gitterknappen er igen kun Fra/Til.
+Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og under widgets/værktøjer. -->
+
 </body></html>
