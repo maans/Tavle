@@ -1,3 +1,348 @@
+<!-- SAFE453i158 BACKUP PLUS PDF MANIFEST REFINFO ONLY:
+- Bygger på SAFE453i157.
+- PDF→IndexedDB-sporet fortsætter konservativt efter at lokal PDF-knap og drag/drop nu kan gemme PDF som fileMediaRef i TavleMediaArchive.
+- Denne fase ændrer ikke PDF-lagring, PDF-visning, PDF-download, import eller migration.
+- Backup + eksporterede allerede mediaArchive-poster for mediaRef/previewMediaRef/srcMediaRef/fileMediaRef.
+- Ændringen er kun, at mediaManifest nu også viser refKey og refPath, så man kan kontrollere at PDF'er i Backup + faktisk kommer fra fileMediaRef.
+- Backup +-toast giver nu kort optælling af PDF-medier i backupfilen.
+- Ingen ændring af render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i157 PDF WIDGET DOWNLOAD FILEREF ONLY:
+- Bygger på SAFE453i156, hvor både PDF-widget > Vælg lokal PDF og drag/drop af PDF gemmer nye lokale PDF'er i TavleMediaArchive/IndexedDB som fileMediaRef.
+- Retter kun PDF-widgettens egen Download-knap, så den kan hente den konkrete PDF tilbage fra fileMediaRef/IndexedDB.
+- Legacy indlejret PDF/dataURL kan fortsat downloades via det gamle downloadDataUrl-flow.
+- PDF fra URL er uændret og får ikke ny arkivdownload.
+- Ingen ændring af PDF-lagring, drag/drop, lokal PDF-knap, PDF.js-rendering, backup/import, migration, render(), save(), load(), addWidget() eller select().
+- Hvis IndexedDB-læsning fejler, vises kun en brugerbesked; der slettes eller ændres intet.
+-->
+<!-- SAFE453i156 PDF DRAGDROP INDEXEDDB FILEREF ONLY:
+- Bygger på SAFE453i155, hvor PDF-widget > Vælg lokal PDF gemmer nye lokale PDF’er i TavleMediaArchive/IndexedDB som fileMediaRef.
+- Udvider kun drag/drop af lokale PDF-filer til samme lette fileMediaRef-model.
+- Når en PDF trækkes ind på tavlen, gemmes filen som Blob i TavleMediaArchive med kind:'pdf' og source:'pdf-dragdrop'.
+- Den nye PDF-widget oprettes med fileMediaRef + let metadata og uden indlejret data.src/data.url, når IndexedDB virker.
+- Hvis TavleMediaArchive/IndexedDB fejler, bruges det gamle legacy-flow med data.src som dataURL.
+- Lokal PDF-knap fra SAFE453i155 er uændret.
+- PDF fra URL er uændret.
+- Gamle PDF-widgets migreres ikke.
+- Ingen ændring af Backup+/import, render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i155 PDF LOCAL BUTTON INDEXEDDB FILEREF ONLY:
+- Bygger på SAFE453i152 som stabil baseline.
+- Første nye PDF→IndexedDB-fase efter rollback-sporet.
+- Kun PDF-widgettens knap “Vælg lokal PDF” ændres.
+- Nye lokale PDF’er gemmes som Blob i TavleMediaArchive/IndexedDB og widgetten gemmer kun fileMediaRef + let metadata.
+- PDF.js-renderingen kan nu læse fileMediaRef tilbage som Blob/Uint8Array.
+- Hvis IndexedDB/TavleMediaArchive fejler, falder lokal PDF-knap tilbage til legacy dataURL i w.data.src.
+- Drag/drop af PDF ændres ikke i denne fase.
+- Gamle legacy-PDF’er med w.data.src/dataURL virker fortsat.
+- PDF fra URL virker fortsat som URL-flow.
+- Ingen migration, ingen Backup+/import-ændring, ingen ændring af save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i152 PDF LEGACY EXISTING DUPLICATE CLEANUP ON SAVE ONLY:
+- Bygger på SAFE453i151.
+- Rydder forsigtigt op i ældre PDF-widgets, der allerede havde samme lokale/indlejrede PDF gemt dobbelt.
+- Kun når en PDF-widget har både w.data.src og w.data.url, og begge er nøjagtigt samme data:application/pdf... værdi, fjernes w.data.url.
+- w.data.src bevares uændret, fordi PDF-renderingen bruger src først.
+- Nye lokale PDF'er fra SAFE453i151 gemmes allerede kun i src.
+- PDF fra URL er uændret og bruger fortsat URL-flowet.
+- Ingen PDF→IndexedDB, ingen PDF.js-ændring, ingen backup/import-ændring og ingen migration.
+- Oprydningen sker kun som del af save(), så gamle tavler bliver normaliseret gradvist, når brugeren alligevel gemmer.
+-->
+<!-- SAFE453i151 PDF LEGACY DUPLICATE URL CLEANUP ONLY:
+- Bygger på SAFE453i150.
+- Første forsigtige PDF-oprydning efter de kasserede PDF→IndexedDB-forsøg.
+- Ingen PDF→IndexedDB. Ingen ændring af PDF.js-rendering. Ingen backup/import-ændring.
+- Målet er kun at undgå ny dobbeltlagring af samme lokale/indlejrede PDF-dataURL i både w.data.src og w.data.url.
+
+ÆNDRING:
+1) PDF-widget > Vælg lokal PDF
+   - Beholder den indlejrede PDF-dataURL i w.data.src.
+   - Fjerner redundant w.data.url for lokale/indlejrede PDF’er.
+   - PDF-visning virker fortsat, fordi renderingen bruger const src=w.data.src||w.data.url||''.
+
+2) Drag/drop af PDF
+   - Nye PDF-widgets oprettes kun med src for indlejret PDF-dataURL.
+   - url bruges fortsat ikke til samme dataURL-dublet.
+
+IKKE ÆNDRET:
+- Eksisterende PDF-widgets migreres ikke automatisk.
+- PDF fra URL bruger fortsat både src og url som URL, fordi det er et andet flow.
+- Hvor ligger data? ændres ikke.
+- Backup + ændres ikke.
+- Ingen IndexedDB-forsøg for PDF.
+
+ACCEPTTEST:
+- PDF-widget > Vælg lokal PDF viser PDF’en.
+- Drag/drop af PDF viser PDF’en.
+- Hvor ligger data? bør ved nye lokale PDF’er ikke længere vise samme PDF-dataURL både i data.src og data.url.
+-->
+<!--
+SAFE453i150 PDF LOCAL VS DRAGDROP FLOW MAP ONLY:
+- Bygger direkte på SAFE453i149.
+- Denne fase er KUN kortlægning/dokumentation af PDF-flowet efter de kasserede PDF→IndexedDB-forsøg.
+- Ingen JavaScript-logik ændres.
+- Ingen CSS ændres.
+- Ingen HTML-struktur ændres.
+- Ingen PDF-widget ændres.
+- Ingen IndexedDB-forsøg.
+- Ingen backup/import-ændring.
+- Ingen migration.
+
+BAGGRUND:
+- SAFE453i145 og SAFE453i146 forsøgte PDF→IndexedDB, men blev kasseret.
+- Lokal PDF via PDF-widget-knappen kunne vælges, men blev ikke vist korrekt i de forsøg.
+- Drag/drop af samme PDF virkede i legacy-flowet.
+- SAFE453i148 rettede “Hvor ligger data?”, så legacy-PDF/dataURL ikke længere får statusmodalen til at hænge.
+- SAFE453i149 dokumenterede, at legacy-PDF kan ligge dobbelt i w.data.src og w.data.url.
+
+NUVÆRENDE LEGACY-PDF-FLOW:
+1) PDF-widget → Vælg lokal PDF
+- Renderblokken for w.type==='pdf' opretter knappen .pdfLocal.
+- Klik på .pdfLocal kalder:
+  pickLocalPdf((dataUrl,file)=>{ ... })
+- pickLocalPdf(cb) bruger FileReader.readAsDataURL(file).
+- Callbacken sætter i dag:
+  w.data.src = dataUrl
+  w.data.url = dataUrl
+  w.data.name = file.name || 'PDF'
+  w.data.page = 1
+  delete w.data.pages
+  fillContent(el,w)
+  save()
+- Det betyder, at lokal PDF via knappen i legacy-flowet gemmes som indlejret dataURL direkte i tavle-state.
+- Det betyder også, at samme tunge PDF-dataURL gemmes to steder: src og url.
+
+2) Drag/drop af PDF
+- handleDroppedFile(file,point) tjekker isLikelyPdfFile(file).
+- Ved PDF bruger den også readFileAsDataURL(file).
+- Derefter kaldes:
+  addDroppedWidget('pdf',{src,url:src,name:file.name||'PDF',page:1},point,file.name||'PDF')
+- Her oprettes en ny PDF-widget med samme dobbeltlagring: src og url.
+- Drag/drop virker, fordi widgetten oprettes på ny via addDroppedWidget() og derefter render/select/save.
+
+3) PDF-visning
+- renderPdfJsWidget(w,c) læser:
+  const src = w.data.src || w.data.url || ''
+- Hvis src er en data:application/pdf-dataURL, bruger PDF.js:
+  pdfjs.getDocument({data:dataUrlToUint8Array(src)})
+- Hvis src er en URL, bruger PDF.js:
+  pdfjs.getDocument({url:src,withCredentials:false})
+- Det betyder, at src har førsteprioritet. url er fallback, men i legacy-lokal-PDF ligger samme data ofte i begge felter.
+
+4) Download/markering
+- PDF-kontroller viser Download-knap, når isEmbeddedPdf(src) er sand.
+- isEmbeddedPdf(src) tjekker kun, om src starter med data:application/pdf.
+- Derfor afhænger lokal PDF-visning og download primært af w.data.src.
+
+VIGTIG KONKLUSION:
+- PDF-widgetten bruger primært w.data.src.
+- w.data.url ser ud til at være redundant for lokal/indlejret PDF, men kan være relevant for URL-PDF-flowet.
+- En senere oprydningsfase bør IKKE fjerne url bredt.
+- En sikker oprydning kan kun målrette tilfælde hvor både src og url er samme data:application/pdf-dataURL.
+
+SIKKER NÆSTE PDF-FASE, HVIS DER IMPLEMENTERES:
+SAFE453i151_pdf_legacy_duplicate_url_cleanup_only
+- Kun når w.type==='pdf'.
+- Kun når w.data.src === w.data.url.
+- Kun når værdien starter med data:application/pdf.
+- Fjern da w.data.url eller sæt url til tom/fjern feltet, så den samme PDF ikke gemmes dobbelt.
+- Bevar w.data.src uændret, fordi renderPdfJsWidget() bruger src først.
+- Ingen IndexedDB.
+- Ingen ændring af pickLocalPdf(), drag/drop eller PDF.js.
+- Accepttest: Lokal PDF via knap virker, drag/drop PDF virker, “Hvor ligger data?” viser kun én PDF/dataURL pr. PDF-widget.
+
+HVAD DER IKKE MÅ SKE ENDNU:
+- Prøv ikke PDF→IndexedDB igen uden ny, isoleret teststrategi.
+- Ændr ikke PDF.js-rendering i samme fase som storage-oprydning.
+- Ændr ikke drag/drop og lokal PDF-knap samtidig, medmindre det kun er identisk oprydning af duplicate url-felt.
+- Flyt ikke eksisterende PDF’er automatisk til IndexedDB.
+- Lav ikke backup/import-remap for PDF endnu.
+-->
+<!-- SAFE453i149 PDF LEGACY DUPLICATE STORAGE MAP ONLY:
+- Bygger på SAFE453i148_storage_overview_pdf_legacy_guard, som genskabte fungerende legacy-PDF-visning og forhindrede at "Hvor ligger data?" hang ved indlejret PDF/dataURL.
+- Denne fase er KUN kortlægning/dokumentation.
+- Ingen funktionel kodeændring.
+- Ingen PDF-widget-ændring.
+- Ingen IndexedDB-forsøg for PDF.
+- Ingen ændring af drag/drop, Vælg lokal PDF, PDF fra URL, PDF.js, render-flow, backup/import, widgets eller state.
+
+BAGGRUND:
+- Test viste at PDF-widget med lokal PDF igen kan vises i SAFE453i148.
+- "Hvor ligger data?" viser nu, at en legacy lokal PDF kan ligge indlejret to steder i samme PDF-widget:
+  1) state.slides[n].widgets[m].data.src
+  2) state.slides[n].widgets[m].data.url
+- Begge kan være application/pdf dataURL med omtrent samme størrelse.
+- Det betyder, at en lokal PDF potentielt fylder dobbelt i localStorage/tavle-state.
+- PDF -> IndexedDB blev forsøgt i SAFE453i145 og SAFE453i146, men begge spor blev kasseret, fordi lokal PDF via widgetknappen ikke blev korrekt vist og "Hvor ligger data?" kunne hænge.
+
+FORELØBIG FORSTÅELSE:
+- Drag/drop af PDF virker i legacy-flow og opretter en PDF-widget, der kan vise filen.
+- PDF-widget > Vælg lokal PDF virker i rollback/legacy-flow og kan vise filen.
+- PDF-widgetten kan historisk bruge både src og url afhængigt af flow:
+  - src kan være den faktiske dataURL eller visningskilde.
+  - url kan enten være ekstern URL eller en duplikeret dataURL for lokal PDF.
+- Før en senere oprydning må det kortlægges præcist, hvilken værdi pdfViewerSrc(), renderPdfJsWidget(), pickLocalPdf() og drag/drop-flowet faktisk bruger.
+
+NÆSTE SIKRE ANALYSEPUNKTER:
+1) Find PDF-widgettens rendergren:
+   - Hvilke felter læses? data.src, data.url, data.fileData, data.name, data.page?
+   - Hvad sendes videre til pdfViewerSrc() eller PDF.js?
+
+2) Find lokal PDF-knap-flow:
+   - Hvilken funktion kaldes af "Vælg lokal PDF"?
+   - Hvor sættes w.data.src og/eller w.data.url?
+   - Bliver samme dataURL skrevet begge steder?
+
+3) Find drag/drop-PDF-flow:
+   - Hvor oprettes PDF-widget ved drop?
+   - Sætter drop-flowet også både src og url, eller kun et af felterne?
+
+4) Find PDF fra URL-flow:
+   - URL-PDF må fortsat være URL, ikke binær arkivkopi.
+   - En senere oprydning må ikke ødelægge eksterne PDF-links.
+
+SIKKER FREMTIDIG IMPLEMENTERINGSRÆKKEFØLGE:
+- SAFE453i150 bør evt. være "pdf legacy duplicate scanner only": en passiv visning i Hvor ligger data? der siger om PDF-dataURL ligger dobbelt.
+- SAFE453i151 kan evt. være "pdf legacy duplicate cleanup for new local pdf only": nye lokale PDF'er gemmer kun den ene nødvendige dataURL i legacy-flow, uden IndexedDB.
+- Først derefter bør PDF -> IndexedDB forsøges igen, og kun når vi præcist ved, hvilket felt renderingen bruger.
+
+MÅ IKKE I NÆSTE PDF-FASE:
+- Forsøge PDF -> IndexedDB igen uden præcis feltkortlægning.
+- Fjerne src eller url globalt.
+- Ændre PDF fra URL.
+- Ændre drag/drop-PDF og knap-PDF i samme fase.
+- Ændre backup/import samtidig.
+- Ændre render(), save(), load(), addWidget() eller select().
+
+ACCEPTTEST FOR DENNE FASE:
+- Appen opfører sig som SAFE453i148.
+- Lokal PDF kan stadig vises i legacy-flow.
+- Hvor ligger data? hænger ikke ved legacy-PDF.
+- Ingen ny funktionalitet skal testes, fordi dette kun er dokumentation.
+-->
+
+<!-- SAFE453i148 STORAGE OVERVIEW PDF LEGACY GUARD:
+- Bygger på SAFE453i147 rollback.
+- Retter kun Hvor ligger data?/storage-overblik, så legacy PDF/dataURL ikke kan få modalen til at hænge på “Læser localStorage og IndexedDB…”.
+- Tilføjer timeout/fallback omkring læsning af TavleMediaArchive.
+- Gør localStorage-scan billigere ved ikke at køre tung dataURL-regex gennem store værdier.
+- Estimerer aktiv state-størrelse fra den aktuelle localStorage-nøgle, når muligt, i stedet for altid at stringify'e tung state.
+- Ingen PDF-flow ændret. Lokal PDF er stadig legacy/indlejret.
+- Ingen IndexedDB-skrivning, ingen backup/import-ændring, ingen widgetændring.
+-->
+<!-- SAFE453i147 PDF ROLLBACK TO LEGACY + STORAGE GUARD NOTE:
+- Kasserer SAFE453i145 og SAFE453i146 som aktivt PDF→IndexedDB-spor.
+- Årsag: Lokal PDF via PDF-widget > Vælg lokal PDF kunne vælges i filvælgeren, men blev ikke vist stabilt i widgetten.
+- Denne fil bygger derfor direkte på SAFE453i144, hvor PDF-flowet stadig er det gamle legacy-flow.
+- Lokal PDF via PDF-widget må igen opføre sig som før: indlejret PDF/dataURL i tavle-state.
+- Drag/drop af PDF forbliver legacy-flow som før.
+- PDF→IndexedDB skal først genoptages efter en ren kortlægning/test af det eksisterende PDF-flow.
+- Ingen ændring af billeder, kamera, drag/drop-billeder, gemte tegninger som billede, Backup +, Gendannelsespunkter eller storage-overview fra SAFE453i144.
+- SAFE453i145 og SAFE453i146 må ikke bruges som baseline.
+-->
+<!-- SAFE453i144 DRAW STATE VISIBILITY IN STORAGE OVERVIEW:
+- Bygger på SAFE453i143.
+- Tilføjer kun brugerrettet visning af tegne-spor i Hvor ligger data? og Backup + kontrol.
+- Formål: gøre det synligt hvorfor der stadig kan være indlejrede dataURL’er i tavle-state, især aktiv tavletegning og tegnewidgets.
+- Ingen flytning af tegninger til IndexedDB.
+- Ingen ændring af tegnewidget, Mine tegninger, billedwidget, backup/import eller migration.
+- Ingen ændring af render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i143 DRAW WIDGET STATE MAP ONLY:
+- Bygger på SAFE453i142.
+- Denne fase er KUN kortlægning/dokumentation.
+- Ingen funktionel kodeændring.
+- Ingen CSS-ændring.
+- Ingen HTML-strukturændring.
+- Ingen IndexedDB-læsning/-skrivning tilføjes.
+- Ingen ændring af tegnewidget, billedwidget, Backup +, import, render(), save(), load(), addWidget() eller select().
+
+BAGGRUND:
+Efter SAFE453i111b-i142 ligger nye lokale billedkilder nu i TavleMediaArchive/IndexedDB:
+- Billedwidget > Fra enhed.
+- Drag/drop af lokale billeder.
+- Kamera i billedwidget.
+- Gemt tegning indsat som billedwidget.
+- TavleShot-/gendannelsespunkt-preview kan indgå i Backup + som mediaRef/previewMediaRef.
+
+Der findes dog stadig indlejrede dataURL-spor i tavle-state. Statusmodalerne viser typisk bl.a.:
+- state.slides[n].draw
+- drawcopy/tegnewidget-relaterede overlay-data
+- boardState/restorePoint-preview fra ældre gendannelsespunkter
+Dette er forventeligt i en overgang, men skal kortlægges før noget flyttes.
+
+KORTLÆGNING AF TEGNE-/DRAW-SPOR I DENNE FIL:
+1) Globalt tavletegnelag
+- save(opts={}) forsøger stadig at gemme det globale tegnecanvas direkte i:
+  slide().draw = draw.toDataURL('image/png')
+- render() kalder loadDraw(slide().draw||'') og genskaber dermed global tegning fra state.
+- drawClear rydder globalt tegnelag med slide().draw=''.
+- Dette spor er småt i mange tests, men kan stadig blive en indlejret PNG-dataURL i localStorage.
+
+2) Tegnewidget / drawcopy
+- safe453i19CreateDrawcopy(src,name) opretter en tegnewidget/drawcopy ud fra et billedgrundlag.
+- Tegnewidgetten har sit eget canvas-overlay.
+- saveOverlay() gemmer i dag overlayet som:
+  w.data.overlay = canvas.toDataURL('image/png')
+  save()
+- Det betyder at aktive tegnewidgets kan efterlade indlejrede overlay-data i tavle-state.
+- Dette er ikke nødvendigvis forkert for små streger, men det er et kandidatspor til senere mediaRef/IndexedDB, hvis overlayet bliver stort.
+
+3) Mine tegninger
+- Gem fra tegnewidget bruger exportCroppedPng(draw) og lægger den færdige tegning i det eksisterende tegningsarkiv.
+- Mine tegninger er et separat IndexedDB-spor fra TavleMediaArchive.
+- SAFE453i117 sikrer at en gemt tegning, når den indsættes som billedwidget, oprettes i TavleMediaArchive som mediaRef.
+- Selve Mine tegninger-formatet er ikke ændret i dette spor.
+
+4) Billede + Tegn + Gem + Indsæt som billede
+Aktuelt ønsket kæde:
+- Billede fra enhed/drag/drop/kamera ligger i TavleMediaArchive.
+- Klik Tegn opretter tegnewidget/drawcopy som redigerbar mellemstation.
+- Gem tegning lægger færdigt resultat i Mine tegninger.
+- Indsæt som billede opretter en billedwidget med mediaRef i TavleMediaArchive.
+- Den midlertidige/aktive tegnewidget kan stadig have dataURL-overlay i tavle-state, indtil et senere sikkert spor ændrer det.
+
+5) Gendannelsespunkter / TavleShots
+- Gendannelsespunkter kan stadig indeholde boardState, hvor ældre eller aktuelle draw-data kan ligge indlejret.
+- Preview-delen kan nu være previewMediaRef, men selve boardState bør ikke flyttes blindt.
+- Hvis boardState indeholder tegnewidgets med overlay-dataURL, følger de stadig med som del af tavle-snapshot.
+
+VURDERING:
+- Færdige billeder/tegninger bør ligge i IndexedDB.
+- Aktive tegnewidgets er mere følsomme, fordi de er redigerbare og bruger canvas-live-state.
+- Næste implementering bør derfor ikke flytte alt tegneindhold på én gang.
+
+ANBEFALET NÆSTE SIKRE FASE:
+SAFE453i144_draw_widget_state_control_view_only
+- Udvid “Hvor ligger data?” eller “Backup + kontrol” med en tydelig, brugerrettet visning af tegne-spor:
+  - globalt tavletegnelag i state
+  - aktive tegnewidget-overlays i state
+  - gemte tegninger i Mine tegninger-arkiv
+  - billeder fra tegninger i TavleMediaArchive
+- Kun visning/kontrol, ingen flytning.
+
+ANBEFALET SENERE IMPLEMENTERING, HVIS NØDVENDIGT:
+SAFE453i145_drawcopy_overlay_mediaRef_new_saves_only
+- Kun nye/ændrede tegnewidget-overlays gemmes som mediaRef i TavleMediaArchive.
+- Gamle w.data.overlay-dataURL virker fortsat.
+- Ingen migration.
+- Ingen ændring af Mine tegninger-format.
+
+MÅ IKKE I NÆSTE IMPLEMENTERING:
+- omskrive tegnewidgetten bredt
+- ændre lag/z-index eller keyboard-adfærd
+- ændre Mine tegninger-format
+- ændre Backup + import/remap samtidig
+- fjerne legacy-dataURL-understøttelse
+- flytte eksisterende draw-data automatisk
+-->
+<!-- SAFE453i142 BACKUP PLUS MISSING MEDIA USER WARNING:
+- Bygger på SAFE453i141.
+- Tilføjer kun en brugerrettet advarsel, hvis en indlæst tavle/Backup + peger på lokale medier, som ikke findes i den importerede fil eller ikke kunne lægges i TavleMediaArchive.
+- Formål: hvis en Backup + er lavet i en ældre appversion eller mangler mediaArchive, skal brugeren få en forståelig besked i stedet for kun tekniske placeholders.
+- Ingen ændring af eksport, importvalg, merge, remap, widgets, IndexedDB-format, backupformat eller render-flow.
+- Åbning af filen fortsætter stadig: advarslen forklarer kun, hvorfor nogle billeder/previews evt. mangler.
+-->
 <!-- SAFE453i141 BACKUP PLUS IMPORT MEDIA BEFORE RENDER:
 - Bygger på SAFE453i140, men gør import af mediaArchive mere robust.
 - Ved åbning af Backup + importeres IndexedDB-medier nu før første render af den importerede tavle.
@@ -19798,10 +20143,27 @@ function shouldWarnAboutLocalSave(){
 // STATE / STORAGE
 ////////////////////////////////////////////////////////////
 /* save()/load(): JSON-state i localStorage. Undgå datamodelændringer uden migration og rollback-test. */
+function safe453i152CleanupDuplicateEmbeddedPdfUrlInState(){
+  try{
+    const sls=(state&&Array.isArray(state.slides))?state.slides:[];
+    for(const sl of sls){
+      const widgets=(sl&&Array.isArray(sl.widgets))?sl.widgets:[];
+      for(const w of widgets){
+        if(!w||w.type!=='pdf'||!w.data)continue;
+        const src=typeof w.data.src==='string'?w.data.src:'';
+        const url=typeof w.data.url==='string'?w.data.url:'';
+        if(src&&url&&src===url&&src.startsWith('data:application/pdf')){
+          delete w.data.url;
+        }
+      }
+    }
+  }catch(_e){}
+}
 function save(opts={}){
   try{
     if(draw&&draw.toDataURL&&slide())slide().draw=draw.toDataURL('image/png');
   }catch(e){}
+  try{ safe453i152CleanupDuplicateEmbeddedPdfUrlInState(); }catch(_e){}
   try{
     localStorage.setItem(KEY,JSON.stringify(state));
     window.__lastSaveFailed=false;
@@ -21209,8 +21571,27 @@ async function handleDroppedFile(file,point){
     return {ok:true,kind:'image',label:file.name||'Billede'};
   }
   if(isLikelyPdfFile(file)){
+    // SAFE453i156: Drag/drop af lokale PDF-filer bruger nu samme fileMediaRef-princip
+    // som PDF-widgettens lokale filknap. Ved fejl faldes der tilbage til legacy dataURL-flow.
+    try{
+      if(typeof safe453i156StoreDroppedPdfFile==='function'){
+        const rec=await safe453i156StoreDroppedPdfFile(file);
+        addDroppedWidget('pdf',{
+          fileMediaRef:rec.id,
+          name:file.name||rec.name||'PDF',
+          mimeType:rec.mimeType||file.type||'application/pdf',
+          size:rec.size||file.size||0,
+          source:'pdf-dragdrop',
+          page:1
+        },point,file.name||'PDF');
+        toast('PDF gemt i IndexedDB');
+        return {ok:true,kind:'pdf',label:file.name||'PDF'};
+      }
+    }catch(err){
+      console.warn('SAFE453i156 PDF drag/drop IndexedDB fallback til legacy dataURL',err);
+    }
     const src=await readFileAsDataURL(file);
-    addDroppedWidget('pdf',{src,url:src,name:file.name||'PDF',page:1},point,file.name||'PDF');
+    addDroppedWidget('pdf',{src:src,name:file.name||'PDF',source:'pdf-dragdrop-legacy-fallback',page:1},point,file.name||'PDF');
     toast('PDF indsat');
     return {ok:true,kind:'pdf',label:file.name||'PDF'};
   }
@@ -21836,6 +22217,85 @@ function pickLocalPdf(cb){
 function isEmbeddedPdf(src){
   return typeof src==='string' && src.startsWith('data:application/pdf');
 }
+function safe453i155PdfArchiveReady(){
+  const a=window.TavleMediaArchive;
+  return !!(a&&a.__safe453i84&&typeof a.putMedia==='function'&&typeof a.getBlob==='function');
+}
+async function safe453i155StoreLocalPdfFile(file){
+  if(!file)throw new Error('Mangler PDF-fil');
+  const archive=window.TavleMediaArchive;
+  if(!safe453i155PdfArchiveReady())throw new Error('Mediearkiv er ikke klar');
+  const rec=await archive.putMedia({
+    kind:'pdf',
+    name:file.name||'PDF',
+    mimeType:file.type||'application/pdf',
+    size:file.size||0,
+    blob:file,
+    source:'pdf-local-widget',
+    meta:{safePhase:'SAFE453i155',flow:'pdf-widget-local-button'}
+  });
+  return rec;
+}
+async function safe453i156StoreDroppedPdfFile(file){
+  if(!file)throw new Error('Mangler PDF-fil');
+  const archive=window.TavleMediaArchive;
+  if(!safe453i155PdfArchiveReady())throw new Error('Mediearkiv er ikke klar');
+  const rec=await archive.putMedia({
+    kind:'pdf',
+    name:file.name||'PDF',
+    mimeType:file.type||'application/pdf',
+    size:file.size||0,
+    blob:file,
+    source:'pdf-dragdrop',
+    meta:{safePhase:'SAFE453i156',flow:'pdf-dragdrop'}
+  });
+  return rec;
+}
+async function safe453i155PdfRenderSource(w){
+  const d=(w&&w.data)||{};
+  const legacySrc=d.src||d.url||'';
+  const ref=String(d.fileMediaRef||'');
+  if(ref&&safe453i155PdfArchiveReady()){
+    try{
+      const blob=await window.TavleMediaArchive.getBlob(ref);
+      if(blob){
+        const buf=await blob.arrayBuffer();
+        return {kind:'fileMediaRef',bytes:new Uint8Array(buf),src:'',ref:ref};
+      }
+    }catch(err){
+      console.warn('SAFE453i155 PDF fileMediaRef kunne ikke læses; forsøger legacy fallback',err);
+    }
+  }
+  return {kind:isEmbeddedPdf(legacySrc)?'embedded':'url',src:legacySrc,bytes:null,ref:ref};
+}
+
+async function safe453i157DownloadPdfWidget(w){
+  const d=(w&&w.data)||{};
+  const ref=String(d.fileMediaRef||'');
+  const filename=safeFileName(d.name||'PDF','pdf');
+  if(ref&&safe453i155PdfArchiveReady()){
+    try{
+      const blob=await window.TavleMediaArchive.getBlob(ref);
+      if(blob){
+        safeDownload(filename, blob, d.mimeType||blob.type||'application/pdf');
+        toast('PDF hentet fra IndexedDB');
+        return;
+      }
+      toast('PDF mangler i mediearkivet');
+      return;
+    }catch(err){
+      console.warn('SAFE453i157 kunne ikke hente PDF fra IndexedDB',err);
+      toast('Kunne ikke hente PDF fra IndexedDB');
+      return;
+    }
+  }
+  const src=d.src||d.url||'';
+  if(isEmbeddedPdf(src)){
+    downloadDataUrl(src,d.name||'PDF');
+    return;
+  }
+  toast(src?'PDF’en er et link, ikke en lokal arkivfil':'Ingen PDF at hente');
+}
 
 
 
@@ -21880,12 +22340,13 @@ function pdfJsStatus(viewer,msg,small){
 }
 async function renderPdfJsWidget(w,c){
   const src=w.data.src||w.data.url||'';
+  const hasFileRef=!!(w.data&&w.data.fileMediaRef);
   const viewer=c.querySelector('.pdfJsViewer');
   const label=c.querySelector('.pdfPageLabel');
   const prev=c.querySelector('.pdfPrev');
   const next=c.querySelector('.pdfNext');
   if(!viewer)return;
-  if(!src){
+  if(!src&&!hasFileRef){
     viewer.innerHTML='<div class="pdfJsEmpty">Vælg lokal PDF eller indsæt direkte PDF-URL</div>';
     if(label)label.textContent='Side –';
     if(prev)prev.disabled=true;if(next)next.disabled=true;
@@ -21896,9 +22357,13 @@ async function renderPdfJsWidget(w,c){
   pdfJsStatus(viewer,'Indlæser PDF…');
   try{
     const pdfjs=await ensurePdfJs();
+    const renderSource=await safe453i155PdfRenderSource(w);
+    if(w._pdfRenderToken!==token)return;
     let task;
-    if(isEmbeddedPdf(src)) task=pdfjs.getDocument({data:dataUrlToUint8Array(src)});
-    else task=pdfjs.getDocument({url:src,withCredentials:false});
+    if(renderSource&&renderSource.bytes) task=pdfjs.getDocument({data:renderSource.bytes});
+    else if(renderSource&&isEmbeddedPdf(renderSource.src)) task=pdfjs.getDocument({data:dataUrlToUint8Array(renderSource.src)});
+    else if(renderSource&&renderSource.src) task=pdfjs.getDocument({url:renderSource.src,withCredentials:false});
+    else throw new Error('PDF mangler i mediearkivet');
     const pdf=await task.promise;
     if(w._pdfRenderToken!==token)return;
     w._pdfDoc=pdf;
@@ -31990,31 +32455,49 @@ if(w.type==='drawcopy'){
   const src=w.data.src||w.data.url||'';
   const page=Math.max(1,Number(w.data.page||1));
   const pages=Number(w.data.pages||0);
+  const hasPdfFileRef=!!(w.data&&w.data.fileMediaRef&&!src);
+  const pdfStorageText=hasPdfFileRef?'PDF i arkiv: IndexedDB':(isEmbeddedPdf(src)?'PDF er indlejret i backup.':(src?'PDF er linket via URL.':'Ingen PDF valgt.'));
   c.innerHTML=`<div class="pdfControls widget-control">
       <button class="pdfLocal">Vælg lokal PDF</button>
       <button class="pdfUrl">PDF fra URL</button>
-      ${isEmbeddedPdf(src)?'<button class="pdfDownload">Download</button>':''}
+      ${(hasPdfFileRef||isEmbeddedPdf(src))?'<button class="pdfDownload">Download</button>':''}
       <button class="pdfPrev" title="Forrige side">‹</button>
-      <span class="pdfPageLabel">${src?('Side '+page+(pages?' / '+pages:'')):'Side –'}</span>
+      <span class="pdfPageLabel">${(src||hasPdfFileRef)?('Side '+page+(pages?' / '+pages:'')):'Side –'}</span>
       <button class="pdfNext" title="Næste side">›</button>
-      <span>${isEmbeddedPdf(src)?'PDF er indlejret i backup.':(src?'PDF er linket via URL.':'Ingen PDF valgt.')}</span>
+      <span>${esc(pdfStorageText)}</span>
     </div>
     <div class="pdfJsViewer"></div>
     <div class="pdfEdgeNav left" title="Forrige side"></div>
     <div class="pdfEdgeNav right" title="Næste side"></div>`;
   const local=c.querySelector('.pdfLocal');
-  if(local)local.onclick=(e)=>{e.stopPropagation();pickLocalPdf((dataUrl,file)=>{
-    w.data.src=dataUrl;
-    w.data.url=dataUrl;
-    w.data.name=file.name||'PDF';
+  if(local)local.onclick=(e)=>{e.stopPropagation();pickLocalPdf(async (dataUrl,file)=>{
+    let archived=false;
+    try{
+      const rec=await safe453i155StoreLocalPdfFile(file);
+      w.data.fileMediaRef=rec.id;
+      w.data.name=file.name||rec.name||'PDF';
+      w.data.mimeType=rec.mimeType||file.type||'application/pdf';
+      w.data.size=rec.size||file.size||0;
+      w.data.source='pdf-local-widget';
+      delete w.data.src;
+      delete w.data.url;
+      archived=true;
+    }catch(err){
+      console.warn('SAFE453i155 PDF IndexedDB fallback til legacy dataURL',err);
+      w.data.src=dataUrl;
+      delete w.data.url;
+      delete w.data.fileMediaRef;
+      w.data.name=file.name||'PDF';
+      w.data.source='pdf-local-widget-legacy-fallback';
+    }
     w.data.page=1;
     delete w.data.pages;
     fillContent(el,w);
     save();
-    toast('PDF indlejret i tavlen');
+    toast(archived?'PDF gemt i IndexedDB':'PDF indlejret i tavlen');
   })};
   const pdfDownload=c.querySelector('.pdfDownload');
-  if(pdfDownload)pdfDownload.onclick=(e)=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else downloadDataUrl(src,w.data.name||'pdf')};
+  if(pdfDownload)pdfDownload.onclick=(e)=>{e.stopPropagation();safe453i157DownloadPdfWidget(w)};
   const urlBtn=c.querySelector('.pdfUrl');
   if(urlBtn)urlBtn.onclick=(e)=>{
     e.stopPropagation();
@@ -32022,6 +32505,7 @@ if(w.type==='drawcopy'){
     if(!u)return;
     w.data.src=u;
     w.data.url=u;
+    delete w.data.fileMediaRef;
     w.data.name='PDF fra URL';
     w.data.page=1;
     delete w.data.pages;
@@ -36236,11 +36720,48 @@ function safe453i118LocalStorageRows(){
     for(let i=0;i<localStorage.length;i++){
       const key=localStorage.key(i);
       const val=localStorage.getItem(key)||'';
-      rows.push({key:key,bytes:safe453i118ApproxStringBytes(val),looksDataUrl:/data:[^\"']{20,}/.test(val),looksJson:/^\s*[\[{]/.test(val)});
+      rows.push({key:key,bytes:safe453i118ApproxStringBytes(val),looksDataUrl:String(val).indexOf('data:')>=0,looksJson:/^\s*[\[{]/.test(val)});
     }
   }catch(_e){}
   rows.sort((a,b)=>b.bytes-a.bytes);
   return rows;
+}
+
+function safe453i148ReadMediaArchiveListSafe(timeoutMs){
+  const archive=(window.TavleMediaArchive&&typeof window.TavleMediaArchive.listMedia==='function')?window.TavleMediaArchive:null;
+  if(!archive)return Promise.resolve([]);
+  timeoutMs=Number(timeoutMs)||2500;
+  return new Promise(function(resolve){
+    let done=false;
+    const finish=function(list){
+      if(done)return;
+      done=true;
+      resolve(Array.isArray(list)?list:[]);
+    };
+    let timer=null;
+    try{
+      timer=setTimeout(function(){finish([]);},timeoutMs);
+      archive.listMedia().then(function(list){
+        try{if(timer)clearTimeout(timer);}catch(_e){}
+        finish(list);
+      }).catch(function(){
+        try{if(timer)clearTimeout(timer);}catch(_e){}
+        finish([]);
+      });
+    }catch(_e){
+      try{if(timer)clearTimeout(timer);}catch(__e){}
+      finish([]);
+    }
+  });
+}
+function safe453i148StateBytesFallback(){
+  try{
+    if(typeof KEY==='string'){
+      const v=localStorage.getItem(KEY);
+      if(v!=null)return safe453i118ApproxStringBytes(v);
+    }
+  }catch(_e){}
+  try{return safe453i118ApproxStringBytes(JSON.stringify(state||{}));}catch(_e){return 0;}
 }
 
 function safe453i122ClassifyLocalStorageKey(key,row){
@@ -36525,7 +37046,7 @@ function safe453i124OpenIndexedDbMediaMap(){
   const usage=combined.usage||{};
   showModal('<h2>IndexedDB-medier</h2><p>Læser TavleMediaArchive og scanner localStorage-referencer…</p><button data-safe453i124-back-storage="1" title="Tilbage til Hvor ligger data" aria-label="Tilbage til Hvor ligger data">←</button>');
   safe453i124WireMediaMapButtons();
-  const done=archive?archive.listMedia().catch(function(){return [];}):Promise.resolve([]);
+  const done=safe453i148ReadMediaArchiveListSafe(2500);
   done.then(function(mediaList){
     mediaList=Array.isArray(mediaList)?mediaList:[];
     const rows=mediaList.slice().sort(function(a,b){return (Number(b&&b.size)||0)-(Number(a&&a.size)||0);}).map(function(m){
@@ -36556,7 +37077,7 @@ function safe453i124OpenIndexedDbMediaMap(){
       '</div>'+
       '<div class="safe453StorageOverview"><details open><summary>Alle medier i TavleMediaArchive</summary><table><thead><tr><th>Status</th><th>Type/kilde</th><th>Navn</th><th>Størrelse</th><th>ID</th><th>Fundet brugt her</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">Ingen medier fundet i TavleMediaArchive</td></tr>')+'</tbody></table></details>'+
       '</div>'+
-      '<style>.safe453StorageTopActions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe453StorageTopActions span{font-size:.85rem;color:#526070}.safe453StorageCards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.safe453StorageCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe453StorageCards b{display:block}.safe453StorageCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe453StorageCards small{display:block;color:#526070}.safe453StorageOverview{max-height:54vh;overflow:auto;padding-right:4px}.safe453StorageOverview details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe453StorageOverview summary{font-weight:800;cursor:pointer}.safe453StorageOverview table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px}.safe453StorageOverview th,.safe453StorageOverview td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe453StorageOverview code{font-size:.76rem;word-break:break-all}@media(max-width:760px){.safe453StorageCards{grid-template-columns:1fr 1fr}.safe453StorageOverview{max-height:50vh}.safe453StorageOverview table{font-size:.76rem}.safe453StorageTopActions{align-items:stretch}.safe453StorageTopActions button{width:100%}}</style>';
+      '<style>.safe453StorageTopActions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe453StorageTopActions span{font-size:.85rem;color:#526070}.safe453StorageCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}.safe453StorageCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe453StorageCards b{display:block}.safe453StorageCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe453StorageCards small{display:block;color:#526070}.safe453StorageOverview{max-height:54vh;overflow:auto;padding-right:4px}.safe453StorageOverview details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe453StorageOverview summary{font-weight:800;cursor:pointer}.safe453StorageOverview table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px}.safe453StorageOverview th,.safe453StorageOverview td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe453StorageOverview code{font-size:.76rem;word-break:break-all}@media(max-width:760px){.safe453StorageCards{grid-template-columns:1fr 1fr}.safe453StorageOverview{max-height:50vh}.safe453StorageOverview table{font-size:.76rem}.safe453StorageTopActions{align-items:stretch}.safe453StorageTopActions button{width:100%}}</style>';
     showModal(html);
     safe453i124WireMediaMapButtons();
   });
@@ -36597,12 +37118,80 @@ function safe453i133WireBack(){
     };
   });
 }
+
+function safe453i144FormatDrawPath(path){
+  path=String(path||'');
+  return path.replace(/^state\./,'').replace(/slides\[(\d+)\]/g,'Tavle $1').replace(/widgets\[(\d+)\]/g,'widget $1');
+}
+function safe453i144DataUrlBytes(v){
+  if(typeof v!=='string'||!/^data:/i.test(v))return 0;
+  return safe453i118ApproxStringBytes(v);
+}
+function safe453i144AddDrawTrace(out,type,path,storage,bytes,note){
+  out.push({type:type||'Tegnespor',path:path||'',storage:storage||'',bytes:Number(bytes)||0,note:note||''});
+}
+function safe453i144ScanDrawState(root){
+  const out=[];
+  const st=root||{};
+  try{
+    (st.slides||[]).forEach(function(sl,si){
+      if(sl&&typeof sl.draw==='string'&&sl.draw){
+        safe453i144AddDrawTrace(out,'Aktiv tavletegning','state.slides['+si+'].draw','Indlejret i tavlen',safe453i144DataUrlBytes(sl.draw),'Globalt tegnelag på tavlen');
+      }
+      (sl&&Array.isArray(sl.widgets)?sl.widgets:[]).forEach(function(w,wi){
+        if(!w||w.type!=='drawcopy')return;
+        const base='state.slides['+si+'].widgets['+wi+']';
+        const d=w.data||{};
+        let found=false;
+        if(typeof d.src==='string'&&d.src){
+          found=true;
+          if(/^data:/i.test(d.src))safe453i144AddDrawTrace(out,'Tegnewidget: billedunderlag',base+'.data.src','Indlejret i tavlen',safe453i144DataUrlBytes(d.src),'Underlaget i en aktiv tegnewidget');
+          else safe453i144AddDrawTrace(out,'Tegnewidget: billedunderlag',base+'.data.src',/^https?:/i.test(d.src)?'URL':'Reference/tekst',0,'Underlaget i en aktiv tegnewidget');
+        }
+        if(typeof d.overlay==='string'&&d.overlay){
+          found=true;
+          safe453i144AddDrawTrace(out,'Tegnewidget: tegning',base+'.data.overlay','Indlejret i tavlen',safe453i144DataUrlBytes(d.overlay),'Streger/overlay i aktiv tegnewidget');
+        }
+        if(d.mediaRef){
+          found=true;
+          safe453i144AddDrawTrace(out,'Tegnewidget: mediaRef',base+'.data.mediaRef','Arkiv: IndexedDB',0,'Tegnewidget peger på mediearkiv');
+        }
+        if(!found)safe453i144AddDrawTrace(out,'Tegnewidget',base,'Aktiv widget',0,'Ingen indlejret billeddata fundet i widget-data');
+      });
+    });
+  }catch(_e){}
+  try{
+    function visit(v,path,depth){
+      if(!v||depth>8)return;
+      if(typeof v==='string'){
+        if(/^data:image\//i.test(v)&&/restore|gendan|boardshot|snapshot|preview/i.test(path)){
+          safe453i144AddDrawTrace(out,'Gendannelsespunkt-preview',path,'Indlejret i tavlen',safe453i144DataUrlBytes(v),'Ældre preview/snapshot i state');
+        }
+        return;
+      }
+      if(typeof v!=='object')return;
+      if(Array.isArray(v)){v.forEach(function(x,i){visit(x,path+'['+i+']',depth+1);});return;}
+      Object.keys(v).forEach(function(k){visit(v[k],path?(path+'.'+k):k,depth+1);});
+    }
+    visit(st,'state',0);
+  }catch(_e){}
+  const seen={};
+  return out.filter(function(x){const key=x.type+'|'+x.path+'|'+x.storage; if(seen[key])return false; seen[key]=true; return true;});
+}
+function safe453i144DrawRows(traces,limit){
+  traces=Array.isArray(traces)?traces:[];
+  return traces.slice(0,limit||40).map(function(x){
+    return '<tr><td title="'+esc(x.type||'')+'">'+esc(x.type||'')+'</td><td title="'+esc(x.path||'')+'">'+esc(safe453i144FormatDrawPath(x.path||''))+'</td><td>'+esc(x.storage||'')+'</td><td>'+safe453i118FormatBytes(x.bytes||0)+'</td><td title="'+esc(x.note||'')+'">'+esc(x.note||'')+'</td></tr>';
+  }).join('');
+}
+
 function safe453i133OpenBackupPlusReferenceScan(){
   const archive=(window.TavleMediaArchive&&typeof window.TavleMediaArchive.listMedia==='function')?window.TavleMediaArchive:null;
   const scan=safe453i118ScanObjectForStorage(state||{});
+  const drawTraces=safe453i144ScanDrawState(state||{});
   showModal('<h2>Backup + kontrol</h2><p>Leder efter lokale medier, som Backup + senere skal kunne tage med…</p><button data-safe453i133-back-storage="1" title="Tilbage" aria-label="Tilbage">←</button>');
   safe453i133WireBack();
-  const done=archive?archive.listMedia().catch(function(){return [];}):Promise.resolve([]);
+  const done=safe453i148ReadMediaArchiveListSafe(2500);
   done.then(function(mediaList){
     mediaList=Array.isArray(mediaList)?mediaList:[];
     const mediaById={};
@@ -36614,6 +37203,8 @@ function safe453i133OpenBackupPlusReferenceScan(){
     const missingRefs=refs.filter(function(r){return !mediaById[String(r&&r.id||'')];});
     const foundBytes=foundRefs.reduce(function(sum,r){const m=mediaById[String(r&&r.id||'')];return sum+(Number(m&&m.size)||0);},0);
     const dataUrlBytes=(scan.dataUrls||[]).reduce(function(sum,x){return sum+(Number(x&&x.bytes)||0);},0);
+    const drawTraceBytes=(drawTraces||[]).reduce(function(sum,x){return sum+(Number(x&&x.bytes)||0);},0);
+    const drawRows=safe453i144DrawRows(drawTraces,40);
     const unref=mediaList.filter(function(m){return !refIds[String(m&&m.id||'')];});
     const refRows=refs.map(function(r){
       const id=String(r&&r.id||'');
@@ -36649,13 +37240,15 @@ function safe453i133OpenBackupPlusReferenceScan(){
         '<div><b>Fundet i arkiv</b><span>'+foundRefs.length+'</span><small>'+safe453i118FormatBytes(foundBytes)+' skal med</small></div>'+        
         '<div><b>Mangler</b><span>'+missingRefs.length+'</span><small>referencer uden arkivfil</small></div>'+        
         '<div><b>Indlejret i tavlen</b><span>'+(scan.dataUrls||[]).length+'</span><small>'+safe453i118FormatBytes(dataUrlBytes)+' følger med almindelig backup</small></div>'+      
+        '<div><b>Tegnespor</b><span>'+(drawTraces||[]).length+'</span><small>'+safe453i118FormatBytes(drawTraceBytes)+' synligt i tavle-state</small></div>'+      
       '</div>'+      
       '<div class="safe453StorageOverview">'+        
         '<details open><summary>Medtages i Backup +</summary><table class="safe453CompactTable"><thead><tr><th>Type</th><th>Placering</th><th>OK</th><th>Arkiv</th><th>Str.</th><th>ID</th></tr></thead><tbody>'+(refRows||'<tr><td colspan="6">Ingen mediaRef/previewMediaRef fundet i den åbne tavle</td></tr>')+'</tbody></table></details>'+
         '<details><summary>Indlejret i tavlen</summary><table class="safe453CompactTable"><thead><tr><th>Type</th><th>Placering</th><th>MIME</th><th>Str.</th></tr></thead><tbody>'+(dataRows||'<tr><td colspan="4">Ingen indlejrede dataURL’er fundet</td></tr>')+'</tbody></table></details>'+
+        '<details open><summary>Tegnespor i tavle-state</summary><table class="safe453CompactTable"><thead><tr><th>Type</th><th>Placering</th><th>Ligger</th><th>Str.</th><th>Note</th></tr></thead><tbody>'+(drawRows||'<tr><td colspan="5">Ingen aktive tegnespor fundet</td></tr>')+'</tbody></table></details>'+
         '<details><summary>Ikke brugt af den åbne tavle</summary><table class="safe453CompactTable"><thead><tr><th>Type/kilde</th><th>Navn</th><th>Str.</th><th>ID</th></tr></thead><tbody>'+(unrefRows||'<tr><td colspan="4">Ingen øvrige medier fundet</td></tr>')+'</tbody></table></details>'+
       '</div>'+
-      '<style>.safe453StorageTopActions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:6px 0 8px}.safe453StorageTopActions span{font-size:.82rem;color:#526070}.safe453StorageCards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0}.safe453StorageCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:11px;padding:8px}.safe453StorageCards b{display:block;font-size:.9rem;line-height:1.05}.safe453StorageCards span{display:block;font-size:1.22rem;font-weight:900;margin-top:2px}.safe453StorageCards small{display:block;color:#526070;font-size:.78rem;line-height:1.1}.safe453StorageOverview{max-height:56vh;overflow:auto;padding-right:4px;padding-bottom:32px;scroll-padding-bottom:32px}.safe453StorageOverview details{margin:6px 0;border:1px solid #dbe3ef;border-radius:11px;background:white;padding:6px 8px}.safe453StorageOverview details:last-child{margin-bottom:30px}.safe453StorageOverview summary{font-weight:800;cursor:pointer;font-size:.94rem}.safe453StorageOverview table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:5px;table-layout:fixed}.safe453StorageOverview th,.safe453StorageOverview td{border-top:1px solid #eef2f7;padding:4px 5px;text-align:left;vertical-align:top;line-height:1.12;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.safe453StorageOverview code{font-size:.72rem;white-space:nowrap}.safe453CompactTable th:nth-child(1),.safe453CompactTable td:nth-child(1){width:20%}.safe453CompactTable th:nth-child(2),.safe453CompactTable td:nth-child(2){width:30%}.safe453CompactTable th:nth-child(3),.safe453CompactTable td:nth-child(3){width:42px}.safe453CompactTable th:nth-child(4),.safe453CompactTable td:nth-child(4){width:22%}.safe453CompactTable th:nth-child(5),.safe453CompactTable td:nth-child(5){width:62px}.safe453CompactTable th:nth-child(6),.safe453CompactTable td:nth-child(6){width:58px}.safe453CompactStatus{text-align:center}.safe453CompactSize{white-space:nowrap}.safe453CompactId{width:58px}.safe453CompactPath,.safe453CompactName,.safe453CompactKind,.safe453CompactMime{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.safe453CompactArchive{font-size:.76rem}.safe453Note{margin:8px 0;font-size:.9rem;line-height:1.18}@media(max-width:760px){.safe453StorageCards{grid-template-columns:1fr 1fr}.safe453StorageOverview{max-height:52vh}.safe453StorageOverview table{font-size:.72rem}.safe453StorageTopActions{align-items:center}.safe453CompactArchive{font-size:.7rem}.safe453StorageOverview th,.safe453StorageOverview td{padding:3px 4px}.safe453CompactTable th:nth-child(1),.safe453CompactTable td:nth-child(1){width:22%}.safe453CompactTable th:nth-child(2),.safe453CompactTable td:nth-child(2){width:28%}.safe453CompactTable th:nth-child(4),.safe453CompactTable td:nth-child(4){width:20%}}</style>';
+      '<style>.safe453StorageTopActions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:6px 0 8px}.safe453StorageTopActions span{font-size:.82rem;color:#526070}.safe453StorageCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0}.safe453StorageCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:11px;padding:8px}.safe453StorageCards b{display:block;font-size:.9rem;line-height:1.05}.safe453StorageCards span{display:block;font-size:1.22rem;font-weight:900;margin-top:2px}.safe453StorageCards small{display:block;color:#526070;font-size:.78rem;line-height:1.1}.safe453StorageOverview{max-height:56vh;overflow:auto;padding-right:4px;padding-bottom:32px;scroll-padding-bottom:32px}.safe453StorageOverview details{margin:6px 0;border:1px solid #dbe3ef;border-radius:11px;background:white;padding:6px 8px}.safe453StorageOverview details:last-child{margin-bottom:30px}.safe453StorageOverview summary{font-weight:800;cursor:pointer;font-size:.94rem}.safe453StorageOverview table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:5px;table-layout:fixed}.safe453StorageOverview th,.safe453StorageOverview td{border-top:1px solid #eef2f7;padding:4px 5px;text-align:left;vertical-align:top;line-height:1.12;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.safe453StorageOverview code{font-size:.72rem;white-space:nowrap}.safe453CompactTable th:nth-child(1),.safe453CompactTable td:nth-child(1){width:20%}.safe453CompactTable th:nth-child(2),.safe453CompactTable td:nth-child(2){width:30%}.safe453CompactTable th:nth-child(3),.safe453CompactTable td:nth-child(3){width:42px}.safe453CompactTable th:nth-child(4),.safe453CompactTable td:nth-child(4){width:22%}.safe453CompactTable th:nth-child(5),.safe453CompactTable td:nth-child(5){width:62px}.safe453CompactTable th:nth-child(6),.safe453CompactTable td:nth-child(6){width:58px}.safe453CompactStatus{text-align:center}.safe453CompactSize{white-space:nowrap}.safe453CompactId{width:58px}.safe453CompactPath,.safe453CompactName,.safe453CompactKind,.safe453CompactMime{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.safe453CompactArchive{font-size:.76rem}.safe453Note{margin:8px 0;font-size:.9rem;line-height:1.18}@media(max-width:760px){.safe453StorageCards{grid-template-columns:1fr 1fr}.safe453StorageOverview{max-height:52vh}.safe453StorageOverview table{font-size:.72rem}.safe453StorageTopActions{align-items:center}.safe453CompactArchive{font-size:.7rem}.safe453StorageOverview th,.safe453StorageOverview td{padding:3px 4px}.safe453CompactTable th:nth-child(1),.safe453CompactTable td:nth-child(1){width:22%}.safe453CompactTable th:nth-child(2),.safe453CompactTable td:nth-child(2){width:28%}.safe453CompactTable th:nth-child(4),.safe453CompactTable td:nth-child(4){width:20%}}</style>';
     showModal(html);
     safe453i133WireBack();
   });
@@ -36663,17 +37256,18 @@ function safe453i133OpenBackupPlusReferenceScan(){
 
 function safe453i118OpenStorageOverview(){
   const scan=safe453i118ScanObjectForStorage(state||{});
+  const drawTraces=safe453i144ScanDrawState(state||{});
   const lsRows=safe453i118LocalStorageRows();
   const archive=(window.TavleMediaArchive&&typeof window.TavleMediaArchive.listMedia==='function')?window.TavleMediaArchive:null;
   showModal('<h2>Hvor ligger data?</h2><p>Læser localStorage og IndexedDB…</p><button data-safe453i120-back-downloads="1" title="Tilbage til Gem/åbn" aria-label="Tilbage til Gem/åbn">←</button>');
   safe453i120WireStorageOverviewBackButtons();
-  const done=archive?archive.listMedia().catch(function(){return [];}):Promise.resolve([]);
+  const done=safe453i148ReadMediaArchiveListSafe(2500);
   done.then(function(mediaList){
     mediaList=Array.isArray(mediaList)?mediaList:[];
     const mediaById={};
     mediaList.forEach(function(m){if(m&&m.id)mediaById[String(m.id)]=m;});
     const idbTotal=mediaList.reduce((sum,m)=>sum+(Number(m&&m.size)||0),0);
-    const stateJsonBytes=safe453i118ApproxStringBytes(JSON.stringify(state||{}));
+    const stateJsonBytes=safe453i148StateBytesFallback();
     const dataUrlTotal=scan.dataUrls.reduce((sum,x)=>sum+x.bytes,0);
     const refRows=scan.refs.map(function(r){
       const hit=mediaById[String(r.id)];
@@ -36695,6 +37289,8 @@ function safe453i118OpenStorageOverview(){
       grouped[key].count++;grouped[key].bytes+=Number(m.size)||0;
     });
     const groupRows=Object.keys(grouped).sort().map(function(k){return `<tr><td>${esc(k)}</td><td>${grouped[k].count}</td><td>${safe453i118FormatBytes(grouped[k].bytes)}</td></tr>`;}).join('');
+    const drawTraceBytes=drawTraces.reduce((sum,x)=>sum+(Number(x&&x.bytes)||0),0);
+    const drawRows=safe453i144DrawRows(drawTraces,40);
     const html=`<h2>Hvor ligger data?</h2>
       <div class="safe453StorageTopActions"><button data-safe453i120-back-downloads="1" title="Tilbage til Gem/åbn" aria-label="Tilbage til Gem/åbn">←</button><button data-safe453i124-open-media-map="1" title="Vis IndexedDB-medier">Medier</button><button data-safe453i133-open-backup-plus-map="1" title="Se hvad Backup + vil skulle have med">Backup +</button><button data-safe453i122-open-cleanup="1" title="Ryd gamle localStorage-data">Oprydning</button><span>Esc går også tilbage</span></div>
       <p class="safe453Note">Foreløbig kontrolvisning. Den flytter ikke data — den viser kun, hvad der ligger i tavle-state/localStorage, og hvad der ligger i mediearkivet/IndexedDB.</p>
@@ -36704,14 +37300,16 @@ function safe453i118OpenStorageOverview(){
           <div><b>Indlejrede dataURL’er i state</b><span>${scan.dataUrls.length}</span><small>${safe453i118FormatBytes(dataUrlTotal)} fundet i nuværende state</small></div>
           <div><b>mediaRef i state</b><span>${scan.refs.length}</span><small>${scan.refs.filter(r=>mediaById[String(r.id)]).length} fundet i IndexedDB</small></div>
           <div><b>IndexedDB / TavleMediaArchive</b><span>${mediaList.length}</span><small>${safe453i118FormatBytes(idbTotal)} i mediearkivet</small></div>
+          <div><b>Tegnespor</b><span>${drawTraces.length}</span><small>${safe453i118FormatBytes(drawTraceBytes)} synligt i tavle-state</small></div>
         </div>
         <details open><summary>IndexedDB / TavleMediaArchive efter type og kilde</summary><table><thead><tr><th>Type/kilde</th><th>Antal</th><th>Størrelse</th></tr></thead><tbody>${groupRows||'<tr><td colspan="3">Ingen poster fundet</td></tr>'}</tbody></table></details>
         <details open><summary>mediaRef / previewMediaRef i tavle-state</summary><table><thead><tr><th>Placering</th><th>Reference</th><th>Status</th><th>Type</th><th>Størrelse</th></tr></thead><tbody>${refRows||'<tr><td colspan="5">Ingen mediaRef fundet i state</td></tr>'}</tbody></table></details>
         <details><summary>Indlejrede dataURL’er, der stadig ligger i tavle-state</summary><table><thead><tr><th>Type</th><th>Placering</th><th>MIME</th><th>Ca. størrelse</th></tr></thead><tbody>${dataRows||'<tr><td colspan="4">Ingen dataURL’er fundet i state</td></tr>'}</tbody></table></details>
+        <details open><summary>Tegnespor i tavle-state</summary><table><thead><tr><th>Type</th><th>Placering</th><th>Ligger</th><th>Ca. størrelse</th><th>Note</th></tr></thead><tbody>${drawRows||'<tr><td colspan="5">Ingen aktive tegnespor fundet</td></tr>'}</tbody></table></details>
         <details><summary>localStorage-nøgler</summary><table><thead><tr><th>Nøgle</th><th>Ca. størrelse</th><th>Indhold</th></tr></thead><tbody>${lsHtml||'<tr><td colspan="3">Ingen localStorage-data kunne læses</td></tr>'}</tbody></table></details>
       </div>
       <style>
-        .safe453StorageTopActions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe453StorageTopActions span{font-size:.85rem;color:#526070}.safe453StorageOverview{max-height:54vh;overflow:auto;padding-right:4px}.safe453StorageCards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.safe453StorageCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe453StorageCards b{display:block}.safe453StorageCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe453StorageCards small{display:block;color:#526070}.safe453StorageOverview details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe453StorageOverview summary{font-weight:800;cursor:pointer}.safe453StorageOverview table{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px}.safe453StorageOverview th,.safe453StorageOverview td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe453StorageOverview code{font-size:.78rem;word-break:break-all}@media(max-width:760px){.safe453StorageCards{grid-template-columns:1fr 1fr}.safe453StorageOverview{max-height:50vh}.safe453StorageOverview table{font-size:.78rem}.safe453StorageTopActions{align-items:stretch}.safe453StorageTopActions button{width:100%}}
+        .safe453StorageTopActions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe453StorageTopActions span{font-size:.85rem;color:#526070}.safe453StorageOverview{max-height:54vh;overflow:auto;padding-right:4px}.safe453StorageCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}.safe453StorageCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe453StorageCards b{display:block}.safe453StorageCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe453StorageCards small{display:block;color:#526070}.safe453StorageOverview details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe453StorageOverview summary{font-weight:800;cursor:pointer}.safe453StorageOverview table{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px}.safe453StorageOverview th,.safe453StorageOverview td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe453StorageOverview code{font-size:.78rem;word-break:break-all}@media(max-width:760px){.safe453StorageCards{grid-template-columns:1fr 1fr}.safe453StorageOverview{max-height:50vh}.safe453StorageOverview table{font-size:.78rem}.safe453StorageTopActions{align-items:stretch}.safe453StorageTopActions button{width:100%}}
       </style>`;
     showModal(html);
     safe453i120WireStorageOverviewBackButtons();
@@ -37214,7 +37812,8 @@ async function safe453i45DownloadFullBackupWithDrawings(){
       includeMediaArchive:true,
       mediaArchive:mediaArchive
     });
-    toast('Backup + gemt med '+drawings.length+' tegninger og '+mediaArchive.length+' medier');
+    const pdfCount=mediaArchive.filter(function(m){return String((m&&m.kind)||'').toLowerCase()==='pdf'||String((m&&m.mimeType)||'').toLowerCase().indexOf('pdf')>=0;}).length;
+    toast('Backup + gemt med '+drawings.length+' tegninger og '+mediaArchive.length+' medier'+(pdfCount?' · PDF: '+pdfCount:''));
   }catch(e){
     console.warn('SAFE453i138 Backup + failed',e);
     toast('Kunne ikke lave Backup +');
@@ -37269,7 +37868,8 @@ function downloadTavleSaveFile(options={}){
     saveData.mediaManifest=archiveItems.map(function(m){
       return {
         id:m&&m.id, kind:m&&m.kind, name:m&&m.name, mimeType:m&&m.mimeType,
-        size:m&&m.size, source:m&&m.source, createdAt:m&&m.createdAt, updatedAt:m&&m.updatedAt
+        size:m&&m.size, source:m&&m.source, createdAt:m&&m.createdAt, updatedAt:m&&m.updatedAt,
+        refKey:m&&m.refKey, refPath:m&&m.refPath
       };
     });
     saveData.options.includeMediaArchive=true;
@@ -37357,6 +37957,46 @@ function safe453i141VerifyMediaRefs(root){
     return {total:refs.length,found:found,missing:missingRefs.length,missingRefs:missingRefs};
   });
 }
+function safe453i142MediaIdsInBackupPlus(data){
+  const ids=new Set();
+  try{
+    const arr=Array.isArray(data&&data.mediaArchive)?data.mediaArchive:[];
+    arr.forEach(function(m){if(m&&m.id)ids.add(String(m.id));});
+  }catch(_e){}
+  return ids;
+}
+function safe453i142ShortRefPath(path){
+  path=String(path||'');
+  return path.replace(/^state\./,'').replace(/\.data\./g,'.').replace(/restorePoints\[(\d+)\]/g,'Gendannelsespunkt $1').replace(/slides\[(\d+)\]\.widgets\[(\d+)\]/g,'Tavle $1 · widget $2');
+}
+function safe453i142ShowMissingMediaWarning(info,data){
+  try{
+    const missingRefs=Array.isArray(info&&info.missingRefs)?info.missingRefs:[];
+    if(!missingRefs.length)return;
+    const backupIds=safe453i142MediaIdsInBackupPlus(data);
+    const archiveCount=Array.isArray(data&&data.mediaArchive)?data.mediaArchive.length:0;
+    const likelyOld=!archiveCount;
+    const missingFromFile=missingRefs.filter(function(r){return !backupIds.has(String(r&&r.id||''));}).length;
+    const rows=missingRefs.slice(0,6).map(function(r){
+      return '<tr><td>'+esc(r&&r.key||'medie')+'</td><td>'+esc(safe453i142ShortRefPath(r&&r.path))+'</td><td><code>'+esc(String(r&&r.id||'').slice(0,18))+(String(r&&r.id||'').length>18?'…':'')+'</code></td></tr>';
+    }).join('');
+    const more=missingRefs.length>6?'<p class="muted">… og '+(missingRefs.length-6)+' mere.</p>':'';
+    const reason=likelyOld
+      ? 'Backupfilen ser ud til at være lavet i en ældre udgave eller som almindelig backup. Den indeholder tavlen, men ikke alle de lokale billedfiler.'
+      : (missingFromFile
+        ? 'Backupfilen mangler nogle af de lokale medier, tavlen peger på.'
+        : 'Backupfilen indeholder mediedata, men nogle filer kunne ikke lægges tilbage i appens lokale arkiv.');
+    showModal('<h2>Backup + mangler lokale medier</h2>'+ 
+      '<p>'+esc(reason)+'</p>'+ 
+      '<p>Selve tavlen er åbnet. De steder, hvor mediet mangler, kan vise en tom ramme eller en besked.</p>'+ 
+      '<div class="card"><b>Mangler:</b> '+missingRefs.length+' lokale medie'+(missingRefs.length===1?'':'r')+'</div>'+ 
+      '<details open><summary>Vis hvad der mangler</summary><table class="miniTable"><thead><tr><th>Type</th><th>Placering</th><th>ID</th></tr></thead><tbody>'+rows+'</tbody></table>'+more+'</details>'+ 
+      '<div class="modalActions"><button onclick="closeModal()">OK</button></div>');
+  }catch(e){
+    console.warn('SAFE453i142 warning failed',e);
+    try{toast('Tavlen er åbnet, men nogle lokale medier mangler');}catch(_e){}
+  }
+}
 function openTavleSaveText(txt,file){
   try{
     const data=JSON.parse(txt);
@@ -37396,7 +38036,11 @@ function openTavleSaveText(txt,file){
         const bits=[];
         if(drawings)bits.push(drawings+' tegninger');
         if(media)bits.push(media+' medier');
-        if(v&&v.missing){toast('Tavlefil åbnet, men '+v.missing+' medie mangler stadig i arkivet');return;}
+        if(v&&v.missing){
+          safe453i142ShowMissingMediaWarning(v,data);
+          toast('Tavlen er åbnet, men nogle lokale medier mangler');
+          return;
+        }
         toast(failed ? 'Tavlefil åbnet, men noget arkivdata kunne ikke importeres' : ('Tavlefil åbnet'+(bits.length?' · '+bits.join(' · ')+' importeret':'')));
       });
     }).catch(function(err){
