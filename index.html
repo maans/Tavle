@@ -1,3 +1,12 @@
+<!-- SAFE453i162 PDF RUNTIME STATE PURGE SAVE GUARD:
+- Bygger på SAFE453i161.
+- Retter sandsynlig hovedårsag til at Gem backup/Backup + og lokal save stadig kan fejle efter PDF.js-rendering.
+- PDF.js lægger runtime-objekter på PDF-widgetten, bl.a. _pdfDoc og _pdfRenderToken. Fordi widget-objektet er en del af tavle-state, kan _pdfDoc give cykliske strukturer ved JSON-gemning.
+- Før save() fjernes nu runtimefelter, der starter med _, fra widgets i state.
+- JSON-helperen laver nu en manuel decycle-klon før JSON.stringify, så JSON.stringify aldrig ser DOM/Event/Blob/File/cykliske objekter direkte.
+- Formål: permanent sletning skal kunne gemmes igen, og Gem backup/Gem skabelon/Backup + skal ikke stoppe på cyclic structures.
+- Ingen PDF-lagring ændret. Ingen PDF-visning ændret. Ingen Backup + import/remap ændret. Ingen migration.
+-->
 <!-- SAFE453i161 BACKUP STRINGIFY DECYCLE GUARD:
 - Bygger på SAFE453i160.
 - Retter fejl hvor Backup + kunne stoppe med “JSON.stringify cannot serialize cyclic structures”.
@@ -20192,12 +20201,74 @@ function safe453i161JsonReplacer(){
     return value;
   };
 }
+/* SAFE453i162: Manuel JSON-klon før stringify.
+   Vigtigt efter PDF→IndexedDB: PDF.js kan gemme runtime-objekter på selve
+   widget-objektet (_pdfDoc m.m.). De må aldrig med i tavle-state/backups. */
+function safe453i162DecycleClone(value,fallback){
+  const seen=(typeof WeakSet!=='undefined')?new WeakSet():null;
+  function clone(v){
+    try{
+      if(v==null)return v;
+      const t=typeof v;
+      if(t==='string'||t==='number'||t==='boolean')return v;
+      if(t==='bigint')return String(v);
+      if(t==='function'||t==='symbol'||t==='undefined')return undefined;
+      if(typeof Node!=='undefined' && v instanceof Node)return undefined;
+      if(typeof Window!=='undefined' && v instanceof Window)return undefined;
+      if(typeof Event!=='undefined' && v instanceof Event)return undefined;
+      if(typeof Blob!=='undefined' && v instanceof Blob){
+        return {__omittedBlob:true,name:v.name||'',type:v.type||'',size:v.size||0,lastModified:v.lastModified||0};
+      }
+      if(v instanceof Date)return v.toISOString();
+      if(seen){
+        if(seen.has(v))return undefined;
+        seen.add(v);
+      }
+      if(Array.isArray(v)){
+        const arr=[];
+        for(let i=0;i<v.length;i++){
+          const cv=clone(v[i]);
+          arr.push(cv===undefined?null:cv);
+        }
+        return arr;
+      }
+      const out={};
+      Object.keys(v).forEach(function(k){
+        // Runtimefelter på widgets, især _pdfDoc fra PDF.js, må ikke gemmes.
+        if(k&&k.charAt(0)==='_')return;
+        const cv=clone(v[k]);
+        if(cv!==undefined)out[k]=cv;
+      });
+      return out;
+    }catch(_e){return undefined;}
+  }
+  try{
+    const c=clone(value);
+    return c===undefined?(fallback===undefined?{}:fallback):c;
+  }catch(_e){return fallback===undefined?{}:fallback;}
+}
 function safe453i161Stringify(value,space){
-  return JSON.stringify(value,safe453i161JsonReplacer(),space);
+  return JSON.stringify(safe453i162DecycleClone(value,{}),null,space);
 }
 function safe453i161Clone(value,fallback){
-  try{return JSON.parse(safe453i161Stringify(value));}
-  catch(_e){return fallback===undefined?{}:fallback;}
+  return safe453i162DecycleClone(value,fallback===undefined?{}:fallback);
+}
+function safe453i162PurgeRuntimeStateFields(){
+  try{
+    const sls=(state&&Array.isArray(state.slides))?state.slides:[];
+    sls.forEach(function(sl){
+      ((sl&&sl.widgets)||[]).forEach(function(w){
+        if(!w||typeof w!=='object')return;
+        Object.keys(w).forEach(function(k){if(k&&k.charAt(0)==='_')delete w[k];});
+        // Enkelte ældre/testfelter kan have ligget i data; fjern kun tydelige runtimefelter.
+        if(w.data&&typeof w.data==='object'){
+          ['_pdfDoc','_pdfRenderToken','pdfDoc','pdfTask','renderTask','canvas','ctx','element','el','node','event','file'].forEach(function(k){
+            if(Object.prototype.hasOwnProperty.call(w.data,k))delete w.data[k];
+          });
+        }
+      });
+    });
+  }catch(_e){}
 }
 
 ////////////////////////////////////////////////////////////
@@ -20223,6 +20294,7 @@ function save(opts={}){
     if(draw&&draw.toDataURL&&slide())slide().draw=draw.toDataURL('image/png');
   }catch(e){}
   try{ safe453i152CleanupDuplicateEmbeddedPdfUrlInState(); }catch(_e){}
+  try{ safe453i162PurgeRuntimeStateFields(); }catch(_e){}
   try{
     localStorage.setItem(KEY,safe453i161Stringify(state));
     window.__lastSaveFailed=false;
