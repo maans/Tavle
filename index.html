@@ -1,3 +1,11 @@
+<!-- SAFE453i160 BACKUP PLUS MANUAL DOWNLOAD LINK IOS GUARD:
+- Bygger på SAFE453i159.
+- Retter Backup + eksport på iPad/Safari og andre situationer, hvor automatisk download efter async IndexedDB-læsning kan fejle eller blive blokeret.
+- Backup + bygger nu backup-JSON direkte i en isoleret helper og viser en downloadmodal med et almindeligt link/knap, som brugeren selv trykker på.
+- Der forsøges stadig automatisk download, men den manuelle knap er primær fallback.
+- Medtager fortsat drawingsArchive, mediaArchive og mediaManifest inkl. fileMediaRef/PDF.
+- Ingen PDF-lagring, PDF-visning, PDF-download, import, migration, render(), save(), load(), addWidget() eller select() ændres.
+-->
 <!-- SAFE453i159 BACKUP PLUS PDF ROBUST EXPORT GUARD:
 - Bygger på SAFE453i158.
 - Retter Backup + efter at PDF fileMediaRef kunne findes i Backup + kontrol, men selve Backup + kunne fejle.
@@ -37816,41 +37824,95 @@ async function safe453i138GetReferencedMediaArchiveForBackup(){
   }
   return out;
 }
+function safe453i160BuildBackupPlusSaveData(drawings,mediaArchive,notes){
+  const archiveItems=Array.isArray(mediaArchive)?mediaArchive:[];
+  const saveData={
+    app:'maans-interaktiv-tavle',
+    format:'tavle-savefile',
+    version:'v83',
+    created:new Date().toISOString(),
+    options:{
+      startPresentation:false,
+      templateOnly:false,
+      includeMedia:true,
+      includeDrawings:true,
+      fullBackup:true,
+      includeMediaArchive:true,
+      backupPlus:true,
+      safePhase:'SAFE453i160'
+    },
+    state:cloneForSaveFile({startPresentation:false,templateOnly:false}),
+    wheelLists:wheelListBank(),
+    lists:wheelListBank(),
+    drawingsArchive:Array.isArray(drawings)?drawings:[],
+    mediaArchive:archiveItems,
+    mediaManifest:archiveItems.map(function(m){
+      return {
+        id:m&&m.id, kind:m&&m.kind, name:m&&m.name, mimeType:m&&m.mimeType,
+        size:m&&m.size, source:m&&m.source, createdAt:m&&m.createdAt, updatedAt:m&&m.updatedAt,
+        refKey:m&&m.refKey, refPath:m&&m.refPath
+      };
+    })
+  };
+  if(notes&&notes.length)saveData.backupWarnings=notes.slice();
+  return saveData;
+}
+function safe453i160OfferBackupPlusDownload(json,summary){
+  const filename='tavle-backup-plus.json';
+  let url='';
+  try{
+    const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+    url=URL.createObjectURL(blob);
+  }catch(e){
+    console.warn('SAFE453i160 kunne ikke lave Blob-url til Backup +',e);
+  }
+  if(url){
+    showModal('<h2>Backup + klar</h2>'
+      +'<p>'+esc(summary||'Backup + er klar til at blive hentet.')+'</p>'
+      +'<p class="muted">På iPad/Safari kan download efter læsning fra IndexedDB blive blokeret. Tryk derfor på knappen herunder, hvis filen ikke allerede hentes automatisk.</p>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">'
+      +'<a id="safe453i160DownloadBackupPlus" download="'+esc(filename)+'" href="'+esc(url)+'" style="display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:14px;background:#dbeafe;color:#111827;font-weight:900;text-decoration:none;border:1px solid #bfdbfe">Hent Backup +</a>'
+      +'<button id="safe453i160CloseBackupPlus">Luk</button>'
+      +'</div>');
+    const close=modal.querySelector('#safe453i160CloseBackupPlus');
+    if(close)close.onclick=function(){try{URL.revokeObjectURL(url);}catch(_e){} closeModal();};
+    const link=modal.querySelector('#safe453i160DownloadBackupPlus');
+    // Forsøg stadig automatisk download, men behold linket som sikker iPad-fallback.
+    setTimeout(function(){try{if(link)link.click();}catch(_e){}},60);
+  }else{
+    // Sidste fallback: almindelig tekstdownload via eksisterende helper.
+    tavleDownloadTextFile(filename,json,'application/json;charset=utf-8');
+  }
+}
 async function safe453i45DownloadFullBackupWithDrawings(){
   let drawings=[];
-  let drawingsFailed=false;
   let mediaArchive=[];
-  let mediaFailed=false;
+  const warnings=[];
   try{
     drawings=await safe453i45GetAllDrawings();
   }catch(e){
-    drawingsFailed=true;
     drawings=[];
-    console.warn('SAFE453i159 Backup + drawings skipped',e);
+    warnings.push('Mine tegninger kunne ikke læses og er ikke medtaget.');
+    console.warn('SAFE453i160 Backup + drawings skipped',e);
   }
   try{
     mediaArchive=await safe453i138GetReferencedMediaArchiveForBackup();
   }catch(e){
-    mediaFailed=true;
     mediaArchive=[];
-    console.warn('SAFE453i159 Backup + media archive skipped',e);
+    warnings.push('TavleMediaArchive kunne ikke læses og er ikke medtaget.');
+    console.warn('SAFE453i160 Backup + media archive skipped',e);
   }
   try{
-    downloadTavleSaveFile({
-      startPresentation:false,
-      templateOnly:false,
-      includeDrawings:true,
-      drawingsArchive:drawings,
-      includeMediaArchive:true,
-      mediaArchive:mediaArchive
-    });
+    const saveData=safe453i160BuildBackupPlusSaveData(drawings,mediaArchive,warnings);
+    const json=JSON.stringify(saveData,null,2);
     const pdfCount=mediaArchive.filter(function(m){return String((m&&m.kind)||'').toLowerCase()==='pdf'||String((m&&m.mimeType)||'').toLowerCase().indexOf('pdf')>=0;}).length;
-    let msg='Backup + gemt med '+drawings.length+' tegninger og '+mediaArchive.length+' medier'+(pdfCount?' · PDF: '+pdfCount:'');
-    if(drawingsFailed||mediaFailed)msg+=' · advarsel: '+(drawingsFailed?'tegninger ':'')+(mediaFailed?'medier ':'')+'kunne ikke læses';
-    toast(msg);
+    let summary='Backup + klar med '+drawings.length+' tegninger og '+mediaArchive.length+' medier'+(pdfCount?' · PDF: '+pdfCount:'');
+    if(warnings.length)summary+=' · advarsel: '+warnings.length;
+    safe453i160OfferBackupPlusDownload(json,summary);
+    toast(summary);
   }catch(e){
-    console.warn('SAFE453i159 Backup + download failed',e);
-    toast('Kunne ikke lave Backup +');
+    console.warn('SAFE453i160 Backup + build failed',e);
+    toast('Kunne ikke lave Backup +: '+(e&&e.message?e.message:'ukendt fejl'));
   }
 }
 function safe453i45ShowClearDrawingsConfirm(){
