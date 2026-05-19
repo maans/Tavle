@@ -1,3 +1,12 @@
+<!-- SAFE453i161 BACKUP STRINGIFY DECYCLE GUARD:
+- Bygger på SAFE453i160.
+- Retter fejl hvor Backup + kunne stoppe med “JSON.stringify cannot serialize cyclic structures”.
+- Tilføjer en snæver JSON-stringify/clone helper til gemmefiler og localStorage-save, som springer cykliske/ikke-JSON-egnede objekter over i stedet for at vælte hele eksporten.
+- Formålet er at sikre Gem backup, Gem skabelon og Backup +, hvis et widget-/statefelt ved en fejl har fået en cyklisk reference.
+- PDF→IndexedDB fra SAFE453i155-i156 ændres ikke.
+- Hent filer fra tavlen ændres ikke.
+- Ingen migration, ingen Backup + import/remap, ingen PDF-visning ændret.
+-->
 <!-- SAFE453i160 BACKUP PLUS MANUAL DOWNLOAD LINK IOS GUARD:
 - Bygger på SAFE453i159.
 - Retter Backup + eksport på iPad/Safari og andre situationer, hvor automatisk download efter async IndexedDB-læsning kan fejle eller blive blokeret.
@@ -20157,6 +20166,40 @@ function shouldWarnAboutLocalSave(){
 
 ////////////////////////////////////////////////////////////
 // STATE / STORAGE
+
+////////////////////////////////////////////////////////////
+/* SAFE453i161: JSON-guard til save/gemmefiler.
+   Bruges kun når app-state skal serialiseres. Formålet er at undgå at en
+   utilsigtet cyklisk reference i et widgetfelt vælter Gem backup/Backup +. */
+function safe453i161JsonReplacer(){
+  const seen=(typeof WeakSet!=='undefined')?new WeakSet():null;
+  return function(key,value){
+    try{
+      if(typeof value==='function')return undefined;
+      if(value&&typeof value==='object'){
+        if(typeof Node!=='undefined' && value instanceof Node)return undefined;
+        if(typeof Window!=='undefined' && value instanceof Window)return undefined;
+        if(typeof Event!=='undefined' && value instanceof Event)return undefined;
+        if(typeof Blob!=='undefined' && value instanceof Blob){
+          return {__omittedBlob:true,name:value.name||'',type:value.type||'',size:value.size||0,lastModified:value.lastModified||0};
+        }
+        if(seen){
+          if(seen.has(value))return undefined;
+          seen.add(value);
+        }
+      }
+    }catch(_e){return undefined;}
+    return value;
+  };
+}
+function safe453i161Stringify(value,space){
+  return JSON.stringify(value,safe453i161JsonReplacer(),space);
+}
+function safe453i161Clone(value,fallback){
+  try{return JSON.parse(safe453i161Stringify(value));}
+  catch(_e){return fallback===undefined?{}:fallback;}
+}
+
 ////////////////////////////////////////////////////////////
 /* save()/load(): JSON-state i localStorage. Undgå datamodelændringer uden migration og rollback-test. */
 function safe453i152CleanupDuplicateEmbeddedPdfUrlInState(){
@@ -20181,7 +20224,7 @@ function save(opts={}){
   }catch(e){}
   try{ safe453i152CleanupDuplicateEmbeddedPdfUrlInState(); }catch(_e){}
   try{
-    localStorage.setItem(KEY,JSON.stringify(state));
+    localStorage.setItem(KEY,safe453i161Stringify(state));
     window.__lastSaveFailed=false;
     return true;
   }catch(e){
@@ -36460,7 +36503,7 @@ function tavleRestoreLists(data){
 }
 function exportJson(){
   const data={app:'maans-interaktiv-tavle',version:'v83',state:state,wheelLists:wheelListBank(),lists:wheelListBank()};
-  tavleDownloadTextFile('tavle-backup.json',JSON.stringify(data,null,2),'application/json;charset=utf-8');
+  tavleDownloadTextFile('tavle-backup.json',safe453i161Stringify(data,2),'application/json;charset=utf-8');
   toast('JSON-backup gemt');
 }
 function importJson(){
@@ -37656,7 +37699,7 @@ function clearWidgetDataForTemplate(w){
 }
 
 function cloneForSaveFile(options={}){
-  const copy=JSON.parse(JSON.stringify(state));
+  const copy=safe453i161Clone(state,{});
   try{
     copy.settings = copy.settings || {};
     copy.isTemplateOnly = !!options.templateOnly;
@@ -37904,7 +37947,7 @@ async function safe453i45DownloadFullBackupWithDrawings(){
   }
   try{
     const saveData=safe453i160BuildBackupPlusSaveData(drawings,mediaArchive,warnings);
-    const json=JSON.stringify(saveData,null,2);
+    const json=safe453i161Stringify(saveData,2);
     const pdfCount=mediaArchive.filter(function(m){return String((m&&m.kind)||'').toLowerCase()==='pdf'||String((m&&m.mimeType)||'').toLowerCase().indexOf('pdf')>=0;}).length;
     let summary='Backup + klar med '+drawings.length+' tegninger og '+mediaArchive.length+' medier'+(pdfCount?' · PDF: '+pdfCount:'');
     if(warnings.length)summary+=' · advarsel: '+warnings.length;
@@ -37972,7 +38015,7 @@ function downloadTavleSaveFile(options={}){
     saveData.options.backupPlus=true;
   }
   const name = options.templateOnly ? 'tavle-skabelon.json' : (options.includeDrawings||options.includeMediaArchive ? 'tavle-backup-plus.json' : 'tavle-gemmefil.json');
-  tavleDownloadTextFile(name,JSON.stringify(saveData,null,2),'application/json;charset=utf-8');
+  tavleDownloadTextFile(name,safe453i161Stringify(saveData,2),'application/json;charset=utf-8');
   toast(options.templateOnly?'Skabelon gemt':((options.includeDrawings||options.includeMediaArchive)?'Backup + gemt':'Gemmefil gemt'));
 }
 function applyOpenOptionsFromSaveData(data){tavleApplyPresentationOpen(data);}
