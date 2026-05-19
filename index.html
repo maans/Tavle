@@ -1,3 +1,396 @@
+<!-- SAFE453i131 HELP UPDATE STORAGE USER TEXT:
+- Opdaterer kun Hjælp med brugerrettet tekst om billeder, tegninger, Gem/åbn, Backup +, Hent filer og Hvor ligger data?.
+- Holder teksten målgruppevenlig: beskriver brugerens handlinger og formål, ikke tekniske detaljer om IndexedDB/localStorage.
+- Fjerner forældet hjælpetekst om Ryd Mine tegninger i Gem/åbn.
+- Ingen ændring af JavaScript-logik, data, widgets, backup/import, IndexedDB, localStorage, render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i130 DOWNLOAD MEDIA USER TEXT:
+- Bygger på SAFE453i129.
+- Gør Hent filer fra tavlen-modalens tekst mere brugerrettet og mindre teknisk.
+- Ingen ændring af downloadlogik, IndexedDB, mediaRef, backup/import eller widgets.
+-->
+<!-- SAFE453i129 BACKUP PLUS LABEL ONLY:
+- Omdøber knappen “Fuld backup med tegninger” i Gem/åbn til “Backup +”.
+- Formål: kortere og mere fremtidssikkert navn, fordi ekstra lokale arkivdata ikke længere kun handler om tegninger.
+- Ingen ændring af backup-logik, IndexedDB-format, import, mediaRef, Hent filer fra tavlen eller widgets.
+- Dette er kun label/tekst-UX.
+-->
+<!-- SAFE453i128 SAVE OPEN ESC CLOSES MODAL:
+- Bygger på SAFE453i127.
+- Gem/åbn-modalen kan nu lukkes med Esc.
+- Esc-handleren er snævert begrænset til Gem/åbn-modalen og fanger kun, når modalBack faktisk er synlig.
+- Ingen ændring af Gem/åbn-knapper, import, backup, IndexedDB, widgets eller data.
+-->
+<!-- SAFE453i127 MODAL BUTTONS NEUTRAL STYLE CSS ONLY:
+- Bygger på SAFE453i126.
+- Ren visuel CSS-opdatering: almindelige blå/lilla handlingsknapper i modaler får samme rolige lyse ikonknap-stil som Lykkehjulet/Grupper.
+- Gælder primært modalens almindelige handlingsknapper; kort-/valgknapper i modalgrid forsøges bevaret via exclusions.
+- Ingen JavaScript-logik ændret.
+- Ingen modalflow, data, IndexedDB, localStorage, widgets, backup/import eller migration ændret.
+-->
+<!-- SAFE453i126 STORAGE OVERVIEW FROM SAVE MODAL UX:
+- Bygger på SAFE453i125.
+- Flytter “Vis hvor data ligger” op som direkte knap i Gem/åbn-modalens hovedknapper.
+- Fjerner den samme adgang fra Hent filer fra tavlen, så statusvisningen ikke er gemt væk dér.
+- Hvor ligger data?-modalen bruger nu kort tilbageknap “←” tilbage til Gem/åbn og korte knapper: “Medier” og “Oprydning”.
+- IndexedDB-medier-modalens tilbageknap er også kun “←”, og den lange forklarende bundnote er flyttet op som kort note.
+- Esc fra Hvor ligger data? går tilbage til Gem/åbn. Esc fra IndexedDB-medier går tilbage til Hvor ligger data?.
+- Ingen ændring af localStorage/IndexedDB-data, lagring, sletning, backup/import eller widgets.
+-->
+<!-- SAFE453i125 INDEXEDDB MEDIA USAGE SCAN ALL LOCALSTORAGE:
+- Bygger på SAFE453i124.
+- Udvider kun oprydningskortet for TavleMediaArchive/IndexedDB.
+- "Vis IndexedDB-medier" scanner nu både den aktive in-memory state og JSON-lignende localStorage-nøgler for mediaRef/previewMediaRef.
+- Formål: undgå at medier fejlagtigt kaldes forældreløse, hvis de stadig bruges af en gemt/ældre tavle-state i samme browser.
+- Der slettes stadig intet.
+- Ingen IndexedDB-formatændring, ingen backup/import, ingen widgets, ingen migration, ingen render/save/load/addWidget/select-ændring.
+-->
+<!-- SAFE453i124 INDEXEDDB MEDIA CLEANUP MAP ONLY:
+- Bygger på SAFE453i123.
+- Tilføjer kun en foreløbig, ikke-destruktiv oversigt over medier i TavleMediaArchive / IndexedDB.
+- Formål: gøre det synligt hvilke IndexedDB-medier der ser ud til at være i brug af aktuel tavle-state, og hvilke der muligvis er forældreløse.
+- Oversigten åbnes fra "Hvor ligger data?" med knappen "Vis IndexedDB-medier".
+- Ingen medier slettes.
+- Ingen sletteknapper til IndexedDB tilføjes endnu.
+- Ingen ændring af billedwidget, tegnewidget, Gendannelsespunkter, backup/import, save/load/render eller IndexedDB-format.
+- Denne fase omfatter TavleMediaArchive. Det separate Mine tegninger-tegningsarkiv bør kortlægges særskilt, før der laves oprydning dér.
+-->
+<!-- SAFE453i123 REMOVE CLEAR DRAWINGS FROM SAVE MODAL:
+- Bygger på SAFE453i122.
+- Fjerner kun knappen "Ryd Mine tegninger" fra Gem/åbn-modalen.
+- Begrundelse: Den nye forsigtige localStorage-oprydning hører hjemme i "Hvor ligger data?", mens sletning af tegningsarkivet i Gem/åbn kan virke for destruktiv og unødvendig.
+- Selve safe453i45ClearDrawings()/safe453i45ShowClearDrawingsConfirm() bevares i koden som legacy/admin-funktion, men er ikke længere synlig fra Gem/åbn.
+- Ingen ændring af IndexedDB, Mine tegninger, billedwidget, tegnewidget, Hent filer, backup/import, render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i122 CAREFUL LOCALSTORAGE CLEANUP:
+- Bygger på SAFE453i121.
+- Tilføjer en forsigtig oprydningsfunktion fra "Hvor ligger data?"-modalen.
+- Funktionen viser localStorage-nøgler, markerer aktuel app-nøgle som beskyttet, og vælger intet automatisk.
+- Brugeren kan hente backup af valgte nøgler før sletning.
+- Sletning kræver både valgte nøgler, afkrydsning og browser-bekræftelse.
+- Ingen automatisk sletning. Ingen IndexedDB-sletning. Ingen ændring af tavle-state, widgets, backup/import eller mediaRef-flow.
+-->
+<!-- SAFE453i121 STORAGE OVERVIEW SINGLE BACK BUTTON:
+- Bygger på SAFE453i120.
+- Retter kun Hvor ligger data?-modalen.
+- Fjerner den nederste/sticky dublet af Tilbage til Hent filer-knappen.
+- Bevarer den øverste Tilbage-knap og Esc = tilbage til Hent filer fra tavlen.
+- Ingen ændring af lagring, IndexedDB, Hent filer-logik, widgets, backup/import eller migration.
+-->
+<!-- SAFE453i120 STORAGE OVERVIEW RETURN TO DOWNLOADS:
+- Bygger på SAFE453i119.
+- Retter kun "Hvor ligger data?"-modalen fra Hent filer fra tavlen.
+- Luk/Tilbage går nu tilbage til Hent filer fra tavlen i stedet for at lukke hele modalflowet.
+- Esc i statusmodalen går også tilbage til Hent filer fra tavlen.
+- Tilbageknap ligger både øverst og i en sticky bundbjælke, så den kan nås på iPad/smal skærm.
+- Ingen ændring af lagring, IndexedDB-format, billedwidget, tegnewidget, Gendannelsespunkter, backup/import eller migration.
+-->
+<!-- SAFE453i119 DOWNLOAD MEDIA INCLUDES INDEXEDDB MEDIAREFS:
+- Bygger på SAFE453i118.
+- Retter Hent filer fra tavlen, så den ikke kun leder efter indlejrede dataURL-filer i state.
+- Medtager nu også mediaRef/previewMediaRef-poster, der ligger i TavleMediaArchive / IndexedDB.
+- Hvis der ingen filer findes, åbnes modalen stadig med adgang til “Vis hvor data ligger”, i stedet for kun at vise toast.
+- Ingen ændring af lagring, billedwidget, tegnewidget, gendannelsespunkter, backup/import eller migration.
+-->
+<!-- SAFE453i118 STORAGE LOCATION OVERVIEW MODAL:
+- Bygger på godkendt SAFE453i117.
+- Tilføjer en foreløbig statusmodal via Hent filer fra tavlen, som viser hvad der ligger i localStorage/tavle-state og hvad der ligger i TavleMediaArchive/IndexedDB.
+- Formålet er kun synlighed og kontrol: ingen data flyttes, slettes, migreres eller omskrives.
+- Modalen viser bl.a. dataURL-rester i state, mediaRef/previewMediaRef-referencer og IndexedDB-mediearkivets poster grupperet efter kind/source.
+- Ingen ændring af billedwidget, tegnewidget, PDF, backup/import, render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i117 DRAWING ARCHIVE INSERT IMAGE MEDIAREF ONLY:
+- Bygger på godkendt SAFE453i116 / SAFE453i114c.
+- Retter kun flowet Mine tegninger -> Billede, dvs. når en gemt tegning indsættes som ny billedwidget.
+- Den nye billedwidget forsøger nu at gemme billedet i TavleMediaArchive som mediaRef i stedet for at lægge dataURL direkte i tavle-state.
+- Hvis TavleMediaArchive/IndexedDB fejler, bruges det gamle dataURL-flow som fallback.
+- Tegnewidgettens aktive mellemstation er ikke ændret i denne fase: overlay/src kan fortsat ligge i widget-state mens der tegnes.
+- Tegningsarkivet selv bevares uændret i tavle_drawings_db; denne fase flytter ikke eksisterende tegninger eller migrerer arkivet.
+- Ingen ændring af billedwidgetens filvalg, drag/drop, kamera, Fra appen, PDF, backup/import, render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i116 GENDANNELSESPUNKTER PREVIEW MEDIAREF NEW TAVLESHOT ONLY:
+- Bygger direkte på godkendt SAFE453i115/Safe453i114c.
+- Dette er første aktive, men smalle, IndexedDB-kobling for Gendannelsespunkter/TavleShots.
+- Kun nye TavleShots fra Tavleoversigt forsøger at flytte preview-billedet ud af state/localStorage og ind i TavleMediaArchive.
+- Selve boardState/tavle-snapshot bliver uændret i state, fordi det er grundlaget for at oprette en ny tavle fra gendannelsespunktet.
+- Hvis TavleMediaArchive eller preview-konvertering fejler, bruges det gamle preview-dataURL-flow som fallback.
+- Gendannelsespunkter-modal kan vise previewMediaRef ved at hente en midlertidig objectURL fra mediearkivet.
+- Gamle gendannelsespunkter med preview dataURL vises fortsat uændret.
+- Kalender/dagsvisning, billedwidget-boardshots, backup/import og migration røres ikke i denne fase.
+- Ingen ændring af render(), save(), load(), addWidget(), select() eller almindelig billedwidgetlogik.
+-->
+<!--
+SAFE453i115 GENDANNELSESPUNKTER + TAVLESHOTS FLOW MAP ONLY
+- Bygger direkte på godkendt SAFE453i114c, hvor billedwidgettens Fra enhed, drag/drop og kamera kan gemme nye lokale billeder som mediaRef i TavleMediaArchive.
+- Denne fase er KUN kortlægning/dokumentation.
+- Ingen JavaScript-logik ændres.
+- Ingen CSS ændres.
+- Ingen HTML-struktur ændres.
+- Ingen IndexedDB-læsning eller -skrivning tilføjes.
+- Ingen gendannelsespunkter flyttes.
+- Ingen TavleShot-preview flyttes.
+- Ingen backup/import, migration, render(), save(), load(), addWidget() eller select() ændres.
+
+BEGREBER I DETTE SPOR:
+- Gendannelsespunkter er modal/arkiv/overblik, hvor brugeren kan vælge et gemt punkt.
+- TavleShot er handlingen fra Tavleoversigt, der opretter et gendannelsespunkt.
+- Et gendannelsespunkt består mindst af:
+  1) preview-billede, typisk WebP/dataURL, som kan være tungt.
+  2) boardState, dvs. tavle-state/snapshot med widgets, baggrund, grid, tegning m.m.
+- Preview-billedet er en senere kandidat til TavleMediaArchive som previewMediaRef.
+- boardState må IKKE flyttes eller ændres i samme fase som preview, fordi det er selve grundlaget for at gendanne/oprette ny tavle.
+
+KORTLAGT FLOW I DENNE FIL:
+
+1) TavleShot oprettes fra Tavleoversigt
+- Tavleoversigt vises i safe269BoardOverviewModal(preferredBoard=null).
+- I Tavleoversigt findes knappen:
+  #safe429TakeBoardShot
+  med brugerlabel “📸 Tavleshot”.
+- Hjælpeteksten i Tavleoversigt nævner også:
+  S = Tavleshot
+  G = Gendannelsespunkter
+- TavleShot-handlingen kalder safe429CaptureActiveBoardRestorePoint().
+
+2) Oprettelse af gendannelsespunkt
+- safe429CaptureActiveBoardRestorePoint() gør cirka:
+  - finder aktiv tavle: state.slides[state.active]
+  - viser toast “Tager tavleshot…”
+  - kalder safe429CaptureBoardStateGlobal(null) for at opbygge boardState
+  - forsøger preview via safe407CaptureBoardWebP(null)
+  - fallback preview via safe407SchematicSnapshotWebP(null)
+  - opretter point med:
+      id
+      createdAt
+      capturedAt
+      title: “Tavleshot ...”
+      preview
+      boardState
+  - gemmer punktet via safe430AddGlobalRestorePoint(point,board,idx,'active-board-shot')
+    eller fallback til board.restorePoints.push(point)
+  - kalder save({silent:true})
+  - viser toast “Tavleshot gemt i Gendannelsespunkter”
+  - åbner Tavleoversigt igen via safe269BoardOverviewModal(board)
+
+3) BoardState / tavle-snapshot
+- safe429CaptureBoardStateGlobal(excludeWidgetId) opbygger boardState.
+- Den gemmer bl.a.:
+  - version: SAFE429-boardshot-state-v1
+  - capturedAt
+  - sourceSlideTitle
+  - board: titel, baggrund, bgImage, bgFit, bgFilter, grid, draw
+  - widgets: type, position, størrelse, z, rotation, locked, title, data
+- Widgetdata beskæres via safe429PruneWidgetDataForBoardState(w.data).
+- Senere mediaRef-arbejde må ikke ødelægge denne boardState-model.
+
+4) Globalt gendannelsespunkt-arkiv
+- safe430EnsureRestoreStore() sikrer state.restorePoints som array.
+- safe430NormalizeRestorePoint(p,meta) normaliserer point og bruger stadig:
+  preview:String(p.preview||p.previewWebp||p.src||'')
+  boardState:bs
+- safe430AddGlobalRestorePoint(point,board,boardIndex,source) gemmer i state.restorePoints og deduplikerer efter safe430PointKey(p).
+- safe430CollectAllRestorePoints() samler:
+  - state.restorePoints
+  - legacy board.restorePoints
+  - legacy billedwidgets med w.data.boardState
+- Det betyder at næste implementering skal bevare legacy-visning, også hvis nye punkter senere bruger previewMediaRef.
+
+5) Gendannelsespunkter-modal på tværs af tavler
+- safe430OpenAllRestorePointsModal(opts) viser modal med overskriften “↩ Gendannelsespunkter”.
+- Den bruger safe430CollectAllRestorePoints().
+- Den bygger kort med:
+  const preview=p.preview ? `<img src="...">` : '<span>📸</span>'
+- Kortene har data-safe430-card og åbnes via Enter/klik.
+- openPoint(idx) kalder safe429InsertRestoredBoardShot(p.boardState,{title:true,background:true,grid:true,draw:true,selectedMap:{}}).
+- Eksisterende tavler ændres ikke; valget åbnes som ny tavle.
+
+6) Gendannelsespunkter-modal for én tavle / legacy-flow
+- safe428OpenBoardRestorePointsModal(boardIndex) viser gendannelsespunkter for en bestemt tavle.
+- safe428BoardRestorePoints(board) samler:
+  - board.restorePoints
+  - legacy billedwidgets med boardState
+- Den bruger også preview direkte som dataURL/streng.
+- Den åbner ligeledes via safe429InsertRestoredBoardShot().
+
+7) Gendannelse / opret ny tavle
+- safe429InsertRestoredBoardShot(boardState,opts) er det centrale gendannelsespunkt.
+- Den bygger en ny tavle via safe429BuildRestoredSlideFromBoardShot(boardState,opts) eller safe413BuildRestoredSlideFromBoardShot().
+- Den indsætter den nye tavle før papirkurv, hvis papirkurv findes.
+- Den sætter state.active til den nye tavle, lukker modal, kalder render(), save() og toast.
+- Denne funktion må ikke ændres i første previewMediaRef-fase.
+
+SENERE SIKKER IMPLEMENTERINGSPLAN:
+
+Fase SAFE453i116_preview_read_helper_for_restore_points_only
+- Kun helper til at læse preview fra enten p.preview eller p.previewMediaRef.
+- Ingen skrivning.
+- Ingen ændring af oprettelse af TavleShot.
+- Modalen kan evt. stadig bruge dataURL; helper testes isoleret først.
+
+Fase SAFE453i117_gendannelsespunkter_preview_mediaRef_new_tavleshot_only
+- Kun nye TavleShots får preview gemt i TavleMediaArchive som blob/mediaRef.
+- point.previewMediaRef sættes.
+- point.preview kan enten udelades eller kun være en lille/valgfri fallback afhængigt af test.
+- boardState bevares uændret i state.
+- Legacy p.preview skal fortsat virke.
+
+Fase SAFE453i118_gendannelsespunkter_modal_preview_mediaRef_display_only
+- Gendannelsespunkter-modal viser preview fra previewMediaRef, hvis det findes.
+- Hvis mediaRef mangler eller læsning fejler, vises p.preview eller 📸 placeholder.
+- Gendannelse må fortsat virke, selv hvis preview ikke kan vises.
+
+MÅ IKKE I NÆSTE AKTIVE FASE:
+- Flytte boardState ud af state.
+- Migrere gamle restorePoints.
+- Ændre safe429InsertRestoredBoardShot().
+- Ændre backup/import.
+- Ændre save()/load().
+- Slette p.preview på eksisterende punkter.
+- Gøre gendannelse afhængig af at previewMediaRef kan læses.
+- Ændre kalenderens quick-add-gendannelsespunkter samtidig.
+
+ACCEPTTEST FOR DENNE MAP-ONLY FASE:
+- Appen åbner som SAFE453i114c.
+- Tavleoversigt virker som før.
+- 📸 Tavleshot opretter stadig gendannelsespunkt som før.
+- ↩ Gendannelsespunkter viser stadig punkter som før.
+- Valg af gendannelsespunkt opretter stadig ny tavle som før.
+- Billedwidget Fra enhed/drag-drop/kamera viser stadig Arkiv: IndexedDB som i SAFE453i114c.
+-->
+
+<!-- SAFE453i114c CAMERA MEDIAREF INSIDE CORE FIXED INSERT:
+- Bygger direkte på SAFE453i114b/SAFE453i113, fordi SAFE453i114 blev kasseret.
+- Retter den tidligere fejlårsag: hjælpescript indsættes ved filens sidste </body>, ikke ved en </body>-tekst inde i en HTML-eksport-template.
+- Kamera-flowet ændres kun i safe408CaptureCameraIntoImage().
+- Kameraoptagelsens eksisterende dataURL gemmes først i TavleMediaArchive som Blob via en lille global helper.
+- Ved succes gemmer billedwidgetten mediaRef og let metadata; ved fejl bruges den oprindelige dataURL uændret som fallback.
+- Ingen ændring af kamera-preview/capture, modal, Fra appen, drag/drop, PDF, backup/import eller migration.
+-->
+<!--
+SAFE453i114b CAMERA FLOW MAP ONLY:
+- Bygger direkte på SAFE453i113_image_storage_status_badge, fordi SAFE453i114_image_camera_mediaRef_only blev kasseret som ødelagt.
+- Denne fase er KUN kortlægning/dokumentation.
+- Ingen JavaScript-logik ændret.
+- Ingen CSS ændret.
+- Ingen HTML-struktur ændret.
+- Ingen kamera/mediaRef-kobling aktiv.
+- Ingen IndexedDB-skrivning tilføjet.
+- Ingen ændring af billedwidget, PDF-widget, tegnewidget, backup/import, drag/drop, render(), save(), load(), addWidget() eller select().
+
+BAGGRUND:
+- SAFE453i111b virker: tom billedwidget > 1 · Fra enhed gemmer lokale billeder som mediaRef i TavleMediaArchive.
+- SAFE453i112 virker: drag/drop af lokale billedfiler gemmer som mediaRef.
+- SAFE453i113 virker: billedwidget viser lagerstatus: Arkiv: IndexedDB / Indlejret i tavle / URL.
+- SAFE453i114 fejlede ved forsøg på at koble kamera-flow direkte til mediaRef.
+- Derfor må kamera først kortlægges, før der igen laves kodeændring.
+
+KAMERA-FLOW I DENNE FIL:
+1) Kamera åbnes fra billedwidget:
+   - safe408OpenImageCameraMenu(w,el)
+   - Viser en modal med Tag billede / Vælg kamera.
+   - På mobil/iPad tilbydes Selfie og Bagkamera.
+   - På desktop tilbydes Normal og Spejlvendt billede.
+   - Funktionen bruger showModal()/closeModal() og er derfor følsom over for eksisterende modal-/keyboard-flow.
+
+2) Selve optagelsen:
+   - safe408CaptureCameraWebP(mode)
+   - Bruger navigator.mediaDevices.getUserMedia().
+   - Opretter en ikke-synlig video, tegner ét frame til canvas og returnerer en dataURL/WebP.
+   - safe412CleanupCameraPreview() rydder video/stream-elementer bagefter.
+   - Dette flow er mere følsomt end almindelig filimport, fordi det involverer async kameraadgang, stream cleanup, canvas og modal.
+
+3) Billedet skrives til widget:
+   - safe408CaptureCameraIntoImage(w,el,mode)
+   - Kalder safe408CaptureCameraWebP(actualMode).
+   - Sætter derefter i dag:
+     w.data.src = dataUrl
+     w.data.name = safe408ImageFileName(...)
+     w.data.source = 'camera' eller 'camera-mirrored'
+   - Sletter w.data.mirror, fordi spejling brændes ind i billeddata.
+   - Sætter også w.title.
+   - Kalder save() og render().
+   - Dette er det præcise sted, hvor en senere mediaRef-kobling sandsynligvis skal ind, men kun meget forsigtigt.
+
+4) Spejling/selfie:
+   - actualMode kan være front/selfie/mirror.
+   - isMirrored afgør navn/source.
+   - Spejling er brændt ind i canvas-data, ikke gemt som CSS-flag.
+   - En senere mediaRef-version skal bevare denne kontrakt:
+     - Blobben i TavleMediaArchive skal allerede være korrekt spejlet/ikke-spejlet.
+     - Widgetten skal ikke få et nyt mirror-flag.
+
+5) Fallback-krav:
+   - Hvis TavleMediaArchive, Blob-konvertering eller putMedia fejler, skal kamera-flow falde tilbage til den eksisterende dataURL-model.
+   - Brugeren må aldrig miste kameraoptagelsen på grund af mediaRef-fejl.
+   - Kamera-modal og streams skal ryddes uanset succes/fallback/fejl.
+
+SIKKER SENERE IMPLEMENTERINGSPLAN:
+SAFE453i115 bør IKKE ændre hele kamera-flowet.
+Den bør kun:
+- tilføje en lille helper, fx safe453i115StoreCameraDataUrlAsMediaRef(dataUrl, meta)
+- helperen skal kunne testes isoleret med en eksisterende dataURL
+- ingen kamera-knap må bruge helperen endnu
+
+SAFE453i116 kan derefter:
+- koble helperen ind i safe408CaptureCameraIntoImage()
+- kun efter dataUrl allerede er skabt
+- ved succes:
+  - slette/undlade tung w.data.src
+  - sætte w.data.mediaRef, mediaKind, name, mimeType, size, source
+- ved fejl:
+  - bevare præcis gammelt w.data.src=dataUrl-flow
+- closeModal(), save(), render() og stream cleanup skal bevares som før.
+
+MÅ IKKE I NÆSTE KAMERA-IMPLEMENTERING:
+- ændre safe408CaptureCameraWebP(), medmindre det er absolut nødvendigt.
+- ændre getUserMedia/canvas/stream cleanup.
+- ændre kamera-modalens UI.
+- ændre showModal/closeModal.
+- ændre statusbadge-logik.
+- ændre billedwidget-rendering bredt.
+- ændre backup/import eller migration.
+- ændre PDF-, tegne- eller Fra appen-flow.
+
+ACCEPTTEST FOR SENERE AKTIV KAMERAFASE:
+1. Opret tom billedwidget.
+2. Brug kamera.
+3. Kameraoptagelse vises med Arkiv: IndexedDB.
+4. Genindlæs siden: billedet vises stadig.
+5. Brug spejlvendt/selfie-flow: billedet vises korrekt spejlet.
+6. Hvis IndexedDB fejler, vises billedet stadig som Indlejret i tavle.
+7. Piletaster, Mere-menu, Mine tegninger og Fra appen virker stadig efter kamera.
+-->
+
+<!-- SAFE453i113 IMAGE STORAGE STATUS BADGE:
+- Bygger på SAFE453i112, som brugeren vurderede virkede, men hvor det ikke var synligt om billedet kom fra IndexedDB/mediaRef eller fallback.
+- Tilføjer kun en lille synlig status i billedwidgettens handlingslinje, når et billede er indlæst.
+- Viser “Arkiv: IndexedDB” for mediaRef-billeder.
+- Viser “Indlejret i tavle” for dataURL/fallback-billeder.
+- Viser “URL” for eksterne link-billeder.
+- Ingen ændring af lagring, import, backup, render-flow, IndexedDB-format eller migration.
+-->
+
+<!-- SAFE453i112 IMAGE DRAGDROP MEDIAREF ONLY:
+- Bygger på SAFE453i111b, som brugeren fortsatte fra efter vellykket tom billedwidget → Fra enhed mediaRef-flow.
+- Denne fase udvider kun ét ekstra lokalt billedflow: drag/drop af lokale billedfiler på tavlen.
+- Nye lokale billedfiler via drag/drop forsøges gemt i TavleMediaArchive/IndexedDB som mediaRef.
+- Hvis media archive/IndexedDB fejler, bruges det gamle dataURL-flow uændret som fallback.
+- Gamle billedwidgets med w.data.src/dataURL/URL virker uændret.
+- Fra appen, URL, Kamera, PDF, tegnewidget, backup/import og migration røres ikke.
+- Ingen ændring af render(), save(), load(), addWidget() eller select().
+- Test: træk et billede ind på tavlen, genindlæs appen, og tjek at billedet stadig vises.
+-->
+<!-- SAFE453i111b IMAGE FROM DEVICE MEDIAREF ONLY:
+- Bygger på SAFE453i110, fordi SAFE453i111-diagnosefasen ikke er nødvendig som næste arkitekturtrin.
+- Regelbaseret implementering: nye lokale billeder valgt i tom billedwidget via “1 · Fra enhed” gemmes så vidt muligt i TavleMediaArchive/IndexedDB som mediaRef.
+- Widget-state gemmer kun mediaRef + let metadata, når arkivet virker; ved fejl bruges det gamle dataURL-flow som fallback.
+- Gamle billedwidgets med w.data.src/dataURL/URL virker uændret.
+- Drag/drop af billeder er rullet tilbage til gammelt dataURL-flow i denne fase, så kun ét brugerflow testes.
+- Fra appen, URL, Kamera, tegnewidget, PDF, backup/import og migration røres ikke.
+- Ingen ændring af render(), save(), load(), addWidget() eller select().
+- Test: tom billedwidget → 1/Fra enhed → vælg billede → genindlæs → billedet skal stadig vises; ældre billeder skal stadig virke.
+-->
+
 <!-- SAFE453i110 EMPTY IMAGE NUMBER SHORTCUTS ONLY:
 - Bygger på SAFE453i109b / SAFE453i108-linjen efter kasseret SAFE453i109.
 - Retter kun tom billedwidget, så valg kan aktiveres med tal i stedet for mellemrum/Tab.
@@ -5840,6 +6233,15 @@ body.focus-maximized .widget[data-type="link"] .linkLinkedListBar{
 }
 .safe453i73LinkRowActions button.edit{background:#dcfce7;color:#166534;}
 
+
+/* SAFE453i113: visible storage status for loaded image widgets */
+.imageStorageBadge{
+  display:inline-flex;align-items:center;gap:.25rem;
+  margin-left:.25rem;padding:.18rem .45rem;border-radius:999px;
+  font-size:.72rem;line-height:1.2;font-weight:700;
+  background:rgba(255,255,255,.82);border:1px solid rgba(0,0,0,.16);
+  color:#334155;white-space:nowrap;pointer-events:auto;
+}
 </style> <style id="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!imp
 - focus-mode: ="phase3-focus-stability-css"> body.focus-mode .widget,body.focus-edit .widget,body.focus-presentation .widget,body.focus-maximized .widget{transform-origin:center center!important;top:0!important;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!important;top:0!important;left:0!important}   /* v_focus_zfix: focused widget must stay above all others */ body.focus-edit .widget.focused, body.focus-presentation .widget.focused, .app.
 - focus-mode: nt;left:0!important} body.focus-mode .content.pdf,body.focus-edit .content.pdf,body.focus-presentation .content.pdf,body.focus-maximized .content.pdf{overflow:hidden!important;overscroll-behavior:contain!important} body.focus-mode .pdfJsViewer,body.focus-edit .pdfJsViewer,body.focus-presentation .pdfJsViewer,body.focus-maximized .pdfJsViewer{transform:none!important;top:0!important;left:0!important}   /* v_focus_zfix: focused widget must stay above all others */ body.focus-edit .widget.focused, body.focus-presentation .widget.focused, .app.focusMode .widget.focused, .widget.focused{   z-index:9999!important; } body.focus-edit .widget:not(.focused), body.focus-presentation .widget:not(.focused){   z-index:20!important; }    /* FASE
@@ -20599,20 +21001,27 @@ async function handleDroppedFile(file,point){
     }
   }
   if(isLikelyImageFile(file)){
+    // SAFE453i112: Drag/drop af lokale billedfiler bruger nu samme smalle mediaRef-forsøg
+    // som tom billedwidget → Fra enhed. Ved fejl faldes der tilbage til gammelt dataURL-flow.
     let imageData=null;
     try{
       if(typeof safe453i99PrepareImageFileData==='function'){
         imageData=await safe453i99PrepareImageFileData(file);
+        if(imageData&&imageData.mediaRef){
+          imageData.metaFlow='dragdrop-image';
+        }
       }
     }catch(err){
-      console.warn('SAFE453i99 image mediaRef import fallback',err);
+      console.warn('SAFE453i112 drag/drop image mediaRef fallback',err);
+      imageData=null;
     }
-    if(!imageData){
+    if(imageData&&imageData.mediaRef){
+      addDroppedWidget('image',imageData,point,file.name||'Billede');
+    }else{
       const src=await readFileAsDataURL(file);
-      imageData={src:src,name:file.name||'billede'};
+      addDroppedWidget('image',{src:src,name:file.name||'billede'},point,file.name||'Billede');
     }
-    addDroppedWidget('image',imageData,point,file.name||'Billede');
-    toast(imageData.mediaRef?'Billede indsat i mediearkiv':'Billede indsat');
+    toast('Billede indsat');
     return {ok:true,kind:'image',label:file.name||'Billede'};
   }
   if(isLikelyPdfFile(file)){
@@ -30949,10 +31358,30 @@ async function safe408CaptureCameraIntoImage(w,el,mode){
   const label=actualMode==='selfie'?'Selfie':(actualMode==='mirror'?'Spejlvendt billede':'Billede');
   toast('Åbner kamera…');
   const dataUrl=await safe408CaptureCameraWebP(actualMode);
+  const imageName=safe408ImageFileName(isMirrored?'camera-mirror':'camera','webp');
+  const imageSource=isMirrored?'camera-mirrored':'camera';
+  let cameraMediaData=null;
+  try{
+    if(typeof window.safe453i114cPrepareCameraDataUrl==='function'){
+      cameraMediaData=await window.safe453i114cPrepareCameraDataUrl(dataUrl,imageName,imageSource);
+    }
+  }catch(err){
+    console.warn('SAFE453i114c camera mediaRef fallback',err);
+    cameraMediaData=null;
+  }
   w.data=w.data||{};
-  w.data.src=dataUrl;
-  w.data.name=safe408ImageFileName(isMirrored?'camera-mirror':'camera','webp');
-  w.data.source=isMirrored?'camera-mirrored':'camera';
+  if(cameraMediaData&&cameraMediaData.mediaRef){
+    delete w.data.src;
+    Object.assign(w.data,cameraMediaData);
+  }else{
+    w.data.src=dataUrl;
+    delete w.data.mediaRef;
+    delete w.data.mediaKind;
+    delete w.data.mimeType;
+    delete w.data.size;
+    w.data.name=imageName;
+    w.data.source=imageSource;
+  }
   // SAFE412/439: spejling er brændt ind i billeddata, så ingen CSS mirror-flag er nødvendig.
   delete w.data.mirror;
   w.data.createdAt=new Date().toISOString();
@@ -31306,12 +31735,15 @@ if(w.type==='drawcopy'){
     const imageSrc=String((w.data&&w.data.src)||'');
     const hasMediaRef=!!(w.data&&w.data.mediaRef&&!imageSrc);
     const embedded=imageSrc.startsWith('data:');
+    const storageLabel=hasMediaRef?'Arkiv: IndexedDB':(embedded?'Indlejret i tavle':(imageSrc?'URL':''));
+    const storageTitle=hasMediaRef?'Dette billede læses fra IndexedDB-mediearkivet.':(embedded?'Dette billede ligger som dataURL/fallback i tavle-state.':(imageSrc?'Dette billede er et eksternt/linket billede.':''));
+    const storageBadge=storageLabel?`<span class="imageStorageBadge" title="${esc(storageTitle)}">${esc(storageLabel)}</span>`:'';
     // SAFE440: Gendannelse/tavleshot styres fra Tavleoversigt. Gamle boardState-data bevares,
     // men billedwidgetten viser ikke længere lokale “Gendan”-knapper.
     const mirrorCls=w.data&&w.data.mirror?' safe411MirrorSelfie':'';
     const initialSrc=imageSrc?esc(imageSrc):'';
     const placeholder=hasMediaRef?'<div class="mediaRefNotice">Henter billede fra mediearkiv…</div>':'';
-    c.innerHTML=`<div class="mediaActions widget-control"><button type="button" class="drawCopyImg" title="Tegn videre på kopi">✏️ Tegn</button>${embedded?`<button type="button" class="downloadImg" title="Åbn fælles downloadpulje">⬇ Download</button>`:''}</div><div class="imageFrame"><img class="${mirrorCls}" src="${initialSrc}" alt="">${placeholder}</div>`;
+    c.innerHTML=`<div class="mediaActions widget-control"><button type="button" class="drawCopyImg" title="Tegn videre på kopi">✏️ Tegn</button>${embedded?`<button type="button" class="downloadImg" title="Åbn fælles downloadpulje">⬇ Download</button>`:''}${storageBadge}</div><div class="imageFrame"><img class="${mirrorCls}" src="${initialSrc}" alt="">${placeholder}</div>`;
     if(hasMediaRef&&typeof safe453i99LoadImageMediaRefIntoElement==='function'){
       safe453i99LoadImageMediaRefIntoElement(w,c.querySelector('img'),c);
     }
@@ -35011,7 +35443,7 @@ function showQuickHelp(){
           <button class="helpIconItem helpToolBtn" data-help-tool="wordcloud"><span class="helpIcon">☁️</span><span><b>Ordsky</b><small>Shift+S · ord og frekvenser</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="kahoopardy"><span class="helpIcon">🏆</span><span><b>KaPardy</b><small>Shift+Q · Kahoot, Jeopardy og Mester</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="pdf"><span class="helpIcon">📄</span><span><b>PDF</b><small>Shift+P · dokumenter og opgaver</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · fra enhed, appen, URL eller kamera</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · 1 enhed · 2 appen · 3 URL · 4 kamera</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="link"><span class="helpIcon">🔗</span><span><b>Link / iframe</b><small>Shift+L · websteder og indlejring</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="timer"><span class="helpIcon">⌛</span><span><b>Timer</b><small>Shift+K · nedtælling</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="clock"><span class="helpIcon">🕒</span><span><b>Ur</b><small>Shift+U · vis ur på tavlen</small></span></button>
@@ -35119,7 +35551,8 @@ function showQuickHelp(){
       <div class="answer">
         <ul>
           <li><b>Billeder</b> er til fotos, skærmbilleder, kort, opgaveark, illustrationer og andet visuelt materiale på tavlen.</li>
-          <li>Brug billeder som samtalestartere, baggrund for en forklaring eller som noget, eleverne skal undersøge, beskrive eller arbejde videre med.</li>
+          <li>I en tom billedwidget kan du bruge <b>1</b> fra enhed, <b>2</b> fra appen, <b>3</b> URL og <b>4</b> kamera.</li>
+          <li>Appen passer selv på lokale billeder, kameraoptagelser og billeder fra tegninger, så tavlen kan gemmes uden at blive unødigt tung.</li>
           <li><b>Tegninger</b> er til hurtige markeringer: cirkl noget ind, tegn pile, understreg, lav en skitse eller byg videre på et billede.</li>
           <li><b>Mine tegninger</b> gemmer de tegninger, du vil bruge igen — fx en forklaring, en elevidé, en gennemgået opgave eller en lille tavleskitse fra en tidligere time.</li>
           <li>Du kan hente en gemt tegning frem igen, tegne videre på den, sætte den ind som billede eller bruge den som baggrund på en tavle.</li>
@@ -35141,14 +35574,14 @@ function showQuickHelp(){
     </details>
 
     <details>
-      <summary>Backup, fuld backup og lokale tegninger</summary>
+      <summary>Gem, backup og filer</summary>
       <div class="answer">
         <ul>
-          <li><b>Almindelig backup</b> gemmer tavler, widgets, placeringer, tekster, lister og indstillinger.</li>
-          <li><b>Fuld backup med tegninger</b> gemmer også <b>Mine tegninger</b> fra browserens lokale database, så de kan flyttes til en anden browser/enhed.</li>
-          <li><b>Skabelon</b> er til tomme eller genbrugelige tavleopsætninger og bør normalt ikke indeholde tegninger og store medier.</li>
-          <li><b>Ryd Mine tegninger</b> sletter tegningsarkivet i browseren. Brug først fuld backup, hvis du vil kunne genskabe dem.</li>
-          <li><b>Hent filer fra tavlen</b> bruges, når du vil hente enkelte indlejrede filer ud separat. Det er ikke det samme som en fuld tavlebackup.</li>
+          <li><b>Gem backup</b> gemmer den åbne tavleopsætning, så du kan åbne den igen senere.</li>
+          <li><b>Backup +</b> er den sikre udgave, når tavlen også bruger lokale billeder, tegninger, kameraoptagelser eller gendannelsespunkter.</li>
+          <li><b>Gem skabelon</b> er til tomme eller genbrugelige tavleopsætninger, som du vil starte fra igen.</li>
+          <li><b>Hent filer fra tavlen</b> bruges, når du vil hente enkelte billeder eller filer ud fra den aktuelle tavle.</li>
+          <li><b>Hvor ligger data?</b> er et kontrolvindue. Det viser, hvad tavlen bruger, uden at flytte eller slette noget.</li>
         </ul>
       </div>
     </details>
@@ -35161,7 +35594,7 @@ function showQuickHelp(){
           <li><b>Delete/Backspace</b> flytter valgt widget til papirkurven.</li>
           <li><b>Shift+Delete/Backspace</b> eller <b>Shift+klik på X</b> sletter permanent.</li>
           <li><b>Cmd/Ctrl+Z</b> gendanner senest slettede widget.</li>
-          <li><b>Cmd/Ctrl+S</b> eller <b>Cmd/Ctrl+G</b> åbner Gem/åbn. Her kan du vælge almindelig backup, fuld backup med tegninger eller skabelon.</li>
+          <li><b>Cmd/Ctrl+S</b> eller <b>Cmd/Ctrl+G</b> åbner Gem/åbn. Her kan du vælge backup, Backup +, skabelon og filkontrol.</li>
         </ul>
       </div>
     </details>
@@ -35456,14 +35889,551 @@ function collectEmbeddedMedia(){
     return {...it,ext,filename:safeFileName(it.name,ext),label:it.type||kindLabel(it.src),id:'mediaDl'+i};
   });
 }
-function downloadAllEmbeddedMedia(){
+
+
+function safe453i119ExtFromMime(mime,fallback){
+  mime=String(mime||'').toLowerCase();
+  if(mime.includes('pdf'))return 'pdf';
+  if(mime.includes('png'))return 'png';
+  if(mime.includes('jpeg')||mime.includes('jpg'))return 'jpg';
+  if(mime.includes('webp'))return 'webp';
+  if(mime.includes('gif'))return 'gif';
+  if(mime.includes('svg'))return 'svg';
+  if(mime.includes('html'))return 'html';
+  if(mime.includes('csv'))return 'csv';
+  if(mime.includes('plain'))return 'txt';
+  return fallback||'bin';
+}
+function safe453i119MediaLabel(rec,key){
+  const kind=String(rec&&rec.kind||'media').toLowerCase();
+  const mime=String(rec&&rec.mimeType||'').toLowerCase();
+  key=String(key||'');
+  if(key==='previewMediaRef')return 'Gendannelsespunkt-preview';
+  if(kind==='image'||mime.startsWith('image/'))return 'Billede fra IndexedDB';
+  if(kind==='pdf'||mime.includes('pdf'))return 'PDF fra IndexedDB';
+  if(kind==='audio'||mime.startsWith('audio/'))return 'Lyd fra IndexedDB';
+  if(kind==='video'||mime.startsWith('video/'))return 'Video fra IndexedDB';
+  if(kind==='drawing')return 'Tegning fra IndexedDB';
+  return 'Medie fra IndexedDB';
+}
+function safe453i119FindMediaRefsForDownload(){
+  const refs=[];
+  const seenObj=new Set();
+  const seenRef=new Set();
+  function add(id,key,path,parent){
+    id=String(id||'').trim();
+    if(!id)return;
+    const dedupe=id+'|'+String(key||'');
+    if(seenRef.has(dedupe))return;
+    seenRef.add(dedupe);
+    const name=String((parent&&(parent.name||parent.title||parent.label))||'').trim();
+    refs.push({id,key:key||'mediaRef',path:path||'state',name:name});
+  }
+  function visit(v,path,parent,depth){
+    if(depth>12||v==null)return;
+    if(typeof v!=='object')return;
+    if(seenObj.has(v))return;
+    seenObj.add(v);
+    if(Array.isArray(v)){
+      for(let i=0;i<v.length;i++)visit(v[i],path+'['+i+']',parent,depth+1);
+      return;
+    }
+    Object.keys(v).forEach(function(k){
+      const val=v[k];
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef')&&typeof val==='string'&&val){
+        add(val,k,path+'.'+k,v);
+      }
+      visit(val,path?path+'.'+k:k,v,depth+1);
+    });
+  }
+  try{visit(state||{},'state',null,0);}catch(_e){}
+  return refs;
+}
+function safe453i119ArchiveReady(){
+  const a=window.TavleMediaArchive;
+  return !!(a&&a.__safe453i84&&typeof a.getMedia==='function');
+}
+async function collectDownloadableMedia(){
   const items=collectEmbeddedMedia();
-  if(!items.length){toast('Ingen data eller indlejrede filer at downloade');return}
+  const archive=window.TavleMediaArchive;
+  if(!safe453i119ArchiveReady())return items;
+  const refs=safe453i119FindMediaRefsForDownload();
+  const used=new Set();
+  for(const r of refs){
+    if(used.has(r.id))continue;
+    used.add(r.id);
+    try{
+      const rec=await archive.getMedia(r.id);
+      if(!rec||!rec.blob)continue;
+      const ext=safe453i119ExtFromMime(rec.mimeType,'bin');
+      const name=r.name||rec.name||r.id||'medie';
+      items.push({
+        type:safe453i119MediaLabel(rec,r.key),
+        slide:safe453i118ShortPath(r.path||'state'),
+        name:name,
+        blob:rec.blob,
+        mimeType:rec.mimeType||rec.blob.type||'application/octet-stream',
+        ext:ext,
+        filename:safeFileName(name,ext),
+        label:safe453i119MediaLabel(rec,r.key),
+        id:'mediaRefDl'+items.length,
+        mediaRef:r.id,
+        source:'indexeddb'
+      });
+    }catch(_e){}
+  }
+  return items;
+}
+
+function safe453i118FormatBytes(bytes){
+  bytes=Number(bytes)||0;
+  if(bytes<1024)return bytes+' B';
+  if(bytes<1024*1024)return (Math.round(bytes/102.4)/10)+' KB';
+  return (Math.round(bytes/(1024*102.4))/10)+' MB';
+}
+function safe453i118ApproxStringBytes(str){
+  try{return new Blob([String(str||'')]).size;}catch(_e){return String(str||'').length*2;}
+}
+function safe453i118DataUrlBytes(str){
+  str=String(str||'');
+  const comma=str.indexOf(',');
+  const head=comma>=0?str.slice(0,comma):'';
+  const body=comma>=0?str.slice(comma+1):str;
+  if(/;base64/i.test(head))return Math.floor(body.length*3/4);
+  try{return safe453i118ApproxStringBytes(decodeURIComponent(body));}catch(_e){return safe453i118ApproxStringBytes(body);}
+}
+function safe453i118ShortPath(path){
+  path=String(path||'');
+  return path.length>90?'…'+path.slice(-87):path;
+}
+function safe453i118ScanObjectForStorage(obj){
+  const found={dataUrls:[],refs:[],strings:0,objects:0};
+  const seen=new Set();
+  function visit(v,path,depth){
+    if(depth>10)return;
+    if(v==null)return;
+    if(typeof v==='string'){
+      found.strings++;
+      if(/^data:/i.test(v)){
+        const mime=(v.match(/^data:([^;,]+)/i)||[])[1]||'data';
+        found.dataUrls.push({path:path,mime:mime,bytes:safe453i118DataUrlBytes(v)});
+      }
+      return;
+    }
+    if(typeof v!=='object')return;
+    if(seen.has(v))return;
+    seen.add(v);found.objects++;
+    if(Array.isArray(v)){
+      for(let i=0;i<v.length;i++)visit(v[i],path+'['+i+']',depth+1);
+      return;
+    }
+    Object.keys(v).forEach(function(k){
+      const val=v[k];
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef')&&typeof val==='string'&&val){
+        found.refs.push({path:path+'.'+k,id:val,key:k});
+      }
+      visit(val,path?path+'.'+k:k,depth+1);
+    });
+  }
+  visit(obj,'state',0);
+  found.dataUrls.sort((a,b)=>b.bytes-a.bytes);
+  return found;
+}
+function safe453i118LocalStorageRows(){
+  const rows=[];
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      const val=localStorage.getItem(key)||'';
+      rows.push({key:key,bytes:safe453i118ApproxStringBytes(val),looksDataUrl:/data:[^\"']{20,}/.test(val),looksJson:/^\s*[\[{]/.test(val)});
+    }
+  }catch(_e){}
+  rows.sort((a,b)=>b.bytes-a.bytes);
+  return rows;
+}
+
+function safe453i122ClassifyLocalStorageKey(key,row){
+  const k=String(key||'');
+  const current=(typeof KEY==='string'&&k===KEY);
+  if(current)return {label:'Aktuel app-state', protected:true, group:'current'};
+  if(/^maans_interaktiv_tavle_/i.test(k)||/^interaktivTavle/i.test(k))return {label:'Gammel/anden tavle-version', protected:false, group:'old-tavle'};
+  if(/^tavle2\./i.test(k))return {label:'Tavle 2 / prototype', protected:false, group:'prototype'};
+  if(/^virtual-desks/i.test(k))return {label:'Anden prototype', protected:false, group:'prototype'};
+  if(/toolbar|clock|settings|indstillinger|pin/i.test(k))return {label:'Indstilling/hjælpenøgle', protected:true, group:'settings'};
+  if(row&&row.looksJson)return {label:'JSON-data', protected:false, group:'json'};
+  return {label:'Ukendt nøgle', protected:false, group:'unknown'};
+}
+function safe453i122SelectedCleanupKeys(){
+  const keys=[];
+  if(!modal||!modal.querySelectorAll)return keys;
+  modal.querySelectorAll('input[data-safe453i122-ls-key]:checked').forEach(function(cb){
+    const key=cb.getAttribute('data-safe453i122-ls-key')||'';
+    if(key)keys.push(key);
+  });
+  return keys;
+}
+function safe453i122RefreshCleanupButtons(){
+  if(!modal||!modal.querySelector)return;
+  const keys=safe453i122SelectedCleanupKeys();
+  const del=modal.querySelector('#safe453i122DeleteSelected');
+  const dl=modal.querySelector('#safe453i122BackupSelected');
+  const ok=modal.querySelector('#safe453i122DeleteConfirm');
+  if(dl)dl.disabled=!keys.length;
+  if(del)del.disabled=(!keys.length||!(ok&&ok.checked));
+  const count=modal.querySelector('#safe453i122SelectedCount');
+  if(count)count.textContent=keys.length+' valgt';
+}
+function safe453i122BackupSelectedLocalStorageKeys(){
+  const keys=safe453i122SelectedCleanupKeys();
+  if(!keys.length){toast('Vælg mindst én nøgle først');return;}
+  const payload={
+    app:'maans-interaktiv-tavle',
+    format:'localStorage-selected-backup',
+    createdAt:new Date().toISOString(),
+    note:'Backup af valgte localStorage-nøgler før manuel oprydning.',
+    keys:{}
+  };
+  keys.forEach(function(k){try{payload.keys[k]=localStorage.getItem(k);}catch(_e){payload.keys[k]=null;}});
+  const name='localStorage-oprydning-backup-'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json';
+  safeDownload(name,JSON.stringify(payload,null,2),'application/json;charset=utf-8');
+}
+function safe453i122DeleteSelectedLocalStorageKeys(){
+  const keys=safe453i122SelectedCleanupKeys();
+  if(!keys.length){toast('Vælg mindst én nøgle først');return;}
+  const protectedKeys=keys.filter(function(k){return typeof KEY==='string'&&k===KEY;});
+  if(protectedKeys.length){toast('Aktuel app-state kan ikke slettes her');return;}
+  const ok=modal&&modal.querySelector&&modal.querySelector('#safe453i122DeleteConfirm');
+  if(!ok||!ok.checked){toast('Sæt bekræftelsesflueben først');return;}
+  const msg='Slet '+keys.length+' valgte localStorage-nøgle(r)?\n\nDette kan ikke fortrydes, medmindre du først har hentet backup.';
+  if(!confirm(msg))return;
+  let deleted=0;
+  keys.forEach(function(k){try{localStorage.removeItem(k);deleted++;}catch(_e){}});
+  toast('Slettede '+deleted+' localStorage-nøgle(r)');
+  safe453i122OpenLocalStorageCleanup();
+}
+function safe453i122OpenLocalStorageCleanup(){
+  const rows=safe453i118LocalStorageRows();
+  const body=rows.map(function(r,i){
+    const cls=safe453i122ClassifyLocalStorageKey(r.key,r);
+    const disabled=cls.protected?'disabled':'';
+    const safeKey=esc(r.key);
+    return `<tr class="${cls.protected?'safe453i122Protected':''}">
+      <td><input type="checkbox" data-safe453i122-ls-key="${safeKey}" ${disabled}></td>
+      <td><code>${safeKey}</code>${cls.protected?' <small class="safe453i122Lock">beskyttet</small>':''}</td>
+      <td>${esc(cls.label)}</td>
+      <td>${safe453i118FormatBytes(r.bytes)}</td>
+      <td>${r.looksJson?'JSON ':''}${r.looksDataUrl?'dataURL':''}</td>
+    </tr>`;
+  }).join('');
+  showModal(`<h2>Ryd gamle localStorage-data</h2>
+    <div class="safe453StorageTopActions"><button data-safe453i122-back-storage="1" title="Tilbage til Hvor ligger data" aria-label="Tilbage til Hvor ligger data">←</button><span id="safe453i122SelectedCount">0 valgt</span></div>
+    <p class="safe453Note">Forsigtig oprydning. Intet er valgt på forhånd. Aktuel app-state og indstillingsnøgler er beskyttet. Denne funktion sletter kun localStorage-nøgler — ikke IndexedDB/mediearkivet.</p>
+    <div class="safe453i122CleanupBox">
+      <table><thead><tr><th></th><th>Nøgle</th><th>Vurdering</th><th>Størrelse</th><th>Indhold</th></tr></thead><tbody>${body||'<tr><td colspan="5">Ingen localStorage-nøgler fundet</td></tr>'}</tbody></table>
+    </div>
+    <div class="safe453i122Actions">
+      <button id="safe453i122SelectOld">Vælg gamle tavle-versioner</button>
+      <button id="safe453i122SelectNone">Vælg ingen</button>
+      <button id="safe453i122BackupSelected" disabled>Hent backup af valgte</button>
+    </div>
+    <label class="safe453i122Confirm"><input id="safe453i122DeleteConfirm" type="checkbox"> Jeg forstår, at valgte localStorage-nøgler slettes fra denne browser.</label>
+    <div class="safe453i122Actions"><button id="safe453i122DeleteSelected" disabled>Slet valgte nøgler</button><button data-safe453i122-back-storage="1">Tilbage</button></div>
+    <style>
+      .safe453i122CleanupBox{max-height:45vh;overflow:auto;border:1px solid #dbe3ef;border-radius:12px;background:#fff;margin:10px 0}.safe453i122CleanupBox table{width:100%;border-collapse:collapse;font-size:.86rem}.safe453i122CleanupBox th,.safe453i122CleanupBox td{border-top:1px solid #eef2f7;padding:7px;text-align:left;vertical-align:top}.safe453i122CleanupBox code{font-size:.78rem;word-break:break-all}.safe453i122Protected{opacity:.62;background:#f7f8fb}.safe453i122Lock{display:inline-block;margin-left:6px;color:#526070}.safe453i122Actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.safe453i122Confirm{display:block;background:#fff7e8;border:1px solid #f3d39a;border-radius:10px;padding:9px;margin:10px 0;font-weight:700}@media(max-width:760px){.safe453i122CleanupBox{max-height:42vh}.safe453i122Actions button{flex:1 1 45%}}
+    </style>`);
+  modal.querySelectorAll('[data-safe453i122-back-storage]').forEach(function(btn){btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}safe453i118OpenStorageOverview();};});
+  modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){cb.onchange=safe453i122RefreshCleanupButtons;});
+  const old=modal.querySelector('#safe453i122SelectOld');
+  if(old)old.onclick=function(){modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){
+    const key=cb.getAttribute('data-safe453i122-ls-key')||'';
+    const row=rows.find(function(r){return r.key===key;});
+    const cls=safe453i122ClassifyLocalStorageKey(key,row);
+    cb.checked=(!cls.protected&&cls.group==='old-tavle');
+  });safe453i122RefreshCleanupButtons();};
+  const none=modal.querySelector('#safe453i122SelectNone');
+  if(none)none.onclick=function(){modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){cb.checked=false;});safe453i122RefreshCleanupButtons();};
+  const backup=modal.querySelector('#safe453i122BackupSelected');
+  if(backup)backup.onclick=safe453i122BackupSelectedLocalStorageKeys;
+  const del=modal.querySelector('#safe453i122DeleteSelected');
+  if(del)del.onclick=safe453i122DeleteSelectedLocalStorageKeys;
+  const confirmBox=modal.querySelector('#safe453i122DeleteConfirm');
+  if(confirmBox)confirmBox.onchange=safe453i122RefreshCleanupButtons;
+  safe453i122RefreshCleanupButtons();
+}
+function safe453i118StorageKindLabel(mime,path){
+  mime=String(mime||''); path=String(path||'');
+  if(/image\//.test(mime))return 'Billede/dataURL';
+  if(/pdf/.test(mime))return 'PDF/dataURL';
+  if(/preview|restore|boardshot|TavleShot/i.test(path))return 'Gendannelsespunkt-preview';
+  return 'Indlejret dataURL';
+}
+let safe453i120StorageOverviewEscHandler=null;
+function safe453i120RemoveStorageOverviewEscHandler(){
+  try{
+    if(safe453i120StorageOverviewEscHandler){
+      window.removeEventListener('keydown',safe453i120StorageOverviewEscHandler,true);
+      safe453i120StorageOverviewEscHandler=null;
+    }
+  }catch(_e){}
+}
+function safe453i120BackToMediaDownloads(){
+  // SAFE453i126: Hvor ligger data? åbnes nu direkte fra Gem/åbn.
+  // Tilbage/Esc skal derfor returnere til Gem/åbn, ikke til Hent filer.
+  safe453i120RemoveStorageOverviewEscHandler();
+  if(typeof showSaveFileOptions==='function')showSaveFileOptions();
+  else closeModal();
+}
+function safe453i120InstallStorageOverviewEscHandler(){
+  safe453i120RemoveStorageOverviewEscHandler();
+  safe453i120StorageOverviewEscHandler=function(e){
+    const key=e&&e.key;
+    const isEsc=(key==='Escape'||key==='Esc');
+    const visible=modalBack&&modalBack.style&&modalBack.style.display!=='none';
+    const overviewOpen=visible&&modal&&modal.querySelector&&modal.querySelector('.safe453StorageOverview');
+    if(!overviewOpen){safe453i120RemoveStorageOverviewEscHandler();return;}
+    if(isEsc){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      safe453i120BackToMediaDownloads();
+    }
+  };
+  window.addEventListener('keydown',safe453i120StorageOverviewEscHandler,true);
+}
+function safe453i120WireStorageOverviewBackButtons(){
+  safe453i120InstallStorageOverviewEscHandler();
+  if(!modal||!modal.querySelectorAll)return;
+  modal.querySelectorAll('[data-safe453i120-back-downloads]').forEach(function(btn){
+    btn.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      safe453i120BackToMediaDownloads();
+    };
+  });
+  modal.querySelectorAll('[data-safe453i122-open-cleanup]').forEach(function(btn){
+    btn.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      safe453i120RemoveStorageOverviewEscHandler();
+      safe453i122OpenLocalStorageCleanup();
+    };
+  });
+  modal.querySelectorAll('[data-safe453i124-open-media-map]').forEach(function(btn){
+    btn.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      safe453i120RemoveStorageOverviewEscHandler();
+      safe453i124OpenIndexedDbMediaMap();
+    };
+  });
+}
+
+function safe453i124RefUsageMap(scan){
+  const map={};
+  try{
+    (scan&&Array.isArray(scan.refs)?scan.refs:[]).forEach(function(r){
+      const id=String(r&&r.id||'').trim();
+      if(!id)return;
+      if(!map[id])map[id]=[];
+      map[id].push({path:r.path||'',key:r.key||''});
+    });
+  }catch(_e){}
+  return map;
+}
+function safe453i125MergeUsageMaps(base,extra){
+  base=base||{};extra=extra||{};
+  Object.keys(extra).forEach(function(id){
+    if(!base[id])base[id]=[];
+    (extra[id]||[]).forEach(function(u){base[id].push(u);});
+  });
+  return base;
+}
+function safe453i125UsageMapFromScan(scan,prefix){
+  const map={};
+  prefix=String(prefix||'');
+  try{
+    (scan&&Array.isArray(scan.refs)?scan.refs:[]).forEach(function(r){
+      const id=String(r&&r.id||'').trim();
+      if(!id)return;
+      if(!map[id])map[id]=[];
+      map[id].push({path:(prefix?prefix+' → ':'')+(r.path||''),key:r.key||'',source:prefix||'state'});
+    });
+  }catch(_e){}
+  return map;
+}
+function safe453i125ScanLocalStorageMediaRefs(){
+  const out={usage:{},keys:[],errors:[]};
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      const val=localStorage.getItem(key)||'';
+      if(!/^\s*[\[{]/.test(val))continue;
+      if(!/(mediaRef|previewMediaRef|srcMediaRef|fileMediaRef)/.test(val))continue;
+      try{
+        const data=JSON.parse(val);
+        const scan=safe453i118ScanObjectForStorage(data);
+        const count=(scan&&scan.refs&&scan.refs.length)||0;
+        if(count){
+          out.keys.push({key:key,refs:count,bytes:safe453i118ApproxStringBytes(val)});
+          safe453i125MergeUsageMaps(out.usage,safe453i125UsageMapFromScan(scan,'localStorage:'+key));
+        }
+      }catch(err){
+        out.errors.push({key:key,error:String(err&&err.message||err)});
+      }
+    }
+  }catch(_e){}
+  return out;
+}
+function safe453i125CombinedMediaUsageMap(activeScan){
+  const activeUsage=safe453i125UsageMapFromScan(activeScan,'aktiv state');
+  const ls=safe453i125ScanLocalStorageMediaRefs();
+  return {usage:safe453i125MergeUsageMaps(activeUsage,ls.usage),localStorageKeys:ls.keys||[],errors:ls.errors||[]};
+}
+function safe453i124ShortId(id){
+  id=String(id||'');
+  return id.length>22?id.slice(0,12)+'…'+id.slice(-8):id;
+}
+function safe453i124MediaStatusLabel(m,usage){
+  const id=String(m&&m.id||'');
+  if(usage&&usage[id]&&usage[id].length)return '✅ I brug';
+  return '⚪ Muligvis forældreløs';
+}
+function safe453i124InstallEscBackToStorageOverview(){
+  if(window.__safe453i124EscHandler)window.removeEventListener('keydown',window.__safe453i124EscHandler,true);
+  window.__safe453i124EscHandler=function(e){
+    if(!modalBack||modalBack.style.display==='none')return;
+    if(!modal||!modal.querySelector('[data-safe453i124-media-map]'))return;
+    if(e.key==='Escape'||e.key==='Esc'){
+      e.preventDefault();e.stopPropagation();
+      window.removeEventListener('keydown',window.__safe453i124EscHandler,true);
+      window.__safe453i124EscHandler=null;
+      safe453i118OpenStorageOverview();
+    }
+  };
+  window.addEventListener('keydown',window.__safe453i124EscHandler,true);
+}
+function safe453i124WireMediaMapButtons(){
+  safe453i124InstallEscBackToStorageOverview();
+  if(!modal||!modal.querySelectorAll)return;
+  modal.querySelectorAll('[data-safe453i124-back-storage]').forEach(function(btn){
+    btn.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      if(window.__safe453i124EscHandler){window.removeEventListener('keydown',window.__safe453i124EscHandler,true);window.__safe453i124EscHandler=null;}
+      safe453i118OpenStorageOverview();
+    };
+  });
+}
+function safe453i124OpenIndexedDbMediaMap(){
+  const archive=(window.TavleMediaArchive&&typeof window.TavleMediaArchive.listMedia==='function')?window.TavleMediaArchive:null;
+  const scan=safe453i118ScanObjectForStorage(state||{});
+  const combined=safe453i125CombinedMediaUsageMap(scan);
+  const usage=combined.usage||{};
+  showModal('<h2>IndexedDB-medier</h2><p>Læser TavleMediaArchive og scanner localStorage-referencer…</p><button data-safe453i124-back-storage="1" title="Tilbage til Hvor ligger data" aria-label="Tilbage til Hvor ligger data">←</button>');
+  safe453i124WireMediaMapButtons();
+  const done=archive?archive.listMedia().catch(function(){return [];}):Promise.resolve([]);
+  done.then(function(mediaList){
+    mediaList=Array.isArray(mediaList)?mediaList:[];
+    const rows=mediaList.slice().sort(function(a,b){return (Number(b&&b.size)||0)-(Number(a&&a.size)||0);}).map(function(m){
+      const id=String(m&&m.id||'');
+      const used=usage[id]||[];
+      const where=used.length?used.slice(0,3).map(function(u){return safe453i118ShortPath(u.path||u.key||'state');}).join('<br>'):'—';
+      const extra=used.length>3?'<br><small>+'+(used.length-3)+' flere</small>':'';
+      return '<tr>'+
+        '<td>'+safe453i124MediaStatusLabel(m,usage)+'</td>'+
+        '<td>'+esc((m&&m.kind)||'media')+' / '+esc((m&&m.source)||'ukendt')+'</td>'+
+        '<td>'+esc((m&&(m.name||m.id))||'')+'</td>'+
+        '<td>'+safe453i118FormatBytes(m&&m.size)+'</td>'+
+        '<td><code title="'+esc(id)+'">'+esc(safe453i124ShortId(id))+'</code></td>'+
+        '<td>'+where+extra+'</td>'+
+      '</tr>';
+    }).join('');
+    const usedCount=mediaList.filter(function(m){return usage[String(m&&m.id||'')];}).length;
+    const orphanCount=Math.max(0,mediaList.length-usedCount);
+    const total=mediaList.reduce(function(sum,m){return sum+(Number(m&&m.size)||0);},0);
+    const html='<h2>IndexedDB-medier</h2>'+
+      '<div data-safe453i124-media-map="1" class="safe453StorageTopActions"><button data-safe453i124-back-storage="1" title="Tilbage til Hvor ligger data" aria-label="Tilbage til Hvor ligger data">←</button><span>Esc går også tilbage</span></div>'+
+      '<p class="safe453Note"><b>Oprydningskort:</b> Der slettes intet her. “Muligvis forældreløs” betyder, at mediet ikke er fundet som reference i aktiv state eller localStorage.</p>'+
+      '<div class="safe453StorageCards">'+
+        '<div><b>IndexedDB-medier</b><span>'+mediaList.length+'</span><small>'+safe453i118FormatBytes(total)+' i TavleMediaArchive</small></div>'+
+        '<div><b>Fundet som reference</b><span>'+usedCount+'</span><small>aktiv state + localStorage</small></div>'+
+        '<div><b>Muligvis forældreløse</b><span>'+orphanCount+'</span><small>ikke fundet som reference</small></div>'+
+        '<div><b>Sletning</b><span>0</span><small>ingen sletning i denne fase</small></div>'+
+      '</div>'+
+      '<div class="safe453StorageOverview"><details open><summary>Alle medier i TavleMediaArchive</summary><table><thead><tr><th>Status</th><th>Type/kilde</th><th>Navn</th><th>Størrelse</th><th>ID</th><th>Fundet brugt her</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">Ingen medier fundet i TavleMediaArchive</td></tr>')+'</tbody></table></details>'+
+      '</div>'+
+      '<style>.safe453StorageTopActions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe453StorageTopActions span{font-size:.85rem;color:#526070}.safe453StorageCards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.safe453StorageCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe453StorageCards b{display:block}.safe453StorageCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe453StorageCards small{display:block;color:#526070}.safe453StorageOverview{max-height:54vh;overflow:auto;padding-right:4px}.safe453StorageOverview details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe453StorageOverview summary{font-weight:800;cursor:pointer}.safe453StorageOverview table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px}.safe453StorageOverview th,.safe453StorageOverview td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe453StorageOverview code{font-size:.76rem;word-break:break-all}@media(max-width:760px){.safe453StorageCards{grid-template-columns:1fr 1fr}.safe453StorageOverview{max-height:50vh}.safe453StorageOverview table{font-size:.76rem}.safe453StorageTopActions{align-items:stretch}.safe453StorageTopActions button{width:100%}}</style>';
+    showModal(html);
+    safe453i124WireMediaMapButtons();
+  });
+}
+
+function safe453i118OpenStorageOverview(){
+  const scan=safe453i118ScanObjectForStorage(state||{});
+  const lsRows=safe453i118LocalStorageRows();
+  const archive=(window.TavleMediaArchive&&typeof window.TavleMediaArchive.listMedia==='function')?window.TavleMediaArchive:null;
+  showModal('<h2>Hvor ligger data?</h2><p>Læser localStorage og IndexedDB…</p><button data-safe453i120-back-downloads="1" title="Tilbage til Gem/åbn" aria-label="Tilbage til Gem/åbn">←</button>');
+  safe453i120WireStorageOverviewBackButtons();
+  const done=archive?archive.listMedia().catch(function(){return [];}):Promise.resolve([]);
+  done.then(function(mediaList){
+    mediaList=Array.isArray(mediaList)?mediaList:[];
+    const mediaById={};
+    mediaList.forEach(function(m){if(m&&m.id)mediaById[String(m.id)]=m;});
+    const idbTotal=mediaList.reduce((sum,m)=>sum+(Number(m&&m.size)||0),0);
+    const stateJsonBytes=safe453i118ApproxStringBytes(JSON.stringify(state||{}));
+    const dataUrlTotal=scan.dataUrls.reduce((sum,x)=>sum+x.bytes,0);
+    const refRows=scan.refs.map(function(r){
+      const hit=mediaById[String(r.id)];
+      return `<tr><td>${esc(safe453i118ShortPath(r.path))}</td><td><code>${esc(r.id)}</code></td><td>${hit?'✅ fundet':'⚠️ mangler'}</td><td>${hit?esc(hit.kind||''):'-'}</td><td>${hit?safe453i118FormatBytes(hit.size):'-'}</td></tr>`;
+    }).join('');
+    const dataRows=scan.dataUrls.slice(0,30).map(function(x){
+      return `<tr><td>${esc(safe453i118StorageKindLabel(x.mime,x.path))}</td><td>${esc(safe453i118ShortPath(x.path))}</td><td>${esc(x.mime)}</td><td>${safe453i118FormatBytes(x.bytes)}</td></tr>`;
+    }).join('');
+    const idbRows=mediaList.slice().sort((a,b)=>(Number(b.size)||0)-(Number(a.size)||0)).slice(0,60).map(function(m){
+      return `<tr><td>${esc(m.kind||'media')}</td><td>${esc(m.source||'')}</td><td>${esc(m.name||m.id||'')}</td><td>${safe453i118FormatBytes(m.size)}</td><td><code>${esc(m.id||'')}</code></td></tr>`;
+    }).join('');
+    const lsHtml=lsRows.slice(0,20).map(function(r){
+      return `<tr><td><code>${esc(r.key)}</code></td><td>${safe453i118FormatBytes(r.bytes)}</td><td>${r.looksJson?'JSON ':''}${r.looksDataUrl?'dataURL':''}</td></tr>`;
+    }).join('');
+    const grouped={};
+    mediaList.forEach(function(m){
+      const key=(m.kind||'media')+' / '+(m.source||'ukendt');
+      if(!grouped[key])grouped[key]={count:0,bytes:0};
+      grouped[key].count++;grouped[key].bytes+=Number(m.size)||0;
+    });
+    const groupRows=Object.keys(grouped).sort().map(function(k){return `<tr><td>${esc(k)}</td><td>${grouped[k].count}</td><td>${safe453i118FormatBytes(grouped[k].bytes)}</td></tr>`;}).join('');
+    const html=`<h2>Hvor ligger data?</h2>
+      <div class="safe453StorageTopActions"><button data-safe453i120-back-downloads="1" title="Tilbage til Gem/åbn" aria-label="Tilbage til Gem/åbn">←</button><button data-safe453i124-open-media-map="1" title="Vis IndexedDB-medier">Medier</button><button data-safe453i122-open-cleanup="1" title="Ryd gamle localStorage-data">Oprydning</button><span>Esc går også tilbage</span></div>
+      <p class="safe453Note">Foreløbig kontrolvisning. Den flytter ikke data — den viser kun, hvad der ligger i tavle-state/localStorage, og hvad der ligger i mediearkivet/IndexedDB.</p>
+      <div class="safe453StorageOverview">
+        <div class="safe453StorageCards">
+          <div><b>Tavle-state/localStorage</b><span>${safe453i118FormatBytes(stateJsonBytes)}</span><small>ca. størrelse på aktiv tavle-state</small></div>
+          <div><b>Indlejrede dataURL’er i state</b><span>${scan.dataUrls.length}</span><small>${safe453i118FormatBytes(dataUrlTotal)} fundet i nuværende state</small></div>
+          <div><b>mediaRef i state</b><span>${scan.refs.length}</span><small>${scan.refs.filter(r=>mediaById[String(r.id)]).length} fundet i IndexedDB</small></div>
+          <div><b>IndexedDB / TavleMediaArchive</b><span>${mediaList.length}</span><small>${safe453i118FormatBytes(idbTotal)} i mediearkivet</small></div>
+        </div>
+        <details open><summary>IndexedDB / TavleMediaArchive efter type og kilde</summary><table><thead><tr><th>Type/kilde</th><th>Antal</th><th>Størrelse</th></tr></thead><tbody>${groupRows||'<tr><td colspan="3">Ingen poster fundet</td></tr>'}</tbody></table></details>
+        <details open><summary>mediaRef / previewMediaRef i tavle-state</summary><table><thead><tr><th>Placering</th><th>Reference</th><th>Status</th><th>Type</th><th>Størrelse</th></tr></thead><tbody>${refRows||'<tr><td colspan="5">Ingen mediaRef fundet i state</td></tr>'}</tbody></table></details>
+        <details><summary>Indlejrede dataURL’er, der stadig ligger i tavle-state</summary><table><thead><tr><th>Type</th><th>Placering</th><th>MIME</th><th>Ca. størrelse</th></tr></thead><tbody>${dataRows||'<tr><td colspan="4">Ingen dataURL’er fundet i state</td></tr>'}</tbody></table></details>
+        <details><summary>localStorage-nøgler</summary><table><thead><tr><th>Nøgle</th><th>Ca. størrelse</th><th>Indhold</th></tr></thead><tbody>${lsHtml||'<tr><td colspan="3">Ingen localStorage-data kunne læses</td></tr>'}</tbody></table></details>
+      </div>
+      <style>
+        .safe453StorageTopActions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe453StorageTopActions span{font-size:.85rem;color:#526070}.safe453StorageOverview{max-height:54vh;overflow:auto;padding-right:4px}.safe453StorageCards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.safe453StorageCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe453StorageCards b{display:block}.safe453StorageCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe453StorageCards small{display:block;color:#526070}.safe453StorageOverview details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe453StorageOverview summary{font-weight:800;cursor:pointer}.safe453StorageOverview table{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px}.safe453StorageOverview th,.safe453StorageOverview td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe453StorageOverview code{font-size:.78rem;word-break:break-all}@media(max-width:760px){.safe453StorageCards{grid-template-columns:1fr 1fr}.safe453StorageOverview{max-height:50vh}.safe453StorageOverview table{font-size:.78rem}.safe453StorageTopActions{align-items:stretch}.safe453StorageTopActions button{width:100%}}
+      </style>`;
+    showModal(html);
+    safe453i120WireStorageOverviewBackButtons();
+  });
+}
+
+async function downloadAllEmbeddedMedia(){
+  showModal(`<h2>Hent filer fra tavlen</h2>
+    <p>Leder efter filer på tavlen…</p>
+    <button id="closeMediaDownloads">Luk</button>`);
+  const closeLoading=modal.querySelector('#closeMediaDownloads');
+  if(closeLoading)closeLoading.onclick=closeModal;
+
+  const items=await collectDownloadableMedia().catch(function(){return collectEmbeddedMedia();});
   const rows=items.map((it,i)=>`
     <div class="mediaDownloadItem">
       <div>
         <b>${i+1}. ${esc(it.filename)}</b>
-        <small>${esc(it.label)} · ${esc(it.slide||'Tavle')}</small>
+        <small>${esc(it.label)} · ${esc(it.slide||'Tavle')}${it.source==='indexeddb'?' · Gem i appens arkiv':''}</small>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
         <button class="mediaDownloadBtn" data-i="${i}">${it.boardShotPackage?'Kun billede':'Hent fil'}</button>
@@ -35471,14 +36441,20 @@ function downloadAllEmbeddedMedia(){
       </div>
     </div>`).join('');
   showModal(`<h2>Hent filer fra tavlen</h2>
-    <p>Her kan du hente de filer, der ligger indlejret i tavlen — for eksempel billeder, gemte tavleshots eller andre filer, som appen kan pakke ud igen.</p>
-    <p>En almindelig tavlebackup gemmer selve tavlen. Denne liste er til, når du også vil hente enkelte filer ud separat.</p>
-    <div class="mediaDownloadList">${rows}</div>
+    <p>Her kan du hente enkelte billeder og filer ud fra den åbne tavle.</p>
+    <p>Vil du gemme hele tavlen, skal du bruge <b>Gem backup</b> eller <b>Backup +</b>.</p>
+    ${items.length?`<div class="mediaDownloadList">${rows}</div>`:`<p class="safe453Note">Der er ingen separate filer at hente fra den aktuelle tavle.</p>`}
     <button id="closeMediaDownloads">Luk</button>`);
   modal.querySelectorAll('.mediaDownloadBtn').forEach(btn=>{
     btn.onclick=()=>{
       const it=items[Number(btn.dataset.i)];
-      if(it&&it.src)downloadDataUrl(it.src,it.filename||it.name||'download');
+      if(!it)return;
+      if(it.blob){
+        safeDownload(it.filename||it.name||'download', it.blob, it.mimeType||it.blob.type||'application/octet-stream');
+        return;
+      }
+      if(it.src)downloadDataUrl(it.src,it.filename||it.name||'download');
+      else toast('Filen kunne ikke hentes');
     };
   });
   modal.querySelectorAll('.mediaDownloadBoardShotBtn').forEach(btn=>{
@@ -35863,7 +36839,7 @@ async function safe453i45DownloadFullBackupWithDrawings(){
   try{
     const drawings=await safe453i45GetAllDrawings();
     downloadTavleSaveFile({startPresentation:false,templateOnly:false,includeDrawings:true,drawingsArchive:drawings});
-    toast('Fuld backup gemt med '+drawings.length+' tegninger');
+    toast('Backup + gemt med '+drawings.length+' tegninger');
   }catch(e){
     console.warn('SAFE453i45 full backup failed',e);
     toast('Kunne ikke læse Mine tegninger til fuld backup');
@@ -35987,11 +36963,11 @@ function showSaveFileOptions(){
       accept=".json,.tavle,.ics,.pdf,.png,.jpg,.jpeg,.webp,.gif,.svg,.txt,.md,.markdown,.html,.htm,.css,.js,.csv,.tsv,.xlsx,.xls,.gsheet,application/json,application/pdf,image/*,text/*">
 
     <div class="saveActions v40">
+      <button id="safe453i118StorageOverviewSave">Hvor ligger data?</button>
       <button id="downloadMedia">Hent filer fra tavlen</button>
       <button id="saveBackup">Gem backup</button>
-      <button id="saveFullBackupDrawings">Fuld backup med tegninger</button>
+      <button id="saveFullBackupDrawings" title="Backup med ekstra lokale arkivdata">Backup +</button>
       <button id="saveTemplate">Gem skabelon</button>
-      <button id="clearDrawingsArchive">Ryd Mine tegninger</button>
       <button id="downloadEmpty">Hent tom app</button>
       <button id="closeSave" class="secondaryClose">Luk</button>
     </div>`);
@@ -36000,10 +36976,24 @@ function showSaveFileOptions(){
   qs('saveBackup').onclick=()=>downloadTavleSaveFile({startPresentation:false,templateOnly:false});
   qs('saveFullBackupDrawings').onclick=()=>safe453i45DownloadFullBackupWithDrawings();
   qs('saveTemplate').onclick=()=>downloadTavleSaveFile({startPresentation:false,templateOnly:true});
-  qs('clearDrawingsArchive').onclick=()=>safe453i45ShowClearDrawingsConfirm();
+  qs('safe453i118StorageOverviewSave').onclick=safe453i118OpenStorageOverview;
   qs('downloadMedia').onclick=downloadAllEmbeddedMedia;
   qs('downloadEmpty').onclick=downloadEmptyApp;
-  qs('closeSave').onclick=closeModal;
+
+  // SAFE453i128: Gem/åbn må kunne lukkes med Esc, men kun mens denne modal faktisk er synlig.
+  const saveModalEscHandler=(e)=>{
+    const key=e.key||e.code||'';
+    if(key!=='Escape' && key!=='Esc')return;
+    const visible=modalBack && modalBack.style && modalBack.style.display!=='none';
+    if(!visible || !modal || !modal.querySelector('#saveDropZone'))return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    document.removeEventListener('keydown',saveModalEscHandler,true);
+    closeModal();
+  };
+  document.addEventListener('keydown',saveModalEscHandler,true);
+  qs('closeSave').onclick=()=>{document.removeEventListener('keydown',saveModalEscHandler,true);closeModal();};
 
   const dz=qs('saveDropZone');
   const input=qs('saveDropInput');
@@ -36219,12 +37209,26 @@ async function safe429CaptureActiveBoardRestorePoint(){
       try{preview=(typeof safe407SchematicSnapshotWebP==='function')?safe407SchematicSnapshotWebP(null):'';}catch(_e){}
     }
     if(!boardState||!Array.isArray(boardState.widgets)){toast('Tavleshot-state mangler');return null;}
+    const restoreTitle='Tavleshot '+new Date().toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'});
+    let previewMediaData=null;
+    try{
+      if(typeof window.safe453i116PrepareRestorePreviewDataUrl==='function'){
+        previewMediaData=await window.safe453i116PrepareRestorePreviewDataUrl(preview,{title:restoreTitle,source:'active-board-shot'});
+      }
+    }catch(err){
+      console.warn('SAFE453i116 TavleShot preview mediaRef fallback',err);
+      previewMediaData=null;
+    }
     const point={
       id:'restore_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
       createdAt:new Date().toISOString(),
       capturedAt:boardState.capturedAt||new Date().toISOString(),
-      title:'Tavleshot '+new Date().toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'}),
-      preview:preview||'',
+      title:restoreTitle,
+      preview:(previewMediaData&&previewMediaData.previewMediaRef)?'':(preview||''),
+      previewMediaRef:previewMediaData&&previewMediaData.previewMediaRef?previewMediaData.previewMediaRef:'',
+      previewMimeType:previewMediaData&&previewMediaData.previewMimeType?previewMediaData.previewMimeType:'',
+      previewName:previewMediaData&&previewMediaData.previewName?previewMediaData.previewName:'',
+      previewStorage:previewMediaData&&previewMediaData.previewMediaRef?'indexeddb':'legacy',
       boardState
     };
     try{
@@ -36246,6 +37250,8 @@ function safe428BoardRestorePoints(board){
       points.push({
         source:'slide',point:p,pointIndex:idx,widget:null,widgetIndex:-1,boardState:p.boardState,
         preview:String(p.preview||p.previewWebp||p.src||''),
+        previewMediaRef:String(p.previewMediaRef||p.previewRef||''),
+        previewMimeType:String(p.previewMimeType||''),
         title:String(p.title||p.name||p.boardState.sourceSlideTitle||'Gendannelsespunkt'),
         capturedAt:String(p.capturedAt||p.createdAt||p.boardState.capturedAt||''),
         count:Array.isArray(p.boardState.widgets)?p.boardState.widgets.length:0
@@ -36299,6 +37305,10 @@ function safe430NormalizeRestorePoint(p,meta){
     capturedAt:String(p.capturedAt||bs.capturedAt||p.createdAt||''),
     title:String(p.title||p.name||bs.sourceSlideTitle||'Gendannelsespunkt'),
     preview:String(p.preview||p.previewWebp||p.src||''),
+    previewMediaRef:String(p.previewMediaRef||p.previewRef||''),
+    previewMimeType:String(p.previewMimeType||''),
+    previewName:String(p.previewName||''),
+    previewStorage:String(p.previewStorage||''),
     boardState:bs,
     sourceBoardTitle:String(p.sourceBoardTitle||meta.sourceBoardTitle||bs.sourceSlideTitle||''),
     sourceBoardIndex:(p.sourceBoardIndex!=null?p.sourceBoardIndex:meta.sourceBoardIndex),
@@ -36407,7 +37417,8 @@ function safe430OpenAllRestorePointsModal(opts){
     const initialIndex=Math.max(0,points.findIndex(p=>selectedId&&String(p&&p.id)===selectedId));
     const cards=points.map((p,i)=>{
       const date=safe428FormatRestoreDate(p.capturedAt||p.createdAt);
-      const preview=p.preview?`<img src="${esc(p.preview)}" alt="">`:'<span>📸</span>';
+      const previewRef=String(p.previewMediaRef||'');
+      const preview=p.preview?`<img src="${esc(p.preview)}" alt="">`:(previewRef?`<span class="safe453i116PreviewLoading" data-safe453i116-preview-ref="${esc(previewRef)}">Arkiv…</span>`:'<span>📸</span>');
       const sourceTitle=String(p.sourceBoardTitle||((p.boardState||{}).sourceSlideTitle)||'Ukendt tavle');
       const archived=p.archivedFromDeletedBoard?' · slettet tavle':'';
       return `<button type="button" class="bgChoice v46 safe429RestoreChoice ${i===initialIndex?'kbSelected':''}" data-safe430-card="${i}" title="Åbn som ny tavle">
@@ -36466,6 +37477,7 @@ function safe430OpenAllRestorePointsModal(opts){
     if(close)close.onclick=()=>{cleanup();closeModal();if(returnToOverview)try{safe269BoardOverviewModal();}catch(_e){}};
     cardsEls().forEach((card,i)=>{card.onclick=(e)=>{e.preventDefault();e.stopPropagation();openPoint(i);};card.onfocus=()=>{kbIndex=i;highlight(i);};});
     document.addEventListener('keydown',keyHandler,true);
+    try{if(window.safe453i116HydrateRestorePointPreviews)window.safe453i116HydrateRestorePointPreviews(modal);}catch(_e){}
     highlight(initialIndex);
   }catch(e){console.error('SAFE430 global restore modal fejl',e);try{toast('Kunne ikke åbne gendannelsespunkter')}catch(_e){}}
 }
@@ -36478,7 +37490,8 @@ function safe428OpenBoardRestorePointsModal(boardIndex){
     const boardTitle=String(board.title||('Tavle '+(boardIndex+1)));
     const cards=points.map((p,i)=>{
       const date=safe428FormatRestoreDate(p.capturedAt);
-      const preview=p.preview?`<img src="${esc(p.preview)}" alt="">`:'<span>📸</span>';
+      const previewRef=String(p.previewMediaRef||'');
+      const preview=p.preview?`<img src="${esc(p.preview)}" alt="">`:(previewRef?`<span class="safe453i116PreviewLoading" data-safe453i116-preview-ref="${esc(previewRef)}">Arkiv…</span>`:'<span>📸</span>');
       const source=String((p.boardState&&p.boardState.sourceSlideTitle)||boardTitle||'Tavle');
       const badge=p.source==='slide'?'Tavleshot':'Billedwidget';
       return `<button type="button" class="bgChoice v46 safe429RestoreChoice ${i===initialIndex?'kbSelected':''}" data-safe428-card="${i}" title="Åbn som ny tavle">
@@ -36543,6 +37556,7 @@ function safe428OpenBoardRestorePointsModal(boardIndex){
       card.onfocus=()=>{restoreKbIndex=i;restoreHighlight(i);};
     });
     document.addEventListener('keydown',restoreKeyHandler,true);
+    try{if(window.safe453i116HydrateRestorePointPreviews)window.safe453i116HydrateRestorePointPreviews(modal);}catch(_e){}
     restoreHighlight(0);
   }catch(e){console.error('SAFE429 restore points modal fejl',e);try{toast('Kunne ikke åbne gendannelsespunkter')}catch(_e){}}
 }
@@ -38845,7 +39859,7 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
     if(warnBeforeClearingCanvas('insert',saveSelectedAsImageWidgetNow)) return;
     saveSelectedAsImageWidgetNow();
   }
-  function saveSelectedAsImageWidgetNow(){
+  async function saveSelectedAsImageWidgetNow(){
     clearCurrentDrawingCanvas();
     const item=getSelectedItem();
     if(!item||!String(item.imageData||'').startsWith('data:image/')){try{toast('Ingen valgt tegning')}catch(_e){} return;}
@@ -38862,7 +39876,23 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
     }
     let w=null;
     try{
-      w=addWidget('image',{
+      let imageData=null;
+      try{
+        if(typeof safe453i117PrepareDrawingImageDataUrl==='function'){
+          imageData=await safe453i117PrepareDrawingImageDataUrl(item.imageData,name+'.png',{drawingId:item.id||'',originalCreatedAt:item.createdAt||'',width:item.width||0,height:item.height||0});
+        }
+      }catch(mediaErr){
+        console.warn('SAFE453i117 drawing image mediaRef fallback',mediaErr);
+        imageData=null;
+      }
+      const payload=imageData&&imageData.mediaRef?Object.assign({
+        source:'drawing-archive',
+        drawingId:item.id||'',
+        createdAt:new Date().toISOString(),
+        originalCreatedAt:item.createdAt||'',
+        width:item.width||0,
+        height:item.height||0
+      },imageData):{
         src:item.imageData,
         name:name+'.png',
         source:'drawing-archive',
@@ -38871,14 +39901,15 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
         originalCreatedAt:item.createdAt||'',
         width:item.width||0,
         height:item.height||0
-      });
+      };
+      w=addWidget('image',payload);
       if(w){
         w.title=name;
         try{fitWidgetToViewport(w);}catch(_fit){}
       }
       try{closeModal();}catch(_close){}
       try{render(); if(w&&w.id)select(w.id); save();}catch(_render){}
-      try{toast('Tegning indsat som billede')}catch(_e){}
+      try{toast((imageData&&imageData.mediaRef)?'Tegning indsat som billede · Arkiv: IndexedDB':'Tegning indsat som billede')}catch(_e){}
     }catch(err){
       console.warn('SAFE453i7 save drawing as image widget failed',err);
       try{toast('Kunne ikke oprette billedwidget')}catch(_e){alert('Kunne ikke oprette billedwidget');}
@@ -45998,10 +47029,11 @@ Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og un
 
 
 <script>
-/* SAFE453i99 IMAGE MEDIAREF LOCAL IMPORT HELPERS
+/* SAFE453i111b IMAGE FROM DEVICE MEDIAREF HELPERS
    ------------------------------------------------------------
-   Aktiv, men smal kobling: kun nye lokale billedfiler kan gemmes i TavleMediaArchive.
-   Eksisterende dataURL/URL-billeder bevares som legacy og migreres ikke.
+   Aktiv, men smal kobling: kun tom billedwidget → Fra enhed bruger helperen.
+   Drag/drop, Fra appen, kamera, URL, backup/import og migration er ikke koblet på i denne fase.
+   Eksisterende dataURL/URL-billeder bevares som legacy.
 */
 (function(){
   'use strict';
@@ -46030,7 +47062,7 @@ Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og un
       mimeType:imageMime(file),
       blob:file,
       source:'device',
-      meta:{safePhase:'SAFE453i99',originalName:name,importedAt:(new Date()).toISOString(),importFlow:'local-image-file'}
+      meta:{safePhase:'SAFE453i111b',originalName:name,importedAt:(new Date()).toISOString(),importFlow:'image-widget-from-device'}
     }).then(function(rec){
       if(!rec||!rec.id){return null;}
       return {mediaRef:rec.id,mediaKind:'image',name:rec.name||name,mimeType:rec.mimeType||imageMime(file),size:rec.size||file.size||0,source:'device'};
@@ -46066,8 +47098,276 @@ Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og un
     });
   };
 
-  window.__safe453i99={installed:true,phase:'SAFE453i99',note:'Local image imports can be stored as mediaRef in TavleMediaArchive with dataURL fallback. No migration, no backup/import changes.'};
+  window.__safe453i99={installed:true,phase:'SAFE453i111b',note:'Only empty image widget → Fra enhed stores local images as mediaRef when possible. Drag/drop remains dataURL. No migration or backup/import changes.'};
 })();
 </script>
 
+
+<script>
+/* SAFE453i114c CAMERA DATAURL TO MEDIAREF HELPER
+   ------------------------------------------------------------
+   Kun helper til kamera-flowet. Scriptet ligger ved filens rigtige slutning.
+   Det ændrer ikke kamera-capture, widgets eller backup alene.
+*/
+(function(){
+  'use strict';
+  if(window.__safe453i114c&&window.__safe453i114c.installed){return;}
+
+  function archive(){return window.TavleMediaArchive||null;}
+  function archiveReady(){
+    var a=archive();
+    return !!(a&&a.__safe453i84&&typeof a.putMedia==='function'&&typeof a.getMedia==='function');
+  }
+  function dataUrlToBlob(dataUrl){
+    try{
+      var text=String(dataUrl||'');
+      var m=text.match(/^data:([^;,]+)?(;base64)?,(.*)$/);
+      if(!m){return null;}
+      var mime=m[1]||'application/octet-stream';
+      var isBase64=!!m[2];
+      var raw=isBase64?atob(m[3]):decodeURIComponent(m[3]);
+      var len=raw.length;
+      var arr=new Uint8Array(len);
+      for(var i=0;i<len;i++){arr[i]=raw.charCodeAt(i);}
+      return new Blob([arr],{type:mime});
+    }catch(err){
+      console.warn('SAFE453i114c dataURL→Blob failed',err);
+      return null;
+    }
+  }
+
+  window.safe453i114cPrepareCameraDataUrl=function(dataUrl,name,source){
+    if(!dataUrl||!archiveReady()){return Promise.resolve(null);}
+    var blob=dataUrlToBlob(dataUrl);
+    if(!blob){return Promise.resolve(null);}
+    var a=archive();
+    var imageName=String(name||'kamera.webp').trim()||'kamera.webp';
+    var imageSource=String(source||'camera').trim()||'camera';
+    return a.putMedia({
+      kind:'image',
+      name:imageName,
+      mimeType:blob.type||'image/webp',
+      blob:blob,
+      source:imageSource,
+      meta:{
+        safePhase:'SAFE453i114c',
+        originalName:imageName,
+        importedAt:(new Date()).toISOString(),
+        importFlow:'image-widget-camera'
+      }
+    }).then(function(rec){
+      if(!rec||!rec.id){return null;}
+      return {
+        mediaRef:rec.id,
+        mediaKind:'image',
+        name:rec.name||imageName,
+        mimeType:rec.mimeType||blob.type||'image/webp',
+        size:rec.size||blob.size||0,
+        source:imageSource
+      };
+    }).catch(function(err){
+      console.warn('SAFE453i114c prepare camera mediaRef failed',err);
+      return null;
+    });
+  };
+
+  window.__safe453i114c={installed:true,phase:'SAFE453i114c',note:'Camera image dataURL is archived as mediaRef when possible; fallback remains original dataURL.'};
+})();
+</script>
+
+
+<script>
+/* SAFE453i116 GENDANNELSESPUNKT PREVIEW MEDIAREF HELPERS
+   ------------------------------------------------------------
+   Kun nye TavleShots fra Tavleoversigt bruger dette aktivt.
+   Gammel preview-dataURL er fallback, og boardState flyttes ikke.
+*/
+(function(){
+  'use strict';
+  if(window.__safe453i116&&window.__safe453i116.installed){return;}
+
+  function archive(){return window.TavleMediaArchive||null;}
+  function reader(){return window.TavleMediaRefRead||null;}
+  function archiveReady(){
+    var a=archive();
+    return !!(a&&a.__safe453i84&&typeof a.putMedia==='function'&&typeof a.getMedia==='function');
+  }
+  function dataUrlToBlob(dataUrl){
+    try{
+      var text=String(dataUrl||'');
+      var m=text.match(/^data:([^;,]+)?(;base64)?,(.*)$/);
+      if(!m){return null;}
+      var mime=m[1]||'application/octet-stream';
+      var isBase64=!!m[2];
+      var raw=isBase64?atob(m[3]):decodeURIComponent(m[3]);
+      var len=raw.length;
+      var arr=new Uint8Array(len);
+      for(var i=0;i<len;i++){arr[i]=raw.charCodeAt(i);}
+      return new Blob([arr],{type:mime});
+    }catch(err){
+      console.warn('SAFE453i116 dataURL→Blob failed',err);
+      return null;
+    }
+  }
+
+  window.safe453i116PrepareRestorePreviewDataUrl=function(dataUrl,meta){
+    meta=meta||{};
+    if(!dataUrl||!archiveReady()){return Promise.resolve(null);}
+    var blob=dataUrlToBlob(dataUrl);
+    if(!blob){return Promise.resolve(null);}
+    var a=archive();
+    var title=String(meta.title||'TavleShot preview').trim()||'TavleShot preview';
+    var source=String(meta.source||'active-board-shot').trim()||'active-board-shot';
+    return a.putMedia({
+      kind:'boardshot',
+      name:title+'.webp',
+      mimeType:blob.type||'image/webp',
+      blob:blob,
+      source:source,
+      meta:{safePhase:'SAFE453i116',previewFor:'restorePoint',createdAt:(new Date()).toISOString(),source:source}
+    }).then(function(rec){
+      if(!rec||!rec.id){return null;}
+      return {
+        previewMediaRef:rec.id,
+        previewName:rec.name||title,
+        previewMimeType:rec.mimeType||blob.type||'image/webp',
+        previewSize:rec.size||blob.size||0
+      };
+    }).catch(function(err){
+      console.warn('SAFE453i116 restore preview mediaRef fallback',err);
+      return null;
+    });
+  };
+
+  window.safe453i116HydrateRestorePointPreviews=function(root){
+    try{
+      var r=reader();
+      if(!r||typeof r.createMediaRefObjectURL!=='function'){return;}
+      var scope=root||document;
+      var nodes=Array.prototype.slice.call(scope.querySelectorAll('[data-safe453i116-preview-ref]'));
+      nodes.forEach(function(node){
+        if(node.__safe453i116Loading){return;}
+        node.__safe453i116Loading=true;
+        var ref=String(node.getAttribute('data-safe453i116-preview-ref')||'');
+        if(!ref){return;}
+        r.createMediaRefObjectURL(ref).then(function(url){
+          if(!url){node.textContent='📸';return;}
+          var wrap=node.parentNode;
+          if(!wrap){return;}
+          var img=document.createElement('img');
+          img.alt='';
+          img.src=url;
+          wrap.innerHTML='';
+          wrap.appendChild(img);
+          img.setAttribute('data-safe453i116-object-url',url);
+        }).catch(function(err){
+          console.warn('SAFE453i116 preview hydrate failed',err);
+          try{node.textContent='📸';}catch(_e){}
+        });
+      });
+    }catch(err){console.warn('SAFE453i116 hydrate previews failed',err);}
+  };
+
+  window.__safe453i116={installed:true,phase:'SAFE453i116',note:'New TavleShots store restore preview in TavleMediaArchive when possible; boardState remains in normal state.'};
+})();
+</script>
+
+<script>
+/* SAFE453i117 DRAWING ARCHIVE DATAURL TO IMAGE MEDIAREF HELPER
+   ------------------------------------------------------------
+   Kun brugt når en gemt tegning indsættes som ny billedwidget.
+   Flytter ikke tegnewidgettens aktive overlay og migrerer ikke gamle arkivposter.
+*/
+(function(){
+  'use strict';
+  if(window.__safe453i117&&window.__safe453i117.installed){return;}
+  function archive(){return window.TavleMediaArchive||null;}
+  function archiveReady(){
+    var a=archive();
+    return !!(a&&a.__safe453i84&&typeof a.putMedia==='function'&&typeof a.getMedia==='function');
+  }
+  function dataUrlToBlob(dataUrl){
+    try{
+      var text=String(dataUrl||'');
+      var m=text.match(/^data:([^;,]+)?(;base64)?,(.*)$/);
+      if(!m){return null;}
+      var mime=m[1]||'image/png';
+      var isBase64=!!m[2];
+      var raw=isBase64?atob(m[3]):decodeURIComponent(m[3]);
+      var len=raw.length;
+      var arr=new Uint8Array(len);
+      for(var i=0;i<len;i++){arr[i]=raw.charCodeAt(i);}
+      return new Blob([arr],{type:mime});
+    }catch(err){
+      console.warn('SAFE453i117 dataURL→Blob failed',err);
+      return null;
+    }
+  }
+  window.safe453i117PrepareDrawingImageDataUrl=function(dataUrl,name,meta){
+    meta=meta||{};
+    if(!dataUrl||!archiveReady()){return Promise.resolve(null);}
+    var blob=dataUrlToBlob(dataUrl);
+    if(!blob){return Promise.resolve(null);}
+    var a=archive();
+    var imageName=String(name||'Tegning.png').trim()||'Tegning.png';
+    return a.putMedia({
+      kind:'image',
+      name:imageName,
+      mimeType:blob.type||'image/png',
+      blob:blob,
+      source:'drawing-archive',
+      meta:{safePhase:'SAFE453i117',originalName:imageName,importedAt:(new Date()).toISOString(),importFlow:'drawing-archive-insert-as-image',drawingId:meta.drawingId||'',originalCreatedAt:meta.originalCreatedAt||''}
+    }).then(function(rec){
+      if(!rec||!rec.id){return null;}
+      return {mediaRef:rec.id,mediaKind:'image',name:rec.name||imageName,mimeType:rec.mimeType||blob.type||'image/png',size:rec.size||blob.size||0,source:'drawing-archive'};
+    }).catch(function(err){
+      console.warn('SAFE453i117 prepare drawing image mediaRef failed',err);
+      return null;
+    });
+  };
+  window.__safe453i117={installed:true,phase:'SAFE453i117',note:'Drawing archive → insert as image widget stores the resulting image in TavleMediaArchive when possible; fallback remains dataURL.'};
+})();
+</script>
+
+<style id="safe453i127-modal-buttons-neutral-style-css-only">
+/* SAFE453i127: modalernes generelle actionknapper væk fra blå/lilla fuldfladeknapper.
+   Målet er samme rolige, lyse knapfamilie som Lykkehjulet/Grupper.
+   Kort-/valgknapper undtages, så modalgrids ikke pludselig mister deres kortlayout. */
+#modal button:not([class*="Card"]):not([class*="card"]):not([class*="Choice"]):not([class*="choice"]):not([class*="Item"]):not([class*="item"]):not([class*="bgChoice"]):not([class*="boardOverviewItem"]):not([class*="imageChoice"]):not([class*="rescueChoiceCard"]):not([class*="safe453eDrawingCard"]):not([class*="safe453i41Card"]){
+  border:1px solid rgba(15,23,42,.12)!important;
+  border-radius:14px!important;
+  background:#f1f5f9!important;
+  color:#111827!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.10)!important;
+  font-weight:950!important;
+  line-height:1.05!important;
+  padding:9px 12px!important;
+  min-height:40px!important;
+  filter:none!important;
+}
+#modal button:not([class*="Card"]):not([class*="card"]):not([class*="Choice"]):not([class*="choice"]):not([class*="Item"]):not([class*="item"]):not([class*="bgChoice"]):not([class*="boardOverviewItem"]):not([class*="imageChoice"]):not([class*="rescueChoiceCard"]):not([class*="safe453eDrawingCard"]):not([class*="safe453i41Card"]):hover{
+  background:#e0f2fe!important;
+  border-color:rgba(14,165,233,.28)!important;
+}
+#modal button:not([class*="Card"]):not([class*="card"]):not([class*="Choice"]):not([class*="choice"]):not([class*="Item"]):not([class*="item"]):not([class*="bgChoice"]):not([class*="boardOverviewItem"]):not([class*="imageChoice"]):not([class*="rescueChoiceCard"]):not([class*="safe453eDrawingCard"]):not([class*="safe453i41Card"]):focus-visible{
+  outline:3px solid rgba(14,165,233,.34)!important;
+  outline-offset:2px!important;
+}
+#modal button:not([class*="Card"]):not([class*="card"]):not([class*="Choice"]):not([class*="choice"]):not([class*="Item"]):not([class*="item"]):not([class*="bgChoice"]):not([class*="boardOverviewItem"]):not([class*="imageChoice"]):not([class*="rescueChoiceCard"]):not([class*="safe453eDrawingCard"]):not([class*="safe453i41Card"]):disabled{
+  opacity:.48!important;
+  cursor:not-allowed!important;
+}
+/* Ekstra lille og rolig tilbage-/ikonknap i de nye storage-modaler. */
+#modal .safe453StorageTopActions button[data-safe453i120-back-downloads],
+#modal .safe453StorageTopActions button[data-safe453i124-back-storage],
+#modal .safe453StorageTopActions button[data-safe453i122-back-storage]{
+  min-width:44px!important;
+  width:44px!important;
+  min-height:44px!important;
+  padding:0!important;
+  font-size:22px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+}
+</style>
 </body></html>
