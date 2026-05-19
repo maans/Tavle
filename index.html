@@ -1,3 +1,11 @@
+<!-- SAFE453i159 BACKUP PLUS PDF ROBUST EXPORT GUARD:
+- Bygger på SAFE453i158.
+- Retter Backup + efter at PDF fileMediaRef kunne findes i Backup + kontrol, men selve Backup + kunne fejle.
+- Gør Backup + mere robust ved at læse Mine tegninger og TavleMediaArchive hver for sig, så én fejl ikke stopper hele backupforsøget.
+- Saniterer media meta før JSON-backup, så ikke-JSON-egnede metadata ikke kan vælte JSON.stringify.
+- Bevarer PDF→IndexedDB-flowet fra SAFE453i155-i156.
+- Ingen ændring af PDF-visning, PDF-lagring, PDF-download, import, migration, render(), save(), load(), addWidget() eller select().
+-->
 <!-- SAFE453i158 BACKUP PLUS PDF MANIFEST REFINFO ONLY:
 - Bygger på SAFE453i157.
 - PDF→IndexedDB-sporet fortsætter konservativt efter at lokal PDF-knap og drag/drop nu kan gemme PDF som fileMediaRef i TavleMediaArchive.
@@ -37730,6 +37738,14 @@ async function safe453i45ClearDrawings(){
     }catch(e){try{db.close();}catch(_e){} reject(e);}
   });
 }
+function safe453i159JsonSafe(value,fallback){
+  try{
+    if(value==null)return fallback;
+    return JSON.parse(JSON.stringify(value));
+  }catch(_e){
+    return fallback;
+  }
+}
 function safe453i138FindBackupMediaRefs(){
   if(typeof safe453i119FindMediaRefsForDownload==='function'){
     try{return safe453i119FindMediaRefsForDownload();}catch(_e){}
@@ -37789,7 +37805,7 @@ async function safe453i138GetReferencedMediaArchiveForBackup(){
         source:rec.source||'unknown',
         createdAt:rec.createdAt||'',
         updatedAt:rec.updatedAt||'',
-        meta:rec.meta||{},
+        meta:safe453i159JsonSafe(rec.meta,{}),
         refKey:r.key||'mediaRef',
         refPath:r.path||'',
         dataUrl:dataUrl
@@ -37801,9 +37817,25 @@ async function safe453i138GetReferencedMediaArchiveForBackup(){
   return out;
 }
 async function safe453i45DownloadFullBackupWithDrawings(){
+  let drawings=[];
+  let drawingsFailed=false;
+  let mediaArchive=[];
+  let mediaFailed=false;
   try{
-    const drawings=await safe453i45GetAllDrawings();
-    const mediaArchive=await safe453i138GetReferencedMediaArchiveForBackup();
+    drawings=await safe453i45GetAllDrawings();
+  }catch(e){
+    drawingsFailed=true;
+    drawings=[];
+    console.warn('SAFE453i159 Backup + drawings skipped',e);
+  }
+  try{
+    mediaArchive=await safe453i138GetReferencedMediaArchiveForBackup();
+  }catch(e){
+    mediaFailed=true;
+    mediaArchive=[];
+    console.warn('SAFE453i159 Backup + media archive skipped',e);
+  }
+  try{
     downloadTavleSaveFile({
       startPresentation:false,
       templateOnly:false,
@@ -37813,9 +37845,11 @@ async function safe453i45DownloadFullBackupWithDrawings(){
       mediaArchive:mediaArchive
     });
     const pdfCount=mediaArchive.filter(function(m){return String((m&&m.kind)||'').toLowerCase()==='pdf'||String((m&&m.mimeType)||'').toLowerCase().indexOf('pdf')>=0;}).length;
-    toast('Backup + gemt med '+drawings.length+' tegninger og '+mediaArchive.length+' medier'+(pdfCount?' · PDF: '+pdfCount:''));
+    let msg='Backup + gemt med '+drawings.length+' tegninger og '+mediaArchive.length+' medier'+(pdfCount?' · PDF: '+pdfCount:'');
+    if(drawingsFailed||mediaFailed)msg+=' · advarsel: '+(drawingsFailed?'tegninger ':'')+(mediaFailed?'medier ':'')+'kunne ikke læses';
+    toast(msg);
   }catch(e){
-    console.warn('SAFE453i138 Backup + failed',e);
+    console.warn('SAFE453i159 Backup + download failed',e);
     toast('Kunne ikke lave Backup +');
   }
 }
