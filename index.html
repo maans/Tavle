@@ -1,3 +1,1194 @@
+<!-- SAFE453i110 EMPTY IMAGE NUMBER SHORTCUTS ONLY:
+- Bygger på SAFE453i109b / SAFE453i108-linjen efter kasseret SAFE453i109.
+- Retter kun tom billedwidget, så valg kan aktiveres med tal i stedet for mellemrum/Tab.
+- Når en tom billedwidget er valgt og brugeren ikke skriver i et felt:
+  1 = Fra enhed
+  2 = Fra appen
+  3 = URL
+  4 = Kamera
+- Knapteksterne i tom billedwidget viser samme tal tydeligt.
+- Mellemrum bevares til Mere-menu/eksisterende appadfærd og bruges ikke til at cykle billedvalg.
+- Piletaster bevares til widgets/tavler.
+- Enter/klik på de eksisterende knapper fungerer som før via knappernes egen adfærd.
+- Ingen ændring af Fra appen-modal, Mine tegninger, billeddata, IndexedDB, backup/import eller render-flow.
+-->
+<!-- SAFE453i109b EMPTY IMAGE KEYBOARD MAP ONLY:
+- Bygger direkte på SAFE453i108, fordi SAFE453i109 blev kasseret som ødelagt fil.
+- Denne fase er KUN kortlægning/dokumentation.
+- Ingen funktionel kodeændring.
+- Ingen ændring af tom billedwidget, Fra appen-modal, Mine tegninger, render-flow eller globale keyhandlers.
+
+BAGGRUND:
+- Den tomme billedwidget viser flere valgknapper, fx Fra enhed, Fra appen, URL og evt. Kamera afhængigt af tilstand/enhed.
+- Piletaster kan ikke bruges til at vælge mellem disse knapper, fordi appen bruger:
+  - venstre/højre til tavleskift
+  - op/ned til widgetskift
+- Ønsket er derfor et senere, snævert tastaturflow:
+  - mellemrum cykler mellem knapperne i tom billedwidget
+  - Shift+mellemrum cykler baglæns
+  - Enter aktiverer den markerede knap
+- SAFE453i109 forsøgte at implementere dette, men ødelagde filen og må ikke bruges som baseline.
+
+SIKKER IMPLEMENTERINGSPLAN SENERE:
+1) Find den eksisterende render-gren for tom billedwidget.
+2) Bevar eksisterende HTML-struktur og eksisterende onclick-handlers.
+3) Tilføj kun en passiv, lokal markeringsklasse på eksisterende knapper.
+4) Tastaturstyringen må kun være aktiv når:
+   - en billedwidget er valgt,
+   - widgetten er tom,
+   - ingen modal er åben,
+   - brugeren ikke skriver i input/textarea/contenteditable.
+5) Mellemrum må kun overtage appens normale Mere-menu-genvej i denne ene situation.
+6) Enter skal aktivere den aktuelt markerede eksisterende knap ved at kalde click() på knappen.
+7) Piletaster må IKKE ændres, da de fortsat skal navigere tavler/widgets.
+8) Cleanup skal ske automatisk når widgetten ikke længere er valgt, ikke længere er tom eller render opdateres.
+
+MÅ IKKE I NÆSTE IMPLEMENTERING:
+- omskrive tom billedwidget
+- ændre billedimport-flow
+- ændre Fra appen-modal
+- ændre Mine tegninger
+- ændre drag/drop
+- ændre backup/import
+- ændre render(), save(), load(), addWidget() eller select()
+- tilføje bred global keyhandler uden snæver guard
+- ændre piletast-navigation
+
+ACCEPTTEST FOR SENERE IMPLEMENTERING:
+- Før tom billedwidget vælges: mellemrum åbner stadig Mere-menuen som før.
+- Når tom billedwidget er valgt: mellemrum skifter markeret billedvalg.
+- Shift+mellemrum går baglæns.
+- Enter aktiverer markeret valg.
+- Piletaster skifter stadig widgets/tavler.
+- Efter valg/luk/modal: piletaster og mellemrum virker igen normalt.
+- Fra appen-modal bevarer SAFE453i108-adfærd: både Enter og mellemrum bruger valgt billede.
+-->
+<!-- SAFE453i108 FROM APP ENTER WINDOW CAPTURE:
+- Bygger på SAFE453i107.
+- Retter kun Billedwidget > Fra appen-modalens tastaturåbning.
+- Enter og mellemrum skal begge bruge/åbne valgt kort, ligesom Mine tegninger.
+- Fra appen-keyhandler registreres nu både på window og document i capture, så Enter ikke kan opsluges af ældre globale document-handlere før modalens valg.
+- Der tilføjes keyup-fallback for Enter, så iPad/hardware-keyboard-varianter også kan udføre valgt kort.
+- Handlerne fjernes igen ved valg/luk, og er kun aktive mens Fra appen-modal faktisk er synlig.
+- Ingen ændring af billeddata, IndexedDB-format, Mine tegninger, tegnewidget, backup/import, render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i107 ENTER + SPACE OPENS SELECTED CARDS IN BOTH MODALS:
+- Bygger på SAFE453i106, hvor Fra appen-modalens kortklik og keyguard virker.
+- Ensretter tastaturkontrakten i Mine tegninger og Fra appen.
+- Både Enter/Return/NumpadEnter og mellemrum åbner/bruger det markerede kort.
+- Mine tegninger: Enter eller mellemrum på valgt tegning åbner tegnekopi; på + kort oprettes ny tegnewidget.
+- Fra appen: Enter eller mellemrum på valgt kort bruger billedet direkte.
+- Ingen ændring af IndexedDB-format, billeddata, tegnewidget, backup/import eller render-flow.
+-->
+<!-- SAFE453i106 FROM APP MODAL CARD ACTIONS + KEYGUARD:
+- Bygger på SAFE453i105, hvor Mine tegninger-keyguard virkede.
+- Retter kun billedwidgettens Fra appen-modal.
+- Kortklik/tap på et billede vælger nu billedet direkte.
+- Enter på valgt kort vælger billedet direkte.
+- Esc lukker/annullerer modalen.
+- Knappen Brug billede fjernes, fordi kortklik/Enter er primær handling.
+- Fra appen-modalens keydown-handler er kun aktiv mens modalBack faktisk er synlig, så skjult modalindhold ikke kan opsluge piletaster/Space bagefter.
+- Ingen ændring af Mine tegninger, tegnewidget, IndexedDB-format, backup/import eller render-flow.
+-->
+
+<!-- SAFE453i105 DRAWING ARCHIVE HIDDEN MODAL KEYGUARD:
+- Bygger på SAFE453i100, ikke på de kasserede/ineffektive SAFE453i101-i104 reparationsforsøg.
+- Retter sandsynlig årsag til at piletaster og mellemrum holder op med at virke efter oprettelse af tegnewidget.
+- Tegningsarkivets keydown-handlere må kun være aktive, når modalBack faktisk er synlig.
+- closeModal() skjuler modalBack, men rydder ikke nødvendigvis modalens HTML; derfor kunne skjulte .safe453g/.safe453hDrawingArchive-elementer blive ved med at opsluge pile/Enter/Space.
+- Tegnewidget/drawcopy får ingen særstatus i lag eller navigation.
+- Ingen ændring af IndexedDB-format, billedwidget, PDF-widget, backup/import, render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i100 DRAWING ARCHIVE CARD ACTIONS:
+- Bygger på SAFE453i99.
+- Retter kun Mine tegninger-modalens UX.
+- Det store + Ny tegning-kort opretter nu en tom tegnewidget ved klik/tap og Enter.
+- Enter på valgt gemt tegning åbner fortsat tegningen som redigerbar tegnekopi.
+- Klik/tap på en allerede valgt gemt tegning åbner den som redigerbar tegnekopi.
+- Footer-knapperne + Ny og Tegn fjernes, fordi kortklik/Enter nu er primær handling.
+- Billede, Baggrund, Omdøb, Slet og Luk bevares.
+- Ingen ændring af IndexedDB-format, billedwidget, PDF-widget, backup/import, render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i99 IMAGE MEDIAREF LOCAL IMPORT ONLY:
+- Bygger på SAFE453i98.
+- Første reelle, men smalle mediaRef-kobling efter de passive kontraktfaser.
+- Kun lokale billedfiler fra drag/drop og tom billedwidget > Indsæt billede fra enhed forsøges gemt i TavleMediaArchive.
+- Gamle billedwidgets med w.data.src/dataURL/URL vises fortsat uændret.
+- Hvis IndexedDB/TavleMediaArchive fejler, bruges det gamle dataURL-flow som fallback.
+- Billedwidgetten kan læse w.data.mediaRef og vise billedet via en midlertidig dataURL i DOM uden at skrive den tilbage til state.
+- Tegn videre på mediaRef-billede læser billedet fra arkivet som dataURL i øjeblikket og opretter tegnekopi som før.
+- Ingen migration af eksisterende billeder.
+- Ingen ændring af PDF-widget, tegnewidget, backup/import, save(), load(), addWidget(), select() eller drag/drop-flow ud over billedfil-grenen.
+- Eksterne URL-billeder kopieres stadig ikke automatisk til IndexedDB.
+-->
+
+<!-- SAFE453i98 RESTOREPOINTS BOARDSHOTS MEDIA ARCHIVE STATIC CONTRACT ONLY:
+- Bygger på SAFE453i97.
+- Denne fase er KUN dokumentation/kontrakt for tavleshots og gendannelsespunkter som fremtidige tunge media archive-data.
+- Ingen JavaScript-logik ændres.
+- Ingen CSS ændres.
+- Ingen HTML-struktur ændres.
+- Ingen nye scripts, testfunktioner, migrationer eller IndexedDB-kald tilføjes.
+- Ingen render(), save(), load(), addWidget(), select(), backup/import, billedwidget, PDF-widget, tegnewidget eller tavleoversigt ændres.
+
+BAGGRUND:
+- Appen har allerede gendannelsespunkter og tavleshots, som kan indeholde previewbilleder, statekopier og andet potentielt tungt indhold.
+- På sigt bør tunge previews/tavleshots kunne flyttes ud af den lette localStorage-state og ind i TavleMediaArchive.
+- Almindelige gendannelsesmetadata bør fortsat kunne ligge let i state/localStorage.
+
+FREMTIDIG KONTRAKT FOR TAVLESHOT/MEDIAREF:
+- En tavleshot/media-post i TavleMediaArchive kan senere have form som:
+  {
+    id: "media_...",
+    kind: "boardshot",
+    name: "Tavleshot ...",
+    mimeType: "image/png" eller "image/webp",
+    size: antal_bytes,
+    createdAt: ISO-dato,
+    updatedAt: ISO-dato,
+    source: "boardshot" eller "generated",
+    blob: Blob
+  }
+- Widget/state må senere kun gemme en let reference, fx:
+  {
+    previewMediaRef: "media_...",
+    title: "...",
+    createdAt: "..."
+  }
+- Legacy-tavleshots/previews, der allerede ligger som dataURL i state, skal fortsat kunne vises.
+
+FREMTIDIG KONTRAKT FOR GENDANNELSESPUNKTER:
+- Selve restorePoint-metadata kan blive i state/localStorage:
+  id, title, boardId, createdAt, widgetCount, note, etc.
+- Tunge dele kan senere pege på media/archive:
+  previewMediaRef: "media_..."
+  snapshotMediaRef: "media_..." hvis et stort snapshot senere skilles ud.
+- En restorePoint må aldrig forsvinde fra brugerens overblik, blot fordi en preview-mediaRef mangler.
+- Ved manglende preview skal tavleoversigten senere vise en rolig placeholder/tekst i stedet for fejl.
+
+BACKUP-KRAV SENERE:
+- Almindelig backup bør fortsat kunne være let og må gerne udelade tunge boardshot/restore-preview-blobs.
+- Fuld backup med medier skal senere kunne medtage boardshots/restore-previews via mediaManifest.
+- Import af fuld backup skal importere disse medier som kopier med nye id'er.
+- Eksisterende eller nyere boardshots/restore-medier må aldrig overskrives lydløst.
+- mediaRef'er i importerede gendannelsespunkter skal remappes til de nye importerede media-id'er.
+
+MÅ IKKE I NÆSTE IMPLEMENTERINGSFORSØG:
+- Flytte eksisterende restorePoints til IndexedDB automatisk.
+- Ændre tavleoversigtens render-flow.
+- Ændre save()/load() for at migrere restorePoints.
+- Ændre backup/import i samme fase.
+- Tilføje aktiv UI eller modal.
+- Skrive til IndexedDB uden først at have en isoleret og godkendt testfase.
+
+ANBEFALET NÆSTE SIKRE FASE:
+SAFE453i99_restorepoints_flow_map_only
+- Kun kortlæg eksisterende funktioner omkring tavleshots og gendannelsespunkter.
+- Find relevante funktioner for oprettelse, visning, hurtiggendannelse, global restore og preview.
+- Ingen funktionel kodeændring.
+END SAFE453i98 -->
+
+<!-- SAFE453i97 AUDIO VIDEO MEDIA ARCHIVE STATIC CONTRACT ONLY:
+- Bygger på SAFE453i96b, som er sidste sikre PDF/mediaRef-kontraktfase efter kasseret SAFE453i96.
+- Denne fase er KUN statisk dokumentation/kodekortlægning.
+- Ingen JavaScript-logik ændres.
+- Ingen CSS ændres.
+- Ingen HTML-struktur ændres.
+- Ingen nye scripts, testfunktioner eller eventhandlers tilføjes.
+- Ingen IndexedDB-læsning eller -skrivning tilføjes.
+- Ingen audio/video-widget, linkwidget, iframe, backup/import, drag/drop, render(), save(), load(), addWidget() eller select() ændres.
+
+FORMÅL:
+Denne fase fastlægger kun en sikker fremtidig kontrakt for lyd/video-medier i det fælles TavleMediaArchive,
+så senere faser ikke begynder at kopiere tunge filer ind i localStorage eller automatisk hente eksterne URL-medier.
+
+FREMTIDIG AUDIO/VIDEO MEDIAREF-KONTRAKT:
+1) Lokal fil fra brugerens enhed
+   - Bør på sigt kunne gemmes i TavleMediaArchive som blob.
+   - Widget-state må kun gemme lette metadata og mediaRef.
+   - Eksempel på widgetdata senere:
+     {
+       mediaRef: "media_...",
+       kind: "audio" eller "video",
+       title: "filnavn",
+       name: "filnavn",
+       mimeType: "audio/mpeg" eller "video/mp4",
+       legacySrc: null
+     }
+
+2) Mediepost i TavleMediaArchive
+   - Foreslået poststruktur:
+     {
+       id: "media_...",
+       kind: "audio" eller "video",
+       name: "filnavn",
+       mimeType: "audio/mpeg" / "audio/wav" / "video/mp4" / osv.,
+       size: <bytes>,
+       createdAt: <ISO-dato>,
+       updatedAt: <ISO-dato>,
+       source: "device" | "backup" | "url-copy" | "generated",
+       blob: <Blob>
+     }
+   - source:"url-copy" må kun bruges, hvis brugeren aktivt vælger Gem lokalt.
+
+3) Eksterne URL-medier
+   - Må IKKE automatisk hentes og gemmes binært.
+   - Skal som udgangspunkt forblive URL i widget-state.
+   - Dette gælder især streaming, YouTube/Vimeo/andre embeds, eksterne lydfiler og eksterne video-URL’er.
+   - En senere "Gem lokalt"-funktion skal være eksplicit og brugerinitieret.
+
+4) Legacy-understøttelse
+   - Eksisterende audio/video/link/iframe-widgets med URL, dataURL eller embed må fortsat virke uændret.
+   - mediaRef må ikke blive eneste visningsvej.
+   - Fremtidig render skal altid have fallback:
+     a) hvis mediaRef findes og kan læses -> vis blob/objectURL
+     b) hvis mediaRef mangler/fejler og legacySrc/url findes -> vis legacy
+     c) hvis intet virker -> vis tydelig, rolig placeholder uden at ødelægge widgetten
+
+5) Backupmodel senere
+   - Let backup bør kun gemme widget-state + mediaRef + metadata.
+   - Fuld backup med medier bør kunne medtage audio/video-blobs via mediaManifest.
+   - Import af fuld backup skal importere medieposter som kopier med nye id’er.
+   - mediaRefs i importerede widgets skal remappes til de nye id’er.
+   - Eksisterende/nyere medier må aldrig overskrives lydløst.
+
+6) Performance- og hukommelsesregler
+   - Store lyd/video-blobs må ikke læses som base64/dataURL uden konkret behov.
+   - Til afspilning bør objectURL foretrækkes og frigives igen, når widgetten fjernes/lukkes eller mediet skiftes.
+   - Appens første load må ikke blokere på scanning af store medier.
+   - Eventuel mediestatus bør hentes dovent, når widgetten skal bruge den.
+
+ANBEFALET SENERE FASE, IKKE NU:
+SAFE453i98_audio_video_media_archive_read_test_only kunne senere være en ren konsoltest, men kun hvis der først er aftalt en meget lille test uden widgetkobling.
+Efter SAFE453i96 viste sig ødelagt, skal enhver write-test være ekstra forsigtig og helst afvente manuel beslutning.
+
+MÅ IKKE I NÆSTE FASE UDEN NY GODKENDELSE:
+- Tilføje audio/video-write-test.
+- Ændre eksisterende video/audio-widget.
+- Ændre link/iframe-widget.
+- Ændre drag/drop-import.
+- Ændre backup/import.
+- Ændre render(), save(), load(), addWidget() eller select().
+- Automatisk flytte eller migrere eksisterende medier.
+-->
+
+<!-- SAFE453i96b PDF MEDIA ARCHIVE STATIC CONTRACT ONLY:
+- Bygger på senest sikre SAFE453i95_pdf_mediaRef_foundation_map_only.
+- Denne fase er KUN dokumentation/kontrakt.
+- Ingen JavaScript-logik ændres.
+- Ingen nye scripts, testfunktioner eller eventhandlers tilføjes.
+- Ingen IndexedDB-læsning eller -skrivning tilføjes.
+- Ingen PDF-widget, billedwidget, tegnewidget, drag/drop, backup/import, render(), save(), load(), addWidget() eller select() ændres.
+- SAFE453i96 kasseres og må ikke bruges som baseline, fordi PDF-write-testen ødelagde appen.
+
+FORMÅL:
+Fastlæg en lille, sikker kontrakt for en fremtidig PDF-mediaRef-model, før der igen forsøges kode.
+Kontrakten skal gøre næste implementering mindre risikabel ved at definere datastruktur, fallback og accepttest uden at røre appens opførsel.
+
+FREMTIDIG PDF-mediaRef-KONTRAKT:
+En lokal PDF, der senere gemmes i TavleMediaArchive, bør have en media-post i IndexedDB med mindst:
+- id: stabilt internt media-id, fx media_pdf_...
+- kind: "pdf"
+- name: brugerrettet filnavn/titel
+- mimeType: "application/pdf"
+- size: filstørrelse i bytes, hvis kendt
+- createdAt: ISO-tidspunkt for lokal oprettelse/import
+- updatedAt: ISO-tidspunkt ved senere lokal ændring, hvis relevant
+- source: "device" | "backup" | "url-copy" | "generated-test"
+- blob: selve PDF-filen som Blob
+
+Widget-state bør senere kun indeholde en let reference, fx:
+- w.data.mediaRef = "media_pdf_..."
+- w.data.name / w.title = brugerrettet titel
+- w.data.page / w.data.zoom / w.data.viewMode = visningsindstillinger
+- evt. w.data.legacySrc bevares kun som fallback, ikke som ny standard
+
+EKSTERNE PDF-URL'ER:
+- Eksterne PDF-links må IKKE automatisk hentes og gemmes binært.
+- En PDF-URL skal som udgangspunkt fortsat være URL i widgetdata.
+- Kun en eksplicit senere brugerhandling som "Gem lokalt" må oprette en url-copy i media archive.
+- Appen må ikke blive afhængig af internet for lokale PDF'er, men må heller ikke downloade eksterne medier skjult.
+
+FALLBACK VED MANGLENDE mediaRef:
+Hvis en PDF-widget senere peger på en mediaRef, som ikke kan læses:
+- widgetten må ikke crashe render-flowet
+- vis en rolig placeholder: "PDF mangler" / "Kunne ikke finde den lokale PDF"
+- bevar titel, placering og øvrige widgetindstillinger
+- giv mulighed for senere at vælge PDF igen
+- slet ikke automatisk widgetten og skriv ikke automatisk ny state
+
+LEGACY-KRAV:
+- Gamle PDF-widgets med URL eller indlejret/eksisterende src skal virke uændret.
+- Ingen migration må køre automatisk ved load.
+- En fremtidig mediaRef-kobling skal kun gælde nye lokale PDF-importer eller eksplicit brugerhandling.
+
+SIKKER IMPLEMENTERINGSRÆKKEFØLGE SENERE:
+1) Kommentar-only kontraktfase er denne SAFE453i96b.
+2) Næste kodefase bør kun være en meget lille syntakstjekket helper, der IKKE skriver til IndexedDB.
+3) Derefter kan en konsoltest evt. læse en allerede eksisterende PDF-mediaRef, men ikke oprette nye poster.
+4) Først efter flere godkendte testfaser må PDF-widgetten få en passiv læsegren for mediaRef.
+5) Først derefter må nye lokale PDF-importer eventuelt gemmes som mediaRef.
+
+ACCEPTTEST FOR DENNE FASE:
+- Appen åbner som SAFE453i95.
+- Alle tavler, PDF'er, billeder, tegninger, backup/import og widgets fungerer som før.
+- Ingen ny funktion skal testes.
+- Diffen er kommentar-only.
+-->
+
+<!-- SAFE453i95 PDF MEDIAREF FOUNDATION MAP ONLY:
+- Bygger på SAFE453i94.
+- Denne fase er KUN kortlægning/dokumentation for en senere PDF/mediaRef-omlægning.
+- Ingen funktionel kodeændring.
+- Ingen PDF-widget-logik ændret.
+- Ingen billedwidget, tegnewidget, backup/import, render(), save(), load(), addWidget(), select() eller drag/drop ændret.
+- Ingen PDF-filer flyttes til IndexedDB.
+- Ingen migration og ingen automatisk kopiering af eksterne PDF-URL'er.
+
+FORMÅL:
+- Gøre næste PDF-trin sikrere ved at beskrive de eksisterende PDF-flow før noget kobles aktivt på TavleMediaArchive.
+- Bevare nuværende legacy-model fuldt ud, så eksisterende PDF-widgets stadig virker som før.
+- Forberede en senere, lille testfase hvor en manuelt oprettet PDF-mediaRef kan testes uden at ændre rigtig PDF-import.
+
+AKTUEL PDF-MODEL / RELEVANTE SPOR:
+1) PDF-widget kan i dag vise PDF via eksisterende widgetdata, typisk URL/data/indlejret kilde afhængigt af importflow.
+2) Relevante PDF-identifikatorer fra tidligere kortlægning:
+   - isLikelyPdfFile()
+   - pdfViewerSrc()
+   - pickLocalPdf()
+   - isEmbeddedPdf()
+   - ensurePdfJs()
+   - renderPdfJsWidget()
+   - pdfJsGoPage()
+   - askPdfLink()
+   - handlePdfArrowKey()
+3) Lokale PDF-filer kan være tunge og er derfor en god kandidat til fremtidig IndexedDB/mediaRef.
+4) Eksterne PDF-URL'er skal fortsat som udgangspunkt være URL'er og må ikke automatisk hentes og gemmes binært.
+5) PDF.js-flow og eksisterende fallbackvisning må ikke omskrives i samme fase som mediaRef-lagring.
+
+FORESLÅET SENERE PDF-MEDIAREF-MODEL:
+- Widgetdata kan senere indeholde fx:
+  { mediaRef:"media_xxx", title, page, zoom, fitMode, legacySrc? }
+- TavleMediaArchive-post kan senere være:
+  { id, kind:"pdf", name, mimeType:"application/pdf", size, createdAt, source:"device"|"backup"|"url-copy", blob }
+- Legacy-PDF'er med eksisterende src/dataURL/URL skal fortsat være første fallback, hvis mediaRef mangler eller ikke kan læses.
+
+SIKKER IMPLEMENTERINGSRÆKKEFØLGE EFTER DENNE FASE:
+A) SAFE453i96_pdf_mediaRef_manual_test_only
+   - Kun manuel konsoltest, der lægger en lille test-PDF/blob eller mock-post i TavleMediaArchive.
+   - Ingen PDF-widget og ingen importflow ændres.
+B) SAFE453i97_pdf_widget_mediaRef_preview_test_only
+   - Kun manuel testfunktion, der kan oprette en test-PDF-widget med mediaRef.
+   - Må ikke ændre eksisterende pickLocalPdf(), drag/drop eller open/save.
+C) SAFE453i98_pdf_new_import_mediaRef_only
+   - Først her må nye lokale PDF-importer evt. forsøges gemt som mediaRef.
+   - Skal have fallback til eksisterende legacy-flow ved fejl.
+
+MÅ IKKE I NÆSTE PDF-FASE:
+- ændre PDF-widgetten direkte uden manuel test først
+- ændre drag/drop-import
+- ændre backup/import
+- ændre render/save/load/addWidget/select
+- flytte gamle PDF'er
+- gemme eksterne URL-PDF'er binært automatisk
+- fjerne legacy-understøttelse
+
+ACCEPTTEST FOR DENNE FASE:
+- Appen åbner som før.
+- Gamle PDF-widgets virker som før.
+- Billeder, tegninger, backup/import og tavlenavigation virker som før.
+- Diffen er kommentar-only.
+-->
+
+<!-- SAFE453i94 FULL BACKUP MEDIA MANIFEST DRAFT ONLY:
+- Bygger på SAFE453i93_media_archive_image_write_test_only.
+- Denne fase er KUN kortlægning/dokumentation for en senere fuld backup med medier.
+- Ingen funktionel kodeændring.
+- Ingen backup/import-logik ændret.
+- Ingen IndexedDB-skrivning eller -læsning koblet på backup.
+- Ingen billedwidget, PDF-widget, tegnewidget, render(), save(), load(), addWidget(), select() eller drag/drop ændret.
+
+FORMÅL:
+- Beskrive hvordan en fremtidig fuld backup kan medtage et media manifest uden at gøre almindelig backup tung.
+- Fastholde at almindelig tavle-state stadig skal være let og primært ligge i localStorage.
+- Fastholde at tunge medier kun medtages ved eksplicit fuld backup / aktivt tilvalg.
+
+FORESLÅET FREMTIDIG BACKUPMODEL:
+1) Almindelig backup
+   - Indeholder fortsat let state: tavler, widgets, tekst, links, datakilder, lister, quizzer, kalenderdata og indstillinger.
+   - Indeholder IKKE automatisk blobs fra TavleMediaArchive.
+   - Widgets med mediaRef må i almindelig backup kunne bevares som referencer, men backupfilen er ikke nødvendigvis selvforsynende.
+
+2) Fuld backup med medier
+   - Skal være eksplicit valgt af brugeren.
+   - Kan indeholde:
+     mediaManifest: [
+       { id, kind, name, mimeType, size, createdAt, source, checksum?, included }
+     ]
+   - Kan indeholde selve mediearkivet separat, fx:
+     mediaArchive: [
+       { id, kind, name, mimeType, size, createdAt, source, dataUrl }
+     ]
+   - dataUrl/base64 bør kun bruges ved eksport/backupfil, ikke som permanent runtime-format i localStorage.
+
+3) Import af fuld backup senere
+   - Må som standard IKKE overskrive eksisterende medier med samme id eller navn.
+   - Skal importere medier som kopier med nye id’er ved konflikt.
+   - Skal remappe widgets/mediaRefs fra gamle id’er til nye id’er.
+   - Skal løse navnekonflikter med unikke kopinavne.
+   - Skal bevare brugerens eksisterende tavler og medier ved standardvalget “Føj til min tavle”.
+   - “Erstat alt” må kun ske som eksplicit valgt handling.
+
+4) Manifest før indhold
+   - Første sikre implementering senere bør kun kunne generere/liste et manifest fra TavleMediaArchive.
+   - Den må ikke ændre eksisterende backupfil-format endnu.
+   - Den må kun være manuel testfunktion, fx window.__safe453i95DraftMediaManifest().
+   - Først efter godkendt manifest kan fuld backup udvides til faktisk at inkludere mediedata.
+
+VIGTIGE AFGRÆNSNINGER:
+- Eksterne URL-billeder/PDF’er/videoer skal ikke automatisk hentes og gemmes binært.
+- Lokale importer, kamera, tegninger, tavleshots og aktivt “Gem lokalt” kan senere være kandidater til media archive.
+- Legacy dataURL-billeder skal fortsat virke og må ikke migreres automatisk.
+- Fuld backup med medier skal have rolig progress/overlay senere, men denne fase ændrer ikke overlayet.
+
+ANBEFALET NÆSTE FASE:
+SAFE453i95_media_manifest_test_helper_only
+- Kun manuel konsolhelper, der læser/listet TavleMediaArchive og returnerer et manifest-array.
+- Ingen ændring af downloadTavleSaveFile().
+- Ingen ændring af openTavleSaveText().
+- Ingen aktiv backup/importkobling.
+-->
+
+<!-- SAFE453i93 MEDIA ARCHIVE IMAGE WRITE TEST ONLY:
+- Bygger på SAFE453i92b image import flow map only.
+- SAFE453i92_image_widget_mediaRef_new_import_only er fortsat kasseret og må ikke bruges som baseline.
+- Denne fase er en isoleret, manuel konsoltest af selve mediearkivet.
+- Ingen rigtige billedimportflows ændres.
+- Ingen billedwidget-rendering ændres.
+- Ingen drag/drop ændres.
+- Ingen backup/import ændres.
+- Ingen render(), save(), load(), addWidget(), select() ændres.
+- Ingen automatisk migration.
+- Ingen eksisterende localStorage-state ændres.
+
+FORMÅL:
+SAFE453i91 kunne læse mediaRef passivt.
+SAFE453i92b kortlagde billedimport-flowet uden kodeændring.
+SAFE453i93 tester nu kun, at et lille genereret testbillede kan skrives til og læses fra
+TavleMediaArchive via en manuel konsolfunktion.
+
+NYE MANUELLE TESTFUNKTIONER:
+- window.__safe453i93CreateTestImageMedia()
+  Opretter et lille genereret SVG-testbillede i IndexedDB-mediearkivet.
+  Returnerer { ok, record, description }.
+
+- window.__safe453i93DeleteTestImageMedia(id)
+  Sletter kun den angivne testpost, hvis posten er markeret som SAFE453i93-test.
+
+- window.__safe453i93PreviewTestImageMedia(id)
+  Returnerer en midlertidig objectURL til manuel afprøvning i konsollen.
+  Brug window.TavleMediaRefRead.revokeMediaRefObjectURL(url), når URL’en ikke bruges mere.
+
+VIGTIGT:
+Funktionen opretter IKKE en billedwidget.
+Den kalder IKKE addWidget(), render(), save() eller select().
+Den kobles IKKE på Fra enhed, Fra appen, kamera, URL, tegning, tavleshot eller drag/drop.
+
+ACCEPTTEST:
+- Appen åbner som før.
+- Rigtige billedflows virker som før.
+- Konsoltesten kan oprette/læse/slette én testpost i IndexedDB.
+- Hvis IndexedDB ikke virker, returneres en rolig fejl i stedet for at ændre appen.
+
+NÆSTE MULIGE FASE EFTER GODKENDT TEST:
+SAFE453i94_mediaRef_detached_preview_modal_test_only
+- stadig ingen rigtig importkobling
+- evt. kun en manuel preview-test, som viser mediaRef-billede uden at ændre widgetflow
+-->
+
+<!-- SAFE453i92b IMAGE IMPORT FLOW MAP ONLY:
+- Bygger på SAFE453i91 media archive image read helpers only.
+- SAFE453i92_image_widget_mediaRef_new_import_only er kasseret, fordi brugerens test viste ødelagt fil.
+- Denne fase er KUN kortlægning/dokumentation.
+- Ingen funktionel kodeændring.
+- Ingen JavaScript-logik ændret.
+- Ingen CSS ændret.
+- Ingen HTML-struktur ændret.
+- Ingen billedwidget, PDF-widget, tegnewidget, drag/drop, backup/import, render(), save(), load(), addWidget(), select() eller localStorage-state ændret.
+- Ingen medier flyttes til IndexedDB i denne fase.
+- Ingen nye billeder gemmes som mediaRef i denne fase.
+
+FORMÅL:
+SAFE453i92b skal gøre næste forsøg sikrere ved at kortlægge billedimport-flowet, før mediaRef kobles på rigtige brugerflows.
+Efter denne fase må næste implementering IKKE begynde direkte med bred billedwidget-ændring. Den bør først lave en isoleret manuel testfunktion, der opretter/viser en test-mediaRef uden at ændre de rigtige importflows.
+
+BILLEDIMPORT-FLOW DER SKAL RESPEKTERES:
+
+1) Tom billedwidget > Fra enhed
+- Relevante spor/funktioner i filen omfatter pickFile(), readFileAsDataURL() og billedwidgettens eksisterende image-rendergren.
+- Dette flow skal senere kun ændres i en meget lille fase, og kun hvis gammel dataURL-fallback bevares.
+- Hvis IndexedDB/mediaRef fejler, skal gammelt dataURL-flow fortsat virke.
+
+2) Drag/drop af billedfil
+- Relevante spor/funktioner i filen omfatter handleDroppedFile(), addDroppedWidget(), isLikelyImageFile() og readFileAsDataURL().
+- Drag/drop er et bredt importflow og må ikke ændres sammen med backupimport.
+- En senere mediaRef-kobling må kun gælde nye lokale billedfiler og skal falde tilbage til eksisterende dataURL.
+
+3) Billedwidget > Fra appen
+- Relevante spor/funktioner i filen omfatter safe453i41OpenImageFromApp() og safe453i50MaterializeAppImage().
+- Dette flow kan bruge gemte tegninger og indbyggede baggrunde.
+- Det må ikke ændres i første aktive mediaRef-fase, fordi det allerede er koblet til flere arkiv-/tegneflows.
+
+4) Kamera
+- Relevante spor/funktioner i filen omfatter safe408CaptureCameraIntoImage().
+- Kamera-flowet har tidligere været følsomt og må ikke røres i første aktive mediaRef-fase.
+- Kamera-billeder kan senere blive IndexedDB-kandidater, men kun i en separat fase.
+
+5) URL-billede
+- Relevante spor/funktioner i filen omfatter askImageUrl().
+- Eksterne URL’er må ikke automatisk hentes og gemmes binært.
+- URL-billeder skal som udgangspunkt fortsat forblive URL’er, medmindre brugeren senere aktivt vælger “Gem lokalt”.
+
+6) Tegning som billede / Mine tegninger
+- Relevante spor/funktioner i filen omfatter reuseSelectedDrawingInCanvas(), drawSelectedAsCopyWidget() og drawSelectedAsCopyWidgetNow().
+- Tegningsarkivet har sit eget eksisterende IndexedDB-spor og må ikke blandes sammen med media archive uden separat plan.
+- Tegn videre, Indsæt som billede og Brug som baggrund skal bevares uændret.
+
+7) Tavleshot som billede
+- Relevante spor/funktioner i filen omfatter safe408CaptureBoardIntoImage() og safe407AddSnapshotImageWidget().
+- Tavleshot kan være tungt og er senere kandidat til media archive, men må ikke ændres sammen med almindelig billedimport.
+
+8) Billedwidget-rendering
+- Billedwidget-rendering er centralt og må ikke omskrives bredt.
+- Legacy-data skal fortsat understøttes: w.data.src/dataURL, URL’er og tidligere billedwidgets.
+- Første aktive mediaRef-forsøg bør ikke ændre hovedrender-flowet, men eventuelt tilføje en isoleret testvisning eller meget snæver fallback-helper.
+
+9) “Tegn videre” fra billedwidget
+- Tegn videre kræver typisk et dataURL-/canvas-egnet billedgrundlag.
+- Hvis mediaRef senere bruges, skal der være sikker konvertering til midlertidig objectURL/dataURL med cleanup.
+- Dette må ikke ændres i samme fase som første importlagring.
+
+ANBEFALET SIKKER RÆKKEFØLGE EFTER DENNE FASE:
+A) SAFE453i93_mediaRef_test_image_widget_manual_only
+   - Manuel konsoltest opretter én test-billedwidget eller testvisning fra et mediaRef.
+   - Ingen rigtig import ændres.
+   - Ingen drag/drop ændres.
+   - Ingen backup/import ændres.
+
+B) SAFE453i94_image_widget_mediaRef_render_fallback_only
+   - Kun visning/fallback for mediaRef i billedwidget.
+   - Ingen nye importer gemmes endnu som mediaRef.
+   - Legacy src/URL bevares.
+
+C) SAFE453i95_image_import_mediaRef_one_entry_only
+   - Kun ét importpunkt ad gangen, fx tom billedwidget > Fra enhed.
+   - Drag/drop, kamera, Fra appen, URL, tavleshot og tegninger røres ikke.
+   - Fejl i IndexedDB skal falde tilbage til gammelt dataURL-flow.
+
+D) Først senere:
+   - drag/drop-billeder
+   - kamera-billeder
+   - tavleshots
+   - fuld backup media manifest
+   - sikker ikke-destruktiv import af media archive
+
+MÅ IKKE I NÆSTE AKTIVE FASE:
+- Ændre flere billedimportveje på én gang.
+- Ændre backup/import samtidigt.
+- Ændre render(), save(), load(), addWidget(), select() bredt.
+- Flytte gamle billeder.
+- Migrere eksisterende state.
+- Automatisk hente URL-medier binært.
+- Fjerne legacy-understøttelse.
+
+STATIC SEARCH NOTES I SAFE453i92b BASELINE:
+- isLikelyImageFile: 4
+- handleDroppedFile: 4
+- addDroppedWidget: 11
+- readFileAsDataURL: 4
+- pickFile: 4
+- safe408CaptureCameraIntoImage: 3
+- safe407AddSnapshotImageWidget: 2
+- safe408CaptureBoardIntoImage: 2
+- safe453i41OpenImageFromApp: 3
+- safe453i50MaterializeAppImage: 3
+- askImageUrl: 3
+- drawSelectedAsCopyWidget: 4
+- drawSelectedAsCopyWidgetNow: 4
+- reuseSelectedDrawingInCanvas: 2
+- importFileFromSaveModal: 5
+- render: 334
+- save: 307
+- load: 30
+- addWidget: 159
+- select: 329
+- TavleMediaArchive: 8
+- TavleMediaRefRead: 3
+END SAFE453i92b STATIC SEARCH NOTES
+-->
+
+<!-- SAFE453i91 MEDIA ARCHIVE IMAGE READ HELPERS ONLY:
+- Bygger på SAFE453i90b rollback til SAFE453i89 og eksisterende SAFE453i84 TavleMediaArchive.
+- Tilføjer kun læsehelpers omkring mediaRef/IndexedDB-mediearkivet.
+- Tilføjer en manuel konsoltest: window.__safe453i91TestMediaArchiveRead(id).
+- Ingen eksisterende widgets kobles på mediaRef endnu.
+- Ingen ændring af billedwidget, PDF-widget, tegnewidget, backup/import, render(), save(), load(), addWidget(), select(), drag/drop eller localStorage-state.
+- Ingen migration, ingen modal, ingen flytning af eksisterende medier.
+-->
+
+<!-- SAFE453i90b ROLLBACK TO SAFE453i89:
+- Kasserer SAFE453i90, fordi brugerens test viste ødelagt fil.
+- Denne fil er en ren rollback til SAFE453i89 backup import precise map only.
+- Ingen funktionel kodeændring i denne fil.
+- Ingen testmodal er aktiv.
+- Ingen backup/import-logik er ændret.
+- Ingen render(), save(), load(), IndexedDB, mediaRef, widgets eller state er ændret.
+- SAFE453i86, SAFE453i87 og SAFE453i90 må ikke bruges som baseline.
+
+STATUS:
+- SAFE453i83: Media archive phase 0 map.
+- SAFE453i84: IndexedDB media archive foundation only.
+- SAFE453i85: Loading overlay foundation only.
+- SAFE453i86: KASSERET / ødelagt backup merge-forsøg.
+- SAFE453i86b: Stabil rollback til i85 med backupimport-kravnotat.
+- SAFE453i87: KASSERET / ødelagt importvalg-modal-forsøg.
+- SAFE453i87b: Stabil rollback til i86b.
+- SAFE453i88: Backup/import-flow map only.
+- SAFE453i89: Backup/import precise map only.
+- SAFE453i90: KASSERET / ødelagt testmodal-forsøg.
+- SAFE453i90b: Stabil rollback til i89.
+
+KONKLUSION:
+Forsøg på at indsætte ny importvalg-modal direkte i appfilen har nu fejlet flere gange.
+Næste skridt bør IKKE være endnu et modal-forsøg.
+
+ANBEFALET NÆSTE FASE:
+SAFE453i91 bør være en ren overførselsprompt / udviklingsplan til ny session eller en meget mindre manuel patch bygget direkte på i89.
+Hvis der alligevel arbejdes videre i samme fil, skal næste fase kun analysere eksisterende showModal/closeModal-kode og IKKE indsætte ny JavaScript.
+
+IMPORTKRAV DER STADIG GÆLDER:
+1. Importeret backup må ikke som standard overskrive eksisterende tavler, datakilder, linklister, tegninger, medier eller arkivposter.
+2. Import må aldrig lydløst overskrive eksisterende eller nyere filer/ressourcer med samme navn.
+3. Standardvalg skal være ikke-destruktivt: “Føj til min tavle”.
+4. “Erstat alt” må kun ske som eksplicit brugerhandling.
+5. Navnekonflikter skal løses med unikke kopinavne.
+6. ID-konflikter skal løses med nye ID’er og remap af interne koblinger.
+7. Backupimportmodal skal kunne betjenes med pile/mellemrum, Enter og Esc.
+8. Det aktive valg skal være visuelt entydigt.
+-->
+
+<!-- SAFE453i89 BACKUP IMPORT PRECISE MAP ONLY:
+- Bygger på SAFE453i88.
+- Denne fase er stadig KUN kortlægning/dokumentation.
+- Ingen funktionel kodeændring.
+- Ingen backup/import-logik ændret.
+- Ingen modal ændret.
+- Ingen render(), save(), load(), IndexedDB, mediaRef, widgets eller state ændret.
+
+PRÆCIS KORTLÆGNING AF NUVÆRENDE BACKUP/IMPORT-FLOW:
+
+1) Almindelig fil-drop på tavlefladen
+- Global drop-handler findes omkring dokumentets drag/drop-sektion.
+- Den kalder:
+  safe417ImportFilesWithIcsChoice(files,{x:140,y:130})
+- Resultatet sendes til:
+  toastImportCount(imported)
+  showImportSummary(results,{closeModal:true})
+- Det betyder at backupfiler, ICS-filer og almindelige mediefiler allerede mødes i samme brede importflow.
+
+2) Drop i Gem/åbn-dialogens dropzone
+- showSaveFileOptions() bygger Gem/åbn-modalen.
+- Dropzonen #saveDropZone kalder også:
+  safe417ImportFilesWithIcsChoice(files,{x:140,y:130})
+- Det betyder at en fremtidig importvalg-modal helst skal ligge FØR eller INDE I backupfil-genkendelsen, ikke som bred ændring i dropzone.
+
+3) Backupfil-genkendelse
+- importFileFromSaveModal(file,point) tjekker:
+  /\.(json|tavle|tavlefil)$/i eller file.type==='application/json'
+- Ved backup/json læses filen som tekst og sendes til:
+  openTavleSaveText(txt,file)
+
+4) Det destruktive punkt i dag
+- openTavleSaveText(txt,file) gør i dag:
+  const data=JSON.parse(txt)
+  const next=data.state||data
+  confirm('Åbn denne tavlefil? Dette erstatter de tavler, der er åbne nu.')
+  state=next
+  save({silent:true})
+  closeModal()
+  render()
+- Det er altså openTavleSaveText(), der er den nuværende destruktive erstatning.
+- Fremtidig importvalg skal derfor sandsynligvis ind som beslutningsport i openTavleSaveText(), ikke i alle drop-handlere.
+
+5) Fuld backup med tegninger
+- downloadTavleSaveFile(options) laver saveData med:
+  app:'maans-interaktiv-tavle'
+  format:'tavle-savefile'
+  state:cloneForSaveFile(options)
+  wheelLists/lists
+- Hvis options.includeDrawings:
+  saveData.drawingsArchive=...
+  saveData.options.includeDrawings=true
+  saveData.options.fullBackup=true
+- safe453i45DownloadFullBackupWithDrawings() henter tegninger fra IndexedDB og kalder downloadTavleSaveFile(...)
+
+6) Import af tegninger i dag
+- openTavleSaveText() læser:
+  const drawingsToImport=Array.isArray(data.drawingsArchive)?data.drawingsArchive:[]
+- Efter state=next/render importeres tegninger med:
+  safe453i45PutDrawings(drawingsToImport)
+- safe453i45PutDrawings() bruger store.put(item)
+- Det betyder: eksisterende tegninger med samme id kan overskrives.
+- Fremtidig sikker import skal derfor bruge en ny “put drawings as copies”-funktion, ikke den gamle direkte put-funktion.
+
+7) Eksisterende modal-system
+- showModal(html) sætter:
+  modal.innerHTML=html
+  modalBack.style.display='flex'
+- closeModal() lukker modalBack og rydder moveWidgetModal-klasse.
+- modalBack.onclick lukker kun ved klik udenfor.
+- Næste testmodal bør bruge showModal()/closeModal(), ikke et nyt overlay-system.
+
+8) Hvor næste testmodal må bygges
+- Næste fase bør oprette en testfunktion, fx:
+  window.__testBackupImportChoice()
+- Den må kun vise importvalg-modal og returnere/console-logge valg.
+- Den må IKKE kaldes fra openTavleSaveText().
+- Den må IKKE ændre state.
+- Den må IKKE kalde save(), render(), import eller merge.
+- Den må kun teste:
+  pile/mellemrum/Enter/Esc
+  visuel aktiv markering
+  korrekt cleanup af keyhandler
+
+9) Første rigtige kobling senere
+- Når testmodalen er stabil, kan openTavleSaveText() ændres til:
+  parse backup
+  validér tavledata
+  åbn valgmodal
+  hvis Erstat alt -> kald eksisterende destruktive åbning
+  hvis Føj til min tavle -> senere mergefunktion
+  hvis Esc/Annuller -> gør intet
+- Den destruktive eksisterende import bør pakkes ud i en helper, fx:
+  openTavleSaveTextReplaceAll(data,file)
+- Men det må IKKE ske før testmodalen er godkendt.
+
+10) Sikkerhedsregel for navne og nyere filer
+- Import må aldrig lydløst overskrive eksisterende eller nyere ressourcer med samme navn.
+- Første ikke-destruktive merge skal altid oprette kopier med unikke navne.
+- Tegninger/medier skal senere importeres som kopier med nye id’er.
+- “Erstat alt” er den eneste handling, der må erstatte den nuværende tavle-state, og den skal være eksplicit valgt.
+
+NÆSTE FASE:
+SAFE453i90 bør være:
+“backup import choice TEST MODAL ONLY”
+- Kun manuel testfunktion.
+- Brug showModal()/closeModal().
+- Ingen rigtig backupimport.
+- Ingen stateændring.
+- Ingen save/render.
+-->
+
+<!-- SAFE453i88 BACKUP IMPORT FLOW MAP ONLY:
+- Bygger på SAFE453i87b rollback.
+- Denne fase er KUN kortlægning/dokumentation.
+- Ingen funktionel kodeændring.
+- Ingen backup/import-logik ændret.
+- Ingen modal ændret.
+- Ingen render(), save(), load(), IndexedDB, mediaRef, widgets eller state ændret.
+- Formål: finde et sikkert sted til senere ikke-destruktiv backupimport/merge og importvalg-modal.
+
+BAGGRUND:
+SAFE453i86 og SAFE453i87 blev kasseret, fordi de ødelagde filen. Derfor må næste implementering ikke starte med ny importkode. Først skal eksisterende flow kortlægges.
+
+KRAV DER SKAL BEVARES:
+1. Importeret backup må ikke som standard overskrive eksisterende tavler, datakilder, linklister, tegninger, medier eller arkivposter.
+2. Import må aldrig lydløst overskrive eksisterende eller nyere filer/ressourcer med samme navn.
+3. Standardvalg skal være ikke-destruktivt: “Føj til min tavle”.
+4. “Erstat alt” må kun ske som eksplicit brugerhandling.
+5. Navnekonflikter skal løses med unikke kopinavne.
+6. ID-konflikter skal løses med nye ID’er og remap af interne koblinger.
+7. Backupimportmodal skal kunne betjenes med pile/mellemrum, Enter og Esc.
+8. Det aktive valg skal være visuelt entydigt.
+
+FORELØBIG STATISK KORTLÆGNING:
+- Appen indeholder eksisterende modal-/dialogsystem med modal/closeModal/openModal-lignende mønstre.
+- Appen indeholder eksisterende fil-/drop-/importflow, som også bruges til drag-and-drop af filer på tavlen.
+- Appen indeholder eksisterende localStorage-baseret tavlestate og IndexedDB-spor for tegninger samt nyere media archive foundation.
+- Den næste fase bør IKKE erstatte importflowet, men lægge en smal beslutningsport foran backupimport.
+
+SIKKER IMPLEMENTERINGSPLAN HERFRA:
+Fase 89A:
+- Kortlæg manuelt de præcise funktioner for:
+  - fil-drop
+  - backupfil-genkendelse
+  - almindelig backupimport
+  - fuld backup med tegninger
+  - modalvisning
+  - close/cleanup
+- Ingen kodeændring.
+
+Fase 89B:
+- Lav en isoleret importvalg-modal som kun kan åbnes via manuel testfunktion, fx window.__testBackupImportChoice().
+- Den må IKKE kobles på rigtig backupimport.
+- Modal skal bruge eksisterende modal-system, ikke et nyt globalt system.
+- Tastatur:
+  - pile/mellemrum skifter valg
+  - Enter udfører valgt testvalg
+  - Esc annullerer
+- Når testmodal lukker, skal alle keyhandlers ryddes.
+
+Fase 90:
+- Kobl modal som beslutningsport foran backupimport.
+- Første version må stadig kalde eksisterende “Erstat alt”-import ved eksplicit valg.
+- “Føj til min tavle” må i første omgang gerne være deaktiveret/placeholder, hvis merge endnu ikke er implementeret.
+
+Fase 91:
+- Implementer ikke-destruktiv merge for tavler og datakilder, uden medier.
+- Remap ID’er.
+- Gør navne unikke.
+- Bevar eksisterende state.
+
+Fase 92:
+- Implementer merge for fuld backup/tegninger/medier som kopier uden overwrite.
+
+MÅ IKKE I NÆSTE IMPLEMENTERING:
+- brede globale keyhandlers uden snæver modalaktivitet
+- direkte omskrivning af eksisterende importflow
+- automatisk erstatning af state
+- ændring af render(), addWidget(), select(), save(), load()
+- ændring af billedwidget/PDF/tegnewidget
+- flytning af medier til IndexedDB i samme fase
+- koble ny modal på rigtig import før den er testet isoleret
+-->
+
+<!-- SAFE453i88 STATIC SEARCH NOTES:
+Relevant identifier counts:
+- closeModal: 177
+- modalBack: 110
+- modal: 965
+- backup: 216
+- Backup: 20
+- restore: 170
+- Restore: 221
+- import: 7324
+- Import: 268
+- drop: 145
+- Drop: 54
+- dragover: 2
+- handleDrop: 6
+- file: 382
+- FileReader: 7
+- IndexedDB: 40
+- indexedDB: 18
+- draw: 579
+- drawing: 78
+- full backup: 1
+- Fuld backup: 7
+- load: 286
+- save: 548
+- localStorage: 71
+Relevant function-name candidates:
+- addDroppedWidget
+- applyOpenOptionsFromSaveData
+- archiveSave
+- backdrop
+- bgModal
+- bgRestore
+- canvasHasVisibleDrawing
+- clearCurrentDrawingCanvas
+- clockModal
+- cloneForSaveFile
+- closeImportModalAfterSuccess
+- closeImportSummary
+- closeModal
+- collectEmbeddedMedia
+- dataTransferHasFiles
+- dataTransferHasSupportedPayload
+- datasetForDownloadWidget
+- deleteMedia
+- downloadAllEmbeddedMedia
+- downloadDataUrl
+- downloadEmptyApp
+- downloadTavleSaveFile
+- draw
+- drawGroupWheel
+- drawOverlay
+- drawPt
+- drawSelectedAsCopyWidget
+- drawSelectedAsCopyWidgetNow
+- drawShape
+- drawWheel
+- drawingName
+- drawings
+- dropBatchPoint
+- droppedTextFromDataTransfer
+- endDrag
+- exportCroppedPng
+- exportJson
+- exportMedia
+- exportStandaloneHtml
+- exportStandaloneHtmlWithFeedback
+- filesFromDataTransfer
+- findBottomToolbar
+- findDrawingBounds
+- getMedia
+- handleDroppedFile
+- handleDroppedUrlOrText
+- highlightSaveDropZone
+- idbAll
+- idbDelete
+- idbPut
+- importFileFromSaveModal
+- importHtmlEsc
+- importJson
+- importKindLabel
+- importMedia
+- importedDataWidgetButtonHtml
+- importedListButtonHtml
+- initDrawLayerAfterRender
+- isLikelyCsvFile
+- isLikelyHtmlFile
+- isLikelyImageFile
+- isLikelyPdfFile
+- isLikelyTextFile
+- isLikelyTsvFile
+- isLikelyXlsxFile
+- isRunningFromFile
+- kahoopardyApplyImportedQuestions
+- kahoopardyApplyImportedQuestionsLive
+- kahoopardyAskImportDatasetMode
+- kahoopardyDatasetSavedStatus
+- kahoopardyImportQuestionsFromText
+- kahoopardyOpenImportOverview
+- kahoopardySaveQuestionsDataset
+- kpAIImportCreateQuestionBank
+- kpAINameFromUploadedFile
+- kpPromptDurationForFile
+- kpPromptInheritedFileName
+- kpUpdateInheritedFileName
+- largeBackupGuidance
+- listMedia
+- load
+- loadDraw
+- modalOpen
+- normalizeImportResult
+- openDb
+- openDrawDb
+- openRescueChoiceModal
+- openSaveListModal
+- openSaveModalForExternalFileDrag
+- openTavleSaveFile
+- openTavleSaveText
+- parseListTextFile
+- parseXlsxDatasetFile
+- parseXlsxListFile
+- patchedMoveModal
+- pickFile
+- pickListImportFile
+- putMedia
+- rCloseModal
+- readFileAsDataURL
+- readFileAsText
+- rescueBoardBoundsSafe
+- rescueCloseModal
+- rescueConfirmModal
+- rescueModalEls
+- rescueModalQuery
+- rescueModalQueryAll
+- rescueShowModal
+- restore
+- restoreColumns
+- restoreHighlight
+- restoreKeyHandler
+- restoreLatestTrashWidget
+- restoreModeClassesFromBefore
+- restoreSelectedOrLatestFromTrash
+- restoreSnapshot
+- restoreTrashWidgetAt
+- restoreTrashWidgetById
+- reuseSelectedDrawingInCanvas
+- reuseSelectedDrawingInCanvasNow
+END SAFE453i88 STATIC SEARCH NOTES -->
+
+<!-- SAFE453i87b ROLLBACK TO SAFE453i86b:
+- Kasserer SAFE453i87, fordi brugerens test viste ødelagt fil.
+- Denne fil er en ren rollback til SAFE453i86b.
+- SAFE453i86b er selv en rollback til SAFE453i85 Loading Overlay Foundation Only med kravnotat.
+- Ingen funktionel kodeændring i denne fil.
+- Ingen backupimport/merge-logik er aktiv i denne fil.
+- Ingen importvalg-modal er aktiv i denne fil.
+- SAFE453i86 og SAFE453i87 må ikke bruges som baseline.
+
+STATUS:
+- SAFE453i83: Media archive phase 0 map.
+- SAFE453i84: IndexedDB media archive foundation only.
+- SAFE453i85: Loading overlay foundation only.
+- SAFE453i86: KASSERET / ødelagt backup merge-forsøg.
+- SAFE453i86b: Stabil rollback til i85 med backupimport-kravnotat.
+- SAFE453i87: KASSERET / ødelagt importvalg-modal-forsøg.
+- SAFE453i87b: Stabil rollback til i86b.
+
+NÆSTE FORSØG MÅ IKKE:
+- indsætte bred global modal-kode uden først at finde appens eksisterende modal-system.
+- ændre backup/import-flow direkte.
+- ændre render(), save(), load(), importBackup(), handleDrop(), IndexedDB eller state.
+- oprette nye globale keyhandlers uden meget snæver aktivering og cleanup.
+
+NÆSTE FORSØG BØR:
+1. Kortlægge eksisterende modal-/dialogfunktioner.
+2. Kortlægge eksisterende backupimport-flow.
+3. Kun dokumentere hvor importvalg-modal senere skal kobles på.
+4. Først derefter lave en minimal modal, der kan åbnes manuelt fra en testfunktion — ikke fra rigtig import.
+5. Tastaturkrav bevares:
+   - pile eller mellemrum skifter valg
+   - Enter udfører valgt handling
+   - Esc annullerer
+   - aktivt valg skal være visuelt entydigt.
+-->
+
+<!-- SAFE453i86b ROLLBACK TO SAFE453i85 + BACKUP MERGE REQUIREMENTS NOTE:
+- Kasserer SAFE453i86, fordi brugerens test viste ødelagt fil.
+- Denne fil er en ren rollback til SAFE453i85 Loading Overlay Foundation Only.
+- Ingen funktionel kodeændring i denne fil.
+- Ingen backupimport/merge-logik er aktiv i denne fil.
+- Næste forsøg på backupimport/merge skal bygges ekstremt konservativt oven på denne rollback.
+
+KRAV TIL NÆSTE BACKUPIMPORT/MERGE-FASE:
+1. Importeret backup må ikke som standard overskrive eksisterende tavler, datakilder, linklister, tegninger, medier eller arkivposter.
+2. Import må aldrig lydløst overskrive eksisterende eller nyere filer/ressourcer med samme navn.
+3. Standardvalg skal være ikke-destruktivt: “Føj til min tavle”.
+4. “Erstat alt” må kun ske som eksplicit brugerhandling.
+5. Navnekonflikter skal løses med unikke kopinavne, fx “Navn 2”.
+6. ID-konflikter skal løses med nye ID’er og remap af interne koblinger.
+7. Papirkurv fra backup må ikke overtage brugerens aktuelle papirkurv uden eksplicit valg.
+8. Fuld backup med tegninger/medier skal importere arkivposter som kopier, ikke overskrive eksisterende/nyere poster.
+9. Backupimportmodal skal kunne betjenes med:
+   - Pil op/ned eller venstre/højre: flyt valg
+   - Mellemrum: flyt/markér valg
+   - Enter: udfør valgt handling
+   - Esc: annuller
+10. Modalens aktive valg skal være visuelt entydigt. Det, der er markeret, er det Enter udfører.
+11. Første nye fase bør kun lave selve modalens UI og keyboardstyring uden at ændre importlogikken.
+12. Først derefter må ikke-destruktiv merge kobles på i en separat fase.
+
+STATUS:
+- SAFE453i83: Media archive phase 0 map.
+- SAFE453i84: IndexedDB media archive foundation only.
+- SAFE453i85: Loading overlay foundation only.
+- SAFE453i86: KASSERET / må ikke bruges som baseline.
+- SAFE453i86b: Stabil rollback til i85 med kravnotat.
+-->
+
+<!-- SAFE453i85 LOADING OVERLAY FOUNDATION ONLY:
+- Tilføjer et fælles, ikke-blokerende indlæsnings-/procesoverlay til senere tunge opgaver.
+- Overlayet kan bruges af fremtidige faser ved backupimport, fuld backup, mediearkiv, migrering og større filimport.
+- Første load viser kun overlayet, hvis siden stadig er i gang efter en kort forsinkelse; det må ikke blokere tavlen.
+- Ingen ændring af mediearkiv-data, billeder, PDF, tegninger, backup/import, widgets eller render-flow.
+- Eksponerer window.TavleLoadingOverlay med show/updateStep/hide/run.
+-->
+<!-- SAFE453i84 MEDIA ARCHIVE FOUNDATION ONLY:
+- Bygger på SAFE453i83 Phase 0-kortlægning.
+- Tilføjer kun et fælles IndexedDB-mediearkiv som teknisk fundament: TavleMediaArchive.
+- Ingen eksisterende billeder, PDF'er, tegninger, tavleshots eller gendannelsespunkter flyttes endnu.
+- Ingen ændring af render(), addWidget(), select(), billedwidget, PDF-widget, tegnewidget, backup/import eller drag/drop.
+- Legacy-data i localStorage virker uændret.
+- Formål: næste faser kan gemme nye medier via mediaRef uden at omskrive appen i blinde.
+-->
+<!-- SAFE453i83 MEDIA ARCHIVE PHASE 0 MAP ONLY:
+- Starter større arbejde med mediearkiv/IndexedDB/backup uden funktionelle ændringer.
+- Denne fase er kun AI-venlig kortlægning og arbejdsregler, placeret som kommentar øverst i filen.
+- Ingen ændring af HTML, CSS, JS-kode, widgetlogik, render-flow, backup/import, billedwidget, PDF-widget, linkwidget, kalender, KaPardy, Lykkehjulet eller Grupper.
+
+FORMÅL MED DET VIDERE ARBEJDE:
+- localStorage skal på sigt være tavlens lette arbejds-state: tavler, widgets, placeringer, tekst, links, små data, kalenderdata, quizzer, lister, koblinger og indstillinger.
+- IndexedDB skal på sigt være tavlens tunge arkiv: billeder, kameraoptagelser, tegninger, PDF-filer, lyd/video, tavleshots, gendannelsespunkter og evt. lokale kopier af URL-medier.
+- Almindelig backup skal være let og hurtig.
+- Fuld backup skal aktivt kunne medtage tunge medier og arkiver.
+- Backupimport skal som udgangspunkt være ikke-destruktiv: “Føj til min tavle” før “Erstat alt”.
+- Ved tunge processer skal brugeren se en rolig splash/progress-status.
+
+AKTUEL KORTLÆGNING I DENNE FIL:
+1) Hovedstate/localStorage
+   - save(opts={}) gemmer den centrale state med localStorage.setItem(KEY, JSON.stringify(state)).
+   - load() læser den centrale state med localStorage.getItem(KEY).
+   - save() forsøger stadig at lægge global tegnecanvas i slide().draw som dataURL før state gemmes.
+   - Flere mindre indstillinger/listebanker bruger også localStorage, fx maans_wheel_lists, toolbar/clock/feed-settings.
+   - Dette skal ikke ændres før der findes migration/fallback.
+
+2) Tegninger / Mine tegninger / IndexedDB
+   - Der findes allerede IndexedDB-baseret tegningsarkiv i databasen tavle_drawings_db med objectStore drawings.
+   - Relevante funktioner/spor omfatter safe453i19OpenDrawDb(), safe453i45OpenDrawDb() og senere openDrawDb()-varianter.
+   - Fuld backup med tegninger findes allerede via safe453i45DownloadFullBackupWithDrawings().
+   - Dette er reference-model for fremtidige medier: almindelig state + separat arkiv + aktiv fuld backup.
+
+3) Billedwidget / kamera / tavleshot
+   - Relevante billedfunktioner fundet: isLikelyImageFile(), safe408CaptureCameraIntoImage(), safe408CaptureBoardIntoImage(), safe407AddSnapshotImageWidget(), safe408OpenImageCameraMenu(), safe414BoardShotPackageFromImageWidget(), safe414ApplyBoardShotPackageToImageWidget(), safe453i41OpenImageFromApp(), safe453i50MaterializeAppImage(), askImageUrl().
+   - Billeder kan i dag ligge som indlejret dataURL/base64 i widgetdata eller som URL afhængigt af flow.
+   - URL-medier må ikke automatisk kopieres binært; kun aktivt “Gem lokalt”/tegneunderlag/lokal import bør ende i IndexedDB.
+   - Legacy-billedwidgets skal blive ved med at virke, selv når mediaRef-model indføres senere.
+
+4) PDF-widget
+   - Relevante PDF-funktioner fundet: isLikelyPdfFile(), pdfViewerSrc(), pickLocalPdf(), isEmbeddedPdf(), ensurePdfJs(), renderPdfJsWidget(), pdfJsGoPage(), askPdfLink(), handlePdfArrowKey().
+   - Lokale PDF-filer kan være store og bør på sigt lagres i IndexedDB via mediaRef.
+   - Eksterne PDF-URL’er bør som udgangspunkt blive URL’er, med evt. aktiv “Gem lokalt” senere.
+
+5) Video/audio/medier
+   - Relevante funktioner fundet: askVideo(), ensureAudio(), primeAudio(), collectEmbeddedMedia(), downloadAllEmbeddedMedia(), safe453i51RenameMediaWidget().
+   - VideoWidget kan senere udvides til audio/mediewidget.
+   - Lokale lyd/video-filer bør på sigt lagres i IndexedDB via mediaRef.
+   - Eksterne streaming-/URL-medier bør som udgangspunkt kun være link/URL.
+
+6) Gendannelsespunkter / tavleøjeblikke
+   - Gendannelsespunkter kan i dag ligge i board.restorePoints og/eller state.restorePoints.
+   - Relevante funktioner/spor omfatter safe430CollectAllRestorePoints(), safe430AddGlobalRestorePoint(), safe448eFindRestorePointById(), safe448eOpenQuickRestorePoint().
+   - Tavleshot/gendannelsespunkter kan indeholde previewbilleder og tavlestate og bør på sigt flyttes til IndexedDB.
+   - Tavleoversigt skal i en overgang kunne vise både gamle restorePoints i state og nye restorePoints fra IndexedDB.
+
+7) Backup/import/drag-drop
+   - Relevante importfunktioner fundet: importJson(), importFileFromSaveModal(), importKindLabel(), normalizeImportResult(), showImportSummary().
+   - Drag/drop og import har også ICS-specialflow: safe416ImportIcsFileAsLinkedCalendarData(), safe417ImportIcsFilesCombined(), safe417ImportFilesWithIcsChoice().
+   - Backupimport bør senere ændres til modal med valg: “Føj til min tavle” / “Erstat alt” / evt. “Forhåndsvis”.
+   - Merge-import skal remappe id’er for tavler, widgets, datasets og mediaRefs, så eksisterende tavler ikke overskrives.
+   - Papirkurv fra en backup bør ikke uden videre overtage brugerens aktuelle papirkurv.
+
+8) ICS/kalenderdata
+   - ICS er typisk tekstbaseret og bør blive i localStorage/state/datawidgets, medmindre der senere opstår meget store rå ICS-arkiver.
+   - Kalenderdata er ikke første kandidat til IndexedDB.
+
+FORESLÅET MEDIAREF-MODEL TIL SENERE FASER:
+- Widgetdata gemmer kun fx mediaRef: "media_abc123" plus titel/placering/visningsindstillinger.
+- IndexedDB media-store gemmer fx:
+  { id, kind, name, mimeType, size, createdAt, source, blob }
+- kind kan være: image, pdf, audio, video, drawing, boardshot, restorePoint.
+- source kan være: device, camera, url-copy, drawing, backup, generated.
+- Gamle widgets med dataURL/indlejret data skal fortsat vises som legacy.
+
+MÅ IKKE I NÆSTE FASER:
+- Omskrive render(), addWidget(), select() bredt.
+- Flytte alle medier på én gang.
+- Fjerne legacy-understøttelse.
+- Gøre backupimport destruktiv som standard.
+- Automatisk hente alle URL-medier som binære data.
+- Gøre appen afhængig af internet.
+- Ændre Kalender, KaPardy, Lykkehjulet, Grupper eller linkwidget uden en konkret faseopgave.
+
+SKAL I NÆSTE FASER:
+- Arbejde konservativt i små SAFE-versioner.
+- Have fallback ved manglende medier.
+- Vise placeholder i widgets, hvis mediaRef mangler.
+- Holde almindelig backup let.
+- Lade fuld backup med medier være aktivt tilvalg.
+- Bevare gamle tavler og gamle backups.
+- Bruge splash/progress kun til tunge processer og helst lade tavlen åbne gradvist.
+
+ANBEFALET NÆSTE IMPLEMENTERINGSFASE:
+SAFE453i84 bør være “MediaRef foundation only”:
+- Tilføj fælles IndexedDB media-store med helpers: openMediaDb, putMedia, getMedia, deleteMedia, listMedia.
+- Tilføj ingen eller meget begrænset UI.
+- Ingen eksisterende widgets må begynde at bruge den endnu, bortset fra evt. en intern self-test/helper.
+- Accepttest: appen åbner som før, gamle billeder/PDF/tegninger virker, save/load virker, ingen konsol-syntaxfejl.
+-->
 <!-- SAFE453i82 HELP LINKWIDGET SHORTER:
 - Ren hjælpetekst-opdatering oven på SAFE453i81.
 - Forkorter afsnittet Links, hjemmesider og linklister, så det matcher resten af hjælpens korte punktform.
@@ -7350,6 +8541,7 @@ body.focus-presentation .modalBackdrop.wheelConfirmBackdrop,
 }
 .imageChoice{display:grid;gap:10px;place-items:center;text-align:center;padding:20px}
 .imageChoice button{font-size:22px;padding:12px 18px}
+.imageChoiceHint{font-size:12px;font-weight:850;color:#64748b;line-height:1.25}
 .slideDanger{background:#fee2e2!important;color:#991b1b!important}
 
 
@@ -19407,9 +20599,20 @@ async function handleDroppedFile(file,point){
     }
   }
   if(isLikelyImageFile(file)){
-    const src=await readFileAsDataURL(file);
-    addDroppedWidget('image',{src,name:file.name||'billede'},point,file.name||'Billede');
-    toast('Billede indsat');
+    let imageData=null;
+    try{
+      if(typeof safe453i99PrepareImageFileData==='function'){
+        imageData=await safe453i99PrepareImageFileData(file);
+      }
+    }catch(err){
+      console.warn('SAFE453i99 image mediaRef import fallback',err);
+    }
+    if(!imageData){
+      const src=await readFileAsDataURL(file);
+      imageData={src:src,name:file.name||'billede'};
+    }
+    addDroppedWidget('image',imageData,point,file.name||'Billede');
+    toast(imageData.mediaRef?'Billede indsat i mediearkiv':'Billede indsat');
     return {ok:true,kind:'image',label:file.name||'Billede'};
   }
   if(isLikelyPdfFile(file)){
@@ -30099,23 +31302,61 @@ if(w.type==='drawcopy'){
 
 // --- WIDGET: IMAGE ---
  if(w.type==='image'){
-  if(w.data.src){
-    const embedded=String(w.data.src).startsWith('data:');
+  if((w.data&&w.data.src)||(w.data&&w.data.mediaRef)){
+    const imageSrc=String((w.data&&w.data.src)||'');
+    const hasMediaRef=!!(w.data&&w.data.mediaRef&&!imageSrc);
+    const embedded=imageSrc.startsWith('data:');
     // SAFE440: Gendannelse/tavleshot styres fra Tavleoversigt. Gamle boardState-data bevares,
     // men billedwidgetten viser ikke længere lokale “Gendan”-knapper.
     const mirrorCls=w.data&&w.data.mirror?' safe411MirrorSelfie':'';
-    c.innerHTML=`<div class="mediaActions widget-control"><button type="button" class="drawCopyImg" title="Tegn videre på kopi">✏️ Tegn</button>${embedded?`<button type="button" class="downloadImg" title="Åbn fælles downloadpulje">⬇ Download</button>`:''}</div><div class="imageFrame"><img class="${mirrorCls}" src="${esc(w.data.src)}" alt=""></div>`;
+    const initialSrc=imageSrc?esc(imageSrc):'';
+    const placeholder=hasMediaRef?'<div class="mediaRefNotice">Henter billede fra mediearkiv…</div>':'';
+    c.innerHTML=`<div class="mediaActions widget-control"><button type="button" class="drawCopyImg" title="Tegn videre på kopi">✏️ Tegn</button>${embedded?`<button type="button" class="downloadImg" title="Åbn fælles downloadpulje">⬇ Download</button>`:''}</div><div class="imageFrame"><img class="${mirrorCls}" src="${initialSrc}" alt="">${placeholder}</div>`;
+    if(hasMediaRef&&typeof safe453i99LoadImageMediaRefIntoElement==='function'){
+      safe453i99LoadImageMediaRefIntoElement(w,c.querySelector('img'),c);
+    }
     const drawCopy=c.querySelector('.drawCopyImg');
     if(drawCopy){
-      const go=(e)=>{e.preventDefault();e.stopPropagation();safe453i19CreateDrawcopy(w.data&&w.data.src,w.data&&w.data.name||w.title||'Billede');};
+      const go=async (e)=>{
+        e.preventDefault();e.stopPropagation();
+        let srcForDraw=(w.data&&w.data.src)||'';
+        if(!srcForDraw&&typeof safe453i99GetImageDataUrlForWidget==='function'){
+          try{srcForDraw=await safe453i99GetImageDataUrlForWidget(w);}catch(err){console.warn('SAFE453i99 drawcopy mediaRef read failed',err);}
+        }
+        if(!srcForDraw){toast('Billedet kunne ikke læses fra mediearkivet');return;}
+        safe453i19CreateDrawcopy(srcForDraw,w.data&&w.data.name||w.title||'Billede');
+      };
       drawCopy.onclick=go;
       drawCopy.onpointerup=go;
     }
     const dl=c.querySelector('.downloadImg');
     if(dl)dl.onclick=(e)=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else downloadDataUrl(w.data.src,w.data.name||'billede')};
   }else{
-    c.innerHTML=`<div class="imageChoice"><button class="localImg">Indsæt billede fra enhed</button><button class="appImg">Fra appen</button><button class="urlImg">Indsæt billede fra URL</button><button class="cameraImg">📷 Kamera</button></div>`;
-    c.querySelector('.localImg').onclick=()=>pickFile('image/*',(src,file)=>{w.data.src=src;safe453i60SetImageTitleOnImport(w,(file&&file.name)||'billede');delete w.data.boardState;render();safe453i61RefreshImageTitleAfterImport(w);setTimeout(()=>select(w.id,{editText:false}),0);save()});
+    c.innerHTML=`<div class="imageChoice"><button class="localImg" title="Tast 1">1 · Fra enhed</button><button class="appImg" title="Tast 2">2 · Fra appen</button><button class="urlImg" title="Tast 3">3 · URL</button><button class="cameraImg" title="Tast 4">4 · Kamera</button><div class="imageChoiceHint">Tast 1–4 for at vælge · Pile skifter widgets/tavler</div></div>`;
+    c.querySelector('.localImg').onclick=()=>pickFile('image/*',async (src,file)=>{
+      let imageData=null;
+      try{
+        if(file&&typeof safe453i99PrepareImageFileData==='function'){
+          imageData=await safe453i99PrepareImageFileData(file);
+        }
+      }catch(err){
+        console.warn('SAFE453i99 local image mediaRef fallback',err);
+      }
+      if(imageData&&imageData.mediaRef){
+        delete w.data.src;
+        Object.assign(w.data,imageData);
+      }else{
+        w.data.src=src;
+        delete w.data.mediaRef;
+        delete w.data.mediaKind;
+      }
+      safe453i60SetImageTitleOnImport(w,(file&&file.name)||'billede');
+      delete w.data.boardState;
+      render();
+      safe453i61RefreshImageTitleAfterImport(w);
+      setTimeout(()=>select(w.id,{editText:false}),0);
+      save();
+    });
     c.querySelector('.appImg').onclick=(e)=>{e.preventDefault();e.stopPropagation();safe453i41OpenImageFromApp(w,el)};
     c.querySelector('.urlImg').onclick=()=>askImageUrl(w);
     c.querySelector('.cameraImg').onclick=(e)=>{e.stopPropagation();safe408OpenImageCameraMenu(w,el)};
@@ -33042,7 +34283,6 @@ async function safe453i41OpenImageFromApp(w,el){
       <p>Vælg en gemt tegning eller en indbygget baggrund som billede i denne billedwidget.</p>
       ${items.length?`<div class="safe453i41Grid">${cards}</div>`:`<div class="safe453i41Empty">Der er ingen gemte tegninger eller baggrunde at vælge.</div>`}
       <div class="safe453i41Actions">
-        <button id="safe453i41Use" class="primary" ${items.length?'':'disabled'}>Brug billede</button>
         <button id="safe453i41Cancel">Luk</button>
       </div>
     </div>`;
@@ -33120,12 +34360,31 @@ async function safe453i41OpenImageFromApp(w,el){
     cards.forEach((c,n)=>c.classList.toggle('selected',n===selected));
     try{cards[selected].focus({preventScroll:true});cards[selected].scrollIntoView({block:'nearest',inline:'nearest'});}catch(_e){}
   }
+  function safe453i106PickerIsOpen(){
+    try{
+      const picker=document.querySelector('.safe453i41Picker');
+      if(!picker)return false;
+      const back=(typeof modalBack!=='undefined'&&modalBack)?modalBack:document.getElementById('modalBack');
+      if(!back)return !!picker;
+      const cs=getComputedStyle(back);
+      return cs.display!=='none' && cs.visibility!=='hidden' && back.offsetParent!==null;
+    }catch(_e){
+      return !!document.querySelector('.safe453i41Picker');
+    }
+  }
+  function safe453i106CloseFromAppModal(){
+    try{safe453i108RemoveFromAppKeys();}catch(_e){}
+    try{closeModal();}catch(_e){}
+  }
   function wire(){
-    document.querySelectorAll('.safe453i41Card').forEach((card,i)=>card.onclick=e=>{e.preventDefault();e.stopPropagation();setSelected(i);});
-    const use=document.getElementById('safe453i41Use');
+    document.querySelectorAll('.safe453i41Card').forEach((card,i)=>card.onclick=e=>{
+      e.preventDefault();e.stopPropagation();
+      setSelected(i);
+      try{safe453i108RemoveFromAppKeys();}catch(_e){}
+      applySelection();
+    });
     const cancel=document.getElementById('safe453i41Cancel');
-    if(use)use.onclick=e=>{e.preventDefault();e.stopPropagation();applySelection();};
-    if(cancel)cancel.onclick=e=>{e.preventDefault();e.stopPropagation();closeModal();};
+    if(cancel)cancel.onclick=e=>{e.preventDefault();e.stopPropagation();safe453i106CloseFromAppModal();};
   }
   ensureCss();
   showModal(html());
@@ -33133,11 +34392,13 @@ async function safe453i41OpenImageFromApp(w,el){
   setTimeout(()=>setSelected(0),0);
 
   const keyHandler=function(e){
-    if(!document.querySelector('.safe453i41Picker')){document.removeEventListener('keydown',keyHandler,true);return;}
-    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Enter','Escape'].includes(e.key))return;
+    if(!safe453i106PickerIsOpen()){document.removeEventListener('keydown',keyHandler,true);return;}
+    const isSpace=(e.key===' '||e.key==='Spacebar'||e.code==='Space');
+    const isEnter=(e.key==='Enter'||e.key==='Return'||e.code==='Enter'||e.code==='NumpadEnter'||e.keyCode===13||e.which===13);
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Escape'].includes(e.key) && !isSpace && !isEnter)return;
     e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-    if(e.key==='Escape'){document.removeEventListener('keydown',keyHandler,true);closeModal();return;}
-    if(e.key==='Enter'){document.removeEventListener('keydown',keyHandler,true);applySelection();return;}
+    if(e.key==='Escape'){safe453i106CloseFromAppModal();return;}
+    if(isEnter||isSpace){safe453i108RemoveFromAppKeys();applySelection();return;}
     const cards=Array.from(document.querySelectorAll('.safe453i41Card'));
     if(!cards.length)return;
     const cols=(()=>{try{return Math.max(1,getComputedStyle(document.querySelector('.safe453i41Grid')).gridTemplateColumns.split(' ').filter(Boolean).length||1);}catch(_e){return 1;}})();
@@ -33150,7 +34411,27 @@ async function safe453i41OpenImageFromApp(w,el){
     else if(e.key==='End')i=cards.length-1;
     setSelected(i);
   };
-  document.addEventListener('keydown',keyHandler,true);
+  const keyUpHandler=function(e){
+    if(!safe453i106PickerIsOpen()){safe453i108RemoveFromAppKeys();return;}
+    const isEnter=(e.key==='Enter'||e.key==='Return'||e.code==='Enter'||e.code==='NumpadEnter'||e.keyCode===13||e.which===13);
+    if(!isEnter)return;
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    safe453i108RemoveFromAppKeys();
+    applySelection();
+  };
+  function safe453i108AddFromAppKeys(){
+    try{window.addEventListener('keydown',keyHandler,true);}catch(_e){}
+    try{document.addEventListener('keydown',keyHandler,true);}catch(_e){}
+    try{window.addEventListener('keyup',keyUpHandler,true);}catch(_e){}
+    try{document.addEventListener('keyup',keyUpHandler,true);}catch(_e){}
+  }
+  function safe453i108RemoveFromAppKeys(){
+    try{window.removeEventListener('keydown',keyHandler,true);}catch(_e){}
+    try{document.removeEventListener('keydown',keyHandler,true);}catch(_e){}
+    try{window.removeEventListener('keyup',keyUpHandler,true);}catch(_e){}
+    try{document.removeEventListener('keyup',keyUpHandler,true);}catch(_e){}
+  }
+  safe453i108AddFromAppKeys();
 }
 
 
@@ -35161,7 +36442,7 @@ function safe430OpenAllRestorePointsModal(opts){
       let n=0;for(const c of cards){if(Math.abs(c.getBoundingClientRect().top-top)<10)n++;else break;}
       return Math.max(1,n||3);
     }
-    function cleanup(){try{document.removeEventListener('keydown',keyHandler,true);}catch(_e){}try{modalBack.classList.remove('bgModalKeyboard','bgPreviewing');}catch(_e){}}
+    function cleanup(){try{safe453i108RemoveFromAppKeys();}catch(_e){}try{modalBack.classList.remove('bgModalKeyboard','bgPreviewing');}catch(_e){}}
     function openPoint(idx){
       const p=points[idx];
       if(!p||!p.boardState){toast('Gendannelsespunkt mangler data');return;}
@@ -36501,6 +37782,23 @@ function toggleSelectedGroupLockByNumber(n){
   return true;
 }
 
+function activateEmptyImageChoiceByNumber(n){
+  if(!selected) return false;
+  const el=document.querySelector('.widget[data-id="'+CSS.escape(String(selected))+'"]');
+  const w=findWidget(selected);
+  if(!el || !w || w.type!=='image') return false;
+  if(w.data && (w.data.src || w.data.mediaRef)) return false;
+  const choices={1:'.localImg',2:'.appImg',3:'.urlImg',4:'.cameraImg'};
+  const sel=choices[Number(n)];
+  if(!sel) return false;
+  const btn=el.querySelector(sel);
+  if(btn && !btn.disabled){
+    btn.click();
+    return true;
+  }
+  return false;
+}
+
 function activateSelectedWidgetWithSpace(){
   if(!selected) return false;
   const el=document.querySelector('.widget[data-id="'+CSS.escape(String(selected))+'"]');
@@ -36624,6 +37922,13 @@ document.addEventListener('keydown',e=>{
   }
   if(e.key==='ArrowRight'){e.preventDefault();nextSlide()}
   if(e.key==='ArrowLeft'){e.preventDefault();prevSlide()}
+  if(/^[1-4]$/.test(e.key) && selected){
+    if(activateEmptyImageChoiceByNumber(Number(e.key))){
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+  }
   if(/^[0-9]$/.test(e.key) && selected){
     if(toggleSelectedGroupLockByNumber(Number(e.key))){
       e.preventDefault();
@@ -36988,7 +38293,12 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
       '<div class="safe453fDrawingFooter"><span class="safe453gNavHint">Brug piletaster, Home/End og Enter som i baggrundsvælgeren. Enter markerer kun i denne fase.</span><button onclick="closeModal()">Luk</button></div>'+ 
       '</div>';
   }
-  function getCards(){return Array.from(document.querySelectorAll('.safe453gDrawingArchive .safe453eDrawingCard'));}
+  function getCards(){
+    try{
+      if(!modalBack || modalBack.style.display==='none') return [];
+    }catch(_e){ return []; }
+    return Array.from(document.querySelectorAll('.safe453gDrawingArchive .safe453eDrawingCard'));
+  }
   function setSelected(idx, opts){
     const cards=getCards();
     if(!cards.length) return;
@@ -37239,6 +38549,7 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
     return '';
   }
   function getSelectedItem(){
+    if(safe453i65NewCardSelected()) return null;
     return currentList.find(x=>String(x&&x.id)===String(selectedId)) || currentList[0] || null;
   }
   function safe453i65NewCardSelected(){
@@ -37361,11 +38672,9 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
       '<div class="safe429OverviewHead"><h2>Mine tegninger</h2></div>'+ 
       '<p>Vælg en tegning, og tegn videre i en tegnewidget, indsæt den som billede eller brug den som baggrund.</p>'+ 
       '<p><b>Gemte tegninger:</b> '+currentList.length+'</p>'+ 
-      '<p class="safe453hShortcutHint">Pile vælger · Enter tegn/åbn · + Ny opretter tom tegning · I indsæt · B baggrund · Delete slet · Esc luk</p>'+ 
+      '<p class="safe453hShortcutHint">Pile vælger · Enter/klik åbner valgt tegning · + kortet opretter ny tegning · I indsæt · B baggrund · Delete slet · Esc luk</p>'+ 
       '<div class="safe453eDrawingGrid safe428RestoreGrid bgGrid v46" role="listbox" aria-label="Gemte tegninger">'+newCard+cards+'</div>'+ 
       '<div class="safe453fDrawingFooter"><div id="safe453hConfirm" class="safe453hConfirm" aria-live="polite"><span id="safe453hConfirmMsg">Slet markeret tegning?</span><button id="safe453hCancelDelete" class="cancel" type="button">Annuller</button><button id="safe453hConfirmDelete" class="danger" type="button">Slet</button></div><div class="safe453hActions">'+
-        '<button id="safe453i65NewDrawing" class="primary">+ Ny</button>'+
-        '<button id="safe453hReuse" class="primary" '+(currentList.length?'':'disabled')+'>Tegn</button>'+ 
         '<button id="safe453hDownload" class="secondary" '+(currentList.length?'':'disabled')+'>Billede</button>'+ 
         '<button id="safe453hBackground" class="secondary" '+(currentList.length?'':'disabled')+'>Baggrund</button>'+ 
         '<button id="safe453hDelete" class="danger" '+(currentList.length?'':'disabled')+'>Slet</button>'+ 
@@ -37373,7 +38682,12 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
       '</div></div>'+ 
       '</div>';
   }
-  function root(){return document.querySelector('.safe453hDrawingArchive');}
+  function root(){
+    try{
+      if(!modalBack || modalBack.style.display==='none') return null;
+    }catch(_e){ return null; }
+    return document.querySelector('.safe453hDrawingArchive');
+  }
   function grid(){return document.querySelector('.safe453hDrawingArchive .safe453eDrawingGrid');}
   function cards(){return Array.from(document.querySelectorAll('.safe453hDrawingArchive .safe453eDrawingCard'));}
   function selectedIndex(){
@@ -37627,8 +38941,6 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
   }
   function wireModal(){
     const close=document.getElementById('safe453hClose');
-    const newDrawing=document.getElementById('safe453i65NewDrawing');
-    const reuse=document.getElementById('safe453hReuse');
     const dl=document.getElementById('safe453hDownload');
     const bg=document.getElementById('safe453hBackground');
     const del=document.getElementById('safe453hDelete');
@@ -37647,8 +38959,6 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
       }
     }catch(_e){}
     if(close) close.onclick=()=>closeModal();
-    if(newDrawing) newDrawing.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} safe453i65CreateNewDrawingWidget();};
-    if(reuse) reuse.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} drawSelectedAsCopyWidget();};
     if(dl) dl.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} saveSelectedAsImageWidget();};
     if(bg) bg.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} useSelectedAsBoardBackground();};
     if(rename) rename.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){} safe453i63ShowRenameSelectedDrawing();};
@@ -37664,21 +38974,23 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
     const cs=cards();
     if(!cs.length) return;
     const key=ev.key;
-    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','Enter',' ','i','I','b','B','Delete','Backspace','Escape'].includes(key)) return;
+    const isSpace=(key===' '||key==='Spacebar'||ev.code==='Space');
+    const isEnter=(key==='Enter'||key==='Return'||ev.code==='Enter'||ev.code==='NumpadEnter');
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','i','I','b','B','Delete','Backspace','Escape'].includes(key) && !isSpace && !isEnter) return;
     ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
     if(key==='Escape'){if(pendingDelete||pendingAction) cancelDeleteConfirm(); else closeModal(); return;}
     if(pendingDelete||pendingAction){
       if(pendingAction&&pendingAction.kind==='rename'){
-        if(key==='Enter'){confirmPendingAction();return;}
+        if(isEnter){confirmPendingAction();return;}
         if(key==='Escape'){cancelDeleteConfirm();return;}
         return;
       }
-      if(key==='Enter'||key==='Delete'||key==='Backspace') confirmPendingAction();
+      if(isEnter||key==='Delete'||key==='Backspace') confirmPendingAction();
       return;
     }
     if(key==='i'||key==='I'){saveSelectedAsImageWidget(); return;}
     if(key==='b'||key==='B'){useSelectedAsBoardBackground(); return;}
-    if(key==='Enter'){drawSelectedAsCopyWidget(); return;}
+    if(isEnter||isSpace){drawSelectedAsCopyWidget(); return;}
     if(key==='Delete'||key==='Backspace'){askDeleteConfirm(); return;}
     const n=cs.length, cols=columns();
     let i=selectedIndex();
@@ -37688,15 +39000,23 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
     else if(key==='ArrowUp') i=Math.max(0,i-cols);
     else if(key==='Home') i=0;
     else if(key==='End') i=n-1;
-    else if(key===' '){try{toast('Tegning valgt')}catch(_e){} return;}
     setSelectedByIndex(i);
   },true);
   document.addEventListener('click',function(ev){
     const card=ev.target&&ev.target.closest&&ev.target.closest('.safe453hDrawingArchive .safe453eDrawingCard');
     if(!card) return;
+    if(ev.target&&ev.target.closest&&ev.target.closest('.safe453hActions,.safe453hConfirm')) return;
+    try{ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}catch(_e){}
+    if(card.getAttribute('data-safe453i65-new')==='1'){
+      setSelectedByIndex(0);
+      safe453i65CreateNewDrawingWidget();
+      return;
+    }
+    const wasSelected=card.classList.contains('kbSelected');
     const cs=cards();
     const found=cs.indexOf(card);
     setSelectedByIndex(found>=0?found:Number(card.getAttribute('data-safe453h-index')||0));
+    if(wasSelected) drawSelectedAsCopyWidget();
   },true);
   document.addEventListener('contextmenu',function(ev){
     if(ev.target&&ev.target.closest&&ev.target.closest('.safe453hDrawingArchive .safe453eDrawingPreview')){
@@ -44035,5 +45355,719 @@ html body.focus-edit #app.gridOn.safe453i37GridLight::after{
 Dropper Gitter: Lys/Mørk-eksperimentet.
 Gitterknappen er igen kun Fra/Til.
 Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og under widgets/værktøjer. -->
+
+
+
+<script>
+/* SAFE453i84 MEDIA ARCHIVE FOUNDATION ONLY
+   ------------------------------------------------------------
+   Dette er kun et fælles teknisk fundament til senere faser.
+   Det må IKKE bruges til automatisk at flytte eksisterende medier endnu.
+
+   Formål:
+   - give appen et stabilt IndexedDB-lager til tunge lokale medier
+   - gøre en fremtidig mediaRef-model mulig
+   - holde localStorage som tavlens lette struktur
+
+   Eksponeret API:
+   window.TavleMediaArchive = {
+     isSupported(),
+     createRef(kind, name),
+     putMedia({id, kind, name, mimeType, blob, source, meta}),
+     getMedia(id),
+     getBlob(id),
+     getObjectURL(id),
+     revokeObjectURL(url),
+     listMedia(),
+     deleteMedia(id),
+     exportMedia(ids),
+     importMedia(items),
+     estimateSize()
+   }
+
+   Næste fase må bruge dette til NYE medier, men skal bevare legacy-fallback:
+   - hvis widget har mediaRef: prøv IndexedDB
+   - hvis widget har gammel data/base64/url: vis som før
+*/
+(function(){
+  'use strict';
+  if(window.TavleMediaArchive && window.TavleMediaArchive.__safe453i84){ return; }
+
+  var DB_NAME = 'maans_tavle_media_archive';
+  var DB_VERSION = 1;
+  var STORE_MEDIA = 'media';
+  var STORE_META = 'meta';
+  var dbPromise = null;
+
+  function nowIso(){
+    try{ return new Date().toISOString(); }catch(_e){ return String(Date.now()); }
+  }
+
+  function makeId(prefix){
+    var p = prefix || 'media';
+    var rnd = '';
+    try{
+      if(window.crypto && crypto.getRandomValues){
+        var a = new Uint32Array(2);
+        crypto.getRandomValues(a);
+        rnd = Array.prototype.map.call(a, function(n){ return n.toString(36); }).join('');
+      }
+    }catch(_e){}
+    if(!rnd){ rnd = Math.random().toString(36).slice(2); }
+    return p + '_' + Date.now().toString(36) + '_' + rnd;
+  }
+
+  function isSupported(){
+    return !!(window.indexedDB && window.Blob);
+  }
+
+  function openDb(){
+    if(!isSupported()){
+      return Promise.reject(new Error('IndexedDB understøttes ikke i denne browser.'));
+    }
+    if(dbPromise){ return dbPromise; }
+    dbPromise = new Promise(function(resolve, reject){
+      var req;
+      try{ req = indexedDB.open(DB_NAME, DB_VERSION); }
+      catch(err){ reject(err); return; }
+
+      req.onupgradeneeded = function(ev){
+        var db = ev.target.result;
+        var media;
+        if(!db.objectStoreNames.contains(STORE_MEDIA)){
+          media = db.createObjectStore(STORE_MEDIA, { keyPath:'id' });
+          try{ media.createIndex('kind', 'kind', { unique:false }); }catch(_e){}
+          try{ media.createIndex('createdAt', 'createdAt', { unique:false }); }catch(_e){}
+          try{ media.createIndex('source', 'source', { unique:false }); }catch(_e){}
+        }
+        if(!db.objectStoreNames.contains(STORE_META)){
+          db.createObjectStore(STORE_META, { keyPath:'key' });
+        }
+      };
+      req.onsuccess = function(ev){ resolve(ev.target.result); };
+      req.onerror = function(){ reject(req.error || new Error('Kunne ikke åbne mediearkiv.')); };
+      req.onblocked = function(){ reject(new Error('Mediearkivet er blokeret af en anden fane.')); };
+    });
+    return dbPromise;
+  }
+
+  function txStore(db, storeName, mode){
+    var tx = db.transaction(storeName, mode || 'readonly');
+    return { tx:tx, store:tx.objectStore(storeName) };
+  }
+
+  function reqToPromise(req){
+    return new Promise(function(resolve, reject){
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error || new Error('IndexedDB-fejl.')); };
+    });
+  }
+
+  function normalizeKind(kind){
+    kind = String(kind || 'media').toLowerCase();
+    if(['image','pdf','audio','video','drawing','restorepoint','restorePoint','boardshot','html','media'].indexOf(kind) < 0){
+      return 'media';
+    }
+    return kind === 'restorePoint' ? 'restorepoint' : kind;
+  }
+
+  function createRef(kind, name){
+    return {
+      id: makeId(normalizeKind(kind || 'media')),
+      kind: normalizeKind(kind || 'media'),
+      name: name || '',
+      createdAt: nowIso()
+    };
+  }
+
+  function putMedia(item){
+    item = item || {};
+    var blob = item.blob || item.data || null;
+    if(!blob){ return Promise.reject(new Error('Mangler medie-data/blob.')); }
+    if(!(blob instanceof Blob)){
+      try{ blob = new Blob([blob], { type:item.mimeType || 'application/octet-stream' }); }
+      catch(err){ return Promise.reject(err); }
+    }
+    var id = item.id || makeId(normalizeKind(item.kind));
+    var rec = {
+      id: id,
+      kind: normalizeKind(item.kind),
+      name: item.name || id,
+      mimeType: item.mimeType || blob.type || 'application/octet-stream',
+      size: typeof item.size === 'number' ? item.size : blob.size,
+      source: item.source || 'unknown',
+      createdAt: item.createdAt || nowIso(),
+      updatedAt: nowIso(),
+      meta: item.meta || {},
+      blob: blob
+    };
+    return openDb().then(function(db){
+      var s = txStore(db, STORE_MEDIA, 'readwrite');
+      return reqToPromise(s.store.put(rec)).then(function(){ return rec; });
+    });
+  }
+
+  function getMedia(id){
+    if(!id){ return Promise.resolve(null); }
+    return openDb().then(function(db){
+      var s = txStore(db, STORE_MEDIA, 'readonly');
+      return reqToPromise(s.store.get(String(id))).then(function(rec){ return rec || null; });
+    });
+  }
+
+  function getBlob(id){
+    return getMedia(id).then(function(rec){ return rec && rec.blob ? rec.blob : null; });
+  }
+
+  function getObjectURL(id){
+    return getBlob(id).then(function(blob){
+      if(!blob){ return null; }
+      return URL.createObjectURL(blob);
+    });
+  }
+
+  function revokeObjectURL(url){
+    try{ if(url){ URL.revokeObjectURL(url); } }catch(_e){}
+  }
+
+  function listMedia(){
+    return openDb().then(function(db){
+      var s = txStore(db, STORE_MEDIA, 'readonly');
+      return new Promise(function(resolve, reject){
+        var out = [];
+        var req = s.store.openCursor();
+        req.onsuccess = function(ev){
+          var cursor = ev.target.result;
+          if(!cursor){ resolve(out); return; }
+          var v = cursor.value || {};
+          out.push({
+            id:v.id,
+            kind:v.kind,
+            name:v.name,
+            mimeType:v.mimeType,
+            size:v.size || (v.blob && v.blob.size) || 0,
+            source:v.source,
+            createdAt:v.createdAt,
+            updatedAt:v.updatedAt,
+            meta:v.meta || {}
+          });
+          cursor.continue();
+        };
+        req.onerror = function(){ reject(req.error || new Error('Kunne ikke læse mediearkiv.')); };
+      });
+    });
+  }
+
+  function deleteMedia(id){
+    if(!id){ return Promise.resolve(false); }
+    return openDb().then(function(db){
+      var s = txStore(db, STORE_MEDIA, 'readwrite');
+      return reqToPromise(s.store.delete(String(id))).then(function(){ return true; });
+    });
+  }
+
+  function exportMedia(ids){
+    var wanted = ids && ids.length ? ids.map(String) : null;
+    var jobs;
+    if(wanted){
+      jobs = wanted.map(function(id){ return getMedia(id); });
+      return Promise.all(jobs).then(function(items){ return items.filter(Boolean); });
+    }
+    return openDb().then(function(db){
+      var s = txStore(db, STORE_MEDIA, 'readonly');
+      return reqToPromise(s.store.getAll());
+    });
+  }
+
+  function importMedia(items){
+    items = Array.isArray(items) ? items : [];
+    return openDb().then(function(db){
+      return new Promise(function(resolve, reject){
+        var tx = db.transaction(STORE_MEDIA, 'readwrite');
+        var store = tx.objectStore(STORE_MEDIA);
+        var count = 0;
+        tx.oncomplete = function(){ resolve(count); };
+        tx.onerror = function(){ reject(tx.error || new Error('Kunne ikke importere medier.')); };
+        items.forEach(function(item){
+          if(!item || !item.id || !(item.blob || item.data)){ return; }
+          var blob = item.blob || item.data;
+          if(!(blob instanceof Blob)){
+            try{ blob = new Blob([blob], { type:item.mimeType || 'application/octet-stream' }); }
+            catch(_e){ return; }
+          }
+          var rec = {
+            id:String(item.id),
+            kind:normalizeKind(item.kind),
+            name:item.name || String(item.id),
+            mimeType:item.mimeType || blob.type || 'application/octet-stream',
+            size:typeof item.size === 'number' ? item.size : blob.size,
+            source:item.source || 'backup',
+            createdAt:item.createdAt || nowIso(),
+            updatedAt:nowIso(),
+            meta:item.meta || {},
+            blob:blob
+          };
+          store.put(rec);
+          count++;
+        });
+      });
+    });
+  }
+
+  function estimateSize(){
+    return listMedia().then(function(list){
+      var total = list.reduce(function(sum, item){ return sum + (Number(item.size) || 0); }, 0);
+      return { count:list.length, bytes:total, items:list };
+    });
+  }
+
+  window.TavleMediaArchive = {
+    __safe453i84:true,
+    dbName:DB_NAME,
+    storeName:STORE_MEDIA,
+    isSupported:isSupported,
+    createRef:createRef,
+    putMedia:putMedia,
+    getMedia:getMedia,
+    getBlob:getBlob,
+    getObjectURL:getObjectURL,
+    revokeObjectURL:revokeObjectURL,
+    listMedia:listMedia,
+    deleteMedia:deleteMedia,
+    exportMedia:exportMedia,
+    importMedia:importMedia,
+    estimateSize:estimateSize
+  };
+})();
+</script>
+
+
+
+<script>
+/* SAFE453i91 MEDIA ARCHIVE IMAGE READ HELPERS ONLY
+   ------------------------------------------------------------
+   Små, passive læsehelpers oven på SAFE453i84 TavleMediaArchive.
+   De må kun bruges som fundament/test og må ikke ændre app-state.
+
+   MediaRef-læsemodel til senere faser:
+   - En widget kan senere pege på { mediaRef:'image_xxx' } eller mediaRef:'image_xxx'.
+   - Læseren prøver kun at hente posten fra IndexedDB.
+   - Hvis posten mangler, returneres en rolig status/placeholder-data til kalderen.
+   - Legacy-dataURL/URL i widgets skal fortsat håndteres af eksisterende widgetkode.
+
+   Denne fase kobler IKKE helpers på billedwidget/PDF/tegnewidget.
+*/
+(function(){
+  'use strict';
+  if(window.TavleMediaRefRead && window.TavleMediaRefRead.__safe453i91){ return; }
+
+  function archive(){
+    return window.TavleMediaArchive || null;
+  }
+
+  function isArchiveReady(){
+    var a = archive();
+    return !!(a && a.__safe453i84 && typeof a.getMedia === 'function');
+  }
+
+  function normalizeMediaRef(input){
+    if(!input){ return null; }
+    if(typeof input === 'string'){ return { id:input }; }
+    if(typeof input === 'object'){
+      var id = input.mediaRef || input.id || input.ref || input.mediaId || '';
+      if(!id){ return null; }
+      return {
+        id:String(id),
+        kind:input.kind || input.mediaKind || '',
+        name:input.name || input.title || ''
+      };
+    }
+    return null;
+  }
+
+  function missingResult(ref, reason){
+    return {
+      ok:false,
+      id:ref && ref.id ? ref.id : '',
+      reason:reason || 'missing',
+      record:null,
+      blob:null
+    };
+  }
+
+  function readMediaRef(input){
+    var ref = normalizeMediaRef(input);
+    if(!ref){ return Promise.resolve(missingResult(null, 'invalid-ref')); }
+    if(!isArchiveReady()){ return Promise.resolve(missingResult(ref, 'archive-unavailable')); }
+    return archive().getMedia(ref.id).then(function(record){
+      if(!record){ return missingResult(ref, 'not-found'); }
+      return {
+        ok:true,
+        id:record.id,
+        kind:record.kind || ref.kind || 'media',
+        name:record.name || ref.name || record.id,
+        mimeType:record.mimeType || '',
+        size:Number(record.size || (record.blob && record.blob.size) || 0),
+        source:record.source || '',
+        createdAt:record.createdAt || '',
+        updatedAt:record.updatedAt || '',
+        meta:record.meta || {},
+        record:record,
+        blob:record.blob || null
+      };
+    }).catch(function(err){
+      return missingResult(ref, err && err.message ? err.message : 'read-error');
+    });
+  }
+
+  function readMediaRefBlob(input){
+    return readMediaRef(input).then(function(result){
+      return result.ok ? result.blob : null;
+    });
+  }
+
+  function createMediaRefObjectURL(input){
+    return readMediaRefBlob(input).then(function(blob){
+      if(!blob){ return null; }
+      try{ return URL.createObjectURL(blob); }
+      catch(_e){ return null; }
+    });
+  }
+
+  function revokeMediaRefObjectURL(url){
+    try{ if(url){ URL.revokeObjectURL(url); } }catch(_e){}
+  }
+
+  function readMediaRefAsDataURL(input){
+    return readMediaRefBlob(input).then(function(blob){
+      if(!blob){ return null; }
+      return new Promise(function(resolve, reject){
+        var reader = new FileReader();
+        reader.onload = function(){ resolve(reader.result || null); };
+        reader.onerror = function(){ reject(reader.error || new Error('Kunne ikke læse mediaRef som dataURL.')); };
+        reader.readAsDataURL(blob);
+      });
+    });
+  }
+
+  function describeMediaRef(input){
+    return readMediaRef(input).then(function(result){
+      if(!result.ok){
+        return { ok:false, id:result.id, reason:result.reason };
+      }
+      return {
+        ok:true,
+        id:result.id,
+        kind:result.kind,
+        name:result.name,
+        mimeType:result.mimeType,
+        size:result.size,
+        source:result.source,
+        createdAt:result.createdAt,
+        updatedAt:result.updatedAt
+      };
+    });
+  }
+
+  function listMediaRefs(){
+    if(!isArchiveReady()){ return Promise.resolve([]); }
+    return archive().listMedia().catch(function(){ return []; });
+  }
+
+  window.TavleMediaRefRead = {
+    __safe453i91:true,
+    normalizeMediaRef:normalizeMediaRef,
+    readMediaRef:readMediaRef,
+    readMediaRefBlob:readMediaRefBlob,
+    createMediaRefObjectURL:createMediaRefObjectURL,
+    revokeMediaRefObjectURL:revokeMediaRefObjectURL,
+    readMediaRefAsDataURL:readMediaRefAsDataURL,
+    describeMediaRef:describeMediaRef,
+    listMediaRefs:listMediaRefs
+  };
+
+  window.__safe453i91TestMediaArchiveRead = function(id){
+    var start = {
+      phase:'SAFE453i91',
+      archiveReady:isArchiveReady(),
+      id:id || null,
+      note:'Read-only test. Ændrer ikke tavle-state, widgets, backup/import eller localStorage.'
+    };
+    var task = id ? describeMediaRef(id) : listMediaRefs().then(function(list){
+      return { ok:true, count:list.length, items:list.slice(0,10) };
+    });
+    return task.then(function(result){
+      var out = { start:start, result:result };
+      try{ console.log('SAFE453i91 media archive read test:', out); }catch(_e){}
+      return out;
+    });
+  };
+})();
+</script>
+
+
+
+<script>
+/* SAFE453i93 MEDIA ARCHIVE IMAGE WRITE TEST ONLY
+   ------------------------------------------------------------
+   Manuel test af skrivning/læsning i TavleMediaArchive.
+   Ingen kobling til billedwidget, drag/drop, backup/import eller render-flow.
+*/
+(function(){
+  'use strict';
+  if(window.__safe453i93 && window.__safe453i93.installed){ return; }
+
+  function archive(){
+    return window.TavleMediaArchive || null;
+  }
+
+  function reader(){
+    return window.TavleMediaRefRead || null;
+  }
+
+  function isArchiveReady(){
+    var a = archive();
+    return !!(a && a.__safe453i84 && typeof a.putMedia === 'function' && typeof a.getMedia === 'function');
+  }
+
+  function nowIso(){
+    try{ return new Date().toISOString(); }catch(_e){ return String(Date.now()); }
+  }
+
+  function makeTestId(){
+    var rnd = Math.random().toString(36).slice(2,10);
+    try{
+      if(window.crypto && crypto.getRandomValues){
+        var a = new Uint32Array(1);
+        crypto.getRandomValues(a);
+        rnd = a[0].toString(36);
+      }
+    }catch(_e){}
+    return 'image_safe453i93_test_' + Date.now().toString(36) + '_' + rnd;
+  }
+
+  function makeSvgText(label){
+    var safe = String(label || 'SAFE453i93').replace(/[&<>]/g, function(ch){
+      return ch === '&' ? '&amp;' : (ch === '<' ? '&lt;' : '&gt;');
+    });
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">' +
+      '<rect width="640" height="360" rx="28" fill="#eef7ff"/>' +
+      '<rect x="24" y="24" width="592" height="312" rx="22" fill="none" stroke="#2563eb" stroke-width="8" opacity="0.55"/>' +
+      '<circle cx="138" cy="180" r="54" fill="#bfdbfe"/>' +
+      '<path d="M224 238 L316 136 L386 214 L438 164 L544 238 Z" fill="#93c5fd"/>' +
+      '<text x="320" y="78" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="34" fill="#0f172a">' + safe + '</text>' +
+      '<text x="320" y="306" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="20" fill="#334155">Manuel media archive-test · ingen widgetflow ændret</text>' +
+      '</svg>';
+  }
+
+  function makeSvgBlob(label){
+    return new Blob([makeSvgText(label)], { type:'image/svg+xml' });
+  }
+
+  function describe(id){
+    var r = reader();
+    if(r && typeof r.describeMediaRef === 'function'){
+      return r.describeMediaRef(id);
+    }
+    return archive().getMedia(id).then(function(rec){
+      if(!rec){ return { ok:false, id:id, reason:'not-found' }; }
+      return {
+        ok:true,
+        id:rec.id,
+        kind:rec.kind,
+        name:rec.name,
+        mimeType:rec.mimeType,
+        size:rec.size || (rec.blob && rec.blob.size) || 0,
+        source:rec.source,
+        createdAt:rec.createdAt,
+        updatedAt:rec.updatedAt
+      };
+    });
+  }
+
+  window.__safe453i93CreateTestImageMedia = function(options){
+    options = options || {};
+    if(!isArchiveReady()){
+      return Promise.resolve({
+        ok:false,
+        phase:'SAFE453i93',
+        reason:'archive-unavailable',
+        note:'TavleMediaArchive er ikke klar. Ingen app-state ændret.'
+      });
+    }
+    var id = options.id || makeTestId();
+    var label = options.label || 'SAFE453i93';
+    var blob = makeSvgBlob(label);
+    var item = {
+      id:id,
+      kind:'image',
+      name:options.name || 'SAFE453i93 testbillede.svg',
+      mimeType:'image/svg+xml',
+      source:'generated-test',
+      createdAt:nowIso(),
+      meta:{
+        safePhase:'SAFE453i93',
+        testOnly:true,
+        note:'Manuelt genereret testbillede. Ikke koblet til widget/import/backup.'
+      },
+      blob:blob
+    };
+    return archive().putMedia(item).then(function(record){
+      return describe(record.id).then(function(description){
+        var out = {
+          ok:true,
+          phase:'SAFE453i93',
+          record:record,
+          description:description,
+          note:'Testpost oprettet i IndexedDB. Ingen widget, render, save, load, backup/import eller localStorage ændret.'
+        };
+        try{ console.log('SAFE453i93 create test image media:', out); }catch(_e){}
+        return out;
+      });
+    }).catch(function(err){
+      return {
+        ok:false,
+        phase:'SAFE453i93',
+        reason:err && err.message ? err.message : 'write-error',
+        note:'Kun mediearkiv-test fejlede. Ingen app-state ændret.'
+      };
+    });
+  };
+
+  window.__safe453i93PreviewTestImageMedia = function(id){
+    if(!id){
+      return Promise.resolve({ ok:false, phase:'SAFE453i93', reason:'missing-id' });
+    }
+    var r = reader();
+    if(!r || typeof r.createMediaRefObjectURL !== 'function'){
+      return Promise.resolve({ ok:false, phase:'SAFE453i93', reason:'reader-unavailable' });
+    }
+    return describe(id).then(function(desc){
+      if(!desc || !desc.ok){ return { ok:false, phase:'SAFE453i93', description:desc, reason:'not-found' }; }
+      return r.createMediaRefObjectURL(id).then(function(url){
+        var out = {
+          ok:!!url,
+          phase:'SAFE453i93',
+          id:id,
+          url:url,
+          description:desc,
+          note:'Midlertidig objectURL. Kald TavleMediaRefRead.revokeMediaRefObjectURL(url), når den ikke bruges mere.'
+        };
+        try{ console.log('SAFE453i93 preview test image media:', out); }catch(_e){}
+        return out;
+      });
+    });
+  };
+
+  window.__safe453i93DeleteTestImageMedia = function(id){
+    if(!id){
+      return Promise.resolve({ ok:false, phase:'SAFE453i93', reason:'missing-id' });
+    }
+    if(!isArchiveReady() || typeof archive().deleteMedia !== 'function'){
+      return Promise.resolve({ ok:false, phase:'SAFE453i93', reason:'archive-unavailable' });
+    }
+    return archive().getMedia(id).then(function(rec){
+      var isTest = !!(rec && rec.meta && rec.meta.safePhase === 'SAFE453i93' && rec.meta.testOnly === true);
+      if(!isTest){
+        return {
+          ok:false,
+          phase:'SAFE453i93',
+          id:id,
+          reason:'not-safe453i93-test-record',
+          note:'Sletter kun poster, der tydeligt er oprettet af SAFE453i93-testen.'
+        };
+      }
+      return archive().deleteMedia(id).then(function(){
+        var out = { ok:true, phase:'SAFE453i93', id:id, note:'SAFE453i93-testpost slettet.' };
+        try{ console.log('SAFE453i93 delete test image media:', out); }catch(_e){}
+        return out;
+      });
+    }).catch(function(err){
+      return { ok:false, phase:'SAFE453i93', id:id, reason:err && err.message ? err.message : 'delete-error' };
+    });
+  };
+
+  window.__safe453i93 = {
+    installed:true,
+    phase:'SAFE453i93',
+    note:'Manual media archive image write/read/delete test only. No widget/import/render/save/load coupling.'
+  };
+})();
+</script>
+
+
+
+<script>
+/* SAFE453i99 IMAGE MEDIAREF LOCAL IMPORT HELPERS
+   ------------------------------------------------------------
+   Aktiv, men smal kobling: kun nye lokale billedfiler kan gemmes i TavleMediaArchive.
+   Eksisterende dataURL/URL-billeder bevares som legacy og migreres ikke.
+*/
+(function(){
+  'use strict';
+  if(window.__safe453i99&&window.__safe453i99.installed){return;}
+
+  function archive(){return window.TavleMediaArchive||null;}
+  function reader(){return window.TavleMediaRefRead||null;}
+  function archiveReady(){
+    var a=archive();
+    return !!(a&&a.__safe453i84&&typeof a.putMedia==='function'&&typeof a.getMedia==='function');
+  }
+  function imageName(file){
+    return String(file&&file.name||'billede').trim()||'billede';
+  }
+  function imageMime(file){
+    return String(file&&file.type||'image/png').trim()||'image/png';
+  }
+
+  window.safe453i99PrepareImageFileData=function(file){
+    if(!file||!archiveReady()){return Promise.resolve(null);}
+    var a=archive();
+    var name=imageName(file);
+    return a.putMedia({
+      kind:'image',
+      name:name,
+      mimeType:imageMime(file),
+      blob:file,
+      source:'device',
+      meta:{safePhase:'SAFE453i99',originalName:name,importedAt:(new Date()).toISOString(),importFlow:'local-image-file'}
+    }).then(function(rec){
+      if(!rec||!rec.id){return null;}
+      return {mediaRef:rec.id,mediaKind:'image',name:rec.name||name,mimeType:rec.mimeType||imageMime(file),size:rec.size||file.size||0,source:'device'};
+    }).catch(function(err){
+      console.warn('SAFE453i99 prepare image mediaRef failed',err);
+      return null;
+    });
+  };
+
+  window.safe453i99GetImageDataUrlForWidget=function(w){
+    if(!w||!w.data){return Promise.resolve('');}
+    if(w.data.src){return Promise.resolve(String(w.data.src||''));}
+    if(!w.data.mediaRef){return Promise.resolve('');}
+    var r=reader();
+    if(!r||typeof r.readMediaRefAsDataURL!=='function'){return Promise.resolve('');}
+    return r.readMediaRefAsDataURL(w.data.mediaRef).then(function(dataUrl){return dataUrl?String(dataUrl):'';}).catch(function(err){
+      console.warn('SAFE453i99 read image mediaRef failed',err);
+      return '';
+    });
+  };
+
+  window.safe453i99LoadImageMediaRefIntoElement=function(w,img,container){
+    if(!img||!w||!w.data||!w.data.mediaRef){return;}
+    var expected=String(w.data.mediaRef);
+    window.safe453i99GetImageDataUrlForWidget(w).then(function(dataUrl){
+      if(!dataUrl){
+        try{var n=container&&container.querySelector&&container.querySelector('.mediaRefNotice'); if(n)n.textContent='Billedet mangler i mediearkivet';}catch(_e){}
+        return;
+      }
+      if(!w.data||String(w.data.mediaRef)!==expected){return;}
+      img.src=dataUrl;
+      try{var notice=container&&container.querySelector&&container.querySelector('.mediaRefNotice'); if(notice)notice.remove();}catch(_e){}
+    });
+  };
+
+  window.__safe453i99={installed:true,phase:'SAFE453i99',note:'Local image imports can be stored as mediaRef in TavleMediaArchive with dataURL fallback. No migration, no backup/import changes.'};
+})();
+</script>
 
 </body></html>
