@@ -1,3 +1,13 @@
+<!-- SAFE453i164 PDF RENDER TOKEN PRESERVE SAVE GUARD:
+- Bygger på SAFE453i163.
+- Retter PDF'er, der blev stående på “Indlæser PDF…” efter PDF→IndexedDB og localStorage-rescue.
+- Årsag: save() kaldte SAFE453i162 runtime-oprydning, som muterede den aktive widget og fjernede _pdfRenderToken midt i asynkron PDF.js-rendering.
+- Når renderingen senere tjekkede token, afbrød den sig selv og efterlod widgetten på loading-status.
+- save() bruger allerede SAFE453i161/162 decycle-klon ved JSON-serialisering, så runtimefelter kan udelades fra gemmefilen uden at blive slettet fra den levende widget i memory.
+- Ændring: save() muterer ikke længere widget-runtimefelter før localStorage.setItem().
+- PDF.js-runtime som _pdfDoc og _pdfRenderToken bevares kun i memory og kommer stadig ikke med i localStorage, Gem backup eller Backup +.
+- Ingen ændring af PDF-lagring, PDF-import, Backup +, IndexedDB-format, migration, render(), load(), addWidget() eller select().
+-->
 <!-- SAFE453i163 LOCALSTORAGE QUOTA OLD TESTKEY RESCUE:
 - Bygger på SAFE453i162.
 - Retter ikke PDF-lagring, PDF-visning, Backup + eller import.
@@ -20335,7 +20345,9 @@ function save(opts={}){
     if(draw&&draw.toDataURL&&slide())slide().draw=draw.toDataURL('image/png');
   }catch(e){}
   try{ safe453i152CleanupDuplicateEmbeddedPdfUrlInState(); }catch(_e){}
-  try{ safe453i162PurgeRuntimeStateFields(); }catch(_e){}
+  // SAFE453i164: Mutér ikke levende PDF.js-runtime her.
+  // safe453i161Stringify()/safe453i162DecycleClone udelader _runtime-felter i JSON-klonen,
+  // men _pdfRenderToken skal blive på widgetten, mens PDF.js renderer asynkront.
   try{
     localStorage.setItem(KEY,safe453i161Stringify(state));
     window.__lastSaveFailed=false;
