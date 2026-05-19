@@ -1,3 +1,13 @@
+<!-- SAFE453i163 LOCALSTORAGE QUOTA OLD TESTKEY RESCUE:
+- Bygger på SAFE453i162.
+- Retter ikke PDF-lagring, PDF-visning, Backup + eller import.
+- Årsag: Backup/Gem backup kan nu virke, mens almindelig lokal gemning stadig kan fejle, fordi mange tidligere SAFE-testnøgler kan ligge i localStorage og fylde browserkvoten.
+- save() forsøger først normal gemning som før.
+- Hvis normal localStorage.setItem fejler, fjernes kun ældre tavle-state testnøgler med samme app-prefiks, ikke den aktuelle KEY og ikke andre appdata/arkiver.
+- Derefter prøver save() én gang igen.
+- Formålet er at få permanente sletninger og almindelige ændringer skrevet lokalt igen, uden at ændre tavledata eller mediearkiv.
+- Ingen ændring af render(), load(), addWidget(), select(), PDF.js, TavleMediaArchive, Backup + eksport/import eller widgetflow.
+-->
 <!-- SAFE453i162 PDF RUNTIME STATE PURGE SAVE GUARD:
 - Bygger på SAFE453i161.
 - Retter sandsynlig hovedårsag til at Gem backup/Backup + og lokal save stadig kan fejle efter PDF.js-rendering.
@@ -20289,6 +20299,37 @@ function safe453i152CleanupDuplicateEmbeddedPdfUrlInState(){
     }
   }catch(_e){}
 }
+
+function safe453i163IsQuotaLikeError(e){
+  try{
+    const n=String((e&&e.name)||'');
+    const m=String((e&&e.message)||'');
+    return n==='QuotaExceededError'||n==='NS_ERROR_DOM_QUOTA_REACHED'||n==='SecurityError'||/quota|exceeded|full|storage/i.test(n+' '+m);
+  }catch(_e){return false;}
+}
+function safe453i163LocalStorageApproxSize(k){
+  try{const v=localStorage.getItem(k)||'';return String(k).length+String(v).length;}catch(_e){return 0;}
+}
+function safe453i163RescueOldTavleStateKeys(){
+  const removed=[];
+  try{
+    const keys=[];
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k||k===KEY)continue;
+      // Kun gamle single-file test-state nøgler. Ikke Mine tegninger, listebanker, clock, toolbar, IndexedDB osv.
+      if(/^maans_interaktiv_tavle_v\d+(?:_test)?$/.test(k)){
+        keys.push({k,size:safe453i163LocalStorageApproxSize(k)});
+      }
+    }
+    keys.sort((a,b)=>b.size-a.size);
+    keys.forEach(function(it){
+      try{localStorage.removeItem(it.k);removed.push(it.k);}catch(_e){}
+    });
+  }catch(_e){}
+  return removed;
+}
+
 function save(opts={}){
   try{
     if(draw&&draw.toDataURL&&slide())slide().draw=draw.toDataURL('image/png');
@@ -20300,8 +20341,23 @@ function save(opts={}){
     window.__lastSaveFailed=false;
     return true;
   }catch(e){
-    if(!opts.silent && !window.__lastSaveFailed && shouldWarnAboutLocalSave()){
-      toast('Kunne ikke gemme lokalt i browseren. Brug Gem tavlefil, hvis du vil sikre arbejdet.');
+    let rescued=false, removed=[];
+    if(safe453i163IsQuotaLikeError(e)){
+      try{removed=safe453i163RescueOldTavleStateKeys();}catch(_e){}
+      if(removed&&removed.length){
+        try{
+          localStorage.setItem(KEY,safe453i161Stringify(state));
+          window.__lastSaveFailed=false;
+          window.__safe453i163LastStorageRescue=removed;
+          if(!opts.silent)toast('Lokal gemning virker igen. Ældre SAFE-testkopier blev ryddet.');
+          rescued=true;
+          return true;
+        }catch(_e2){}
+      }
+    }
+    if(!rescued && !opts.silent && !window.__lastSaveFailed && shouldWarnAboutLocalSave()){
+      const extra=(removed&&removed.length)?' Ældre testkopier blev forsøgt ryddet, men der er stadig ikke plads.':'';
+      toast('Kunne ikke gemme lokalt i browseren. Brug Gem tavlefil, hvis du vil sikre arbejdet.'+extra);
     }
     window.__lastSaveFailed=true;
     return false;
