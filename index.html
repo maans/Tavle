@@ -1,3 +1,204 @@
+<!-- SAFE453i172h PDF MAXIMIZED KEYBOARD CAPTURE REAL GUARD:
+- Bygger direkte på SAFE453i171_pdf_viewer_zoom_controls_maximized_first.
+- Kasserer 172/172b/172c/172d/172e/172f/172g som utilstrækkelige/ødelagte forsøg.
+- Fjerner den separate PDF-knap “Bredde”; zoomtallet mellem − og + bruges som Tilpas bredde.
+- Tilføjer en meget tidlig window capture-keyguard, der kun er aktiv når en PDF-widget er maksimeret.
+- I maksimeret PDF: venstre/højre går til forrige/næste PDF-side; op/ned scroller PDF-viseren; Cmd/Ctrl +/-/0 zoomer PDF’en.
+- Målet er at stoppe tavleskift-handleren før den lukker maksimeret tilstand.
+- Ingen PDF-lagring, IndexedDB, Backup+, import, drag/resize, tegning eller tavlezoom-layout ændres.
+-->
+<!-- SAFE453i171 PDF VIEWER ZOOM CONTROLS MAXIMIZED FIRST:
+- Bygger på SAFE453i170.
+- Tilføjer egne zoomkontroller til PDF-widgetten, så PDF-siden kan forstørres/formindskes uafhængigt af tavlezoom.
+- PDF-kontroller: −, zoom-procent, + og Bredde.
+- Standard er fortsat tilpas bredde, så eksisterende PDF-visning bevares.
+- Zoom gemmes pr. PDF-widget i w.data.pdfZoom; værdien "fit" betyder tilpas bredde.
+- PDF-zoom påvirker kun PDF-renderingen, ikke PDF-lagring, IndexedDB, Backup +, import, tavlezoom, maksimering eller widgetdata i øvrigt.
+- Ingen ændring af render(), save(), load(), addWidget() eller select().
+-->
+<!-- SAFE453i170 MAXIMIZED ZOOM LAYER FIXED VIEWPORT CSS ONLY:
+- Bygger på SAFE453i169.
+- Retter maksimeret tilstand efter tavlezoom: zoomlaget gøres fixed/viewport-baseret mens body.focus-maximized er aktiv.
+- Den maksimerede widget placeres direkte efter viewportens midte og får 100vw/100vh-baseret størrelse.
+- Tavlezoom nulstilles ikke; den ignoreres kun visuelt mens maksimering er aktiv.
+- Ingen JavaScript-logik, ingen drag/resize/tegning, ingen PDF/Backup/import ændres.
+-->
+<!-- SAFE453i169 MAXIMIZED IGNORES BOARD ZOOM CSS ONLY:
+- Bygger på SAFE453i168_board_zoom_visual_controls_only.
+- Retter kun samspillet mellem tavlezoom og maksimeret widget.
+- Maksimeret tilstand skal fortsat være en widget, der fylder hele skærmen/arbejdsfladen, uanset valgt tavlezoom.
+- Tavlezoom bevares for normal tavlevisning.
+- Zoomniveauet nulstilles ikke; det ignoreres kun visuelt mens body.focus-maximized er aktiv.
+- Ingen JavaScript-logik ændres.
+- Ingen ændring af drag, resize, tegning, PDF, Backup +, render(), save(), load(), addWidget() eller select().
+- Næste fase kan stadig være pointer-/koordinatkortlægning for zoomet normalvisning.
+-->
+<!-- SAFE453i168 BOARD ZOOM VISUAL CONTROLS ONLY:
+- Bygger på SAFE453i167_board_zoom_draw_pdf_widget_map_only.
+- Første aktive, men meget forsigtige tavlezoomfase.
+- Tilføjer app-intern visuel tavlezoom med knapper i topbaren: −, procent, +.
+- Tilføjer tastaturgenveje: Cmd/Ctrl - zoom ud, Cmd/Ctrl + zoom ind, Cmd/Ctrl 0 nulstil til 100%.
+- Zoomniveauer: 50%, 67%, 75%, 90%, 100%, 125%.
+- Kun tavlelaget med widgets og globalt tegnecanvas flyttes ind i et zoomlag og skaleres visuelt.
+- Topbar, titel, toolbar, modaler, toast og tegnepanel zoomes ikke med.
+- Zoom gemmes foreløbigt globalt i localStorage som brugerindstilling, ikke i tavle-state.
+- Ingen ændring af PDF→IndexedDB, Backup +, import, mediaRef, localStorage-rescue eller PDF-rendering.
+- Ingen ændring af render(), save(), load(), addWidget() eller select().
+
+VIGTIG BEGRÆNSNING I DENNE FASE:
+- Dette er primært visuel zoom.
+- Drag/resize/tegning kan stadig føles forskudt ved andre zoomniveauer end 100%, fordi pointerkoordinater endnu ikke korrigeres.
+- Næste fase bør være SAFE453i169_board_zoom_pointer_coordinate_fix, hvis visuel zoom ellers virker.
+
+ACCEPTTEST:
+1) Knapperne −, %, + vises i topbaren.
+2) Zoom ud gør widgets og global tegning mindre sammen med tavlelaget.
+3) Topbar, toolbar og modaler forbliver i normal størrelse.
+4) PDF fra IndexedDB vises stadig.
+5) Gem backup og Backup + virker stadig.
+6) Ved 100% skal appen føles som før.
+-->
+<!-- SAFE453i167 BOARD ZOOM + DRAW/PDF/WIDGET MAP ONLY:
+- Bygger på SAFE453i166_backup_plus_import_pdf_verify_status_only.
+- Denne fase er KUN kortlægning/dokumentation.
+- Ingen JavaScript-logik ændres.
+- Ingen CSS ændres.
+- Ingen HTML-struktur ændres.
+- Ingen zoomfunktion aktiveres endnu.
+- Ingen ændring af PDF→IndexedDB, Backup +, import, localStorage-rescue, widgets, render(), save(), load(), addWidget() eller select().
+
+FORMÅL:
+Appen mangler en generel tavlezoom, så brugeren kan zoome tavlefladen ud/ind uden at zoome hele browserens UI.
+Zoom skal især hjælpe når widgets som KaPardy, Lykkehjulet, Grupper, PDF, tekst/dataset og billeder fylder for meget på skærmen.
+Zoom skal senere gøre det muligt at se mere af tavlen, gøre widgets fysisk større og samtidig bevare overblikket.
+
+VIGTIG AFGRÆNSNING:
+Browserzoom (Cmd/Ctrl +, Cmd/Ctrl -, Cmd/Ctrl 0) er ikke den ønskede langsigtede løsning, fordi den zoomer hele appens UI.
+Den ønskede løsning er app-intern tavlezoom:
+- Tavlefladen og widgets zoomes.
+- Widgetindhold zoomer med.
+- Topbar, toolbar, modaler og menuer forbliver i normal skærmstørrelse.
+- Zoomniveau skal kunne styres med knapper på iPad og med tastatur på Mac/PC.
+
+RISIKOER DER SKAL KORTLÆGGES FØR IMPLEMENTERING:
+1) Drag/flyt af widgets
+- Hvis tavlelaget skaleres med CSS transform: scale(...), skal pointerkoordinater muligvis omregnes med 1/zoom.
+- Ellers kan widgets hoppe eller flytte forkert under drag.
+
+2) Resize af widgets
+- Resize-håndtag skal stadig føles rigtigt.
+- Bredden/højden i tavlens logiske koordinater skal sandsynligvis korrigeres for zoomfaktor.
+- Det er vigtigt, fordi widgetindhold senere skal kunne få mere plads ved at brugeren zoomer ud og resizer widgetten større.
+
+3) Klik/selection
+- Klik på widgets må ikke forskydes.
+- Valgt widget, z-index og highlight må ikke blive ustabile.
+
+4) Global tegning på tavlen
+- Det globale tegnelag/canvas kan lande forkert, hvis pointerkoordinater ikke korrigeres.
+- Eksisterende streger bør visuelt følge tavlezoom.
+- Nye streger skal tegnes i korrekt logisk tavleposition.
+
+5) Tegnewidget/drawcopy
+- Tegnewidgets har eget canvas/overlay og kan være mere følsomme end det globale tegnelag.
+- Tegning inde i widgetten skal testes særskilt, især ved zoom under 100%.
+
+6) PDF-widget
+- PDF-visning fra IndexedDB skal fortsat virke.
+- PDF-scroll og PDF-sideknapper skal ikke forstyrres af tavlezoom.
+- PDF-runtimefelter (_pdfDoc, _pdfRenderToken m.m.) må fortsat kun være memory-runtime og må ikke gemmes i state.
+
+7) KaPardy, Lykkehjulet og Grupper
+- Første zoomfase skal sikre, at hele widgetindholdet skaleres sammen med widgetrammen.
+- Der laves ikke særskilt intern widget-autoscale i denne fase.
+
+8) Tavleshot/gendannelsespunkter
+- Det skal senere besluttes om tavleshot gemmer den zoomede skærmvisning eller tavlens logiske 100%-indhold.
+- Første zoomimplementering bør ikke ændre tavleshot/gendannelseslogik.
+
+9) Præsentation, fokus og maksimering
+- Tavlezoom må ikke ødelægge fokus-overlay, maksimering eller præsentationstilstand.
+- Maksimeret widget bør sandsynligvis ignorere tavlezoom eller testes særskilt.
+
+FORESLÅET SENERE IMPLEMENTERINGSRÆKKEFØLGE:
+SAFE453i168_board_zoom_visual_controls_only
+- Tilføj kun visuel tavlezoom med knapper, fx 50%, 67%, 75%, 90%, 100%, 125%.
+- UI-knapper i Mere-menu eller topbar, så iPad kan bruge det uden tastatur.
+- Tastatur: Cmd/Ctrl -, Cmd/Ctrl +, Cmd/Ctrl 0.
+- Test først klik/selection, ikke drag/tegning som acceptkrav.
+
+SAFE453i169_board_zoom_pointer_coordinate_fix
+- Korriger pointerkoordinater for drag, resize, drop og selection.
+- Test widgets ved flere zoomniveauer.
+
+SAFE453i170_board_zoom_draw_coordinate_fix
+- Korriger global tegning og tegnewidget/drawcopy særskilt.
+- Test at streger lander korrekt ved 50%, 75%, 100% og 125%.
+
+SAFE453i171_board_zoom_persist_and_modes
+- Gem zoomniveau sikkert, sandsynligvis først globalt i app-state eller indstillinger.
+- Test præsentation, fokus, maksimering og tavleskift.
+
+MÅ IKKE I NÆSTE FUNKTIONELLE FASE:
+- Ændre PDF→IndexedDB-lagring.
+- Ændre Backup + import/eksport.
+- Ændre tegnewidget-format.
+- Ændre tavleshot/gendannelsespunkter.
+- Lave pinch-to-zoom endnu.
+- Lave bred refaktorering af render(), save(), load(), addWidget() eller select().
+
+ACCEPTTEST FOR DENNE MAP-ONLY FASE:
+- Appen åbner som SAFE453i166.
+- PDF fra IndexedDB virker som før.
+- Drag/drop PDF virker som før.
+- Backup + virker som før.
+- Permanent sletning + reload virker som før.
+- Ingen ny zoomknap skal findes endnu, fordi dette kun er dokumentation/kortlægning.
+-->
+
+<!-- SAFE453i166 BACKUP PLUS IMPORT PDF VERIFY STATUS ONLY:
+- Bygger på SAFE453i165.
+- Lille, passiv import-kontrolfase efter at PDF -> IndexedDB, Gem backup og Backup + igen virker.
+- Ændrer ikke importens grundlogik, media-id'er, remap, erstat-alt-flow eller PDF-rendering.
+- Tilføjer kun en brugerrettet importstatus, så Backup + import tydeligt fortæller, hvis backupfilen indeholdt PDF-medier og/eller fileMediaRef-referencer.
+- Importen bruger stadig eksisterende mediaArchive-import før render og eksisterende safe453i141VerifyMediaRefs() efter render.
+- Formål: gøre næste test enkel: Backup + med billede + PDF importeres, og toasten skal nævne PDF'er, hvis de var med i backupfilen.
+- Ingen ændring af render(), save(), load(), addWidget(), select(), PDF.js, TavleMediaArchive-format eller Backup + eksport.
+-->
+<!-- SAFE453i165 BASELINE LOCK PDF INDEXEDDB STABLE:
+- Bygger direkte på SAFE453i164_pdf_render_token_preserve_save_guard.
+- Denne fase er KUN fastlåsning/status af den nu stabile PDF->IndexedDB-linje.
+- Ingen JavaScript-logik ændres.
+- Ingen CSS ændres.
+- Ingen HTML-struktur ændres.
+- Ingen import, eksport, backup, migration eller widget-rendering ændres.
+
+GODKENDT STATUS FRA SAFE453i164:
+- PDF-widget > Vælg lokal PDF kan gemme nye lokale PDF'er i TavleMediaArchive / IndexedDB som fileMediaRef.
+- Drag/drop af lokale PDF'er kan gemme nye PDF'er i TavleMediaArchive / IndexedDB som fileMediaRef.
+- PDF.js kan vise PDF'er igen efter hentning fra IndexedDB.
+- PDF-widgettens runtimefelter gemmes ikke i localStorage/backup, men levende render-token bevares i memory under rendering.
+- Gem backup virker igen.
+- Backup + virker igen og kan indeholde både billeder og PDF-medier fra TavleMediaArchive.
+- Permanent sletning af widgets kan gemmes lokalt og overlever reload.
+- localStorage-rescue kan rydde gamle SAFE-testnøgler, hvis kvoten blokerer almindelig lokal gemning.
+
+VIGTIG FEJLÅRSAG DER NU ER KORTLAGT:
+- PDF.js kan lægge cykliske runtimeobjekter på widgetten, især felter som _pdfDoc.
+- Runtimefelter må ikke serialiseres til tavle-state, Gem backup eller Backup +.
+- Save/backup skal filtrere runtimefelter uden at mutere den levende PDF-widget under aktiv rendering.
+
+NÆSTE ANBEFALEDE SPOR EFTER DENNE BASELINE:
+1) Test Backup + import med PDF og billede i et rent miljø.
+2) Hvis import ikke genskaber PDF-medier korrekt, lav en smal import-rettelse.
+3) Først senere: manuel konvertering af gamle legacy-PDF'er fra data.src til fileMediaRef.
+
+MÅ IKKE I NÆSTE FASE UDEN AFTALE:
+- Ingen automatisk PDF-migration.
+- Ingen bred refaktorering af render(), save(), load(), addWidget() eller select().
+- Ingen ændring af PDF.js-renderflow samtidig med backup/import.
+- Ingen destruktiv IndexedDB-oprydning.
+-->
 <!-- SAFE453i164 PDF RENDER TOKEN PRESERVE SAVE GUARD:
 - Bygger på SAFE453i163.
 - Retter PDF'er, der blev stående på “Indlæser PDF…” efter PDF→IndexedDB og localStorage-rescue.
@@ -12565,7 +12766,9 @@ body.focus-presentation #toolbarFallback{
 }
 .content.pdf .pdfJsStatus small{display:block;font-weight:600;margin-top:8px;color:#64748b!important}
 .pdfControls .pdfPageLabel{font-weight:900;color:#111827!important;min-width:64px;text-align:center;font-size:13px!important}
-.pdfControls .pdfPrev,.pdfControls .pdfNext{min-width:34px;padding:6px 10px!important}
+.pdfControls .pdfPrev,.pdfControls .pdfNext,.pdfControls .pdfZoomOut,.pdfControls .pdfZoomIn{min-width:34px;padding:6px 10px!important}
+.pdfControls .pdfZoomLabel{font-weight:900;color:#111827!important;min-width:50px;text-align:center;font-size:12px!important;display:inline-flex;align-items:center;justify-content:center;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.66)}
+.pdfControls .pdfZoomFit{padding:6px 10px!important;font-size:12px!important}
 .pdfEdgeNav{display:none;position:absolute!important;top:0!important;bottom:0!important;width:13%!important;z-index:9!important;background:transparent!important;pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important}
 .pdfEdgeNav.left{left:0!important}.pdfEdgeNav.right{right:0!important}
 .present .content.pdf .pdfEdgeNav{display:block!important}
@@ -22544,6 +22747,7 @@ async function renderPdfJsWidget(w,c){
   const label=c.querySelector('.pdfPageLabel');
   const prev=c.querySelector('.pdfPrev');
   const next=c.querySelector('.pdfNext');
+  const zoomLabel=c.querySelector('.pdfZoomLabel');
   if(!viewer)return;
   if(!src&&!hasFileRef){
     viewer.innerHTML='<div class="pdfJsEmpty">Vælg lokal PDF eller indsæt direkte PDF-URL</div>';
@@ -22575,7 +22779,10 @@ async function renderPdfJsWidget(w,c){
     const ctx=canvas.getContext('2d');
     const base=page.getViewport({scale:1});
     const available=Math.max(260,viewer.clientWidth-28);
-    const scale=available/base.width;
+    const fitScale=available/base.width;
+    const zoomVal=(w.data&&w.data.pdfZoom!=null)?w.data.pdfZoom:'fit';
+    const zoomNum=Number(zoomVal);
+    const scale=(zoomVal==='fit'||!isFinite(zoomNum)||zoomNum<=0)?fitScale:(fitScale*(zoomNum/100));
     const viewport=page.getViewport({scale});
     canvas.width=Math.floor(viewport.width);
     canvas.height=Math.floor(viewport.height);
@@ -22584,6 +22791,10 @@ async function renderPdfJsWidget(w,c){
     viewer.scrollTop=0;
     viewer.scrollLeft=Math.max(0,(canvas.width-viewer.clientWidth)/2);
     if(label)label.textContent='Side '+w.data.page+' / '+pdf.numPages;
+    if(zoomLabel){
+      const zv=(w.data&&w.data.pdfZoom!=null)?w.data.pdfZoom:'fit';
+      zoomLabel.textContent=(zv==='fit')?'Bredde':(String(zv)+'%');
+    }
     if(prev)prev.disabled=w.data.page<=1;
     if(next)next.disabled=w.data.page>=pdf.numPages;
   }catch(err){
@@ -22595,6 +22806,29 @@ async function renderPdfJsWidget(w,c){
     if(prev)prev.disabled=true;if(next)next.disabled=true;
   }
 }
+function pdfJsZoomLabel(w){
+  const z=(w&&w.data&&w.data.pdfZoom!=null)?w.data.pdfZoom:'fit';
+  return z==='fit'?'Bredde':(String(z)+'%');
+}
+function pdfJsSetZoom(w,c,nextZoom){
+  if(!w||!w.data)return;
+  w.data.pdfZoom=nextZoom;
+  save();
+  const zl=c&&c.querySelector?c.querySelector('.pdfZoomLabel'):null;
+  if(zl)zl.textContent=pdfJsZoomLabel(w);
+  renderPdfJsWidget(w,c);
+}
+function pdfJsZoomStep(w,c,dir){
+  const levels=[50,67,75,90,100,125,150,200];
+  let cur=(w&&w.data&&w.data.pdfZoom!=null)?w.data.pdfZoom:'fit';
+  if(cur==='fit')cur=100;
+  cur=Number(cur);
+  if(!isFinite(cur))cur=100;
+  let idx=levels.reduce((best,v,i)=>Math.abs(v-cur)<Math.abs(levels[best]-cur)?i:best,0);
+  idx=Math.max(0,Math.min(levels.length-1,idx+(dir<0?-1:1)));
+  pdfJsSetZoom(w,c,levels[idx]);
+}
+
 function pdfJsGoPage(w,c,delta){
   if(!w||!w.data)return;
   const max=Number(w.data.pages||w._pdfDoc&&w._pdfDoc.numPages||0);
@@ -24789,6 +25023,45 @@ Dropper Gitter: Lys/Mørk-eksperimentet.
 Gitterknappen er igen kun Fra/Til.
 Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og under widgets/værktøjer. -->
 
+
+<style id="safe453i170-maximized-zoom-layer-fixed-viewport-css">
+/* SAFE453i170: Når tavleindholdet ligger i zoomlaget, skal maksimeret widget
+   ikke længere være begrænset af zoomlagets normale tavlekoordinater. */
+body.focus-maximized #safe453BoardZoomLayer{
+  position:fixed!important;
+  left:0!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  inset:0!important;
+  transform:none!important;
+  transform-origin:0 0!important;
+  overflow:visible!important;
+  z-index:10000!important;
+  pointer-events:none!important;
+}
+body.focus-maximized #safe453BoardZoomLayer > .widget.focusTarget{
+  position:fixed!important;
+  left:50vw!important;
+  top:50vh!important;
+  width:calc(100vw - 56px)!important;
+  height:calc(100vh - 56px)!important;
+  max-width:none!important;
+  max-height:none!important;
+  transform:translate(-50%,-50%) rotate(0deg)!important;
+  z-index:10060!important;
+  pointer-events:auto!important;
+}
+body.focus-maximized #safe453BoardZoomLayer > .widget:not(.focusTarget){
+  display:none!important;
+}
+body.focus-maximized #safe453BoardZoomLayer > #draw{
+  display:none!important;
+}
+</style>
+
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
   if(t==='pdf')addWidget('pdf',{});
@@ -26321,6 +26594,45 @@ html body.focus-edit #app.gridOn.safe453i37GridLight::after{
 Dropper Gitter: Lys/Mørk-eksperimentet.
 Gitterknappen er igen kun Fra/Til.
 Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og under widgets/værktøjer. -->
+
+
+<style id="safe453i170-maximized-zoom-layer-fixed-viewport-css">
+/* SAFE453i170: Når tavleindholdet ligger i zoomlaget, skal maksimeret widget
+   ikke længere være begrænset af zoomlagets normale tavlekoordinater. */
+body.focus-maximized #safe453BoardZoomLayer{
+  position:fixed!important;
+  left:0!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  inset:0!important;
+  transform:none!important;
+  transform-origin:0 0!important;
+  overflow:visible!important;
+  z-index:10000!important;
+  pointer-events:none!important;
+}
+body.focus-maximized #safe453BoardZoomLayer > .widget.focusTarget{
+  position:fixed!important;
+  left:50vw!important;
+  top:50vh!important;
+  width:calc(100vw - 56px)!important;
+  height:calc(100vh - 56px)!important;
+  max-width:none!important;
+  max-height:none!important;
+  transform:translate(-50%,-50%) rotate(0deg)!important;
+  z-index:10060!important;
+  pointer-events:auto!important;
+}
+body.focus-maximized #safe453BoardZoomLayer > .widget:not(.focusTarget){
+  display:none!important;
+}
+body.focus-maximized #safe453BoardZoomLayer > #draw{
+  display:none!important;
+}
+</style>
 
 </body></html>`,mode:'edit',name:'Ny HTML-widget'}],
       j:['wheel',{}],
@@ -32660,6 +32972,9 @@ if(w.type==='drawcopy'){
       <button class="pdfLocal">Vælg lokal PDF</button>
       <button class="pdfUrl">PDF fra URL</button>
       ${(hasPdfFileRef||isEmbeddedPdf(src))?'<button class="pdfDownload">Download</button>':''}
+      <button class="pdfZoomOut" title="Zoom PDF ud">−</button>
+      <span class="pdfZoomLabel">${esc(pdfJsZoomLabel(w))}</span>
+      <button class="pdfZoomIn" title="Zoom PDF ind">+</button>
       <button class="pdfPrev" title="Forrige side">‹</button>
       <span class="pdfPageLabel">${(src||hasPdfFileRef)?('Side '+page+(pages?' / '+pages:'')):'Side –'}</span>
       <button class="pdfNext" title="Næste side">›</button>
@@ -32697,6 +33012,18 @@ if(w.type==='drawcopy'){
   })};
   const pdfDownload=c.querySelector('.pdfDownload');
   if(pdfDownload)pdfDownload.onclick=(e)=>{e.stopPropagation();safe453i157DownloadPdfWidget(w)};
+  const zoomOut=c.querySelector('.pdfZoomOut');
+  const zoomIn=c.querySelector('.pdfZoomIn');
+  const zoomLabelBtn=c.querySelector('.pdfZoomLabel');
+  if(zoomOut)zoomOut.onclick=(e)=>{e.stopPropagation();pdfJsZoomStep(w,c,-1)};
+  if(zoomIn)zoomIn.onclick=(e)=>{e.stopPropagation();pdfJsZoomStep(w,c,1)};
+  if(zoomLabelBtn){
+    zoomLabelBtn.setAttribute('role','button');
+    zoomLabelBtn.setAttribute('tabindex','0');
+    zoomLabelBtn.title='Tilpas PDF til bredden';
+    zoomLabelBtn.onclick=(e)=>{e.stopPropagation();pdfJsSetZoom(w,c,'fit')};
+    zoomLabelBtn.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();pdfJsSetZoom(w,c,'fit')}};
+  }
   const urlBtn=c.querySelector('.pdfUrl');
   if(urlBtn)urlBtn.onclick=(e)=>{
     e.stopPropagation();
@@ -38248,6 +38575,29 @@ function safe453i142ShortRefPath(path){
   path=String(path||'');
   return path.replace(/^state\./,'').replace(/\.data\./g,'.').replace(/restorePoints\[(\d+)\]/g,'Gendannelsespunkt $1').replace(/slides\[(\d+)\]\.widgets\[(\d+)\]/g,'Tavle $1 · widget $2');
 }
+
+function safe453i166CountPdfMediaArchiveFromSaveData(data){
+  try{
+    const arr=Array.isArray(data&&data.mediaArchive)?data.mediaArchive:[];
+    return arr.filter(function(m){
+      return String((m&&m.kind)||'').toLowerCase()==='pdf' || String((m&&m.mimeType)||'').toLowerCase().indexOf('pdf')>=0 || String((m&&m.source)||'').toLowerCase().indexOf('pdf')>=0;
+    }).length;
+  }catch(_e){return 0;}
+}
+function safe453i166CountFileMediaRefsInState(root){
+  try{
+    return safe453i141CollectRefsFromObject(root).filter(function(r){return r&&r.key==='fileMediaRef';}).length;
+  }catch(_e){return 0;}
+}
+function safe453i166ImportPdfStatusBits(data,next,mediaImported){
+  const bits=[];
+  const pdfArchive=safe453i166CountPdfMediaArchiveFromSaveData(data);
+  const fileRefs=safe453i166CountFileMediaRefsInState(next);
+  if(pdfArchive)bits.push('PDF: '+pdfArchive);
+  if(fileRefs)bits.push('filreferencer: '+fileRefs);
+  if(pdfArchive&&!mediaImported)bits.push('PDF-medier ikke importeret');
+  return bits;
+}
 function safe453i142ShowMissingMediaWarning(info,data){
   try{
     const missingRefs=Array.isArray(info&&info.missingRefs)?info.missingRefs:[];
@@ -38320,7 +38670,10 @@ function openTavleSaveText(txt,file){
           toast('Tavlen er åbnet, men nogle lokale medier mangler');
           return;
         }
-        toast(failed ? 'Tavlefil åbnet, men noget arkivdata kunne ikke importeres' : ('Tavlefil åbnet'+(bits.length?' · '+bits.join(' · ')+' importeret':'')));
+        const pdfBits=(typeof safe453i166ImportPdfStatusBits==='function')?safe453i166ImportPdfStatusBits(data,next,media):[];
+        const importText=bits.length?' · '+bits.join(' · ')+' importeret':'';
+        const pdfText=pdfBits.length?' · '+pdfBits.join(' · '):'';
+        toast(failed ? 'Tavlefil åbnet, men noget arkivdata kunne ikke importeres'+pdfText : ('Tavlefil åbnet'+importText+pdfText));
       });
     }).catch(function(err){
       console.warn('SAFE453i141 open import failed',err);
@@ -48902,4 +49255,362 @@ Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og un
   place-items:center!important;
 }
 </style>
+
+
+<style id="safe453i168-board-zoom-css">
+/* SAFE453i168: første visuelle tavlezoom. Kun tavlelag skaleres; UI holdes i normal størrelse. */
+#safe453BoardZoomLayer{
+  position:absolute;
+  inset:0;
+  z-index:10;
+  transform-origin:0 0;
+  transform:scale(var(--safe453-board-zoom,1));
+  overflow:visible;
+  pointer-events:auto;
+}
+#safe453BoardZoomLayer > .widget,
+#safe453BoardZoomLayer > #draw{
+  pointer-events:auto;
+}
+#safe453BoardZoomLayer > #draw:not(.active){
+  pointer-events:none;
+}
+.safe453BoardZoomControls{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin-left:2px;
+  padding-left:6px;
+  border-left:1px solid rgba(255,255,255,.28);
+}
+.safe453BoardZoomControls button{
+  min-width:34px;
+  padding:7px 9px!important;
+  border-radius:9px!important;
+}
+.safe453BoardZoomControls .safe453BoardZoomPct{
+  min-width:54px;
+  text-align:center;
+  font-weight:900;
+  color:white;
+  opacity:.95;
+  user-select:none;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:800px){
+  .safe453BoardZoomControls button{min-width:32px;padding:6px 8px!important}
+  .safe453BoardZoomControls .safe453BoardZoomPct{min-width:48px;font-size:13px}
+}
+.app.present .safe453BoardZoomControls{
+  display:none!important;
+}
+</style>
+
+<style id="safe453i169-maximized-ignores-board-zoom-css">
+/* SAFE453i169: Maksimeret widget skal fylde skærmen uanset tavlezoom.
+   Vi slår kun zoomlagets transform fra, mens appen er i focus-maximized.
+   Det gemte zoomniveau bevares og virker igen, når man forlader maksimering. */
+body.focus-maximized #safe453BoardZoomLayer{
+  transform:none!important;
+}
+body.focus-maximized #safe453BoardZoomControls{
+  display:none!important;
+}
+</style>
+
+<script id="safe453i168-board-zoom-script">
+/* SAFE453i168 BOARD ZOOM VISUAL CONTROLS ONLY
+   - Indfører kun visuel tavlezoom.
+   - Pointerkoordinater korrigeres IKKE endnu; derfor kan drag/resize/tegning kræve separat SAFE-fase.
+*/
+(function(){
+  if(window.__safe453i168BoardZoom)return;
+  window.__safe453i168BoardZoom=true;
+
+  var ZOOMS=[0.5,0.67,0.75,0.9,1,1.25];
+  var STORE_KEY='safe453_board_zoom_visual_v1';
+  var currentZoom=1;
+
+  function clampZoom(z){
+    z=Number(z)||1;
+    var best=ZOOMS[0], diff=Math.abs(z-best);
+    for(var i=1;i<ZOOMS.length;i++){
+      var d=Math.abs(z-ZOOMS[i]);
+      if(d<diff){best=ZOOMS[i];diff=d;}
+    }
+    return best;
+  }
+  function zoomIndex(){
+    var z=clampZoom(currentZoom);
+    for(var i=0;i<ZOOMS.length;i++)if(Math.abs(ZOOMS[i]-z)<0.001)return i;
+    return ZOOMS.indexOf(1);
+  }
+  function pct(z){return Math.round((Number(z)||1)*100)+'%';}
+  function appEl(){return document.getElementById('app');}
+
+  function ensureLayer(){
+    var app=appEl();
+    if(!app)return null;
+    var layer=document.getElementById('safe453BoardZoomLayer');
+    if(!layer){
+      layer=document.createElement('div');
+      layer.id='safe453BoardZoomLayer';
+      layer.setAttribute('aria-hidden','false');
+      var draw=document.getElementById('draw');
+      if(draw && draw.parentNode===app)app.insertBefore(layer,draw);
+      else app.insertBefore(layer,app.firstChild);
+    }
+    // Flyt kun tavleindhold, aldrig topbar/toolbar/modaler/toast.
+    var drawEl=document.getElementById('draw');
+    if(drawEl && drawEl.parentNode!==layer)layer.appendChild(drawEl);
+    Array.prototype.slice.call(app.querySelectorAll(':scope > .widget')).forEach(function(w){
+      layer.appendChild(w);
+    });
+    return layer;
+  }
+
+  function applyZoom(opts){
+    opts=opts||{};
+    currentZoom=clampZoom(currentZoom);
+    var layer=ensureLayer();
+    if(layer){
+      layer.style.setProperty('--safe453-board-zoom',String(currentZoom));
+      layer.style.transform='scale('+currentZoom+')';
+    }
+    var pctEl=document.getElementById('safe453BoardZoomPct');
+    if(pctEl)pctEl.textContent=pct(currentZoom);
+    try{document.documentElement.style.setProperty('--safe453-board-zoom',String(currentZoom));}catch(_e){}
+    if(opts.store!==false){try{localStorage.setItem(STORE_KEY,String(currentZoom));}catch(_e){}}
+    if(opts.toast!==false && typeof toast==='function'){
+      try{toast('Tavlezoom: '+pct(currentZoom));}catch(_e){}
+    }
+  }
+
+  function setZoom(z,opts){currentZoom=clampZoom(z);applyZoom(opts);}
+  function zoomStep(dir){
+    var i=zoomIndex();
+    i=Math.max(0,Math.min(ZOOMS.length-1,i+(dir||0)));
+    setZoom(ZOOMS[i]);
+  }
+
+  function ensureControls(){
+    var top=document.querySelector('#app .topbar');
+    if(!top || document.getElementById('safe453BoardZoomControls'))return;
+    var wrap=document.createElement('span');
+    wrap.id='safe453BoardZoomControls';
+    wrap.className='safe453BoardZoomControls';
+    wrap.innerHTML='<button type="button" id="safe453BoardZoomOut" title="Tavlezoom ud (Cmd/Ctrl -)">−</button><span id="safe453BoardZoomPct" class="safe453BoardZoomPct" title="Klik for 100%">100%</span><button type="button" id="safe453BoardZoomIn" title="Tavlezoom ind (Cmd/Ctrl +)">+</button>';
+    var fs=document.getElementById('fullscreenTop');
+    if(fs && fs.parentNode===top)top.insertBefore(wrap,fs.nextSibling);
+    else top.appendChild(wrap);
+    var out=document.getElementById('safe453BoardZoomOut');
+    var inn=document.getElementById('safe453BoardZoomIn');
+    var mid=document.getElementById('safe453BoardZoomPct');
+    if(out)out.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();zoomStep(-1);});
+    if(inn)inn.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();zoomStep(1);});
+    if(mid)mid.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();setZoom(1);});
+  }
+
+  function isTypingTarget(t){
+    try{
+      if(!t)return false;
+      var tag=(t.tagName||'').toLowerCase();
+      return tag==='input'||tag==='textarea'||tag==='select'||t.isContentEditable;
+    }catch(_e){return false;}
+  }
+  function keyHandler(ev){
+    try{
+      if(!ev || !(ev.metaKey||ev.ctrlKey) || ev.altKey)return;
+      if(isTypingTarget(ev.target))return;
+      var k=ev.key;
+      if(k==='-' || k==='_'){
+        ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();zoomStep(-1);return false;
+      }
+      if(k==='+' || k==='=' || k==='Add'){
+        ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();zoomStep(1);return false;
+      }
+      if(k==='0' || k==='Num0'){
+        ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();setZoom(1);return false;
+      }
+    }catch(_e){}
+  }
+
+  function observeApp(){
+    var app=appEl();
+    if(!app || window.__safe453i168BoardZoomObserver)return;
+    window.__safe453i168BoardZoomObserver=true;
+    try{
+      var obs=new MutationObserver(function(){
+        var layer=ensureLayer();
+        if(layer)layer.style.transform='scale('+currentZoom+')';
+      });
+      obs.observe(app,{childList:true});
+      window.__safe453i168BoardZoomMO=obs;
+    }catch(_e){}
+  }
+
+  function init(){
+    try{currentZoom=clampZoom(localStorage.getItem(STORE_KEY)||1);}catch(_e){currentZoom=1;}
+    ensureControls();
+    ensureLayer();
+    observeApp();
+    applyZoom({store:false,toast:false});
+  }
+
+  window.safe453GetBoardZoom=function(){return currentZoom;};
+  window.safe453SetBoardZoom=function(z){setZoom(z);};
+  window.safe453ApplyBoardZoom=function(){applyZoom({store:false,toast:false});};
+
+  window.addEventListener('keydown',keyHandler,true);
+  document.addEventListener('DOMContentLoaded',init);
+  setTimeout(init,0);
+  setTimeout(init,500);
+})();
+</script>
+
+<style id="safe453i170-maximized-zoom-layer-fixed-viewport-css">
+/* SAFE453i170: Når tavleindholdet ligger i zoomlaget, skal maksimeret widget
+   ikke længere være begrænset af zoomlagets normale tavlekoordinater. */
+body.focus-maximized #safe453BoardZoomLayer{
+  position:fixed!important;
+  left:0!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  inset:0!important;
+  transform:none!important;
+  transform-origin:0 0!important;
+  overflow:visible!important;
+  z-index:10000!important;
+  pointer-events:none!important;
+}
+body.focus-maximized #safe453BoardZoomLayer > .widget.focusTarget{
+  position:fixed!important;
+  left:50vw!important;
+  top:50vh!important;
+  width:calc(100vw - 56px)!important;
+  height:calc(100vh - 56px)!important;
+  max-width:none!important;
+  max-height:none!important;
+  transform:translate(-50%,-50%) rotate(0deg)!important;
+  z-index:10060!important;
+  pointer-events:auto!important;
+}
+body.focus-maximized #safe453BoardZoomLayer > .widget:not(.focusTarget){
+  display:none!important;
+}
+body.focus-maximized #safe453BoardZoomLayer > #draw{
+  display:none!important;
+}
+</style>
+
+
+<script id="safe453i172hPdfMaximizedKeyGuard">
+(function(){
+  if(window.__safe453i172hPdfMaximizedKeyGuardInstalled) return;
+  window.__safe453i172hPdfMaximizedKeyGuardInstalled=true;
+
+  function isTypingTarget(t){
+    try{return !!(t && (t.isContentEditable || (t.matches && t.matches('input,textarea,select,[contenteditable="true"]'))));}
+    catch(_e){return false;}
+  }
+
+  function currentSlideWidgets(){
+    try{
+      if(window.state && Array.isArray(state.slides)){
+        const idx=Number(state.active)||0;
+        const sl=state.slides[idx]||{};
+        return Array.isArray(sl.widgets)?sl.widgets:[];
+      }
+    }catch(_e){}
+    try{return (typeof slide==='function' && slide() && Array.isArray(slide().widgets))?slide().widgets:[];}catch(_e){}
+    return [];
+  }
+
+  function findMaximizedPdfTarget(){
+    let id=null, el=null;
+    try{
+      if(window.UIState && UIState.maximizedWidgetId) id=String(UIState.maximizedWidgetId);
+    }catch(_e){}
+    if(id){
+      try{el=document.querySelector('.widget[data-type="pdf"][data-id="'+CSS.escape(id)+'"]');}catch(_e){}
+    }
+    if(!el){
+      try{el=document.querySelector('body.focus-maximized .widget[data-type="pdf"].focusTarget, body.focus-maximized .widget[data-type="pdf"].focused, .app.focusMaximized .widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].focusTarget');}catch(_e){}
+    }
+    if(!el) return null;
+    let isMax=false;
+    try{isMax=!!(document.body.classList.contains('focus-maximized') || (window.UIState && UIState.focusMaximized));}catch(_e){}
+    if(!isMax) return null;
+    const wid=String(el.dataset.id||id||'');
+    const w=currentSlideWidgets().find(x=>x && String(x.id)===wid && x.type==='pdf');
+    if(!w) return null;
+    const content=el.querySelector('.content.pdf');
+    const viewer=el.querySelector('.pdfJsViewer');
+    if(!content || !viewer) return null;
+    return {el,w,content,viewer};
+  }
+
+  function isCmdZoom(e){
+    if(!(e.metaKey||e.ctrlKey) || e.altKey) return null;
+    const key=String(e.key||'');
+    const code=String(e.code||'');
+    if(key==='+' || key==='=' || code==='Equal' || code==='NumpadAdd') return 'in';
+    if(key==='-' || key==='_' || code==='Minus' || code==='NumpadSubtract') return 'out';
+    if(key==='0' || code==='Digit0' || code==='Numpad0') return 'fit';
+    return null;
+  }
+
+  function stop(e){
+    try{e.preventDefault();}catch(_e){}
+    try{e.stopPropagation();}catch(_e){}
+    try{if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+  }
+
+  function handle(e){
+    try{
+      if(!e || isTypingTarget(e.target)) return;
+      const target=findMaximizedPdfTarget();
+      if(!target) return;
+      const zoom=isCmdZoom(e);
+      if(zoom){
+        stop(e);
+        if(zoom==='fit'){
+          if(typeof pdfJsSetZoom==='function') pdfJsSetZoom(target.w,target.content,'fit');
+        }else{
+          if(typeof pdfJsZoomStep==='function') pdfJsZoomStep(target.w,target.content,zoom==='in'?1:-1);
+        }
+        return;
+      }
+      if(e.altKey||e.metaKey||e.ctrlKey||e.shiftKey) return;
+      if(e.key==='ArrowLeft'){
+        stop(e);
+        if(typeof pdfJsGoPage==='function') pdfJsGoPage(target.w,target.content,-1);
+        return;
+      }
+      if(e.key==='ArrowRight'){
+        stop(e);
+        if(typeof pdfJsGoPage==='function') pdfJsGoPage(target.w,target.content,1);
+        return;
+      }
+      if(e.key==='ArrowUp'){
+        stop(e);
+        target.viewer.scrollTop -= Math.max(80,target.viewer.clientHeight*0.25);
+        return;
+      }
+      if(e.key==='ArrowDown'){
+        stop(e);
+        target.viewer.scrollTop += Math.max(80,target.viewer.clientHeight*0.25);
+        return;
+      }
+    }catch(err){
+      try{console.warn('SAFE453i172h PDF keyguard fejl',err);}catch(_e){}
+    }
+  }
+
+  window.addEventListener('keydown',handle,true);
+})();
+</script>
 </body></html>
