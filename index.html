@@ -1,3 +1,11 @@
+<!-- SAFE453i173 BOARD ZOOM PERCENT AUTOFIT ONLY:
+- Bygger direkte på SAFE453i172h rollback.
+- Ændrer kun tavlezoom-procenten i topbaren: klik/tap på procenttallet kører nu Tilpas til skærm i stedet for altid 100%.
+- Autofit beregner en forsigtig zoom ud fra widgets på den aktuelle tavle og vælger nærmeste eksisterende zoomtrin.
+- Hvis tavlen er tom, bruges 75% på smal skærm og 100% på bred skærm.
+- Cmd/Ctrl +, Cmd/Ctrl -, Cmd/Ctrl 0 bevares uændret.
+- Ingen PDF, IndexedDB, Backup/import, piletaster, drag/resize, tegning eller render/save/load ændres.
+-->
 <!-- SAFE453i172h PDF MAXIMIZED KEYBOARD CAPTURE REAL GUARD:
 - Bygger direkte på SAFE453i171_pdf_viewer_zoom_controls_maximized_first.
 - Kasserer 172/172b/172c/172d/172e/172f/172g som utilstrækkelige/ødelagte forsøg.
@@ -49393,13 +49401,65 @@ body.focus-maximized #safe453BoardZoomControls{
     setZoom(ZOOMS[i]);
   }
 
+  function nearestZoomAtOrBelow(z){
+    z=Number(z)||1;
+    var chosen=ZOOMS[0];
+    for(var i=0;i<ZOOMS.length;i++){
+      if(ZOOMS[i]<=z+0.001)chosen=ZOOMS[i];
+    }
+    return chosen;
+  }
+
+  function computeAutoFitZoom(){
+    var app=appEl();
+    var layer=ensureLayer();
+    if(!app || !layer)return 1;
+    var widgets=Array.prototype.slice.call(layer.querySelectorAll('.widget'));
+    var visible=widgets.filter(function(el){
+      try{return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);}
+      catch(_e){return false;}
+    });
+    if(!visible.length){
+      try{return (window.innerWidth && window.innerWidth<700)?0.75:1;}catch(_e){return 1;}
+    }
+    var maxR=0,maxB=0,minL=0,minT=0;
+    visible.forEach(function(el){
+      var l=parseFloat(el.style.left);
+      var t=parseFloat(el.style.top);
+      if(!isFinite(l))l=el.offsetLeft||0;
+      if(!isFinite(t))t=el.offsetTop||0;
+      var w=el.offsetWidth||parseFloat(el.style.width)||300;
+      var h=el.offsetHeight||parseFloat(el.style.height)||200;
+      minL=Math.min(minL,l);
+      minT=Math.min(minT,t);
+      maxR=Math.max(maxR,l+w);
+      maxB=Math.max(maxB,t+h);
+    });
+    var pad=28;
+    var contentW=Math.max(1,maxR-minL+pad*2);
+    var contentH=Math.max(1,maxB-minT+pad*2);
+    var appW=Math.max(1,app.clientWidth||window.innerWidth||1);
+    var appH=Math.max(1,app.clientHeight||window.innerHeight||1);
+    var fit=Math.min(1,(appW-pad*2)/contentW,(appH-pad*2)/contentH);
+    if(!isFinite(fit)||fit<=0)fit=1;
+    return nearestZoomAtOrBelow(fit);
+  }
+
+  function autoFitZoom(){
+    var z=computeAutoFitZoom();
+    setZoom(z,{toast:false});
+    if(typeof toast==='function'){
+      try{toast('Tavlezoom: Tilpas til skærm ('+pct(z)+')');}catch(_e){}
+    }
+  }
+
   function ensureControls(){
     var top=document.querySelector('#app .topbar');
     if(!top || document.getElementById('safe453BoardZoomControls'))return;
     var wrap=document.createElement('span');
     wrap.id='safe453BoardZoomControls';
     wrap.className='safe453BoardZoomControls';
-    wrap.innerHTML='<button type="button" id="safe453BoardZoomOut" title="Tavlezoom ud (Cmd/Ctrl -)">−</button><span id="safe453BoardZoomPct" class="safe453BoardZoomPct" title="Klik for 100%">100%</span><button type="button" id="safe453BoardZoomIn" title="Tavlezoom ind (Cmd/Ctrl +)">+</button>';
+    wrap.innerHTML='<button type="button" id="safe453BoardZoomOut" title="Tavlezoom ud (Cmd/Ctrl -)">−</button><span id="safe453BoardZoomPct" class="safe453BoardZoomPct" title="Tilpas tavlen til skærmen">100%</span><button type="button" id="safe453BoardZoomIn" title="Tavlezoom ind (Cmd/Ctrl +)">+</button>';
     var fs=document.getElementById('fullscreenTop');
     if(fs && fs.parentNode===top)top.insertBefore(wrap,fs.nextSibling);
     else top.appendChild(wrap);
@@ -49408,7 +49468,7 @@ body.focus-maximized #safe453BoardZoomControls{
     var mid=document.getElementById('safe453BoardZoomPct');
     if(out)out.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();zoomStep(-1);});
     if(inn)inn.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();zoomStep(1);});
-    if(mid)mid.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();setZoom(1);});
+    if(mid)mid.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();autoFitZoom();});
   }
 
   function isTypingTarget(t){
@@ -49459,6 +49519,7 @@ body.focus-maximized #safe453BoardZoomControls{
 
   window.safe453GetBoardZoom=function(){return currentZoom;};
   window.safe453SetBoardZoom=function(z){setZoom(z);};
+  window.safe453AutoFitBoardZoom=function(){autoFitZoom();};
   window.safe453ApplyBoardZoom=function(){applyZoom({store:false,toast:false});};
 
   window.addEventListener('keydown',keyHandler,true);
