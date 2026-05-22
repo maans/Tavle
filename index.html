@@ -14,6 +14,51 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 - Papirkurv-patches ligger sidst som interne tavle-guards. De må ikke erstattes af gammel modal/localStorage-papirkurv.
 - KaPardy, wheel, lyd-unlock, shortcuts og iframe/link-patches er følsomme: lav kun små ændringer og test direkte funktion efter hver ændring.
 -->
+
+<script id="safe453i198-iframe-keyboard-reserve-early">
+/* SAFE453i198: Når en link/iframe-widget er interaktiv, ejer iframen tastaturet.
+   TavleAppens globale genveje må ikke reagere på Space eller andre app-taster imens. */
+(function(){
+  function isEditableTarget(t){
+    try{
+      if(!t)return false;
+      const tag=String(t.tagName||'').toLowerCase();
+      return !!(t.isContentEditable || tag==='input' || tag==='textarea' || tag==='select');
+    }catch(_e){return false;}
+  }
+  function activeIframeWidget(){
+    /* SAFE453i201: Kun eksplicit aktiv iframekontrol må reservere tastaturet.
+       En valgt/markeret iframe-widget må ikke i sig selv kapre Space/pile/genveje. */
+    try{
+      if(window.isIframeControlActive && window.isIframeControlActive()){
+        return document.querySelector('.widget.linkIframeActive[data-type="link"], .widget[data-type="link"].linkIframeActive');
+      }
+    }catch(_e){}
+    return null;
+  }
+  function reserve(e){
+    const w=activeIframeWidget();
+    if(!w)return false;
+    if(isEditableTarget(e.target))return false;
+    const key=String(e.key||'');
+    if(key==='Escape'){
+      /* SAFE453i200: Escape er ikke længere hovedvejen ud af iframe-kontrol,
+         fordi cross-origin iframes og parent-fokus giver ustabil mellemtilstand.
+         Klik/tap uden for widgetten slipper iframe-kontrollen. */
+      return false;
+    }
+    /* Stop TavleAppens genveje når parent faktisk har fokus.
+       Når iframe selv har fokus, går tasterne til den indlejrede app. */
+    if(key===' ' || e.code==='Space')e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    return true;
+  }
+  window.addEventListener('keydown',reserve,true);
+  document.addEventListener('keydown',reserve,true);
+})();
+</script>
+
 <script id="widget-overview-early-cmdo-guard">
 (function(){
   function isCmdO(e){return (e.metaKey||e.ctrlKey) && !e.altKey && !e.shiftKey && String(e.key||'').toLowerCase()==='o';}
@@ -11105,6 +11150,15 @@ function setIframeControl(id,on){
   document.querySelectorAll('.widget').forEach(el=>{
     el.classList.toggle('linkIframeActive',!!activeIframeWidgetId && String(el.dataset.id)===activeIframeWidgetId);
   });
+  if(activeIframeWidgetId){
+    setTimeout(()=>{
+      try{
+        const host=document.querySelector('.widget[data-id="'+CSS.escape(activeIframeWidgetId)+'"]');
+        const iframe=host&&host.querySelector('iframe');
+        if(iframe)iframe.focus({preventScroll:true});
+      }catch(_e){}
+    },30);
+  }
 }
 function clearIframeControl(){
   setIframeControl(null,false);
@@ -11177,7 +11231,7 @@ function tavleYoutubeEmbedUrl(raw){
     }
     id=String(id||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,64);
     if(!id)return '';
-    const out=new URL('https://www.youtube-nocookie.com/embed/'+id);
+    const out=new URL('https://www.youtube.com/embed/'+id);
     const start=u.searchParams.get('t')||u.searchParams.get('start');
     if(start){
       const sec=String(start).match(/^\d+$/)?start:String(start).replace(/[^0-9]/g,'');
@@ -11186,7 +11240,43 @@ function tavleYoutubeEmbedUrl(raw){
     return out.href;
   }catch(e){return ''}
 }
+function safe453i221YoutubeId(raw){
+  try{
+    const u=new URL(String(raw||''),window.location.href);
+    const host=u.hostname.replace(/^www\./,'').toLowerCase();
+    let id='';
+    if(host==='youtu.be')id=u.pathname.split('/').filter(Boolean)[0]||'';
+    if(host==='youtube.com'||host==='m.youtube.com'||host==='music.youtube.com'||host==='youtube-nocookie.com'){
+      if(u.pathname==='/watch')id=u.searchParams.get('v')||'';
+      else if(u.pathname.startsWith('/shorts/'))id=u.pathname.split('/').filter(Boolean)[1]||'';
+      else if(u.pathname.startsWith('/embed/'))id=u.pathname.split('/').filter(Boolean)[1]||'';
+    }
+    id=String(id||'').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,64);
+    return id && id.length>=6 ? id : '';
+  }catch(_e){return '';}
+}
+function safe453i221YoutubeEmbedUrl(raw){
+  const id=safe453i221YoutubeId(raw);
+  if(!id)return '';
+  try{
+    const input=new URL(String(raw||''),window.location.href);
+    const out=new URL('https://www.youtube.com/embed/'+id);
+    const start=input.searchParams.get('t')||input.searchParams.get('start');
+    if(start){
+      const sec=String(start).match(/^\d+$/)?start:String(start).replace(/[^0-9]/g,'');
+      if(sec)out.searchParams.set('start',sec);
+    }
+    return out.href;
+  }catch(_e){return 'https://www.youtube.com/embed/'+id;}
+}
+function safe453i221IsYoutube(raw){
+  return !!safe453i221YoutubeId(raw);
+}
 function tavleIframeSrc(url,w){
+  try{
+    const parsed=(w&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))?safe453i195ParseMuseScore(w.data.museScoreEmbedUrl||w.data.url||url):null;
+    if(parsed)return parsed.embedUrl;
+  }catch(_e){}
   try{
     const yt=tavleYoutubeEmbedUrl(url);
     if(yt)return yt;
@@ -13773,13 +13863,19 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
     widgetTitle=d.toLocaleDateString('da-DK',{month:'long',year:'numeric'});
   }
 }catch(_e){}
+if(w.type==='link'){
+  try{
+    const linkTitle=String(w.data&&w.data.text||'').trim();
+    if(linkTitle && linkTitle!=='Klikbart link' && linkTitle!=='Link')widgetTitle=linkTitle;
+  }catch(_e){}
+}
 const titleHtml='<span class="titleText">'+esc(widgetTitle)+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}${mediaNameBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button>${linkedDataSourceOpen?'<button type="button" data-act="hideDataSource" title="Luk datakilde – forbindelsen bevares" aria-label="Luk datakilde – forbindelsen bevares">🔗</button>':'<button type="button" data-act="del" title="Luk">×</button>'}</div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -16685,6 +16781,27 @@ body.focus-maximized #safe453BoardZoomLayer > #draw{
 
 
 <!-- SAFE453i185j: bygger på 185f. Retter timer-standardstørrelse, stabile stopurgrupper, talgenveje og Enter. -->
+
+<!-- SAFE453i191: Hide presentation/edit-mode toggle in narrow topbar.
+     The title status dot can toggle edit/presentation, so this avoids crowding
+     and leaves zoom controls available on narrow Stage Manager/mobile windows. -->
+<style id="safe453i191-hide-present-toggle-narrow">
+@media (max-width: 900px){
+  .topbar #present{
+    display:none!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+  }
+}
+@media (pointer: coarse) and (max-width: 1100px){
+  .topbar #present{
+    display:none!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+  }
+}
+</style>
+
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
   if(t==='pdf')addWidget('pdf',{});
@@ -23521,7 +23638,8 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
 // --- WIDGET: VIDEO ---
  if(w.type==='video'){
   const id=ytId(w.data.url||'');
-  c.innerHTML=`<div class="videoBox">${id?`<iframe src="https://www.youtube-nocookie.com/embed/${id}" allowfullscreen></iframe><div class="hidden"><a target="_blank" href="https://youtu.be/${id}">Åbn på YouTube</a></div>`:`<div><button class="videoEditBtn">Indsæt YouTube-link</button><p>Hvis indlejring blokeres på iPad, brug linket til YouTube.</p></div>`}</div>`;
+  const ytSrc=safe453i221YoutubeEmbedUrl(w.data.url||'')||('https://www.youtube.com/embed/'+id);
+  c.innerHTML=`<div class="videoBox">${id?`<iframe src="${esc(ytSrc)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><div class="hidden"><a target="_blank" href="https://youtu.be/${esc(id)}">Åbn på YouTube</a></div>`:`<div><button class="videoEditBtn">Indsæt YouTube-link</button><p>Hvis indlejring blokeres på iPad, brug linket til YouTube.</p></div>`}</div>`;
   const editBtn=c.querySelector('.videoEditBtn');
   if(editBtn)editBtn.onclick=e=>{e.preventDefault();e.stopPropagation();askVideo(w)};
   c.ondblclick=e=>{if(app.classList.contains('present'))return;e.preventDefault();e.stopPropagation();askVideo(w)};
@@ -23786,19 +23904,29 @@ if(w.type==='poll'){
   const url=normalizeLinkUrl(w.data.url||'');
   const view=w.data.view||'link';
   if(view==='iframe' && (url||w.data.srcdoc)){
-    const zoom=Math.max(0.5,Math.min(3,Number(w.data.zoom||1)));
-    const iframeStyle=`transform:scale(${zoom});transform-origin:0 0;width:${100/zoom}%;height:${100/zoom}%;`;
-    const iframeAttr=w.data.srcdoc
-      ? `srcdoc="${esc(w.data.srcdoc)}"`
-      : `src="${esc(tavleIframeSrc(url,w))}"`;
-    const hint=url?`Hvis siden er tom, nægter den sandsynligvis iframe. Brug ↗ Åbn i ny fane.`:`Indsæt en adresse med ✎.`;
-    c.innerHTML=`${safe453i71LinkListBarHtml(w)}${safe453i79LinkNavHtml(w,'iframe')}<div class="linkIframeBox safe401MiniBrowser" data-zoom="${esc(String(zoom))}">
-      <div class="linkIframeFrame">
-        <iframe ${iframeAttr} style="${esc(iframeStyle)}" allow="fullscreen; clipboard-read; clipboard-write; autoplay; encrypted-media" allowfullscreen loading="lazy" referrerpolicy="no-referrer"></iframe>
-        <div class="linkIframeFallbackHint">${esc(hint)} <span>${Math.round(zoom*100)}%</span></div>
-        <div class="linkIframeShield"></div>
-      </div>
-    </div>`;
+    const isMuseScore=!!(w.data&&(w.data.museScore||w.data.viewType==='musescore'));
+    const isYouTube=!!(w.data&&(w.data.viewType==='youtube'||w.data.youtubeEmbed||safe453i221IsYoutube(url)));
+    if(isYouTube && !isMuseScore){
+      const id=safe453i221YoutubeId(url);
+      const ytSrc=(w.data&&w.data.youtubeEmbedUrl)||safe453i221YoutubeEmbedUrl(url);
+      const linkChrome=`${safe453i71LinkListBarHtml(w)}${safe453i79LinkNavHtml(w,'iframe')}`;
+      c.innerHTML=`${linkChrome}<div class="videoBox safe453i221YoutubeBox">${id?`<iframe src="${esc(ytSrc)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><div class="safe453i222YoutubeFallback"><a target="_blank" rel="noopener" href="https://youtu.be/${esc(id)}">Åbn på YouTube</a></div>`:`<div><p>Kunne ikke finde YouTube-video-id.</p><a target="_blank" rel="noopener" href="${esc(url)}">Åbn link</a></div>`}</div>`;
+    }else{
+      const zoom=isMuseScore?1:Math.max(0.5,Math.min(3,Number(w.data.zoom||1)));
+      const iframeStyle=isMuseScore?'width:100%;height:100%;':`transform:scale(${zoom});transform-origin:0 0;width:${100/zoom}%;height:${100/zoom}%;`;
+      const iframeAttr=w.data.srcdoc
+        ? `srcdoc="${esc(w.data.srcdoc)}"`
+        : `src="${esc(tavleIframeSrc(url,w))}"`;
+      const hint=isMuseScore?'MuseScore-visning':(url?`Hvis siden er tom, nægter den sandsynligvis iframe. Brug ↗ Åbn i ny fane.`:`Indsæt en adresse med ✎.`);
+      const linkChrome=isMuseScore?'':`${safe453i71LinkListBarHtml(w)}${safe453i79LinkNavHtml(w,'iframe')}`;
+      c.innerHTML=`${linkChrome}<div class="linkIframeBox safe401MiniBrowser ${isMuseScore?'safe453i196MuseScoreBox':''}" data-zoom="${esc(String(zoom))}">
+        <div class="linkIframeFrame">
+          <iframe ${iframeAttr} style="${esc(iframeStyle)}" allow="autoplay; fullscreen; clipboard-read; clipboard-write; encrypted-media" allowfullscreen loading="lazy"></iframe>
+          <div class="linkIframeFallbackHint">${esc(hint)} ${isMuseScore?'':`<span>${Math.round(zoom*100)}%</span>`}</div>
+          <div class="linkIframeShield"></div>
+        </div>
+      </div>`;
+    }
   }else{
     const linkTitle=String(w.data.text||'Klikbart link').trim()||'Klikbart link';
     const linkNote=String(w.data.linkNote||'').trim();
@@ -25721,10 +25849,16 @@ function wireWidget(el,w){
     w.data=w.data||{};
     w.data.url=normalizeLinkUrl(w.data.url||'');
     w.data.view=(w.data.view==='iframe')?'link':'iframe';
-    if(w.data.view!=='iframe' && activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();
+    if(w.data.view==='iframe'){
+      w.data.iframeInteractive=false;
+      if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();
+    }else{
+      w.data.iframeInteractive=false;
+      if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();
+    }
     save();
     render();
-    setTimeout(()=>select(w.id,{editText:false}),0);
+    setTimeout(()=>{try{select(w.id,{editText:false});}catch(_e){}},0);
   };
 
   const activateLinkIframeBtn=el.querySelector('[data-act=activateLinkIframe]');
@@ -26159,7 +26293,7 @@ function select(id,options={}){
   try{updateContextHints('select')}catch(_e){}
 }
 function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function ytId(url){let m=String(url).match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);return m?m[1]:''}
+function ytId(url){try{return safe453i221YoutubeId(url)||''}catch(_e){let m=String(url).match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{6,64})/);return m?m[1]:''}}
 function fmt(s){s=Math.max(0,Math.floor(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 let audioCtx=null,audioPrimed=false;
 // SAFE34: Audio skal vækkes af en brugerhandling (især iOS/Safari). Returnerer ctx, så beep kan stoppe rent hvis lyd er blokeret.
@@ -28482,12 +28616,36 @@ function safe453i78ApplyLinkItemToWidget(w,item,opts){
   if(!w||!item||!item.url)return false;
   opts=opts||{};
   w.data=w.data||{};
-  w.data.url=normalizeLinkUrl(item.url);
+  const parsed=safe453i195ParseMuseScore(item.url);
+  w.data.url=normalizeLinkUrl(parsed?parsed.pageUrl:item.url);
   w.data.text=String(item.title||'Link').trim()||'Link';
+  try{w.title=w.data.text;}catch(_e){}
+  if(parsed && (!item.title || String(item.title).trim()==='Link'))w.data.text=parsed.title||w.data.text;
   w.data.linkNote=String(item.note||'').trim();
   w.data.linkListRowIndex=Number.isFinite(Number(item.rowIndex))?Number(item.rowIndex):null;
-  // Bevar brugerens valgte visning. Nye linkwidgets starter typisk i almindelig linkvisning.
-  if(!w.data.view)w.data.view='link';
+  if(parsed){
+    w.data.view='iframe';
+    w.data.iframeInteractive=false;
+    w.data.viewType='musescore';
+    w.data.museScore=true;
+    w.data.museScoreEmbedUrl=parsed.embedUrl;
+    delete w.data.youtubeEmbedUrl;
+  }else if(safe453i221IsYoutube(item.url)){
+    w.data.view='iframe';
+    w.data.iframeInteractive=false;
+    w.data.viewType='youtube';
+    w.data.youtubeEmbed=true;
+    w.data.youtubeEmbedUrl=safe453i221YoutubeEmbedUrl(item.url);
+    delete w.data.museScore;
+    delete w.data.museScoreEmbedUrl;
+  }else{
+    if(!w.data.view)w.data.view='link';
+    delete w.data.viewType;
+    delete w.data.museScore;
+    delete w.data.museScoreEmbedUrl;
+    delete w.data.youtubeEmbed;
+    delete w.data.youtubeEmbedUrl;
+  }
   return true;
 }
 function safe453i78LoadFirstLinkFromDataset(w,ds){
@@ -28633,6 +28791,24 @@ const SAFE453I72_LINK_DEMOS=[
       ['CodePen Pen','https://codepen.io/pen/','Hurtige webskitser'],
       ['Mermaid Live Editor','https://mermaid.live/edit','Diagrammer som tekst']
     ]
+  },
+  {
+    name:'MuseScore-noder',
+    desc:'Eksempler på MuseScore-links, der kan åbnes som indlejrede noder i link/iframe-widgetten.',
+    rows:[
+      ['BastoVan · capo1','https://musescore.com/user/3285/scores/9064943/s/mvbIYm','MuseScore-partitur · embed genkendes automatisk'],
+      ['MuseScore · delt score','https://musescore.com/user/3285/scores/20133313?share=copy_link','MuseScore-link med share-parameter'],
+      ['MuseScore · eksempel','https://musescore.com/user/16006641/scores/4197961?share=copy_link','MuseScore-score til test af automatisk iframevisning']
+    ]
+  },
+  {
+    name:'YouTube-videoer',
+    desc:'Eksempler på YouTube-links, som kan genkendes og vises med video-embed i link/iframe-widgetten.',
+    rows:[
+      ['YouTube · embed-test','https://www.youtube.com/watch?v=M7lc1UVf-VE','Kendt testvideo fra YouTubes iframe-eksempler'],
+      ['YouTube · youtu.be-test','https://youtu.be/M7lc1UVf-VE','Kort YouTube-link til samme embed-test'],
+      ['YouTube · almindeligt watch-link','https://www.youtube.com/watch?v=aqz-KE-bpKQ','Almindeligt YouTube-watch-link til embed-test']
+    ]
   }
 ];
 function safe453i72DatasetName(base){
@@ -28669,13 +28845,39 @@ function safe453i72CreateDemoDataset(w,demo,openForEdit){
   }catch(_e){}
   const live=(typeof safe450FindWidgetById==='function'&&w&&w.id)?(safe450FindWidgetById(w.id)||{}).w:null;
   const owner=live||w;
-  safe453i71SetLinkList(owner,ds.id);
+
+  /* SAFE453i220: Demoliste må kun kobles og derefter tilbage til Ny linkliste-modalen.
+     Den må ikke automatisk loade/åbne første link fra listen. */
+  try{safe453i75FinalizeOrDeletePreviousLinkList(owner,ds.id);}catch(_e){}
+  owner.data=owner.data||{};
+  const name=String(ds.name||'Linkliste');
+  const hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null;
+  if(hit&&hit.w&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(owner,hit,'linkList',name);
+  else{
+    owner.data.linkedDataSources=owner.data.linkedDataSources||{};
+    owner.data.linkedDataSources.linkList={datasetId:ds.id,widgetId:(hit&&hit.w&&hit.w.id)||'',name,role:'linkList'};
+  }
+  owner.data.linkListDatasetId=ds.id;
+  owner.data.linkListDatasetName=name;
+  if(hit&&hit.w)owner.data.linkListWidgetId=hit.w.id;
+
+  /* Ryd eventuel automatisk/forrige visning, så brugeren vælger link i modalen. */
+  owner.data.linkListRowIndex=null;
+  owner.data.text='Link';
+  owner.data.url='';
+  owner.data.linkNote='';
+  owner.data.view='link';
+  delete owner.data.viewType;
+  delete owner.data.museScore;
+  delete owner.data.museScoreEmbedUrl;
+
   closeModal();
   render();
   setTimeout(()=>{
     try{select(owner.id,{editText:false});}catch(_e){}
-    try{toast('Demoliste koblet. Åbn 🔗-linklisten, hvis du vil redigere den.');}catch(_e){}
-  },40);
+    try{safe453i203OpenLinkModal(owner,{blankTitle:true});}catch(_e){}
+    try{toast('Demoliste valgt. Vælg et link eller tilføj et nyt.');}catch(_e){}
+  },60);
 }
 function safe453i72OpenDemoLinkLists(w){
   if(!canEditWidgets())return;
@@ -28807,41 +29009,446 @@ function safe453i80CreateLinkListWithFirstLink(w,info){
     return true;
   }catch(err){console.warn('safe453i80CreateLinkListWithFirstLink failed',err);return false;}
 }
-function safe453i80OpenAddLinkModal(w,opts){
+
+/* SAFE453i195: MuseScore helperfunktioner til link/iframe-widget. */
+function safe453i195TitleFromMuseScoreSlug(slug){
+  slug=String(slug||'').trim();
+  if(!slug || slug.length<2)return '';
+  if(/^[a-z0-9_-]{5,}$/i.test(slug) && !/[._-]/.test(slug))return '';
+  if(/^\d+$/.test(slug))return '';
+  if(slug==='embed'||slug==='scores'||slug==='user'||slug==='s'||slug==='share')return '';
+  try{slug=decodeURIComponent(slug);}catch(_e){}
+  return slug.replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
+}
+function safe453i195ParseMuseScore(input){
+  let raw=String(input||'').trim();
+  if(!raw)return null;
+  let htmlTitle='',htmlHref='',iframeSrc='';
+  try{
+    const m=raw.match(/<iframe\b[^>]*\bsrc=["']([^"']+)["']/i);
+    if(m)iframeSrc=m[1];
+    const a=raw.match(/<a\b[^>]*\bhref=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/i);
+    if(a){
+      htmlHref=a[1];
+      htmlTitle=String(a[2]||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+    }
+  }catch(_e){}
+  let url=normalizeLinkUrl(htmlHref||iframeSrc||raw.replace(/<[^>]*>/g,'').trim());
+  if(!url)return null;
+  try{
+    const u=new URL(url,window.location.href);
+    const host=u.hostname.replace(/^www\./i,'');
+    if(host!=='musescore.com' && !/\.musescore\.com$/i.test(host))return null;
+    const parts=u.pathname.split('/').filter(Boolean);
+    const scoreIndex=parts.indexOf('scores');
+    if(scoreIndex<0 || !parts[scoreIndex+1])return null;
+    const scoreId=parts[scoreIndex+1];
+    const userIndex=parts.indexOf('user');
+    const userId=(userIndex>=0&&parts[userIndex+1])?parts[userIndex+1]:'';
+    const embedPath=userId?('/user/'+encodeURIComponent(userId)+'/scores/'+encodeURIComponent(scoreId)+'/embed'):('/scores/'+encodeURIComponent(scoreId)+'/embed');
+    const embedUrl=u.origin+embedPath;
+    const pageUrl=htmlHref || (u.pathname.endsWith('/embed') ? u.origin+u.pathname.replace(/\/embed\/?$/,'') : u.href);
+    let title=htmlTitle||'';
+    if(!title){
+      for(let i=parts.length-1;i>=0;i--){
+        title=safe453i195TitleFromMuseScoreSlug(parts[i]);
+        if(title)break;
+      }
+    }
+    if(!title)title='MuseScore';
+    return {isMuseScore:true,pageUrl,embedUrl,title,scoreId,userId,raw};
+  }catch(_e){return null;}
+}
+function safe453i195MuseScoreRowHtml(checked){
+  return '<label class="safe453i195MuseScoreRow"><input id="safe453i195MuseScore" type="checkbox" '+(checked?'checked':'')+'><span>MuseScore-visning<small>Genkendt MuseScore-link vises som indlejrede noder i iframe. Slå fra for almindeligt link.</small></span></label>';
+}
+function safe453i195ApplyMuseScoreToWidget(w,url,enabled,title){
+  if(!w||!w.data)return;
+  const parsed=safe453i195ParseMuseScore(url);
+  if(enabled&&parsed){
+    w.data.view='iframe';
+    w.data.iframeInteractive=false;
+    w.data.viewType='musescore';
+    w.data.museScore=true;
+    w.data.museScoreEmbedUrl=parsed.embedUrl;
+    w.data.url=normalizeLinkUrl(parsed.pageUrl||url);
+    if(title&&String(title).trim())w.data.text=String(title).trim();
+  }else{
+    delete w.data.viewType;
+    delete w.data.museScore;
+    delete w.data.museScoreEmbedUrl;
+  }
+}
+function safe453i195WireMuseScoreModal(root,titleSel,urlSel,checkSel){
+  const titleInput=root.querySelector(titleSel);
+  const urlInput=root.querySelector(urlSel);
+  const check=root.querySelector(checkSel);
+  if(!urlInput||!check)return;
+  let userTouchedTitle=false;
+  if(titleInput)titleInput.addEventListener('input',()=>{userTouchedTitle=true;});
+  function sync(){
+    const parsed=safe453i195ParseMuseScore(urlInput.value);
+    const lab=check.closest('label');
+    if(parsed){
+      check.disabled=false;
+      if(!check.dataset.userChanged)check.checked=true;
+      if(titleInput&&check.checked&&parsed.title&&(!userTouchedTitle||!String(titleInput.value||'').trim()||/^(Link|Klikbart link|MuseScore)$/i.test(String(titleInput.value||'').trim()))){
+        titleInput.value=parsed.title;
+      }
+      if(lab)lab.classList.add('active');
+    }else{
+      if(!check.dataset.userChanged)check.checked=false;
+      if(lab)lab.classList.remove('active');
+    }
+  }
+  check.addEventListener('change',()=>{check.dataset.userChanged='1';sync();});
+  urlInput.addEventListener('input',()=>{sync();});
+  urlInput.addEventListener('blur',sync);
+  setTimeout(sync,0);
+}
+
+
+/* SAFE453i202: Linklistefelt som vælg/opret-combobox. */
+function safe453i202LinkListChoices(){
+  try{
+    return (typeof safe453i71AllDatasetChoices==='function'?safe453i71AllDatasetChoices():[])
+      .filter(ds=>ds&&ds.id&&safe453i80IsLinkListDataset(ds));
+  }catch(_e){return [];}
+}
+function safe453i202LinkListDatalistHtml(id){
+  const dss=safe453i202LinkListChoices();
+  const opts=dss.map(ds=>`<option value="${esc(String(ds.name||'Linkliste'))}">${esc((safe453i71LinkItemsFromDataset(ds)||[]).length+' links')}</option>`).join('');
+  return `<datalist id="${esc(id)}">${opts}<option value="Demoer…">Åbn demolister</option></datalist>`;
+}
+function safe453i202FindLinkListByName(name){
+  name=String(name||'').trim().toLowerCase();
+  if(!name)return null;
+  return safe453i202LinkListChoices().find(ds=>String(ds.name||'').trim().toLowerCase()===name)||null;
+}
+function safe453i202WireLinkListCombo(w,input){
+  if(!input)return;
+  input.addEventListener('change',()=>{
+    if(String(input.value||'').trim()==='Demoer…'){
+      try{safe453i72OpenDemoLinkLists(w);}catch(_e){}
+    }
+  });
+}
+function safe453i202LinkListFieldHtml(id,value,listId){
+  return `<label>Vælg/opret linkliste
+    <input id="${esc(id)}" list="${esc(listId)}" placeholder="Skriv nyt navn eller vælg eksisterende" value="${esc(value)}">
+    ${safe453i202LinkListDatalistHtml(listId)}
+    <small style="display:block;margin-top:4px;color:#64748b;font-weight:750;line-height:1.2">Vælg en eksisterende linkliste, skriv et nyt navn – eller vælg “Demoer…”</small>
+  </label>`;
+}
+function safe453i202SaveLinkToNamedList(w,info){
+  info=info||{};
+  const chosenName=String(info.listName||'').trim();
+  if(chosenName==='Demoer…'){
+    try{safe453i72OpenDemoLinkLists(w);}catch(_e){}
+    return 'demo';
+  }
+  const existing=safe453i202FindLinkListByName(chosenName);
+  if(existing){
+    safe453i71SetLinkList(w,existing.id);
+    const ok=safe453i80AppendLinkRow(w,existing,info);
+    return ok?'existing':false;
+  }
+  return safe453i80CreateLinkListWithFirstLink(w,info)?'new':false;
+}
+
+
+/* SAFE453i203: Linkmodal med tydelige rullemenuer for linklister og links. */
+function safe453i203Choices(){
+  try{return (safe453i71AllDatasetChoices?safe453i71AllDatasetChoices():[]).filter(ds=>ds&&ds.id&&safe453i80IsLinkListDataset(ds));}
+  catch(_e){return [];}
+}
+function safe453i203FindDsByName(name){
+  name=String(name||'').trim().toLowerCase();
+  if(!name)return null;
+  return safe453i203Choices().find(ds=>String(ds.name||'').trim().toLowerCase()===name)||null;
+}
+function safe453i203SelectHtml(id,opts,selected,label){
+  return `<label>${esc(label||'Vælg')}
+    <select id="${esc(id)}">${opts.map(o=>`<option value="${esc(o.value)}" ${String(o.value)===String(selected)?'selected':''}>${esc(o.label)}</option>`).join('')}</select>
+  </label>`;
+}
+function safe453i204WireSelectKeyboard(sel,onChoose){
+  if(!sel || sel.__safe453i204Keys)return;
+  sel.__safe453i204Keys=true;
+  sel.addEventListener('keydown',e=>{
+    const key=String(e.key||'');
+    if(key==='ArrowDown'||key==='ArrowUp'){
+      e.preventDefault();
+      e.stopPropagation();
+      const max=sel.options.length-1;
+      if(max<0)return;
+      const dir=key==='ArrowDown'?1:-1;
+      let next=sel.selectedIndex+dir;
+      if(next<0)next=max;
+      if(next>max)next=0;
+      sel.selectedIndex=next;
+      /* SAFE453i207: ArrowUp/Down må kun flytte markering i rullemenuen.
+         Selve valget udføres først med Enter. */
+      return;
+    }
+    if(key==='Enter'){
+      e.preventDefault();
+      e.stopPropagation();
+      if(typeof onChoose==='function')onChoose();
+      else sel.dispatchEvent(new Event('change',{bubbles:true}));
+      return;
+    }
+  });
+}
+function safe453i203CurrentRowIndex(w,items){
+  try{
+    const row=Number(w&&w.data&&w.data.linkListRowIndex);
+    if(Number.isFinite(row)&&items.some(it=>Number(it.rowIndex)===row))return row;
+    const url=normalizeLinkUrl(w&&w.data&&w.data.url||'');
+    if(url){
+      const byUrl=items.find(it=>normalizeLinkUrl(it.url||'')===url);
+      if(byUrl)return Number(byUrl.rowIndex);
+    }
+  }catch(_e){}
+  return '__new__';
+}
+function safe453i203UpdateRow(w,ds,rowIndex,info){
+  try{
+    if(!ds)return false;
+    info=info||{};
+    const url=normalizeLinkUrl(info.url||'');
+    if(!url){toast('Skriv en adresse først');return false;}
+    safe453i80MarkAsLinkList(ds);
+    const cols=safe453i80EnsureLinkDatasetColumns(ds);
+    ds.rows=Array.isArray(ds.rows)?ds.rows:[];
+    const title=String(info.title||'').trim()||url;
+    const note=String(info.note||'').trim();
+    let idx=(rowIndex==='__new__'||rowIndex===''||rowIndex==null)?-1:Number(rowIndex);
+    if(!Number.isFinite(idx)||idx<0||idx>=ds.rows.length){
+      idx=ds.rows.length;
+      const row=Array.from({length:ds.columns.length},()=>'');
+      ds.rows.push(row);
+    }
+    const row=Array.isArray(ds.rows[idx])?ds.rows[idx]:(ds.rows[idx]=Array.from({length:ds.columns.length},()=>''));
+    while(row.length<ds.columns.length)row.push('');
+    row[cols.titleCol]=title;
+    row[cols.urlCol]=url;
+    row[cols.noteCol]=note;
+    ds.safe453i75UserSaved=true;
+    ds.safe453i75TemporaryLinkList=false;
+    ds.updatedAt=Date.now();
+    updateDatasetInState(ds);
+    try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}
+    safe453i78ApplyLinkItemToWidget(w,{rowIndex:idx,title,url,note});
+    try{w.title=title;}catch(_e){}
+    save();
+    return true;
+  }catch(err){console.warn('safe453i203UpdateRow failed',err);return false;}
+}
+function safe453i203CreateListAndRow(w,name,info){
+  try{
+    info=info||{};
+    const url=normalizeLinkUrl(info.url||'');
+    if(!url){toast('Skriv en adresse først');return false;}
+    const listName=safe453i72DatasetName(String(name||'').trim()||safe453i80LinkListDefaultName(w));
+    const title=String(info.title||'').trim()||url;
+    const note=String(info.note||'').trim();
+    const ds={id:uid(),name:listName,type:'link-list',columns:['Titel','URL','Note'],rows:[[title,url,note]],sourceName:'Link/iframe',sourceType:'link-list',importedAt:Date.now(),updatedAt:Date.now(),safe453i80LinkList:true,safe453i75UserSaved:true};
+    updateDatasetInState(ds);
+    let dw=null;
+    try{dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});}catch(_e){dw=null;}
+    try{if(dw){dw.title='📊 '+ds.name;dw.data=dw.data||{};dw.data.sourceType='link-list';dw.data.sourceOpen=false;}}catch(_e){}
+    const live=(typeof safe450FindWidgetById==='function'&&w&&w.id)?(safe450FindWidgetById(w.id)||{}).w:null;
+    const owner=live||w;
+    safe453i71SetLinkList(owner,ds.id);
+    safe453i78ApplyLinkItemToWidget(owner,{rowIndex:0,title,url,note});
+    try{owner.title=title;}catch(_e){}
+    save();
+    return ds;
+  }catch(err){console.warn('safe453i203CreateListAndRow failed',err);return false;}
+}
+function safe453i203OpenLinkModal(w,opts){
   if(!canEditWidgets())return;
   opts=opts||{};
+  w.data=w.data||{};
   const ref=safe453i71LinkListRef(w);
-  const ds=ref.datasetId?findDatasetById(ref.datasetId):null;
-  const hasList=!!ds;
-  const currentUrl=normalizeLinkUrl(w&&w.data&&w.data.url||'');
-  const currentTitle=String(w&&w.data&&w.data.text||'').trim();
-  const currentNote=String(w&&w.data&&w.data.linkNote||'').trim();
-  const prefillCurrent=!!opts.current;
-  const listName=hasList?String(ds.name||'Linkliste'):(safe453i80LinkListDefaultName(w));
-  showModal(`<h2>${hasList?'Tilføj link':'Ny linkliste'}</h2>
-    <p style="margin-top:0;opacity:.75;font-weight:800">${hasList?'Linket gemmes i den koblede linkliste: '+esc(listName):'Første link opretter samtidig en ny linkliste.'}</p>
-    ${hasList?'':`<label>Navn på linkliste<input id="safe453i80ListName" placeholder="Linkliste" value="${esc(listName)}"></label>`}
-    <label>Titel<input id="safe453i80Title" placeholder="Titel på linket" value="${esc(prefillCurrent&&currentTitle&&currentTitle!=='Klikbart link'?currentTitle:'')}"></label>
-    <label>Adresse<input id="safe453i80Url" placeholder="https://..." value="${esc(prefillCurrent?currentUrl:'')}"></label>
-    <label>Beskrivelse<input id="safe453i80Note" placeholder="Kort note om siden" value="${esc(prefillCurrent?currentNote:'')}"></label>
-    <div class="calendarModalBtns"><button id="safe453i80Save" class="primary">${hasList?'Tilføj link':'Opret linkliste'}</button><button id="close">Annuller</button></div>`);
-  const listInput=modal.querySelector('#safe453i80ListName');
-  const titleInput=modal.querySelector('#safe453i80Title');
-  const urlInput=modal.querySelector('#safe453i80Url');
-  const noteInput=modal.querySelector('#safe453i80Note');
+  const currentDs=ref.datasetId?findDatasetById(ref.datasetId):null;
+  const choices=safe453i203Choices();
+  const hasDs=!!currentDs;
+  const defaultListName=safe453i80LinkListDefaultName(w);
+  const currentTitle=String(w.data.text||'').trim();
+  const titleValue=(opts.blankTitle?'':((currentTitle&&currentTitle!=='Klikbart link')?currentTitle:'Link'));
+  const urlValue=opts.blankTitle?'':normalizeLinkUrl(w.data.url||'');
+  const noteValue=opts.blankTitle?'':String(w.data.linkNote||'').trim();
+  const msChecked=!!(w.data.museScore||w.data.viewType==='musescore'||safe453i195ParseMuseScore(urlValue));
+
+  const listOpts=[
+    {value:'__new__',label:'＋ Ny linkliste'},
+    ...choices.map(ds=>({value:String(ds.id),label:String(ds.name||'Linkliste')+' · '+(safe453i71LinkItemsFromDataset(ds)||[]).length+' links'})),
+    {value:'__demos__',label:'Demoer…'}
+  ];
+  const selectedList=hasDs?String(currentDs.id):'__new__';
+
+  showModal(`<h2>${opts.blankTitle?'Tilføj link':'Linkliste'}</h2>
+    <p style="margin-top:0;opacity:.75;font-weight:800">Vælg linkliste i rullemenuen. Vælg et eksisterende link for at redigere det, eller vælg “＋ Nyt link” for at tilføje et nyt.</p>
+    ${safe453i203SelectHtml('safe453i203ListSelect',listOpts,selectedList,'Linkliste')}
+
+    <label id="safe453i203LinkSelectWrap">Titel / link i valgte linkliste
+      <select id="safe453i203LinkSelect"></select>
+    </label>
+    <label>Titel
+      <input id="safe453i203Title" placeholder="Titel på linket" value="${esc(titleValue)}">
+    </label>
+    <label>Adresse
+      <input id="safe453i203Url" placeholder="Indsæt URL" value="${esc(urlValue)}">
+    </label>
+    <label>Beskrivelse
+      <input id="safe453i203Note" placeholder="Kort note om siden" value="${esc(noteValue)}">
+    </label>
+    ${safe453i195MuseScoreRowHtml(msChecked)}
+    <div class="calendarModalBtns"><button id="safe453i203Save" class="primary">Åbn link</button><button id="close">Luk</button></div>`);
+
+  const listSel=modal.querySelector('#safe453i203ListSelect');
+  const linkWrap=modal.querySelector('#safe453i203LinkSelectWrap');
+  const linkSel=modal.querySelector('#safe453i203LinkSelect');
+  const titleInput=modal.querySelector('#safe453i203Title');
+  const urlInput=modal.querySelector('#safe453i203Url');
+  const noteInput=modal.querySelector('#safe453i203Note');
+  const msInput=modal.querySelector('#safe453i195MuseScore');
+
+  function dsFromSelect(){
+    const v=String(listSel.value||'');
+    return (v&&v!=='__new__'&&v!=='__demos__')?findDatasetById(v):null;
+  }
+  function fillLinkOptions(keep){
+    const ds=dsFromSelect();
+    const items=ds?safe453i71LinkItemsFromDataset(ds):[];
+    const current=safe453i203CurrentRowIndex(w,items);
+    const selected=keep||((opts.blankTitle||!ds)?'__new__':current);
+    linkSel.innerHTML=`<option value="__new__">＋ Nyt link</option>`+items.map(it=>`<option value="${esc(String(it.rowIndex))}" ${String(it.rowIndex)===String(selected)?'selected':''}>${esc(it.title||'Link')}</option>`).join('');
+    linkWrap.style.display=ds?'block':'none';
+    if(ds&&selected!=='__new__'){
+      const item=items.find(it=>String(it.rowIndex)===String(selected));
+      if(item)fillFromItem(item);
+    }else if(opts.blankTitle){
+      titleInput.value='';
+      urlInput.value='';
+      noteInput.value='';
+    }
+  }
+  function fillFromItem(item){
+    if(!item)return;
+    titleInput.value=String(item.title||'Link');
+    urlInput.value=String(item.url||'');
+    noteInput.value=String(item.note||'');
+    try{
+      const parsed=safe453i195ParseMuseScore(item.url);
+      if(parsed&&msInput&&!msInput.dataset.userChanged){msInput.checked=true;}
+      safe453i195WireMuseScoreModal(modal,'#safe453i203Title','#safe453i203Url','#safe453i195MuseScore');
+    }catch(_e){}
+  }
+  function onListChange(){
+    if(listSel.value==='__demos__'){
+      /* SAFE453i219: Native iPad/Safari select sender change, når brugeren aktivt vælger Demoer…
+         Det skal åbne demomodal. Piletast-navigation forbi Demoer… er fortsat stoppet i safe453i214. */
+      safe453i72OpenDemoLinkLists(w);
+      return;
+    }
+    const isNew=listSel.value==='__new__';
+    fillLinkOptions('__new__');
+    if(isNew){
+      try{titleInput.focus({preventScroll:true});}catch(_e){}
+    }
+  }
+  listSel.addEventListener('change',onListChange);
+  safe453i204WireSelectKeyboard(listSel,()=>{
+    if(listSel.value==='__demos__'){
+      safe453i72OpenDemoLinkLists(w);
+      return;
+    }
+    onListChange();
+  });
+  linkSel.addEventListener('change',()=>{
+    const ds=dsFromSelect();
+    if(!ds||linkSel.value==='__new__'){
+      titleInput.value='';
+      urlInput.value='';
+      noteInput.value='';
+      if(msInput){msInput.checked=false;delete msInput.dataset.userChanged;}
+      return;
+    }
+    const item=safe453i71LinkItemsFromDataset(ds).find(it=>String(it.rowIndex)===String(linkSel.value));
+    fillFromItem(item);
+  });
+  safe453i204WireSelectKeyboard(linkSel,()=>{
+    if(linkSel.value==='__new__'){
+      try{titleInput.focus({preventScroll:true});}catch(_e){}
+    }else{
+      const ds=dsFromSelect();
+      const item=ds?safe453i71LinkItemsFromDataset(ds).find(it=>String(it.rowIndex)===String(linkSel.value)):null;
+      fillFromItem(item);
+      try{titleInput.focus({preventScroll:true});}catch(_e){}
+    }
+  });
+  safe453i195WireMuseScoreModal(modal,'#safe453i203Title','#safe453i203Url','#safe453i195MuseScore');
+
   function commit(){
-    const info={listName:listInput?listInput.value:'',title:titleInput.value,url:urlInput.value,note:noteInput.value};
-    const ok=hasList?safe453i80AppendLinkRow(w,ds,info):safe453i80CreateLinkListWithFirstLink(w,info);
+    const rawUrl=urlInput.value;
+    const parsed=safe453i195ParseMuseScore(rawUrl);
+    const useMs=!!(msInput&&msInput.checked&&parsed);
+    const info={title:titleInput.value,url:useMs?(parsed.pageUrl||rawUrl):rawUrl,note:noteInput.value};
+    let ds=dsFromSelect();
+    let ok=false;
+    if(listSel.value==='__demos__'){safe453i72OpenDemoLinkLists(w);return;}
+    if(listSel.value==='__new__'||!ds){
+      const autoListName=(String(info.title||'').trim()&&String(info.title||'').trim()!=='Link')?('Linkliste · '+String(info.title||'').trim()):safe453i80LinkListDefaultName(w);
+      ds=safe453i203FindDsByName(autoListName)||null;
+      if(ds){
+        safe453i71SetLinkList(w,ds.id);
+        ok=safe453i203UpdateRow(w,ds,'__new__',info);
+      }else{
+        ds=safe453i203CreateListAndRow(w,autoListName,info);
+        ok=!!ds;
+      }
+    }else{
+      safe453i71SetLinkList(w,ds.id);
+      ok=safe453i203UpdateRow(w,ds,linkSel.value,info);
+    }
     if(!ok)return;
+    safe453i195ApplyMuseScoreToWidget(w,info.url,useMs,info.title);
+    if(!useMs){
+      w.data=w.data||{};
+      w.data.url=normalizeLinkUrl(info.url||'');
+      w.data.text=String(info.title||'Link').trim()||'Link';
+      w.data.linkNote=String(info.note||'').trim();
+      w.data.view='iframe';
+      if(safe453i221IsYoutube(info.url)){
+        w.data.viewType='youtube';
+        w.data.youtubeEmbed=true;
+        w.data.youtubeEmbedUrl=safe453i221YoutubeEmbedUrl(info.url);
+      }else{
+        delete w.data.viewType;
+        delete w.data.youtubeEmbed;
+        delete w.data.youtubeEmbedUrl;
+      }
+    }
+    try{w.title=String(info.title||w.data.text||'Link').trim()||'Link';}catch(_e){}
     closeModal();
     render();
     setTimeout(()=>{try{select(w.id,{editText:false})}catch(_e){}},30);
-    toast(hasList?'Link tilføjet':'Linkliste oprettet');
+    toast('Link gemt');
   }
-  modal.querySelector('#safe453i80Save').onclick=commit;
+  modal.querySelector('#safe453i203Save').onclick=commit;
   modal.querySelector('#close').onclick=closeModal;
-  [listInput,titleInput,urlInput,noteInput].filter(Boolean).forEach(input=>input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();}}));
-  setTimeout(()=>{try{(hasList?titleInput:(listInput||titleInput)).focus({preventScroll:true});}catch(_e){}},50);
+  [titleInput,urlInput,noteInput].filter(Boolean).forEach(input=>input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();}}));
+  fillLinkOptions(opts.blankTitle?'__new__':null);
+  setTimeout(()=>{try{(hasDs?linkSel:listSel).focus({preventScroll:true});}catch(_e){}},50);
+}
+
+function safe453i80OpenAddLinkModal(w,opts){
+  opts=opts||{};
+  opts.blankTitle=!opts.current;
+  return safe453i203OpenLinkModal(w,opts);
 }
 
 function normalizeLinkUrl(url){
@@ -28856,87 +29463,7 @@ function normalizeLinkUrl(url){
   return url;
 }
 function askLink(w){
-  if(!canEditWidgets())return;
-
-  const ref=safe453i71LinkListRef(w);
-  const ds=ref.datasetId?findDatasetById(ref.datasetId):null;
-  const hasList=!!ds;
-  const defaultTitle='Link';
-  const currentTitle=String(w.data.text||'').trim();
-  const titleValue=(currentTitle && currentTitle!=='Klikbart link') ? currentTitle : defaultTitle;
-  const urlValue=String(w.data.url||'').trim();
-  const noteValue=String(w.data.linkNote||'').trim();
-  const listName=safe453i80LinkListDefaultName(w);
-
-  showModal(`<h2>${hasList?'Link':'Ny linkliste'}</h2>
-    <p style="margin-top:0;opacity:.75;font-weight:800">${hasList?'Ret linket i widgetten, eller tilføj/gem links i den koblede linkliste.':'Skriv første link, vælg en tidligere linkliste eller brug en demoliste. Første link opretter en ny linkliste.'}</p>
-    ${hasList?'':`<label>Navn på linkliste<input id="lln" placeholder="Linkliste" value="${esc(listName)}"></label>`}
-    <label>Titel
-      <input id="lt" placeholder="Link" value="${esc(titleValue)}">
-    </label>
-    <label>Adresse
-      <input id="lu" placeholder="Indsæt URL" value="${esc(urlValue)}">
-    </label>
-    <label>Beskrivelse
-      <input id="ln" placeholder="Kort note om siden" value="${esc(noteValue)}">
-    </label>
-    <div class="calendarModalBtns"><button id="ok" class="primary">${hasList?'Gem link':'Opret linkliste'}</button>
-    <button id="chooseLinkListFromDialog">Vælg linkliste</button>
-    <button id="cancel">Luk</button></div>`);
-
-  const listInput=modal.querySelector('#lln');
-  const titleInput=modal.querySelector('#lt');
-  const urlInput=modal.querySelector('#lu');
-  const noteInput=modal.querySelector('#ln');
-
-  function selectAllOnFocus(input){
-    if(!input)return;
-    let selectedOnce=false;
-    const doSelect=()=>{
-      try{input.focus({preventScroll:true});input.setSelectionRange(0,String(input.value||'').length);selectedOnce=true;}
-      catch(e){try{input.select();selectedOnce=true;}catch(_e){}}
-    };
-    input.addEventListener('focus',()=>setTimeout(doSelect,0));
-    input.addEventListener('pointerdown',()=>{if(!selectedOnce)setTimeout(doSelect,0);});
-    input.addEventListener('click',()=>{if(!selectedOnce)setTimeout(doSelect,0);});
-    input.addEventListener('blur',()=>{selectedOnce=false;});
-  }
-  [listInput,titleInput,urlInput,noteInput].filter(Boolean).forEach(selectAllOnFocus);
-
-  function saveLink(){
-    const title=titleInput.value.trim()||defaultTitle;
-    const url=normalizeLinkUrl(urlInput.value);
-    const note=noteInput.value.trim();
-    if(!url){toast('Skriv en adresse først');return;}
-    if(hasList){
-      w.data.text=title;
-      w.data.url=url;
-      w.data.linkNote=note;
-      if(!w.data.view)w.data.view='link';
-      closeModal();
-      render();
-      save();
-    }else{
-      const ok=safe453i80CreateLinkListWithFirstLink(w,{listName:listInput?listInput.value:'',title,url,note});
-      if(!ok)return;
-      closeModal();
-      render();
-      save();
-    }
-  }
-
-  modal.querySelector('#ok').onclick=saveLink;
-  const chooseBtn=modal.querySelector('#chooseLinkListFromDialog');
-  if(chooseBtn)chooseBtn.onclick=()=>safe453i71OpenLinkListChooser(w);
-  modal.querySelector('#cancel').onclick=closeModal;
-  [listInput,titleInput,urlInput,noteInput].filter(Boolean).forEach(input=>{
-    input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveLink();}});
-  });
-
-  setTimeout(()=>{
-    try{(hasList?titleInput:(listInput||titleInput)).focus({preventScroll:true});}
-    catch(e){try{titleInput.select()}catch(_e){}}
-  },60);
+  return safe453i203OpenLinkModal(w,{blankTitle:false});
 }
 
 
@@ -43008,4 +43535,1024 @@ body.safe453i185uTimerPresentation [data-stopwatch-panel],
   setInterval(applyTimerPresentationHardhide,500);
 })();
 </script>
+
+
+<!-- SAFE453i187: mobilvenlig top-/bundværktøjslinje + titel min. 1 bogstav og ellipsis. Minimal patch: ingen widget-/render-/genvejslogik ændret. -->
+<style id="safe453i186-mobile-toolbar-responsive-css">
+/* Titel og tavlevælger er separate: titel må krympe, #slideInfo må ikke skjules. */
+#title.title{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.topbar{
+  max-width:calc(100vw - 28px)!important;
+  min-width:0!important;
+  overflow:visible!important;
+}
+.topbar #slideInfo{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:48px!important;
+  min-height:44px!important;
+  padding:0 8px!important;
+  border-radius:10px!important;
+}
+#fullscreenTop.safe453i186FsHidden{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+/* Bundværktøjslinje: reel vandret scroll-container også med mus/trackpad. */
+.toolbar{
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-inline:contain!important;
+  scrollbar-width:thin!important;
+}
+.toolbar .tool,
+.toolbar .tool button,
+.toolbar [data-tool]{
+  flex:0 0 auto!important;
+}
+@media (max-width:760px){
+  #title.title{
+    max-width:clamp(58px,34vw,230px)!important;
+    font-size:clamp(18px,4.4vw,26px)!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+  .topbar{
+    gap:6px!important;
+    padding:7px!important;
+  }
+  .topbar #slideInfo{
+    min-width:46px!important;
+    padding:0 7px!important;
+  }
+  .topbar #addSlide{
+    min-width:48px!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+}
+@media (max-width:520px){
+  #title.title{
+    max-width:26vw!important;
+  }
+}
+@media (max-width:420px){
+  #title.title{
+    /* SAFE453i187: ikke kollapse til kun ét næsten-usynligt bogstav.
+       Der skal mindst være plads til 1 bogstav + ellipsis, fx “H…”. */
+    max-width:4.2em!important;
+    min-width:3.2em!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+}
+</style>
+<script id="safe453i186-mobile-toolbar-responsive-js">
+(function(){
+  'use strict';
+  function isStandalone(){
+    try{
+      return !!((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true);
+    }catch(_e){return false;}
+  }
+  function supportsFullscreen(){
+    try{
+      var el=document.documentElement;
+      return !!(el && (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen));
+    }catch(_e){return false;}
+  }
+  function applyFullscreenButtonVisibility(){
+    try{
+      var btn=document.getElementById('fullscreenTop');
+      if(!btn) return;
+      var hide=(!supportsFullscreen()) || isStandalone();
+      btn.classList.toggle('safe453i186FsHidden', hide);
+      btn.hidden=!!hide;
+      btn.setAttribute('aria-hidden', hide ? 'true' : 'false');
+      if(hide) btn.setAttribute('tabindex','-1');
+      else btn.removeAttribute('tabindex');
+    }catch(_e){}
+  }
+  function wrapFullscreenUpdater(){
+    try{
+      if(window.__safe453i186FullscreenWrapped) return;
+      window.__safe453i186FullscreenWrapped=true;
+      var old=window.safe453UpdateFullscreenButton;
+      if(typeof old==='function'){
+        window.safe453UpdateFullscreenButton=function(){
+          try{old.apply(this,arguments);}catch(_e){}
+          applyFullscreenButtonVisibility();
+        };
+      }
+    }catch(_e){}
+  }
+  function installToolbarWheelScroll(){
+    try{
+      var bars=document.querySelectorAll('.toolbar');
+      bars.forEach(function(bar){
+        if(!bar || bar.__safe453i186WheelScroll) return;
+        bar.__safe453i186WheelScroll=true;
+        bar.addEventListener('wheel',function(e){
+          try{
+            var max=bar.scrollWidth-bar.clientWidth;
+            if(max<=1) return;
+            var dx=e.deltaX||0, dy=e.deltaY||0;
+            var delta=Math.abs(dy)>Math.abs(dx) ? dy : dx;
+            if(!delta) return;
+            var before=bar.scrollLeft;
+            var next=Math.max(0,Math.min(max,before+delta));
+            if(next===before) return;
+            bar.scrollLeft=next;
+            e.preventDefault();
+            e.stopPropagation();
+          }catch(_e){}
+        },{passive:false});
+      });
+    }catch(_e){}
+  }
+  function init(){
+    wrapFullscreenUpdater();
+    applyFullscreenButtonVisibility();
+    installToolbarWheelScroll();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+  window.addEventListener('resize',function(){setTimeout(init,60);},false);
+  window.addEventListener('orientationchange',function(){setTimeout(init,160);},false);
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev,function(){setTimeout(applyFullscreenButtonVisibility,60);},true);
+  });
+})();
+</script>
+
+<!-- SAFE453i188: reparerer mobil titeltrunkering, så statusprik/dot-zone ikke dækker første bogstav. Kun CSS-override. -->
+<style id="safe453i188-mobile-title-dot-space-css">
+/* Bevar statusprikkens faste venstre zone. Titelteksten må først starte efter prikken. */
+@media (max-width:760px){
+  #title.title{
+    padding-left:38px!important;
+    padding-right:12px!important;
+    min-width:74px!important;
+    box-sizing:border-box!important;
+  }
+  #title.title::before{
+    left:14px!important;
+  }
+}
+@media (max-width:520px){
+  #title.title{
+    max-width:clamp(78px,28vw,128px)!important;
+    min-width:78px!important;
+  }
+}
+@media (max-width:420px){
+  #title.title{
+    /* mindst prik-zone + 1 bogstav + ellipsis + højre luft */
+    max-width:86px!important;
+    min-width:78px!important;
+    padding-left:38px!important;
+    padding-right:10px!important;
+  }
+}
+</style>
+
+
+<!-- SAFE453i190: topbar presentation icon follows mode (edit: clapperboard, presentation: tools). -->
+<script id="safe453i189-present-icon-toggle">
+(function(){
+  function isPresentMode(){
+    try{
+      var app=document.getElementById('app');
+      return !!((app && app.classList.contains('present')) || document.body.classList.contains('present') || document.documentElement.classList.contains('present'));
+    }catch(_e){return false;}
+  }
+  function syncPresentIcon(){
+    var on=isPresentMode();
+    var buttons=[];
+    var top=document.getElementById('present');
+    if(top) buttons.push(top);
+    document.querySelectorAll('[data-tool="present"]').forEach(function(b){buttons.push(b);});
+    buttons.forEach(function(b){
+      b.textContent = on ? '🛠️' : '🎬';
+      b.title = on ? 'Til redigeringstilstand' : 'Til præsentationstilstand';
+      b.setAttribute('aria-label', b.title);
+      b.classList.toggle('presentModeActive', on);
+    });
+  }
+  window.safe453i189SyncPresentIcon=syncPresentIcon;
+  ['DOMContentLoaded','load'].forEach(function(ev){window.addEventListener(ev,syncPresentIcon,{passive:true});});
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.closest && (e.target.closest('#present') || e.target.closest('[data-tool="present"]'))){
+      setTimeout(syncPresentIcon,0);
+      setTimeout(syncPresentIcon,80);
+      setTimeout(syncPresentIcon,250);
+    }
+  },true);
+  try{
+    var app=document.getElementById('app');
+    if(app && window.MutationObserver){
+      new MutationObserver(syncPresentIcon).observe(app,{attributes:true,attributeFilter:['class']});
+      new MutationObserver(syncPresentIcon).observe(document.body,{attributes:true,attributeFilter:['class']});
+      new MutationObserver(syncPresentIcon).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+    }
+  }catch(_e){}
+  setInterval(syncPresentIcon,700);
+  syncPresentIcon();
+})();
+</script>
+
+
+<!-- SAFE453i192: skjul topbarens præsentation/redigering-toggle allerede når mobiltrunkering af tavletitlen starter.
+     Begrundelse: statusprikken ved titlen kan også skifte tilstand, og zoom + skal have plads. -->
+<style id="safe453i192-hide-present-when-title-truncates">
+@media (max-width:760px){
+  .topbar #present{
+    display:none!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+  }
+}
+</style>
+<script id="safe453i192-cleanup-old-hide-present-style">
+(function(){
+  try{
+    var old=document.getElementById('safe453i191-hide-present-toggle-narrow');
+    if(old && old.parentNode) old.parentNode.removeChild(old);
+  }catch(_e){}
+})();
+</script>
+
+<!-- SAFE453i195: MuseScore-visning i linkmodaler. Direkte patch i originalfunktioner. -->
+<style id="safe453i195-musescore-css">
+.safe453i195MuseScoreRow{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  margin:4px 0 12px!important;
+  padding:9px 11px!important;
+  border-radius:12px!important;
+  background:#f8fafc!important;
+  border:1px solid #e5e7eb!important;
+  font-weight:900!important;
+}
+.safe453i195MuseScoreRow input{
+  width:20px!important;
+  height:20px!important;
+  min-width:20px!important;
+  margin:0!important;
+  accent-color:#6d5dfc!important;
+}
+.safe453i195MuseScoreRow small{
+  display:block!important;
+  font-weight:750!important;
+  color:#64748b!important;
+  line-height:1.2!important;
+}
+</style>
+
+
+<!-- SAFE453i196: Auto-interaktion og renere MuseScore-iframe i linkwidget. -->
+<style id="safe453i196-link-iframe-auto-interaction">
+.widget[data-type="link"].linkIframeAutoInteractive iframe,
+.widget[data-type="link"].linkIframeAutoInteractive .linkIframeFrame iframe{
+  pointer-events:auto!important;
+}
+.widget[data-type="link"].linkIframeAutoInteractive .linkIframeShield{
+  display:none!important;
+}
+.widget[data-type="link"][data-musescore="1"] .mini [data-act="activateLinkIframe"],
+.widget[data-type="link"][data-musescore="1"] .mini [data-act="linkZoomOut"],
+.widget[data-type="link"][data-musescore="1"] .mini [data-act="linkZoomIn"],
+.widget[data-type="link"][data-musescore="1"] .mini [data-act="reloadLinkIframe"]{
+  display:none!important;
+}
+.widget[data-type="link"][data-musescore="1"] .linkIframeBox,
+.widget[data-type="link"][data-musescore="1"] .linkIframeFrame{
+  background:#fff!important;
+}
+.widget[data-type="link"][data-musescore="1"] .linkIframeFallbackHint{
+  display:none!important;
+}
+.widget[data-type="link"][data-musescore="1"] .content{
+  background:#fff!important;
+}
+.widget[data-type="link"][data-musescore="1"] .safe453i196MuseScoreBox{
+  height:100%!important;
+}
+</style>
+
+
+<!-- SAFE453i197: Linkwidget bruger linkets angivne titel i widget-chrome. -->
+<style id="safe453i197-link-title-chrome">
+.widget[data-type="link"] .chrome .titleText{
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+</style>
+
+
+<!-- SAFE453i198: fokuser iframe ved berøring/klik, så Space og andre taster går til iframe-appen. -->
+<script id="safe453i198-focus-link-iframe-on-pointer">
+(function(){
+  function focusIframeFromEvent(e){
+    try{
+      const frame=e.target&&e.target.closest&&e.target.closest('.widget[data-type="link"] .linkIframeFrame');
+      if(!frame)return;
+      const widget=frame.closest('.widget[data-type="link"]');
+      if(!widget)return;
+      if(!(widget.classList.contains('linkIframeAutoInteractive')||widget.classList.contains('linkIframeActive')||widget.dataset.musescore==='1'))return;
+      const iframe=frame.querySelector('iframe');
+      if(iframe)setTimeout(function(){try{iframe.focus({preventScroll:true});}catch(_e){try{iframe.focus();}catch(__e){}}},0);
+    }catch(_e){}
+  }
+  document.addEventListener('pointerdown',focusIframeFromEvent,true);
+  document.addEventListener('click',focusIframeFromEvent,true);
+})();
+</script>
+
+
+<!-- SAFE453i200: Klik/tap uden for aktiv link/iframe-widget slipper iframekontrol.
+     Ingen fokus-trap: iframe-appens egne genveje bevares, når iframe har fokus. -->
+<script id="safe453i200-click-outside-exits-iframe">
+(function(){
+  'use strict';
+
+  function clearActiveIframeVisuals(){
+    try{
+      document.querySelectorAll('.widget[data-type="link"].linkIframeActive,.widget[data-type="link"].iframe-interaction-enabled,.widget[data-type="link"].is-iframe-active').forEach(function(el){
+        el.classList.remove('linkIframeActive','iframe-interaction-enabled','is-iframe-active');
+        const btn=el.querySelector('[data-act="activateLinkIframe"]');
+        if(btn){
+          btn.classList.remove('active');
+          btn.textContent='🖱';
+          btn.title='Lås op for webside-interaktion';
+        }
+      });
+    }catch(_e){}
+  }
+
+  function clearIframeControlSoft(){
+    try{
+      if(window.clearIframeControl) window.clearIframeControl();
+      else if(window.setIframeControl) window.setIframeControl(null,false);
+    }catch(_e){}
+    clearActiveIframeVisuals();
+  }
+
+  function activeIframeWidget(){
+    try{
+      return document.querySelector('.widget[data-type="link"].linkIframeActive');
+    }catch(_e){return null;}
+  }
+
+  document.addEventListener('pointerdown',function(e){
+    try{
+      if(!(window.isIframeControlActive && window.isIframeControlActive()))return;
+      const active=activeIframeWidget();
+      if(!active)return;
+
+      const target=e.target;
+      /* Klik inde i den aktive widget bevarer iframekontrol.
+         Klik/tap på alt andet: tavlebaggrund, anden widget, topbar, toolbar, modal osv. slipper iframekontrol. */
+      if(target && target.closest && target.closest('.widget[data-type="link"].linkIframeActive'))return;
+
+      clearIframeControlSoft();
+    }catch(_e){}
+  },true);
+
+  /* Når man vælger en anden widget med almindeligt klik, skal iframekontrol også være sluppet. */
+  document.addEventListener('click',function(e){
+    try{
+      if(!(window.isIframeControlActive && window.isIframeControlActive()))return;
+      const active=activeIframeWidget();
+      if(!active)return;
+      const target=e.target;
+      if(target && target.closest && target.closest('.widget[data-type="link"].linkIframeActive'))return;
+      clearIframeControlSoft();
+    }catch(_e){}
+  },true);
+
+  window.safe453i200ClearIframeControlSoft=clearIframeControlSoft;
+})();
+</script>
+
+
+<!-- SAFE453i201: Iframe-tastatur aktiveres kun ved klik i iframevinduet.
+     Klik på widgetbjælke, topbar, toolbar, tavlebaggrund eller anden widget giver tasterne tilbage til TavleAppen. -->
+<style id="safe453i201-iframe-explicit-keyboard-css">
+.widget[data-type="link"] .linkIframeFrame{
+  cursor:pointer;
+}
+.widget[data-type="link"]:not(.linkIframeActive) .linkIframeShield{
+  display:flex!important;
+  background:rgba(15,23,42,.02)!important;
+}
+.widget[data-type="link"]:not(.linkIframeActive) .linkIframeShield::after{
+  content:'Klik her for at give tastaturet til siden';
+  opacity:0;
+}
+.widget[data-type="link"]:not(.linkIframeActive) .linkIframeFrame:hover .linkIframeShield::after{
+  opacity:1;
+}
+.widget[data-type="link"].linkIframeActive .linkIframeShield{
+  display:none!important;
+}
+.widget[data-type="link"].linkIframeActive iframe,
+.widget[data-type="link"].linkIframeActive .linkIframeFrame iframe{
+  pointer-events:auto!important;
+}
+.widget[data-type="link"]:not(.linkIframeActive) iframe,
+.widget[data-type="link"]:not(.linkIframeActive) .linkIframeFrame iframe{
+  pointer-events:none!important;
+}
+</style>
+<script id="safe453i201-explicit-iframe-keyboard-control">
+(function(){
+  'use strict';
+
+  function widgetFromFrameTarget(target){
+    try{
+      const frame = target && target.closest && target.closest('.widget[data-type="link"] .linkIframeFrame');
+      return frame ? frame.closest('.widget[data-type="link"]') : null;
+    }catch(_e){return null;}
+  }
+
+  function activeWidget(){
+    try{return document.querySelector('.widget[data-type="link"].linkIframeActive');}
+    catch(_e){return null;}
+  }
+
+  function softClear(){
+    try{
+      if(window.clearIframeControl) window.clearIframeControl();
+      else if(window.setIframeControl) window.setIframeControl(null,false);
+    }catch(_e){}
+    try{
+      document.querySelectorAll('.widget[data-type="link"].linkIframeActive,.widget[data-type="link"].iframe-interaction-enabled,.widget[data-type="link"].is-iframe-active,.widget[data-type="link"].linkIframeAutoInteractive').forEach(function(el){
+        el.classList.remove('linkIframeActive','iframe-interaction-enabled','is-iframe-active','linkIframeAutoInteractive');
+        const btn=el.querySelector('[data-act="activateLinkIframe"]');
+        if(btn){
+          btn.classList.remove('active');
+          btn.textContent='🖱';
+          btn.title='Lås op for webside-interaktion';
+        }
+      });
+    }catch(_e){}
+  }
+
+  function activate(widget){
+    if(!widget)return;
+    try{
+      const id=widget.dataset && widget.dataset.id;
+      if(id && window.setIframeControl) window.setIframeControl(id,true);
+      widget.classList.add('linkIframeActive','iframe-interaction-enabled','is-iframe-active','linkIframeAutoInteractive');
+      const btn=widget.querySelector('[data-act="activateLinkIframe"]');
+      if(btn){
+        btn.classList.add('active');
+        btn.textContent='🖱✓';
+        btn.title='Klik bjælke eller udenfor widgetten for at give tasterne tilbage til Tavle';
+      }
+      const iframe=widget.querySelector('.linkIframeFrame iframe');
+      if(iframe)setTimeout(function(){try{iframe.focus({preventScroll:true});}catch(_e){try{iframe.focus();}catch(__e){}}},30);
+    }catch(_e){}
+  }
+
+  document.addEventListener('pointerdown',function(e){
+    try{
+      const target=e.target;
+      const iframeWidget=widgetFromFrameTarget(target);
+
+      if(iframeWidget){
+        /* Klik i selve iframevinduet: iframe får tastaturet. */
+        if(!(window.isIframeControlActive && window.isIframeControlActive())) activate(iframeWidget);
+        else {
+          const current=activeWidget();
+          if(current && current!==iframeWidget){ softClear(); activate(iframeWidget); }
+        }
+        return;
+      }
+
+      /* Klik på bjælke, anden widget eller udenfor: Tavle får tasterne igen. */
+      if(window.isIframeControlActive && window.isIframeControlActive()) softClear();
+    }catch(_e){}
+  },true);
+
+  document.addEventListener('click',function(e){
+    try{
+      if(widgetFromFrameTarget(e.target))return;
+      if(window.isIframeControlActive && window.isIframeControlActive()) softClear();
+    }catch(_e){}
+  },true);
+
+  window.safe453i201ClearIframeKeyboard=softClear;
+})();
+</script>
+
+
+<!-- SAFE453i202: Roligere Ny linkliste-modal med vælg/opret-linklistefelt. -->
+<style id="safe453i202-link-modal-combobox-css">
+#modal input[list]{
+  padding-right:28px!important;
+}
+#modal label small{
+  opacity:.9;
+}
+#modal .calendarModalBtns{
+  justify-content:flex-end!important;
+}
+</style>
+
+
+<!-- SAFE453i203: Tydelig linkmodal med rullemenu for linkliste og linktitel. -->
+<style id="safe453i203-link-modal-selects-css">
+#modal #safe453i203ListSelect,
+#modal #safe453i203LinkSelect{
+  width:100%!important;
+  min-height:44px!important;
+  border:1px solid #d1d5db!important;
+  border-radius:10px!important;
+  padding:8px 12px!important;
+  font:inherit!important;
+  font-weight:850!important;
+  background:#fff!important;
+}
+#modal #safe453i203LinkSelectWrap{
+  margin-top:8px!important;
+}
+#modal #safe453i203NewListWrap{
+  margin-top:8px!important;
+}
+#modal .safe453i195MuseScoreRow{
+  margin-top:12px!important;
+}
+</style>
+
+
+<!-- SAFE453i204: Linkliste-dropdown har + Ny linkliste først og keyboardvalg med pile/Enter. -->
+<style id="safe453i204-link-modal-dropdown-order-css">
+#modal #safe453i203ListSelect,
+#modal #safe453i203LinkSelect{
+  appearance:auto!important;
+}
+#modal #safe453i203ListSelect:focus,
+#modal #safe453i203LinkSelect:focus{
+  outline:3px solid rgba(96,165,250,.7)!important;
+  border-color:#60a5fa!important;
+}
+</style>
+
+
+<!-- SAFE453i205: Åben modal ejer piletaster/Enter/Space/Esc, så tavlen ikke reagerer bagved. -->
+<script id="safe453i205-modal-keyboard-capture">
+(function(){
+  'use strict';
+
+  function modalIsOpen(){
+    try{
+      const back=document.getElementById('modalBack');
+      if(!back)return false;
+      const cs=getComputedStyle(back);
+      return cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0';
+    }catch(_e){return false;}
+  }
+
+  function isTypingTarget(t){
+    try{
+      if(!t)return false;
+      const tag=String(t.tagName||'').toLowerCase();
+      return !!(t.isContentEditable || tag==='input' || tag==='textarea' || tag==='select');
+    }catch(_e){return false;}
+  }
+
+  function closeOpenModal(){
+    try{
+      if(typeof closeModal==='function'){closeModal();return true;}
+    }catch(_e){}
+    try{
+      const back=document.getElementById('modalBack');
+      if(back)back.style.display='none';
+      return true;
+    }catch(_e){}
+    return false;
+  }
+
+  function focusFirstModalControl(){
+    try{
+      const m=document.getElementById('modal');
+      if(!m)return;
+      const el=m.querySelector('select,button,input,textarea,[tabindex]:not([tabindex="-1"])');
+      if(el)el.focus({preventScroll:true});
+    }catch(_e){}
+  }
+
+  window.addEventListener('keydown',function(e){
+    if(!modalIsOpen())return;
+
+    const key=String(e.key||'');
+    const modal=document.getElementById('modal');
+    const inside=modal && e.target && modal.contains(e.target);
+
+    /* Esc lukker modal og må ikke nå tavlens fokus/presentation/iframe-logik. */
+    if(key==='Escape'){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      closeOpenModal();
+      return false;
+    }
+
+    /* Disse taster må aldrig nå tavle-navigationen bag modalen. */
+    const modalKeys=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter',' ','Spacebar'];
+    if(!modalKeys.includes(key) && e.code!=='Space')return;
+
+    /* SAFE453i217: Enter i Adresse/Beskrivelse i linkmodalen skal virke som Åbn link.
+       Dette skal ligge før den generelle typingTarget-stop, ellers bliver Enter slugt her. */
+    if(inside && key==='Enter' && e.target && (
+      e.target.id==='safe453i203Url' ||
+      e.target.id==='safe453i203Note' ||
+      e.target.id==='safe453i211Url' ||
+      e.target.id==='safe453i211Note'
+    )){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      const btn=document.getElementById('safe453i203Save') ||
+                document.getElementById('safe453i211Save') ||
+                document.querySelector('#modal .calendarModalBtns button.primary');
+      if(btn)btn.click();
+      return false;
+    }
+
+    /* Select/input inde i modalen må selv bruge pil/Enter/Space.
+       Eventen stoppes bare, så Tavlen ikke også reagerer. */
+    if(inside && isTypingTarget(e.target)){
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      return;
+    }
+
+    /* Hvis fokus ikke er inde i modalen, flyt fokus ind i modalen og stop tavlen. */
+    if(!inside){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      focusFirstModalControl();
+      return false;
+    }
+
+    /* Knapper i modalen må bruge Enter/Space; pile stoppes. */
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  },true);
+})();
+</script>
+
+
+<!-- SAFE453i206: + Ny linkliste oprettes via rullemenuen; ekstra navnefelt fjernet. -->
+<style id="safe453i206-link-modal-no-new-list-input">
+#modal #safe453i203ListSelect{
+  font-weight:950!important;
+}
+</style>
+
+
+<!-- SAFE453i207: Demoer nederst; piletaster flytter kun markering, Enter vælger. -->
+<style id="safe453i207-linklist-demo-bottom-css">
+#modal #safe453i203ListSelect option[value="__demos__"]{
+  font-weight:950;
+}
+</style>
+
+
+<!-- SAFE453i208: Tab/Shift+Tab er forbeholdt åben modal og cykler mellem felter uden at åbne rullemenuer. -->
+<script id="safe453i208-modal-tab-cycle">
+(function(){
+  'use strict';
+
+  function modalIsOpen(){
+    try{
+      const back=document.getElementById('modalBack');
+      if(!back)return false;
+      const cs=getComputedStyle(back);
+      return cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0';
+    }catch(_e){return false;}
+  }
+
+  function focusables(){
+    try{
+      const m=document.getElementById('modal');
+      if(!m)return [];
+      return Array.from(m.querySelectorAll('select,input,textarea,button,[tabindex]:not([tabindex="-1"])'))
+        .filter(el=>{
+          if(!el || el.disabled)return false;
+          const cs=getComputedStyle(el);
+          if(cs.display==='none'||cs.visibility==='hidden')return false;
+          const r=el.getBoundingClientRect();
+          return r.width>0 && r.height>0;
+        });
+    }catch(_e){return [];}
+  }
+
+  function cycleTab(e){
+    const els=focusables();
+    if(!els.length)return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+
+    const active=document.activeElement;
+    let i=els.indexOf(active);
+    if(i<0){
+      i=e.shiftKey?0:-1;
+    }
+    let next=i+(e.shiftKey?-1:1);
+    if(next<0)next=els.length-1;
+    if(next>=els.length)next=0;
+    try{
+      els[next].focus({preventScroll:true});
+    }catch(_e){
+      try{els[next].focus();}catch(__e){}
+    }
+  }
+
+  window.addEventListener('keydown',function(e){
+    if(!modalIsOpen())return;
+    if(String(e.key||'')!=='Tab')return;
+    cycleTab(e);
+    return false;
+  },true);
+
+  document.addEventListener('keydown',function(e){
+    if(!modalIsOpen())return;
+    if(String(e.key||'')!=='Tab')return;
+    cycleTab(e);
+    return false;
+  },true);
+})();
+</script>
+
+
+<!-- SAFE453i214: Native select i modal må ikke få tavlen/app-viewet til at hoppe. -->
+<script id="safe453i214-modal-select-arrow-stability">
+(function(){
+  'use strict';
+
+  function modalOpen(){
+    try{
+      const back=document.getElementById('modalBack');
+      if(!back)return false;
+      const cs=getComputedStyle(back);
+      return cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0';
+    }catch(_e){return false;}
+  }
+
+  function modalEl(){
+    return document.getElementById('modal');
+  }
+
+  function isSelect(t){
+    return !!(t && String(t.tagName||'').toLowerCase()==='select');
+  }
+
+  function stepSelect(sel,dir){
+    try{
+      const max=sel.options.length-1;
+      if(max<0)return;
+      let next=sel.selectedIndex+dir;
+      if(next<0)next=max;
+      if(next>max)next=0;
+      sel.selectedIndex=next;
+      /* Opdater modalens øvrige felter straks for normale valg.
+         Demoer må fortsat kun åbnes ved Enter, ikke når man piler forbi. */
+      const isDemo=String(sel.value||'')==='__demos__';
+      if(!isDemo)sel.dispatchEvent(new Event('change',{bubbles:true}));
+    }catch(_e){}
+  }
+
+  function chooseSelect(sel){
+    try{
+      if(String(sel.value||'')==='__demos__'){
+        const active=document.querySelector('.widget.selected[data-type="link"]');
+        let w=null;
+        if(active && active.dataset && typeof safe450FindWidgetById==='function'){
+          w=(safe450FindWidgetById(active.dataset.id)||{}).w;
+        }
+        if(typeof safe453i72OpenDemoLinkLists==='function')safe453i72OpenDemoLinkLists(w);
+        return;
+      }
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
+    }catch(_e){}
+  }
+
+  window.addEventListener('keydown',function(e){
+    if(!modalOpen())return;
+    const m=modalEl();
+    if(!m || !e.target || !m.contains(e.target))return;
+    if(!isSelect(e.target))return;
+
+    const key=String(e.key||'');
+    if(key==='ArrowDown'||key==='ArrowUp'){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      stepSelect(e.target,key==='ArrowDown'?1:-1);
+      return false;
+    }
+    if(key==='Enter'){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      chooseSelect(e.target);
+      return false;
+    }
+  },true);
+})();
+</script>
+
+
+<!-- SAFE453i215: Tab/Shift+Tab må altid slippe ud af native select i modal. -->
+<script id="safe453i215-modal-tab-out-of-select">
+(function(){
+  'use strict';
+
+  function modalOpen(){
+    try{
+      const back=document.getElementById('modalBack');
+      if(!back)return false;
+      const cs=getComputedStyle(back);
+      return cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0';
+    }catch(_e){return false;}
+  }
+
+  function visibleFocusable(){
+    try{
+      const m=document.getElementById('modal');
+      if(!m)return [];
+      return Array.from(m.querySelectorAll('select,input,textarea,button,[tabindex]:not([tabindex="-1"])'))
+        .filter(el=>{
+          if(!el || el.disabled)return false;
+          const cs=getComputedStyle(el);
+          if(cs.display==='none'||cs.visibility==='hidden')return false;
+          const r=el.getBoundingClientRect();
+          return r.width>0 && r.height>0;
+        });
+    }catch(_e){return [];}
+  }
+
+  function cycle(e){
+    const els=visibleFocusable();
+    if(!els.length)return false;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+
+    const active=document.activeElement;
+    const i=els.indexOf(active);
+    let next=i<0 ? 0 : i+(e.shiftKey?-1:1);
+    if(next<0)next=els.length-1;
+    if(next>=els.length)next=0;
+
+    /* Native iPad/Safari select kan holde popoveren åben.
+       Blur før fokus-skift gør Tab til ren feltnavigation. */
+    try{ if(active && active.blur) active.blur(); }catch(_e){}
+    setTimeout(()=>{
+      try{els[next].focus({preventScroll:true});}
+      catch(_e){try{els[next].focus();}catch(__e){}}
+    },0);
+    return false;
+  }
+
+  window.addEventListener('keydown',function(e){
+    if(!modalOpen())return;
+    if(String(e.key||'')!=='Tab')return;
+    return cycle(e);
+  },true);
+
+  document.addEventListener('keydown',function(e){
+    if(!modalOpen())return;
+    if(String(e.key||'')!=='Tab')return;
+    return cycle(e);
+  },true);
+})();
+</script>
+
+
+<!-- SAFE453i216: Enter i Adresse/Beskrivelse i linkmodalen aktiverer Åbn link. -->
+<script id="safe453i216-enter-address-note-opens-link">
+(function(){
+  'use strict';
+
+  function modalOpen(){
+    try{
+      const back=document.getElementById('modalBack');
+      if(!back)return false;
+      const cs=getComputedStyle(back);
+      return cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0';
+    }catch(_e){return false;}
+  }
+
+  function isLinkModalField(t){
+    if(!t || !t.id)return false;
+    return t.id==='safe453i203Url' ||
+           t.id==='safe453i203Note' ||
+           t.id==='safe453i211Url' ||
+           t.id==='safe453i211Note';
+  }
+
+  function clickOpenLink(){
+    const btn=document.getElementById('safe453i203Save') ||
+              document.getElementById('safe453i211Save') ||
+              document.querySelector('#modal .calendarModalBtns button.primary');
+    if(btn){
+      btn.click();
+      return true;
+    }
+    return false;
+  }
+
+  window.addEventListener('keydown',function(e){
+    if(!modalOpen())return;
+    if(String(e.key||'')!=='Enter')return;
+    if(!isLinkModalField(e.target))return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+
+    clickOpenLink();
+    return false;
+  },true);
+
+  document.addEventListener('keydown',function(e){
+    if(!modalOpen())return;
+    if(String(e.key||'')!=='Enter')return;
+    if(!isLinkModalField(e.target))return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+
+    clickOpenLink();
+    return false;
+  },true);
+})();
+</script>
+
+
+<!-- SAFE453i217: Enter i Adresse/Beskrivelse håndteres inde i modalens tidlige keyboard-capture. -->
+
+<!-- SAFE453i219: Demoer… åbner også ved aktivt valg i native select/change. -->
+
+<!-- SAFE453i220: Valgt demoliste vender tilbage til linkmodalen uden at åbne første link. -->
+
+<!-- SAFE453i221: Link/iframe-widget bruger video-widgettens YouTube-iframevisning. -->
+<style id="safe453i221-youtube-link-view-css">
+.widget[data-type="link"] .safe453i221YoutubeBox{
+  height:calc(100% - 0px)!important;
+  min-height:0!important;
+  padding:0!important;
+}
+.widget[data-type="link"] .safe453i221YoutubeBox iframe{
+  width:100%!important;
+  height:100%!important;
+  border:0!important;
+}
+</style>
+
+
+<!-- SAFE453i222: YouTube embed forsøger almindelig youtube.com/embed med referrerpolicy og fallback-link. -->
+<style id="safe453i222-youtube-embed-fix-css">
+.widget .safe453i222YoutubeFallback{
+  position:absolute;
+  right:8px;
+  bottom:8px;
+  z-index:3;
+  background:rgba(15,23,42,.72);
+  color:#fff;
+  border-radius:10px;
+  padding:5px 8px;
+  font-size:13px;
+}
+.widget .safe453i222YoutubeFallback a{
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:850!important;
+}
+.widget[data-type="link"] .safe453i221YoutubeBox{
+  position:relative!important;
+}
+</style>
+
 </body></html>
