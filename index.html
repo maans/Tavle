@@ -10800,7 +10800,7 @@ SAFE455 EARLY FULLSCREEN SHIFT+ENTER GUARD
            null;
   }
   function fsTarget(){
-    return document.getElementById('app') || document.documentElement;
+    return document.documentElement || document.getElementById('app');
   }
   function requestFs(el){
     if(!el)return;
@@ -34008,7 +34008,10 @@ function safe453FullscreenElement(){
   return document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || null;
 }
 function safe453FullscreenTarget(){
-  return app || document.documentElement;
+  /* SAFE453i233: Brug hele dokumentet som native fullscreen-target.
+     Når #app er fullscreen-elementet, bliver modaler/Mere-menuer udenfor #app usynlige.
+     Tidligere stabile versioner fungerede, fordi hele dokumentet kunne vise overlays. */
+  return document.documentElement || app;
 }
 function safe453UpdateFullscreenButton(){
   try{
@@ -44728,56 +44731,87 @@ body.safe453i226-transforming-iframe .widget[data-type="link"] .linkIframeFrame:
 
 <!-- SAFE453i227: Factory reset-knap til localStorage-oprydning. -->
 
-<!-- SAFE453i228: Fix højreklik på tavlebaggrund + synlige værktøjslinjer i app-fuldskærm. -->
+<!-- SAFE453i231: Native fullscreen repareret uden CSS-fake-fullscreen.
+     Bevarer browserens rigtige fullscreen, men tvinger appens egne kontroller synlige i #app:fullscreen.
+     Højreklik på tavlebaggrund gøres robust uden target===app-kravet. -->
+<style id="safe453i231-native-fullscreen-controls-css">
+/* Native Fullscreen API: appens egne kontroller skal blive i fullscreen-elementet. */
+#app:fullscreen:not(.present):not(.trashBoardActive) #title,
+#app:fullscreen:not(.present):not(.trashBoardActive) .title,
+#app:-webkit-full-screen:not(.present):not(.trashBoardActive) #title,
+#app:-webkit-full-screen:not(.present):not(.trashBoardActive) .title{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  z-index:2147483000!important;
+}
 
+#app:fullscreen:not(.present):not(.trashBoardActive) .topbar,
+#app:-webkit-full-screen:not(.present):not(.trashBoardActive) .topbar{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  z-index:2147483001!important;
+}
 
-<!-- SAFE453i229: Reparer app-fuldskærm. Ingen tvungen toolbar-synlighed, men en nødknap bliver altid synlig. -->
-<style id="safe453i229-fullscreen-rescue-css">
-/* Nødknap i app-fuldskærm: skal altid kunne rammes, også hvis topbar/toolbar forsvinder. */
-#safe453i229FullscreenRescue{
-  position:fixed!important;
-  right:14px!important;
-  top:14px!important;
+#app:fullscreen:not(.present):not(.trashBoardActive) .toolbar,
+#app:-webkit-full-screen:not(.present):not(.trashBoardActive) .toolbar{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  transform:translateX(-50%)!important;
+  z-index:2147483001!important;
+}
+
+/* Skjul kun hjælpe-peek/fallback i native fullscreen, så der ikke ligger et usynligt lag og fanger klik. */
+#app:fullscreen #toolbarPeek,
+#app:fullscreen #toolbarWakeZone,
+#app:fullscreen #toolbarFallback,
+#app:-webkit-full-screen #toolbarPeek,
+#app:-webkit-full-screen #toolbarWakeZone,
+#app:-webkit-full-screen #toolbarFallback{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* Exit-knap ligger inde i #app, så den faktisk vises i native fullscreen. */
+#safe453i231NativeFullscreenExit{
+  position:absolute!important;
+  right:12px!important;
+  top:12px!important;
   z-index:2147483647!important;
-  width:52px!important;
-  height:52px!important;
+  width:48px!important;
+  height:48px!important;
   border:0!important;
-  border-radius:16px!important;
-  background:rgba(17,24,39,.92)!important;
+  border-radius:15px!important;
+  background:rgba(17,24,39,.88)!important;
   color:#fff!important;
-  font-size:25px!important;
+  font-size:26px!important;
   font-weight:950!important;
-  box-shadow:0 10px 30px rgba(0,0,0,.38)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.38)!important;
   display:none!important;
   align-items:center!important;
   justify-content:center!important;
   pointer-events:auto!important;
   touch-action:auto!important;
 }
-body.safe453i229-app-fullscreen #safe453i229FullscreenRescue{
+#app:fullscreen #safe453i231NativeFullscreenExit,
+#app:-webkit-full-screen #safe453i231NativeFullscreenExit{
   display:flex!important;
-}
-
-/* Når browseren går i Fullscreen API, må appens egen titel/topbar ikke blive gemt bag Safari-krom.
-   Vi tvinger kun den øverste appbjælke/titel frem, ikke bundværktøjslinjen. */
-body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #title,
-body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .title{
-  display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  pointer-events:auto!important;
-}
-body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .topbar{
-  display:flex!important;
-  visibility:visible!important;
-  opacity:1!important;
-  pointer-events:auto!important;
 }
 </style>
 
-<script id="safe453i229-fullscreen-rescue-contextmenu">
+<script id="safe453i231-native-fullscreen-controls-js">
 (function(){
   'use strict';
+
+  const app=document.getElementById('app');
+  if(!app)return;
 
   function fsElement(){
     return document.fullscreenElement ||
@@ -44796,69 +44830,92 @@ body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-pre
     }catch(_e){}
   }
 
-  function showControls(){
-    try{
-      var app=document.getElementById('app');
-      if(app)app.classList.remove('toolbarHidden');
-      document.body.classList.remove('toolbar-is-hidden','hints-in-toolbar-space');
-      if(window.UIState)window.UIState.toolbarVisible=true;
-      if(typeof window.safe453i226SyncLinkIframe==='function')window.safe453i226SyncLinkIframe();
-    }catch(_e){}
-  }
-
-  function sync(){
-    var fs=!!fsElement();
-    document.body.classList.toggle('safe453i229-app-fullscreen',fs);
-    var btn=document.getElementById('safe453i229FullscreenRescue');
-    if(btn)btn.style.display=fs?'flex':'none';
-    if(fs)showControls();
-  }
-
-  function ensureButton(){
-    var old=document.getElementById('safe453i229FullscreenRescue');
-    if(old)return old;
-    var btn=document.createElement('button');
-    btn.id='safe453i229FullscreenRescue';
+  function ensureExitButton(){
+    let btn=document.getElementById('safe453i231NativeFullscreenExit');
+    if(btn)return btn;
+    btn=document.createElement('button');
+    btn.id='safe453i231NativeFullscreenExit';
     btn.type='button';
-    btn.title='Vis værktøjer / hold inde for at lukke fuld skærm';
-    btn.setAttribute('aria-label','Vis værktøjer / luk fuld skærm');
-    btn.textContent='⋯';
-    var holdTimer=null;
-    var held=false;
-    btn.addEventListener('pointerdown',function(e){
-      held=false;
-      clearTimeout(holdTimer);
-      holdTimer=setTimeout(function(){
-        held=true;
-        exitFs();
-      },650);
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-    },true);
-    btn.addEventListener('pointerup',function(e){
-      clearTimeout(holdTimer);
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-      if(!held)showControls();
-    },true);
+    btn.title='Luk fuld skærm';
+    btn.setAttribute('aria-label','Luk fuld skærm');
+    btn.textContent='×';
     btn.addEventListener('click',function(e){
       e.preventDefault();
       e.stopPropagation();
       if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-      showControls();
+      exitFs();
       return false;
     },true);
-    document.body.appendChild(btn);
+    app.appendChild(btn);
     return btn;
   }
 
+  function showControlsInNativeFullscreen(){
+    try{
+      if(!fsElement())return;
+      app.classList.remove('toolbarHidden');
+      document.body.classList.remove('toolbar-is-hidden','hints-in-toolbar-space');
+      if(window.UIState)window.UIState.toolbarVisible=true;
+
+      const title=document.getElementById('title');
+      const topbar=app.querySelector('.topbar');
+      const toolbar=app.querySelector('.toolbar');
+      if(title){
+        title.style.display='';
+        title.style.visibility='';
+        title.style.opacity='';
+      }
+      if(topbar){
+        topbar.style.display='';
+        topbar.style.visibility='';
+        topbar.style.opacity='';
+      }
+      if(toolbar){
+        toolbar.style.display='';
+        toolbar.style.visibility='';
+        toolbar.style.opacity='';
+        toolbar.style.pointerEvents='';
+      }
+    }catch(_e){}
+  }
+
+  function syncFullscreenButton(){
+    try{
+      const on=!!fsElement();
+      const btn=document.getElementById('fullscreenTop');
+      if(btn){
+        btn.classList.toggle('fullscreenActive',on);
+        btn.setAttribute('aria-pressed',on?'true':'false');
+        btn.title=on?'Luk fuld skærm (Shift+Enter)':'Fuld skærm (Shift+Enter)';
+      }
+    }catch(_e){}
+  }
+
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev,function(){
+      ensureExitButton();
+      setTimeout(showControlsInNativeFullscreen,0);
+      setTimeout(showControlsInNativeFullscreen,250);
+      setTimeout(syncFullscreenButton,80);
+    },true);
+  });
+
+  document.addEventListener('visibilitychange',function(){
+    setTimeout(showControlsInNativeFullscreen,120);
+    setTimeout(syncFullscreenButton,120);
+  },true);
+  window.addEventListener('pageshow',function(){
+    setTimeout(showControlsInNativeFullscreen,120);
+    setTimeout(syncFullscreenButton,120);
+  },true);
+
+  /* Capture-contextmenu: åbner Mere fra baggrund, også når event-target er en baggrundsoverlay,
+     og også i native fullscreen. */
   function modalOrMenuOpen(){
     try{
-      var mb=document.getElementById('modalBack');
+      const mb=document.getElementById('modalBack');
       if(mb){
-        var cs=getComputedStyle(mb);
+        const cs=getComputedStyle(mb);
         if(cs.display!=='none' && cs.visibility!=='hidden' && cs.pointerEvents!=='none')return true;
       }
     }catch(_e){}
@@ -44875,7 +44932,7 @@ body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-pre
         '.toolbarPinFloat',
         '#toolbarFallback',
         '#toolbarWakeZone',
-        '#safe453i229FullscreenRescue',
+        '#safe453i231NativeFullscreenExit',
         '.moreMenu',
         '.moreMenuBackdrop',
         '.modal',
@@ -44900,11 +44957,9 @@ body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-pre
     }catch(_e){return true;}
   }
 
-  function openMoreFromBoardContext(e){
+  document.addEventListener('contextmenu',function(e){
     try{
-      var app=document.getElementById('app');
-      if(!app || !e || !e.target)return;
-      if(!(e.target===app || app.contains(e.target)))return;
+      if(!e || !e.target || !(e.target===app || app.contains(e.target)))return;
       if(app.classList.contains('present'))return;
       if(app.classList.contains('trashBoardActive'))return;
       if(app.classList.contains('drawActive') || document.body.classList.contains('mode-draw'))return;
@@ -44915,31 +44970,605 @@ body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-pre
       e.stopPropagation();
       if(e.stopImmediatePropagation)e.stopImmediatePropagation();
 
-      showControls();
+      showControlsInNativeFullscreen();
       if(typeof window.showMoreTools==='function')window.showMoreTools();
+      return false;
+    }catch(_e){}
+  },true);
+
+  ensureExitButton();
+  setTimeout(syncFullscreenButton,100);
+})();
+</script>
+
+
+<!-- SAFE453i232: Reparer Mere-genveje og stabiliser toolbar-position.
+     Problem: Space kunne sive videre til andre handlers og oprette noter; contextmenu var for afhængig af browserens contextmenu-event.
+     Løsning: tidlig capture for Space + højreklik/mousedown fallback på tavlebaggrund. -->
+<style id="safe453i232-more-and-toolbar-stability-css">
+/* Defensive toolbar-ankring: toolbar må aldrig hoppe op i toppen ved fokus/fuldskærm. */
+.toolbar{
+  top:auto!important;
+  bottom:18px!important;
+  left:50%!important;
+}
+body.focus-mode .toolbar,
+body.focus-edit .toolbar,
+body.focus-presentation .toolbar,
+#app:fullscreen .toolbar,
+#app:-webkit-full-screen .toolbar{
+  top:auto!important;
+  bottom:18px!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+}
+
+/* Når appen er i native fullscreen og ikke i en ren præsentations-/maksimeret tilstand,
+   skal topkontroller kunne klikkes. */
+#app:fullscreen:not(.present):not(.trashBoardActive) .topbar,
+#app:-webkit-full-screen:not(.present):not(.trashBoardActive) .topbar,
+#app:fullscreen:not(.present):not(.trashBoardActive) #title,
+#app:-webkit-full-screen:not(.present):not(.trashBoardActive) #title{
+  pointer-events:auto!important;
+}
+</style>
+
+<script id="safe453i232-more-shortcuts-contextmenu">
+(function(){
+  'use strict';
+
+  const app=document.getElementById('app');
+  if(!app)return;
+
+  function modalOpen(){
+    try{
+      const mb=document.getElementById('modalBack');
+      if(mb){
+        const cs=getComputedStyle(mb);
+        if(cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0' && cs.pointerEvents!=='none')return true;
+      }
+    }catch(_e){}
+    return !!document.querySelector('.moreMenu,.moreMenuBackdrop,.moveWidgetDialog,.kpPromptTool:not(.kpPromptHidden)');
+  }
+
+  function typingTarget(t){
+    try{
+      if(!t)return false;
+      const tag=String(t.tagName||'').toLowerCase();
+      return !!(t.isContentEditable || tag==='input' || tag==='textarea' || tag==='select' || t.closest('[contenteditable="true"]'));
+    }catch(_e){return false;}
+  }
+
+  function iframeHasKeyboard(){
+    try{return !!(window.isIframeControlActive && window.isIframeControlActive());}
+    catch(_e){return false;}
+  }
+
+  function isInsideApp(t){
+    try{return !!(t && (t===app || app.contains(t)));}catch(_e){return false;}
+  }
+
+  function isBoardBackground(t){
+    try{
+      if(!isInsideApp(t))return false;
+      if(t===app)return true;
+      if(t.id==='draw')return true;
+      /* Baggrunds- og overlaylag uden widget/toolbar/topbar skal accepteres. */
+      if(t.classList && (
+        t.classList.contains('drawLayer') ||
+        t.classList.contains('stage') ||
+        t.classList.contains('safe453BoardBackground') ||
+        t.classList.contains('bgLayer')
+      ))return true;
+      if(t.closest && t.closest('.widget,.topbar,.toolbar,#title,.moreMenu,.modal,#modal,#modalBack,button,input,textarea,select,a,iframe,embed,object,[contenteditable="true"]'))return false;
+      return true;
+    }catch(_e){return false;}
+  }
+
+  function appAllowsMore(){
+    if(app.classList.contains('trashBoardActive'))return false;
+    if(app.classList.contains('drawActive') || document.body.classList.contains('mode-draw'))return false;
+    if(modalOpen())return false;
+    return true;
+  }
+
+  function openMore(){
+    try{
+      app.classList.remove('toolbarHidden');
+      document.body.classList.remove('toolbar-is-hidden','hints-in-toolbar-space');
+      if(window.UIState)window.UIState.toolbarVisible=true;
+    }catch(_e){}
+    try{
+      if(typeof window.showMoreTools==='function'){
+        window.showMoreTools();
+        return true;
+      }
+    }catch(_e){}
+    try{
+      const more=document.querySelector('[data-tool="more"],[data-more-tool="more"],.toolbar button.more');
+      if(more){more.click();return true;}
+    }catch(_e){}
+    return false;
+  }
+
+  /* Space skal altid åbne Mere på tavlebaggrund og stoppe alle senere handlers.
+     Før var der en betingelse om ingen valgt widget; det gjorde at Space kunne sive videre og oprette noter. */
+  function onSpace(e){
+    try{
+      const key=String(e.key||'');
+      if(!(key===' ' || e.code==='Space'))return;
+      if(e.shiftKey||e.ctrlKey||e.metaKey||e.altKey)return;
+      if(typingTarget(e.target))return;
+      if(iframeHasKeyboard())return;
+      if(!appAllowsMore())return;
+      if(!isInsideApp(e.target))return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+
+      openMore();
+      return false;
+    }catch(_e){}
+  }
+  window.addEventListener('keydown',onSpace,true);
+  document.addEventListener('keydown',onSpace,true);
+
+  function openMoreFromPointer(e){
+    try{
+      if(!appAllowsMore())return;
+      if(!isBoardBackground(e.target))return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+
+      openMore();
       return false;
     }catch(_e){}
   }
 
-  ensureButton();
+  /* Normal højreklik/contextmenu. */
+  document.addEventListener('contextmenu',function(e){
+    if(isBoardBackground(e.target))return openMoreFromPointer(e);
+  },true);
+
+  /* Fallback: nogle iPad/Safari/fullscreen-situationer sender ikke stabil contextmenu,
+     men mousedown/pointerdown med button=2 kommer stadig fra trackpad/mus. */
+  document.addEventListener('mousedown',function(e){
+    if(e && e.button===2 && isBoardBackground(e.target))return openMoreFromPointer(e);
+  },true);
+  document.addEventListener('pointerdown',function(e){
+    if(e && e.button===2 && isBoardBackground(e.target))return openMoreFromPointer(e);
+  },true);
+})();
+</script>
+
+
+<!-- SAFE453i233: Native fullscreen skal bruge documentElement, så Mere/modaler også kan vises. -->
+<style id="safe453i233-document-fullscreen-css">
+/* Når hele dokumentet er fullscreen, skal appens egne hovedkontroller stadig være klikbare. */
+html:fullscreen #app:not(.present):not(.trashBoardActive) #title,
+html:fullscreen #app:not(.present):not(.trashBoardActive) .title,
+html:-webkit-full-screen #app:not(.present):not(.trashBoardActive) #title,
+html:-webkit-full-screen #app:not(.present):not(.trashBoardActive) .title{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+html:fullscreen #app:not(.present):not(.trashBoardActive) .topbar,
+html:-webkit-full-screen #app:not(.present):not(.trashBoardActive) .topbar{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+html:fullscreen #app:not(.present):not(.trashBoardActive) .toolbar,
+html:-webkit-full-screen #app:not(.present):not(.trashBoardActive) .toolbar{
+  top:auto!important;
+  bottom:18px!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+/* Modal og Mere skal ligge over fullscreen-indholdet, fordi fullscreen-target nu er dokumentet. */
+html:fullscreen .modal,
+html:fullscreen #modal,
+html:fullscreen #modalBack,
+html:fullscreen .moreMenu,
+html:fullscreen .moreMenuBackdrop,
+html:-webkit-full-screen .modal,
+html:-webkit-full-screen #modal,
+html:-webkit-full-screen #modalBack,
+html:-webkit-full-screen .moreMenu,
+html:-webkit-full-screen .moreMenuBackdrop{
+  z-index:2147483600!important;
+}
+</style>
+
+<script id="safe453i233-document-fullscreen-repair">
+(function(){
+  'use strict';
+
+  function fsElement(){
+    return document.fullscreenElement ||
+           document.webkitFullscreenElement ||
+           document.mozFullScreenElement ||
+           document.msFullscreenElement ||
+           null;
+  }
+
+  function isHtmlFullscreen(){
+    const fs=fsElement();
+    return fs===document.documentElement;
+  }
+
+  function exitFs(){
+    try{
+      if(document.exitFullscreen)return document.exitFullscreen();
+      if(document.webkitExitFullscreen)return document.webkitExitFullscreen();
+      if(document.mozCancelFullScreen)return document.mozCancelFullScreen();
+      if(document.msExitFullscreen)return document.msExitFullscreen();
+    }catch(_e){}
+  }
+
+  function requestDocumentFullscreen(){
+    const el=document.documentElement;
+    if(!el)return;
+    if(el.requestFullscreen){
+      try{return el.requestFullscreen({navigationUI:'hide'});}
+      catch(_e){return el.requestFullscreen();}
+    }
+    if(el.webkitRequestFullscreen)return el.webkitRequestFullscreen();
+    if(el.mozRequestFullScreen)return el.mozRequestFullScreen();
+    if(el.msRequestFullscreen)return el.msRequestFullscreen();
+  }
+
+  function showControls(){
+    try{
+      const app=document.getElementById('app');
+      if(app)app.classList.remove('toolbarHidden');
+      document.body.classList.remove('toolbar-is-hidden','hints-in-toolbar-space');
+      if(window.UIState)window.UIState.toolbarVisible=true;
+    }catch(_e){}
+  }
+
+  function syncButton(){
+    try{
+      const on=!!fsElement();
+      const btn=document.getElementById('fullscreenTop');
+      if(btn){
+        btn.classList.toggle('fullscreenActive',on);
+        btn.setAttribute('aria-pressed',on?'true':'false');
+        btn.title=on?'Afslut fuld skærm (Shift+Enter)':'Fuld skærm (Shift+Enter)';
+      }
+    }catch(_e){}
+  }
+
+  function toggle(){
+    if(fsElement()) exitFs();
+    else requestDocumentFullscreen();
+    setTimeout(showControls,80);
+    setTimeout(syncButton,120);
+  }
+
+  /* Overskriv hovedtoggle efter indlæsning, så knap + API bruger documentElement. */
+  window.safe453ToggleFullscreen=toggle;
+  const btn=document.getElementById('fullscreenTop');
+  if(btn){
+    btn.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      toggle();
+      return false;
+    };
+  }
+
+  /* Hvis en ældre handler alligevel får sat #app som fullscreen-target, skift til documentElement. */
   ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
     document.addEventListener(ev,function(){
-      setTimeout(sync,0);
-      setTimeout(sync,250);
+      setTimeout(function(){
+        const fs=fsElement();
+        const app=document.getElementById('app');
+        if(fs && app && fs===app){
+          try{exitFs();}catch(_e){}
+          setTimeout(requestDocumentFullscreen,160);
+        }
+        showControls();
+        syncButton();
+      },120);
     },true);
   });
+
   document.addEventListener('visibilitychange',function(){
-    setTimeout(sync,80);
     setTimeout(showControls,120);
+    setTimeout(syncButton,120);
   },true);
   window.addEventListener('pageshow',function(){
-    setTimeout(sync,80);
     setTimeout(showControls,120);
+    setTimeout(syncButton,120);
   },true);
 
-  document.addEventListener('contextmenu',openMoreFromBoardContext,true);
+  setTimeout(syncButton,100);
+})();
+</script>
 
-  setTimeout(sync,100);
+
+<!-- SAFE453i234: Focus i native fullscreen må ikke tvinge topbar/toolbar synlig.
+     i233 gjorde fullscreen-kontroller synlige for bredt. I fokus skal kontroller være skjulte som uden fullscreen. -->
+<style id="safe453i234-focus-fullscreen-hide-bars-css">
+html:fullscreen body.focus-mode #app .toolbar,
+html:fullscreen body.focus-edit #app .toolbar,
+html:fullscreen body.focus-presentation #app .toolbar,
+html:fullscreen body.focus-maximized #app .toolbar,
+html:fullscreen body.focus-mode #app .topbar,
+html:fullscreen body.focus-edit #app .topbar,
+html:fullscreen body.focus-presentation #app .topbar,
+html:fullscreen body.focus-maximized #app .topbar,
+html:fullscreen body.focus-mode #app #title,
+html:fullscreen body.focus-edit #app #title,
+html:fullscreen body.focus-presentation #app #title,
+html:fullscreen body.focus-maximized #app #title,
+html:fullscreen body.focus-mode #app .title,
+html:fullscreen body.focus-edit #app .title,
+html:fullscreen body.focus-presentation #app .title,
+html:fullscreen body.focus-maximized #app .title,
+html:-webkit-full-screen body.focus-mode #app .toolbar,
+html:-webkit-full-screen body.focus-edit #app .toolbar,
+html:-webkit-full-screen body.focus-presentation #app .toolbar,
+html:-webkit-full-screen body.focus-maximized #app .toolbar,
+html:-webkit-full-screen body.focus-mode #app .topbar,
+html:-webkit-full-screen body.focus-edit #app .topbar,
+html:-webkit-full-screen body.focus-presentation #app .topbar,
+html:-webkit-full-screen body.focus-maximized #app .topbar,
+html:-webkit-full-screen body.focus-mode #app #title,
+html:-webkit-full-screen body.focus-edit #app #title,
+html:-webkit-full-screen body.focus-presentation #app #title,
+html:-webkit-full-screen body.focus-maximized #app #title,
+html:-webkit-full-screen body.focus-mode #app .title,
+html:-webkit-full-screen body.focus-edit #app .title,
+html:-webkit-full-screen body.focus-presentation #app .title,
+html:-webkit-full-screen body.focus-maximized #app .title{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* Toolbarens hjælpe-/fallbacklag må heller ikke dukke op i fokus. */
+html:fullscreen body.focus-mode #toolbarFallback,
+html:fullscreen body.focus-edit #toolbarFallback,
+html:fullscreen body.focus-presentation #toolbarFallback,
+html:fullscreen body.focus-maximized #toolbarFallback,
+html:fullscreen body.focus-mode #toolbarPeek,
+html:fullscreen body.focus-edit #toolbarPeek,
+html:fullscreen body.focus-presentation #toolbarPeek,
+html:fullscreen body.focus-maximized #toolbarPeek,
+html:fullscreen body.focus-mode #toolbarWakeZone,
+html:fullscreen body.focus-edit #toolbarWakeZone,
+html:fullscreen body.focus-presentation #toolbarWakeZone,
+html:fullscreen body.focus-maximized #toolbarWakeZone,
+html:-webkit-full-screen body.focus-mode #toolbarFallback,
+html:-webkit-full-screen body.focus-edit #toolbarFallback,
+html:-webkit-full-screen body.focus-presentation #toolbarFallback,
+html:-webkit-full-screen body.focus-maximized #toolbarFallback,
+html:-webkit-full-screen body.focus-mode #toolbarPeek,
+html:-webkit-full-screen body.focus-edit #toolbarPeek,
+html:-webkit-full-screen body.focus-presentation #toolbarPeek,
+html:-webkit-full-screen body.focus-maximized #toolbarPeek,
+html:-webkit-full-screen body.focus-mode #toolbarWakeZone,
+html:-webkit-full-screen body.focus-edit #toolbarWakeZone,
+html:-webkit-full-screen body.focus-presentation #toolbarWakeZone,
+html:-webkit-full-screen body.focus-maximized #toolbarWakeZone{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* Fokus-exit skal stadig være synlig/klikbar. */
+html:fullscreen body.focus-mode #focusExit,
+html:fullscreen body.focus-edit #focusExit,
+html:fullscreen body.focus-presentation #focusExit,
+html:fullscreen body.focus-maximized #focusExit,
+html:-webkit-full-screen body.focus-mode #focusExit,
+html:-webkit-full-screen body.focus-edit #focusExit,
+html:-webkit-full-screen body.focus-presentation #focusExit,
+html:-webkit-full-screen body.focus-maximized #focusExit{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  z-index:2147483647!important;
+}
+</style>
+
+<script id="safe453i234-focus-fullscreen-hide-bars-js">
+(function(){
+  'use strict';
+
+  function fsElement(){
+    return document.fullscreenElement ||
+           document.webkitFullscreenElement ||
+           document.mozFullScreenElement ||
+           document.msFullscreenElement ||
+           null;
+  }
+
+  function inFocus(){
+    try{
+      return document.body.classList.contains('focus-mode') ||
+             document.body.classList.contains('focus-edit') ||
+             document.body.classList.contains('focus-presentation') ||
+             document.body.classList.contains('focus-maximized');
+    }catch(_e){return false;}
+  }
+
+  function sync(){
+    try{
+      const app=document.getElementById('app');
+      if(!app || !fsElement())return;
+      if(inFocus()){
+        app.classList.add('safe453i234FocusFullscreenClean');
+        app.classList.remove('toolbarHidden'); /* undgå at toolbar efter fokus husker forkert position */
+      }else{
+        app.classList.remove('safe453i234FocusFullscreenClean');
+      }
+    }catch(_e){}
+  }
+
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>{
+    document.addEventListener(ev,()=>setTimeout(sync,80),true);
+  });
+  document.addEventListener('keydown',()=>setTimeout(sync,80),true);
+  document.addEventListener('click',()=>setTimeout(sync,80),true);
+  document.addEventListener('pointerup',()=>setTimeout(sync,80),true);
+  setInterval(sync,700);
+})();
+</script>
+
+
+<!-- SAFE453i235: Hård fokus-regel sidst i filen.
+     Fokus skal altid skjule appens topbar/titel/toolbar — også i native fullscreen.
+     Tidligere fullscreen-regler kunne vinde cascade og tvinge værktøjslinjen synlig i toppen. -->
+<style id="safe453i235-hard-focus-hide-app-bars">
+body.focus-mode #app .toolbar,
+body.focus-edit #app .toolbar,
+body.focus-presentation #app .toolbar,
+body.focus-maximized #app .toolbar,
+body.focus-mode #app .topbar,
+body.focus-edit #app .topbar,
+body.focus-presentation #app .topbar,
+body.focus-maximized #app .topbar,
+body.focus-mode #app #title,
+body.focus-edit #app #title,
+body.focus-presentation #app #title,
+body.focus-maximized #app #title,
+body.focus-mode #app .title,
+body.focus-edit #app .title,
+body.focus-presentation #app .title,
+body.focus-maximized #app .title,
+body.focus-mode #toolbarFallback,
+body.focus-edit #toolbarFallback,
+body.focus-presentation #toolbarFallback,
+body.focus-maximized #toolbarFallback,
+body.focus-mode #toolbarPeek,
+body.focus-edit #toolbarPeek,
+body.focus-presentation #toolbarPeek,
+body.focus-maximized #toolbarPeek,
+body.focus-mode #toolbarWakeZone,
+body.focus-edit #toolbarWakeZone,
+body.focus-presentation #toolbarWakeZone,
+body.focus-maximized #toolbarWakeZone,
+body.focus-mode #toolbarPinFloat,
+body.focus-edit #toolbarPinFloat,
+body.focus-presentation #toolbarPinFloat,
+body.focus-maximized #toolbarPinFloat,
+body.focus-mode .toolbarPinFloat,
+body.focus-edit .toolbarPinFloat,
+body.focus-presentation .toolbarPinFloat,
+body.focus-maximized .toolbarPinFloat{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* Samme regel, men direkte på fullscreen-elementet hvis browseren bruger #app som fullscreen-target. */
+body.focus-mode #app:fullscreen .toolbar,
+body.focus-edit #app:fullscreen .toolbar,
+body.focus-presentation #app:fullscreen .toolbar,
+body.focus-maximized #app:fullscreen .toolbar,
+body.focus-mode #app:-webkit-full-screen .toolbar,
+body.focus-edit #app:-webkit-full-screen .toolbar,
+body.focus-presentation #app:-webkit-full-screen .toolbar,
+body.focus-maximized #app:-webkit-full-screen .toolbar,
+body.focus-mode #app:fullscreen .topbar,
+body.focus-edit #app:fullscreen .topbar,
+body.focus-presentation #app:fullscreen .topbar,
+body.focus-maximized #app:fullscreen .topbar,
+body.focus-mode #app:-webkit-full-screen .topbar,
+body.focus-edit #app:-webkit-full-screen .topbar,
+body.focus-presentation #app:-webkit-full-screen .topbar,
+body.focus-maximized #app:-webkit-full-screen .topbar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* Fokus-exit skal være den eneste navigationskontrol i fokus. */
+body.focus-mode #focusExit,
+body.focus-edit #focusExit,
+body.focus-presentation #focusExit,
+body.focus-maximized #focusExit{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  z-index:2147483647!important;
+}
+</style>
+
+<script id="safe453i235-hard-focus-hide-app-bars-js">
+(function(){
+  'use strict';
+
+  function inFocus(){
+    return document.body.classList.contains('focus-mode') ||
+           document.body.classList.contains('focus-edit') ||
+           document.body.classList.contains('focus-presentation') ||
+           document.body.classList.contains('focus-maximized');
+  }
+
+  function force(){
+    try{
+      const app=document.getElementById('app');
+      if(!app)return;
+      const hide=inFocus();
+      ['.toolbar','.topbar','#title','.title','#toolbarFallback','#toolbarPeek','#toolbarWakeZone','#toolbarPinFloat','.toolbarPinFloat'].forEach(sel=>{
+        document.querySelectorAll(sel).forEach(el=>{
+          if(hide){
+            el.setAttribute('data-safe453i235-hidden','1');
+            el.style.setProperty('display','none','important');
+            el.style.setProperty('visibility','hidden','important');
+            el.style.setProperty('opacity','0','important');
+            el.style.setProperty('pointer-events','none','important');
+          }else if(el.getAttribute('data-safe453i235-hidden')==='1'){
+            el.removeAttribute('data-safe453i235-hidden');
+            el.style.removeProperty('display');
+            el.style.removeProperty('visibility');
+            el.style.removeProperty('opacity');
+            el.style.removeProperty('pointer-events');
+          }
+        });
+      });
+      const exit=document.getElementById('focusExit');
+      if(exit && hide){
+        exit.style.setProperty('display','block','important');
+        exit.style.setProperty('visibility','visible','important');
+        exit.style.setProperty('opacity','1','important');
+        exit.style.setProperty('pointer-events','auto','important');
+      }else if(exit){
+        exit.style.removeProperty('display');
+        exit.style.removeProperty('visibility');
+        exit.style.removeProperty('opacity');
+        exit.style.removeProperty('pointer-events');
+      }
+    }catch(_e){}
+  }
+
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>{
+    document.addEventListener(ev,()=>setTimeout(force,40),true);
+  });
+  document.addEventListener('click',()=>setTimeout(force,40),true);
+  document.addEventListener('keydown',()=>setTimeout(force,40),true);
+  document.addEventListener('pointerup',()=>setTimeout(force,40),true);
+  setInterval(force,300);
+  setTimeout(force,80);
 })();
 </script>
 
