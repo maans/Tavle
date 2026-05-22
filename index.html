@@ -44727,4 +44727,148 @@ body.safe453i226-transforming-iframe .widget[data-type="link"] .linkIframeFrame:
 
 
 <!-- SAFE453i227: Factory reset-knap til localStorage-oprydning. -->
+
+<!-- SAFE453i228: Fix højreklik på tavlebaggrund + synlige værktøjslinjer i app-fuldskærm. -->
+<style id="safe453i228-contextmenu-fullscreen-css">
+/* Når brugeren selv vælger appens Fuld skærm, må appens egne kontroller ikke auto-forsvinde. */
+body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #title,
+body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .title{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .topbar{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .toolbar{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  transform:translateX(-50%)!important;
+  pointer-events:auto!important;
+}
+body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #toolbarFallback,
+body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #toolbarPeek,
+body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #toolbarWakeZone{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+</style>
+<script id="safe453i228-contextmenu-fullscreen-fix">
+(function(){
+  'use strict';
+
+  function fsElement(){
+    return document.fullscreenElement ||
+           document.webkitFullscreenElement ||
+           document.mozFullScreenElement ||
+           document.msFullscreenElement ||
+           null;
+  }
+
+  function syncFullscreenClass(){
+    try{
+      const fs=!!fsElement();
+      document.body.classList.toggle('safe453i228-app-fullscreen',fs);
+      const app=document.getElementById('app');
+      if(app && fs && !document.body.classList.contains('focus-mode') && !document.body.classList.contains('focus-edit') && !document.body.classList.contains('focus-presentation') && !document.body.classList.contains('focus-maximized')){
+        app.classList.remove('toolbarHidden');
+        document.body.classList.remove('toolbar-is-hidden','hints-in-toolbar-space');
+        if(window.UIState)window.UIState.toolbarVisible=true;
+      }
+    }catch(_e){}
+  }
+
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>{
+    document.addEventListener(ev,function(){
+      setTimeout(syncFullscreenClass,0);
+      setTimeout(syncFullscreenClass,250);
+    },true);
+  });
+  setInterval(syncFullscreenClass,1000);
+  setTimeout(syncFullscreenClass,100);
+
+  function modalOrMenuOpen(){
+    try{
+      const mb=document.getElementById('modalBack');
+      if(mb){
+        const cs=getComputedStyle(mb);
+        if(cs.display!=='none' && cs.visibility!=='hidden' && cs.pointerEvents!=='none')return true;
+      }
+    }catch(_e){}
+    return !!document.querySelector('.moreMenu,.moreMenuBackdrop,.moveWidgetDialog,.kpPromptTool:not(.kpPromptHidden)');
+  }
+
+  function isInteractiveTarget(t){
+    try{
+      return !!(t && t.closest && t.closest([
+        '.widget',
+        '.topbar',
+        '.toolbar',
+        '.toolbarPeek',
+        '.toolbarPinFloat',
+        '#toolbarFallback',
+        '#toolbarWakeZone',
+        '.moreMenu',
+        '.moreMenuBackdrop',
+        '.modal',
+        '.modalBackdrop',
+        '#modal',
+        '#modalBack',
+        '.drawPanel',
+        '#title',
+        '#hintBar',
+        '#modeBadge',
+        '.globalClock',
+        'button',
+        'input',
+        'textarea',
+        'select',
+        'a',
+        'iframe',
+        'embed',
+        'object',
+        '[contenteditable="true"]'
+      ].join(',')));
+    }catch(_e){return true;}
+  }
+
+  function insideApp(e){
+    try{
+      const app=document.getElementById('app');
+      if(!app || !e || !e.target)return false;
+      return e.target===app || app.contains(e.target);
+    }catch(_e){return false;}
+  }
+
+  function openMoreFromBoardContext(e){
+    try{
+      const app=document.getElementById('app');
+      if(!app || !insideApp(e))return;
+      if(app.classList.contains('present'))return;
+      if(app.classList.contains('trashBoardActive'))return;
+      if(app.classList.contains('drawActive') || document.body.classList.contains('mode-draw'))return;
+      if(modalOrMenuOpen())return;
+      if(isInteractiveTarget(e.target))return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+
+      if(typeof window.showMoreTools==='function')window.showMoreTools();
+      return false;
+    }catch(_e){}
+  }
+
+  /* Capture på document gør højreklik robust, også hvis selve app-background ikke er event-target. */
+  document.addEventListener('contextmenu',openMoreFromBoardContext,true);
+})();
+</script>
+
 </body></html>
