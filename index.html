@@ -11150,15 +11150,9 @@ function setIframeControl(id,on){
   document.querySelectorAll('.widget').forEach(el=>{
     el.classList.toggle('linkIframeActive',!!activeIframeWidgetId && String(el.dataset.id)===activeIframeWidgetId);
   });
-  if(activeIframeWidgetId){
-    setTimeout(()=>{
-      try{
-        const host=document.querySelector('.widget[data-id="'+CSS.escape(activeIframeWidgetId)+'"]');
-        const iframe=host&&host.querySelector('iframe');
-        if(iframe)iframe.focus({preventScroll:true});
-      }catch(_e){}
-    },30);
-  }
+  /* SAFE453i226: Fokus flyttes ikke automatisk ind i iframe.
+     Cross-origin iframes kan gøre tastaturkontrol og rendering tung/ustabil.
+     Brugeren klikker selv i iframe-indholdet, hvis siden skal have fokus. */
 }
 function clearIframeControl(){
   setIframeControl(null,false);
@@ -31030,6 +31024,83 @@ function safe453i122DeleteSelectedLocalStorageKeys(){
   toast('Slettede '+deleted+' localStorage-nøgle(r)');
   safe453i122OpenLocalStorageCleanup();
 }
+
+function safe453i227FactoryResetLocalStorage(){
+  try{
+    const rows=safe453i118LocalStorageRows();
+    const appKeys=rows
+      .map(function(r){return r&&r.key?String(r.key):'';})
+      .filter(Boolean)
+      .filter(function(k){
+        /* Factory reset i Tavle-maskinrummet: sletter appens egne localStorage-nøgler,
+           men rører ikke andre websites' nøgler hvis appen ligger på samme origin. */
+        return /^maans_interaktiv_tavle_/i.test(k) ||
+               /^interaktivTavle/i.test(k) ||
+               /^maans_tavle_/i.test(k) ||
+               /^tavle2\./i.test(k) ||
+               /^virtual-desks/i.test(k);
+      });
+
+    if(!appKeys.length){
+      toast('Ingen Tavle-localStorage-nøgler fundet');
+      return;
+    }
+
+    const currentKey=(typeof KEY==='string')?KEY:'';
+    const currentSize=rows.find(function(r){return r.key===currentKey;});
+    const msg=[
+      'Factory reset nulstiller TavleAppen i denne browser.',
+      '',
+      'Det sletter:',
+      '• nuværende tavler/widgets i localStorage',
+      '• gamle Tavle-versioner i localStorage',
+      '• lokale hjælpenøgler/viste quick-help nøgler',
+      '',
+      'Det sletter ikke IndexedDB/mediearkivet herfra.',
+      'Lav evt. backup først.',
+      '',
+      'Antal localStorage-nøgler: '+appKeys.length+(currentSize?' — aktuel app-state er med':''),
+      '',
+      'Fortsæt?'
+    ].join('\n');
+
+    if(!confirm(msg))return;
+
+    const sure=prompt('Skriv RESET for at nulstille TavleAppen i denne browser.');
+    if(String(sure||'').trim().toUpperCase()!=='RESET'){
+      toast('Factory reset annulleret');
+      return;
+    }
+
+    const payload={
+      app:'maans-interaktiv-tavle',
+      format:'factory-reset-localStorage-backup',
+      createdAt:new Date().toISOString(),
+      note:'Automatisk backup før factory reset af Tavle localStorage. IndexedDB/mediearkiv er ikke med.',
+      keys:{}
+    };
+    appKeys.forEach(function(k){
+      try{payload.keys[k]=localStorage.getItem(k);}catch(_e){payload.keys[k]=null;}
+    });
+
+    try{
+      const name='factory-reset-backup-'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json';
+      safeDownload(name,JSON.stringify(payload,null,2),'application/json;charset=utf-8');
+    }catch(_e){}
+
+    let deleted=0;
+    appKeys.forEach(function(k){
+      try{localStorage.removeItem(k);deleted++;}catch(_e){}
+    });
+
+    alert('Factory reset er gennemført. Appen genindlæses nu.\n\nSlettede nøgler: '+deleted);
+    location.reload();
+  }catch(err){
+    console.warn('Factory reset fejlede',err);
+    toast('Factory reset kunne ikke gennemføres');
+  }
+}
+
 function safe453i122OpenLocalStorageCleanup(){
   const rows=safe453i118LocalStorageRows();
   const body=rows.map(function(r,i){
@@ -31055,10 +31126,15 @@ function safe453i122OpenLocalStorageCleanup(){
       <button id="safe453i122SelectNone">Vælg ingen</button>
       <button id="safe453i122BackupSelected" disabled>Hent backup af valgte</button>
     </div>
+    <div class="safe453i227FactoryResetBox">
+      <strong>Nem nulstilling</strong>
+      <small>Brug kun hvis appen er blevet tung, rodet eller fejlramt, og du vil starte helt forfra i denne browser.</small>
+      <button id="safe453i227FactoryReset" type="button">Factory reset TavleAppen</button>
+    </div>
     <label class="safe453i122Confirm"><input id="safe453i122DeleteConfirm" type="checkbox"> Jeg forstår, at valgte localStorage-nøgler slettes fra denne browser.</label>
     <div class="safe453i122Actions"><button id="safe453i122DeleteSelected" disabled>Slet valgte nøgler</button><button data-safe453i122-back-storage="1">Tilbage</button></div>
     <style>
-      .safe453i122CleanupBox{max-height:45vh;overflow:auto;border:1px solid #dbe3ef;border-radius:12px;background:#fff;margin:10px 0}.safe453i122CleanupBox table{width:100%;border-collapse:collapse;font-size:.86rem}.safe453i122CleanupBox th,.safe453i122CleanupBox td{border-top:1px solid #eef2f7;padding:7px;text-align:left;vertical-align:top}.safe453i122CleanupBox code{font-size:.78rem;word-break:break-all}.safe453i122Protected{opacity:.62;background:#f7f8fb}.safe453i122Lock{display:inline-block;margin-left:6px;color:#526070}.safe453i122Actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.safe453i122Confirm{display:block;background:#fff7e8;border:1px solid #f3d39a;border-radius:10px;padding:9px;margin:10px 0;font-weight:700}@media(max-width:760px){.safe453i122CleanupBox{max-height:42vh}.safe453i122Actions button{flex:1 1 45%}}
+      .safe453i122CleanupBox{max-height:45vh;overflow:auto;border:1px solid #dbe3ef;border-radius:12px;background:#fff;margin:10px 0}.safe453i122CleanupBox table{width:100%;border-collapse:collapse;font-size:.86rem}.safe453i122CleanupBox th,.safe453i122CleanupBox td{border-top:1px solid #eef2f7;padding:7px;text-align:left;vertical-align:top}.safe453i122CleanupBox code{font-size:.78rem;word-break:break-all}.safe453i122Protected{opacity:.62;background:#f7f8fb}.safe453i122Lock{display:inline-block;margin-left:6px;color:#526070}.safe453i122Actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.safe453i122Confirm{display:block;background:#fff7e8;border:1px solid #f3d39a;border-radius:10px;padding:9px;margin:10px 0;font-weight:700}.safe453i227FactoryResetBox{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;background:#fff1f2;border:1px solid #fecdd3;border-radius:12px;padding:10px;margin:12px 0}.safe453i227FactoryResetBox strong{color:#991b1b}.safe453i227FactoryResetBox small{color:#7f1d1d;font-weight:700}.safe453i227FactoryResetBox button{grid-row:1/3;grid-column:2;background:#b91c1c!important;color:#fff!important;font-weight:950}@media(max-width:760px){.safe453i122CleanupBox{max-height:42vh}.safe453i122Actions button{flex:1 1 45%}.safe453i227FactoryResetBox{grid-template-columns:1fr}.safe453i227FactoryResetBox button{grid-row:auto;grid-column:auto}}
     </style>`);
   modal.querySelectorAll('[data-safe453i122-back-storage]').forEach(function(btn){btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}safe453i118OpenStorageOverview();};});
   modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){cb.onchange=safe453i122RefreshCleanupButtons;});
@@ -31073,6 +31149,8 @@ function safe453i122OpenLocalStorageCleanup(){
   if(none)none.onclick=function(){modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){cb.checked=false;});safe453i122RefreshCleanupButtons();};
   const backup=modal.querySelector('#safe453i122BackupSelected');
   if(backup)backup.onclick=safe453i122BackupSelectedLocalStorageKeys;
+  const factory=modal.querySelector('#safe453i227FactoryReset');
+  if(factory)factory.onclick=safe453i227FactoryResetLocalStorage;
   const del=modal.querySelector('#safe453i122DeleteSelected');
   if(del)del.onclick=safe453i122DeleteSelectedLocalStorageKeys;
   const confirmBox=modal.querySelector('#safe453i122DeleteConfirm');
@@ -43920,201 +43998,14 @@ body.safe453i185uTimerPresentation [data-stopwatch-panel],
 
 
 <!-- SAFE453i198: fokuser iframe ved berøring/klik, så Space og andre taster går til iframe-appen. -->
-<script id="safe453i198-focus-link-iframe-on-pointer">
-(function(){
-  function focusIframeFromEvent(e){
-    try{
-      const frame=e.target&&e.target.closest&&e.target.closest('.widget[data-type="link"] .linkIframeFrame');
-      if(!frame)return;
-      const widget=frame.closest('.widget[data-type="link"]');
-      if(!widget)return;
-      if(!(widget.classList.contains('linkIframeAutoInteractive')||widget.classList.contains('linkIframeActive')||widget.dataset.musescore==='1'))return;
-      const iframe=frame.querySelector('iframe');
-      if(iframe)setTimeout(function(){try{iframe.focus({preventScroll:true});}catch(_e){try{iframe.focus();}catch(__e){}}},0);
-    }catch(_e){}
-  }
-  document.addEventListener('pointerdown',focusIframeFromEvent,true);
-  document.addEventListener('click',focusIframeFromEvent,true);
-})();
-</script>
 
 
 <!-- SAFE453i200: Klik/tap uden for aktiv link/iframe-widget slipper iframekontrol.
      Ingen fokus-trap: iframe-appens egne genveje bevares, når iframe har fokus. -->
-<script id="safe453i200-click-outside-exits-iframe">
-(function(){
-  'use strict';
-
-  function clearActiveIframeVisuals(){
-    try{
-      document.querySelectorAll('.widget[data-type="link"].linkIframeActive,.widget[data-type="link"].iframe-interaction-enabled,.widget[data-type="link"].is-iframe-active').forEach(function(el){
-        el.classList.remove('linkIframeActive','iframe-interaction-enabled','is-iframe-active');
-        const btn=el.querySelector('[data-act="activateLinkIframe"]');
-        if(btn){
-          btn.classList.remove('active');
-          btn.textContent='🖱';
-          btn.title='Lås op for webside-interaktion';
-        }
-      });
-    }catch(_e){}
-  }
-
-  function clearIframeControlSoft(){
-    try{
-      if(window.clearIframeControl) window.clearIframeControl();
-      else if(window.setIframeControl) window.setIframeControl(null,false);
-    }catch(_e){}
-    clearActiveIframeVisuals();
-  }
-
-  function activeIframeWidget(){
-    try{
-      return document.querySelector('.widget[data-type="link"].linkIframeActive');
-    }catch(_e){return null;}
-  }
-
-  document.addEventListener('pointerdown',function(e){
-    try{
-      if(!(window.isIframeControlActive && window.isIframeControlActive()))return;
-      const active=activeIframeWidget();
-      if(!active)return;
-
-      const target=e.target;
-      /* Klik inde i den aktive widget bevarer iframekontrol.
-         Klik/tap på alt andet: tavlebaggrund, anden widget, topbar, toolbar, modal osv. slipper iframekontrol. */
-      if(target && target.closest && target.closest('.widget[data-type="link"].linkIframeActive'))return;
-
-      clearIframeControlSoft();
-    }catch(_e){}
-  },true);
-
-  /* Når man vælger en anden widget med almindeligt klik, skal iframekontrol også være sluppet. */
-  document.addEventListener('click',function(e){
-    try{
-      if(!(window.isIframeControlActive && window.isIframeControlActive()))return;
-      const active=activeIframeWidget();
-      if(!active)return;
-      const target=e.target;
-      if(target && target.closest && target.closest('.widget[data-type="link"].linkIframeActive'))return;
-      clearIframeControlSoft();
-    }catch(_e){}
-  },true);
-
-  window.safe453i200ClearIframeControlSoft=clearIframeControlSoft;
-})();
-</script>
 
 
 <!-- SAFE453i201: Iframe-tastatur aktiveres kun ved klik i iframevinduet.
      Klik på widgetbjælke, topbar, toolbar, tavlebaggrund eller anden widget giver tasterne tilbage til TavleAppen. -->
-<style id="safe453i201-iframe-explicit-keyboard-css">
-.widget[data-type="link"] .linkIframeFrame{
-  cursor:pointer;
-}
-.widget[data-type="link"]:not(.linkIframeActive) .linkIframeShield{
-  display:flex!important;
-  background:rgba(15,23,42,.02)!important;
-}
-.widget[data-type="link"]:not(.linkIframeActive) .linkIframeShield::after{
-  content:'Klik her for at give tastaturet til siden';
-  opacity:0;
-}
-.widget[data-type="link"]:not(.linkIframeActive) .linkIframeFrame:hover .linkIframeShield::after{
-  opacity:1;
-}
-.widget[data-type="link"].linkIframeActive .linkIframeShield{
-  display:none!important;
-}
-.widget[data-type="link"].linkIframeActive iframe,
-.widget[data-type="link"].linkIframeActive .linkIframeFrame iframe{
-  pointer-events:auto!important;
-}
-.widget[data-type="link"]:not(.linkIframeActive) iframe,
-.widget[data-type="link"]:not(.linkIframeActive) .linkIframeFrame iframe{
-  pointer-events:none!important;
-}
-</style>
-<script id="safe453i201-explicit-iframe-keyboard-control">
-(function(){
-  'use strict';
-
-  function widgetFromFrameTarget(target){
-    try{
-      const frame = target && target.closest && target.closest('.widget[data-type="link"] .linkIframeFrame, .widget[data-type="link"] .safe453i221YoutubeBox, .widget[data-type="link"] .safe453i223YoutubeFrame');
-      return frame ? frame.closest('.widget[data-type="link"]') : null;
-    }catch(_e){return null;}
-  }
-
-  function activeWidget(){
-    try{return document.querySelector('.widget[data-type="link"].linkIframeActive');}
-    catch(_e){return null;}
-  }
-
-  function softClear(){
-    try{
-      if(window.clearIframeControl) window.clearIframeControl();
-      else if(window.setIframeControl) window.setIframeControl(null,false);
-    }catch(_e){}
-    try{
-      document.querySelectorAll('.widget[data-type="link"].linkIframeActive,.widget[data-type="link"].iframe-interaction-enabled,.widget[data-type="link"].is-iframe-active,.widget[data-type="link"].linkIframeAutoInteractive').forEach(function(el){
-        el.classList.remove('linkIframeActive','iframe-interaction-enabled','is-iframe-active','linkIframeAutoInteractive');
-        const btn=el.querySelector('[data-act="activateLinkIframe"]');
-        if(btn){
-          btn.classList.remove('active');
-          btn.textContent='🖱';
-          btn.title='Lås op for webside-interaktion';
-        }
-      });
-    }catch(_e){}
-  }
-
-  function activate(widget){
-    if(!widget)return;
-    try{
-      const id=widget.dataset && widget.dataset.id;
-      if(id && window.setIframeControl) window.setIframeControl(id,true);
-      widget.classList.add('linkIframeActive','iframe-interaction-enabled','is-iframe-active','linkIframeAutoInteractive');
-      const btn=widget.querySelector('[data-act="activateLinkIframe"]');
-      if(btn){
-        btn.classList.add('active');
-        btn.textContent='🖱✓';
-        btn.title='Klik bjælke eller udenfor widgetten for at give tasterne tilbage til Tavle';
-      }
-      const iframe=widget.querySelector('.linkIframeFrame iframe');
-      if(iframe)setTimeout(function(){try{iframe.focus({preventScroll:true});}catch(_e){try{iframe.focus();}catch(__e){}}},30);
-    }catch(_e){}
-  }
-
-  document.addEventListener('pointerdown',function(e){
-    try{
-      const target=e.target;
-      const iframeWidget=widgetFromFrameTarget(target);
-
-      if(iframeWidget){
-        /* Klik i selve iframevinduet: iframe får tastaturet. */
-        if(!(window.isIframeControlActive && window.isIframeControlActive())) activate(iframeWidget);
-        else {
-          const current=activeWidget();
-          if(current && current!==iframeWidget){ softClear(); activate(iframeWidget); }
-        }
-        return;
-      }
-
-      /* Klik på bjælke, anden widget eller udenfor: Tavle får tasterne igen. */
-      if(window.isIframeControlActive && window.isIframeControlActive()) softClear();
-    }catch(_e){}
-  },true);
-
-  document.addEventListener('click',function(e){
-    try{
-      if(widgetFromFrameTarget(e.target))return;
-      if(window.isIframeControlActive && window.isIframeControlActive()) softClear();
-    }catch(_e){}
-  },true);
-
-  window.safe453i201ClearIframeKeyboard=softClear;
-})();
-</script>
 
 
 <!-- SAFE453i202: Roligere Ny linkliste-modal med vælg/opret-linklistefelt. -->
@@ -44661,147 +44552,23 @@ body.safe453i185uTimerPresentation [data-stopwatch-panel],
 
 <!-- SAFE453i224: Én fælles sandhed for aktiv side/iframe-kontrol.
      Knap, skjold/toast og iframe-pointer-events synkroniseres altid via setIframeControl. -->
-<script id="safe453i224-unified-iframe-control-state">
-(function(){
-  'use strict';
 
-  function widgetIdFromEl(el){
-    try{return el && el.dataset ? String(el.dataset.id||'') : '';}catch(_e){return '';}
-  }
 
-  function isActiveId(id){
-    try{
-      return !!(id && window.isIframeControlActive && window.isIframeControlActive() &&
-        document.body.classList.contains('iframe-control-active') &&
-        document.querySelector('.widget[data-id="'+CSS.escape(id)+'"].linkIframeActive'));
-    }catch(_e){return false;}
-  }
 
-  function syncButtonsAndClasses(){
-    let activeId='';
-    try{
-      const active=document.querySelector('.widget.linkIframeActive[data-type="link"], .widget[data-type="link"].linkIframeActive');
-      activeId=widgetIdFromEl(active);
-    }catch(_e){}
+<!-- SAFE453i225: YouTube playlist-links omskrives til embed?listType=playlist&list=... -->
 
-    document.querySelectorAll('.widget[data-type="link"]').forEach(function(el){
-      const id=widgetIdFromEl(el);
-      const active=!!(activeId && id===activeId);
-      el.classList.toggle('linkIframeActive',active);
-      el.classList.toggle('iframe-interaction-enabled',active);
-      el.classList.toggle('is-iframe-active',active);
-
-      const btn=el.querySelector('[data-act="activateLinkIframe"]');
-      if(btn){
-        btn.classList.toggle('active',active);
-        btn.textContent=active?'🖱✓':'🖱';
-        btn.title=active?'Lås webside igen':'Lås op for webside-interaktion';
-        btn.setAttribute('aria-pressed',active?'true':'false');
-      }
-    });
-  }
-
-  function activateWidget(el){
-    if(!el)return;
-    const id=widgetIdFromEl(el);
-    if(!id)return;
-    try{
-      if(window.setIframeControl)window.setIframeControl(id,true);
-    }catch(_e){}
-    syncButtonsAndClasses();
-  }
-
-  function clearControl(){
-    try{
-      if(window.clearIframeControl)window.clearIframeControl();
-      else if(window.setIframeControl)window.setIframeControl(null,false);
-    }catch(_e){}
-    document.querySelectorAll('.widget[data-type="link"]').forEach(function(el){
-      el.classList.remove('linkIframeActive','iframe-interaction-enabled','is-iframe-active');
-    });
-    syncButtonsAndClasses();
-  }
-
-  function wrapSetIframeControl(){
-    try{
-      if(window.__safe453i224WrappedSetIframeControl)return;
-      if(typeof window.setIframeControl!=='function')return;
-      window.__safe453i224WrappedSetIframeControl=true;
-      const oldSet=window.setIframeControl;
-      window.setIframeControl=function(id,on){
-        const r=oldSet.apply(this,arguments);
-        setTimeout(syncButtonsAndClasses,0);
-        return r;
-      };
-      if(typeof window.clearIframeControl==='function'){
-        const oldClear=window.clearIframeControl;
-        window.clearIframeControl=function(){
-          const r=oldClear.apply(this,arguments);
-          setTimeout(syncButtonsAndClasses,0);
-          return r;
-        };
-      }
-    }catch(_e){}
-  }
-
-  /* Buttonen og klik-i-iframefladen skal bruge samme funktion. Capture-fasen slår den gamle blandede tilstand ned. */
-  document.addEventListener('click',function(e){
-    try{
-      const btn=e.target && e.target.closest && e.target.closest('.widget[data-type="link"] [data-act="activateLinkIframe"]');
-      if(!btn)return;
-      const el=btn.closest('.widget[data-type="link"]');
-      const id=widgetIdFromEl(el);
-      const active=!!(id && document.querySelector('.widget[data-id="'+CSS.escape(id)+'"].linkIframeActive'));
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-      if(active)clearControl();
-      else activateWidget(el);
-      return false;
-    }catch(_e){}
-  },true);
-
-  document.addEventListener('pointerdown',function(e){
-    try{
-      const frame=e.target && e.target.closest && e.target.closest('.widget[data-type="link"] .linkIframeFrame, .widget[data-type="link"] .safe453i223YoutubeFrame, .widget[data-type="link"] .safe453i221YoutubeBox');
-      if(!frame)return;
-      const el=frame.closest('.widget[data-type="link"]');
-      if(el && !el.classList.contains('linkIframeActive')){
-        activateWidget(el);
-        /* Første klik aktiverer. Næste klik går ind i siden/videoen.
-           Det matcher MuseScore/iframe-modellen og undgår halv aktiv tilstand. */
-      }
-    }catch(_e){}
-  },true);
-
-  /* Klik uden for aktiv linkwidget slipper kontrollen — men klik på linkbjælke/piletaster inde i widgetten gør ikke. */
-  document.addEventListener('pointerdown',function(e){
-    try{
-      const active=document.querySelector('.widget[data-type="link"].linkIframeActive');
-      if(!active)return;
-      if(e.target && e.target.closest && e.target.closest('.widget[data-type="link"].linkIframeActive'))return;
-      clearControl();
-    }catch(_e){}
-  },true);
-
-  wrapSetIframeControl();
-  setTimeout(function(){wrapSetIframeControl();syncButtonsAndClasses();},100);
-  setInterval(syncButtonsAndClasses,500);
-})();
-</script>
-
-<style id="safe453i224-unified-iframe-control-css">
-.widget[data-type="link"].linkIframeActive iframe,
-.widget[data-type="link"].iframe-interaction-enabled iframe,
-.widget[data-type="link"].is-iframe-active iframe{
-  pointer-events:auto!important;
-}
+<!-- SAFE453i226: Performance-oprydning for link/iframe.
+     Én aktiv iframe-tilstand, ingen polling, ingen auto-focus i cross-origin iframes.
+     Tunge iframes skjules midlertidigt under træk/resize/rotation. -->
+<style id="safe453i226-iframe-performance-css">
+/* Inaktiv iframe må ikke fange pointer-events. Aktiv iframe må. */
 .widget[data-type="link"]:not(.linkIframeActive) iframe{
   pointer-events:none!important;
 }
-.widget[data-type="link"].linkIframeActive .linkIframeShield,
-.widget[data-type="link"].iframe-interaction-enabled .linkIframeShield,
-.widget[data-type="link"].is-iframe-active .linkIframeShield{
+.widget[data-type="link"].linkIframeActive iframe{
+  pointer-events:auto!important;
+}
+.widget[data-type="link"].linkIframeActive .linkIframeShield{
   display:none!important;
   pointer-events:none!important;
 }
@@ -44809,8 +44576,155 @@ body.safe453i185uTimerPresentation [data-stopwatch-panel],
   background:#6d5dfc!important;
   color:#fff!important;
 }
+
+/* Når brugeren flytter/ændrer widget, pauses tunge iframes visuelt.
+   Det reducerer YouTube/MuseScore-jank markant under drag/resize. */
+body.safe453i226-transforming-iframe .widget[data-type="link"] iframe,
+body.widget-transform-active .widget[data-type="link"] iframe,
+.widget[data-type="link"].widgetTransforming iframe{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body.safe453i226-transforming-iframe .widget[data-type="link"] .linkIframeFrame::before{
+  content:"Flytter webside…";
+  position:absolute;
+  inset:0;
+  z-index:5;
+  display:grid;
+  place-items:center;
+  background:rgba(15,23,42,.08);
+  color:#334155;
+  font-weight:950;
+}
 </style>
+<script id="safe453i226-unified-iframe-performance">
+(function(){
+  'use strict';
+
+  let activeId = null;
+  let transformTimer = null;
+
+  function cssEscape(v){
+    try{return CSS.escape(String(v));}catch(_e){return String(v).replace(/["\\]/g,'\\$&');}
+  }
+
+  function widgetById(id){
+    try{return id?document.querySelector('.widget[data-id="'+cssEscape(id)+'"][data-type="link"]'):null;}
+    catch(_e){return null;}
+  }
+
+  function sync(){
+    try{
+      if(window.isIframeControlActive && !window.isIframeControlActive()) activeId=null;
+    }catch(_e){}
+    document.querySelectorAll('.widget[data-type="link"]').forEach(function(el){
+      const id=el.dataset&&el.dataset.id?String(el.dataset.id):'';
+      const on=!!(activeId && id===activeId);
+      el.classList.toggle('linkIframeActive',on);
+      el.classList.toggle('iframe-interaction-enabled',on);
+      el.classList.toggle('is-iframe-active',on);
+      const btn=el.querySelector('[data-act="activateLinkIframe"]');
+      if(btn){
+        btn.classList.toggle('active',on);
+        btn.textContent=on?'🖱✓':'🖱';
+        btn.title=on?'Lås webside igen':'Lås op for webside-interaktion';
+        btn.setAttribute('aria-pressed',on?'true':'false');
+      }
+    });
+    try{document.body.classList.toggle('iframe-control-active',!!activeId);}catch(_e){}
+  }
+
+  function activate(el){
+    if(!el)return;
+    const id=el.dataset&&el.dataset.id?String(el.dataset.id):'';
+    if(!id)return;
+    activeId=id;
+    try{ if(window.setIframeControl) window.setIframeControl(id,true); }catch(_e){}
+    activeId=id;
+    sync();
+  }
+
+  function clear(){
+    activeId=null;
+    try{ if(window.clearIframeControl) window.clearIframeControl(); }catch(_e){}
+    activeId=null;
+    sync();
+  }
+
+  function toggle(el){
+    if(!el)return;
+    const id=el.dataset&&el.dataset.id?String(el.dataset.id):'';
+    if(id && activeId===id) clear();
+    else activate(el);
+  }
+
+  function linkWidgetFromFrameTarget(target){
+    try{
+      const frame=target&&target.closest&&target.closest('.widget[data-type="link"] .linkIframeFrame, .widget[data-type="link"] .safe453i223YoutubeFrame, .widget[data-type="link"] .safe453i221YoutubeBox');
+      return frame?frame.closest('.widget[data-type="link"]'):null;
+    }catch(_e){return null;}
+  }
+
+  function markTransforming(){
+    try{
+      document.body.classList.add('safe453i226-transforming-iframe');
+      clearTimeout(transformTimer);
+      transformTimer=setTimeout(()=>document.body.classList.remove('safe453i226-transforming-iframe'),220);
+    }catch(_e){}
+  }
+
+  document.addEventListener('click',function(e){
+    const btn=e.target&&e.target.closest&&e.target.closest('.widget[data-type="link"] [data-act="activateLinkIframe"]');
+    if(!btn)return;
+    const el=btn.closest('.widget[data-type="link"]');
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    toggle(el);
+    return false;
+  },true);
+
+  document.addEventListener('pointerdown',function(e){
+    const frameWidget=linkWidgetFromFrameTarget(e.target);
+    if(frameWidget){
+      if(!frameWidget.classList.contains('linkIframeActive')){
+        /* Første klik aktiverer. Næste klik går til siden/videoen. */
+        activate(frameWidget);
+      }
+      return;
+    }
+
+    const active=activeId?widgetById(activeId):null;
+    if(active && e.target && e.target.closest && e.target.closest('.widget[data-type="link"]')!==active){
+      clear();
+    }
+
+    const moving=e.target&&e.target.closest&&e.target.closest('.widget .chrome,.widget .resize,.widget .rotater');
+    if(moving)markTransforming();
+  },true);
+
+  document.addEventListener('pointermove',function(e){
+    if(e.buttons && (e.target&&e.target.closest&&e.target.closest('.widget .chrome,.widget .resize,.widget .rotater'))){
+      markTransforming();
+    }
+  },true);
+
+  document.addEventListener('pointerup',function(){
+    clearTimeout(transformTimer);
+    transformTimer=setTimeout(()=>document.body.classList.remove('safe453i226-transforming-iframe'),120);
+  },true);
+
+  /* Eksponér letvægts-API til eksisterende kode. */
+  window.safe453i226SetLinkIframeActive=function(id,on){
+    const el=widgetById(id);
+    if(on)activate(el); else clear();
+  };
+  window.safe453i226SyncLinkIframe=sync;
+
+  setTimeout(sync,0);
+})();
+</script>
 
 
-<!-- SAFE453i225: YouTube playlist-links omskrives til embed?listType=playlist&list=... -->
+<!-- SAFE453i227: Factory reset-knap til localStorage-oprydning. -->
 </body></html>
