@@ -44729,38 +44729,53 @@ body.safe453i226-transforming-iframe .widget[data-type="link"] .linkIframeFrame:
 <!-- SAFE453i227: Factory reset-knap til localStorage-oprydning. -->
 
 <!-- SAFE453i228: Fix højreklik på tavlebaggrund + synlige værktøjslinjer i app-fuldskærm. -->
-<style id="safe453i228-contextmenu-fullscreen-css">
-/* Når brugeren selv vælger appens Fuld skærm, må appens egne kontroller ikke auto-forsvinde. */
-body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #title,
-body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .title{
+
+
+<!-- SAFE453i229: Reparer app-fuldskærm. Ingen tvungen toolbar-synlighed, men en nødknap bliver altid synlig. -->
+<style id="safe453i229-fullscreen-rescue-css">
+/* Nødknap i app-fuldskærm: skal altid kunne rammes, også hvis topbar/toolbar forsvinder. */
+#safe453i229FullscreenRescue{
+  position:fixed!important;
+  right:14px!important;
+  top:14px!important;
+  z-index:2147483647!important;
+  width:52px!important;
+  height:52px!important;
+  border:0!important;
+  border-radius:16px!important;
+  background:rgba(17,24,39,.92)!important;
+  color:#fff!important;
+  font-size:25px!important;
+  font-weight:950!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.38)!important;
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  pointer-events:auto!important;
+  touch-action:auto!important;
+}
+body.safe453i229-app-fullscreen #safe453i229FullscreenRescue{
+  display:flex!important;
+}
+
+/* Når browseren går i Fullscreen API, må appens egen titel/topbar ikke blive gemt bag Safari-krom.
+   Vi tvinger kun den øverste appbjælke/titel frem, ikke bundværktøjslinjen. */
+body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #title,
+body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .title{
   display:block!important;
   visibility:visible!important;
   opacity:1!important;
   pointer-events:auto!important;
 }
-body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .topbar{
+body.safe453i229-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .topbar{
   display:flex!important;
   visibility:visible!important;
   opacity:1!important;
   pointer-events:auto!important;
-}
-body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) .toolbar{
-  display:flex!important;
-  visibility:visible!important;
-  opacity:1!important;
-  transform:translateX(-50%)!important;
-  pointer-events:auto!important;
-}
-body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #toolbarFallback,
-body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #toolbarPeek,
-body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized):not(.widgetOverviewMode) #toolbarWakeZone{
-  display:none!important;
-  visibility:hidden!important;
-  opacity:0!important;
-  pointer-events:none!important;
 }
 </style>
-<script id="safe453i228-contextmenu-fullscreen-fix">
+
+<script id="safe453i229-fullscreen-rescue-contextmenu">
 (function(){
   'use strict';
 
@@ -44772,33 +44787,78 @@ body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-pre
            null;
   }
 
-  function syncFullscreenClass(){
+  function exitFs(){
     try{
-      const fs=!!fsElement();
-      document.body.classList.toggle('safe453i228-app-fullscreen',fs);
-      const app=document.getElementById('app');
-      if(app && fs && !document.body.classList.contains('focus-mode') && !document.body.classList.contains('focus-edit') && !document.body.classList.contains('focus-presentation') && !document.body.classList.contains('focus-maximized')){
-        app.classList.remove('toolbarHidden');
-        document.body.classList.remove('toolbar-is-hidden','hints-in-toolbar-space');
-        if(window.UIState)window.UIState.toolbarVisible=true;
-      }
+      if(document.exitFullscreen)return document.exitFullscreen();
+      if(document.webkitExitFullscreen)return document.webkitExitFullscreen();
+      if(document.mozCancelFullScreen)return document.mozCancelFullScreen();
+      if(document.msExitFullscreen)return document.msExitFullscreen();
     }catch(_e){}
   }
 
-  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(ev=>{
-    document.addEventListener(ev,function(){
-      setTimeout(syncFullscreenClass,0);
-      setTimeout(syncFullscreenClass,250);
+  function showControls(){
+    try{
+      var app=document.getElementById('app');
+      if(app)app.classList.remove('toolbarHidden');
+      document.body.classList.remove('toolbar-is-hidden','hints-in-toolbar-space');
+      if(window.UIState)window.UIState.toolbarVisible=true;
+      if(typeof window.safe453i226SyncLinkIframe==='function')window.safe453i226SyncLinkIframe();
+    }catch(_e){}
+  }
+
+  function sync(){
+    var fs=!!fsElement();
+    document.body.classList.toggle('safe453i229-app-fullscreen',fs);
+    var btn=document.getElementById('safe453i229FullscreenRescue');
+    if(btn)btn.style.display=fs?'flex':'none';
+    if(fs)showControls();
+  }
+
+  function ensureButton(){
+    var old=document.getElementById('safe453i229FullscreenRescue');
+    if(old)return old;
+    var btn=document.createElement('button');
+    btn.id='safe453i229FullscreenRescue';
+    btn.type='button';
+    btn.title='Vis værktøjer / hold inde for at lukke fuld skærm';
+    btn.setAttribute('aria-label','Vis værktøjer / luk fuld skærm');
+    btn.textContent='⋯';
+    var holdTimer=null;
+    var held=false;
+    btn.addEventListener('pointerdown',function(e){
+      held=false;
+      clearTimeout(holdTimer);
+      holdTimer=setTimeout(function(){
+        held=true;
+        exitFs();
+      },650);
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
     },true);
-  });
-  setInterval(syncFullscreenClass,1000);
-  setTimeout(syncFullscreenClass,100);
+    btn.addEventListener('pointerup',function(e){
+      clearTimeout(holdTimer);
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      if(!held)showControls();
+    },true);
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      showControls();
+      return false;
+    },true);
+    document.body.appendChild(btn);
+    return btn;
+  }
 
   function modalOrMenuOpen(){
     try{
-      const mb=document.getElementById('modalBack');
+      var mb=document.getElementById('modalBack');
       if(mb){
-        const cs=getComputedStyle(mb);
+        var cs=getComputedStyle(mb);
         if(cs.display!=='none' && cs.visibility!=='hidden' && cs.pointerEvents!=='none')return true;
       }
     }catch(_e){}
@@ -44815,6 +44875,7 @@ body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-pre
         '.toolbarPinFloat',
         '#toolbarFallback',
         '#toolbarWakeZone',
+        '#safe453i229FullscreenRescue',
         '.moreMenu',
         '.moreMenuBackdrop',
         '.modal',
@@ -44839,18 +44900,11 @@ body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-pre
     }catch(_e){return true;}
   }
 
-  function insideApp(e){
-    try{
-      const app=document.getElementById('app');
-      if(!app || !e || !e.target)return false;
-      return e.target===app || app.contains(e.target);
-    }catch(_e){return false;}
-  }
-
   function openMoreFromBoardContext(e){
     try{
-      const app=document.getElementById('app');
-      if(!app || !insideApp(e))return;
+      var app=document.getElementById('app');
+      if(!app || !e || !e.target)return;
+      if(!(e.target===app || app.contains(e.target)))return;
       if(app.classList.contains('present'))return;
       if(app.classList.contains('trashBoardActive'))return;
       if(app.classList.contains('drawActive') || document.body.classList.contains('mode-draw'))return;
@@ -44861,13 +44915,31 @@ body.safe453i228-app-fullscreen:not(.focus-mode):not(.focus-edit):not(.focus-pre
       e.stopPropagation();
       if(e.stopImmediatePropagation)e.stopImmediatePropagation();
 
+      showControls();
       if(typeof window.showMoreTools==='function')window.showMoreTools();
       return false;
     }catch(_e){}
   }
 
-  /* Capture på document gør højreklik robust, også hvis selve app-background ikke er event-target. */
+  ensureButton();
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(function(ev){
+    document.addEventListener(ev,function(){
+      setTimeout(sync,0);
+      setTimeout(sync,250);
+    },true);
+  });
+  document.addEventListener('visibilitychange',function(){
+    setTimeout(sync,80);
+    setTimeout(showControls,120);
+  },true);
+  window.addEventListener('pageshow',function(){
+    setTimeout(sync,80);
+    setTimeout(showControls,120);
+  },true);
+
   document.addEventListener('contextmenu',openMoreFromBoardContext,true);
+
+  setTimeout(sync,100);
 })();
 </script>
 
