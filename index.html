@@ -19568,13 +19568,18 @@ function kahoopardyRenderMixCeremonyHtml(w){
   const placeLabel=kahoopardyMixPlaceLabel(placeNumber,!!(current&&current.tied));
   const placeClass=placeNumber===1?'place1':placeNumber===2?'place2':'place3';
   const currentNamesText=kahoopardyMixGroupNamesText(current);
+  const finaleLabel=kahoopardyFinaleLabel(w);
+  const isManualFinale=!!(w&&w.data&&w.data.mix&&w.data.mix.manualFinale);
+  const winnerWord=finaleLabel==='Mix gennemført'?'Mix':'finalen';
   const headline=state.isFinal
-    ?(current&&current.tied?`🎉 ${placeLabel} i Mix!`:`🎉 ${esc(currentNamesText)} vinder Mix!`)
+    ?(current&&current.tied?`🎉 ${placeLabel} i ${esc(finaleLabel)}!`:`🎉 ${esc(currentNamesText)} vinder ${esc(winnerWord)}!`)
     :`${placeLabel} afsløres`;
   const sub=state.isFinal
     ?(current&&current.tied
-      ?`Efter tre festlige runder deler ${esc(currentNamesText)} 1. pladsen med ${current.score} point og ${current.correct} rigtige.`
-      :`Efter tre festlige runder er ${esc(currentNamesText)} øverst med ${current.score} point og ${current.correct} rigtige.`)
+      ?`${esc(currentNamesText)} deler 1. pladsen med ${current.score} point og ${current.correct} rigtige.`
+      :(isManualFinale
+        ?`Stillingen fejres nu: ${esc(currentNamesText)} er øverst med ${current.score} point og ${current.correct} rigtige.`
+        :`Efter tre festlige runder er ${esc(currentNamesText)} øverst med ${current.score} point og ${current.correct} rigtige.`))
     :(current&&current.tied
       ?`Gør klar til podiumkåring. ${esc(currentNamesText)} deler ${placeLabel.toLowerCase()} med ${current.score} point og ${current.correct} rigtige.`
       :`Gør klar til podiumkåring. ${esc(currentNamesText)} tager ${placeLabel.toLowerCase()} med ${current.score} point og ${current.correct} rigtige.`);
@@ -19590,9 +19595,9 @@ function kahoopardyRenderMixCeremonyHtml(w){
   const topTrophy=state.isFinal?`<div class="kahoopardyCeremonyTopTrophy" aria-hidden="true">🏆</div>`:'';
   const winnerSet=state.isFinal?'':`<div class="kahoopardyCeremonyReveal"><div class="kahoopardyCeremonyPlace ${placeClass}">${placeLabel}</div><div class="kahoopardyCeremonyName ${current&&current.tied?'isTie':''}">${current?kahoopardyMixGroupNamesHtml(current):''}</div><div class="kahoopardyCeremonyMeta">${current?`${current.score} point · ${current.correct} rigtige`:''}</div></div>`;
   const ceremonyFooter=state.isFinal
-    ?`<div class="kahoopardyCeremonyFooterBar"><button type="button" class="showFinalScore">Vis fuld stilling</button><button type="button" class="editQuestions settingsBtn" title="Indstillinger / redigér spørgsmål" aria-label="Indstillinger / redigér spørgsmål">⚙️</button><button type="button" class="resetPoints danger">↺ Nulstil points</button><button type="button" class="replayCeremony">Start igen</button></div>`
-    :`<div class="kahoopardyCeremonyFooterBar"><button type="button" class="nextCeremonyStep">Næste plads</button><button type="button" class="editQuestions settingsBtn" title="Indstillinger / redigér spørgsmål" aria-label="Indstillinger / redigér spørgsmål">⚙️</button><button type="button" class="resetPoints danger">↺ Nulstil points</button><button type="button" class="replayCeremonyCurrent">Gentag animation</button></div>`;
-  return `<div class="kahoopardyCeremonyView"><div class="kahoopardyFireworks"><span class="kahoopardyFirework f1"></span><span class="kahoopardyFirework f2"></span><span class="kahoopardyFirework f3"></span><span class="kahoopardyFirework f4"></span><span class="kahoopardyFirework f5"></span><span class="kahoopardyFirework f6"></span></div><div class="kahoopardyConfetti"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>${topTrophy}<div class="kahoopardyCeremonyEyebrow">🏁 Mix gennemført · podiumkåring</div><div><div class="kahoopardyCeremonyTitle">${headline}</div><div class="kahoopardyCeremonySub">${sub}</div></div><div class="kahoopardyCeremonyCenter"><div class="kahoopardyCeremonySpotlight"></div>${winnerSet}<div class="kahoopardyCeremonyPodium">${podium}</div></div>${ceremonyFooter}</div>`;
+    ?`<div class="kahoopardyCeremonyFooterBar"><button type="button" class="showFinalScore">Vis fuld stilling</button><button type="button" class="editQuestions settingsBtn" title="Indstillinger / redigér spørgsmål" aria-label="Indstillinger / redigér spørgsmål">⚙️</button><button type="button" class="resetPoints danger">↺ Nulstil points</button><button type="button" class="replayCeremony" title="Shift+Mellemrum">Start igen</button></div>`
+    :`<div class="kahoopardyCeremonyFooterBar"><button type="button" class="nextCeremonyStep">Næste plads</button><button type="button" class="editQuestions settingsBtn" title="Indstillinger / redigér spørgsmål" aria-label="Indstillinger / redigér spørgsmål">⚙️</button><button type="button" class="resetPoints danger">↺ Nulstil points</button><button type="button" class="replayCeremonyCurrent">Afspil placering igen</button></div>`;
+  return `<div class="kahoopardyCeremonyView"><div class="kahoopardyFireworks"><span class="kahoopardyFirework f1"></span><span class="kahoopardyFirework f2"></span><span class="kahoopardyFirework f3"></span><span class="kahoopardyFirework f4"></span><span class="kahoopardyFirework f5"></span><span class="kahoopardyFirework f6"></span></div><div class="kahoopardyConfetti"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>${topTrophy}<div class="kahoopardyCeremonyEyebrow">🏁 ${esc(finaleLabel)} · podiumkåring</div><div><div class="kahoopardyCeremonyTitle">${headline}</div><div class="kahoopardyCeremonySub">${sub}</div></div><div class="kahoopardyCeremonyCenter"><div class="kahoopardyCeremonySpotlight"></div>${winnerSet}<div class="kahoopardyCeremonyPodium">${podium}</div></div>${ceremonyFooter}</div>`;
 }
 function kahoopardyAdvanceCeremony(w){
   if(!(w&&w.data&&w.data.mix&&w.data.mix.completed))return false;
@@ -19623,7 +19628,11 @@ function kahoopardyBindCeremonyKeys(el,w){
         if(isSpace){
           e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
           if(e.shiftKey){
-            if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;
+            // SAFE453l: Shift+Mellemrum = Start igen / afspil ceremonien forfra.
+            if(w.data.mix){
+              w.data.mix.ceremonyStepIndex=0;
+              w.data.mix.ceremonyPlayedStep=-1;
+            }
           }else{
             kahoopardyAdvanceCeremony(w);
             if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;
@@ -19664,17 +19673,41 @@ function kahoopardyFixedModeButtonHtml(w){
     return `<button type="button" class="kahoopardyModeSwitchFixed kahoopardyMixBadge" disabled title="Mix er en starttilstand og kan ikke skiftes midt i spillet.">${esc(kahoopardyMixLabel(w))}</button>`;
   }
   if(w&&w.data&&w.data.mix&&w.data.mix.completed){
-    return `<button type="button" class="kahoopardyModeSwitchFixed kahoopardyMixBadge" disabled title="Mix er færdig.">Mix</button>`;
+    const label=w.data.mix.manualFinale?'Finale':'Mix';
+    return `<button type="button" class="kahoopardyModeSwitchFixed kahoopardyMixBadge" disabled title="${esc(label)}">${esc(label)}</button>`;
   }
   const currentMode=(w.data.mode==='jeopardy'||w.data.mode==='master')?w.data.mode:'kahoot';
   const nextMode=kahoopardyNextMode(currentMode);
   // Knappen viser altid AKTUEL tilstand, men klik cykler videre til næste tilstand.
   return `<button type="button" class="cycleMode kahoopardyModeSwitchFixed" data-mode="${nextMode}" title="Aktiv tilstand: ${kahoopardyModeName(currentMode)}. Klik for næste. K/J/M vælger direkte.">${kahoopardyModeName(currentMode)}</button>`;
 }
+function kahoopardyFinaleLabel(w){
+  const mix=w&&w.data&&w.data.mix;
+  if(mix&&mix.manualFinale&&mix.fromMix)return 'Mix-finale';
+  if(mix&&mix.manualFinale)return 'KaPardy-finale';
+  if(mix&&mix.completed)return 'Mix gennemført';
+  return 'KaPardy-finale';
+}
+function kahoopardyStartFinale(w){
+  normalizeKahoopardy(w);
+  const wasMix=!!(w.data.mix&&w.data.mix.active);
+  w.data.mix=Object.assign({},w.data.mix||{},{
+    active:false,
+    completed:true,
+    manualFinale:true,
+    fromMix:wasMix,
+    ceremonyStepIndex:0,
+    ceremonyPlayedStep:-1
+  });
+  w.data.stage='done';
+  w.data.reveal=false;
+  return true;
+}
 function kahoopardyActionBarHtml(w, primaryHtml){
   normalizeKahoopardy(w);
   const reset=(w.data.stage==='score'||w.data.stage==='done')?'<button type="button" class="resetPoints danger">↺ Nulstil points</button>':'';
-  return `<div class="kahoopardyActionBar">${primaryHtml||''}<button type="button" class="editQuestions settingsBtn" title="Indstillinger / redigér spørgsmål" aria-label="Indstillinger / redigér spørgsmål">⚙️</button>${reset}</div>`;
+  const finale=(!w.data.editing&&w.data.stage!=='done')?'<button type="button" class="startFinale finaleBtn" title="Stop spillet og fejre den aktuelle stilling">🏁 Finale</button>':'';
+  return `<div class="kahoopardyActionBar">${primaryHtml||''}${finale}<button type="button" class="editQuestions settingsBtn" title="Indstillinger / redigér spørgsmål" aria-label="Indstillinger / redigér spørgsmål">⚙️</button>${reset}</div>`;
 }
 function kahoopardyResetPoints(w){
   normalizeKahoopardy(w);
@@ -21898,6 +21931,7 @@ function wireKahoopardy(c,w,el){
   if(next)next.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);if(kahoopardyIsMixActive(w)){kahoopardyAdvanceMix(w);rerender();return;} if(kahoopardyAllQuestionsUsed(w)){w.data.stage='done';rerender();return;} if(w.data.mode==='jeopardy'){w.data.stage='board';w.data.reveal=false;rerender();return;} kahoopardyPrepareNextQuestion(w,(w.data.currentQuestion+1));rerender();};
   const jpScore=c.querySelector('.jeopardyToScore');
   if(jpScore)jpScore.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);w.data.stage='score';kahoopardyApplause();rerender();};
+  c.querySelectorAll('.startFinale').forEach(b=>b.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);kahoopardyStartFinale(w);kahoopardyApplause();rerender();});
   c.querySelectorAll('.editQuestions').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyClearMix(w);w.data.editing=true;rerender();});
   const cancel=c.querySelector('.cancelEdit');
   if(cancel)cancel.onclick=e=>{e.preventDefault();w.data.editing=false;rerender();};
@@ -46923,9 +46957,10 @@ function open(preferred){closeMore(); close(); var all=datasets(); var src=prefe
  box.querySelector('#drClose').onclick=close; box.querySelector('#drBack').onclick=function(){saveFields(); model.step=Math.max(1,model.step-1); render();}; var nx=box.querySelector('#drNext'); if(nx)nx.onclick=function(){saveFields(); model.step=Math.min(4,model.step+1); render();}; var cr=box.querySelector('#drCreate'); if(cr)cr.onclick=function(){saveFields(); var d=ds(), built=build(d,model.dest,model.cfg); var out={id:'ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:(model.cfg.name||((d.name||'Datasæt')+' → DataRemix')).trim(),type:'dataremix-'+model.dest,columns:built.columns,rows:built.rows,sourceType:'DataRemix',sourceDatasetId:d.id,sourceName:d.name,createdAt:Date.now()}; try{var dw=addDataWidget(out); var owner=addOwner(model.dest,out,dw); try{if(typeof render==='function')render();}catch(_e){} setTimeout(function(){try{if(owner&&typeof select==='function')select(owner.id,{editText:false}); else if(dw&&typeof select==='function')select(dw.id,{editText:false});}catch(_e){}},50); toast2(owner?'DataRemix oprettede ny datawidget og ny koblet widget.':'DataRemix oprettede ny datawidget.'); close();}catch(err){toast2('DataRemix kunne ikke oprette output: '+(err&&err.message?err.message:err));}}; [].slice.call(box.querySelectorAll('.dr258Step')).forEach(function(b){b.onclick=function(){saveFields(); model.step=Number(b.dataset.step)||1; render();};}); var srcel=box.querySelector('#drSource'); if(srcel)srcel.onchange=function(){saveFields(); model.sourceId=srcel.value; model.cfg={}; render();}; [].slice.call(box.querySelectorAll('.dr258Dest')).forEach(function(b){b.onclick=function(){saveFields(); model.dest=b.dataset.dest; model.cfg=defaults(ds(),model.dest,model.cfg||{}); model.step=3; render();};}); [].slice.call(box.querySelectorAll('input,select')).forEach(function(e){e.oninput=saveFields; e.onchange=saveFields;}); }
  render();}
 function sourceFromClick(btn){try{var wel=btn.closest&&btn.closest('.widget'); if(wel){var id=wel.dataset&&wel.dataset.id; var sl=liveSlide(); var w=(sl&&sl.widgets||[]).find(function(x){return String(x.id)===String(id);}); if(w&&w.data&&w.data.datasetId)return w.data.datasetId;}}catch(_e){} return '';}
-function intercept(ev){var t=ev.target&&ev.target.closest&&ev.target.closest('[data-more-tool="dataTranslator"],.safe453i246Open,.safe453i258Open,[data-act="dataTranslatorChrome"]'); if(!t)return; ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation)ev.stopImmediatePropagation(); open(sourceFromClick(t));}
+function closeMoreBeforeDataRemix(){try{document.querySelectorAll('.moreMenuBackdrop,.moreMenu').forEach(function(n){n.remove();});}catch(_e){}}
+function intercept(ev){var t=ev.target&&ev.target.closest&&ev.target.closest('[data-more-tool="dataTranslator"],.safe453i246Open,.safe453i258Open,[data-act="dataTranslatorChrome"]'); if(!t)return; ev.preventDefault(); ev.stopPropagation(); if(ev.stopImmediatePropagation)ev.stopImmediatePropagation(); closeMoreBeforeDataRemix(); setTimeout(closeMoreBeforeDataRemix,0); open(sourceFromClick(t)); setTimeout(closeMoreBeforeDataRemix,0);}
 window.addEventListener('click',intercept,true); window.addEventListener('pointerup',intercept,true);
-window.safe453i258OpenDataRemix=open; window.safe453i246OpenDataTranslator=open; window.safe453i236OpenDataTranslator=open; window.safe453i250OpenDataRemix=open; window.handleTool=function(t){if(t==='dataTranslator'){open();return;} try{if(window.__safe453i250OldHandleTool)return window.__safe453i250OldHandleTool.apply(this,arguments);}catch(_e){}};
+window.safe453i258OpenDataRemix=function(){closeMoreBeforeDataRemix();return open.apply(this,arguments);}; window.safe453i246OpenDataTranslator=window.safe453i258OpenDataRemix; window.safe453i236OpenDataTranslator=window.safe453i258OpenDataRemix; window.safe453i250OpenDataRemix=window.safe453i258OpenDataRemix; window.handleTool=function(t){if(t==='dataTranslator'){closeMoreBeforeDataRemix();open();setTimeout(closeMoreBeforeDataRemix,0);return;} try{if(window.__safe453i250OldHandleTool)return window.__safe453i250OldHandleTool.apply(this,arguments);}catch(_e){}};
 function inject(){try{document.querySelectorAll('.safe453i246Cta').forEach(function(x){x.remove();}); document.querySelectorAll('.widget[data-type="text"]').forEach(function(el){if(el.querySelector('.safe453i258Cta'))return; var id=el.dataset&&el.dataset.id; var sl=liveSlide(); var w=(sl&&sl.widgets||[]).find(function(x){return String(x.id)===String(id);}); if(!w||!w.data||!w.data.datasetId)return; var content=el.querySelector('.content'); if(!content)return; var bar=document.createElement('div'); bar.className='safe453i258Cta'; bar.innerHTML='<span>🔁 Remix data<br><small>Filtrér og åbn som ny koblet widget</small></span><button class="safe453i258Open" type="button">Åbn</button>'; content.insertBefore(bar,content.firstChild);});}catch(_e){}}
 var old=window.render; if(typeof old==='function'&&!window.__dr258Wrap){window.__dr258Wrap=true; window.render=function(){var r=old.apply(this,arguments); setTimeout(inject,0); return r;};} setTimeout(inject,0); setInterval(inject,1200);
 })();
@@ -47327,6 +47362,19 @@ var old=window.render; if(typeof old==='function'&&!window.__dr258Wrap){window._
   min-height:0!important;
   height:100%!important;
 }
+
+
+/* SAFE453l: KaPardy Finale-knap */
+.kahoopardyActionBar .finaleBtn{
+  background:#facc15!important;
+  color:#111827!important;
+  border:0!important;
+  border-radius:999px!important;
+  padding:10px 16px!important;
+  font-weight:950!important;
+  box-shadow:0 8px 18px rgba(0,0,0,.16)!important;
+}
+.kahoopardyActionBar .finaleBtn:hover{filter:brightness(1.03)}
 
 </style>
 <script id="safe453i260-dataremix-chrome-always-visible">
