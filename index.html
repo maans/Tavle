@@ -14567,7 +14567,7 @@ async function renderPdfJsWidget(w,c){
     const canvas=viewer.querySelector('canvas');
     const ctx=canvas.getContext('2d');
     const base=page.getViewport({scale:1});
-    const available=Math.max(260,viewer.clientWidth-28);
+    const available=Math.max(260,viewer.clientWidth-4);
     const fitScale=available/base.width;
     const zoomVal=(w.data&&w.data.pdfZoom!=null)?w.data.pdfZoom:'fit';
     const zoomNum=Number(zoomVal);
@@ -14578,7 +14578,7 @@ async function renderPdfJsWidget(w,c){
     await page.render({canvasContext:ctx,viewport}).promise;
     if(w._pdfRenderToken!==token)return;
     viewer.scrollTop=0;
-    viewer.scrollLeft=Math.max(0,(canvas.width-viewer.clientWidth)/2);
+    viewer.scrollLeft=(zoomVal==='fit'||!isFinite(zoomNum)||zoomNum<=0)?0:Math.max(0,(canvas.width-viewer.clientWidth)/2);
     if(label)label.textContent=w.data.page+'/'+pdf.numPages;
     if(zoomLabel){
       const zv=(w.data&&w.data.pdfZoom!=null)?w.data.pdfZoom:'fit';
@@ -25731,8 +25731,16 @@ if(w.type==='drawcopy'){
     zoomLabelBtn.setAttribute('role','button');
     zoomLabelBtn.setAttribute('tabindex','0');
     zoomLabelBtn.title='Tilpas PDF til bredden';
-    zoomLabelBtn.onclick=(e)=>{e.stopPropagation();pdfJsSetZoom(w,c,'fit')};
-    zoomLabelBtn.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();pdfJsSetZoom(w,c,'fit')}};
+    const pdfFitFromZoomLabel=(e)=>{
+      if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+      try{if(typeof window.safe453qShowPdfControls==='function')window.safe453qShowPdfControls(el,1200);}catch(_e){}
+      pdfJsSetZoom(w,c,'fit');
+      return false;
+    };
+    zoomLabelBtn.onclick=pdfFitFromZoomLabel;
+    zoomLabelBtn.onpointerdown=pdfFitFromZoomLabel;
+    zoomLabelBtn.ontouchstart=pdfFitFromZoomLabel;
+    zoomLabelBtn.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){pdfFitFromZoomLabel(e)}};
   }
   const urlBtn=c.querySelector('.pdfUrl');
   if(urlBtn)urlBtn.onclick=(e)=>{
