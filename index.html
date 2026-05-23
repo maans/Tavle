@@ -1033,6 +1033,32 @@ body.focus-presentation .groupsBox.groupsListHidden.groupsShowResult .groupsResu
   font-size:12px;
   color:#374151;
 }
+
+/* SAFE453o: PDF-widget får roligere layout i stil med andre widgets. */
+.pdfControls{
+  gap:8px!important;
+  background:rgba(255,255,255,.94)!important;
+  border:1px solid rgba(203,213,225,.95)!important;
+  border-radius:18px!important;
+  padding:10px 12px!important;
+  box-shadow:0 10px 22px rgba(15,23,42,.12)!important;
+  max-width:min(92%,780px)!important;
+}
+.pdfControls button{
+  background:#ffffff!important;
+  color:#1f2937!important;
+  border:1px solid #cbd5e1!important;
+  box-shadow:0 1px 0 rgba(255,255,255,.75) inset,0 1px 3px rgba(15,23,42,.08)!important;
+}
+.pdfControls button:hover{background:#f8fafc!important}
+.pdfControls .pdfRow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%}
+.pdfControls .pdfRowPrimary{justify-content:flex-start}
+.pdfControls .pdfRowSecondary{justify-content:space-between;gap:10px}
+.pdfControls .pdfRowMeta{justify-content:flex-start}
+.pdfControls .pdfGroup{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;background:rgba(248,250,252,.95);border:1px solid #e2e8f0;border-radius:14px;padding:6px 8px}
+.pdfControls .pdfMiniLabel{font-size:11px!important;font-weight:900!important;letter-spacing:.06em;text-transform:uppercase;color:#64748b!important;padding:0 2px}
+.pdfControls .pdfStorageBadge{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:6px 10px;border-radius:999px;background:rgba(241,245,249,.95);border:1px solid #e2e8f0;font-size:12px!important;font-weight:700;color:#475569!important;white-space:normal;line-height:1.2}
+.pdfControls .pdfLocal,.pdfControls .pdfUrl,.pdfControls .pdfDownload{padding:8px 12px!important}
 .content.pdf{position:relative}
 
 
@@ -3644,9 +3670,9 @@ body.focus-presentation #toolbarFallback{
   line-height:1.35!important;
 }
 .content.pdf .pdfJsStatus small{display:block;font-weight:600;margin-top:8px;color:#64748b!important}
-.pdfControls .pdfPageLabel{font-weight:900;color:#111827!important;min-width:64px;text-align:center;font-size:13px!important}
+.pdfControls .pdfPageLabel{font-weight:900;color:#111827!important;min-width:78px;text-align:center;font-size:13px!important;display:inline-flex;align-items:center;justify-content:center;padding:6px 8px;border-radius:10px;background:#fff;border:1px solid #e2e8f0}
 .pdfControls .pdfPrev,.pdfControls .pdfNext,.pdfControls .pdfZoomOut,.pdfControls .pdfZoomIn{min-width:34px;padding:6px 10px!important}
-.pdfControls .pdfZoomLabel{font-weight:900;color:#111827!important;min-width:50px;text-align:center;font-size:12px!important;display:inline-flex;align-items:center;justify-content:center;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.66)}
+.pdfControls .pdfZoomLabel{font-weight:900;color:#111827!important;min-width:56px;text-align:center;font-size:12px!important;display:inline-flex;align-items:center;justify-content:center;padding:6px 8px;border-radius:10px;background:#fff;border:1px solid #e2e8f0;cursor:pointer}
 .pdfControls .pdfZoomFit{padding:6px 10px!important;font-size:12px!important}
 .pdfEdgeNav{display:none;position:absolute!important;top:0!important;bottom:0!important;width:13%!important;z-index:9!important;background:transparent!important;pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important}
 .pdfEdgeNav.left{left:0!important}.pdfEdgeNav.right{right:0!important}
@@ -13915,6 +13941,13 @@ if(w.type==='link'){
     if(linkTitle && linkTitle!=='Klikbart link' && linkTitle!=='Link')widgetTitle=linkTitle;
   }catch(_e){}
 }
+/* SAFE453q: PDF-widget viser filnavn i bjælken i stedet for kun "PDF". */
+if(w.type==='pdf'){
+  try{
+    const pdfTitle=String(w.data&&(w.data.name||w.data.fileName||w.data.title)||'').trim();
+    if(pdfTitle)widgetTitle=pdfTitle;
+  }catch(_e){}
+}
 const titleHtml='<span class="titleText">'+esc(widgetTitle)+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}${mediaNameBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button>${linkedDataSourceOpen?'<button type="button" data-act="hideDataSource" title="Luk datakilde – forbindelsen bevares" aria-label="Luk datakilde – forbindelsen bevares">🔗</button>':'<button type="button" data-act="del" title="Luk">×</button>'}</div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -14507,7 +14540,7 @@ async function renderPdfJsWidget(w,c){
   if(!viewer)return;
   if(!src&&!hasFileRef){
     viewer.innerHTML='<div class="pdfJsEmpty">Vælg lokal PDF eller indsæt direkte PDF-URL</div>';
-    if(label)label.textContent='Side –';
+    if(label)label.textContent='–';
     if(prev)prev.disabled=true;if(next)next.disabled=true;
     return;
   }
@@ -14546,10 +14579,10 @@ async function renderPdfJsWidget(w,c){
     if(w._pdfRenderToken!==token)return;
     viewer.scrollTop=0;
     viewer.scrollLeft=Math.max(0,(canvas.width-viewer.clientWidth)/2);
-    if(label)label.textContent='Side '+w.data.page+' / '+pdf.numPages;
+    if(label)label.textContent=w.data.page+'/'+pdf.numPages;
     if(zoomLabel){
       const zv=(w.data&&w.data.pdfZoom!=null)?w.data.pdfZoom:'fit';
-      zoomLabel.textContent=(zv==='fit')?'Bredde':(String(zv)+'%');
+      zoomLabel.textContent=(zv==='fit')?'100%':(String(zv)+'%');
     }
     if(prev)prev.disabled=w.data.page<=1;
     if(next)next.disabled=w.data.page>=pdf.numPages;
@@ -14558,13 +14591,13 @@ async function renderPdfJsWidget(w,c){
     let small='Prøv at hente PDF’en lokalt og vælg den fra enheden.';
     if(isProbablyDriveUrl(src)) small='Google Drive-links virker ofte ikke direkte i widgets. Download PDF’en eller brug et direkte PDF-link.';
     pdfJsStatus(viewer,'PDF kunne ikke vises',small);
-    if(label)label.textContent='Side –';
+    if(label)label.textContent='–';
     if(prev)prev.disabled=true;if(next)next.disabled=true;
   }
 }
 function pdfJsZoomLabel(w){
   const z=(w&&w.data&&w.data.pdfZoom!=null)?w.data.pdfZoom:'fit';
-  return z==='fit'?'Bredde':(String(z)+'%');
+  return z==='fit'?'100%':(String(z)+'%');
 }
 function pdfJsSetZoom(w,c,nextZoom){
   if(!w||!w.data)return;
@@ -16962,6 +16995,8 @@ body.focus-maximized #safe453BoardZoomLayer > #draw{
   }
 }
 </style>
+
+
 
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
@@ -19866,11 +19901,267 @@ function kahoopardyAutoAwardCorrect(w){
   kahoopardyApplyAwardsFromSelections(w);
   Object.keys(w.data.awarded[qKey]||{}).forEach(i=>{w.data.autoAwarded[qKey][i]=true;});
 }
-function kahoopardyDing(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.18,ac.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.18);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.2)}catch(e){}}
-function kahoopardyApplause(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const master=ac.createGain();master.gain.value=.16;master.connect(ac.destination);for(let i=0;i<18;i++){const dur=.035+Math.random()*.055,start=ac.currentTime+i*.018+Math.random()*.018;const buffer=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*dur)),ac.sampleRate);const data=buffer.getChannelData(0);for(let j=0;j<data.length;j++)data[j]=(Math.random()*2-1)*(1-j/data.length);const src=ac.createBufferSource();src.buffer=buffer;const filter=ac.createBiquadFilter();filter.type='bandpass';filter.frequency.value=900+Math.random()*1400;filter.Q.value=.7;const g=ac.createGain();g.gain.setValueAtTime(.001,start);g.gain.exponentialRampToValueAtTime(.35,start+.008);g.gain.exponentialRampToValueAtTime(.001,start+dur);src.connect(filter);filter.connect(g);g.connect(master);src.start(start);src.stop(start+dur+.02);}setTimeout(()=>{try{ac.close()}catch(_e){}},700)}catch(e){}}
-function kahoopardyCelebrationBurst(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const master=ac.createGain();master.gain.value=.18;master.connect(ac.destination);const now=ac.currentTime;for(let i=0;i<2;i++){const o=ac.createOscillator();const g=ac.createGain();o.type='triangle';o.frequency.setValueAtTime(i===0?740:980,now+i*.06);o.frequency.exponentialRampToValueAtTime(i===0?1180:1460,now+i*.06+.18);g.gain.setValueAtTime(.0001,now+i*.06);g.gain.exponentialRampToValueAtTime(.15,now+i*.06+.02);g.gain.exponentialRampToValueAtTime(.0001,now+i*.06+.22);o.connect(g);g.connect(master);o.start(now+i*.06);o.stop(now+i*.06+.24)}setTimeout(()=>{try{ac.close()}catch(_e){}},500)}catch(e){}}
-function kahoopardyWhistle(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.setValueAtTime(1200,ac.currentTime);o.frequency.linearRampToValueAtTime(1800,ac.currentTime+.18);o.frequency.linearRampToValueAtTime(1350,ac.currentTime+.38);g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.08,ac.currentTime+.03);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.42);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.44);setTimeout(()=>{try{ac.close()}catch(_e){}},520)}catch(e){}}
-function kahoopardyCelebrationFanfare(finalStep){try{kahoopardyCelebrationBurst();setTimeout(()=>{try{kahoopardyApplause()}catch(_e){}},finalStep?120:40);if(finalStep){setTimeout(()=>{try{kahoopardyWhistle()}catch(_e){}},180);setTimeout(()=>{try{kahoopardyCelebrationBurst()}catch(_e){}},360);setTimeout(()=>{try{kahoopardyApplause()}catch(_e){}},520);}}catch(_e){}}
+function kahoopardyAudioUnlocked(){
+  try{return !!(audioUnlocked&&audioCtx&&audioCtx.state==='running')}catch(_e){return false}
+}
+function kahoopardyPlayTone(freq,dur,type,gain){
+  try{
+    if(typeof beep==='function'){beep(freq,dur,type||'sine',gain||.14);return;}
+  }catch(_e){}
+  try{
+    const A=window.AudioContext||window.webkitAudioContext;if(!A)return;
+    const ac=new A(),o=ac.createOscillator(),g=ac.createGain();
+    o.type=type||'sine';o.frequency.value=freq||880;
+    g.gain.setValueAtTime(.0001,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(gain||.14,ac.currentTime+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+(dur||.18));
+    o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(dur||.18));
+    setTimeout(()=>{try{ac.close()}catch(_e){}},500);
+  }catch(_e){}
+}
+function kahoopardyHtmlTone(freq,dur,gain){
+  try{
+    if(typeof safe453nHtmlAudioPlay==='function')safe453nHtmlAudioPlay(freq||880,dur||.14,gain||.20);
+  }catch(_e){}
+}
+function kahoopardyFallbackFanfare(finalStep){
+  try{
+    const seq=finalStep
+      ?[[0,660,.16],[120,880,.18],[260,1175,.22],[520,880,.14],[700,1320,.18],[900,1568,.24]]
+      :[[0,660,.14],[130,990,.18],[300,1320,.18]];
+    seq.forEach(x=>setTimeout(()=>kahoopardyHtmlTone(x[1],x[2],.24),x[0]));
+  }catch(_e){}
+}
+function kahoopardyDing(){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
+    kahoopardyPlayTone(880,.18,'sine',.18);
+    if(!kahoopardyAudioUnlocked())kahoopardyHtmlTone(880,.14,.20);
+  }catch(e){}
+}
+function kahoopardyApplause(){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
+    const ac=(typeof ensureAudio==='function')?ensureAudio():null;
+    if(ac&&ac.state==='running'){
+      const master=ac.createGain();master.gain.value=.16;master.connect(ac.destination);
+      for(let i=0;i<18;i++){
+        const dur=.035+Math.random()*.055,start=ac.currentTime+i*.018+Math.random()*.018;
+        const buffer=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*dur)),ac.sampleRate);
+        const data=buffer.getChannelData(0);
+        for(let j=0;j<data.length;j++)data[j]=(Math.random()*2-1)*(1-j/data.length);
+        const src=ac.createBufferSource();src.buffer=buffer;
+        const filter=ac.createBiquadFilter();filter.type='bandpass';filter.frequency.value=900+Math.random()*1400;filter.Q.value=.7;
+        const g=ac.createGain();g.gain.setValueAtTime(.001,start);g.gain.exponentialRampToValueAtTime(.35,start+.008);g.gain.exponentialRampToValueAtTime(.001,start+dur);
+        src.connect(filter);filter.connect(g);g.connect(master);src.start(start);src.stop(start+dur+.02);
+      }
+    }
+    if(!kahoopardyAudioUnlocked()){
+      [0,90,180,270,360,450].forEach((d,i)=>setTimeout(()=>kahoopardyHtmlTone(i%2?760:1040,.055,.16),d));
+    }
+  }catch(e){}
+}
+function kahoopardyCelebrationBurst(){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
+    kahoopardyPlayTone(740,.20,'triangle',.15);
+    setTimeout(()=>kahoopardyPlayTone(980,.22,'triangle',.14),60);
+    if(!kahoopardyAudioUnlocked()){
+      [0,80,180].forEach((d,i)=>setTimeout(()=>kahoopardyHtmlTone([740,980,1320][i],.14,.20),d));
+    }
+  }catch(e){}
+}
+function kahoopardyWhistle(){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
+    kahoopardyPlayTone(1400,.36,'square',.08);
+    if(!kahoopardyAudioUnlocked()){
+      [0,140,280].forEach((d,i)=>setTimeout(()=>kahoopardyHtmlTone([1200,1800,1350][i],.11,.14),d));
+    }
+  }catch(e){}
+}
+function kahoopardyCelebrationFanfare(finalStep){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(true);
+    kahoopardyFallbackFanfare(!!finalStep);
+    kahoopardyCelebrationBurst();
+    setTimeout(()=>{try{kahoopardyApplause()}catch(_e){}},finalStep?120:40);
+    if(finalStep){
+      setTimeout(()=>{try{kahoopardyWhistle()}catch(_e){}},180);
+      setTimeout(()=>{try{kahoopardyCelebrationBurst()}catch(_e){}},360);
+      setTimeout(()=>{try{kahoopardyApplause()}catch(_e){}},520);
+    }
+  }catch(_e){}
+}
+
+
+/* SAFE453n4: KaPardy-finale bruger de gamle festlige lyde igen + trommehvirvel, klapsalver og pift.
+   Bevarer iPhone/HTMLAudio fallback fra Timer-lydsystemet. */
+function kahoopardyAudioUnlocked(){
+  try{return !!(audioUnlocked&&audioCtx&&audioCtx.state==='running')}catch(_e){return false}
+}
+function kahoopardyHtmlTone(freq,dur,gain){
+  try{if(typeof safe453nHtmlAudioPlay==='function')safe453nHtmlAudioPlay(freq||880,dur||.14,gain||.20);}catch(_e){}
+}
+function kahoopardyPlayTone(freq,dur,type,gain){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
+    const ac=(typeof ensureAudio==='function')?ensureAudio():null;
+    if(ac&&ac.state==='running'){
+      const o=ac.createOscillator(),g=ac.createGain(),now=ac.currentTime;
+      o.type=type||'sine';
+      o.frequency.value=freq||880;
+      g.gain.setValueAtTime(.0001,now);
+      g.gain.exponentialRampToValueAtTime(gain||.14,now+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,now+(dur||.18));
+      o.connect(g);g.connect(ac.destination);
+      o.start(now);o.stop(now+(dur||.18)+.03);
+    }else{
+      kahoopardyHtmlTone(freq,dur,gain);
+    }
+  }catch(_e){kahoopardyHtmlTone(freq,dur,gain)}
+}
+function kahoopardyDrumHit(delay,freq,gain){
+  setTimeout(()=>{
+    try{
+      const ac=(typeof ensureAudio==='function')?ensureAudio():null;
+      if(ac&&ac.state==='running'){
+        const now=ac.currentTime,dur=.075;
+        const o=ac.createOscillator(),g=ac.createGain();
+        o.type='sine';
+        o.frequency.setValueAtTime(freq||120,now);
+        o.frequency.exponentialRampToValueAtTime(48,now+dur);
+        g.gain.setValueAtTime(.0001,now);
+        g.gain.exponentialRampToValueAtTime(gain||.22,now+.006);
+        g.gain.exponentialRampToValueAtTime(.0001,now+dur);
+        o.connect(g);g.connect(ac.destination);
+        o.start(now);o.stop(now+dur+.04);
+
+        const buffer=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*dur)),ac.sampleRate);
+        const data=buffer.getChannelData(0);
+        for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2.2);
+        const src=ac.createBufferSource();src.buffer=buffer;
+        const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=650;f.Q.value=.55;
+        const ng=ac.createGain();
+        ng.gain.setValueAtTime(.0001,now);
+        ng.gain.exponentialRampToValueAtTime((gain||.22)*.42,now+.005);
+        ng.gain.exponentialRampToValueAtTime(.0001,now+dur);
+        src.connect(f);f.connect(ng);ng.connect(ac.destination);
+        src.start(now);src.stop(now+dur+.04);
+      }else{
+        kahoopardyHtmlTone(freq||120,.055,(gain||.22)*.75);
+      }
+    }catch(_e){kahoopardyHtmlTone(freq||120,.055,(gain||.22)*.75)}
+  },delay||0);
+}
+function kahoopardyDrumRoll(ms){
+  try{
+    ms=ms||820;
+    const count=14;
+    for(let i=0;i<count;i++){
+      kahoopardyDrumHit(Math.round(i*(ms/count)),i%2?165:118,.09+(i/count)*.16);
+    }
+    kahoopardyDrumHit(ms+40,92,.34);
+    kahoopardyDrumHit(ms+185,68,.42);
+  }catch(_e){}
+}
+function kahoopardyApplause(strong){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
+    const ac=(typeof ensureAudio==='function')?ensureAudio():null;
+    if(ac&&ac.state==='running'){
+      const master=ac.createGain();
+      master.gain.value=strong?.22:.16;
+      master.connect(ac.destination);
+      const n=strong?34:18;
+      for(let i=0;i<n;i++){
+        const dur=.035+Math.random()*.06,start=ac.currentTime+i*(strong?.014:.018)+Math.random()*.018;
+        const buffer=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*dur)),ac.sampleRate);
+        const data=buffer.getChannelData(0);
+        for(let j=0;j<data.length;j++)data[j]=(Math.random()*2-1)*(1-j/data.length);
+        const src=ac.createBufferSource();src.buffer=buffer;
+        const filter=ac.createBiquadFilter();filter.type='bandpass';filter.frequency.value=900+Math.random()*1400;filter.Q.value=.7;
+        const g=ac.createGain();
+        g.gain.setValueAtTime(.001,start);
+        g.gain.exponentialRampToValueAtTime(.35,start+.008);
+        g.gain.exponentialRampToValueAtTime(.001,start+dur);
+        src.connect(filter);filter.connect(g);g.connect(master);
+        src.start(start);src.stop(start+dur+.02);
+      }
+    }
+    if(!kahoopardyAudioUnlocked()){
+      const n=strong?12:7;
+      for(let i=0;i<n;i++)setTimeout(()=>kahoopardyHtmlTone(i%2?760:1040,.055,.16),i*78);
+    }
+  }catch(_e){}
+}
+function kahoopardyWhistle(){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
+    [1200,1800,1350].forEach((f,i)=>setTimeout(()=>kahoopardyPlayTone(f,.13,'square',.075),i*145));
+    if(!kahoopardyAudioUnlocked()){
+      [1200,1800,1350].forEach((f,i)=>setTimeout(()=>kahoopardyHtmlTone(f,.11,.14),i*145));
+    }
+  }catch(_e){}
+}
+function kahoopardyWhistleFlurry(delay){
+  setTimeout(()=>{
+    try{
+      kahoopardyWhistle();
+      setTimeout(()=>kahoopardyWhistle(),380);
+    }catch(_e){}
+  },delay||0);
+}
+function kahoopardyCelebrationBurst(){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
+    kahoopardyPlayTone(740,.22,'triangle',.15);
+    setTimeout(()=>kahoopardyPlayTone(980,.24,'triangle',.14),60);
+    setTimeout(()=>kahoopardyPlayTone(1320,.16,'sine',.10),210);
+    if(!kahoopardyAudioUnlocked()){
+      [740,980,1320].forEach((f,i)=>setTimeout(()=>kahoopardyHtmlTone(f,.13,.20),i*90));
+    }
+  }catch(_e){}
+}
+function kahoopardyFallbackFanfare(finalStep){
+  try{
+    const seq=finalStep
+      ?[[0,660,.16],[120,880,.18],[260,1175,.22],[520,880,.14],[700,1320,.18],[900,1568,.24]]
+      :[[0,660,.14],[130,990,.18],[300,1320,.18]];
+    seq.forEach(x=>setTimeout(()=>kahoopardyHtmlTone(x[1],x[2],.24),x[0]));
+  }catch(_e){}
+}
+function kahoopardyDing(){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
+    kahoopardyPlayTone(880,.18,'sine',.18);
+    if(!kahoopardyAudioUnlocked())kahoopardyHtmlTone(880,.14,.20);
+  }catch(e){}
+}
+function kahoopardyCelebrationFanfare(finalStep){
+  try{
+    if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(true);
+
+    if(finalStep){
+      // Mere spænding før vinder/finale: trommehvirvel først, derefter gamle festlyde + pift/klap.
+      kahoopardyDrumRoll(820);
+      setTimeout(()=>kahoopardyCelebrationBurst(),720);
+      setTimeout(()=>kahoopardyWhistleFlurry(),940);
+      setTimeout(()=>kahoopardyApplause(true),1050);
+      setTimeout(()=>kahoopardyCelebrationBurst(),1450);
+      setTimeout(()=>kahoopardyApplause(true),1650);
+      setTimeout(()=>kahoopardyFallbackFanfare(true),700);
+    }else{
+      // Placeringer undervejs: kort trommeslag + de gamle små festlige lyde.
+      kahoopardyDrumHit(0,128,.20);
+      setTimeout(()=>kahoopardyCelebrationBurst(),120);
+      setTimeout(()=>kahoopardyApplause(false),260);
+      setTimeout(()=>kahoopardyWhistle(),520);
+      setTimeout(()=>kahoopardyFallbackFanfare(false),100);
+    }
+  }catch(_e){}
+}
+
 
 function kahoopardyResultForQuestion(w,qi){
   normalizeKahoopardy(w);
@@ -22006,7 +22297,7 @@ function wireKahoopardy(c,w,el){
   if(next)next.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);if(kahoopardyIsMixActive(w)){kahoopardyAdvanceMix(w);rerender();return;} if(kahoopardyAllQuestionsUsed(w)){w.data.stage='done';rerender();return;} if(w.data.mode==='jeopardy'){w.data.stage='board';w.data.reveal=false;rerender();return;} kahoopardyPrepareNextQuestion(w,(w.data.currentQuestion+1));rerender();};
   const jpScore=c.querySelector('.jeopardyToScore');
   if(jpScore)jpScore.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);w.data.stage='score';kahoopardyApplause();rerender();};
-  c.querySelectorAll('.startFinale').forEach(b=>b.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);kahoopardyStartFinale(w);kahoopardyApplause();rerender();});
+  c.querySelectorAll('.startFinale').forEach(b=>b.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);try{if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(true)}catch(_e){}kahoopardyStartFinale(w);kahoopardyCelebrationFanfare(true);rerender();});
   c.querySelectorAll('.editQuestions').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyClearMix(w);w.data.editing=true;rerender();});
   const cancel=c.querySelector('.cancelEdit');
   if(cancel)cancel.onclick=e=>{e.preventDefault();w.data.editing=false;rerender();};
@@ -22147,8 +22438,8 @@ function wireKahoopardy(c,w,el){
   c.querySelectorAll('.playAgainMode').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyPlayAgain(w,b.dataset.mode);rerender();});
   c.querySelectorAll('.playAgain').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyPlayAgain(w,w.data.mode);rerender();});
   c.querySelectorAll('.showFinalScore').forEach(b=>b.onclick=e=>{e.preventDefault();w.data.stage='score';kahoopardyApplause();rerender();});
-  c.querySelectorAll('.replayCeremony').forEach(b=>b.onclick=e=>{e.preventDefault();if(w.data.mix){w.data.mix.ceremonyStepIndex=0;w.data.mix.ceremonyPlayedStep=-1;}w.data.stage='done';rerender();});
-  c.querySelectorAll('.nextCeremonyStep').forEach(b=>b.onclick=e=>{e.preventDefault();if(kahoopardyAdvanceCeremony(w)){if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;w.data.stage='done';rerender();}});
+  c.querySelectorAll('.replayCeremony').forEach(b=>b.onclick=e=>{e.preventDefault();try{if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(true)}catch(_e){}if(w.data.mix){w.data.mix.ceremonyStepIndex=0;w.data.mix.ceremonyPlayedStep=-1;}w.data.stage='done';kahoopardyCelebrationFanfare(true);rerender();});
+  c.querySelectorAll('.nextCeremonyStep').forEach(b=>b.onclick=e=>{e.preventDefault();try{if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(true)}catch(_e){}if(kahoopardyAdvanceCeremony(w)){if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;w.data.stage='done';kahoopardyCelebrationFanfare(false);rerender();}});
   c.querySelectorAll('.replayCeremonyCurrent').forEach(b=>b.onclick=e=>{e.preventDefault();if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;w.data.stage='done';rerender();});
   const showM=c.querySelector('.showMasterAnswer');
   if(showM)showM.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);w.data.stage='master_answer';w.data.judgeFocus=0;kahoopardyDing();rerender();};
@@ -25380,18 +25671,24 @@ if(w.type==='drawcopy'){
   const page=Math.max(1,Number(w.data.page||1));
   const pages=Number(w.data.pages||0);
   const hasPdfFileRef=!!(w.data&&w.data.fileMediaRef&&!src);
-  const pdfStorageText=hasPdfFileRef?'PDF i arkiv: IndexedDB':(isEmbeddedPdf(src)?'PDF er indlejret i backup.':(src?'PDF er linket via URL.':'Ingen PDF valgt.'));
   c.innerHTML=`<div class="pdfControls widget-control">
-      <button class="pdfLocal">Vælg lokal PDF</button>
-      <button class="pdfUrl">PDF fra URL</button>
-      ${(hasPdfFileRef||isEmbeddedPdf(src))?'<button class="pdfDownload">Download</button>':''}
-      <button class="pdfZoomOut" title="Zoom PDF ud">−</button>
-      <span class="pdfZoomLabel">${esc(pdfJsZoomLabel(w))}</span>
-      <button class="pdfZoomIn" title="Zoom PDF ind">+</button>
-      <button class="pdfPrev" title="Forrige side">‹</button>
-      <span class="pdfPageLabel">${(src||hasPdfFileRef)?('Side '+page+(pages?' / '+pages:'')):'Side –'}</span>
-      <button class="pdfNext" title="Næste side">›</button>
-      <span>${esc(pdfStorageText)}</span>
+      <div class="pdfRow pdfRowCompact">
+        <div class="pdfGroup pdfSourceGroup">
+          <button class="pdfLocal" title="Vælg PDF fra enheden">📄 Lokal PDF</button>
+          <button class="pdfUrl" title="Indsæt direkte PDF-URL">🔗 Fra URL</button>
+          ${(hasPdfFileRef||isEmbeddedPdf(src))?'<button class="pdfDownload" title="Åbn Hent filer fra tavlen">⬇ Hent</button>':''}
+        </div>
+        <div class="pdfGroup pdfPageGroup" aria-label="PDF-sider">
+          <button class="pdfPrev" title="Forrige side">‹</button>
+          <span class="pdfPageLabel">${(src||hasPdfFileRef)?(page+(pages?'/'+pages:'')):'–'}</span>
+          <button class="pdfNext" title="Næste side">›</button>
+        </div>
+        <div class="pdfGroup pdfZoomGroup" aria-label="PDF-zoom">
+          <button class="pdfZoomOut" title="Zoom PDF ud">−</button>
+          <span class="pdfZoomLabel" title="Klik for at tilpasse PDF til bredden">${esc(pdfJsZoomLabel(w))}</span>
+          <button class="pdfZoomIn" title="Zoom PDF ind">+</button>
+        </div>
+      </div>
     </div>
     <div class="pdfJsViewer"></div>
     <div class="pdfEdgeNav left" title="Forrige side"></div>
@@ -25424,7 +25721,7 @@ if(w.type==='drawcopy'){
     toast(archived?'PDF gemt i IndexedDB':'PDF indlejret i tavlen');
   })};
   const pdfDownload=c.querySelector('.pdfDownload');
-  if(pdfDownload)pdfDownload.onclick=(e)=>{e.stopPropagation();safe453i157DownloadPdfWidget(w)};
+  if(pdfDownload)pdfDownload.onclick=(e)=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else safe453i157DownloadPdfWidget(w)};
   const zoomOut=c.querySelector('.pdfZoomOut');
   const zoomIn=c.querySelector('.pdfZoomIn');
   const zoomLabelBtn=c.querySelector('.pdfZoomLabel');
@@ -26969,11 +27266,109 @@ function select(id,options={}){
 function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function ytId(url){try{return safe453i221YoutubeId(url)||''}catch(_e){let m=String(url).match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{6,64})/);return m?m[1]:''}}
 function fmt(s){s=Math.max(0,Math.floor(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
-let audioCtx=null,audioPrimed=false;
-// SAFE34: Audio skal vækkes af en brugerhandling (især iOS/Safari). Returnerer ctx, så beep kan stoppe rent hvis lyd er blokeret.
-function ensureAudio(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;audioCtx=audioCtx||new A();if(audioCtx.state==='suspended'){const p=audioCtx.resume();if(p&&p.catch)p.catch(()=>{})}return audioCtx}catch(e){return null}}
-function primeAudio(){try{const ac=ensureAudio();if(!ac||audioPrimed)return;const o=ac.createOscillator(),g=ac.createGain();g.gain.value=.00001;o.frequency.value=20;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.012);audioPrimed=true}catch(e){}}
-function beep(freq=880,dur=.18,type='sine',gain=.14){try{const ac=ensureAudio();if(!ac||ac.state==='suspended')return;const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(Math.max(.0001,gain),ac.currentTime);o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+dur);o.stop(ac.currentTime+dur)}catch(e){}}
+let audioCtx=null,audioPrimed=false,audioUnlocked=false,audioUnlockPromise=null;
+// SAFE453n: iPhone/Safari kræver ofte, at WebAudio låses op af et direkte tryk.
+// Timerens testlyd og startknap bruger denne fælles lydmotor, så alarmen senere kan lyde automatisk.
+function ensureAudio(){
+  try{
+    const A=window.AudioContext||window.webkitAudioContext;
+    if(!A)return null;
+    if(!audioCtx||audioCtx.state==='closed')audioCtx=new A();
+    return audioCtx;
+  }catch(e){return null}
+}
+function safe453nTinyUnlockPulse(ac,audible){
+  try{
+    if(!ac)return;
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type='sine';
+    o.frequency.value=audible?880:20;
+    g.gain.setValueAtTime(audible?.045:.00001,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.00001,ac.currentTime+(audible?.11:.018));
+    o.connect(g);g.connect(ac.destination);
+    o.start();o.stop(ac.currentTime+(audible?.12:.02));
+  }catch(e){}
+}
+function safe453nUnlockAudio(audible){
+  try{
+    const ac=ensureAudio();
+    if(!ac)return Promise.resolve(false);
+    const finish=()=>{audioUnlocked=ac.state==='running';audioPrimed=true;safe453nTinyUnlockPulse(ac,!!audible);return audioUnlocked;};
+    if(ac.state==='running')return Promise.resolve(finish());
+    if(audioUnlockPromise)return audioUnlockPromise.then(()=>finish()).catch(()=>false);
+    const p=ac.resume&&ac.resume();
+    audioUnlockPromise=(p&&p.then?p:Promise.resolve()).then(()=>finish()).catch(()=>false).finally(()=>{audioUnlockPromise=null;});
+    return audioUnlockPromise;
+  }catch(e){return Promise.resolve(false)}
+}
+function primeAudio(){try{safe453nUnlockAudio(false)}catch(e){}}
+function beep(freq=880,dur=.18,type='sine',gain=.14){
+  try{
+    const ac=ensureAudio();
+    if(!ac)return;
+    const play=()=>{
+      try{
+        if(ac.state!=='running')return;
+        const o=ac.createOscillator(),g=ac.createGain();
+        o.type=type;o.frequency.value=freq;
+        g.gain.setValueAtTime(Math.max(.0001,gain),ac.currentTime);
+        o.connect(g);g.connect(ac.destination);
+        o.start();
+        g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+dur);
+        o.stop(ac.currentTime+dur);
+      }catch(e){}
+    };
+    if(ac.state==='running')play();
+    else safe453nUnlockAudio(false).then(play);
+  }catch(e){}
+}
+
+/* SAFE453n2: HTMLAudio fallback til iPhone/Arkiver/QuickLook, hvor WebAudio kan forblive tavs. */
+let safe453nHtmlAudioPrimed=false;
+function safe453nMakeWavUrl(freq=880,dur=.14,gain=.18){
+  try{
+    const sr=22050, len=Math.max(1,Math.floor(sr*dur)), bytes=44+len*2;
+    const buf=new ArrayBuffer(bytes), v=new DataView(buf);
+    const ws=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+    ws(0,'RIFF');v.setUint32(4,36+len*2,true);ws(8,'WAVE');ws(12,'fmt ');
+    v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+    v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);
+    ws(36,'data');v.setUint32(40,len*2,true);
+    for(let i=0;i<len;i++){
+      const env=Math.max(0,1-i/len);
+      const s=Math.sin(2*Math.PI*freq*i/sr)*gain*env;
+      v.setInt16(44+i*2,Math.max(-32767,Math.min(32767,Math.floor(s*32767))),true);
+    }
+    let bin='', u=new Uint8Array(buf), chunk=0x8000;
+    for(let i=0;i<u.length;i+=chunk)bin+=String.fromCharCode.apply(null,u.subarray(i,i+chunk));
+    return 'data:audio/wav;base64,'+btoa(bin);
+  }catch(e){return ''}
+}
+function safe453nHtmlAudioPlay(freq=880,dur=.14,gain=.18){
+  try{
+    const url=safe453nMakeWavUrl(freq,dur,gain);
+    if(!url)return Promise.resolve(false);
+    const a=new Audio(url);
+    a.preload='auto';
+    a.volume=1;
+    const p=a.play();
+    if(p&&p.then)return p.then(()=>{safe453nHtmlAudioPrimed=true;return true;}).catch(()=>false);
+    safe453nHtmlAudioPrimed=true;
+    return Promise.resolve(true);
+  }catch(e){return Promise.resolve(false)}
+}
+function safe453nTimerAlarmFallback(sound){
+  try{
+    const seq={
+      beep:[[0,880,.18],[260,880,.18],[520,880,.18]],
+      bell:[[0,784,.22],[180,1046,.22],[420,784,.22],[720,1046,.22]],
+      gong:[[0,196,.7],[120,98,.9],[260,392,.45]],
+      digital:[[0,1320,.10],[120,990,.10],[240,1320,.10],[520,990,.10],[640,1320,.10],[760,990,.10]],
+      chime:[[0,659,.22],[170,880,.28],[390,1175,.38]]
+    }[sound||'chime']||[[0,659,.22],[170,880,.28],[390,1175,.38]];
+    seq.forEach(x=>setTimeout(()=>safe453nHtmlAudioPlay(x[1],x[2],.22),x[0]));
+  }catch(e){}
+}
 function alarmSound(){primeAudio();[0,220,440,760,980].forEach((d,i)=>setTimeout(()=>beep(i%2?700:1040,.22,'square',.12),d))}
 function wheelTick(){beep(420,.045,'triangle',.09)}
 function wheelLand(){primeAudio();beep(880,.14,'sine',.18);setTimeout(()=>beep(1175,.18,'sine',.18),125);setTimeout(()=>beep(1568,.18,'sine',.14),260)}
@@ -27041,7 +27436,11 @@ function safe453i177PlayTimerAlarm(w){
       }catch(_e){}
     };
     [0,1200,2400].forEach(d=>setTimeout(playOnce,d));
-  }catch(_e){try{alarmSound();setTimeout(alarmSound,1200);setTimeout(alarmSound,2400)}catch(_x){}}
+    // HTMLAudio fallback: især nyttig på iPhone, hvor WebAudio kan være låst/blokeret.
+    if(!audioUnlocked || !audioCtx || audioCtx.state!=='running'){
+      [0,1200,2400].forEach(d=>setTimeout(()=>safe453nTimerAlarmFallback(sound),d));
+    }
+  }catch(_e){try{alarmSound();setTimeout(alarmSound,1200);setTimeout(alarmSound,2400);[0,1200,2400].forEach(d=>setTimeout(()=>safe453nTimerAlarmFallback('chime'),d));}catch(_x){}}
 }
 function safe453i177AlarmSelectHtml(w){
   safe453i174TimerDefaults(w);
@@ -27056,7 +27455,7 @@ function safe453i177AlarmSelectHtml(w){
   const off=w.data.alarmEnabled===false;
   return `<div class="timerAlarmControls widget-control">
     <label class="timerAlarmPill" title="Alarm til/fra for alle sekvensalarmer"><input class="timerAlarmEnabled" type="checkbox" ${off?'':'checked'}> <span>&#128276;</span></label>
-    ${off?'':safe453i174TimerIcon('&#9654;','Test valgt sekvensalarm','alarmTest')}
+    ${off?'':safe453i174TimerIcon('&#128266;','Lyd klar / test alarm','alarmTest')}
   </div>`;
 }
 
@@ -28050,11 +28449,34 @@ function wireTimer(c,w){
     timerLogStatus.addEventListener('click',toggleLog);
   }
   const alarmEnabled=c.querySelector('.timerAlarmEnabled');
-  if(alarmEnabled)alarmEnabled.onchange=e=>{e.stopPropagation();primeAudio();w.data.alarmEnabled=!!alarmEnabled.checked;save();redraw();};
+  if(alarmEnabled)alarmEnabled.onchange=e=>{e.stopPropagation();safe453nUnlockAudio(false);w.data.alarmEnabled=!!alarmEnabled.checked;save();redraw();};
   const alarmSelect=c.querySelector('.timerAlarmSelect');
-  if(alarmSelect)alarmSelect.onchange=e=>{e.stopPropagation();primeAudio();safe453i185adSetCurrentSequenceAlarmSound(w,alarmSelect.value||'chime');save();redraw();};
+  if(alarmSelect)alarmSelect.onchange=e=>{e.stopPropagation();safe453nUnlockAudio(false);safe453i185adSetCurrentSequenceAlarmSound(w,alarmSelect.value||'chime');save();redraw();};
   const alarmTest=c.querySelector('.alarmTest');
-  if(alarmTest)alarmTest.onclick=e=>{e.preventDefault();e.stopPropagation();primeAudio();safe453i177PlayTimerAlarm(w);};
+  if(alarmTest)alarmTest.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    alarmTest.classList.remove('audioReady','audioBlocked');
+    alarmTest.classList.add('audioTrying');
+    alarmTest.title='Tester lyd…';
+    const sound=safe453i185adCurrentSequenceAlarmSound(w);
+    // Afspil én HTMLAudio-blip direkte i trykket; derefter fuld alarm.
+    Promise.all([safe453nUnlockAudio(true),safe453nHtmlAudioPlay(880,.10,.20)]).then(res=>{
+      const ok=!!(res&&res.some(Boolean));
+      alarmTest.classList.remove('audioTrying');
+      alarmTest.classList.add(ok?'audioReady':'audioBlocked');
+      alarmTest.title=ok?'Lyd klar / test alarm':'Lyd blokeret – tjek lydløs tilstand/volumen';
+      try{toast(ok?'Timerlyd forsøgt klargjort':'Timerlyd blokeret – tjek lydløs/volumen')}catch(_e){}
+      safe453i177PlayTimerAlarm(w);
+      // Hvis WebAudio stadig er tavs, gives fallback med valgt alarm.
+      setTimeout(()=>safe453nTimerAlarmFallback(sound),60);
+    }).catch(()=>{
+      alarmTest.classList.remove('audioTrying');
+      alarmTest.classList.add('audioBlocked');
+      alarmTest.title='Lyd blokeret – tjek lydløs tilstand/volumen';
+      try{toast('Timerlyd blokeret – tjek lydløs/volumen')}catch(_e){}
+      safe453nTimerAlarmFallback(sound);
+    });
+  };
 
   c.querySelectorAll('[data-timer-mode]').forEach(btn=>btn.onclick=e=>{
     e.preventDefault();e.stopPropagation();
@@ -28361,7 +28783,7 @@ function wireTimer(c,w){
     if(isCountdownStart){
       try{safe453i183eCommitSequenceFromDom(c,w,{noSave:true});}catch(_e){}
       try{const cur=safe453i183eCurrentSequence(w);w.data.seconds=Math.max(0,Math.floor(Number(cur.seconds)||0));if(Math.max(0,Number(w.data.left)||0)<=0||w.data.left!==w.data.seconds)w.data.left=w.data.seconds;}catch(_e){}
-      try{primeAudio();}catch(_e){}
+      try{safe453nUnlockAudio(false);}catch(_e){}
       if(Math.max(0,Number(w.data.left)||0)<=0)w.data.left=w.data.seconds;
       try{safe453i182LogCountdownStart(w);}catch(_logErr){try{console.warn('SAFE453i182 countdown startlog fejl',_logErr)}catch(_e){}}
     }
@@ -47282,6 +47704,20 @@ var old=window.render; if(typeof old==='function'&&!window.__dr258Wrap){window._
 /* SAFE453j Mix ceremony: tie-aware podium + calmer footer layout */
 .kahoopardyCeremonyView{padding-bottom:12px!important}
 .kahoopardyCeremonyCenter{gap:8px!important}
+
+/* SAFE453n5: Vindernes gule podium-/bjælke-animation teas'es mere.
+   1. plads starter lidt senere og kommer langsommere op, så trommehvirvelen får luft. */
+.kahoopardyPodiumCol.rank1.revealed{
+  animation:kahoopardyCeremonyRiseTease 1.12s cubic-bezier(.16,.92,.22,1.02) .48s both !important;
+}
+@keyframes kahoopardyCeremonyRiseTease{
+  0%{opacity:0;transform:translateY(40px) scale(.84)}
+  42%{opacity:.08;transform:translateY(40px) scale(.84)}
+  72%{opacity:1;transform:translateY(-4px) scale(1.02)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+
+
 .kahoopardyCeremonyName,.kahoopardyPodiumName{display:grid;justify-items:center;align-content:center;gap:2px}
 .kahoopardyCeremonyName.isTie,.kahoopardyPodiumName.isTie{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.02}
 .kahoopardyPodiumTeam{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -47670,6 +48106,142 @@ var old=window.render; if(typeof old==='function'&&!window.__dr258Wrap){window._
 .kahoopardyCeremonyEyebrow{margin-top:2px!important}
 .kahoopardyCeremonyCenter{padding-top:8px!important}
 
+
+/* SAFE453n: Timer-lydtest / iPhone audio unlock */
+.timerAlarmControls .alarmTest{
+  position:relative;
+}
+.timerAlarmControls .alarmTest.audioReady{
+  background:#dcfce7!important;
+  color:#166534!important;
+  box-shadow:0 0 0 3px rgba(34,197,94,.22)!important;
+}
+
+
+/* SAFE453n2: tydelig status for Timer-lyd på iPhone */
+.timerAlarmControls .alarmTest.audioTrying{
+  background:#fef3c7!important;
+  color:#92400e!important;
+  box-shadow:0 0 0 3px rgba(245,158,11,.22)!important;
+}
+.timerAlarmControls .alarmTest.audioBlocked{
+  background:#fee2e2!important;
+  color:#991b1b!important;
+  box-shadow:0 0 0 3px rgba(239,68,68,.22)!important;
+}
+
+
+@media (max-width: 720px){
+  .pdfControls{left:8px!important;right:8px!important;max-width:none!important}
+  .pdfControls .pdfRowSecondary{justify-content:flex-start!important}
+  .pdfControls .pdfGroup{width:100%;justify-content:flex-start}
+}
+
+
+/* SAFE453p: Kompakt og roligt PDF-widget layout. Kun PDF-kontroller. */
+.pdfControls{
+  padding:6px 8px!important;
+  border-radius:14px!important;
+  background:rgba(255,255,255,.92)!important;
+  box-shadow:0 6px 16px rgba(15,23,42,.10)!important;
+  max-width:calc(100% - 20px)!important;
+}
+.pdfControls .pdfRowCompact{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%!important;
+}
+.pdfControls .pdfGroup{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:4px!important;
+  flex-wrap:nowrap!important;
+  background:rgba(248,250,252,.88)!important;
+  border:1px solid #e5e7eb!important;
+  border-radius:999px!important;
+  padding:3px 4px!important;
+}
+.pdfControls .pdfSourceGroup{gap:5px!important}
+.pdfControls button,
+.pdfControls .pdfZoomLabel,
+.pdfControls .pdfPageLabel{
+  min-height:28px!important;
+  border-radius:999px!important;
+  font-size:12px!important;
+  line-height:1!important;
+}
+.pdfControls button{
+  padding:5px 9px!important;
+  background:#f8fafc!important;
+  color:#1f2937!important;
+  border:1px solid #dbe3ee!important;
+  box-shadow:none!important;
+}
+.pdfControls button:hover{background:#eef2f7!important}
+.pdfControls .pdfPrev,
+.pdfControls .pdfNext,
+.pdfControls .pdfZoomOut,
+.pdfControls .pdfZoomIn{
+  min-width:28px!important;
+  width:28px!important;
+  padding:5px 0!important;
+  font-size:15px!important;
+}
+.pdfControls .pdfPageLabel,
+.pdfControls .pdfZoomLabel{
+  min-width:auto!important;
+  padding:6px 7px!important;
+  background:transparent!important;
+  border:0!important;
+  color:#111827!important;
+  font-weight:900!important;
+  box-shadow:none!important;
+}
+.pdfControls .pdfZoomLabel{cursor:pointer!important}
+.pdfControls .pdfMiniLabel,
+.pdfControls .pdfStorageBadge,
+.pdfControls .pdfRowMeta{display:none!important}
+@media(max-width:560px){
+  .pdfControls{padding:5px 6px!important}
+  .pdfControls .pdfRowCompact{gap:5px!important}
+  .pdfControls button{padding:5px 7px!important}
+  .pdfControls .pdfLocal,.pdfControls .pdfUrl,.pdfControls .pdfDownload{font-size:11px!important}
+}
+
+/* SAFE453s: PDF-kontroller autoskjules hurtigere efter interaktion, så PDF-siden hurtigere får fuld læseflade. */
+.widget[data-type="pdf"] .chrome .titleText{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  display:block!important;
+  padding-right:8px!important;
+}
+.widget[data-type="pdf"] .pdfControls{
+  opacity:0!important;
+  transform:translateY(-7px)!important;
+  pointer-events:none!important;
+  transition:opacity .18s ease, transform .18s ease!important;
+}
+.widget[data-type="pdf"].pdfControlsVisible .pdfControls,
+.widget[data-type="pdf"]:hover .pdfControls,
+.widget[data-type="pdf"] .pdfControls:focus-within{
+  opacity:1!important;
+  transform:translateY(0)!important;
+  pointer-events:auto!important;
+}
+.widget[data-type="pdf"].pdfControlsVisible .pdfControls{
+  transition-delay:0s!important;
+}
+.present .widget[data-type="pdf"] .pdfControls,
+body.focus-edit .widget[data-type="pdf"] .pdfControls,
+body.focus-presentation .widget[data-type="pdf"] .pdfControls,
+body.focus-maximized .widget[data-type="pdf"].focusTarget .pdfControls{
+  display:none!important;
+}
+
 </style>
 <script id="safe453i260-dataremix-chrome-always-visible">
 (function(){
@@ -47776,6 +48348,40 @@ var old=window.render; if(typeof old==='function'&&!window.__dr258Wrap){window._
   setTimeout(function(){tidy(document);},100);
   setTimeout(function(){tidy(document);},600);
   setInterval(function(){tidy(document);},1500);
+})();
+</script>
+<script id="safe453q-pdf-controls-autohide">
+(function(){
+  const timers=new WeakMap();
+  function pdfWidgetFromTarget(t){
+    try{return t&&t.closest?t.closest('.widget[data-type="pdf"]'):null;}catch(_e){return null;}
+  }
+  function showPdfControls(el,ms){
+    if(!el)return;
+    try{
+      el.classList.add('pdfControlsVisible');
+      const old=timers.get(el);
+      if(old)clearTimeout(old);
+      const delay=Number(ms)||1300;
+      const timer=setTimeout(function(){
+        try{
+          if(!el.matches(':hover') && !el.querySelector('.pdfControls:focus-within'))el.classList.remove('pdfControlsVisible');
+        }catch(_e){el.classList.remove('pdfControlsVisible');}
+      },delay);
+      timers.set(el,timer);
+    }catch(_e){}
+  }
+  ['pointerdown','pointermove','click','touchstart'].forEach(function(type){
+    document.addEventListener(type,function(e){
+      const el=pdfWidgetFromTarget(e.target);
+      if(el)showPdfControls(el,1200);
+    },true);
+  });
+  document.addEventListener('keydown',function(e){
+    const el=pdfWidgetFromTarget(e.target)||document.querySelector('.widget[data-type="pdf"].selected');
+    if(el)showPdfControls(el,1600);
+  },true);
+  window.safe453qShowPdfControls=showPdfControls;
 })();
 </script>
 </body></html>
