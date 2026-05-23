@@ -19116,7 +19116,7 @@ function wirePoll(c,w,el){
 }
 
 
-function kahoopardyDefaults(){return {mode:'kahoot',currentQuestion:0,currentTeam:0,teams:[{name:'Hold 1',score:0,correct:0},{name:'Hold 2',score:0,correct:0}],questions:[{category:'Demo',question:'Hvad hedder hovedpersonen?',answer:'Måns',correctIndex:0,points:100,options:['Måns','Mette','Marie','Mads']}],selections:{},awarded:{},autoAwarded:{},optionOrders:{},usedQuestions:{},reveal:false,stage:'question',editing:true};}
+function kahoopardyDefaults(){return {mode:'kahoot',blindScore:false,currentQuestion:0,currentTeam:0,teams:[{name:'Hold 1',score:0,correct:0},{name:'Hold 2',score:0,correct:0}],questions:[{category:'Demo',question:'Hvad hedder hovedpersonen?',answer:'Måns',correctIndex:0,points:100,options:['Måns','Mette','Marie','Mads']}],selections:{},awarded:{},autoAwarded:{},optionOrders:{},usedQuestions:{},reveal:false,stage:'question',editing:true};}
 function normalizeKahoopardy(w){
   w.data=Object.assign(kahoopardyDefaults(),w.data||{});
   if(!Array.isArray(w.data.teams)||!w.data.teams.length)w.data.teams=kahoopardyDefaults().teams;
@@ -19841,6 +19841,7 @@ function kahoopardyResetQuestionRound(w,qIndex){
   if(w.data.awarded)delete w.data.awarded[qKey];
   if(w.data.autoAwarded)delete w.data.autoAwarded[qKey];
   if(w.data.optionOrders)delete w.data.optionOrders[qKey];
+  delete w.data.blindLastResult;
   w.data.kahootFocus=0;
 }
 function kahoopardyApplyAwardsFromSelections(w){
@@ -21733,6 +21734,62 @@ function kahoopardyQuestionBankStatusHtml(w){
   const action=isOpen?'Skjul koblet spørgsmålsbank':'Vis koblet spørgsmålsbank';
   return `<button type="button" class="kahoopardyQuestionBankStatus" title="${esc(action)}" aria-label="${esc(action)}: ${esc(label)}"><span class="kpQuestionBankLink" aria-hidden="true">🔗</span><span class="kpBankLabel">Spørgsmålsbank</span><span class="kpBankName" title="${esc(label)}">${esc(label)}</span></button>`;
 }
+function kahoopardyBlindScoreActive(w){
+  return !!(w&&w.data&&w.data.blindScore&&!w.data.editing&&w.data.stage!=='done');
+}
+function kahoopardyBlindTeamResult(w,i,qKey,isCorrect,pickedDefined){
+  if(!kahoopardyBlindScoreActive(w))return '';
+  if(w&&w.data&&w.data.reveal){
+    if(pickedDefined)return isCorrect?'correct':'wrong';
+    return '';
+  }
+  const r=w&&w.data&&w.data.blindLastResult;
+  if(r&&Number(r.teamIndex)===Number(i))return String(r.kind||'');
+  return '';
+}
+function kahoopardyBlindTeamSymbol(kind){
+  if(kind==='correct')return '✓';
+  if(kind==='half')return '✓';
+  if(kind==='wrong')return '×';
+  return '?';
+}
+function kahoopardyBlindTeamLabel(kind){
+  if(kind==='correct')return 'Rigtigt';
+  if(kind==='half')return 'Halvt rigtigt';
+  if(kind==='wrong')return 'Forkert';
+  return 'Stilling skjult';
+}
+function kahoopardyAdvanceAfterBlindResult(w){
+  normalizeKahoopardy(w);
+  if(kahoopardyIsMixActive(w)){kahoopardyAdvanceMix(w);return;}
+  if(kahoopardyAllQuestionsUsed(w)){w.data.stage='done';return;}
+  if(w.data.mode==='jeopardy'){w.data.stage='board';w.data.reveal=false;return;}
+  kahoopardyPrepareNextQuestion(w,(Number(w.data.currentQuestion)||0)+1);
+}
+
+function kahoopardyShowBlindResultPause(w,mode,teamIndex,kind){
+  normalizeKahoopardy(w);
+  w.data.blindLastResult={teamIndex:Number(teamIndex)||0,kind:String(kind||'wrong')};
+  w.data.blindResultMode=mode||w.data.mode||'master';
+  w.data.stage='blind_result';
+  w.data.reveal=false;
+}
+function kahoopardyBlindResultPauseHtml(w){
+  normalizeKahoopardy(w);
+  const r=w.data.blindLastResult||{};
+  const team=(w.data.teams||[])[Number(r.teamIndex)||0]||{};
+  const kind=String(r.kind||'wrong');
+  const symbol=kahoopardyBlindTeamSymbol(kind);
+  const label=kahoopardyBlindTeamLabel(kind);
+  return `<div class="kahoopardyBlindPause">
+    <div class="kahoopardyBlindPauseEyebrow">Resultat</div>
+    <div class="kahoopardyBlindPauseSymbol ${kind}">${symbol}</div>
+    <div class="kahoopardyBlindPauseTeam">${esc(team.name||'Hold')}</div>
+    <div class="kahoopardyBlindPauseLabel">${esc(label)}</div>
+    <div class="kahoopardyBlindPauseHint">Tryk mellemrum for at gå videre</div>
+    ${kahoopardyActionBarHtml(w,`<button type="button" class="continueBlindResult next">Videre</button>`)}
+  </div>`;
+}
 function renderKahoopardy(el,w){
   normalizeKahoopardy(w);
   const c=el.querySelector('.content');
@@ -21750,13 +21807,18 @@ function renderKahoopardy(el,w){
     if(w.data.reveal)classes.push('canAward');
     if(w.data.reveal&&w.data.autoAwarded&&w.data.autoAwarded[qKey]&&w.data.autoAwarded[qKey][i])classes.push('autoAward');
     if(w.data.reveal&&pickedText)classes.push(isCorrect?'correctChoice':'wrongChoice');
+    const blind=kahoopardyBlindScoreActive(w);
+    const blindKind=kahoopardyBlindTeamResult(w,i,qKey,isCorrect,picked!==undefined);
+    if(blind)classes.push('blindScore');
+    if(blindKind==='correct')classes.push('blindCorrect');
+    if(blindKind==='half')classes.push('blindHalf');
+    if(blindKind==='wrong')classes.push('blindWrong');
     if(kahoopardyCanClickTeamToReset(w))classes.push('canResetPoints');
     if(w.data.teamPointResetUndo&&w.data.teamPointResetUndo[String(i)])classes.push('resetUndoReady');
     const teamTitle=kahoopardyCanClickTeamToReset(w)?(w.data.teamPointResetUndo&&w.data.teamPointResetUndo[String(i)]?'Klik for at fortryde nulstilling':'Klik for at nulstille dette holds points'):'';
     return `<button type="button" class="${classes.join(' ')}" data-team="${i}" ${teamTitle?`title="${esc(teamTitle)}"`:''}>
-      <div class="kahoopardyTeamName">${esc(t.name)}</div>
-      <div class="kahoopardyTeamScore">${Number(t.score)||0}</div>
-      <div class="kahoopardyTeamSmall">${Number(t.correct)||0} rigtige${pickedText?' · '+esc(pickedText):''}</div>
+      <div class="kahoopardyTeamName">${esc(t.name)}${blind?'<span class="blindScoreIcon" title="Skjult stilling"> 🙈</span>':''}</div>
+      ${blind?`<div class="kahoopardyTeamBlindMark blindMark-${esc(blindKind||'unknown')}">${kahoopardyBlindTeamSymbol(blindKind)}</div><div class="kahoopardyTeamSmall">${kahoopardyBlindTeamLabel(blindKind)}</div>`:`<div class="kahoopardyTeamScore">${Number(t.score)||0}</div><div class="kahoopardyTeamSmall">${Number(t.correct)||0} rigtige${pickedText?' · '+esc(pickedText):''}</div>`}
     </button>`;
   }).join('')+`<button type="button" class="kahoopardyAddTeam" title="Tilføj hold">+</button>`;
   if(w.data.editing){
@@ -21764,9 +21826,13 @@ function renderKahoopardy(el,w){
       ${kahoopardyModeBarHtml(w)}
       <div class="kahoopardyEditHelp"><span>Mulighed 1 er altid korrekt. Gem/backup opretter en spørgsmålsbank; Vælg spørgsmålsbank henter fra interne data-/listewidgets.</span><button type="button" class="kahoopardyInfoBtn" title="Vis forklaring">?</button></div>
       ${kahoopardyEditRowsHtml(w)}
-      <div class="kahoopardyEditActions"><button class="saveQuestions kahoopardyIconAction" title="Gem/backup som spørgsmålsbank" aria-label="Gem/backup som spørgsmålsbank">💾</button><button class="importQuestions secondary kahoopardyIconAction" title="Vælg spørgsmålsbank" aria-label="Vælg spørgsmålsbank">🗂️</button><button class="openAIPrompt secondary kahoopardyIconAction" title="AI-prompt og AI-CSV" aria-label="AI-prompt og AI-CSV">🏆</button><button class="addQuestionRow secondary kahoopardyIconAction" title="Tilføj spørgsmål (Cmd/Ctrl+Enter)" aria-label="Tilføj spørgsmål">➕</button><button type="button" class="resetPoints danger kahoopardyIconAction" title="Nulstil alle points" aria-label="Nulstil alle points">↺</button>${kahoopardyQuestionBankStatusHtml(w)}</div>
+      <div class="kahoopardyEditActions"><button class="saveQuestions kahoopardyIconAction" title="Gem/backup som spørgsmålsbank" aria-label="Gem/backup som spørgsmålsbank">💾</button><button class="importQuestions secondary kahoopardyIconAction" title="Vælg spørgsmålsbank" aria-label="Vælg spørgsmålsbank">🗂️</button><button class="openAIPrompt secondary kahoopardyIconAction" title="AI-prompt og AI-CSV" aria-label="AI-prompt og AI-CSV">🏆</button><button class="addQuestionRow secondary kahoopardyIconAction" title="Tilføj spørgsmål (Cmd/Ctrl+Enter)" aria-label="Tilføj spørgsmål">➕</button><button type="button" class="toggleBlindScore secondary kahoopardyIconAction ${w.data.blindScore?'isOn':''}" title="${w.data.blindScore?'Skjult stilling er slået til':'Skjul løbende stilling under spillet'}" aria-label="Skjul løbende stilling">${w.data.blindScore?'🙈':'👀'}</button><button type="button" class="resetPoints danger kahoopardyIconAction" title="Nulstil alle points" aria-label="Nulstil alle points">↺</button>${kahoopardyQuestionBankStatusHtml(w)}</div>
       <div class="kahoopardyError" style="display:none"></div>
     </div></div>`;
+    wireKahoopardy(c,w,el);return;
+  }
+  if(w.data.stage==='blind_result'){
+    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div>${kahoopardyBlindResultPauseHtml(w)}</div>`;
     wireKahoopardy(c,w,el);return;
   }
   if(w.data.stage==='done'){
@@ -21808,7 +21874,7 @@ function renderKahoopardy(el,w){
   if(w.data.mode==='master'&&w.data.stage==='question'){
     const activeTeam=(w.data.teams[w.data.currentTeam]||{}).name||'Hold';
     c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyMaster">
-      <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span><span>${Number(q.points)||100} point</span><span>${esc(activeTeam)} svarer</span></div>
+      <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span>${w.data.blindScore?'':`<span>${Number(q.points)||100} point</span>`}<span>${esc(activeTeam)} svarer</span></div>
       <div class="kahoopardyMasterPrompt"><div class="kahoopardyMasterQuestion">${esc(q.question||'Spørgsmål')}</div></div>
       ${kahoopardyActionBarHtml(w,`<button type="button" class="showMasterAnswer primary">Vis svar</button>`)}
     </div></div>`;
@@ -21818,13 +21884,19 @@ function renderKahoopardy(el,w){
     const activeTeam=(w.data.teams[w.data.currentTeam]||{}).name||'Hold';
     const correctText=(q.options&&q.options[kahoopardyCorrectIndex(q)])||q.answer||'';
     c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyMaster">
-      <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span><span>${Number(q.points)||100} point</span><span>${esc(activeTeam)} svarer</span></div>
+      <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span>${w.data.blindScore?'':`<span>${Number(q.points)||100} point</span>`}<span>${esc(activeTeam)} svarer</span></div>
       <div class="kahoopardyMasterAnswer"><div><div class="kahoopardyMasterLabel">Rigtigt svar</div><div class="kahoopardyMasterAnswerText">${esc(correctText)}</div></div></div>
       ${kahoopardyActionBarHtml(w,`<div class="kahoopardyJudgeBtns"><button type="button" class="masterCorrect correctBtn ${(Number(w.data.judgeFocus)||0)===0?'focused':''}" data-judge="0">1 Rigtigt</button><button type="button" class="masterHalf halfBtn ${(Number(w.data.judgeFocus)||0)===1?'focused':''}" data-judge="1">2 Halvt</button><button type="button" class="masterWrong wrongBtn ${(Number(w.data.judgeFocus)||0)===2?'focused':''}" data-judge="2">3 Forkert</button></div>`)}
     </div></div>`;
     wireKahoopardy(c,w,el);return;
   }
   if(w.data.stage==='score'){
+    if(w.data.blindScore){
+      kahoopardyAdvanceAfterBlindResult(w);
+      save();
+      renderKahoopardy(el,w);
+      return;
+    }
     const scorePrimary=kahoopardyIsMixActive(w)?kahoopardyMixScoreButtonHtml(w):(kahoopardyAllQuestionsUsed(w)?`<button type="button" class="playAgain next">Spil igen: ${kahoopardyModeName(w.data.mode)}</button>`:`<button type="button" class="nextQuestion next">Næste spørgsmål</button>`);
     c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyScoreView">
       <div class="kahoopardyScoreRows">${kahoopardyScoreboardHtml(w)}</div>
@@ -21837,9 +21909,10 @@ function renderKahoopardy(el,w){
   const focusedDisplay=Math.max(0,Math.min(Number(w.data.kahootFocus)||0,3));
   const optHtml=order.map((orig,displayIndex)=>`<button type="button" class="kahoopardyOption ${color[displayIndex]||'blue'} ${activeOk&&displayIndex===focusedDisplay?'focused':''} ${activeOk&&selections[w.data.currentTeam]===orig?'selectedByActive':''} ${w.data.reveal&&orig===correctIndex?'correct':''}" data-option="${orig}"><span class="check">✓</span>${esc((q.options||[])[orig]||'')}</button>`).join('');
   const answerHint='';
-  const bottom=!w.data.reveal?(allAnswered?`<button type="button" class="revealAnswer primary">Se svar</button>`:`<div class="kahoopardyHint">Aktivt hold: ${activeOk?esc((w.data.teams[w.data.currentTeam]||{}).name||'Hold'):'Alle hold har svaret'}</div>`):`<button type="button" class="continueScore next">Stilling</button>`;
+  const bottom=!w.data.reveal?(allAnswered?`<button type="button" class="revealAnswer primary">Se svar</button>`:`<div class="kahoopardyHint">Aktivt hold: ${activeOk?esc((w.data.teams[w.data.currentTeam]||{}).name||'Hold'):'Alle hold har svaret'}</div>`):`<button type="button" class="continueScore next">${w.data.blindScore?(kahoopardyIsMixActive(w)?'Næste Mix-spørgsmål':'Næste spørgsmål'):'Stilling'}</button>`;
+  const kahootMeta=w.data.blindScore?`<span>${esc(q.category||'Quiz')}</span>`:`<span>${esc(q.category||'Quiz')}</span><span>${Number(q.points)||100} point</span>`;
   c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyMain">
-    <div class="kahoopardyMeta"><span>${esc(q.category||'Quiz')}</span><span>${Number(q.points)||100} point</span></div>
+    <div class="kahoopardyMeta">${kahootMeta}</div>
     <div class="kahoopardyQuestion">${esc(q.question||'Spørgsmål')}</div>
     ${answerHint}
     <div class="kahoopardyOptions">${optHtml}</div>
@@ -21926,7 +21999,9 @@ function wireKahoopardy(c,w,el){
     rerender();
   });
   const cont=c.querySelector('.continueScore');
-  if(cont)cont.onclick=e=>{e.preventDefault();kahoopardyApplyAwardsFromSelections(w);w.data.usedQuestions=w.data.usedQuestions||{};w.data.usedQuestions[w.data.currentQuestion]=true;w.data.stage='score';kahoopardyApplause();rerender();};
+  if(cont)cont.onclick=e=>{e.preventDefault();kahoopardyApplyAwardsFromSelections(w);w.data.usedQuestions=w.data.usedQuestions||{};w.data.usedQuestions[w.data.currentQuestion]=true;if(w.data.blindScore){kahoopardyAdvanceAfterBlindResult(w);}else{w.data.stage='score';}kahoopardyApplause();rerender();};
+  const blindNext=c.querySelector('.continueBlindResult');
+  if(blindNext)blindNext.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);kahoopardyAdvanceAfterBlindResult(w);rerender();};
   const next=c.querySelector('.nextQuestion');
   if(next)next.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);if(kahoopardyIsMixActive(w)){kahoopardyAdvanceMix(w);rerender();return;} if(kahoopardyAllQuestionsUsed(w)){w.data.stage='done';rerender();return;} if(w.data.mode==='jeopardy'){w.data.stage='board';w.data.reveal=false;rerender();return;} kahoopardyPrepareNextQuestion(w,(w.data.currentQuestion+1));rerender();};
   const jpScore=c.querySelector('.jeopardyToScore');
@@ -21972,6 +22047,8 @@ function wireKahoopardy(c,w,el){
     wireKahoopardy(c,w,el);
     const q=newRow&&newRow.querySelector('input[data-field="question"]'); if(q){q.focus(); if(q.select)setTimeout(()=>q.select(),0);}
   };
+  const blindBtn=c.querySelector('.toggleBlindScore');
+  if(blindBtn)blindBtn.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);w.data.blindScore=!w.data.blindScore;toast(w.data.blindScore?'Stilling skjules under spillet':'Stilling vises under spillet');rerender();};
   const importBtn=c.querySelector('.importQuestions');
   if(importBtn)importBtn.onclick=e=>{e.preventDefault();kahoopardyOpenImportOverview(w,el);};
   const pasteCsvBtn=c.querySelector('.pasteAICSV');
@@ -22088,7 +22165,12 @@ function wireKahoopardy(c,w,el){
       kahoopardyApplause();
     }else{kahoopardyDing();}
     w.data.currentTeam=(ti+1)%Math.max(1,(w.data.teams||[]).length);
-    w.data.stage='score';w.data.reveal=false;
+    if(w.data.blindScore){
+      kahoopardyShowBlindResultPause(w,'master',ti,kind);
+    }else{
+      w.data.stage='score';
+    }
+    w.data.reveal=false;
     rerender();
   }
   const mc=c.querySelector('.masterCorrect'); if(mc)mc.onclick=e=>{e.preventDefault();finishMaster('correct');};
@@ -22134,7 +22216,12 @@ function wireKahoopardy(c,w,el){
       w.data.currentTeam=(ti+1)%Math.max(1,(w.data.teams||[]).length);
       kahoopardyDing();
     }
-    w.data.stage=kahoopardyIsMixActive(w)?'score':'board';w.data.reveal=false;
+    if(w.data.blindScore){
+      kahoopardyShowBlindResultPause(w,'jeopardy',ti,kind);
+    }else{
+      w.data.stage=kahoopardyIsMixActive(w)?'score':'board';
+    }
+    w.data.reveal=false;
     rerender();
   }
   const jc=c.querySelector('.jeopardyCorrect'); if(jc)jc.onclick=e=>{e.preventDefault();finishJeopardy('correct');};
@@ -22208,7 +22295,7 @@ function kahoopardyHandleKeyboard(e){
     }
   }
   if(isSpace||isEnter){
-    const btn=c.querySelector('.revealAnswer,.continueScore,.nextQuestion,.showJeopardyAnswer,.showMasterAnswer,.jeopardyToScore,.showFinalScore,.playAgain');
+    const btn=c.querySelector('.revealAnswer,.continueScore,.continueBlindResult,.nextQuestion,.showJeopardyAnswer,.showMasterAnswer,.jeopardyToScore,.showFinalScore,.playAgain');
     if(btn){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();btn.click();}
     return;
   }
@@ -47375,6 +47462,205 @@ var old=window.render; if(typeof old==='function'&&!window.__dr258Wrap){window._
   box-shadow:0 8px 18px rgba(0,0,0,.16)!important;
 }
 .kahoopardyActionBar .finaleBtn:hover{filter:brightness(1.03)}
+
+
+/* SAFE453m: KaPardy skjult stilling / blindfold mode */
+.kahoopardyEditActions .toggleBlindScore.isOn{
+  background:#111827!important;
+  color:#facc15!important;
+  box-shadow:0 0 0 3px rgba(250,204,21,.25)!important;
+}
+.kahoopardyTeam.blindScore{
+  text-align:center;
+}
+.kahoopardyTeam.blindScore .kahoopardyTeamName{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+.blindScoreIcon{font-size:.85em;line-height:1}
+.kahoopardyTeamBlindMark{
+  height:clamp(24px,2.6vw,42px);
+  display:grid;
+  place-items:center;
+  font-size:clamp(22px,2.7vw,42px);
+  font-weight:1000;
+  line-height:1;
+  color:rgba(255,255,255,.64);
+}
+.kahoopardyTeam.blindCorrect .kahoopardyTeamBlindMark{
+  color:#22c55e;
+  text-shadow:0 0 16px rgba(34,197,94,.65);
+}
+.kahoopardyTeam.blindCorrect{
+  border-color:#22c55e!important;
+  box-shadow:0 0 0 3px rgba(34,197,94,.25),0 8px 20px rgba(0,0,0,.22)!important;
+}
+.kahoopardyTeam.blindScore .kahoopardyTeamSmall{
+  font-size:11px;
+  opacity:.78;
+}
+
+
+/* SAFE453m2: tydelig blindfold-kontrol på KaPardy-startsiden */
+.kahoopardyEditActions .toggleBlindScore{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  min-width:142px!important;
+  padding:10px 14px!important;
+  border-radius:999px!important;
+  font-size:14px!important;
+  font-weight:950!important;
+  background:#e0e7ff!important;
+  color:#111827!important;
+}
+.kahoopardyEditActions .toggleBlindScore .blindToggleIcon{
+  font-size:20px!important;
+  line-height:1!important;
+}
+.kahoopardyEditActions .toggleBlindScore .blindToggleText{
+  white-space:nowrap!important;
+}
+.kahoopardyEditActions .toggleBlindScore.isOn{
+  background:#111827!important;
+  color:#facc15!important;
+  box-shadow:0 0 0 3px rgba(250,204,21,.25)!important;
+}
+@media(max-width:760px){
+  .kahoopardyEditActions .toggleBlindScore{
+    min-width:54px!important;
+    padding:10px 12px!important;
+  }
+  .kahoopardyEditActions .toggleBlindScore .blindToggleText{
+    display:none!important;
+  }
+}
+
+
+/* SAFE453m3: blindfold-kontrol tilbage til ikonknap uden tekst */
+.kahoopardyEditActions .toggleBlindScore.kahoopardyIconAction{
+  display:inline-grid!important;
+  place-items:center!important;
+  min-width:44px!important;
+  width:auto!important;
+  padding:10px 13px!important;
+  border-radius:999px!important;
+  font-size:18px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  gap:0!important;
+}
+.kahoopardyEditActions .toggleBlindScore.kahoopardyIconAction .blindToggleText,
+.kahoopardyEditActions .toggleBlindScore.kahoopardyIconAction .blindToggleIcon{
+  display:contents!important;
+}
+.kahoopardyEditActions .toggleBlindScore.kahoopardyIconAction.isOn{
+  background:#111827!important;
+  color:#facc15!important;
+  box-shadow:0 0 0 3px rgba(250,204,21,.25)!important;
+}
+
+
+/* SAFE453n: blindfold skjuler mellemregninger og viser kun symboler */
+.kahoopardyTeam.blindWrong .kahoopardyTeamBlindMark{
+  color:#ef4444;
+  text-shadow:0 0 14px rgba(239,68,68,.65);
+}
+.kahoopardyTeam.blindHalf .kahoopardyTeamBlindMark{
+  color:#facc15;
+  text-shadow:0 0 14px rgba(250,204,21,.65);
+}
+.kahoopardyTeam.blindWrong{
+  border-color:#ef4444!important;
+  box-shadow:0 0 0 3px rgba(239,68,68,.22),0 8px 20px rgba(0,0,0,.22)!important;
+}
+.kahoopardyTeam.blindHalf{
+  border-color:#facc15!important;
+  box-shadow:0 0 0 3px rgba(250,204,21,.22),0 8px 20px rgba(0,0,0,.22)!important;
+}
+
+
+/* SAFE453n2: tydelige blindfold-markeringer efter 'Se svar' / vurdering */
+.kahoopardyTeam.blindScore .kahoopardyTeamBlindMark.blindMark-unknown{
+  font-size:clamp(24px,2.6vw,40px);
+  color:rgba(255,255,255,.64);
+}
+.kahoopardyTeam.blindCorrect .kahoopardyTeamBlindMark{
+  font-size:clamp(38px,4.4vw,68px);
+  font-weight:1000;
+}
+.kahoopardyTeam.blindWrong .kahoopardyTeamBlindMark{
+  font-size:clamp(38px,4.2vw,64px);
+  font-weight:1000;
+}
+.kahoopardyTeam.blindHalf .kahoopardyTeamBlindMark{
+  font-size:clamp(18px,2.1vw,30px);
+  font-weight:1000;
+}
+.kahoopardyTeam.blindHalf .kahoopardyTeamSmall{
+  color:#fde68a;
+  opacity:1;
+}
+.kahoopardyTeam.blindWrong .kahoopardyTeamSmall{
+  color:#fca5a5;
+  opacity:1;
+}
+.kahoopardyTeam.blindCorrect .kahoopardyTeamSmall{
+  color:#bbf7d0;
+  opacity:1;
+}
+
+
+/* SAFE453m4: Resultat-stop i skjult stilling for Mester/Jeopardy */
+.kahoopardyBlindPause{
+  min-height:0;
+  height:100%;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto auto auto auto;
+  align-items:center;
+  justify-items:center;
+  gap:10px;
+  padding:18px;
+  text-align:center;
+}
+.kahoopardyBlindPauseEyebrow{
+  font-weight:950;
+  background:rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:8px 16px;
+  font-size:clamp(16px,2vw,28px);
+}
+.kahoopardyBlindPauseSymbol{
+  display:grid;
+  place-items:center;
+  width:clamp(120px,18vw,240px);
+  height:clamp(120px,18vw,240px);
+  border-radius:999px;
+  font-size:clamp(76px,12vw,160px);
+  line-height:1;
+  font-weight:1000;
+  background:rgba(255,255,255,.08);
+  box-shadow:0 18px 45px rgba(0,0,0,.26), inset 0 0 0 2px rgba(255,255,255,.10);
+}
+.kahoopardyBlindPauseSymbol.correct{color:#22c55e;text-shadow:0 0 30px rgba(34,197,94,.7)}
+.kahoopardyBlindPauseSymbol.wrong{color:#ef4444;text-shadow:0 0 30px rgba(239,68,68,.7)}
+.kahoopardyBlindPauseSymbol.half{color:#facc15;font-size:clamp(46px,7vw,92px);text-shadow:0 0 24px rgba(250,204,21,.7)}
+.kahoopardyBlindPauseTeam{
+  font-size:clamp(34px,5vw,74px);
+  font-weight:1000;
+  line-height:1;
+}
+.kahoopardyBlindPauseLabel{
+  font-size:clamp(18px,2.5vw,34px);
+  font-weight:950;
+  opacity:.92;
+}
+.kahoopardyBlindPauseHint{
+  font-weight:850;
+  opacity:.72;
+}
 
 </style>
 <script id="safe453i260-dataremix-chrome-always-visible">
