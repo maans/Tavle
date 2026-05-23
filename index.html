@@ -22026,7 +22026,7 @@ function kahoopardyQuestionBankStatusHtml(w){
   return `<button type="button" class="kahoopardyQuestionBankStatus" title="${esc(action)}" aria-label="${esc(action)}: ${esc(label)}"><span class="kpQuestionBankLink" aria-hidden="true">🔗</span><span class="kpBankLabel">Spørgsmålsbank</span><span class="kpBankName" title="${esc(label)}">${esc(label)}</span></button>`;
 }
 function kahoopardyBlindScoreActive(w){
-  return !!(w&&w.data&&w.data.blindScore&&!w.data.editing&&w.data.stage!=='done');
+  return !!(w&&w.data&&w.data.blindScore&&!w.data.editing&&w.data.stage!=='done'&&!(w.data.stage==='score'&&w.data.finalScoreRevealed));
 }
 function kahoopardyBlindTeamResult(w,i,qKey,isCorrect,pickedDefined){
   if(!kahoopardyBlindScoreActive(w))return '';
@@ -22182,7 +22182,7 @@ function renderKahoopardy(el,w){
     wireKahoopardy(c,w,el);return;
   }
   if(w.data.stage==='score'){
-    if(w.data.blindScore){
+    if(w.data.blindScore&&!w.data.finalScoreRevealed){
       kahoopardyAdvanceAfterBlindResult(w);
       save();
       renderKahoopardy(el,w);
@@ -22437,7 +22437,22 @@ function wireKahoopardy(c,w,el){
   });
   c.querySelectorAll('.playAgainMode').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyPlayAgain(w,b.dataset.mode);rerender();});
   c.querySelectorAll('.playAgain').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyPlayAgain(w,w.data.mode);rerender();});
-  c.querySelectorAll('.showFinalScore').forEach(b=>b.onclick=e=>{e.preventDefault();w.data.stage='score';kahoopardyApplause();rerender();});
+  c.querySelectorAll('.showFinalScore').forEach(b=>b.onclick=e=>{
+    e.preventDefault();
+    normalizeKahoopardy(w);
+    let isFinalCeremony=false;
+    try{
+      isFinalCeremony=!!(w.data&&w.data.stage==='done'&&w.data.mix&&w.data.mix.completed&&kahoopardyMixCeremonyState(w).isFinal);
+    }catch(_e){isFinalCeremony=false;}
+    if(w.data&&w.data.blindScore&&isFinalCeremony){
+      w.data.finalScoreRevealed=true;
+    }else if(w.data){
+      delete w.data.finalScoreRevealed;
+    }
+    w.data.stage='score';
+    kahoopardyApplause();
+    rerender();
+  });
   c.querySelectorAll('.replayCeremony').forEach(b=>b.onclick=e=>{e.preventDefault();try{if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(true)}catch(_e){}if(w.data.mix){w.data.mix.ceremonyStepIndex=0;w.data.mix.ceremonyPlayedStep=-1;}w.data.stage='done';kahoopardyCelebrationFanfare(true);rerender();});
   c.querySelectorAll('.nextCeremonyStep').forEach(b=>b.onclick=e=>{e.preventDefault();try{if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(true)}catch(_e){}if(kahoopardyAdvanceCeremony(w)){if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;w.data.stage='done';kahoopardyCelebrationFanfare(false);rerender();}});
   c.querySelectorAll('.replayCeremonyCurrent').forEach(b=>b.onclick=e=>{e.preventDefault();if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;w.data.stage='done';rerender();});
