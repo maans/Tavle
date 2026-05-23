@@ -2,7 +2,7 @@
 <html lang="da">
 <head>
 <meta charset="UTF-8">
-<!-- SAFE453i184d: Same patch as 184c, but huge pre-DOCTYPE changelog removed so UTF-8 meta charset is seen immediately by iPad/Safari. -->
+<!-- SAFE453y: KaPardy/iPhone audio guard: gamle vinderlyd-timers stoppes før ny afspilning, og HTMLAudio fallback capped. -->
 
 
 <!--
@@ -19997,6 +19997,21 @@ function kahoopardyCelebrationFanfare(finalStep){
 
 /* SAFE453n4: KaPardy-finale bruger de gamle festlige lyde igen + trommehvirvel, klapsalver og pift.
    Bevarer iPhone/HTMLAudio fallback fra Timer-lydsystemet. */
+let kahoopardyAudioTimers=[];
+function kahoopardyAudioDelay(fn,delay){
+  const id=setTimeout(()=>{
+    try{kahoopardyAudioTimers=(kahoopardyAudioTimers||[]).filter(x=>x!==id);}catch(_e){}
+    try{fn&&fn();}catch(_e){}
+  },Math.max(0,Number(delay)||0));
+  try{kahoopardyAudioTimers.push(id);}catch(_e){}
+  return id;
+}
+function kahoopardyClearAudioTimers(){
+  try{(kahoopardyAudioTimers||[]).forEach(id=>clearTimeout(id));}catch(_e){}
+  kahoopardyAudioTimers=[];
+  try{if(typeof safe453nStopHtmlAudioPlayers==='function')safe453nStopHtmlAudioPlayers();}catch(_e){}
+}
+
 function kahoopardyAudioUnlocked(){
   try{return !!(audioUnlocked&&audioCtx&&audioCtx.state==='running')}catch(_e){return false}
 }
@@ -20022,7 +20037,7 @@ function kahoopardyPlayTone(freq,dur,type,gain){
   }catch(_e){kahoopardyHtmlTone(freq,dur,gain)}
 }
 function kahoopardyDrumHit(delay,freq,gain){
-  setTimeout(()=>{
+  kahoopardyAudioDelay(()=>{
     try{
       const ac=(typeof ensureAudio==='function')?ensureAudio():null;
       if(ac&&ac.state==='running'){
@@ -20091,24 +20106,24 @@ function kahoopardyApplause(strong){
     }
     if(!kahoopardyAudioUnlocked()){
       const n=strong?12:7;
-      for(let i=0;i<n;i++)setTimeout(()=>kahoopardyHtmlTone(i%2?760:1040,.055,.16),i*78);
+      for(let i=0;i<n;i++)kahoopardyAudioDelay(()=>kahoopardyHtmlTone(i%2?760:1040,.055,.16),i*78);
     }
   }catch(_e){}
 }
 function kahoopardyWhistle(){
   try{
     if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
-    [1200,1800,1350].forEach((f,i)=>setTimeout(()=>kahoopardyPlayTone(f,.13,'square',.075),i*145));
+    [1200,1800,1350].forEach((f,i)=>kahoopardyAudioDelay(()=>kahoopardyPlayTone(f,.13,'square',.075),i*145));
     if(!kahoopardyAudioUnlocked()){
-      [1200,1800,1350].forEach((f,i)=>setTimeout(()=>kahoopardyHtmlTone(f,.11,.14),i*145));
+      [1200,1800,1350].forEach((f,i)=>kahoopardyAudioDelay(()=>kahoopardyHtmlTone(f,.11,.14),i*145));
     }
   }catch(_e){}
 }
 function kahoopardyWhistleFlurry(delay){
-  setTimeout(()=>{
+  kahoopardyAudioDelay(()=>{
     try{
       kahoopardyWhistle();
-      setTimeout(()=>kahoopardyWhistle(),380);
+      kahoopardyAudioDelay(()=>kahoopardyWhistle(),380);
     }catch(_e){}
   },delay||0);
 }
@@ -20116,10 +20131,10 @@ function kahoopardyCelebrationBurst(){
   try{
     if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(false);
     kahoopardyPlayTone(740,.22,'triangle',.15);
-    setTimeout(()=>kahoopardyPlayTone(980,.24,'triangle',.14),60);
-    setTimeout(()=>kahoopardyPlayTone(1320,.16,'sine',.10),210);
+    kahoopardyAudioDelay(()=>kahoopardyPlayTone(980,.24,'triangle',.14),60);
+    kahoopardyAudioDelay(()=>kahoopardyPlayTone(1320,.16,'sine',.10),210);
     if(!kahoopardyAudioUnlocked()){
-      [740,980,1320].forEach((f,i)=>setTimeout(()=>kahoopardyHtmlTone(f,.13,.20),i*90));
+      [740,980,1320].forEach((f,i)=>kahoopardyAudioDelay(()=>kahoopardyHtmlTone(f,.13,.20),i*90));
     }
   }catch(_e){}
 }
@@ -20128,7 +20143,7 @@ function kahoopardyFallbackFanfare(finalStep){
     const seq=finalStep
       ?[[0,660,.16],[120,880,.18],[260,1175,.22],[520,880,.14],[700,1320,.18],[900,1568,.24]]
       :[[0,660,.14],[130,990,.18],[300,1320,.18]];
-    seq.forEach(x=>setTimeout(()=>kahoopardyHtmlTone(x[1],x[2],.24),x[0]));
+    seq.forEach(x=>kahoopardyAudioDelay(()=>kahoopardyHtmlTone(x[1],x[2],.24),x[0]));
   }catch(_e){}
 }
 function kahoopardyDing(){
@@ -20140,24 +20155,27 @@ function kahoopardyDing(){
 }
 function kahoopardyCelebrationFanfare(finalStep){
   try{
+    /* SAFE453y: Stop gamle planlagte KaPardy-lyde + HTMLAudio-fallbacks før ny finale-/vinderlyd,
+       så iPhone ikke kommer til at afspille en ophobet lydkø. */
+    if(typeof kahoopardyClearAudioTimers==='function')kahoopardyClearAudioTimers();
     if(typeof safe453nUnlockAudio==='function')safe453nUnlockAudio(true);
 
     if(finalStep){
       // Mere spænding før vinder/finale: trommehvirvel først, derefter gamle festlyde + pift/klap.
       kahoopardyDrumRoll(820);
-      setTimeout(()=>kahoopardyCelebrationBurst(),720);
-      setTimeout(()=>kahoopardyWhistleFlurry(),940);
-      setTimeout(()=>kahoopardyApplause(true),1050);
-      setTimeout(()=>kahoopardyCelebrationBurst(),1450);
-      setTimeout(()=>kahoopardyApplause(true),1650);
-      setTimeout(()=>kahoopardyFallbackFanfare(true),700);
+      kahoopardyAudioDelay(()=>kahoopardyCelebrationBurst(),720);
+      kahoopardyAudioDelay(()=>kahoopardyWhistleFlurry(),940);
+      kahoopardyAudioDelay(()=>kahoopardyApplause(true),1050);
+      kahoopardyAudioDelay(()=>kahoopardyCelebrationBurst(),1450);
+      kahoopardyAudioDelay(()=>kahoopardyApplause(true),1650);
+      kahoopardyAudioDelay(()=>kahoopardyFallbackFanfare(true),700);
     }else{
       // Placeringer undervejs: kort trommeslag + de gamle små festlige lyde.
       kahoopardyDrumHit(0,128,.20);
-      setTimeout(()=>kahoopardyCelebrationBurst(),120);
-      setTimeout(()=>kahoopardyApplause(false),260);
-      setTimeout(()=>kahoopardyWhistle(),520);
-      setTimeout(()=>kahoopardyFallbackFanfare(false),100);
+      kahoopardyAudioDelay(()=>kahoopardyCelebrationBurst(),120);
+      kahoopardyAudioDelay(()=>kahoopardyApplause(false),260);
+      kahoopardyAudioDelay(()=>kahoopardyWhistle(),520);
+      kahoopardyAudioDelay(()=>kahoopardyFallbackFanfare(false),100);
     }
   }catch(_e){}
 }
@@ -27348,6 +27366,16 @@ function beep(freq=880,dur=.18,type='sine',gain=.14){
 
 /* SAFE453n2: HTMLAudio fallback til iPhone/Arkiver/QuickLook, hvor WebAudio kan forblive tavs. */
 let safe453nHtmlAudioPrimed=false;
+/* SAFE453x: iPhone/Safari kan enkelte gange lade data-audio fortsætte/queue for længe.
+   Derfor spores HTMLAudio-fallbacks og stoppes hårdt kort efter den planlagte varighed. */
+let safe453nHtmlAudioPlayers=[];
+function safe453nStopHtmlAudioPlayers(){
+  try{
+    const list=(safe453nHtmlAudioPlayers||[]).slice();
+    safe453nHtmlAudioPlayers=[];
+    list.forEach(a=>{try{a.pause();a.currentTime=0;a.src='';a.load&&a.load();}catch(_e){}});
+  }catch(_e){}
+}
 function safe453nMakeWavUrl(freq=880,dur=.14,gain=.18){
   try{
     const sr=22050, len=Math.max(1,Math.floor(sr*dur)), bytes=44+len*2;
@@ -27374,6 +27402,15 @@ function safe453nHtmlAudioPlay(freq=880,dur=.14,gain=.18){
     const a=new Audio(url);
     a.preload='auto';
     a.volume=1;
+    safe453nHtmlAudioPlayers=(safe453nHtmlAudioPlayers||[]).filter(x=>x&&!x.ended&&!x.paused).slice(-10);
+    safe453nHtmlAudioPlayers.push(a);
+    const hardStopMs=Math.max(220,Math.min(1600,Math.round((Number(dur)||.14)*1000+420)));
+    setTimeout(()=>{
+      try{
+        a.pause();a.currentTime=0;a.src='';a.load&&a.load();
+        safe453nHtmlAudioPlayers=(safe453nHtmlAudioPlayers||[]).filter(x=>x!==a);
+      }catch(_e){}
+    },hardStopMs);
     const p=a.play();
     if(p&&p.then)return p.then(()=>{safe453nHtmlAudioPrimed=true;return true;}).catch(()=>false);
     safe453nHtmlAudioPrimed=true;
