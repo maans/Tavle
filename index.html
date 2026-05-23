@@ -15030,7 +15030,8 @@ function showMoreTools(){
       ['link','🔗','link'],
       ['pdf','PDF','pdf'],
       ['html','&lt;/&gt;','html'],
-      ['drawings','✏️','tegninger']
+      ['drawings','✏️','tegninger'],
+      ['demos','🧪','Demoer']
     ],2],
     ['Tavle',[
       ['bg','🎨','baggrund'],
@@ -15057,8 +15058,29 @@ function showMoreTools(){
       e.preventDefault();
       e.stopPropagation();
       const t=btn.dataset.moreTool;
-      handleTool(t);
-      setTimeout(()=>{bd.remove();menu.remove()},0);
+
+      // SAFE453k direct modalfix:
+      // Luk kun den eksisterende Mere-menu. Ingen capture-handler, ingen global modal-wrapper.
+      // Derefter åbnes det valgte værktøj normalt.
+      const closeMore=()=>{
+        try{bd.remove();}catch(_e){}
+        try{menu.remove();}catch(_e){}
+        try{document.querySelectorAll('.moreMenuBackdrop,.moreMenu').forEach(n=>n.remove());}catch(_e){}
+      };
+
+      closeMore();
+
+      // Vent ét tick, så DOM'en faktisk er ryddet, før fx DataRemix/Hjælp/Demoer åbner.
+      setTimeout(()=>{
+        closeMore();
+        try{handleTool(t);}catch(err){
+          console.error(err);
+          try{toast('Værktøjet kunne ikke åbnes');}catch(_e){}
+        }
+        // Ekstra, ufarlig oprydning af kun Mere-menuen — ikke modaler.
+        setTimeout(closeMore,0);
+        setTimeout(closeMore,80);
+      },0);
     };
   });
 }
@@ -15706,7 +15728,105 @@ function showAppearancePlaceholder(){
   const close=document.getElementById('appearancePlaceholderClose');
   if(close) close.onclick=()=>{mb.style.display='none';};
 }
+
+function safe453kDemoQuestions(){
+  return [
+    {category:'Tavleapp',question:'Hvad bruges en datawidget til?',answer:'At gemme og genbruge data',correctIndex:0,points:100,options:['At gemme og genbruge data','At slette tavler','At ændre browser','At låse iPad']},
+    {category:'Tavleapp',question:'Hvad gør fokus?',answer:'Fremhæver én widget',correctIndex:0,points:200,options:['Fremhæver én widget','Printer tavlen','Lukker appen','Skifter wifi']},
+    {category:'Undervisning',question:'Hvad hjælper en tydelig timer med?',answer:'Ro og overblik',correctIndex:0,points:300,options:['Ro og overblik','Mere støj','At skjule opgaven','At slette data']},
+    {category:'Aktivitet',question:'Hvad er en god opgaveinstruktion?',answer:'Kort og tydelig',correctIndex:0,points:100,options:['Kort og tydelig','Meget lang','Uden mål','Kun mundtlig']},
+    {category:'Aktivitet',question:'Hvad kan en afstemning bruges til?',answer:'At samle hurtige svar',correctIndex:0,points:200,options:['At samle hurtige svar','At låse skærmen','At gemme billeder','At slukke lyd']}
+  ];
+}
+function safe453kCreateDemoWidget(type,data,title){
+  try{
+    const w=addWidget(type,data||{});
+    if(w&&title)w.title=title;
+    if(w&&typeof fitWidgetToViewport==='function')fitWidgetToViewport(w);
+    if(typeof render==='function')render();
+    if(w&&typeof select==='function')select(w.id,{editText:false});
+    if(typeof save==='function')save();
+    if(typeof toast==='function')toast((title||'Demo')+' oprettet');
+    return w;
+  }catch(err){
+    console.error(err);
+    if(typeof toast==='function')toast('Kunne ikke oprette demo');
+    return null;
+  }
+}
+function safe453kCreateDatasetDemo(){
+  try{
+    const ds={id:uid(),name:'Demo: elevliste',columns:['Navn','Hold','Note'],rows:[
+      ['Alma','A','Kan hjælpe med oplæsning'],
+      ['Bertram','B','God til gruppearbejde'],
+      ['Clara','A','Vil gerne fremlægge'],
+      ['Emil','C','Har styr på teknik'],
+      ['Freja','B','Kan være ordstyrer']
+    ]};
+    updateDatasetInState(ds);
+    const w=addDatasetWidget(ds,{x:160+Math.random()*70,y:140+Math.random()*70});
+    if(w)w.title='📊 Demo: elevliste';
+    if(typeof render==='function')render();
+    if(w&&typeof select==='function')select(w.id,{editText:false});
+    if(typeof save==='function')save();
+    if(typeof toast==='function')toast('Data-demo oprettet');
+  }catch(err){
+    console.error(err);
+    safe453kCreateDemoWidget('text',{text:'Navn\tHold\tNote\nAlma\tA\tKan hjælpe\nBertram\tB\tGod til grupper',fontSize:18},'📊 Demo: data');
+  }
+}
+function safe453kOpenDemoModal(){
+  const demos=[
+    ['text','Aa','Tekst-demo','En instruktionstekst til tavlen',()=>safe453kCreateDemoWidget('text',{text:'Dagens opgave\n\n1. Læs teksten\n2. Find tre nøgleord\n3. Tal med sidemanden\n4. Skriv en fælles sætning',fontSize:26},'Aa Demo: instruktion')],
+    ['dataset','📊','Data-demo','En lille elev-/holdliste som datawidget',safe453kCreateDatasetDemo],
+    ['list','☰','Liste-demo','En navneliste klar til hjul og grupper',()=>safe453kCreateDemoWidget('text',{text:'Alma\nBertram\nClara\nEmil\nFreja\nIda\nJohan\nLiva',fontSize:22,kind:'list',listAsset:true},'☰ Demo: navneliste')],
+    ['timer','⌛','Timer-demo','En enkel nedtælling til korte aktiviteter',()=>safe453kCreateDemoWidget('timer',{mode:'countdown',minutes:5,seconds:0,title:'Arbejd i 5 minutter'},'⌛ Demo: timer')],
+    ['wheel','🎲','Lykkehjulet-demo','Et hjul med små aktivitetstyper',()=>safe453kCreateDemoWidget('wheel',{names:['Forklar begreb','Find eksempel','Stil spørgsmål','Tegn svaret','Arbejd to og to'],original:['Forklar begreb','Find eksempel','Stil spørgsmål','Tegn svaret','Arbejd to og to'],chosen:[]},'🎲 Demo: aktivitetshjul')],
+    ['groups','👥','Grupper-demo','Navne klar til gruppeinddeling',()=>safe453kCreateDemoWidget('groups',{names:'Alma\nBertram\nClara\nEmil\nFreja\nIda\nJohan\nLiva',groupCount:3},'👥 Demo: grupper')],
+    ['poll','😊','Afstemning-demo','Et spørgsmål med tre svarmuligheder',()=>safe453kCreateDemoWidget('poll',{question:'Hvordan går det med opgaven?',options:['Jeg er godt i gang','Jeg har brug for hjælp','Jeg er færdig'],votes:[0,0,0]},'😊 Demo: afstemning')],
+    ['wordcloud','☁️','Ordsky-demo','En ordsky med startord',()=>safe453kCreateDemoWidget('wordcloud',{question:'Hvilke ord passer til emnet?',words:['fællesskab','mod','nysgerrighed','ansvar','humor','fordybelse']},'☁️ Demo: ordsky')],
+    ['kahoopardy','🏆','KaPardy-demo','En quiz med fem spørgsmål',()=>safe453kCreateDemoWidget('kahoopardy',{editing:true,mode:'kahoot',teams:[{name:'Hold 1',score:0,correct:0},{name:'Hold 2',score:0,correct:0}],questions:safe453kDemoQuestions(),stage:'question'},'🏆 Demo: KaPardy')],
+    ['calendar','📅','Kalender-demo','En kalenderwidget klar til planlægning',()=>safe453kCreateDemoWidget('calendar',{events:[],title:'Ugens overblik'},'📅 Demo: kalender')],
+    ['video','▶','Video-demo','En videowidget klar til YouTube-link',()=>safe453kCreateDemoWidget('video',{url:''},'▶ Demo: video')],
+    ['link','🔗','Link-demo','Et eksempel på en linkwidget',()=>safe453kCreateDemoWidget('link',{text:'Åbn Himmerlands Efterskole',url:'https://h-u.dk'},'🔗 Demo: link')],
+    ['html','</>','HTML-demo','En lille indbygget HTML-side',()=>safe453kCreateDemoWidget('html',{html:'<!doctype html><meta charset="utf-8"><div style="font-family:sans-serif;padding:24px;background:linear-gradient(135deg,#eef2ff,#fff);height:100%;box-sizing:border-box"><h1>HTML-demo</h1><p>Her kan du indsætte små interaktive sider eller embed-kode.</p><button>Demo-knap</button></div>'},'HTML Demo')],
+    ['pdf','PDF','PDF-demo','En PDF-widget klar til lokal fil eller link',()=>safe453kCreateDemoWidget('pdf',{url:'',page:1},'PDF Demo')],
+    ['drawings','✏️','Tegning-demo','Slår tegnetilstand til',()=>{try{setDrawActive(true); if(typeof toast==='function')toast('Tegnetilstand slået til')}catch(_e){if(typeof toast==='function')toast('Tegning er ikke klar')}}]
+  ];
+  const html=`<h2>Demoer</h2>
+    <p class="safe453kDemoIntro">Vælg en demo. Demoen oprettes som en almindelig widget på tavlen, så den kan flyttes, ændres eller slettes bagefter.</p>
+    <div class="safe453kDemoGrid">
+      ${demos.map(d=>`<button type="button" class="safe453kDemoCard" data-demo="${d[0]}"><span class="safe453kDemoIcon">${d[1]}</span><span class="safe453kDemoText"><b>${d[2]}</b><small>${d[3]}</small></span></button>`).join('')}
+    </div>
+    <div class="safe453kDemoFooter"><button id="safe453kDemoClose">Luk</button></div>`;
+  showModal(html);
+  const root=document.getElementById('modal');
+  if(!root)return;
+  root.querySelectorAll('.safe453kDemoCard').forEach(btn=>{
+    btn.onclick=e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const d=demos.find(x=>x[0]===btn.dataset.demo);
+      closeModal();
+      if(d&&d[4])setTimeout(d[4],0);
+    };
+  });
+  const close=root.querySelector('#safe453kDemoClose');
+  if(close)close.onclick=closeModal;
+}
+
 function handleTool(t){
+  // SAFE453k: Hver gang et værktøj åbnes fra Mere, skal Mere-menuen væk først.
+  // Dette ligger inde i handleTool, så det også gælder DataRemix/remix data,
+  // hjælp, baggrund, datakilder osv. uden global capture-wrapper.
+  const safe453kCloseMoreOnly=()=>{
+    try{document.querySelectorAll('.moreMenuBackdrop,.moreMenu').forEach(n=>n.remove());}catch(_e){}
+  };
+  safe453kCloseMoreOnly();
+  setTimeout(safe453kCloseMoreOnly,0);
+  setTimeout(safe453kCloseMoreOnly,80);
+
+  if(t==='demos'){safe453kOpenDemoModal();return;}
   if(t==='drawings'){
     const folder=document.getElementById('safe453DrawFolder');
     if(folder){ folder.click(); }
@@ -19222,7 +19342,7 @@ function kahoopardyScoreboardHtml(w){
 }
 function kahoopardyModeBarHtml(w){
   normalizeKahoopardy(w);
-  return `<div class="kahoopardyModeBar"><button type="button" class="startQuizMode ${w.data.mode==='kahoot'?'active':''}" data-mode="kahoot">▶ Kahoot</button><button type="button" class="startQuizMode ${w.data.mode==='jeopardy'?'active':''}" data-mode="jeopardy">▶ Jeopardy</button><button type="button" class="startQuizMode ${w.data.mode==='master'?'active':''}" data-mode="master">▶ Mester</button></div>`;
+  return `<div class="kahoopardyModeBar"><button type="button" class="startQuizMode ${w.data.mode==='kahoot'?'active':''}" data-mode="kahoot">▶ Kahoot</button><button type="button" class="startQuizMode ${w.data.mode==='jeopardy'?'active':''}" data-mode="jeopardy">▶ Jeopardy</button><button type="button" class="startQuizMode ${w.data.mode==='master'?'active':''}" data-mode="master">▶ Mester</button><button type="button" class="startQuizMode kahoopardyMixStart" data-mode="mix" title="Spil alle spørgsmål tre gange: Kahoot, Jeopardy og Mester">▶ Mix</button></div>`;
 }
 ////////////////////////////////////////////////////////////
 // KAHOOPARDY
@@ -19237,8 +19357,315 @@ KAHOOPARDY — FØLSOMT OMRÅDE
 function kahoopardyModeName(m){return m==='jeopardy'?'Jeopardy':m==='master'?'Mester':'Kahoot';}
 function kahoopardyNextMode(m){return m==='kahoot'?'jeopardy':(m==='jeopardy'?'master':'kahoot');}
 function kahoopardyStageForMode(m){return m==='jeopardy'?'board':'question';}
+function kahoopardyIsMixActive(w){
+  return !!(w&&w.data&&w.data.mix&&w.data.mix.active&&Array.isArray(w.data.mix.plan));
+}
+function kahoopardyIsMixStored(w){
+  return !!(w&&w.data&&w.data.mix);
+}
+function kahoopardyClearMix(w){
+  if(!w||!w.data)return;
+  try{kahoopardyClearCeremonyKeyHandler()}catch(_e){}
+  delete w.data.mix;
+}
+function kahoopardyCanClickTeamToReset(w){
+  normalizeKahoopardy(w);
+  return !!(w.data.editing||w.data.stage==='score'||w.data.stage==='done');
+}
+function kahoopardyToggleTeamPointReset(w,teamIndex){
+  normalizeKahoopardy(w);
+  const i=Number(teamIndex);
+  const t=w.data.teams&&w.data.teams[i];
+  if(!t)return false;
+  w.data.teamPointResetUndo=w.data.teamPointResetUndo||{};
+  const key=String(i);
+  if(w.data.teamPointResetUndo[key]){
+    const old=w.data.teamPointResetUndo[key];
+    t.score=Number(old.score)||0;
+    t.correct=Number(old.correct)||0;
+    delete w.data.teamPointResetUndo[key];
+  }else{
+    w.data.teamPointResetUndo[key]={score:Number(t.score)||0,correct:Number(t.correct)||0};
+    t.score=0;
+    t.correct=0;
+  }
+  return true;
+}
+function kahoopardyMixLabel(w){
+  if(!kahoopardyIsMixActive(w))return '';
+  const mix=w.data.mix||{}, step=(mix.plan||[])[Number(mix.step)||0]||{};
+  const total=(mix.plan||[]).length||0;
+  return `Mix ${Math.min(total,(Number(mix.step)||0)+1)}/${total} · runde ${step.pass||'?'} · ${kahoopardyModeName(step.mode)}`;
+}
+function kahoopardyExtractCurrentQuestions(w,c){
+  normalizeKahoopardy(w);
+  if(w.data.editing&&c){
+    try{return kahoopardyReadTable(c);}
+    catch(ex){throw ex;}
+  }
+  return (w.data.questions||[]).slice();
+}
+function kahoopardyQuestionId(q,i){
+  return String((q&&q.id)||[
+    i,
+    q&&q.category||'',
+    q&&q.question||'',
+    q&&q.points||'',
+    q&&q.answer||''
+  ].join('|'));
+}
+function kahoopardyBuildMixPlan(qs){
+  qs=Array.isArray(qs)?qs:[];
+  const modes=kahoopardyShuffle(['kahoot','jeopardy','master']);
+  const plan=[];
+  for(let pass=1;pass<=3;pass++){
+    const order=kahoopardyShuffle(qs.map((_,i)=>i));
+    order.forEach(qi=>{
+      const mode=modes[(qi+pass-1)%3];
+      plan.push({questionId:kahoopardyQuestionId(qs[qi],qi),questionIndex:qi,mode,pass});
+    });
+  }
+  return plan;
+}
+function kahoopardyApplyMixStep(w){
+  normalizeKahoopardy(w);
+  const mix=w.data.mix||{};
+  const plan=Array.isArray(mix.plan)?mix.plan:[];
+  let idx=Math.max(0,Math.min(Number(mix.step)||0,plan.length));
+  if(!plan.length||idx>=plan.length){
+    if(w.data.mix){
+      w.data.mix.active=false;
+      w.data.mix.completed=true;
+      w.data.mix.ceremonyStepIndex=0;
+      w.data.mix.ceremonyPlayedStep=-1;
+    }
+    w.data.stage='done';
+    w.data.reveal=false;
+    w.data.usedQuestions={};
+    return false;
+  }
+  mix.step=idx;
+  mix.total=plan.length;
+  w.data.mix=mix;
+  const step=plan[idx];
+  const qCount=(w.data.questions||[]).length||1;
+  w.data.mode=(step.mode==='jeopardy'||step.mode==='master')?step.mode:'kahoot';
+  w.data.currentQuestion=Math.max(0,Math.min(Number(step.questionIndex)||0,qCount-1));
+  // SAFE453i-mix-clean2: Bevar turen på tværs af Mix-steps.
+  // Hvis et hold får et Jeopardy-spørgsmål rigtigt, skal samme hold også starte næste step,
+  // uanset om næste step vises som Kahoot, Jeopardy eller Mester.
+  w.data.currentTeam=Math.max(0,Math.min(Number(w.data.currentTeam)||0,(w.data.teams||[]).length-1));
+  w.data.reveal=false;
+  // Jeopardy i Mix skal stadig føles som Jeopardy: først kategori-/point-board,
+  // ikke direkte Mester-lignende spørgsmålsskærm.
+  w.data.stage=(w.data.mode==='jeopardy')?'board':'question';
+  w.data.usedQuestions={};
+  kahoopardyResetQuestionRound(w,w.data.currentQuestion);
+  return true;
+}
+function kahoopardyStartMix(w,qs){
+  normalizeKahoopardy(w);
+  qs=Array.isArray(qs)?qs.slice():[];
+  if(!qs.length)throw new Error('Mix kræver mindst ét spørgsmål.');
+  w.data.questions=qs;
+  (w.data.teams||[]).forEach(t=>{t.score=0;t.correct=0;});
+  w.data.selections={};
+  w.data.awarded={};
+  w.data.autoAwarded={};
+  w.data.optionOrders={};
+  w.data.usedQuestions={};
+  w.data.currentQuestion=0;
+  w.data.currentTeam=0;
+  w.data.reveal=false;
+  w.data.teamPointResetUndo={};
+  w.data.editing=false;
+  w.data.mix={active:true,completed:false,step:0,total:qs.length*3,plan:kahoopardyBuildMixPlan(qs)};
+  kahoopardyApplyMixStep(w);
+}
+function kahoopardyAdvanceMix(w){
+  if(!kahoopardyIsMixActive(w))return false;
+  w.data.mix.step=(Number(w.data.mix.step)||0)+1;
+  return kahoopardyApplyMixStep(w);
+}
+function kahoopardyMixScoreButtonHtml(w){
+  if(!kahoopardyIsMixActive(w))return '';
+  const mix=w.data.mix||{}, total=(mix.plan||[]).length||0, next=(Number(mix.step)||0)+1;
+  const label=next>=total?'Afslut Mix':'Næste Mix-spørgsmål';
+  return `<button type="button" class="nextQuestion next">${label}</button>`;
+}
+function kahoopardyRankedTeams(w){
+  normalizeKahoopardy(w);
+  return (w.data.teams||[]).slice().map((t,i)=>({
+    idx:i,
+    name:String((t&&t.name)||('Hold '+(i+1))),
+    score:Number(t&&t.score)||0,
+    correct:Number(t&&t.correct)||0
+  })).sort((a,b)=>(b.score-a.score)||(b.correct-a.correct)||a.idx-b.idx);
+}
+function kahoopardyMixPlaceLabel(placeNumber,tied){
+  const base=placeNumber===1?'1. plads':placeNumber===2?'2. plads':'3. plads';
+  return tied?('Delt '+base):base;
+}
+function kahoopardyMixGroupNames(group){
+  return group&&Array.isArray(group.members)?group.members.map(m=>String(m&&m.name||'')).filter(Boolean):[];
+}
+function kahoopardyMixGroupNamesText(group){
+  return kahoopardyMixGroupNames(group).join(' og ');
+}
+function kahoopardyMixGroupNamesHtml(group){
+  const names=kahoopardyMixGroupNames(group);
+  if(!names.length)return '?';
+  return names.map(name=>`<div class="kahoopardyPodiumTeam">${esc(name)}</div>`).join('');
+}
+function kahoopardyMixCeremonyState(w){
+  const ranked=kahoopardyRankedTeams(w);
+  const slots={1:null,2:null,3:null};
+  let idx=0, place=1;
+  while(idx<ranked.length && place<=3){
+    const first=ranked[idx];
+    const members=[first];
+    idx++;
+    while(idx<ranked.length && ranked[idx].score===first.score && ranked[idx].correct===first.correct){
+      members.push(ranked[idx]);
+      idx++;
+    }
+    if(place<=3){
+      slots[place]={
+        placeNumber:place,
+        members,
+        score:first.score,
+        correct:first.correct,
+        tied:members.length>1
+      };
+    }
+    place+=members.length;
+  }
+  const revealOrder=[3,2,1].filter(placeNumber=>!!slots[placeNumber]);
+  const mix=(w&&w.data&&w.data.mix)||{};
+  const maxIndex=Math.max(0,revealOrder.length-1);
+  const stepIndex=Math.max(0,Math.min(Number(mix.ceremonyStepIndex)||0,maxIndex));
+  const activePlaceNumber=revealOrder[stepIndex]!==undefined?revealOrder[stepIndex]:(revealOrder[0]||1);
+  const activeGroup=slots[activePlaceNumber]||slots[1]||slots[2]||slots[3]||null;
+  return {
+    ranked,
+    slots,
+    revealOrder,
+    stepIndex,
+    maxIndex,
+    activePlaceNumber,
+    isFinal:stepIndex>=maxIndex,
+    activeGroup
+  };
+}
+function kahoopardyRenderMixCeremonyHtml(w){
+  const state=kahoopardyMixCeremonyState(w);
+  const ranked=state.ranked;
+  if(!ranked.length){
+    return `<div class="kahoopardyDoneView"><div><div class="kahoopardyDoneTitle">Mix er færdig</div><div class="kahoopardyDoneText">Ingen hold at kåre endnu.</div></div><div class="kahoopardyReplayChoices"><button type="button" class="showFinalScore">Stilling</button></div>${kahoopardyActionBarHtml(w,'')}</div>`;
+  }
+  const current=state.activeGroup||state.slots[1]||state.slots[2]||state.slots[3];
+  const placeNumber=Number(state.activePlaceNumber)||1;
+  const placeLabel=kahoopardyMixPlaceLabel(placeNumber,!!(current&&current.tied));
+  const placeClass=placeNumber===1?'place1':placeNumber===2?'place2':'place3';
+  const currentNamesText=kahoopardyMixGroupNamesText(current);
+  const headline=state.isFinal
+    ?(current&&current.tied?`🎉 ${placeLabel} i Mix!`:`🎉 ${esc(currentNamesText)} vinder Mix!`)
+    :`${placeLabel} afsløres`;
+  const sub=state.isFinal
+    ?(current&&current.tied
+      ?`Efter tre festlige runder deler ${esc(currentNamesText)} 1. pladsen med ${current.score} point og ${current.correct} rigtige.`
+      :`Efter tre festlige runder er ${esc(currentNamesText)} øverst med ${current.score} point og ${current.correct} rigtige.`)
+    :(current&&current.tied
+      ?`Gør klar til podiumkåring. ${esc(currentNamesText)} deler ${placeLabel.toLowerCase()} med ${current.score} point og ${current.correct} rigtige.`
+      :`Gør klar til podiumkåring. ${esc(currentNamesText)} tager ${placeLabel.toLowerCase()} med ${current.score} point og ${current.correct} rigtige.`);
+  const revealed=new Set(state.revealOrder.slice(0,state.stepIndex+1));
+  const podium=[1,2,3].map(rankNo=>{
+    const group=state.slots[rankNo];
+    const shown=!!group && revealed.has(rankNo);
+    const rankLabel=group?kahoopardyMixPlaceLabel(rankNo,!!group.tied):`${rankNo}. plads`;
+    const nameHtml=group?(shown?kahoopardyMixGroupNamesHtml(group):'?'):'—';
+    const meta=group?(shown?`${group.score} point · ${group.correct} rigtige`:'&nbsp;'):'&nbsp;';
+    return `<div class="kahoopardyPodiumCol rank${rankNo} ${(shown&&group)?'revealed':''} ${group?'':'emptySlot'}"><div class="kahoopardyPodiumCard"><div class="kahoopardyPodiumRank">${rankLabel}</div><div class="kahoopardyPodiumName ${(group&&group.members&&group.members.length>1)?'isTie':''}">${nameHtml}</div><div class="kahoopardyPodiumMeta">${meta}</div></div><div class="kahoopardyPodiumBase">${rankNo}</div></div>`;
+  }).join('');
+  const topTrophy=state.isFinal?`<div class="kahoopardyCeremonyTopTrophy" aria-hidden="true">🏆</div>`:'';
+  const winnerSet=state.isFinal?'':`<div class="kahoopardyCeremonyReveal"><div class="kahoopardyCeremonyPlace ${placeClass}">${placeLabel}</div><div class="kahoopardyCeremonyName ${current&&current.tied?'isTie':''}">${current?kahoopardyMixGroupNamesHtml(current):''}</div><div class="kahoopardyCeremonyMeta">${current?`${current.score} point · ${current.correct} rigtige`:''}</div></div>`;
+  const ceremonyFooter=state.isFinal
+    ?`<div class="kahoopardyCeremonyFooterBar"><button type="button" class="showFinalScore">Vis fuld stilling</button><button type="button" class="editQuestions settingsBtn" title="Indstillinger / redigér spørgsmål" aria-label="Indstillinger / redigér spørgsmål">⚙️</button><button type="button" class="resetPoints danger">↺ Nulstil points</button><button type="button" class="replayCeremony">Start igen</button></div>`
+    :`<div class="kahoopardyCeremonyFooterBar"><button type="button" class="nextCeremonyStep">Næste plads</button><button type="button" class="editQuestions settingsBtn" title="Indstillinger / redigér spørgsmål" aria-label="Indstillinger / redigér spørgsmål">⚙️</button><button type="button" class="resetPoints danger">↺ Nulstil points</button><button type="button" class="replayCeremonyCurrent">Gentag animation</button></div>`;
+  return `<div class="kahoopardyCeremonyView"><div class="kahoopardyFireworks"><span class="kahoopardyFirework f1"></span><span class="kahoopardyFirework f2"></span><span class="kahoopardyFirework f3"></span><span class="kahoopardyFirework f4"></span><span class="kahoopardyFirework f5"></span><span class="kahoopardyFirework f6"></span></div><div class="kahoopardyConfetti"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>${topTrophy}<div class="kahoopardyCeremonyEyebrow">🏁 Mix gennemført · podiumkåring</div><div><div class="kahoopardyCeremonyTitle">${headline}</div><div class="kahoopardyCeremonySub">${sub}</div></div><div class="kahoopardyCeremonyCenter"><div class="kahoopardyCeremonySpotlight"></div>${winnerSet}<div class="kahoopardyCeremonyPodium">${podium}</div></div>${ceremonyFooter}</div>`;
+}
+function kahoopardyAdvanceCeremony(w){
+  if(!(w&&w.data&&w.data.mix&&w.data.mix.completed))return false;
+  const state=kahoopardyMixCeremonyState(w);
+  if(state.stepIndex>=state.maxIndex)return false;
+  w.data.mix.ceremonyStepIndex=state.stepIndex+1;
+  return true;
+}
+function kahoopardyClearCeremonyKeyHandler(){
+  try{
+    if(window.__kahoopardyCeremonyKeyHandler){
+      document.removeEventListener('keydown',window.__kahoopardyCeremonyKeyHandler,true);
+      window.removeEventListener('keydown',window.__kahoopardyCeremonyKeyHandler,true);
+      window.__kahoopardyCeremonyKeyHandler=null;
+    }
+  }catch(_e){}
+}
+function kahoopardyBindCeremonyKeys(el,w){
+  try{
+    kahoopardyClearCeremonyKeyHandler();
+    window.__kahoopardyCeremonyKeyHandler=function(e){
+      try{
+        const tag=String((e.target&&e.target.tagName)||'').toLowerCase();
+        if(e.target&&(e.target.isContentEditable||tag==='input'||tag==='textarea'||tag==='select'))return;
+        if(!(w&&w.data&&w.data.stage==='done'&&w.data.mix&&w.data.mix.completed))return;
+        const key=String(e.key||'');
+        const isSpace=(key===' '||key==='Spacebar'||e.code==='Space');
+        if(isSpace){
+          e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+          if(e.shiftKey){
+            if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;
+          }else{
+            kahoopardyAdvanceCeremony(w);
+            if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;
+          }
+          try{save({silent:true})}catch(_e){try{save()}catch(_e2){}}
+          renderKahoopardy(el,w);
+          return false;
+        }
+      }catch(_e){}
+    };
+    window.addEventListener('keydown',window.__kahoopardyCeremonyKeyHandler,true);
+    document.addEventListener('keydown',window.__kahoopardyCeremonyKeyHandler,true);
+  }catch(_e){}
+}
+function kahoopardyEnsureCeremonyProgress(el,w){
+  try{
+    if(window.__kahoopardyCeremonyTimers){
+      Object.keys(window.__kahoopardyCeremonyTimers).forEach(k=>{
+        try{clearTimeout(window.__kahoopardyCeremonyTimers[k])}catch(_e){}
+      });
+      window.__kahoopardyCeremonyTimers={};
+    }
+    const mix=w&&w.data&&w.data.mix;
+    if(!(mix&&mix.completed)){kahoopardyClearCeremonyKeyHandler();return;}
+    const state=kahoopardyMixCeremonyState(w);
+    const played=Number(mix.ceremonyPlayedStep);
+    if(played!==state.stepIndex){
+      mix.ceremonyPlayedStep=state.stepIndex;
+      if(state.isFinal)kahoopardyCelebrationFanfare(true);
+      else kahoopardyCelebrationFanfare(false);
+    }
+    kahoopardyBindCeremonyKeys(el,w);
+  }catch(_e){}
+}
 function kahoopardyFixedModeButtonHtml(w){
   normalizeKahoopardy(w);
+  if(kahoopardyIsMixActive(w)){
+    return `<button type="button" class="kahoopardyModeSwitchFixed kahoopardyMixBadge" disabled title="Mix er en starttilstand og kan ikke skiftes midt i spillet.">${esc(kahoopardyMixLabel(w))}</button>`;
+  }
+  if(w&&w.data&&w.data.mix&&w.data.mix.completed){
+    return `<button type="button" class="kahoopardyModeSwitchFixed kahoopardyMixBadge" disabled title="Mix er færdig.">Mix</button>`;
+  }
   const currentMode=(w.data.mode==='jeopardy'||w.data.mode==='master')?w.data.mode:'kahoot';
   const nextMode=kahoopardyNextMode(currentMode);
   // Knappen viser altid AKTUEL tilstand, men klik cykler videre til næste tilstand.
@@ -19252,15 +19679,29 @@ function kahoopardyActionBarHtml(w, primaryHtml){
 function kahoopardyResetPoints(w){
   normalizeKahoopardy(w);
   (w.data.teams||[]).forEach(t=>{t.score=0;t.correct=0;});
-  w.data.currentQuestion=0;w.data.currentTeam=0;w.data.selections={};w.data.awarded={};w.data.autoAwarded={};w.data.optionOrders={};w.data.usedQuestions={};w.data.reveal=false;w.data.stage=kahoopardyStageForMode(w.data.mode);
+  w.data.teamPointResetUndo={};
+  kahoopardyClearMix(w);
+  w.data.mode='kahoot';
+  w.data.currentQuestion=0;
+  w.data.currentTeam=0;
+  w.data.selections={};
+  w.data.awarded={};
+  w.data.autoAwarded={};
+  w.data.optionOrders={};
+  w.data.usedQuestions={};
+  w.data.reveal=false;
+  w.data.stage='question';
+  w.data.editing=true;
 }
 function kahoopardyPlayAgain(w,mode){
   normalizeKahoopardy(w);
+  kahoopardyClearMix(w);
   if(mode)w.data.mode=(mode==='jeopardy'||mode==='master')?mode:'kahoot';
-  w.data.usedQuestions={};w.data.selections={};w.data.awarded={};w.data.autoAwarded={};w.data.optionOrders={};w.data.currentQuestion=0;w.data.currentTeam=Math.max(0,Math.min(Number(w.data.currentTeam)||0,w.data.teams.length-1));w.data.reveal=false;w.data.stage=kahoopardyStageForMode(w.data.mode);
+  w.data.teamPointResetUndo={};w.data.usedQuestions={};w.data.selections={};w.data.awarded={};w.data.autoAwarded={};w.data.optionOrders={};w.data.currentQuestion=0;w.data.currentTeam=Math.max(0,Math.min(Number(w.data.currentTeam)||0,w.data.teams.length-1));w.data.reveal=false;w.data.stage=kahoopardyStageForMode(w.data.mode);
 }
 function kahoopardyAllQuestionsUsed(w){
   normalizeKahoopardy(w);
+  if(kahoopardyIsMixActive(w))return false;
   return (w.data.questions||[]).length>0 && (w.data.questions||[]).every((_,i)=>!!(w.data.usedQuestions&&w.data.usedQuestions[i]));
 }
 function kahoopardyFindNextUnused(w,start){
@@ -19311,8 +19752,14 @@ function kahoopardyJeopardyBoardHtml(w){
   cats.forEach(g=>g.items.sort((a,b)=>a.points-b.points||a.i-b.i));
   const colCount=Math.max(1,cats.length);
   const maxRows=Math.max(1,...cats.map(g=>g.items.length));
+  const mixActive=kahoopardyIsMixActive(w);
+  const mixStep=mixActive&&w.data.mix&&Array.isArray(w.data.mix.plan)?w.data.mix.plan[Number(w.data.mix.step)||0]:null;
+  const mixQuestionIndex=mixActive&&mixStep?Number(mixStep.questionIndex):-1;
   const available=[];
-  cats.forEach(g=>g.items.forEach(it=>{if(!(w.data.usedQuestions&&w.data.usedQuestions[it.i]))available.push(it.i);}));
+  cats.forEach(g=>g.items.forEach(it=>{
+    const isMixBlocked=mixActive && Number(it.i)!==mixQuestionIndex;
+    if(!isMixBlocked && !(w.data.usedQuestions&&w.data.usedQuestions[it.i]))available.push(it.i);
+  }));
   if(!available.length)w.data.jeopardyFocus=-1;
   else if(!available.includes(Number(w.data.jeopardyFocus)))w.data.jeopardyFocus=available[0];
   const activeTeam=(w.data.teams[w.data.currentTeam]||{}).name||'Hold';
@@ -19324,15 +19771,17 @@ function kahoopardyJeopardyBoardHtml(w){
     for(let r=0;r<maxRows;r++){
       const it=g.items[r];
       if(!it){inner+=`<div class="kahoopardyJeopardyBlank"></div>`;continue;}
-      const used=!!(w.data.usedQuestions&&w.data.usedQuestions[it.i]);
-      inner+=`<button type="button" class="kahoopardyJeopardyCard ${used?'used':''} ${Number(w.data.jeopardyFocus)===it.i?'focused':''}" data-question="${it.i}" ${used?'disabled aria-disabled="true"':''}${kahoopardyJeopardyCardStyle(catIndex,it.points,minPoint,maxPoint,used)}>${it.points}</button>`;
+      const mixBlocked=mixActive && Number(it.i)!==mixQuestionIndex;
+      const used=!!(w.data.usedQuestions&&w.data.usedQuestions[it.i]) || mixBlocked;
+      const title=mixBlocked?' title="Mix: dette kort kommer i et andet step"':'';
+      inner+=`<button type="button" class="kahoopardyJeopardyCard ${used?'used':''} ${Number(w.data.jeopardyFocus)===it.i?'focused':''}" data-question="${it.i}" ${used?'disabled aria-disabled="true"':''}${title}${kahoopardyJeopardyCardStyle(catIndex,it.points,minPoint,maxPoint,used)}>${it.points}</button>`;
     }
     return `<div class="kahoopardyJeopardyCol" style="--jp-rows:${maxRows}">${inner}</div>`;
   }).join('');
   const style=`grid-template-columns:repeat(${colCount},minmax(0,1fr));`;
-  const done=kahoopardyAllJeopardyUsed(w);
-  const banner=done?'Alle pointkort er brugt':`${esc(activeTeam)} vælger kategori og point`;
-  const primary=done?'<button type="button" class="jeopardyToScore next">Stilling</button><button type="button" class="playAgain secondary">Spil igen</button>':'';
+  const done=mixActive?!available.length:kahoopardyAllJeopardyUsed(w);
+  const banner=done?'Alle pointkort er brugt':(mixActive?`${esc(activeTeam)} vælger Mix-kortet under kategori og point`:`${esc(activeTeam)} vælger kategori og point`);
+  const primary=done?(mixActive?'<button type="button" class="nextQuestion next">Næste Mix-spørgsmål</button>':'<button type="button" class="jeopardyToScore next">Stilling</button><button type="button" class="playAgain secondary">Spil igen</button>'):'';
   return `<div class="kahoopardyJeopardy"><div class="kahoopardyJeopardyTurnBanner ${done?'kahoopardyJeopardyDone':''}">${banner}</div><div class="kahoopardyJeopardyGrid jeopardyColumns" style="${style}">${cols}</div>${kahoopardyActionBarHtml(w,primary)}</div>`;
 }
 
@@ -19385,6 +19834,9 @@ function kahoopardyAutoAwardCorrect(w){
 }
 function kahoopardyDing(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.18,ac.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.18);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.2)}catch(e){}}
 function kahoopardyApplause(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const master=ac.createGain();master.gain.value=.16;master.connect(ac.destination);for(let i=0;i<18;i++){const dur=.035+Math.random()*.055,start=ac.currentTime+i*.018+Math.random()*.018;const buffer=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*dur)),ac.sampleRate);const data=buffer.getChannelData(0);for(let j=0;j<data.length;j++)data[j]=(Math.random()*2-1)*(1-j/data.length);const src=ac.createBufferSource();src.buffer=buffer;const filter=ac.createBiquadFilter();filter.type='bandpass';filter.frequency.value=900+Math.random()*1400;filter.Q.value=.7;const g=ac.createGain();g.gain.setValueAtTime(.001,start);g.gain.exponentialRampToValueAtTime(.35,start+.008);g.gain.exponentialRampToValueAtTime(.001,start+dur);src.connect(filter);filter.connect(g);g.connect(master);src.start(start);src.stop(start+dur+.02);}setTimeout(()=>{try{ac.close()}catch(_e){}},700)}catch(e){}}
+function kahoopardyCelebrationBurst(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const master=ac.createGain();master.gain.value=.18;master.connect(ac.destination);const now=ac.currentTime;for(let i=0;i<2;i++){const o=ac.createOscillator();const g=ac.createGain();o.type='triangle';o.frequency.setValueAtTime(i===0?740:980,now+i*.06);o.frequency.exponentialRampToValueAtTime(i===0?1180:1460,now+i*.06+.18);g.gain.setValueAtTime(.0001,now+i*.06);g.gain.exponentialRampToValueAtTime(.15,now+i*.06+.02);g.gain.exponentialRampToValueAtTime(.0001,now+i*.06+.22);o.connect(g);g.connect(master);o.start(now+i*.06);o.stop(now+i*.06+.24)}setTimeout(()=>{try{ac.close()}catch(_e){}},500)}catch(e){}}
+function kahoopardyWhistle(){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const ac=new A();const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.setValueAtTime(1200,ac.currentTime);o.frequency.linearRampToValueAtTime(1800,ac.currentTime+.18);o.frequency.linearRampToValueAtTime(1350,ac.currentTime+.38);g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.08,ac.currentTime+.03);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.42);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.44);setTimeout(()=>{try{ac.close()}catch(_e){}},520)}catch(e){}}
+function kahoopardyCelebrationFanfare(finalStep){try{kahoopardyCelebrationBurst();setTimeout(()=>{try{kahoopardyApplause()}catch(_e){}},finalStep?120:40);if(finalStep){setTimeout(()=>{try{kahoopardyWhistle()}catch(_e){}},180);setTimeout(()=>{try{kahoopardyCelebrationBurst()}catch(_e){}},360);setTimeout(()=>{try{kahoopardyApplause()}catch(_e){}},520);}}catch(_e){}}
 
 function kahoopardyResultForQuestion(w,qi){
   normalizeKahoopardy(w);
@@ -19523,6 +19975,7 @@ function kahoopardyDatasetSavedStatus(ds,qs){
 function kahoopardyApplyImportedQuestions(w,el,qs,status){
   if(!qs||!qs.length)throw new Error('Ingen spørgsmål fundet.');
   normalizeKahoopardy(w);
+  kahoopardyClearMix(w);
   w.data.questions=qs;
   if(status){
     if(Array.isArray(status.teams)&&status.teams.length)w.data.teams=status.teams;
@@ -19556,7 +20009,7 @@ function kahoopardyAskImportDatasetMode(w,el,ds){
   const linkAndApply=(st)=>{
     kahoopardySwitchActiveQuestionBank(w,el,ds,(ds&&ds.name)||'Spørgsmålsbank',qs,st||null);
   };
-  if(!status){linkAndApply(null);return;}
+  if(!status){linkAndApply(null);closeModal();return;}
   const usedCount=Object.keys(status.usedQuestions||{}).length;
   closeModal();
   showModal(`<h2>Indlæs KaPardy-data</h2>
@@ -21264,7 +21717,10 @@ function renderKahoopardy(el,w){
     if(w.data.reveal)classes.push('canAward');
     if(w.data.reveal&&w.data.autoAwarded&&w.data.autoAwarded[qKey]&&w.data.autoAwarded[qKey][i])classes.push('autoAward');
     if(w.data.reveal&&pickedText)classes.push(isCorrect?'correctChoice':'wrongChoice');
-    return `<button type="button" class="${classes.join(' ')}" data-team="${i}">
+    if(kahoopardyCanClickTeamToReset(w))classes.push('canResetPoints');
+    if(w.data.teamPointResetUndo&&w.data.teamPointResetUndo[String(i)])classes.push('resetUndoReady');
+    const teamTitle=kahoopardyCanClickTeamToReset(w)?(w.data.teamPointResetUndo&&w.data.teamPointResetUndo[String(i)]?'Klik for at fortryde nulstilling':'Klik for at nulstille dette holds points'):'';
+    return `<button type="button" class="${classes.join(' ')}" data-team="${i}" ${teamTitle?`title="${esc(teamTitle)}"`:''}>
       <div class="kahoopardyTeamName">${esc(t.name)}</div>
       <div class="kahoopardyTeamScore">${Number(t.score)||0}</div>
       <div class="kahoopardyTeamSmall">${Number(t.correct)||0} rigtige${pickedText?' · '+esc(pickedText):''}</div>
@@ -21275,17 +21731,22 @@ function renderKahoopardy(el,w){
       ${kahoopardyModeBarHtml(w)}
       <div class="kahoopardyEditHelp"><span>Mulighed 1 er altid korrekt. Gem/backup opretter en spørgsmålsbank; Vælg spørgsmålsbank henter fra interne data-/listewidgets.</span><button type="button" class="kahoopardyInfoBtn" title="Vis forklaring">?</button></div>
       ${kahoopardyEditRowsHtml(w)}
-      <div class="kahoopardyEditActions"><button class="saveQuestions kahoopardyIconAction" title="Gem/backup som spørgsmålsbank" aria-label="Gem/backup som spørgsmålsbank">💾</button><button class="importQuestions secondary kahoopardyIconAction" title="Vælg spørgsmålsbank" aria-label="Vælg spørgsmålsbank">🗂️</button><button class="openAIPrompt secondary kahoopardyIconAction" title="AI-prompt og AI-CSV" aria-label="AI-prompt og AI-CSV">🏆</button><button class="addQuestionRow secondary kahoopardyIconAction" title="Tilføj spørgsmål (Cmd/Ctrl+Enter)" aria-label="Tilføj spørgsmål">➕</button>${kahoopardyQuestionBankStatusHtml(w)}</div>
+      <div class="kahoopardyEditActions"><button class="saveQuestions kahoopardyIconAction" title="Gem/backup som spørgsmålsbank" aria-label="Gem/backup som spørgsmålsbank">💾</button><button class="importQuestions secondary kahoopardyIconAction" title="Vælg spørgsmålsbank" aria-label="Vælg spørgsmålsbank">🗂️</button><button class="openAIPrompt secondary kahoopardyIconAction" title="AI-prompt og AI-CSV" aria-label="AI-prompt og AI-CSV">🏆</button><button class="addQuestionRow secondary kahoopardyIconAction" title="Tilføj spørgsmål (Cmd/Ctrl+Enter)" aria-label="Tilføj spørgsmål">➕</button><button type="button" class="resetPoints danger kahoopardyIconAction" title="Nulstil alle points" aria-label="Nulstil alle points">↺</button>${kahoopardyQuestionBankStatusHtml(w)}</div>
       <div class="kahoopardyError" style="display:none"></div>
     </div></div>`;
     wireKahoopardy(c,w,el);return;
   }
   if(w.data.stage==='done'){
-    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyDoneView">
+    const mixDone=w.data.mix&&w.data.mix.completed;
+    // SAFE453k: Ved Mix-podium skjules holdkortene øverst.
+    // De afslører stillingen før ceremonien og optager vigtig højde i maksimeret/fuldskærm.
+    const topTeamsHtml=mixDone?'':`<div class="kahoopardyTeams">${teamHtml}</div>`;
+    c.innerHTML=`<div class="kahoopardyBox ${mixDone?'kahoopardyCeremonyBox':''}">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}${topTeamsHtml}${mixDone?kahoopardyRenderMixCeremonyHtml(w):`<div class="kahoopardyDoneView">
       <div><div class="kahoopardyDoneTitle">Alle spørgsmål er brugt</div><div class="kahoopardyDoneText">Se stillingen – eller spil en ny runde med samme point.</div></div>
       <div class="kahoopardyReplayChoices"><button type="button" class="showFinalScore">Stilling</button><button type="button" class="playAgain">Spil igen: ${kahoopardyModeName(w.data.mode)}</button></div>
       ${kahoopardyActionBarHtml(w,'')}
-    </div></div>`;
+    </div>`}</div>`;
+    if(mixDone)kahoopardyEnsureCeremonyProgress(el,w);
     wireKahoopardy(c,w,el);return;
   }
   if(w.data.mode==='jeopardy'&&w.data.stage==='board'){
@@ -21331,9 +21792,10 @@ function renderKahoopardy(el,w){
     wireKahoopardy(c,w,el);return;
   }
   if(w.data.stage==='score'){
+    const scorePrimary=kahoopardyIsMixActive(w)?kahoopardyMixScoreButtonHtml(w):(kahoopardyAllQuestionsUsed(w)?`<button type="button" class="playAgain next">Spil igen: ${kahoopardyModeName(w.data.mode)}</button>`:`<button type="button" class="nextQuestion next">Næste spørgsmål</button>`);
     c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyScoreView">
       <div class="kahoopardyScoreRows">${kahoopardyScoreboardHtml(w)}</div>
-      ${kahoopardyActionBarHtml(w,kahoopardyAllQuestionsUsed(w)?`<button type="button" class="playAgain next">Spil igen: ${kahoopardyModeName(w.data.mode)}</button>`:`<button type="button" class="nextQuestion next">Næste spørgsmål</button>`)}
+      ${kahoopardyActionBarHtml(w,scorePrimary)}
     </div></div>`;
     wireKahoopardy(c,w,el);return;
   }
@@ -21405,6 +21867,11 @@ function wireKahoopardy(c,w,el){
     e.preventDefault();
     normalizeKahoopardy(w);
     const i=Number(btn.dataset.team);
+    if(kahoopardyCanClickTeamToReset(w)){
+      kahoopardyToggleTeamPointReset(w,i);
+      rerender();
+      return;
+    }
     if(!w.data.reveal){
       const qKey=String(w.data.currentQuestion);
       if(!w.data.selections[qKey]||w.data.selections[qKey][i]===undefined)w.data.currentTeam=i;
@@ -21428,10 +21895,10 @@ function wireKahoopardy(c,w,el){
   const cont=c.querySelector('.continueScore');
   if(cont)cont.onclick=e=>{e.preventDefault();kahoopardyApplyAwardsFromSelections(w);w.data.usedQuestions=w.data.usedQuestions||{};w.data.usedQuestions[w.data.currentQuestion]=true;w.data.stage='score';kahoopardyApplause();rerender();};
   const next=c.querySelector('.nextQuestion');
-  if(next)next.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);if(kahoopardyAllQuestionsUsed(w)){w.data.stage='done';rerender();return;} if(w.data.mode==='jeopardy'){w.data.stage='board';w.data.reveal=false;rerender();return;} kahoopardyPrepareNextQuestion(w,(w.data.currentQuestion+1));rerender();};
+  if(next)next.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);if(kahoopardyIsMixActive(w)){kahoopardyAdvanceMix(w);rerender();return;} if(kahoopardyAllQuestionsUsed(w)){w.data.stage='done';rerender();return;} if(w.data.mode==='jeopardy'){w.data.stage='board';w.data.reveal=false;rerender();return;} kahoopardyPrepareNextQuestion(w,(w.data.currentQuestion+1));rerender();};
   const jpScore=c.querySelector('.jeopardyToScore');
   if(jpScore)jpScore.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);w.data.stage='score';kahoopardyApplause();rerender();};
-  c.querySelectorAll('.editQuestions').forEach(b=>b.onclick=e=>{e.preventDefault();w.data.editing=true;rerender();});
+  c.querySelectorAll('.editQuestions').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyClearMix(w);w.data.editing=true;rerender();});
   const cancel=c.querySelector('.cancelEdit');
   if(cancel)cancel.onclick=e=>{e.preventDefault();w.data.editing=false;rerender();};
   c.querySelectorAll('.deleteRow').forEach(b=>b.onclick=e=>{e.preventDefault();const tr=b.closest('tr');if(tr&&c.querySelectorAll('.kahoopardyTable tbody tr').length>1)tr.remove();});
@@ -21538,8 +22005,16 @@ function wireKahoopardy(c,w,el){
   c.querySelectorAll('.startQuizMode').forEach(b=>b.onclick=e=>{
     e.preventDefault();
     const err=c.querySelector('.kahoopardyError');
-    try{w.data.questions=kahoopardyReadTable(c);}catch(ex){if(err){err.style.display='block';err.textContent=ex.message||'Kunne ikke starte quiz';}return;}
+    let qs=null;
+    try{qs=kahoopardyExtractCurrentQuestions(w,c);}catch(ex){if(err){err.style.display='block';err.textContent=ex.message||'Kunne ikke starte quiz';}return;}
     normalizeKahoopardy(w);
+    if(b.dataset.mode==='mix'){
+      try{kahoopardyStartMix(w,qs);}catch(ex){if(err){err.style.display='block';err.textContent=ex.message||'Kunne ikke starte Mix';}return;}
+      rerender();
+      return;
+    }
+    kahoopardyClearMix(w);
+    w.data.questions=qs;
     const m=(b.dataset.mode==='jeopardy'||b.dataset.mode==='master')?b.dataset.mode:'kahoot';
     w.data.mode=m;w.data.editing=false;w.data.currentQuestion=0;w.data.currentTeam=0;w.data.reveal=false;w.data.stage=kahoopardyStageForMode(m);
     kahoopardyResetQuestionRound(w,0);
@@ -21549,6 +22024,7 @@ function wireKahoopardy(c,w,el){
   c.querySelectorAll('.switchMode,.cycleMode').forEach(b=>b.onclick=e=>{
     e.preventDefault();
     normalizeKahoopardy(w);
+    if(kahoopardyIsMixActive(w)){toast('Mix kan kun vælges fra startsiden');return;}
     const m=(b.dataset.mode==='jeopardy'||b.dataset.mode==='master')?b.dataset.mode:'kahoot';
     w.data.mode=m;
     if(w.data.editing){rerender();return;}
@@ -21560,6 +22036,9 @@ function wireKahoopardy(c,w,el){
   c.querySelectorAll('.playAgainMode').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyPlayAgain(w,b.dataset.mode);rerender();});
   c.querySelectorAll('.playAgain').forEach(b=>b.onclick=e=>{e.preventDefault();kahoopardyPlayAgain(w,w.data.mode);rerender();});
   c.querySelectorAll('.showFinalScore').forEach(b=>b.onclick=e=>{e.preventDefault();w.data.stage='score';kahoopardyApplause();rerender();});
+  c.querySelectorAll('.replayCeremony').forEach(b=>b.onclick=e=>{e.preventDefault();if(w.data.mix){w.data.mix.ceremonyStepIndex=0;w.data.mix.ceremonyPlayedStep=-1;}w.data.stage='done';rerender();});
+  c.querySelectorAll('.nextCeremonyStep').forEach(b=>b.onclick=e=>{e.preventDefault();if(kahoopardyAdvanceCeremony(w)){if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;w.data.stage='done';rerender();}});
+  c.querySelectorAll('.replayCeremonyCurrent').forEach(b=>b.onclick=e=>{e.preventDefault();if(w.data.mix)w.data.mix.ceremonyPlayedStep=-1;w.data.stage='done';rerender();});
   const showM=c.querySelector('.showMasterAnswer');
   if(showM)showM.onclick=e=>{e.preventDefault();normalizeKahoopardy(w);w.data.stage='master_answer';w.data.judgeFocus=0;kahoopardyDing();rerender();};
   function finishMaster(kind){
@@ -21591,6 +22070,10 @@ function wireKahoopardy(c,w,el){
     normalizeKahoopardy(w);
     const qi=Number(b.dataset.question);
     if(!Number.isFinite(qi)||b.disabled||(w.data.usedQuestions&&w.data.usedQuestions[qi]))return;
+    if(kahoopardyIsMixActive(w)){
+      const step=w.data.mix&&Array.isArray(w.data.mix.plan)?w.data.mix.plan[Number(w.data.mix.step)||0]:null;
+      if(step && Number(step.questionIndex)!==qi)return;
+    }
     w.data.currentQuestion=Math.max(0,Math.min(qi,w.data.questions.length-1));
     if(!Number.isFinite(Number(w.data.currentTeam))||w.data.currentTeam<0)w.data.currentTeam=0;
     w.data.reveal=false;w.data.stage='jeopardy_question';
@@ -21617,7 +22100,7 @@ function wireKahoopardy(c,w,el){
       w.data.currentTeam=(ti+1)%Math.max(1,(w.data.teams||[]).length);
       kahoopardyDing();
     }
-    w.data.stage='board';w.data.reveal=false;
+    w.data.stage=kahoopardyIsMixActive(w)?'score':'board';w.data.reveal=false;
     rerender();
   }
   const jc=c.querySelector('.jeopardyCorrect'); if(jc)jc.onclick=e=>{e.preventDefault();finishJeopardy('correct');};
@@ -21811,6 +22294,7 @@ document.addEventListener('keydown',function kahoopardyPhase18Keys(e){
   const key=String(e.key||'').toLowerCase();
   function stop(){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
   function switchMode(m){
+    if(kahoopardyIsMixActive(hit.w)){toast('Mix kan kun vælges fra startsiden');return;}
     hit.w.data.mode=m;
     if(!hit.w.data.editing && hit.w.data.stage!=='score' && hit.w.data.stage!=='done'){
       hit.w.data.stage=kahoopardyStageForMode(m);
@@ -21828,6 +22312,12 @@ document.addEventListener('keydown',function kahoopardyPhase18Keys(e){
     return;
   }
   if(hit.w.data.editing){
+    if(key==='l' && !e.shiftKey){
+      stop();
+      const btn=c.querySelector('.startQuizMode[data-mode="mix"]');
+      if(btn)btn.click();
+      return;
+    }
     if(e.key==='Enter'||e.code==='Enter'||e.code==='NumpadEnter'){
       stop();
       const mode=(hit.w.data.mode==='jeopardy'||hit.w.data.mode==='master')?hit.w.data.mode:'kahoot';
@@ -46598,6 +47088,246 @@ var old=window.render; if(typeof old==='function'&&!window.__dr258Wrap){window._
   padding:0!important;
   overflow:hidden!important;
 }
+
+/* SAFE453i Mix-ceremony: podium + fireworks */
+.kahoopardyCeremonyView{position:relative;min-height:0;height:100%;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:14px;text-align:center;padding:18px 18px 16px;box-sizing:border-box;overflow:hidden;background:radial-gradient(circle at 50% -10%,rgba(250,204,21,.20),transparent 38%),radial-gradient(circle at 15% 0%,rgba(56,189,248,.14),transparent 32%),radial-gradient(circle at 85% 0%,rgba(244,114,182,.12),transparent 28%),linear-gradient(180deg,rgba(17,24,39,.25),rgba(15,23,42,.10))}
+.kahoopardyCeremonyEyebrow{justify-self:center;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(250,204,21,.18);color:#fde68a;font-size:clamp(13px,1.4vw,22px);font-weight:950;letter-spacing:.02em;box-shadow:0 0 0 1px rgba(250,204,21,.18) inset}
+.kahoopardyCeremonyTitle{font-size:clamp(34px,5.5vw,84px);line-height:1.02;font-weight:1000;text-shadow:0 6px 22px rgba(0,0,0,.35)}
+.kahoopardyCeremonySub{font-size:clamp(16px,2.1vw,28px);font-weight:850;opacity:.96;max-width:min(900px,92%);justify-self:center}
+.kahoopardyCeremonyCenter{position:relative;min-height:0;display:grid;align-content:start;justify-items:center;gap:14px;overflow:hidden;padding:4px 0 2px}
+.kahoopardyCeremonySpotlight{position:absolute;inset:auto 50% 0 50%;width:min(78vw,720px);height:min(62vh,380px);transform:translateX(-50%);background:radial-gradient(ellipse at center,rgba(250,204,21,.22),rgba(250,204,21,.07) 38%,transparent 72%);filter:blur(10px);pointer-events:none}
+.kahoopardyCeremonyReveal{position:relative;z-index:2;display:grid;place-items:center;gap:10px;max-width:min(860px,100%)}
+.kahoopardyCeremonyPlace{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border-radius:999px;font-weight:1000;font-size:clamp(18px,2vw,34px);letter-spacing:.02em;box-shadow:0 12px 30px rgba(0,0,0,.26)}
+.kahoopardyCeremonyPlace.place1{background:linear-gradient(135deg,#fde68a,#facc15);color:#111827}
+.kahoopardyCeremonyPlace.place2{background:linear-gradient(135deg,#e2e8f0,#94a3b8);color:#0f172a}
+.kahoopardyCeremonyPlace.place3{background:linear-gradient(135deg,#fdba74,#ea580c);color:#fff7ed}
+.kahoopardyCeremonyName{font-size:clamp(34px,6vw,90px);font-weight:1000;line-height:1.02;text-wrap:balance;text-shadow:0 10px 28px rgba(0,0,0,.35)}
+.kahoopardyCeremonyMeta{font-size:clamp(18px,2.3vw,32px);font-weight:850;opacity:.98}
+.kahoopardyCeremonyWinnerSet{position:relative;z-index:2;display:grid;place-items:center;gap:8px;max-width:min(860px,100%);animation:kahoopardyCeremonyZoom .8s cubic-bezier(.15,.95,.25,1.2) both}
+.kahoopardyTrophy{font-size:clamp(60px,11vw,160px);line-height:1;filter:drop-shadow(0 10px 22px rgba(250,204,21,.35));animation:kahoopardyTrophyPulse 1.5s ease-in-out infinite}
+.kahoopardyCeremonyPodium{position:relative;z-index:2;display:flex;align-items:flex-end;justify-content:center;gap:14px;flex-wrap:nowrap;width:min(920px,100%);margin:0 auto;padding-top:8px}
+.kahoopardyPodiumCol{flex:1 1 0;max-width:260px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;min-width:0;opacity:.2;transform:translateY(26px) scale(.94);transition:all .35s ease}
+.kahoopardyPodiumCol.revealed{opacity:1;transform:translateY(0) scale(1);animation:kahoopardyCeremonyRise .7s cubic-bezier(.2,.9,.25,1.22) both}
+.kahoopardyPodiumCard{width:100%;border-radius:22px 22px 14px 14px;padding:14px 10px 12px;box-shadow:0 12px 30px rgba(0,0,0,.26);color:white;font-weight:950;min-height:88px;display:grid;align-content:center;gap:4px}
+.kahoopardyPodiumCol.rank1 .kahoopardyPodiumCard{background:linear-gradient(180deg,#fde68a,#facc15);color:#111827}
+.kahoopardyPodiumCol.rank2 .kahoopardyPodiumCard{background:linear-gradient(180deg,#cbd5e1,#94a3b8);color:#0f172a}
+.kahoopardyPodiumCol.rank3 .kahoopardyPodiumCard{background:linear-gradient(180deg,#fdba74,#c2410c);color:#fff7ed}
+.kahoopardyPodiumRank{font-size:clamp(18px,2vw,30px);line-height:1}
+.kahoopardyPodiumName{font-size:clamp(20px,2.5vw,34px);line-height:1.06;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.kahoopardyPodiumMeta{font-size:clamp(12px,1.4vw,18px);opacity:.95}
+.kahoopardyPodiumBase{width:100%;border-radius:18px 18px 0 0;display:grid;place-items:center;font-weight:1000;font-size:clamp(26px,4vw,56px);box-shadow:inset 0 1px 0 rgba(255,255,255,.20)}
+.kahoopardyPodiumCol.rank1 .kahoopardyPodiumBase{height:170px;background:linear-gradient(180deg,#facc15,#ca8a04)}
+.kahoopardyPodiumCol.rank2 .kahoopardyPodiumBase{height:122px;background:linear-gradient(180deg,#94a3b8,#64748b)}
+.kahoopardyPodiumCol.rank3 .kahoopardyPodiumBase{height:90px;background:linear-gradient(180deg,#fb923c,#9a3412)}
+.kahoopardyPodiumCol.rank1{order:2}.kahoopardyPodiumCol.rank2{order:1}.kahoopardyPodiumCol.rank3{order:3}
+.kahoopardyCeremonyActions{position:relative;z-index:2;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.kahoopardyCeremonyActions button{border:0;border-radius:999px;padding:12px 18px;font-weight:950}
+.kahoopardyCeremonyActions .showFinalScore{background:#facc15;color:#111827}
+.kahoopardyCeremonyActions .replayCeremony,.kahoopardyCeremonyActions .replayCeremonyCurrent{background:#e0e7ff;color:#111827}
+.kahoopardyFireworks,.kahoopardyConfetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.kahoopardyFirework{position:absolute;width:14px;height:14px;border-radius:999px;opacity:0;box-shadow:0 0 0 0 currentColor;animation:kahoopardyFirework 1.7s ease-out infinite}
+.kahoopardyFirework.f1{left:12%;top:18%;color:#38bdf8;animation-delay:.05s}.kahoopardyFirework.f2{left:24%;top:8%;color:#f472b6;animation-delay:.55s}.kahoopardyFirework.f3{left:78%;top:14%;color:#fde047;animation-delay:.25s}.kahoopardyFirework.f4{left:88%;top:24%;color:#c084fc;animation-delay:.95s}.kahoopardyFirework.f5{left:62%;top:4%;color:#4ade80;animation-delay:1.2s}.kahoopardyFirework.f6{left:44%;top:16%;color:#fb7185;animation-delay:.8s}
+.kahoopardyConfetti span{position:absolute;top:-12%;width:11px;height:22px;border-radius:4px;opacity:.92;animation:kahoopardyConfettiFall linear infinite}
+.kahoopardyConfetti span:nth-child(1){left:5%;background:#facc15;animation-duration:3.2s;animation-delay:-.4s}.kahoopardyConfetti span:nth-child(2){left:12%;background:#38bdf8;animation-duration:2.8s;animation-delay:-1.2s}.kahoopardyConfetti span:nth-child(3){left:20%;background:#f472b6;animation-duration:3.4s;animation-delay:-2.2s}.kahoopardyConfetti span:nth-child(4){left:29%;background:#4ade80;animation-duration:3.1s;animation-delay:-1.5s}.kahoopardyConfetti span:nth-child(5){left:38%;background:#fb923c;animation-duration:2.7s;animation-delay:-.8s}.kahoopardyConfetti span:nth-child(6){left:47%;background:#e879f9;animation-duration:3.5s;animation-delay:-2.7s}.kahoopardyConfetti span:nth-child(7){left:56%;background:#facc15;animation-duration:3.0s;animation-delay:-1.1s}.kahoopardyConfetti span:nth-child(8){left:65%;background:#22d3ee;animation-duration:2.9s;animation-delay:-1.9s}.kahoopardyConfetti span:nth-child(9){left:74%;background:#a3e635;animation-duration:3.3s;animation-delay:-2.4s}.kahoopardyConfetti span:nth-child(10){left:82%;background:#fb7185;animation-duration:2.6s;animation-delay:-.3s}.kahoopardyConfetti span:nth-child(11){left:89%;background:#fcd34d;animation-duration:3.6s;animation-delay:-1.7s}.kahoopardyConfetti span:nth-child(12){left:95%;background:#93c5fd;animation-duration:3.2s;animation-delay:-2.9s}
+@keyframes kahoopardyCeremonyRise{0%{opacity:0;transform:translateY(34px) scale(.86)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes kahoopardyCeremonyZoom{0%{opacity:0;transform:scale(.82)}100%{opacity:1;transform:scale(1)}}
+@keyframes kahoopardyTrophyPulse{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.05)}}
+@keyframes kahoopardyFirework{0%{opacity:0;transform:scale(.2)}15%{opacity:1}100%{opacity:0;transform:scale(1);box-shadow:0 -44px 0 0 currentColor,31px -31px 0 0 currentColor,44px 0 0 0 currentColor,31px 31px 0 0 currentColor,0 44px 0 0 currentColor,-31px 31px 0 0 currentColor,-44px 0 0 0 currentColor,-31px -31px 0 0 currentColor}}
+@keyframes kahoopardyConfettiFall{0%{transform:translate3d(0,-10%,0) rotate(0)}100%{transform:translate3d(14px,118vh,0) rotate(520deg)}}
+@media(max-width:700px){.kahoopardyCeremonyView{padding:14px 10px 12px;gap:10px}.kahoopardyCeremonyPodium{gap:8px}.kahoopardyPodiumCard{min-height:72px;padding:10px 8px}.kahoopardyPodiumCol.rank1 .kahoopardyPodiumBase{height:122px}.kahoopardyPodiumCol.rank2 .kahoopardyPodiumBase{height:94px}.kahoopardyPodiumCol.rank3 .kahoopardyPodiumBase{height:76px}.kahoopardyCeremonySub{max-width:100%}.kahoopardyCeremonyTopTrophy{font-size:clamp(58px,20vw,120px)}}
+
+
+.kahoopardyCeremonyHelp{display:none!important}.kahoopardyCeremonyTopTrophy{justify-self:center;position:relative;z-index:2;font-size:clamp(66px,12vw,168px);line-height:1;filter:drop-shadow(0 10px 22px rgba(250,204,21,.35));animation:kahoopardyTrophyPulse 1.5s ease-in-out infinite}
+
+
+/* SAFE453i Mix ceremony layoutfix2: animated trophy at top, no duplicate winner text, no key text */
+.kahoopardyCeremonyView{grid-template-rows:auto auto auto minmax(0,1fr) auto!important;gap:10px!important}
+.kahoopardyCeremonyTopTrophy{grid-row:1;justify-self:center;align-self:start;margin-top:-6px;margin-bottom:-2px;position:relative;z-index:3;font-size:clamp(66px,10vw,142px);line-height:.92;filter:drop-shadow(0 10px 22px rgba(250,204,21,.35));animation:kahoopardyTrophyPulse 1.5s ease-in-out infinite}
+.kahoopardyCeremonyEyebrow{grid-row:2}
+.kahoopardyCeremonyTitle{font-size:clamp(30px,4.8vw,76px)!important}
+.kahoopardyCeremonySub{font-size:clamp(15px,1.9vw,26px)!important}
+.kahoopardyCeremonyCenter{align-content:start!important;justify-items:center!important;gap:10px!important;padding-top:0!important}
+.kahoopardyCeremonyWinnerSet{display:none!important}
+.kahoopardyCeremonyActions .replayCeremonyCurrent{background:#e0e7ff;color:#111827}
+.kahoopardyCeremonyActions .skipCeremony{display:none!important}
+@media(max-width:700px){
+  .kahoopardyCeremonyView{gap:7px!important;padding-top:10px!important}
+  .kahoopardyCeremonyTopTrophy{font-size:clamp(58px,17vw,110px);margin-top:-4px}
+  .kahoopardyCeremonyTitle{font-size:clamp(28px,8vw,58px)!important}
+  .kahoopardyCeremonySub{font-size:clamp(14px,4vw,22px)!important}
+}
+
+/* SAFE453j Mix ceremony: tie-aware podium + calmer footer layout */
+.kahoopardyCeremonyView{padding-bottom:12px!important}
+.kahoopardyCeremonyCenter{gap:8px!important}
+.kahoopardyCeremonyName,.kahoopardyPodiumName{display:grid;justify-items:center;align-content:center;gap:2px}
+.kahoopardyCeremonyName.isTie,.kahoopardyPodiumName.isTie{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.02}
+.kahoopardyPodiumTeam{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kahoopardyPodiumCol.emptySlot{opacity:.14;transform:none}
+.kahoopardyPodiumCol.emptySlot .kahoopardyPodiumCard{box-shadow:none;background:rgba(255,255,255,.08)!important;color:rgba(255,255,255,.56)!important}
+.kahoopardyPodiumCol.emptySlot .kahoopardyPodiumBase{opacity:.55}
+.kahoopardyPodiumCol.rank1 .kahoopardyPodiumBase{height:clamp(118px,18vh,156px)!important}
+.kahoopardyPodiumCol.rank2 .kahoopardyPodiumBase{height:clamp(92px,14vh,122px)!important}
+.kahoopardyPodiumCol.rank3 .kahoopardyPodiumBase{height:clamp(72px,11vh,90px)!important}
+.kahoopardyCeremonyFooterBar{position:relative;z-index:2;display:grid;grid-template-columns:minmax(170px,1fr) auto auto minmax(170px,1fr);grid-template-areas:'score settings reset replay';gap:10px;align-items:center;width:min(980px,100%);margin:4px auto 0}
+.kahoopardyCeremonyFooterBar > button{border:0;border-radius:999px;padding:12px 18px;font-weight:950;min-width:0}
+.kahoopardyCeremonyFooterBar .showFinalScore{grid-area:score;background:#facc15;color:#111827}
+.kahoopardyCeremonyFooterBar .editQuestions{grid-area:settings;background:#e5e7eb;color:#111827;justify-self:center;min-width:56px}
+.kahoopardyCeremonyFooterBar .resetPoints{grid-area:reset;justify-self:center;background:#fee2e2;color:#991b1b;white-space:nowrap}
+.kahoopardyCeremonyFooterBar .replayCeremony{grid-area:replay;background:#e0e7ff;color:#111827}
+@media(max-width:900px){
+  .kahoopardyCeremonyFooterBar{grid-template-columns:1fr 1fr;grid-template-areas:'score replay' 'settings reset';}
+  .kahoopardyCeremonyFooterBar .editQuestions,.kahoopardyCeremonyFooterBar .resetPoints{justify-self:stretch}
+}
+@media(max-width:700px){
+  .kahoopardyPodiumName{font-size:clamp(16px,3.4vw,26px)!important}
+  .kahoopardyPodiumMeta{font-size:clamp(11px,2.6vw,16px)!important}
+  .kahoopardyCeremonyFooterBar{gap:8px}
+  .kahoopardyCeremonyFooterBar > button{padding:11px 14px}
+}
+
+
+/* SAFE453j footer no-overlap: one ceremony footer row, side buttons pushed outward */
+.kahoopardyCeremonyView{
+  grid-template-rows:auto auto auto minmax(0,1fr) auto!important;
+  padding-bottom:12px!important;
+  overflow:hidden!important;
+}
+.kahoopardyCeremonyCenter{
+  min-height:0!important;
+  overflow:hidden!important;
+  padding-bottom:4px!important;
+}
+.kahoopardyCeremonyActions{display:none!important}
+.kahoopardyCeremonyFooterBar{
+  position:relative!important;
+  z-index:5!important;
+  display:grid!important;
+  grid-template-columns:minmax(150px,1fr) minmax(46px,auto) minmax(150px,auto) minmax(150px,1fr)!important;
+  grid-template-areas:'left settings reset right'!important;
+  gap:12px!important;
+  align-items:center!important;
+  width:min(1080px,100%)!important;
+  margin:4px auto 0!important;
+  padding:0 8px!important;
+  box-sizing:border-box!important;
+}
+.kahoopardyCeremonyFooterBar > button{
+  border:0!important;
+  border-radius:999px!important;
+  padding:12px 18px!important;
+  font-weight:950!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+}
+.kahoopardyCeremonyFooterBar .showFinalScore,
+.kahoopardyCeremonyFooterBar .nextCeremonyStep{
+  grid-area:left!important;
+  justify-self:start!important;
+  background:#facc15!important;
+  color:#111827!important;
+}
+.kahoopardyCeremonyFooterBar .editQuestions{
+  grid-area:settings!important;
+  justify-self:end!important;
+  background:#e5e7eb!important;
+  color:#111827!important;
+  width:54px!important;
+  min-width:54px!important;
+  padding-left:0!important;
+  padding-right:0!important;
+}
+.kahoopardyCeremonyFooterBar .resetPoints{
+  grid-area:reset!important;
+  justify-self:start!important;
+  background:#fee2e2!important;
+  color:#991b1b!important;
+}
+.kahoopardyCeremonyFooterBar .replayCeremony,
+.kahoopardyCeremonyFooterBar .replayCeremonyCurrent{
+  grid-area:right!important;
+  justify-self:end!important;
+  background:#e0e7ff!important;
+  color:#111827!important;
+}
+@media(max-width:760px){
+  .kahoopardyCeremonyFooterBar{
+    grid-template-columns:1fr 1fr!important;
+    grid-template-areas:'left right' 'settings reset'!important;
+    gap:8px!important;
+    padding:0 4px!important;
+  }
+  .kahoopardyCeremonyFooterBar > button{padding:10px 12px!important;font-size:14px!important}
+  .kahoopardyCeremonyFooterBar .showFinalScore,
+  .kahoopardyCeremonyFooterBar .nextCeremonyStep{justify-self:stretch!important}
+  .kahoopardyCeremonyFooterBar .replayCeremony,
+  .kahoopardyCeremonyFooterBar .replayCeremonyCurrent{justify-self:stretch!important}
+  .kahoopardyCeremonyFooterBar .editQuestions{justify-self:stretch!important;width:auto!important;min-width:0!important}
+  .kahoopardyCeremonyFooterBar .resetPoints{justify-self:stretch!important}
+}
+
+
+/* SAFE453j team point reset: click team card on start/score/ceremony to reset/undo */
+.kahoopardyTeam.canResetPoints{cursor:pointer}
+.kahoopardyTeam.canResetPoints:hover{box-shadow:0 0 0 3px rgba(250,204,21,.42),0 10px 22px rgba(0,0,0,.24)}
+.kahoopardyTeam.resetUndoReady{outline:3px dashed rgba(250,204,21,.95);outline-offset:2px}
+.kahoopardyTeam.resetUndoReady .kahoopardyTeamSmall::after{content:" · klik igen = fortryd";font-weight:900;color:#fde68a}
+.kahoopardyEditActions .resetPoints.kahoopardyIconAction{background:#fee2e2!important;color:#991b1b!important}
+
+
+/* SAFE453k: kompakt Mere-menu + Demoer-modal */
+.moreMenu.moreMenuGrouped{
+  max-width:min(94vw,280px)!important;
+  padding:10px!important;
+  gap:6px!important;
+  border-radius:18px!important;
+}
+.moreMenuGrouped .moreMenuGroup{gap:5px!important;margin:0 0 6px 0!important}
+.moreMenuGrouped .moreMenuGroupButtons{grid-template-columns:repeat(2,minmax(56px,1fr))!important;gap:6px!important}
+.moreMenuGrouped .moreMenuSection{font-size:10.5px!important;padding:0 2px!important;margin:0!important}
+.moreMenuGrouped button{min-height:48px!important;border-radius:11px!important;padding:6px 7px!important}
+.moreMenuGrouped button .ico{font-size:20px!important;line-height:1!important}
+.moreMenuGrouped button .txt{font-size:11.5px!important;line-height:1.05!important}
+@media(max-width:700px){
+  .moreMenu.moreMenuGrouped{max-width:min(94vw,270px)!important;bottom:88px!important;padding:9px!important}
+  .moreMenuGrouped .moreMenuGroupButtons{grid-template-columns:repeat(2,minmax(54px,1fr))!important;gap:6px!important}
+  .moreMenuGrouped button{min-height:46px!important;padding:5px 6px!important}
+}
+.safe453kDemoIntro{margin:.1rem 0 .8rem;opacity:.78;font-weight:700;line-height:1.35}
+.safe453kDemoGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:10px;max-height:min(62vh,620px);overflow:auto;padding:2px}
+.safe453kDemoCard{
+  display:grid!important;
+  grid-template-columns:46px minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+  text-align:left!important;
+  min-height:72px;
+  padding:10px 12px!important;
+  border-radius:14px!important;
+  border:1px solid #dbe3ef!important;
+  background:linear-gradient(135deg,#ffffff,#f8fafc)!important;
+  color:#0f172a!important;
+  box-shadow:0 4px 12px rgba(15,23,42,.08)!important;
+}
+.safe453kDemoIcon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#eef2ff;font-size:25px;box-shadow:inset 0 0 0 1px rgba(99,102,241,.14)}
+.safe453kDemoText{display:grid;gap:3px;min-width:0}
+.safe453kDemoText b{font-size:15px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.safe453kDemoText small{font-size:12px;line-height:1.18;opacity:.70;font-weight:700;white-space:normal}
+.safe453kDemoFooter{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+
+/* SAFE453k: Mix-podium uden øverste holdkort */
+.kahoopardyCeremonyBox{
+  grid-template-rows:minmax(0,1fr)!important;
+}
+.kahoopardyCeremonyBox > .kahoopardyTeams{
+  display:none!important;
+}
+.kahoopardyCeremonyBox .kahoopardyCeremonyView{
+  min-height:0!important;
+  height:100%!important;
+}
+
 </style>
 <script id="safe453i260-dataremix-chrome-always-visible">
 (function(){
