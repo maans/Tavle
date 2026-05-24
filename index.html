@@ -31852,15 +31852,18 @@ function showQuickHelp(){
     }
     const tag=(e.target&&e.target.tagName||'').toLowerCase();
     const typing=tag==='input'||tag==='textarea'||tag==='select'||(e.target&&e.target.isContentEditable);
-    if(typing)return;
+    const helpArrowKey=(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.key==='ArrowUp'||e.key==='ArrowDown');
+    // SAFE455n12d: I Hjælp skal piletasterne stadig styre Hjælp, selv hvis checkboxen
+    // "Vis kontekstuelle hints" har fokus. Almindelige tekstfelter bevarer andre taster.
+    if(typing && !helpArrowKey)return;
     if(e.key==='ArrowDown'||e.key==='ArrowUp'){
-      e.preventDefault();e.stopPropagation();
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
       const dy=e.key==='ArrowDown'?120:-120;
       try{modal.scrollBy({top:dy,behavior:'smooth'});}catch(_e){modal.scrollTop+=dy;}
       return;
     }
     if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
-      e.preventDefault();e.stopPropagation();
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
       safe455bMoveHelpSection(e.key==='ArrowRight'?1:-1);
       return;
     }
@@ -49058,6 +49061,78 @@ body.focus-maximized .widget[data-type="pdf"].focusTarget .pdfControls{
   },true);
 
   document.addEventListener('dragend',function(){currentFile=null;},true);
+})();
+</script>
+
+
+<script id="safe455n11-tw-iframe-focus-guard">
+/* SAFE455n11: TiddlyWiki i HTMLWidget må ikke automatisk eje tastaturet ved tavle-render.
+   Problem: Efter tilbagevenden til en tavle med TW kunne piletasterne lande i iframe'en,
+   indtil brugeren klikkede på tavlebaggrunden. Denne guard flytter fokus tilbage til
+   TavleAppen efter TW-iframe load/render, men kun når widgetten ikke aktivt er åbnet
+   med htmlInteractive/linkIframeActive. Ingen ændring af TW-savebridge. */
+(function(){
+  'use strict';
+  if(window.__safe455n11TwIframeFocusGuard)return;
+  window.__safe455n11TwIframeFocusGuard=true;
+
+  function isTwHtmlWidget(el){
+    try{
+      if(!el || !el.matches || !el.matches('.widget[data-type="html"]'))return false;
+      if(el.querySelector('.htmlTiddlyWikiMode'))return true;
+      var id=el.dataset&&el.dataset.id;
+      var w=(id && typeof window.findWidget==='function')?window.findWidget(id):null;
+      var d=w&&w.data;
+      return !!(d && (d.twMode==='tiddlywiki' || d.isTiddlyWiki || d.srcMediaRef));
+    }catch(_e){return false;}
+  }
+
+  function twIsUserActive(el){
+    try{
+      return !!(el && (el.classList.contains('htmlInteractive') || el.classList.contains('linkIframeActive')));
+    }catch(_e){return false;}
+  }
+
+  function refocusParent(el){
+    try{
+      if(!isTwHtmlWidget(el) || twIsUserActive(el))return;
+      if(window.clearIframeControl)window.clearIframeControl();
+      try{ if(document.activeElement && document.activeElement.tagName==='IFRAME') document.activeElement.blur(); }catch(_e){}
+      var app=document.getElementById('app') || document.body;
+      if(app){
+        if(!app.hasAttribute('tabindex'))app.setAttribute('tabindex','-1');
+        try{app.focus({preventScroll:true});}catch(_e){try{app.focus();}catch(__e){}}
+      }
+      try{window.focus();}catch(_e){}
+    }catch(_e){}
+  }
+
+  function arm(root){
+    try{
+      (root||document).querySelectorAll('.widget[data-type="html"] iframe').forEach(function(frame){
+        if(frame.__safe455n11FocusGuard)return;
+        frame.__safe455n11FocusGuard=true;
+        try{frame.setAttribute('tabindex','-1');}catch(_e){}
+        frame.addEventListener('load',function(){
+          var el=frame.closest&&frame.closest('.widget[data-type="html"]');
+          setTimeout(function(){refocusParent(el);},40);
+          setTimeout(function(){refocusParent(el);},220);
+        },true);
+      });
+    }catch(_e){}
+  }
+
+  arm(document);
+  try{new MutationObserver(function(){arm(document);}).observe(document.body,{childList:true,subtree:true});}catch(_e){}
+
+  /* Når tavle-appens baggrund/topniveau får pointerdown, bevar eksisterende klik-adfærd,
+     men sørg for at TW ikke bliver ved med at eje tastaturet i parent-flowet. */
+  document.addEventListener('pointerdown',function(e){
+    try{
+      var w=e.target&&e.target.closest&&e.target.closest('.widget[data-type="html"]');
+      if(!w && window.clearIframeControl)window.clearIframeControl();
+    }catch(_e){}
+  },true);
 })();
 </script>
 </body></html>
