@@ -78,7 +78,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.45 SAFE455g</title>
+<title>Interaktiv tavle v1.2.45 SAFE455m</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -13857,6 +13857,30 @@ function openSaveModalForExternalFileDrag(){
   highlightSaveDropZone(true);
 }
 let tavleDragDepth=0;
+/* SAFE455k2: HTML/TiddlyWiki drop-guard.
+   Hvis droppet rammer en aktiv/interaktiv HTML-widget, må TavleAppens globale
+   dropzone ikke åbne og ikke oprette en ny widget. Eventen får lov at fortsætte,
+   så iframe/TiddlyWiki selv kan modtage filen. */
+function safe455k2IsHtmlWidgetDropTarget(e){
+  try{
+    const t=e&&e.target;
+    if(t&&t.closest){
+      const hit=t.closest('.widget[data-type="html"]');
+      if(hit && (hit.classList.contains('selected') || hit.classList.contains('htmlInteractive') || hit.classList.contains('linkIframeActive'))) return true;
+    }
+    const x=e&&e.clientX, y=e&&e.clientY;
+    if(Number.isFinite(x) && Number.isFinite(y)){
+      const els=document.elementsFromPoint(x,y)||[];
+      for(const node of els){
+        if(node&&node.closest){
+          const hit=node.closest('.widget[data-type="html"]');
+          if(hit && (hit.classList.contains('selected') || hit.classList.contains('htmlInteractive') || hit.classList.contains('linkIframeActive'))) return true;
+        }
+      }
+    }
+  }catch(_e){}
+  return false;
+}
 function isInsideTavleSurface(e){
   const rect=app.getBoundingClientRect();
   const x=e.clientX, y=e.clientY;
@@ -13866,6 +13890,7 @@ function isInsideTavleSurface(e){
 function showDropSurface(e){
   if(!dataTransferHasSupportedPayload(e.dataTransfer))return false;
   if(!isInsideTavleSurface(e))return false;
+  if(safe455k2IsHtmlWidgetDropTarget(e))return false;
   e.preventDefault();
   e.stopPropagation();
   if(dataTransferHasFiles(e.dataTransfer)){
@@ -13889,6 +13914,7 @@ document.addEventListener('drop',async e=>{
   if(e.target && e.target.closest && e.target.closest('#saveDropZone'))return; // let dropzonen importere selv
   if(!dataTransferHasSupportedPayload(e.dataTransfer))return;
   if(!isInsideTavleSurface(e))return;
+  if(safe455k2IsHtmlWidgetDropTarget(e))return;
   e.preventDefault();
   e.stopPropagation();
   document.body.classList.remove('draggingPayload');
@@ -17006,6 +17032,7 @@ body.focus-maximized #safe453BoardZoomLayer > #draw{
 
 <!-- SAFE455i: Hjælp opdateret med brugervendt HTML/TiddlyWiki-afsnit og kortere importtekst. -->
 <!-- SAFE455h: HTMLWidget removes persistent TW status line and adds zoom controls to widget chrome. -->
+<!-- SAFE455k2: Kun drop-guard for aktiv HTML/TiddlyWiki-widget. Ingen filnavne-fix, ingen drag-export, ingen template/render-ændringer. -->
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
   if(t==='pdf')addWidget('pdf',{});
@@ -48815,6 +48842,222 @@ body.focus-maximized .widget[data-type="pdf"].focusTarget .pdfControls{
       wire();
     });
   };
+})();
+</script>
+
+
+<script id="safe455l2-imagewidget-drag-as-file">
+/* SAFE455l2: Billedwidget → File-drag. Indsat ved rigtig </body>, ikke inde i HTML-widget-template. */
+(function(){
+  'use strict';
+  if(window.__safe455l2ImageWidgetDragAsFile)return;
+  window.__safe455l2ImageWidgetDragAsFile=true;
+
+  function extFromMime(mime){
+    mime=String(mime||'').toLowerCase();
+    if(mime.indexOf('png')>=0)return '.png';
+    if(mime.indexOf('jpeg')>=0||mime.indexOf('jpg')>=0)return '.jpg';
+    if(mime.indexOf('webp')>=0)return '.webp';
+    if(mime.indexOf('gif')>=0)return '.gif';
+    if(mime.indexOf('svg')>=0)return '.svg';
+    return '.png';
+  }
+  function cleanName(name,mime){
+    var n=String(name||'').trim();
+    n=n.replace(/^Tegnewidget\s*·\s*/i,'').trim();
+    if(!n || n.length>90 || /^data:/i.test(n) || /^[A-Za-z0-9+\/=\-_]{40,}\.?[a-z0-9]*$/i.test(n)) n='billede';
+    n=n.replace(/[\\/:*?"<>|\u0000-\u001F]/g,'_').replace(/\s+/g,' ').trim();
+    if(!/\.[a-z0-9]{2,5}$/i.test(n)) n+=extFromMime(mime);
+    return n;
+  }
+  function dataUrlToBlob(dataUrl){
+    try{
+      var m=String(dataUrl||'').match(/^data:([^;,]+)?(;base64)?,(.*)$/);
+      if(!m)return null;
+      var mime=m[1]||'application/octet-stream';
+      var body=m[3]||'';
+      var bytes;
+      if(m[2]){
+        var bin=atob(body);
+        bytes=new Uint8Array(bin.length);
+        for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+      }else{
+        bytes=new TextEncoder().encode(decodeURIComponent(body));
+      }
+      return new Blob([bytes],{type:mime});
+    }catch(_e){return null;}
+  }
+  function closestImageTarget(t){
+    try{
+      return t&&t.closest&&t.closest('.widget[data-type="image"] img, .widget.imageWidget img, .widget[data-type="drawcopy"] img');
+    }catch(_e){return null;}
+  }
+  function widgetHit(img){
+    try{
+      var el=img&&img.closest&&img.closest('.widget[data-type="image"], .widget.imageWidget, .widget[data-type="drawcopy"]');
+      if(!el)return null;
+      var id=el.dataset&&el.dataset.id;
+      var w=(id&&typeof findWidget==='function')?findWidget(id):null;
+      return {el:el,w:w,img:img};
+    }catch(_e){return null;}
+  }
+  async function makeFile(hit){
+    if(!hit||!hit.w)return null;
+    var w=hit.w, d=w.data||{};
+    var blob=null, mime='', name=d.name||w.title||'';
+    try{
+      if(d.mediaRef && window.TavleMediaArchive && typeof window.TavleMediaArchive.getMedia==='function'){
+        var rec=await window.TavleMediaArchive.getMedia(d.mediaRef);
+        if(rec){
+          blob=rec.blob||null;
+          mime=rec.mimeType||rec.type||(blob&&blob.type)||'';
+          name=rec.name||name;
+        }
+      }
+      if(!blob && d.src && String(d.src).indexOf('data:')===0){
+        blob=dataUrlToBlob(d.src);
+        mime=(blob&&blob.type)||mime;
+      }
+      if(!blob && hit.img && hit.img.src && String(hit.img.src).indexOf('data:')===0){
+        blob=dataUrlToBlob(hit.img.src);
+        mime=(blob&&blob.type)||mime;
+      }
+      if(!blob)return null;
+      return new File([blob],cleanName(name,mime||blob.type),{type:mime||blob.type||'image/png'});
+    }catch(err){console.warn('SAFE455l2 make image drag file failed',err);return null;}
+  }
+  function prep(root){
+    try{
+      (root||document).querySelectorAll('.widget[data-type="image"] img, .widget.imageWidget img, .widget[data-type="drawcopy"] img').forEach(function(img){
+        img.draggable=true;
+        img.setAttribute('draggable','true');
+        img.style.webkitUserDrag='element';
+      });
+    }catch(_e){}
+  }
+  function preload(e){
+    var img=closestImageTarget(e.target);
+    if(!img)return;
+    var hit=widgetHit(img);
+    if(!hit||!hit.el)return;
+    makeFile(hit).then(function(file){ if(file)hit.el.__safe455l2DragFile=file; });
+  }
+  document.addEventListener('pointerdown',preload,true);
+  document.addEventListener('touchstart',preload,true);
+  document.addEventListener('dragstart',function(e){
+    var img=closestImageTarget(e.target);
+    if(!img||!e.dataTransfer)return;
+    var hit=widgetHit(img);
+    if(!hit||!hit.el)return;
+    var file=hit.el.__safe455l2DragFile;
+    if(file){
+      try{e.dataTransfer.items.clear();}catch(_e){}
+      try{e.dataTransfer.items.add(file);}catch(_e){}
+      try{e.dataTransfer.setData('text/plain',file.name);}catch(_e){}
+      try{e.dataTransfer.effectAllowed='copy';}catch(_e){}
+    }
+  },true);
+  prep(document);
+  try{new MutationObserver(function(){prep(document);}).observe(document.body,{childList:true,subtree:true});}catch(_e){}
+})();
+</script>
+
+
+<script id="safe455m-imagewidget-synthetic-drop-to-html">
+/* SAFE455m: Når en billedwidget trækkes til en aktiv HTML/TiddlyWiki-widget,
+   sendes filen videre til iframe som syntetisk File-drop med bevaret filnavn.
+   Bygger oven på SAFE455k2/dropguard + SAFE455l2 drag-fil. Ingen TW-savebridge-ændring. */
+(function(){
+  'use strict';
+  if(window.__safe455mSyntheticImageDropToHtml)return;
+  window.__safe455mSyntheticImageDropToHtml=true;
+
+  var currentFile=null;
+
+  function htmlWidgetAtPoint(x,y){
+    try{
+      var els=document.elementsFromPoint(x,y)||[];
+      for(var i=0;i<els.length;i++){
+        var w=els[i]&&els[i].closest&&els[i].closest('.widget[data-type="html"]');
+        if(w)return w;
+      }
+    }catch(_e){}
+    return null;
+  }
+  function getIframe(w){
+    try{return w&&w.querySelector&&w.querySelector('iframe');}catch(_e){return null;}
+  }
+  function isActiveHtml(w){
+    try{
+      return !!(w && (w.classList.contains('htmlInteractive') || w.classList.contains('selected')));
+    }catch(_e){return false;}
+  }
+  function makeDataTransfer(file){
+    try{
+      var dt=new DataTransfer();
+      dt.items.add(file);
+      try{dt.setData('text/plain',file.name||'billede.png');}catch(_e){}
+      try{dt.setData('text/uri-list','');}catch(_e){}
+      return dt;
+    }catch(_e){return null;}
+  }
+  function dispatchToIframe(kind,iframe,parentEvent,file){
+    try{
+      if(!iframe||!iframe.contentWindow||!iframe.contentDocument)return false;
+      var rect=iframe.getBoundingClientRect();
+      var x=Math.max(0,Math.min(rect.width,(parentEvent.clientX||0)-rect.left));
+      var y=Math.max(0,Math.min(rect.height,(parentEvent.clientY||0)-rect.top));
+      var target=iframe.contentDocument.elementFromPoint(x,y) || iframe.contentDocument.body || iframe.contentDocument.documentElement;
+      var dt=makeDataTransfer(file);
+      if(!dt)return false;
+      var ev=new DragEvent(kind,{bubbles:true,cancelable:true,clientX:x,clientY:y,dataTransfer:dt});
+      target.dispatchEvent(ev);
+      return true;
+    }catch(err){
+      console.warn('SAFE455m synthetic iframe drop failed',err);
+      return false;
+    }
+  }
+  document.addEventListener('dragstart',function(e){
+    try{
+      currentFile=null;
+      var img=e.target&&e.target.closest&&e.target.closest('.widget[data-type="image"] img, .widget.imageWidget img, .widget[data-type="drawcopy"] img');
+      if(!img)return;
+      var w=img.closest('.widget');
+      if(w && w.__safe455l2DragFile) currentFile=w.__safe455l2DragFile;
+    }catch(_e){}
+  },true);
+
+  document.addEventListener('dragover',function(e){
+    if(!currentFile)return;
+    var w=htmlWidgetAtPoint(e.clientX,e.clientY);
+    if(!w||!isActiveHtml(w))return;
+    var iframe=getIframe(w);
+    if(!iframe)return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    try{e.dataTransfer.dropEffect='copy';}catch(_e){}
+    dispatchToIframe('dragover',iframe,e,currentFile);
+  },true);
+
+  document.addEventListener('drop',function(e){
+    if(!currentFile)return;
+    var w=htmlWidgetAtPoint(e.clientX,e.clientY);
+    if(!w||!isActiveHtml(w))return;
+    var iframe=getIframe(w);
+    if(!iframe)return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    var ok=dispatchToIframe('drop',iframe,e,currentFile);
+    if(ok){
+      try{ if(typeof toast==='function')toast('Fil sendt til HTML-widget: '+(currentFile.name||'billede')); }catch(_e){}
+    }
+    currentFile=null;
+  },true);
+
+  document.addEventListener('dragend',function(){currentFile=null;},true);
 })();
 </script>
 </body></html>
