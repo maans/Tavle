@@ -6,6 +6,10 @@
 
 
 <!-- SAFE453z: Fullscreen-knappen skjules ikke længere bare fordi Chrome rapporterer standalone/PWA. Den vises hvis requestFullscreen-metode findes. -->
+<!-- SAFE455u: Link/iframe-widget: iframe aktiveres stabilt i max/fokus, toolbar forenkles yderligere, linkkort poleres. Bygger på SAFE455t. -->
+<!-- SAFE455uG: LinkWidget LinkListe-knap får mere sigende ikon (☰) for at undgå forveksling med generel datakilde-🔗. -->
+<!-- SAFE455uH17: HTML/TiddlyWiki fra IndexedDB autoloades ikke; tung TW vises som manuel placeholder og eksporteres som rå Blob. -->
+<!-- SAFE455uH16: TiddlyWiki-demoliste udvidet med sikker download/import-vejledning til HTMLWidget. -->
 
 <!--
 SCRIPT-KORT / LOAD-RÆKKEFØLGE
@@ -78,7 +82,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.45 SAFE455m</title>
+<title>Interaktiv tavle v1.2.45 SAFE455uH14</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -6521,6 +6525,25 @@ body.draggingPayload #app::after{
 .widget[data-type="html"] iframe{width:100%;height:100%;border:0;background:white;flex:1}
 .widget[data-type="html"] textarea{width:100%;height:100%;flex:1;border:0;padding:14px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px;line-height:1.35;resize:none;box-sizing:border-box;background:#0f172a;color:#f8fafc}
 
+/* SAFE455uH17: Tunge HTML/TiddlyWiki-filer fra IndexedDB indlæses manuelt for at undgå opstartslås. */
+.widget[data-type="html"] .htmlHeavyPlaceholder{
+  height:100%;
+  display:grid;
+  place-content:center;
+  gap:12px;
+  padding:24px;
+  text-align:center;
+  background:#0f172a;
+  color:#f8fafc;
+  font-weight:800;
+}
+.widget[data-type="html"] .htmlHeavyTitle{font-size:clamp(20px,2.5vw,34px);font-weight:950}
+.widget[data-type="html"] .htmlHeavyText{max-width:720px;line-height:1.35;opacity:.86}
+.widget[data-type="html"] .htmlHeavyActions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.widget[data-type="html"] .htmlHeavyActions button{border:0;border-radius:999px;padding:10px 14px;font-weight:900;background:#e5e7eb;color:#111827}
+.widget[data-type="html"] .htmlHeavyActions .htmlHeavyLoad{background:#6d5dfc;color:white}
+.widget[data-type="html"] .htmlHeavyNote{font-size:12px;opacity:.72;line-height:1.25}
+
 
 
 .widget[data-type="html"] .htmlBox{height:100%;display:flex;flex-direction:column;background:white;overflow:hidden}
@@ -7779,6 +7802,165 @@ body.trashBoardActive #toolbarFallback{
   .safe159Wheel .safe164EditTools{grid-template-columns:1fr!important}
 }
 
+
+
+/* SAFE455o: Link/iframe-widget dual-mode UX cleanup */
+.widget[data-type="link"] .linkLinkedListBar.safe455oLinkListBar{
+  display:flex!important;align-items:center!important;gap:6px!important;flex-wrap:wrap!important;
+  padding:6px 8px!important;background:rgba(248,250,252,.96)!important;border-bottom:1px solid #e5e7eb!important;
+}
+.widget[data-type="link"] .linkLinkedListBar.safe455oLinkListBar button{
+  margin:0!important;border:0!important;border-radius:999px!important;background:#eef2f7!important;color:#111827!important;
+  padding:7px 11px!important;font-weight:900!important;line-height:1.05!important;box-shadow:none!important;
+}
+.widget[data-type="link"] .linkLinkedListBar.safe455oLinkListBar .linkListStatus{max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.widget[data-type="link"] .linkBox.safe455oLinkMode{
+  height:calc(100% - 48px)!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+  gap:18px!important;padding:18px!important;text-align:center!important;background:linear-gradient(180deg,#fff,#f8fafc)!important;
+}
+.widget[data-type="link"] .safe455oLinkHero{display:flex;align-items:center;justify-content:center;gap:10px;max-width:100%;}
+.widget[data-type="link"] .safe453i79LinkNav{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;max-width:100%!important;}
+.widget[data-type="link"] .safe453i79Arrow{border:0!important;border-radius:12px!important;background:#6d5dfc!important;color:white!important;min-width:44px!important;height:44px!important;font-size:24px!important;font-weight:950!important;}
+.widget[data-type="link"] .safe453i79LinkNavTitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.widget[data-type="link"] .safe453i79LinkNavTitle a,
+.widget[data-type="link"] .safe455oLinkHero>a{font-size:clamp(28px,5vw,52px)!important;font-weight:950!important;color:#2563eb!important;}
+.widget[data-type="link"] .safe455oLinkUrl{display:block!important;max-width:88%;font-size:clamp(14px,2vw,24px)!important;color:#1f2937!important;overflow-wrap:anywhere!important;}
+.widget[data-type="link"] .safe455oLinkHint{display:block!important;font-size:13px!important;opacity:.62!important;line-height:1.25!important;max-width:90%;}
+.widget[data-type="link"] .linkIframeBox{height:100%!important;background:white!important;}
+.widget[data-type="link"] .linkIframeFallbackHint{opacity:.55!important;font-size:12px!important;}
+.widget[data-type="link"] .linkIframeShield{cursor:pointer!important;}
+.widget[data-type="link"] .linkIframeShield::after{content:"Klik for at aktivere siden · ESC slipper"!important;}
+.widget[data-type="link"].linkIframeActive .linkIframeShield::after,
+.widget[data-type="link"].iframe-interaction-enabled .linkIframeShield::after,
+.widget[data-type="link"].is-iframe-active .linkIframeShield::after{display:none!important;}
+.widget[data-type="link"] .mini [data-act="activateLinkIframe"],
+.widget[data-type="link"] .mini [data-act="addLink"]{display:none!important;}
+.present .widget[data-type="link"] .linkLinkedListBar,
+body.focus-mode .widget[data-type="link"] .linkLinkedListBar,
+body.focus-edit .widget[data-type="link"] .linkLinkedListBar,
+body.focus-presentation .widget[data-type="link"] .linkLinkedListBar{display:none!important;}
+.present .widget[data-type="link"] .linkBox.safe455oLinkMode,
+body.focus-mode .widget[data-type="link"] .linkBox.safe455oLinkMode,
+body.focus-edit .widget[data-type="link"] .linkBox.safe455oLinkMode,
+body.focus-presentation .widget[data-type="link"] .linkBox.safe455oLinkMode{height:100%!important;}
+
+
+/* SAFE455uC: LinkWidget iframeMode minimal toolbar – CSS ONLY.
+   Bygger på SAFE455uA2. Ingen JS, ingen render-/templateændringer.
+   Skjuler kun ekstra chrome-knapper i LinkWidget når toggle-knappen står i iframe-mode.
+   Ønsket synlig række: ▣ − ＋ ↗ ×
+*/
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="up"],
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="down"],
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="max"],
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="lock"],
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="move"]{
+  display:none!important;
+}
+
+/* Hold iframe-mode-rækken kompakt og rolig uden at ramme HTML/PDF/KaPardy. */
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .chrome .mini{
+  gap:6px!important;
+  margin-left:auto!important;
+}
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .chrome .titleText{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+
+
+/* SAFE455uH3: LinkMode-kort. Kun LinkWidget-content; ingen global toolbar/render-patch. */
+.widget[data-type="link"] .safe455hLinkCard{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:14px!important;
+  padding:28px 34px!important;
+  overflow:auto!important;
+}
+.widget[data-type="link"] .safe455hLinkHero{
+  width:min(96%,900px)!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+}
+.widget[data-type="link"] .safe455hLinkNav{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  gap:20px!important;
+  align-items:center!important;
+}
+.widget[data-type="link"] .safe455hLinkNavTitle{
+  min-width:0!important;
+  display:block!important;
+  text-align:center!important;
+}
+.widget[data-type="link"] .safe455hLinkTitle{
+  display:inline!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+  max-width:100%!important;
+  font-size:clamp(28px,5.2vw,58px)!important;
+  line-height:1.12!important;
+  font-weight:950!important;
+}
+.widget[data-type="link"] .safe455hLinkNavSingle{
+  width:100%!important;
+  text-align:center!important;
+}
+.widget[data-type="link"] .safe455hUrlRow{
+  width:min(96%,760px)!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:10px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding-top:2px!important;
+}
+.widget[data-type="link"] .safe455hUrlText{
+  min-width:0!important;
+  text-align:center!important;
+  font-size:clamp(15px,2.1vw,27px)!important;
+  line-height:1.2!important;
+  font-weight:850!important;
+  color:#1f2937!important;
+  overflow-wrap:anywhere!important;
+}
+.widget[data-type="link"] .safe455hCopyUrl{
+  margin:0!important;
+  padding:8px 11px!important;
+  border-radius:12px!important;
+  background:#ffffff!important;
+  color:#1f2937!important;
+  border:1px solid #dbe2ef!important;
+  box-shadow:0 4px 12px rgba(15,23,42,.12)!important;
+  font-size:20px!important;
+  line-height:1!important;
+}
+.widget[data-type="link"] .safe455hNote{
+  width:min(90%,680px)!important;
+  padding:12px 20px!important;
+  border-top:2px dotted rgba(109,93,252,.38)!important;
+  border-bottom:2px dotted rgba(109,93,252,.38)!important;
+  color:#374151!important;
+  font-size:clamp(15px,2vw,24px)!important;
+  line-height:1.28!important;
+  font-style:italic!important;
+  text-align:center!important;
+  white-space:pre-wrap!important;
+}
+.widget[data-type="link"] .safe455hLinkCard .safe455oLinkHint,
+.widget[data-type="link"] .safe455hLinkCard .safe401LinkHint,
+.widget[data-type="link"] .safe455hLinkCard .safe453i78LinkInfo{
+  display:none!important;
+}
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 
@@ -10809,6 +10991,56 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
 .timerTwinShell.timerMode-countdown .timerAlarmSelect{display:none!important}
 .timerTwinShell.timerMode-countdown .timerAlarmControls{max-width:220px!important}
 .timerCountdownSeqCard.active .timerCountdownSeqTime{font-variant-numeric:tabular-nums}
+</style>
+
+
+<!-- SAFE455uF: LinkWidget toolbar right alignment – CSS ONLY.
+     Bygger på SAFE455uC. Ingen JS/render/template.
+     Gælder både LinkMode og iframeMode, men kun .widget[data-type="link"]. -->
+<style id="safe455uF-link-toolbar-right-css-only">
+.widget[data-type="link"] .chrome{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  flex-wrap:nowrap!important;
+  gap:8px!important;
+  overflow:hidden!important;
+}
+.widget[data-type="link"] .chrome .titleText{
+  flex:1 1 auto!important;
+  min-width:42px!important;
+  max-width:none!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  line-height:30px!important;
+}
+.widget[data-type="link"] .chrome .mini{
+  margin-left:auto!important;
+  flex:0 0 auto!important;
+  min-width:0!important;
+  max-width:calc(100% - 52px)!important;
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:5px!important;
+  overflow:visible!important;
+}
+.widget[data-type="link"] .chrome .mini button{
+  flex:0 0 auto!important;
+}
+/* Hold ekstra flyttepile væk i LinkWidget, så bjælken forbliver rolig. */
+.widget[data-type="link"] .mini button[data-act="up"],
+.widget[data-type="link"] .mini button[data-act="down"]{
+  display:none!important;
+}
+/* I iframeMode bevares SAFE455uC-minimalismen: ▣ − ＋ ↗ × */
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="max"],
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="lock"],
+.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="move"]{
+  display:none!important;
+}
 </style>
 </head>
 <body>
@@ -13960,7 +14192,7 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -13969,8 +14201,11 @@ try{
 }catch(_e){}
 if(w.type==='link'){
   try{
+    const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
+    const listName=String((ref&&ref.datasetId&&(ref.name||''))||'').trim();
     const linkTitle=String(w.data&&w.data.text||'').trim();
-    if(linkTitle && linkTitle!=='Klikbart link' && linkTitle!=='Link')widgetTitle=linkTitle;
+    if(listName) widgetTitle=listName;
+    else if(linkTitle && linkTitle!=='Klikbart link' && linkTitle!=='Link') widgetTitle=linkTitle;
   }catch(_e){}
 }
 /* SAFE453q: PDF-widget viser filnavn i bjælken i stedet for kun "PDF". */
@@ -24939,16 +25174,30 @@ if(w.type==='poll'){
   const isTwMode=!!(w.data&&(w.data.twMode==='tiddlywiki'||w.data.isTiddlyWiki||hasTwSaveRef));
   const safe455hHtmlZoom=Math.max(0.5,Math.min(3,Number(w.data.htmlZoom||1)));
   const safe455hHtmlIframeStyle=`transform:scale(${safe455hHtmlZoom});transform-origin:0 0;width:${100/safe455hHtmlZoom}%;height:${100/safe455hHtmlZoom}%;`;
-  c.innerHTML=`<div class="htmlBox ${isTwMode?'htmlTiddlyWikiMode':''}" data-html-zoom="${esc(String(safe455hHtmlZoom))}">
-    ${isEdit
-      ? `<textarea spellcheck="false">${esc(hasTwSaveRef?'Indlæser gemt HTML/TiddlyWiki fra arkiv…':(w.data.html||''))}</textarea>`
-      : `<div class="htmlFrameWrap"><iframe style="${esc(safe455hHtmlIframeStyle)}" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-same-origin"></iframe><div class="htmlShield"></div></div>`}
+  window.__safe455h17HtmlLoadedRefs=window.__safe455h17HtmlLoadedRefs||{};
+  const safe455h17Ref=String((w.data&&w.data.srcMediaRef)||'');
+  const safe455h17SessionLoaded=!safe455h17Ref || !!window.__safe455h17HtmlLoadedRefs[safe455h17Ref];
+  const safe455h17ManualHeavy=!!(hasTwSaveRef && isTwMode && !safe455h17SessionLoaded);
+  const safe455h17Placeholder=`<div class="htmlHeavyPlaceholder">
+      <div class="htmlHeavyTitle">HTML/TiddlyWiki er gemt i arkivet</div>
+      <div class="htmlHeavyText">Denne fil kan være tung. Den indlæses derfor ikke automatisk ved opstart, så TavleAppen ikke låser. Vælg Indlæs, når du vil arbejde med den.</div>
+      <div class="htmlHeavyActions"><button type="button" class="htmlHeavyLoad">Indlæs HTML/TiddlyWiki</button><button type="button" class="htmlHeavyDownload">Hent som enkelt HTML-fil</button></div>
+      <div class="htmlHeavyNote">Eksporten skriver den gemte fil råt ud igen – ikke browserens “Gem side som…”.</div>
+    </div>`;
+  c.innerHTML=`<div class="htmlBox ${isTwMode?'htmlTiddlyWikiMode':''} ${safe455h17ManualHeavy?'htmlHeavyManual':''}" data-html-zoom="${esc(String(safe455hHtmlZoom))}">
+    ${safe455h17ManualHeavy
+      ? safe455h17Placeholder
+      : (isEdit
+        ? `<textarea spellcheck="false">${esc(hasTwSaveRef?'Indlæser gemt HTML/TiddlyWiki fra arkiv…':(w.data.html||''))}</textarea>`
+        : `<div class="htmlFrameWrap"><iframe style="${esc(safe455hHtmlIframeStyle)}" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-same-origin"></iframe><div class="htmlShield"></div></div>`)}
   </div>`;
   const setMode=(mode)=>{w.data.mode=mode;el.classList.remove('htmlInteractive');fillContent(el,w);save()};
   const prev=c.querySelector('.htmlPreview');
   const edit=c.querySelector('.htmlEdit');
   const dl=c.querySelector('.htmlDownload');
   const interact=c.querySelector('.htmlInteract');
+  const heavyLoadBtn=c.querySelector('.htmlHeavyLoad');
+  const heavyDownloadBtn=c.querySelector('.htmlHeavyDownload');
   function safe455aIsLikelyTiddlyWiki(html){
     const txt=String(html||'').slice(0,250000).toLowerCase();
     return txt.indexOf('tiddlywiki')>=0 || txt.indexOf('$:/core/save/all')>=0 || txt.indexOf('window.$tw')>=0 || txt.indexOf('$tw.boot')>=0;
@@ -24984,11 +25233,38 @@ if(w.type==='poll'){
       }).catch(err=>{console.warn('SAFE455a HTML srcMediaRef read failed',err);cb(String(w.data.html||''));});
     }else cb(String(w.data.html||''));
   }
-  function safe455aDownloadActiveHtml(){
-    safe455aReadActiveHtml(code=>{
-      downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(code||''),w.data.name||w.title||'side.html');
-    });
+  function safe455h17DownloadBlob(blob,name){
+    try{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=name||'side.html';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_e){}},1500);
+    }catch(err){
+      console.warn('SAFE455uH17 download blob failed',err);
+      try{toast('Kunne ikke hente HTML-filen');}catch(_e){}
+    }
   }
+  function safe455aDownloadActiveHtml(){
+    const ref=w.data&&w.data.srcMediaRef;
+    const a=window.TavleMediaArchive;
+    const name=w.data.name||w.title||'side.html';
+    if(ref&&a&&typeof a.getBlob==='function'){
+      a.getBlob(ref).then(blob=>{
+        if(blob){safe455h17DownloadBlob(blob,name);return;}
+        safe455h17DownloadBlob(new Blob([String(w.data.html||'')],{type:'text/html;charset=utf-8'}),name);
+      }).catch(err=>{console.warn('SAFE455uH17 HTML raw export failed',err);safe455h17DownloadBlob(new Blob([String(w.data.html||'')],{type:'text/html;charset=utf-8'}),name);});
+      return;
+    }
+    safe455h17DownloadBlob(new Blob([String(w.data.html||'')],{type:'text/html;charset=utf-8'}),name);
+  }
+  if(heavyLoadBtn)heavyLoadBtn.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(safe455h17Ref)window.__safe455h17HtmlLoadedRefs[safe455h17Ref]=true;
+    try{toast('Indlæser HTML/TiddlyWiki…');}catch(_e){}
+    setTimeout(()=>fillContent(el,w),20);
+  };
+  if(heavyDownloadBtn)heavyDownloadBtn.onclick=e=>{e.preventDefault();e.stopPropagation();safe455aDownloadActiveHtml();};
   if(prev)prev.onclick=e=>{e.stopPropagation();setMode('preview')};
   if(edit)edit.onclick=e=>{e.stopPropagation();setMode('edit')};
   if(dl)dl.onclick=e=>{e.stopPropagation();safe455aDownloadActiveHtml()};
@@ -25061,7 +25337,7 @@ if(w.type==='poll'){
       const ytSrc=(w.data&&w.data.youtubeEmbedUrl)||safe453i221YoutubeEmbedUrl(url);
       const ytOpen=id?('https://youtu.be/'+id):(ytInfo&&ytInfo.list?('https://www.youtube.com/playlist?list='+encodeURIComponent(ytInfo.list)):url);
       const ytLabel=(ytInfo&&ytInfo.type==='playlist')?'Åbn playlist på YouTube':'Åbn på YouTube';
-      const linkChrome=`${safe453i71LinkListBarHtml(w)}${safe453i79LinkNavHtml(w,'iframe')}`;
+      const linkChrome='';
       c.innerHTML=`${linkChrome}<div class="linkIframeBox safe401MiniBrowser safe453i223YoutubeOuter" data-zoom="1">
         <div class="linkIframeFrame safe453i223YoutubeFrame">
           <div class="videoBox safe453i221YoutubeBox">${ytSrc?`<iframe src="${esc(ytSrc)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><div class="safe453i222YoutubeFallback"><a target="_blank" rel="noopener" href="${esc(ytOpen)}">${esc(ytLabel)}</a></div>`:`<div><p>Kunne ikke finde YouTube-video eller playlist.</p><a target="_blank" rel="noopener" href="${esc(url)}">Åbn link</a></div>`}</div>
@@ -25075,7 +25351,7 @@ if(w.type==='poll'){
         ? `srcdoc="${esc(w.data.srcdoc)}"`
         : `src="${esc(tavleIframeSrc(url,w))}"`;
       const hint=isMuseScore?'MuseScore-visning':(url?`Hvis siden er tom, nægter den sandsynligvis iframe. Brug ↗ Åbn i ny fane.`:`Indsæt en adresse med ✎.`);
-      const linkChrome=isMuseScore?'':`${safe453i71LinkListBarHtml(w)}${safe453i79LinkNavHtml(w,'iframe')}`;
+      const linkChrome='';
       c.innerHTML=`${linkChrome}<div class="linkIframeBox safe401MiniBrowser ${isMuseScore?'safe453i196MuseScoreBox':''}" data-zoom="${esc(String(zoom))}">
         <div class="linkIframeFrame">
           <iframe ${iframeAttr} style="${esc(iframeStyle)}" allow="autoplay; fullscreen; clipboard-read; clipboard-write; encrypted-media" allowfullscreen loading="lazy"></iframe>
@@ -25087,9 +25363,11 @@ if(w.type==='poll'){
   }else{
     const linkTitle=String(w.data.text||'Klikbart link').trim()||'Klikbart link';
     const linkNote=String(w.data.linkNote||'').trim();
-    const info=linkNote ? `${linkNote} · ${url}` : (url||'Indsæt en adresse med ✎ eller vælg en linkliste med 🔗.');
     const navHtml=safe453i79LinkNavHtml(w,'link');
-    c.innerHTML=`${safe453i71LinkListBarHtml(w)}<div class="linkBox safe453i78LinkView">${navHtml||`<a target="_blank" rel="noopener" href="${esc(url||'#')}">${esc(linkTitle)}</a>`}<small class="safe453i78LinkInfo">${esc(info)}</small><small class="safe401LinkHint">▣ skifter til mini-browser/iframe. Hvis siden blokerer iframe, brug ny fane.</small></div>`;
+    const fallbackHero=`<div class="safe455hLinkNavSingle"><a class="safe455hLinkTitle" target="_blank" rel="noopener" href="${esc(url||'#')}">${esc(linkTitle)}</a></div>`;
+    const urlRow=url?`<div class="safe455hUrlRow"><span class="safe455hUrlText">${esc(url)}</span><button type="button" class="safe455hCopyUrl" data-copy-url="${esc(url)}" title="Kopiér adressen">⧉</button></div>`:'';
+    const noteRow=linkNote?`<div class="safe455hNote">${esc(linkNote)}</div>`:'';
+    c.innerHTML=`${safe453i71LinkListBarHtml(w)}<div class="linkBox safe453i78LinkView safe455oLinkMode safe455hLinkCard"><div class="safe455oLinkHero safe455hLinkHero">${navHtml||fallbackHero}</div>${urlRow}${noteRow}</div>`;
   }
   c.ondblclick=e=>{if(!canEditWidgets())return;e.preventDefault();e.stopPropagation();select(w.id,{editText:false});askLink(w)};
 }
@@ -29898,7 +30176,7 @@ function safe453i79LinkNavHtml(w,mode){
     const url=normalizeLinkUrl((w&&w.data&&w.data.url)||current.url||'');
     const klass=mode==='iframe'?'safe453i79LinkNav safe453i79IframeNav':'safe453i79LinkNav';
     const label=items.length>1?((idx>=0?idx+1:1)+'/'+items.length):('1/'+items.length);
-    return `<div class="${klass}" data-link-nav="1" title="${esc(label+' i '+(ds&&ds.name||'linkliste'))}"><button type="button" class="safe453i79Arrow safe453i79Prev" title="Forrige link">‹</button><span class="safe453i79LinkNavTitle"><a target="_blank" rel="noopener" href="${esc(url||'#')}">${esc(title)}</a></span><button type="button" class="safe453i79Arrow safe453i79Next" title="Næste link">›</button></div>`;
+    return `<div class="${klass} safe455hLinkNav" data-link-nav="1" title="${esc(label+' i '+(ds&&ds.name||'linkliste'))}"><button type="button" class="safe453i79Arrow safe453i79Prev" title="Forrige link">‹</button><span class="safe453i79LinkNavTitle safe455hLinkNavTitle"><a class="safe455hLinkTitle" target="_blank" rel="noopener" href="${esc(url||'#')}">${esc(title)}</a></span><button type="button" class="safe453i79Arrow safe453i79Next" title="Næste link">›</button></div>`;
   }catch(_e){return '';}
 }
 function safe453i79NavigateLinkList(w,dir){
@@ -30009,11 +30287,13 @@ function safe453i71LinkListBarHtml(w){
   try{
     const ref=safe453i71LinkListRef(w);
     const has=!!ref.datasetId;
-    const status=`<button type="button" class="linkListStatus ${has?'':'empty'}" title="${has?'Vis/skjul koblet linkliste':'Vælg linkliste'}">🔗 ${has?'Linkliste: '+esc(ref.name):'Ingen linkliste'}</button>`;
-    const pick=has?'<button type="button" class="linkListPick" title="Vælg link fra linklisten">Vælg link</button>':'';
-    const addBtn='<button type="button" class="linkListAdd" title="Tilføj link til linklisten">＋ Link</button>';
-    const saveBtn=has?'<button type="button" class="linkListSave" title="Gem den aktuelle adresse i linklisten med titel og beskrivelse">Gem side</button>':'<button type="button" class="linkListPick" title="Vælg eller opret linkliste">Vælg liste</button>';
-    return `<div class="linkLinkedListBar widget-control">${status}${pick}${addBtn}${saveBtn}</div>`;
+    const name=has?String(ref.name||'Linkliste'):'Ingen linkliste';
+    const shortName=name.length>28?name.slice(0,27)+'…':name;
+    const status=`<button type="button" class="linkListStatus ${has?'':'empty'}" title="${has?'Vis/skjul koblet linkliste: '+esc(name):'Vælg linkliste'}">🔗 ${esc(shortName)}</button>`;
+    const pick=has?'<button type="button" class="linkListPick" title="Vælg link fra linklisten">Vælg</button>':'';
+    const addBtn='<button type="button" class="linkListAdd" title="Tilføj link til linklisten">＋</button>';
+    const saveBtn=has?'<button type="button" class="linkListSave" title="Gem den aktuelle adresse i linklisten">Gem</button>':'<button type="button" class="linkListPick" title="Vælg eller opret linkliste">Vælg</button>';
+    return `<div class="linkLinkedListBar widget-control safe455oLinkListBar">${status}${pick}${addBtn}${saveBtn}</div>`;
   }catch(_e){return '';}
 }
 function safe453i80IsLinkListDataset(ds){
@@ -30081,6 +30361,15 @@ function safe453i71CreateNewLinkList(w){
 
 /* SAFE453i72: Demolister med undervisningsvenlige hjemmesider til link/iframe-widgetten. */
 const SAFE453I72_LINK_DEMOS=[
+  {
+    name:'TiddlyWiki',
+    desc:'Tom wiki, officiel hjælp og kort importvejledning: hent/gem TiddlyWiki med dens egen save/download-metode og importer HTML-filen som HTMLWidget i TavleAppen.',
+    rows:[
+      ['TiddlyWiki · tom version','https://tiddlywiki.com/empty.html','Åbn den tomme officielle wiki. Brug TiddlyWikis egen gem/download-knap til at hente en korrekt single-file HTML. Brug ikke browserens “Gem side som…”.'],
+      ['TiddlyWiki · sådan gemmes den korrekt','https://tiddlywiki.com/static/Saving%2520with%2520the%2520HTML5%2520saver.html','Forklarer den indbyggede HTML5-saver. Når filen er hentet, kan den importeres i TavleAppen som HTMLWidget.'],
+      ['TiddlyWiki · referencer og guides','https://tiddlywiki.com/','Officiel dokumentation, guides og referencer. Brug denne som opslags- og inspirationsside.']
+    ]
+  },
   {
     name:'Simuleringer og matematik',
     desc:'Interaktive fagværktøjer, som ofte fungerer godt i iframe og kan bruges direkte på tavlen.',
@@ -31534,6 +31823,14 @@ function wireQuickPinButton(){
 
 function showQuickHelp(){
   showModal(`<h2>Hjælp</h2>
+
+  <style id="safe455uH12-help-scroll-guard-css">
+    #modal:has(#closeHelp){
+      overscroll-behavior:contain!important;
+      -webkit-overflow-scrolling:auto!important;
+      scroll-behavior:auto!important;
+    }
+  </style>
   <style id="safe455a-help-manual-css">
     .helpQuickStart{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 12px}
     .helpQuickCard{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:10px 12px;line-height:1.3}
@@ -31675,7 +31972,9 @@ function showQuickHelp(){
           <li>Brug knappen i widget-bjælken til at skifte mellem webvisning og tekst/redigering.</li>
           <li>Klik eller tap i webvisningen for at bruge den indlejrede side. Brug <b>Esc</b> eller klik uden for widgetten for at komme tilbage til tavlen.</li>
           <li>Zoomknapperne i widget-bjælken ændrer visningen og huskes for den enkelte HTML-widget.</li>
-          <li><b>TiddlyWiki</b> kan gemme sine ændringer direkte i TavleAppens lokale lagring og bevare sine ændringer mellem sessioner.</li>
+          <li><b>TiddlyWiki</b> bør hentes med TiddlyWikis egen download/save-metode og derefter importeres som HTMLWidget. Brug ikke browserens “Gem side som…”.</li>
+          <li>Store HTML-/TiddlyWiki-filer indlæses sikkert med manuel start, så appen ikke låser ved opstart.</li>
+          <li>Når du henter en HTML-/TiddlyWiki-fil ud fra TavleAppen, eksporteres den rå gemte fil igen som HTML.</li>
           <li>Når en HTML-/TiddlyWiki-widget slettes permanent, ryddes dens gemte medie også, hvis det ikke bruges af andre widgets.</li>
         </ul>
       </div>
@@ -31713,9 +32012,12 @@ function showQuickHelp(){
       <div class="answer">
         <ul>
           <li><b>Shift+Q</b> opretter KaPardy.</li>
-          <li>Der er tre spilformer: <b>Kahoot</b>, <b>Jeopardy</b> og <b>Mester</b>.</li>
-          <li>Når KaPardy er aktiv, vælger <b>K</b>, <b>J</b> og <b>M</b> spilform.</li>
+          <li>Der er fire spilformer: <b>Kahoot</b>, <b>Jeopardy</b>, <b>Mester</b> og <b>Mix</b>.</li>
+          <li><b>Mix</b> blander spilformerne, så samme spørgebank kan bruges mere varieret.</li>
+          <li>Når KaPardy er aktiv, vælger <b>K</b>, <b>J</b> og <b>M</b> spilform. Mix vælges fra KaPardy-widgettens egne knapper.</li>
           <li>I Kahoot bruges <b>1–4</b> til svar. I Jeopardy/Mester bruges <b>1/R</b>, <b>2/H</b>, <b>3/F</b> til rigtigt, halvt og forkert.</li>
+          <li>Du kan vælge at skjule point undervejs, hvis spillet skal føles mindre konkurrencepræget.</li>
+          <li><b>AI-promptgeneratoren</b> hjælper med at lave spørgsmål i et format, der kan importeres tilbage i KaPardy.</li>
           <li>Importér gerne fra CSV/Excel via Datawidget. Første svar er det korrekte svar.</li>
         </ul>
       </div>
@@ -31796,7 +32098,7 @@ function showQuickHelp(){
   </div>
 
   <div class="helpPager">
-    <span>Hurtigst i gang: N · Shift+A · Shift+I · P/R · F · Shift+T · D · Mellemrum · I Hjælp: ↑↓ scroll · ←→ sektion · Mellemrum åbner Mere</span>
+    <span>Hurtigst i gang: N · Shift+A · Shift+I · P/R · F · Shift+T · D · Mellemrum · I Hjælp: → næste/åbn · ← forrige/luk undervejs · ↑/↓ scroll · Enter skifter · Esc lukker</span>
     <button id="closeHelp">Luk</button>
   </div>`);
   modal.querySelector('#closeHelp').onclick=closeModal;
@@ -31822,15 +32124,36 @@ function showQuickHelp(){
       try{tools[safe455bHelpWidgetIndex].focus({preventScroll:true});}catch(_e){}
     }
   }
-  function safe455bMoveHelpSection(delta){
+  function safe455bMoveHelpSection(delta,opts){
     if(!safe455bHelpSections.length)return;
+    opts=opts||{};
     safe455bHelpSectionIndex=Math.max(0,Math.min(safe455bHelpSections.length-1,safe455bHelpSectionIndex+delta));
     safe455bHelpWidgetIndex=-1;
     const sec=safe455bHelpSections[safe455bHelpSectionIndex];
     if(sec){
-      sec.open=true;
+      if(opts.open!==false)sec.open=true;
       safe455bMarkHelp();
-      try{sec.scrollIntoView({block:'start',behavior:'smooth'});}catch(_e){sec.scrollIntoView();}
+      // SAFE455uH13: scroll-hjælperne lå tidligere kun inde i keyhandlerens scope.
+      // Derfor blev næste sektion åbnet, men ikke scrollet ind i synligt felt.
+      const after=function(fn){
+        try{requestAnimationFrame(function(){requestAnimationFrame(fn);});}
+        catch(_e){setTimeout(fn,0);}
+      };
+      after(function(){
+        try{
+          // SAFE455uH14: Når en sektion åbnes, skal sektionstitlen stå øverst.
+          // Når en sektion er lukket, skal dens titel stå nederst i modalens synlige felt.
+          const title=sec.querySelector('summary')||sec;
+          const max=Math.max(0,(modal.scrollHeight||0)-(modal.clientHeight||0));
+          const top=title.offsetTop||sec.offsetTop||0;
+          const h=title.offsetHeight||42;
+          let target=(opts.place==='bottom')?top-(modal.clientHeight||500)+h+12:top-8;
+          target=Math.max(0,Math.min(max,target));
+          modal.scrollTo({top:target,behavior:'auto'});
+        }catch(_e){
+          try{(sec.querySelector('summary')||sec).scrollIntoView({block:(opts.place==='bottom'?'end':'start'),behavior:'auto'});}catch(_x){}
+        }
+      });
     }
   }
   function safe455bCycleHelpWidget(delta){
@@ -31846,7 +32169,7 @@ function showQuickHelp(){
   }
   window.__safe455bHelpKeyHandler=function(e){
     if(!safe455bHelpIsOpen()){
-      try{document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
+      try{document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);window.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);modal.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
       window.__safe455bHelpKeyHandler=null;
       return;
     }
@@ -31856,26 +32179,108 @@ function showQuickHelp(){
     // SAFE455n12d: I Hjælp skal piletasterne stadig styre Hjælp, selv hvis checkboxen
     // "Vis kontekstuelle hints" har fokus. Almindelige tekstfelter bevarer andre taster.
     if(typing && !helpArrowKey)return;
-    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
-      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-      const dy=e.key==='ArrowDown'?120:-120;
-      try{modal.scrollBy({top:dy,behavior:'smooth'});}catch(_e){modal.scrollTop+=dy;}
-      return;
+    function safe455bSyncHelpIndex(){
+      try{
+        const cur=modal.querySelector('.safe455bHelpSectionCurrent');
+        const i=cur?safe455bHelpSections.indexOf(cur):-1;
+        if(i>=0)safe455bHelpSectionIndex=i;
+      }catch(_e){}
     }
-    if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+    function safe455bAfterHelpLayout(fn){
+      try{requestAnimationFrame(function(){requestAnimationFrame(fn);});}
+      catch(_e){setTimeout(fn,0);}
+    }
+    function safe455bClampHelpScroll(){
+      try{
+        const max=Math.max(0,(modal.scrollHeight||0)-(modal.clientHeight||0));
+        let y=Number(modal.scrollTop||0);
+        if(!isFinite(y)||y<0)y=0;
+        if(y>max)y=max;
+        if(Math.abs((modal.scrollTop||0)-y)>0.5)modal.scrollTop=y;
+      }catch(_e){}
+    }
+    function safe455bScrollHelp(delta){
+      try{
+        const box=modal;
+        safe455bClampHelpScroll();
+        const amount=Math.max(42, Math.round((box.clientHeight||500)*0.32));
+        const max=Math.max(0,(box.scrollHeight||0)-(box.clientHeight||0));
+        const next=Math.max(0,Math.min(max,(box.scrollTop||0)+delta*amount));
+        box.scrollTo({top:next,behavior:'auto'});
+        safe455bAfterHelpLayout(safe455bClampHelpScroll);
+      }catch(_e){try{modal.scrollTop=Math.max(0,modal.scrollTop+(delta*160));safe455bAfterHelpLayout(safe455bClampHelpScroll);}catch(_x){}}
+    }
+    function safe455bScrollSection(sec,place){
+      if(!sec)return;
+      try{
+        safe455bClampHelpScroll();
+        // SAFE455uH14: Brug summary/sektionstitlen som anker, ikke hele details-højden.
+        // Åben sektion: titel øverst. Lukket/forladt sektion: titel nederst.
+        const title=sec.querySelector('summary')||sec;
+        const max=Math.max(0,(modal.scrollHeight||0)-(modal.clientHeight||0));
+        const top=title.offsetTop||sec.offsetTop||0;
+        const h=title.offsetHeight||42;
+        let target=top-8;
+        if(place==='bottom')target=top-(modal.clientHeight||500)+h+12;
+        target=Math.max(0,Math.min(max,target));
+        modal.scrollTo({top:target,behavior:'auto'});
+        safe455bAfterHelpLayout(safe455bClampHelpScroll);
+      }catch(_e){try{(sec.querySelector('summary')||sec).scrollIntoView({block:place==='bottom'?'end':'start',behavior:'auto'});safe455bAfterHelpLayout(safe455bClampHelpScroll);}catch(_x){}}
+    }
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+      // SAFE455uH10: Op/ned skal scrolle Hjælp-modalens indhold og må ikke nå tavlens widget-navigation bagved.
       e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-      safe455bMoveHelpSection(e.key==='ArrowRight'?1:-1);
-      return;
+      safe455bScrollHelp(e.key==='ArrowDown'?1:-1);
+      return false;
+    }
+    if(e.key==='ArrowRight'){
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      // Højre: åbn den aktuelle sektion først; hvis den allerede er åben, gå ned til næste og åbn den.
+      safe455bSyncHelpIndex();
+      const current=safe455bHelpSections[safe455bHelpSectionIndex];
+      if(current && !current.open){
+        current.open=true;
+        safe455bHelpWidgetIndex=-1;
+        safe455bMarkHelp();
+        safe455bAfterHelpLayout(function(){safe455bScrollSection(current,'top');});
+      }else{
+        safe455bMoveHelpSection(1,{open:true,place:'top'});
+      }
+      return false;
+    }
+    if(e.key==='ArrowLeft'){
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      // Venstre: luk den sektion, man forlader, gå opad, og hold den lukkede sektion nederst i visningen.
+      safe455bSyncHelpIndex();
+      const leaving=safe455bHelpSections[safe455bHelpSectionIndex];
+      if(leaving)leaving.open=false;
+      if(safe455bHelpSections.length){
+        safe455bHelpSectionIndex=Math.max(0,safe455bHelpSectionIndex-1);
+        safe455bHelpWidgetIndex=-1;
+        safe455bMarkHelp();
+        safe455bAfterHelpLayout(function(){
+          if(leaving)safe455bScrollSection(leaving,'bottom');
+          else safe455bClampHelpScroll();
+        });
+      }
+      return false;
     }
     if(e.key===' '||e.code==='Space'){
       e.preventDefault();e.stopPropagation();
-      try{document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
+      try{document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);window.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);modal.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
       window.__safe455bHelpKeyHandler=null;
       closeModal();
       setTimeout(()=>{try{ if(typeof showMoreTools==='function') showMoreTools(); }catch(_e){}},40);
       return;
     }
     if(e.key==='Enter'){
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      const sec=safe455bHelpSections[safe455bHelpSectionIndex];
+      if(sec){
+        sec.open=!sec.open;
+        safe455bMarkHelp();
+        safe455bScrollSection(sec,'top');
+      }
       return;
     }
     if(e.key==='Escape'){
@@ -31885,6 +32290,8 @@ function showQuickHelp(){
     }
   };
   document.addEventListener('keydown', window.__safe455bHelpKeyHandler, true);
+  try{window.addEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
+  try{modal.addEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
   safe455bMarkHelp();
   const ht=modal.querySelector('#helpHintsToggle');
   if(ht)ht.onchange=e=>setHintsEnabled(e.target.checked);
@@ -45448,6 +45855,29 @@ body.safe453i185uTimerPresentation [data-stopwatch-panel],
     const modal=document.getElementById('modal');
     const inside=modal && e.target && modal.contains(e.target);
 
+    /* SAFE455uH6: Tavleoversigt har sin egen lokale keyhandler.
+       Den sene generelle modal-guard må ikke stoppe pile/Enter/Esc,
+       før Tavleoversigts-handleren på document kan nå at flytte markeringen. */
+    try{
+      const boardOverview=modal && modal.querySelector && modal.querySelector('[data-safe-board-overview="1"],.safe271BoardOverview');
+      if(boardOverview){
+        const boardKeys=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter','Escape','Delete','Backspace',' ','Spacebar'];
+        if(boardKeys.includes(key) || e.code==='Space')return;
+      }
+    }catch(_e){}
+
+    /* SAFE455uH7: Hjælp har også sin egen lokale keyhandler.
+       Den bruger ←/→ til sektionsskift og ↑/↓ til scroll.
+       Den generelle modal-guard må derfor ikke sluge disse taster,
+       før Hjælps handler på document kan nå at reagere. */
+    try{
+      const helpOpen=modal && modal.querySelector && modal.querySelector('#closeHelp');
+      if(helpOpen){
+        const helpKeys=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter','Escape',' ','Spacebar'];
+        if(helpKeys.includes(key) || e.code==='Space')return;
+      }
+    }catch(_e){}
+
     /* Esc lukker modal og må ikke nå tavlens fokus/presentation/iframe-logik. */
     if(key==='Escape'){
       e.preventDefault();
@@ -49132,6 +49562,390 @@ body.focus-maximized .widget[data-type="pdf"].focusTarget .pdfControls{
       var w=e.target&&e.target.closest&&e.target.closest('.widget[data-type="html"]');
       if(!w && window.clearIframeControl)window.clearIframeControl();
     }catch(_e){}
+  },true);
+})();
+</script>
+
+
+<script id="safe455o-link-iframe-click-activate">
+/* SAFE455o: Link/iframe-widget aktiveres ved klik i selve webvisningen, så særskilt aktiver-knap kan undværes. */
+(function(){
+  if(window.__safe455oLinkClickActivate)return;
+  window.__safe455oLinkClickActivate=true;
+  function widgetFrom(t){try{return t&&t.closest&&t.closest('.widget[data-type="link"]');}catch(_e){return null;}}
+  function activate(widget){
+    if(!widget)return;
+    try{
+      const id=widget.dataset&&widget.dataset.id;
+      if(id&&typeof window.setIframeControl==='function')window.setIframeControl(id,true);
+    }catch(_e){}
+    widget.classList.add('linkIframeActive','iframe-interaction-enabled','is-iframe-active');
+    try{const iframe=widget.querySelector('iframe'); if(iframe)iframe.style.pointerEvents='auto';}catch(_e){}
+    try{if(typeof select==='function'&&widget.dataset&&widget.dataset.id)select(widget.dataset.id,{editText:false});}catch(_e){}
+    try{if(typeof toast==='function')toast('Webside aktiv · ESC slipper');}catch(_e){}
+  }
+  document.addEventListener('pointerdown',function(e){
+    try{
+      const shield=e.target&&e.target.closest&&e.target.closest('.widget[data-type="link"] .linkIframeShield');
+      if(!shield)return;
+      const widget=widgetFrom(shield);
+      if(!widget)return;
+      e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      activate(widget);
+    }catch(_e){}
+  },true);
+})();
+</script>
+
+
+<style id="safe455u-link-iframe-polish-css">
+/* SAFE455u: LinkWidget UX-polering uden ændring af HTML/PDF/KaPardy.
+   - LinkMode er et roligt linkkort.
+   - IframeMode har kun de nødvendige værktøjer.
+   - Blyant skjules, fordi linkliste/redigering ligger i LinkMode. */
+.widget[data-type="link"] .mini [data-act="editLink"]{
+  display:none!important;
+}
+.widget[data-type="link"] .linkLinkedListBar.safe455oLinkListBar{
+  display:flex!important;
+  gap:8px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:8px 10px!important;
+  background:rgba(248,250,252,.86)!important;
+  border-bottom:1px solid rgba(226,232,240,.85)!important;
+  overflow-x:auto!important;
+  white-space:nowrap!important;
+}
+.widget[data-type="link"] .linkLinkedListBar.safe455oLinkListBar button{
+  background:#eef2ff!important;
+  color:#1f2937!important;
+  border:1px solid rgba(203,213,225,.9)!important;
+  border-radius:999px!important;
+  padding:7px 12px!important;
+  font-weight:900!important;
+  box-shadow:0 1px 2px rgba(15,23,42,.06)!important;
+}
+.widget[data-type="link"] .linkLinkedListBar.safe455oLinkListBar .linkListStatus{
+  max-width:44%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.widget[data-type="link"] .safe455oLinkMode{
+  min-height:calc(100% - 42px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:16px!important;
+  padding:28px 22px!important;
+  background:radial-gradient(circle at 50% 15%,#ffffff 0,#f8fafc 42%,#eef7f6 100%)!important;
+  border-radius:0 0 12px 12px!important;
+  text-align:center!important;
+}
+.widget[data-type="link"] .safe455oLinkHero{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:0!important;
+  max-width:100%!important;
+}
+.widget[data-type="link"] .safe453i79LinkNav{
+  gap:10px!important;
+  max-width:min(92%,760px)!important;
+}
+.widget[data-type="link"] .safe453i79Arrow{
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  border-radius:14px!important;
+  background:#6d5dfc!important;
+  color:#fff!important;
+  box-shadow:0 8px 18px rgba(109,93,252,.22)!important;
+}
+.widget[data-type="link"] .safe453i79LinkNavTitle{
+  font-size:clamp(28px,5vw,56px)!important;
+  font-weight:950!important;
+  max-width:100%!important;
+}
+.widget[data-type="link"] .safe453i79LinkNavTitle a,
+.widget[data-type="link"] .safe455oLinkHero>a{
+  color:#2563eb!important;
+  text-decoration:underline!important;
+  text-underline-offset:5px!important;
+  font-size:clamp(30px,5vw,60px)!important;
+  font-weight:950!important;
+}
+.widget[data-type="link"] .safe455oLinkUrl{
+  display:block!important;
+  max-width:min(86%,780px)!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  color:#111827!important;
+  font-size:clamp(15px,2.2vw,25px)!important;
+  font-weight:800!important;
+  opacity:.86!important;
+}
+.widget[data-type="link"] .safe455oLinkHint{
+  color:#64748b!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+.widget[data-type="link"] .linkIframeFallbackHint{
+  pointer-events:none!important;
+}
+.widget[data-type="link"].linkIframeActive .linkIframeFallbackHint{
+  opacity:.22!important;
+}
+body.focus-mode .widget[data-type="link"] .linkIframeShield,
+body.focus-edit .widget[data-type="link"] .linkIframeShield,
+body.focus-presentation .widget[data-type="link"] .linkIframeShield,
+body.focus-maximized .widget[data-type="link"] .linkIframeShield,
+.app.present .widget[data-type="link"] .linkIframeShield{
+  display:block!important;
+  pointer-events:auto!important;
+}
+body.focus-mode .widget[data-type="link"].linkIframeActive .linkIframeShield,
+body.focus-edit .widget[data-type="link"].linkIframeActive .linkIframeShield,
+body.focus-presentation .widget[data-type="link"].linkIframeActive .linkIframeShield,
+body.focus-maximized .widget[data-type="link"].linkIframeActive .linkIframeShield,
+.app.present .widget[data-type="link"].linkIframeActive .linkIframeShield{
+  display:none!important;
+  pointer-events:none!important;
+}
+</style>
+
+<script id="safe455u-link-iframe-activation-polish">
+/* SAFE455u: Stabil aktivering af LinkWidget iframe i normal, fokus og maksimeret tilstand.
+   Rører ikke drag/drop-flowet når iframen allerede er aktiv. */
+(function(){
+  if(window.__safe455uLinkIframeActivationPolish)return;
+  window.__safe455uLinkIframeActivationPolish=true;
+
+  function linkWidgetFromTarget(t){
+    try{return t&&t.closest&&t.closest('.widget[data-type="link"]');}catch(_e){return null;}
+  }
+  function isChromeOrHandle(t){
+    try{return !!(t&&t.closest&&t.closest('.chrome,.mini,.resize,.rotater,button,input,textarea,select,.modal,.modalBackdrop'));}catch(_e){return false;}
+  }
+  function isIframeMode(widget){
+    try{return !!(widget&&widget.querySelector('.linkIframeBox,.linkIframeFrame iframe,.safe453i223YoutubeFrame iframe'));}catch(_e){return false;}
+  }
+  function activate(widget){
+    if(!widget)return false;
+    const id=widget.dataset&&widget.dataset.id?String(widget.dataset.id):'';
+    if(!id)return false;
+    try{
+      if(typeof window.safe453i226SetLinkIframeActive==='function')window.safe453i226SetLinkIframeActive(id,true);
+      else if(typeof window.setIframeControl==='function')window.setIframeControl(id,true);
+    }catch(_e){}
+    widget.classList.add('linkIframeActive','iframe-interaction-enabled','is-iframe-active');
+    try{
+      const iframe=widget.querySelector('iframe');
+      if(iframe)iframe.style.pointerEvents='auto';
+    }catch(_e){}
+    try{
+      const btn=widget.querySelector('[data-act="activateLinkIframe"]');
+      if(btn){btn.classList.add('active');btn.setAttribute('aria-pressed','true');}
+    }catch(_e){}
+    try{if(typeof select==='function')select(id,{editText:false});}catch(_e){}
+    try{if(typeof toast==='function')toast('Webside aktiv · ESC slipper');}catch(_e){}
+    return true;
+  }
+  function isActive(widget){
+    try{return widget&&widget.classList.contains('linkIframeActive');}catch(_e){return false;}
+  }
+  function polishLabels(root){
+    try{
+      (root||document).querySelectorAll('.widget[data-type="link"] .linkListStatus').forEach(function(btn){
+        if(btn.dataset.safe455uLabelDone==='1')return;
+        btn.dataset.safe455uLabelDone='1';
+        const txt=String(btn.textContent||'').replace(/^\s*🔗\s*/,'').trim();
+        if(txt)btn.textContent='🔗 Liste: '+txt;
+      });
+      (root||document).querySelectorAll('.widget[data-type="link"] .linkListPick').forEach(function(btn){
+        if(String(btn.textContent||'').trim()==='Vælg')btn.textContent='Vælg link';
+      });
+    }catch(_e){}
+  }
+
+  document.addEventListener('pointerdown',function(e){
+    try{
+      const widget=linkWidgetFromTarget(e.target);
+      if(!widget||!isIframeMode(widget)||isChromeOrHandle(e.target))return;
+      if(isActive(widget))return;
+      activate(widget);
+      /* Første tap aktiverer kun siden. Næste tap går til iframe-indholdet. */
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      return false;
+    }catch(_e){}
+  },true);
+
+  document.addEventListener('click',function(e){
+    try{
+      const widget=linkWidgetFromTarget(e.target);
+      if(!widget||!isIframeMode(widget)||isChromeOrHandle(e.target))return;
+      if(isActive(widget))return;
+      activate(widget);
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      return false;
+    }catch(_e){}
+  },true);
+
+  const mo=new MutationObserver(function(muts){
+    try{
+      muts.forEach(function(m){
+        if(m.addedNodes)m.addedNodes.forEach(function(n){
+          if(n&&n.nodeType===1)polishLabels(n);
+        });
+      });
+    }catch(_e){}
+  });
+  try{mo.observe(document.documentElement,{childList:true,subtree:true});}catch(_e){}
+  setTimeout(function(){polishLabels(document);},0);
+})();
+</script>
+
+<!-- SAFE455uA2: event-only LinkWidget iframe activation patch.
+     Baseline: SAFE455u. No render/template/toolbar changes.
+     Scope: only .widget[data-type="link"] iframe surface. -->
+<style id="safe455uA2-link-iframe-event-css">
+.widget[data-type="link"]:not(.linkIframeActive):not(.iframe-interaction-enabled):not(.is-iframe-active) .linkIframeFrame iframe{
+  pointer-events:none!important;
+}
+.widget[data-type="link"].linkIframeActive .linkIframeFrame iframe,
+.widget[data-type="link"].iframe-interaction-enabled .linkIframeFrame iframe,
+.widget[data-type="link"].is-iframe-active .linkIframeFrame iframe{
+  pointer-events:auto!important;
+}
+.widget[data-type="link"].linkIframeActive .linkIframeShield,
+.widget[data-type="link"].iframe-interaction-enabled .linkIframeShield,
+.widget[data-type="link"].is-iframe-active .linkIframeShield{
+  display:none!important;
+  pointer-events:none!important;
+}
+</style>
+<script id="safe455uA2-link-iframe-event-only">
+(function(){
+  'use strict';
+  if(window.__safe455uA2LinkIframeEventOnly)return;
+  window.__safe455uA2LinkIframeEventOnly=true;
+
+  function closest(el,sel){
+    try{return el&&el.closest?el.closest(sel):null;}catch(_e){return null;}
+  }
+  function isLinkWidget(el){
+    return !!(el && el.matches && el.matches('.widget[data-type="link"]'));
+  }
+  function widgetFromTarget(target){
+    var w=closest(target,'.widget[data-type="link"]');
+    return isLinkWidget(w)?w:null;
+  }
+  function isActive(widget){
+    return !!(widget && (
+      widget.classList.contains('linkIframeActive') ||
+      widget.classList.contains('iframe-interaction-enabled') ||
+      widget.classList.contains('is-iframe-active')
+    ));
+  }
+  function isWidgetControl(target){
+    return !!closest(target,'.chrome,.mini,.resize,.rotater,button,input,textarea,select,a,[contenteditable="true"]');
+  }
+  function isIframeSurface(target,widget){
+    if(!widget)return false;
+    var surface=closest(target,'.linkIframeShield,.linkIframeFrame');
+    return !!(surface && widget.contains(surface));
+  }
+  function syncButton(widget,on){
+    try{
+      var btn=widget.querySelector('[data-act="activateLinkIframe"]');
+      if(!btn)return;
+      btn.classList.toggle('active',!!on);
+      btn.setAttribute('aria-pressed',on?'true':'false');
+      btn.title=on?'Webside er aktiv':'Aktivér webside';
+    }catch(_e){}
+  }
+  function activate(widget){
+    if(!widget)return false;
+    var id=widget.getAttribute('data-id') || widget.dataset.id;
+    if(id && typeof window.setIframeControl==='function'){
+      try{window.setIframeControl(String(id),true);}catch(_e){}
+    }
+    widget.classList.add('linkIframeActive','iframe-interaction-enabled','is-iframe-active');
+    try{
+      var iframe=widget.querySelector('.linkIframeFrame iframe, iframe');
+      if(iframe)iframe.style.pointerEvents='auto';
+    }catch(_e){}
+    syncButton(widget,true);
+    try{
+      if(typeof window.syncIframeControl==='function')window.syncIframeControl();
+    }catch(_e){}
+    return true;
+  }
+  function handleActivationEvent(ev){
+    if(!ev || ev.defaultPrevented)return;
+    if(ev.type==='pointerdown' && ev.button!=null && ev.button!==0)return;
+    var widget=widgetFromTarget(ev.target);
+    if(!widget)return;
+    if(isActive(widget))return;
+    if(!isIframeSurface(ev.target,widget))return;
+    if(isWidgetControl(ev.target) && !closest(ev.target,'.linkIframeShield'))return;
+
+    activate(widget);
+
+    /* First click/tap only opens the page for interaction.
+       The next click/tap goes into the iframe itself. */
+    try{ev.preventDefault();}catch(_e){}
+    try{ev.stopPropagation();}catch(_e){}
+    try{if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}catch(_e){}
+  }
+
+  document.addEventListener('pointerdown',handleActivationEvent,true);
+  document.addEventListener('click',handleActivationEvent,true);
+  document.addEventListener('touchstart',handleActivationEvent,true);
+
+  /* If an existing active LinkWidget is re-rendered, re-apply iframe pointer events without touching markup. */
+  var mo=new MutationObserver(function(){
+    try{
+      document.querySelectorAll('.widget[data-type="link"].linkIframeActive, .widget[data-type="link"].iframe-interaction-enabled, .widget[data-type="link"].is-iframe-active').forEach(function(widget){
+        var iframe=widget.querySelector('.linkIframeFrame iframe, iframe');
+        if(iframe)iframe.style.pointerEvents='auto';
+        syncButton(widget,true);
+      });
+    }catch(_e){}
+  });
+  try{mo.observe(document.body,{childList:true,subtree:true});}catch(_e){}
+})();
+</script>
+
+
+<script id="safe455uH3-link-url-copy">
+/* SAFE455uH3: Kopiér URL fra LinkMode-kortet. Delegeret event, ingen render-manipulation. */
+(function(){
+  if(window.__safe455uH3LinkCopyInstalled)return;
+  window.__safe455uH3LinkCopyInstalled=true;
+  document.addEventListener('click',function(e){
+    var btn=e.target&&e.target.closest&&e.target.closest('.safe455hCopyUrl');
+    if(!btn)return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    var url=btn.getAttribute('data-copy-url')||'';
+    function done(ok){try{toast(ok?'Adresse kopieret':'Kunne ikke kopiere adressen');}catch(_e){}}
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){done(true)},function(){done(false)});return;}
+    }catch(_e){}
+    try{
+      var ta=document.createElement('textarea');
+      ta.value=url; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.left='-9999px';
+      document.body.appendChild(ta); ta.select();
+      var ok=document.execCommand('copy'); document.body.removeChild(ta); done(ok);
+    }catch(_e){done(false)}
   },true);
 })();
 </script>
