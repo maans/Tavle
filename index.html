@@ -14,6 +14,11 @@
 <!-- SAFE455uH26: DataRemix-navn konsolideret i brugerfladen, og den aktive DataRemix-modal får kontekst-?. -->
 <!-- SAFE455uH27: DataRemix ? lukker DataRemix-overlay før Hjælp åbnes, så Hjælp ikke ligger bagved. -->
 <!-- SAFE455uH29: Udtalelser HTMLWidget saver: ACK + global fallback til seneste Udtalelser-state. -->
+<!-- SAFE455uH30: TavleSessioner-demoliste og hash-baseret storage-silo via URL#SessionNavn. -->
+<!-- SAFE455uH31: Sessionsnavne slug-renses centralt, TavleSessioner/hjælp opdateres, og URL-celler i DataWidget får kopiér + Åbn. -->
+<!-- SAFE455uH32: Aktuel URL#Session registreres automatisk øverst i TavleSessioner-datalisten uden dubletter. -->
+<!-- SAFE455uH33: TavleSessioner tidsstemples med Oprettet og Senest åbnet ved automatisk session-registrering. -->
+<!-- SAFE455uH34: DataWidget URL-knapper får robust kopiér/åbn med Quine/iPad/file:// fallback og manuel kopiboks. -->
 <!-- SAFE455uH17: HTML/TiddlyWiki fra IndexedDB autoloades ikke; tung TW vises som manuel placeholder og eksporteres som rå Blob. -->
 <!-- SAFE455uH16: TiddlyWiki-demoliste udvidet med sikker download/import-vejledning til HTMLWidget. -->
 
@@ -88,7 +93,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.45 SAFE455uH29</title>
+<title>Interaktiv tavle v1.2.50 SAFE455uH34-session-link-fallbacks</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -6619,6 +6624,12 @@ body.focus-presentation .widget:not(.focused){
 .widget[data-dataset-view="true"] .content.text{background:linear-gradient(135deg,#f8fafc,#eef2ff)!important}
 .widget.datasetTextWidget .text textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace!important;font-size:15px!important;line-height:1.35!important;white-space:pre!important}
 .datasetCard{height:100%;padding:14px;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:9px;background:linear-gradient(135deg,#f8fafc,#eef2ff);border-radius:0 0 12px 12px;overflow:hidden}.widget:not(.selected) .datasetCard{border-radius:12px}.datasetTitle{font-size:22px;font-weight:950;display:flex;align-items:center;gap:8px}.datasetMeta{display:flex;gap:8px;flex-wrap:wrap}.datasetMeta span{background:white;border-radius:999px;padding:5px 9px;font-weight:850;color:#334155;box-shadow:0 1px 4px rgba(15,23,42,.08)}.datasetPreview{min-height:0;overflow:auto;background:white;border-radius:12px;border:1px solid #e2e8f0}.datasetPreview table{width:100%;border-collapse:collapse;font-size:13px}.datasetPreview th,.datasetPreview td{border-bottom:1px solid #e5e7eb;padding:6px 8px;text-align:left;white-space:nowrap}.datasetPreview th{position:sticky;top:0;background:#f8fafc;font-weight:900}.datasetActions{display:flex;gap:8px;flex-wrap:wrap}.datasetActions button{border:0;border-radius:999px;background:#6d5dfc;color:white;font-weight:900;padding:8px 12px}.datasetActions button.secondary{background:#e0e7ff;color:#312e81}.datasetActions [data-act="datasetPasteCsv"],.datasetActions .datasetPasteCSV{background:#fff!important;color:#111827!important;border:1px solid #cbd5e1!important;box-shadow:0 1px 4px rgba(15,23,42,.08)!important}.present .datasetActions,.present .datasetTextTools{display:none!important}
+.datasetUrlCell{display:inline-flex!important;align-items:center!important;gap:6px!important;white-space:nowrap!important}
+.datasetCopyUrlBtn{border:0!important;border-radius:999px!important;background:#eef2ff!important;color:#312e81!important;font-weight:950!important;padding:4px 8px!important;cursor:pointer!important;line-height:1!important}
+.datasetCopyUrlBtn:active{transform:scale(.96)}
+.datasetOpenUrlLink{display:inline-flex!important;align-items:center!important;border-radius:999px!important;background:#6d5dfc!important;color:#fff!important;text-decoration:none!important;font-weight:950!important;padding:4px 10px!important;line-height:1!important}
+.datasetOpenUrlLink:hover{text-decoration:underline!important}
+
 
 
 /* conservative hotfix: keep widget header controls inside narrow widgets */
@@ -11408,7 +11419,31 @@ const modalBack=document.getElementById('modalBack'), modal=document.getElementB
 // STATE / STORAGE
 ////////////////////////////////////////////////////////////
 /* KEY, selected, z og runtime-flags er global kerne-state i hoved-IIFE. Skift KEY kun hvis der ønskes ny storage-silo. */
-const KEY='maans_interaktiv_tavle_v162_test'; let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
+const TAVLE_BASE_STORAGE_KEY='maans_interaktiv_tavle_v162_test';
+function tavleSlugifySessionName(input){
+  try{
+    let s=String(input||'').trim();
+    if(!s)return '';
+    s=s.normalize('NFKD').replace(/[\u0300-\u036f]/g,'');
+    s=s.replace(/æ/g,'ae').replace(/Æ/g,'Ae').replace(/ø/g,'oe').replace(/Ø/g,'Oe').replace(/å/g,'aa').replace(/Å/g,'Aa');
+    s=s.replace(/[^A-Za-z0-9_-]+/g,'-').replace(/-+/g,'-').replace(/^[-_]+|[-_]+$/g,'').slice(0,64);
+    return s;
+  }catch(_e){return '';}
+}
+function tavleSessionHashId(){
+  try{
+    const raw=decodeURIComponent(String(location.hash||'').replace(/^#/,''));
+    const clean=tavleSlugifySessionName(raw);
+    if(clean && clean!==raw){
+      try{history.replaceState(null,'',String(location.href||'').replace(/#.*/, '')+'#'+encodeURIComponent(clean));}catch(_h){}
+    }
+    return clean || 'standard';
+  }catch(_e){return 'standard';}
+}
+const TAVLE_SESSION_ID=tavleSessionHashId();
+const KEY=TAVLE_BASE_STORAGE_KEY+(TAVLE_SESSION_ID==='standard'?'':'__session__'+TAVLE_SESSION_ID);
+try{window.__TAVLE_SESSION_ID__=TAVLE_SESSION_ID;window.__TAVLE_STORAGE_KEY__=KEY;window.tavleSlugifySessionName=tavleSlugifySessionName;}catch(_e){}
+let selected=null, z=20, drawMode='pen', isDrawing=false, timerHandles={};
 let activeIframeWidgetId=null;
 function isIframeControlActive(){
   return !!activeIframeWidgetId;
@@ -12258,6 +12293,13 @@ let state=(embeddedData&&embeddedData.state)||__loadedState||{active:0,slides:[c
 // Ensure a dataset store exists on the state object.  Each dataset
 // contains {id,name,type,columns,rows,sourceName,importedAt}.
 if(!state.datasets) state.datasets=[];
+try{
+  state.sessionMeta=state.sessionMeta||{};
+  state.sessionMeta.sessionId=TAVLE_SESSION_ID;
+  state.sessionMeta.storageKey=KEY;
+  state.sessionMeta.baseUrl=String(location.href||'').replace(/#.*/, '');
+  state.sessionMeta.lastOpenedAt=Date.now();
+}catch(_e){}
 if(embeddedData&&embeddedData.wheelLists){try{localStorage.setItem('maans_wheel_lists',JSON.stringify(embeddedData.wheelLists))}catch(e){}}
 if(embeddedData&&embeddedData.settings){try{Object.entries(embeddedData.settings).forEach(([k,v])=>localStorage.setItem(k,v))}catch(e){}}
 
@@ -13143,6 +13185,121 @@ function updateDatasetInState(ds){
   if(i>=0)state.datasets[i]=ds; else state.datasets.push(ds);
   save();
 }
+
+/* SAFE455uH33: Hvis appen åbnes med URL#SessionNavn, registreres den aktuelle
+   session automatisk i TavleSessioner-datalisten. Rækken flyttes øverst uden
+   dubletter og tidsstemples, så man kan se både første registrering og seneste
+   åbning. Samme slug-regel bruges til storage-key, URL, dataliste og links. */
+function safe455uH33SessionTimestamp(date){
+  try{
+    const d=date?new Date(date):new Date();
+    if(!isFinite(d.getTime()))return '';
+    const pad=n=>String(n).padStart(2,'0');
+    return pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+  }catch(_e){return '';}
+}
+function safe455uH32CurrentSessionRow(existingCreatedAt){
+  try{
+    const id=(typeof TAVLE_SESSION_ID!=='undefined'&&TAVLE_SESSION_ID)?String(TAVLE_SESSION_ID):'standard';
+    const base=String(location.href||'').replace(/#.*/, '');
+    const url=(id==='standard')?base:(base+'#'+encodeURIComponent(id));
+    const note=(id==='standard')?'Samme app uden #navn. Bruger den oprindelige TavleApp-storage.':'Aktuel session — opdaget fra adressen, appen er åbnet med.';
+    const now=safe455uH33SessionTimestamp();
+    const created=String(existingCreatedAt||'').trim()||now;
+    return [id==='standard'?'Standard':id,url,note,created,now];
+  }catch(_e){return null;}
+}
+function safe455uH32NormalizeSessionRow(row){
+  try{
+    const r=Array.isArray(row)?row.slice(0,5):[];
+    while(r.length<5)r.push('');
+    let title=String(r[0]||'').trim();
+    const url=String(r[1]||'').trim();
+    if(title && title!=='Standard'){
+      title=(typeof tavleSlugifySessionName==='function'?tavleSlugifySessionName(title):title.replace(/\s+/g,'-'))||title;
+    }
+    r[0]=title||'Session';
+    r[1]=url;
+    r[2]=String(r[2]||'');
+    r[3]=String(r[3]||'');
+    r[4]=String(r[4]||'');
+    return r;
+  }catch(_e){return ['Session','','','',''];}
+}
+function safe455uH32SessionRowKey(row){
+  try{
+    const r=safe455uH32NormalizeSessionRow(row);
+    const title=String(r[0]||'');
+    const url=String(r[1]||'');
+    const hash=decodeURIComponent((url.split('#')[1]||'')).trim();
+    const slug=(typeof tavleSlugifySessionName==='function'?tavleSlugifySessionName(hash||title):(hash||title).replace(/\s+/g,'-'));
+    return slug||title||url;
+  }catch(_e){return String((row&&row[0])||'');}
+}
+function safe455uH32UpsertCurrentSessionInDataset(ds,currentRowSeed){
+  if(!ds||!currentRowSeed)return false;
+  ds.columns=['Titel','URL','Note','Oprettet','Senest åbnet'];
+  ds.type=ds.type||'link-list';
+  ds.sourceType=ds.sourceType||'session-list';
+  ds.sourceName=ds.sourceName||'TavleSessioner';
+  const rows=Array.isArray(ds.rows)?ds.rows:[];
+  const seedKey=safe455uH32SessionRowKey(currentRowSeed);
+  let existingCreated='';
+  rows.forEach(function(row){
+    try{
+      if(safe455uH32SessionRowKey(row)===seedKey){
+        const r=safe455uH32NormalizeSessionRow(row);
+        if(!existingCreated)existingCreated=String(r[3]||'');
+      }
+    }catch(_e){}
+  });
+  const currentRow=safe455uH32CurrentSessionRow(existingCreated);
+  const currentKey=safe455uH32SessionRowKey(currentRow);
+  const out=[currentRow];
+  const seen=new Set([currentKey]);
+  rows.forEach(function(row){
+    const r=safe455uH32NormalizeSessionRow(row);
+    const key=safe455uH32SessionRowKey(r);
+    if(!key||seen.has(key))return;
+    seen.add(key);
+    out.push(r);
+  });
+  const before=JSON.stringify({columns:ds.columns,rows:ds.rows||[]});
+  ds.rows=out;
+  ds.updatedAt=Date.now();
+  return before!==JSON.stringify({columns:ds.columns,rows:out});
+}
+function safe455uH32RegisterCurrentSession(){
+  try{
+    const id=(typeof TAVLE_SESSION_ID!=='undefined'&&TAVLE_SESSION_ID)?String(TAVLE_SESSION_ID):'standard';
+    if(!id||id==='standard')return false;
+    state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+    const currentRow=safe455uH32CurrentSessionRow();
+    if(!currentRow)return false;
+    let changed=false;
+    let lists=state.datasets.filter(function(ds){return String(ds&&ds.name||'').trim()==='TavleSessioner';});
+    if(!lists.length){
+      const ds={
+        id:uid(),
+        name:'TavleSessioner',
+        type:'link-list',
+        columns:['Titel','URL','Note','Oprettet','Senest åbnet'],
+        rows:[currentRow],
+        sourceName:'TavleSessioner',
+        sourceType:'session-list',
+        importedAt:Date.now(),
+        updatedAt:Date.now()
+      };
+      state.datasets.push(ds);
+      changed=true;
+    }else{
+      lists.forEach(function(ds){if(safe455uH32UpsertCurrentSessionInDataset(ds,currentRow))changed=true;});
+    }
+    if(changed)save({silent:true});
+    return changed;
+  }catch(_e){return false;}
+}
+try{safe455uH32RegisterCurrentSession();}catch(_e){}
 function datasetToDelimitedText(ds,delim){
   delim=delim||',';
   const cols=Array.isArray(ds&&ds.columns)?ds.columns:[];
@@ -13455,10 +13612,25 @@ function datasetPreviewHtml(ds){
   const cols=Array.isArray(ds.columns)?ds.columns:[];
   const rows=Array.isArray(ds.rows)?ds.rows:[];
   const maxCols=Math.min(cols.length,8);
+  function isUrlColumnName(c){return /^(url|link|href|adresse|sessionlink|sessionslink)$/i.test(String(c||'').trim());}
+  function normalizePreviewUrl(v){
+    const raw=String(v||'').trim();
+    if(!raw)return '';
+    if(/^#/ .test(raw))return String(location.href||'').replace(/#.*/, '')+raw;
+    if(/^(https?:|file:|blob:|data:|mailto:|tel:)/i.test(raw))return raw;
+    return '';
+  }
+  function cellHtml(value,colName){
+    const decoded=safe87DecodeCell(value||'');
+    const raw=String(decoded||'').trim();
+    const href=(isUrlColumnName(colName)||/^(https?:|file:|#)/i.test(raw))?normalizePreviewUrl(raw):'';
+    if(!href)return esc(decoded);
+    return `<span class="datasetUrlCell"><button type="button" class="datasetCopyUrlBtn" data-dataset-copy-url="${esc(href)}" title="Kopiér link">⧉</button><a class="datasetOpenUrlLink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(href)}">Åbn</a></span>`;
+  }
   // SAFE174: grupperesultater må ikke visuelt afkortes til de første få grupper.
   const maxRows=(ds.type==='groups-results') ? rows.length : Math.min(rows.length,16);
   const head=cols.slice(0,maxCols).map(c=>'<th>'+esc(safe87DecodeCell(c||'Kolonne'))+'</th>').join('')+(cols.length>maxCols?'<th>…</th>':'');
-  const body=rows.slice(0,maxRows).map(r=>'<tr>'+Array.from({length:maxCols},(_,i)=>'<td>'+esc(safe87DecodeCell((r||[])[i]||''))+'</td>').join('')+(cols.length>maxCols?'<td>…</td>':'')+'</tr>').join('');
+  const body=rows.slice(0,maxRows).map(r=>'<tr>'+Array.from({length:maxCols},(_,i)=>'<td>'+cellHtml((r||[])[i]||'',cols[i]||'')+'</td>').join('')+(cols.length>maxCols?'<td>…</td>':'')+'</tr>').join('');
   const usedBy=safe376UsersOfDataset(ds.id||'');
   const dataWidgetHit=safe376DatasetWidgetInfo(ds.id||'');
   const isTempOpen=!!(dataWidgetHit&&dataWidgetHit.w&&dataWidgetHit.w.data&&dataWidgetHit.w.data.sourceOpen);
@@ -13467,6 +13639,83 @@ function datasetPreviewHtml(ds){
   // Den interne dataset-linkknap fjernes her, så brugeren ikke møder to linkknapper med samme funktion.
   const linkBtn=(!isTempOpen&&usedBy.length)?`<button type="button" class="safe376DataLinkBtn" data-safe376-users="${esc(ds.id)}" title="Vis widgets der bruger denne datawidget">🔗 ${esc(linkLabel)}</button>`:'';
   return `<div class="datasetCard"><div class="datasetTitle"><span class="datasetTitleMain"><span>📊</span><span class="datasetTitleName">${esc(ds.name||'Datasæt')}</span></span><span class="datasetTitleTools widget-control">${linkBtn}<button type="button" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">📥</button></span></div><div class="datasetMeta"><span>${rows.length} rækker</span><span>${cols.length} kolonner</span><span>${esc((ds.type||'csv').toUpperCase())}</span></div><div class="datasetPreview"><table><thead><tr>${head}</tr></thead><tbody>${body||'<tr><td>Ingen rækker</td></tr>'}</tbody></table></div><div class="datasetActions"><button type="button" class="secondary" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">⬇️ Indsæt CSV</button><button type="button" class="secondary" data-act="datasetDownloadCsv">CSV</button></div></div>`;
+}
+/* SAFE455uH34: Robust kopiér/åbn for DataWidget URL-celler.
+   Quine, iPad og file:// kan blokere navigator.clipboard eller window.open.
+   Derfor: prøv først direkte handling, ellers vis en manuel kopiboks. */
+function safe455uH34ManualLinkBox(val,reason){
+  try{
+    const link=String(val||'');
+    if(!link)return;
+    const msg=reason||'Hvis automatisk kopi/åbn blokeres, kan du kopiere linket herfra.';
+    showModal(`<h2>Sessionslink</h2><p style="font-weight:800;opacity:.75;line-height:1.35">${esc(msg)}</p><textarea id="safe455uH34ManualLink" readonly style="width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px;padding:10px;font:13px ui-monospace,SFMono-Regular,Menlo,monospace">${esc(link)}</textarea><div class="calendarModalBtns"><button id="safe455uH34SelectLink" class="primary">Marker link</button><button id="safe455uH34TryOpen">Prøv at åbne igen</button><button id="close">Luk</button></div>`);
+    setTimeout(function(){
+      try{const ta=document.getElementById('safe455uH34ManualLink'); if(ta){ta.focus();ta.select();}}
+      catch(_e){}
+      try{const b=document.getElementById('safe455uH34SelectLink'); if(b)b.onclick=function(){const ta=document.getElementById('safe455uH34ManualLink'); if(ta){ta.focus();ta.select();try{document.execCommand('copy');toast('Link markeret/kopieret');}catch(_e){toast('Link markeret');}}};}
+      catch(_e){}
+      try{const o=document.getElementById('safe455uH34TryOpen'); if(o)o.onclick=function(){safe455uH34OpenUrl(link,true);};}
+      catch(_e){}
+    },30);
+  }catch(_e){try{toast('Kunne ikke vise linket');}catch(__e){}}
+}
+function safe455uH31CopyText(text){
+  const val=String(text||'');
+  if(!val)return;
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(val).then(function(){toast('Link kopieret');},function(){safe455uH31CopyFallback(val);});
+      return;
+    }
+  }catch(_e){}
+  safe455uH31CopyFallback(val);
+}
+function safe455uH31CopyFallback(val){
+  const link=String(val||'');
+  try{
+    const ta=document.createElement('textarea');
+    ta.value=link;
+    ta.setAttribute('readonly','');
+    ta.style.position='fixed';
+    ta.style.left='0';
+    ta.style.top='0';
+    ta.style.width='1px';
+    ta.style.height='1px';
+    ta.style.opacity='0.01';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    const ok=document.execCommand('copy');
+    ta.remove();
+    if(ok){toast('Link kopieret');return;}
+  }catch(_e){}
+  safe455uH34ManualLinkBox(link,'Automatisk kopiering blev blokeret. Marker linket og kopiér det manuelt.');
+}
+function safe455uH34OpenUrl(url,fromManual){
+  const link=String(url||'').trim();
+  if(!link)return false;
+  try{
+    const win=window.open(link,'_blank','noopener,noreferrer');
+    if(win){try{toast('Åbner link…');}catch(_e){} return true;}
+  }catch(_e){}
+  try{safe455uH31CopyText(link);}catch(_e){}
+  if(!fromManual)safe455uH34ManualLinkBox(link,'Appen/browseren blokerede åbning af linket. Linket er forsøgt kopieret — ellers kan du kopiere det herfra.');
+  return false;
+}
+if(!window.__safe455uH31CopyUrlWired){
+  window.__safe455uH31CopyUrlWired=true;
+  document.addEventListener('click',function(e){
+    const b=e.target&&e.target.closest&&e.target.closest('[data-dataset-copy-url]');
+    if(!b)return;
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    safe455uH31CopyText(b.getAttribute('data-dataset-copy-url')||'');
+  },true);
+  document.addEventListener('click',function(e){
+    const a=e.target&&e.target.closest&&e.target.closest('a.datasetOpenUrlLink');
+    if(!a)return;
+    const href=a.getAttribute('href')||'';
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    safe455uH34OpenUrl(href,false);
+  },true);
 }
 function openDatasetToListDialog(ds,sourceWidget){
   if(!ds||!Array.isArray(ds.rows)||!ds.rows.length){toast('Ingen data at lave liste af');return;}
@@ -30545,7 +30794,33 @@ function safe453i71CreateNewLinkList(w){
 }
 
 /* SAFE453i72: Demolister med undervisningsvenlige hjemmesider til link/iframe-widgetten. */
+function safe455uH30TavleSessionRows(){
+  const base=String(location.href||'').replace(/#.*/, '');
+  const slug=(name)=>{try{return (typeof tavleSlugifySessionName==='function'?tavleSlugifySessionName(name):String(name||'').trim().replace(/\s+/g,'-'))||'Session';}catch(_e){return 'Session';}};
+  const mk=(name,note)=>{
+    const id=slug(name);
+    return [id, base+'#'+encodeURIComponent(id), note||('Åbner TavleAppen i sin egen browser-session: '+id),'',''];
+  };
+  const current=(typeof TAVLE_SESSION_ID!=='undefined'&&TAVLE_SESSION_ID)?TAVLE_SESSION_ID:'standard';
+  const rows=[
+    ['Standard',base,'Samme app uden #navn. Bruger den oprindelige TavleApp-storage.','',''],
+    mk('TestSession A','Test: lav en lille ændring her og gem. Åbn derefter TestSession-B og kontroller at tavlerne er adskilt.'),
+    mk('TestSession B','Test: denne session skal starte med sin egen tomme/klassiske tavle og må ikke arve fra TestSession-A.'),
+    mk('Uge 23','Eksempel på ugebaseret tavlesession.'),
+    mk('Uge 24','Eksempel på næste ugebaserede tavlesession.'),
+    mk('Dansk eksamen','Eksempel på fag-/forløbsbaseret tavlesession.')
+  ];
+  if(current && current!=='standard' && !rows.some(r=>String(r[0])===String(current))){
+    rows.unshift((typeof safe455uH32CurrentSessionRow==='function'?safe455uH32CurrentSessionRow():mk(current,'Den aktuelle URL-hash/session, som appen er åbnet med lige nu.')));
+  }
+  return rows;
+}
 const SAFE453I72_LINK_DEMOS=[
+  {
+    name:'TavleSessioner',
+    desc:'Demoliste/template med links til adskilte TavleApp-sessioner ud fra den adresse appen er loadet fra: lokal fil, Quine eller GitHub Pages.',
+    rows:safe455uH30TavleSessionRows()
+  },
   {
     name:'TiddlyWiki',
     desc:'Tom wiki, officiel hjælp og kort importvejledning: hent/gem TiddlyWiki med dens egen save/download-metode og importer HTML-filen som HTMLWidget i TavleAppen.',
@@ -30640,10 +30915,18 @@ function safe453i72CreateDemoDataset(w,demo,openForEdit){
   if(!demo)return;
   const ds={
     id:uid(),
-    name:safe453i72DatasetName('Linkliste · '+demo.name),
+    name:safe453i72DatasetName(demo&&demo.name==='TavleSessioner'?'TavleSessioner':'Linkliste · '+demo.name),
     type:'link-list',
     columns:['Titel','URL','Note'],
-    rows:(demo.rows||[]).map(r=>[String(r[0]||''),String(r[1]||''),String(r[2]||'')]),
+    rows:(demo.rows||[]).map(r=>{
+      let title=String(r[0]||''), url=String(r[1]||''), note=String(r[2]||'');
+      if(demo&&demo.name==='TavleSessioner'&&title!=='Standard'){
+        title=(typeof tavleSlugifySessionName==='function'?tavleSlugifySessionName(title):title) || title;
+        const base=String(location.href||'').replace(/#.*/, '');
+        url=base+'#'+encodeURIComponent(title);
+      }
+      return [title,url,note];
+    }),
     sourceName:'Demoliste · '+demo.name,
     sourceType:'link-list-demo',
     importedAt:Date.now()
@@ -32148,6 +32431,23 @@ function showQuickHelp(){
         </ul>
       </div>
     </details>
+
+    <details>
+      <summary>Tavlesessioner — flere tavlerum i samme app</summary>
+      <div class="answer">
+        <ul>
+          <li>Du kan lave et nyt tavlerum ved at sætte <b>#Navn</b> efter TavleAppens adresse.</li>
+          <li>Eksempel: <b>.../Tavle.html#Uge-23</b></li>
+          <li>Appen rydder selv op i navnet: <b>Dansk eksamen 10kl</b> bliver fx til <b>Dansk-eksamen-10kl</b>. Æ/ø/å laves om til <b>ae/oe/aa</b>, så linket bliver stabilt.</li>
+          <li>Hver session husker sine egne tavler, widgets, PDF’er og links — som om du havde flere tavlerum i én app.</li>
+          <li>Brug demolisten <b>TavleSessioner</b> i en linkwidget/datawidget til at samle dine sessionslinks ét sted.</li>
+          <li>Åbner du appen direkte med fx <b>#23</b>, opdager appen selv sessionen og lægger den øverst i <b>TavleSessioner</b> uden dubletter — med dato/tid for <b>Oprettet</b> og <b>Senest åbnet</b>.</li>
+          <li><b>Vigtigt:</b> Sessioner gemmes kun i den browser og på den enhed, hvor de er lavet. Vil du bruge dem i en anden browser eller på en anden computer, skal du tage en backup med.</li>
+          <li>I en datawidget vises linkceller som <b>[⧉] Åbn</b>: <b>⧉</b> kopierer linket, og <b>Åbn</b> åbner det. Hvis Quine/iPad blokerer handlingen, viser appen linket i en lille kopiboks.</li>
+        </ul>
+      </div>
+    </details>
+
 
 
 
