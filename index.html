@@ -5,6 +5,8 @@
 <!-- SAFE453y: KaPardy/iPhone audio guard: gamle vinderlyd-timers stoppes før ny afspilning, og HTMLAudio fallback capped. -->
 
 
+<!-- SAFE453z: Fullscreen-knappen skjules ikke længere bare fordi Chrome rapporterer standalone/PWA. Den vises hvis requestFullscreen-metode findes. -->
+
 <!--
 SCRIPT-KORT / LOAD-RÆKKEFØLGE
 - Tidlig Cmd/Ctrl+O-guard ligger før resten for at fange browserens standardgenvej.
@@ -76,7 +78,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.45</title>
+<title>Interaktiv tavle v1.2.45 SAFE455g</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -6525,6 +6527,10 @@ body.draggingPayload #app::after{
 .widget[data-type="html"] .htmlTools{display:flex;gap:8px;flex-wrap:wrap;padding:8px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;align-items:center;z-index:2}
 .widget[data-type="html"] .htmlTools button{font-size:14px!important;padding:6px 12px!important;border-radius:999px!important}
 .widget[data-type="html"] .htmlTools button.active{background:#4f46e5!important;color:white!important}
+/* SAFE455g: Intern HTML-værktøjsrække fjernes. De eksisterende chrome-knapper bruges. */
+.widget[data-type="html"] .htmlStatusOnly{padding:4px 8px!important;background:#f8fafc!important;border-bottom:1px solid #eef2f7!important;min-height:0!important}
+.widget[data-type="html"] .htmlStatusOnly:empty{display:none!important}
+.widget[data-type="html"] .htmlTwSaveBadge{font-weight:800;color:#111827;opacity:.82;white-space:nowrap}
 .widget[data-type="html"] .htmlFrameWrap{position:relative;flex:1;min-height:0;background:white}
 .widget[data-type="html"] iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:white}
 .widget[data-type="html"] .htmlShield{position:absolute;inset:0;background:transparent;z-index:2}
@@ -13928,7 +13934,7 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="downloadHtml" title="Download HTML">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Skift til almindeligt link">▣</button><button data-act="activateLinkIframe" title="Lås op for webside-interaktion">🖱</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="reloadLinkIframe" title="Genindlæs/hjem til startadressen">⌂</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til iframe/webvisning">▣</button><button data-act="linkList" title="Linkliste">🔗</button><button data-act="addLink" title="Tilføj link til linklisten">＋</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -16998,6 +17004,8 @@ body.focus-maximized #safe453BoardZoomLayer > #draw{
 
 
 
+<!-- SAFE455i: Hjælp opdateret med brugervendt HTML/TiddlyWiki-afsnit og kortere importtekst. -->
+<!-- SAFE455h: HTMLWidget removes persistent TW status line and adds zoom controls to widget chrome. -->
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
   if(t==='pdf')addWidget('pdf',{});
@@ -24519,6 +24527,95 @@ function safe351OpenDataPicker(w,el){
   });
 }
 
+
+/* SAFE455d TW1: HTMLWidget TiddlyWiki save bridge, dirty-callback fix.
+   - Based on SAFE455c.
+   - Bevarer den stabile srcMediaRef/localStorage-persistens.
+   - Lille ændring kun i den injicerede TiddlyWiki-bro: efter vellykket parent-save markeres
+     TiddlyWikis saverHandler som clean, så den røde dirty-knap kan slukke.
+   - Ingen init/render/template/cleanup-refactor. */
+(function(){
+  if(window.__safe455cTwHtmlWidgetSaveBridge&&window.__safe455cTwHtmlWidgetSaveBridge.installed)return;
+  function findHtmlWidgetById(id){
+    id=String(id||'');
+    try{
+      const slides=(state&&state.slides)||[];
+      for(let si=0;si<slides.length;si++){
+        const ws=(slides[si]&&slides[si].widgets)||[];
+        for(let wi=0;wi<ws.length;wi++){
+          const w=ws[wi];
+          if(w&&String(w.id)===id&&w.type==='html')return w;
+        }
+      }
+    }catch(_e){}
+    return null;
+  }
+  function safeName(s){
+    s=String(s||'TiddlyWiki.html').trim()||'TiddlyWiki.html';
+    return /\.html?$/i.test(s)?s:(s+'.html');
+  }
+  function slimAndPersistTwWidget(w,ref,name){
+    try{
+      if(!w||!w.data||!ref)return false;
+      /* Vigtigt: en hel TiddlyWiki må ikke blive liggende i localStorage-state.
+         Den aktive version ligger i IndexedDB via srcMediaRef; state skal kun bære referencen. */
+      w.data.srcMediaRef=String(ref);
+      w.data.twMode='tiddlywiki';
+      if(name)w.data.name=name;
+      delete w.data.__previewUrl;
+      w.data.html='<!-- TiddlyWiki gemt i TavleMediaArchive via data.srcMediaRef: '+String(ref).replace(/--/g,'')+' -->';
+      var ok=false;
+      try{ok=!!save({silent:true});}catch(_e){ok=false;}
+      /* Ekstra lille livrem: skriv samme levende state direkte. Ingen init-hook, ingen renderændring. */
+      if(!ok){
+        try{localStorage.setItem(KEY, (typeof safe453i161Stringify==='function'?safe453i161Stringify(state):JSON.stringify(state)));ok=true;}catch(_e2){}
+      }
+      return ok;
+    }catch(_e){return false;}
+  }
+  async function saveTwHtml(payload){
+    const widgetId=String(payload&&payload.widgetId||'');
+    const html=String(payload&&payload.html||'');
+    if(!widgetId||!html||html.length<100)return;
+    const w=findHtmlWidgetById(widgetId);
+    if(!w)return;
+    w.data=w.data||{};
+    const a=window.TavleMediaArchive;
+    if(!(a&&typeof a.putMedia==='function')){
+      w.data.html=html;
+      w.data.twMode='tiddlywiki';
+      try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+      try{toast('TiddlyWiki gemt i widgetten (IndexedDB ikke klar)');}catch(_e){}
+      return;
+    }
+    const name=safeName(w.data.name||payload.title||w.title||'TiddlyWiki');
+    const existing=String(w.data.srcMediaRef||'').trim();
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const rec=await a.putMedia({
+      id:existing||undefined,
+      kind:'html',
+      name:name,
+      mimeType:'text/html;charset=utf-8',
+      source:'html-widget-tiddlywiki-saver',
+      blob:blob,
+      meta:{safePhase:'SAFE455d',sourceWidgetId:widgetId,twMode:'tiddlywiki',savedAt:(new Date()).toISOString()}
+    });
+    const savedId=rec&&rec.id?rec.id:existing;
+    w.data.srcMediaRef=savedId;
+    w.data.twMode='tiddlywiki';
+    w.data.name=name;
+    const persisted=slimAndPersistTwWidget(w,savedId,name);
+    try{toast(persisted?'TiddlyWiki gemt i HTML-widgetten':'TiddlyWiki gemt i arkiv, men state kunne ikke persisteres');}catch(_e){}
+  }
+  window.addEventListener('message',function(ev){
+    const data=ev&&ev.data;
+    const payload=data&&data.tavle_tw_save;
+    if(!payload)return;
+    saveTwHtml(payload).catch(function(err){console.warn('SAFE455a TW save failed',err);try{toast('Kunne ikke gemme TiddlyWiki: '+(err&&err.message?err.message:'ukendt fejl'));}catch(_e){}});
+  });
+  window.__safe455cTwHtmlWidgetSaveBridge={installed:true,phase:'SAFE455d',note:'SAFE455c persistence retained; injected TiddlyWiki bridge now marks saverHandler clean after successful parent save.'};
+})();
+
 function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type;// --- WIDGET: TEXT / DATASET ---
  if(w.type==='text'){
   w.data=w.data||{};
@@ -24811,33 +24908,66 @@ if(w.type==='poll'){
   w.data=w.data||{};
   w.data.mode=w.data.mode||'edit';
   const isEdit=w.data.mode==='edit';
-  c.innerHTML=`<div class="htmlBox">
-    <div class="htmlTools widget-control">
-      <button class="htmlPreview ${!isEdit?'active':''}">Webvisning</button>
-      <button class="htmlEdit ${isEdit?'active':''}">Tekst</button>
-      <button class="htmlDownload">Download HTML</button>
-      ${!isEdit?'<button class="htmlInteract">Aktivér side</button>':''}
-    </div>
+  const hasTwSaveRef=!!(w.data&&w.data.srcMediaRef);
+  const isTwMode=!!(w.data&&(w.data.twMode==='tiddlywiki'||w.data.isTiddlyWiki||hasTwSaveRef));
+  const safe455hHtmlZoom=Math.max(0.5,Math.min(3,Number(w.data.htmlZoom||1)));
+  const safe455hHtmlIframeStyle=`transform:scale(${safe455hHtmlZoom});transform-origin:0 0;width:${100/safe455hHtmlZoom}%;height:${100/safe455hHtmlZoom}%;`;
+  c.innerHTML=`<div class="htmlBox ${isTwMode?'htmlTiddlyWikiMode':''}" data-html-zoom="${esc(String(safe455hHtmlZoom))}">
     ${isEdit
-      ? `<textarea spellcheck="false">${esc(w.data.html||'')}</textarea>`
-      : `<div class="htmlFrameWrap"><iframe sandbox="allow-scripts allow-forms allow-popups allow-modals allow-same-origin"></iframe><div class="htmlShield"></div></div>`}
+      ? `<textarea spellcheck="false">${esc(hasTwSaveRef?'Indlæser gemt HTML/TiddlyWiki fra arkiv…':(w.data.html||''))}</textarea>`
+      : `<div class="htmlFrameWrap"><iframe style="${esc(safe455hHtmlIframeStyle)}" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-same-origin"></iframe><div class="htmlShield"></div></div>`}
   </div>`;
   const setMode=(mode)=>{w.data.mode=mode;el.classList.remove('htmlInteractive');fillContent(el,w);save()};
   const prev=c.querySelector('.htmlPreview');
   const edit=c.querySelector('.htmlEdit');
   const dl=c.querySelector('.htmlDownload');
   const interact=c.querySelector('.htmlInteract');
+  function safe455aIsLikelyTiddlyWiki(html){
+    const txt=String(html||'').slice(0,250000).toLowerCase();
+    return txt.indexOf('tiddlywiki')>=0 || txt.indexOf('$:/core/save/all')>=0 || txt.indexOf('window.$tw')>=0 || txt.indexOf('$tw.boot')>=0;
+  }
+  function safe455aTwBridgeScript(widgetId){
+    const wid=String(widgetId||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<script>(function(){\n`+
+      `var WIDGET_ID='${wid}';\n`+
+      `function send(html){try{parent.postMessage({tavle_tw_save:{widgetId:WIDGET_ID,html:String(html||''),title:document.title||''}},'*');return true;}catch(e){return false;}}\n`+
+      `function renderAll(){try{if(window.$tw&&$tw.wiki&&typeof $tw.wiki.renderTiddler==='function'){return $tw.wiki.renderTiddler('text/plain','$:/core/save/all');}}catch(e){}return ''; }\n`+
+      `function markClean(){try{if(window.$tw&&$tw.saverHandler){var sh=$tw.saverHandler;if(typeof sh.numChanges==='number')sh.numChanges=0;if(typeof sh.updateDirtyStatus==='function')sh.updateDirtyStatus();}}catch(e){}try{if(window.$tw&&$tw.rootWidget&&typeof $tw.rootWidget.refresh==='function')$tw.rootWidget.refresh({});}catch(e){}}\n`+
+      `function install(){try{if(!window.$tw||!$tw.wiki||!$tw.saverHandler)return false;var sh=$tw.saverHandler;if(sh.__tavleTwSaveBridge)return true;sh.__tavleTwSaveBridge=true;var old=sh.saveWiki;sh.saveWiki=function(options){try{var html=renderAll();if(html){var ok=send(html);if(ok)markClean();return ok;}}catch(e){}if(typeof old==='function')return old.apply(this,arguments);return false;};try{if(Array.isArray(sh.savers)){sh.savers.unshift({info:{name:'TavleApp HTMLWidget',priority:9999,capabilities:['save']},save:function(text,method,callback){var html=renderAll()||text||'';var ok=send(html);if(ok)markClean();if(callback)callback(null);return ok;},canSave:function(){return true;}});}}catch(e){}return true;}catch(e){return false;}}\n`+
+      `if(!install()){var n=0,t=setInterval(function(){n++;if(install()||n>80)clearInterval(t);},250);}\n`+
+      `})();<\/script>`;
+  }
+  function safe455aInjectTwBridge(html){
+    html=String(html||'');
+    if(!html)return html;
+    if(!(w.data&&w.data.twMode==='tiddlywiki') && !safe455aIsLikelyTiddlyWiki(html))return html;
+    w.data.twMode='tiddlywiki';
+    if(html.indexOf('__tavleTwSaveBridge')>=0)return html;
+    const script=safe455aTwBridgeScript(w.id);
+    if(/<\/body\s*>/i.test(html))return html.replace(/<\/body\s*>/i,script+'</body>');
+    return html+script;
+  }
+  function safe455aReadActiveHtml(cb){
+    const ref=w.data&&w.data.srcMediaRef;
+    const a=window.TavleMediaArchive;
+    if(ref&&a&&typeof a.getBlob==='function'){
+      a.getBlob(ref).then(blob=>{
+        if(!blob){cb(String(w.data.html||''));return;}
+        return blob.text().then(text=>cb(String(text||'')));
+      }).catch(err=>{console.warn('SAFE455a HTML srcMediaRef read failed',err);cb(String(w.data.html||''));});
+    }else cb(String(w.data.html||''));
+  }
+  function safe455aDownloadActiveHtml(){
+    safe455aReadActiveHtml(code=>{
+      downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(code||''),w.data.name||w.title||'side.html');
+    });
+  }
   if(prev)prev.onclick=e=>{e.stopPropagation();setMode('preview')};
   if(edit)edit.onclick=e=>{e.stopPropagation();setMode('edit')};
-  if(dl)dl.onclick=e=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html||''),w.data.name||w.title||'side.html')};
+  if(dl)dl.onclick=e=>{e.stopPropagation();safe455aDownloadActiveHtml()};
   if(interact)interact.onclick=e=>{e.stopPropagation();el.classList.add('htmlInteractive');setIframeControl(w.id,true);toast('HTML-side aktiv. ESC slipper kontrollen.')};
   const iframe=c.querySelector('iframe');
   if(iframe){
-    // Send environment information to the iframe once it has loaded.  This
-    // allows HTML widgets to inherit the parent app's fallback configuration
-    // (RUNNING_FROM_FILE and TAVLE_ASSET_BASE) via postMessage.  The
-    // imported document can listen for this message and update its
-    // globals accordingly.
     iframe.onload=()=>{
       try{
         iframe.contentWindow.postMessage({
@@ -24848,30 +24978,44 @@ if(w.type==='poll'){
         },'*');
       }catch(_envErr){}
     };
-    const code=String(w.data.html||'');
-    try{
-      const blob=new Blob([code],{type:'text/html;charset=utf-8'});
-      const oldUrl=w.data.__previewUrl;
-      const url=URL.createObjectURL(blob);
-      w.data.__previewUrl=url;
-      iframe.src=url;
-      if(oldUrl&&String(oldUrl).startsWith('blob:'))setTimeout(()=>{try{URL.revokeObjectURL(oldUrl)}catch(_e){}},1000);
-    }catch(_e){
+    const renderHtmlCode=(rawCode)=>{
+      const code=safe455aInjectTwBridge(rawCode);
       try{
-        iframe.src='about:blank';
-        setTimeout(()=>{
-          try{iframe.contentDocument.open();iframe.contentDocument.write(code);iframe.contentDocument.close()}catch(__e){}
-        },0);
-      }catch(__e){}
-    }
+        const blob=new Blob([code],{type:'text/html;charset=utf-8'});
+        const oldUrl=w.data.__previewUrl;
+        const url=URL.createObjectURL(blob);
+        w.data.__previewUrl=url;
+        iframe.src=url;
+        if(oldUrl&&String(oldUrl).startsWith('blob:'))setTimeout(()=>{try{URL.revokeObjectURL(oldUrl)}catch(_e){}},1000);
+      }catch(_e){
+        try{
+          iframe.src='about:blank';
+          setTimeout(()=>{
+            try{iframe.contentDocument.open();iframe.contentDocument.write(code);iframe.contentDocument.close()}catch(__e){}
+          },0);
+        }catch(__e){}
+      }
+    };
+    safe455aReadActiveHtml(renderHtmlCode);
   }
   const shield=c.querySelector('.htmlShield');
-  if(shield)shield.onpointerdown=e=>{e.preventDefault();e.stopPropagation();select(w.id,{editText:false})};
+  if(shield)shield.onpointerdown=e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    select(w.id,{editText:false});
+    el.classList.add('htmlInteractive');
+    setIframeControl(w.id,true);
+    toast('HTML-side aktiv. Klik udenfor slipper kontrollen.');
+  };
   const ta=c.querySelector('textarea');
   if(ta){
+    if(hasTwSaveRef){
+      ta.readOnly=true;
+      safe455aReadActiveHtml(code=>{try{ta.value=code||'';ta.readOnly=false;}catch(_e){}});
+    }
     ta.addEventListener('pointerdown',e=>{if(!app.classList.contains('present'))select(w.id,{editText:false});e.stopPropagation()});
     ta.addEventListener('click',e=>e.stopPropagation());
-    ta.oninput=e=>{w.data.html=e.target.value;save({silent:true})};
+    ta.oninput=e=>{w.data.html=e.target.value;if(w.data.srcMediaRef){delete w.data.srcMediaRef;w.data.twMode='html';}save({silent:true})};
     ta.onblur=e=>save();
     ta.onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();ta.blur();select(w.id,{editText:false})}};
   }
@@ -25632,15 +25776,14 @@ if(w.type==='drawcopy'){
     const imageSrc=String((w.data&&w.data.src)||'');
     const hasMediaRef=!!(w.data&&w.data.mediaRef&&!imageSrc);
     const embedded=imageSrc.startsWith('data:');
-    const storageLabel=hasMediaRef?'Arkiv: IndexedDB':(embedded?'Indlejret i tavle':(imageSrc?'URL':''));
-    const storageTitle=hasMediaRef?'Dette billede læses fra IndexedDB-mediearkivet.':(embedded?'Dette billede ligger som dataURL/fallback i tavle-state.':(imageSrc?'Dette billede er et eksternt/linket billede.':''));
-    const storageBadge=storageLabel?`<span class="imageStorageBadge" title="${esc(storageTitle)}">${esc(storageLabel)}</span>`:'';
+    // SAFE455j: Billedwidgetten viser ikke længere teknisk lagerstatus (fx "Arkiv: IndexedDB").
+    // Placering og reference kan ses i "Hvor ligger data?".
     // SAFE440: Gendannelse/tavleshot styres fra Tavleoversigt. Gamle boardState-data bevares,
     // men billedwidgetten viser ikke længere lokale “Gendan”-knapper.
     const mirrorCls=w.data&&w.data.mirror?' safe411MirrorSelfie':'';
     const initialSrc=imageSrc?esc(imageSrc):'';
     const placeholder=hasMediaRef?'<div class="mediaRefNotice">Henter billede fra mediearkiv…</div>':'';
-    c.innerHTML=`<div class="mediaActions widget-control"><button type="button" class="drawCopyImg" title="Tegn videre på kopi">✏️ Tegn</button>${embedded?`<button type="button" class="downloadImg" title="Åbn fælles downloadpulje">⬇ Download</button>`:''}${storageBadge}</div><div class="imageFrame"><img class="${mirrorCls}" src="${initialSrc}" alt="">${placeholder}</div>`;
+    c.innerHTML=`<div class="mediaActions widget-control"><button type="button" class="drawCopyImg" title="Tegn videre på kopi">✏️ Tegn</button>${embedded?`<button type="button" class="downloadImg" title="Åbn fælles downloadpulje">⬇ Download</button>`:''}</div><div class="imageFrame"><img class="${mirrorCls}" src="${initialSrc}" alt="">${placeholder}</div>`;
     if(hasMediaRef&&typeof safe453i99LoadImageMediaRefIntoElement==='function'){
       safe453i99LoadImageMediaRefIntoElement(w,c.querySelector('img'),c);
     }
@@ -26852,6 +26995,24 @@ function wireWidget(el,w){
     e.preventDefault();e.stopPropagation();
     w.data=w.data||{};
     if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else downloadDataUrl('data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html||''),w.data.name||w.title||'side.html');
+  };
+  const htmlZoomOutBtn=el.querySelector('[data-act=htmlZoomOut]');
+  if(htmlZoomOutBtn)htmlZoomOutBtn.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    w.data=w.data||{};
+    w.data.htmlZoom=Math.max(0.5,Math.min(3,Number(w.data.htmlZoom||1)-0.1));
+    save();render();setTimeout(()=>select(w.id,{editText:false}),0);
+    toast('HTML zoom '+Math.round(w.data.htmlZoom*100)+'%');
+  };
+  const htmlZoomInBtn=el.querySelector('[data-act=htmlZoomIn]');
+  if(htmlZoomInBtn)htmlZoomInBtn.onclick=e=>{
+    e.preventDefault();e.stopPropagation();
+    if(!canEditWidgets())return;
+    w.data=w.data||{};
+    w.data.htmlZoom=Math.max(0.5,Math.min(3,Number(w.data.htmlZoom||1)+0.1));
+    save();render();setTimeout(()=>select(w.id,{editText:false}),0);
+    toast('HTML zoom '+Math.round(w.data.htmlZoom*100)+'%');
   };
  const toggleLinkViewBtn=el.querySelector('[data-act=toggleLinkView]');
   if(toggleLinkViewBtn)toggleLinkViewBtn.onclick=e=>{
@@ -31428,6 +31589,7 @@ function showQuickHelp(){
           <button class="helpIconItem helpToolBtn" data-help-tool="pdf"><span class="helpIcon">📄</span><span><b>PDF</b><small>Shift+P · dokumenter og opgaver</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · 1 enhed · 2 appen · 3 URL · 4 kamera</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="link"><span class="helpIcon">🔗</span><span><b>Link / iframe</b><small>Shift+L · websteder og indlejring</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="html"><span class="helpIcon">&lt;/&gt;</span><span><b>HTML</b><small>Shift+H · lokale HTML-sider og TiddlyWiki</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="timer"><span class="helpIcon">⌛</span><span><b>Timer</b><small>Shift+K · nedtælling</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="clock"><span class="helpIcon">🕒</span><span><b>Ur</b><small>Shift+U · vis ur på tavlen</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="background"><span class="helpIcon">🎨</span><span><b>Baggrund</b><small>Shift+B · billeder, farver og filter</small></span></button>
@@ -31476,6 +31638,21 @@ function showQuickHelp(){
       </div>
     </details>
 
+
+
+    <details>
+      <summary>HTML-widget og TiddlyWiki</summary>
+      <div class="answer">
+        <ul>
+          <li><b>HTML-widgetten</b> kan vise, oprette, redigere og gemme lokale HTML-filer direkte i tavlens mediearkiv.</li>
+          <li>Brug knappen i widget-bjælken til at skifte mellem webvisning og tekst/redigering.</li>
+          <li>Klik eller tap i webvisningen for at bruge den indlejrede side. Brug <b>Esc</b> eller klik uden for widgetten for at komme tilbage til tavlen.</li>
+          <li>Zoomknapperne i widget-bjælken ændrer visningen og huskes for den enkelte HTML-widget.</li>
+          <li><b>TiddlyWiki</b> kan gemme sine ændringer direkte i TavleAppens lokale lagring og bevare sine ændringer mellem sessioner.</li>
+          <li>Når en HTML-/TiddlyWiki-widget slettes permanent, ryddes dens gemte medie også, hvis det ikke bruges af andre widgets.</li>
+        </ul>
+      </div>
+    </details>
 
     <details>
       <summary>Kalender</summary>
@@ -31547,11 +31724,8 @@ function showQuickHelp(){
       <summary>Træk filer direkte ind på tavlen</summary>
       <div class="answer">
         <ul>
-          <li>Du kan ofte bare slippe filer oven på tavlen. Appen opretter selv widgets for de filtyper, den forstår.</li>
-          <li>Billeder, PDF’er, tekstfiler, regneark, kalenderfiler og backupfiler kan på den måde hurtigt blive til indhold på tavlen.</li>
-          <li>Det er praktisk, når du vil bygge en tavle op af eksisterende materiale: opgaver, billeder, programmer, lister, kalenderfiler eller tidligere backups.</li>
-          <li>Du kan også slippe flere filer på én gang, så tavlen hurtigt bliver fyldt med de materialer, du skal bruge.</li>
-          <li>Hvis en fil ikke kan bruges direkte, ignorerer appen den eller giver besked — dine eksisterende tavler bliver ikke ødelagt af det.</li>
+          <li>Slip filer oven på tavlen for hurtigt at oprette indhold: billeder, PDF’er, tekstfiler, regneark, kalenderfiler, HTML-filer eller backups.</li>
+          <li>Du kan slippe flere filer på én gang. Hvis en fil ikke kan bruges direkte, ignorerer appen den eller giver besked.</li>
         </ul>
       </div>
     </details>
@@ -31577,7 +31751,6 @@ function showQuickHelp(){
           <li><b>Delete/Backspace</b> flytter valgt widget til papirkurven.</li>
           <li><b>Shift+Delete/Backspace</b> eller <b>Shift+klik på X</b> sletter permanent.</li>
           <li><b>Cmd/Ctrl+Z</b> gendanner senest slettede widget.</li>
-          <li><b>Cmd/Ctrl+S</b> eller <b>Cmd/Ctrl+G</b> åbner Gem/åbn. Her kan du vælge backup, Backup +, skabelon og filkontrol.</li>
         </ul>
       </div>
     </details>
@@ -31857,6 +32030,9 @@ function collectEmbeddedMedia(){
           }
         }
         if(w.type==='html'&&w.data&&typeof w.data.html==='string'){
+          // SAFE455g: Har HTML-widgetten srcMediaRef (fx gemt TW), er arkivposten den aktive fil.
+          // Undgå at Hent filer viser samme HTML både som placeholder og IndexedDB-medie.
+          if(w.data.srcMediaRef)return;
           const src='data:text/html;charset=utf-8,'+encodeURIComponent(w.data.html);
           items.push({type:'HTML',slide:slideName,name:w.data.name||w.title||`tavle-${si+1}-html-${wi+1}.html`,src});
         }
@@ -32432,47 +32608,68 @@ function safe453i124WireMediaMapButtons(){
   });
 }
 function safe453i124OpenIndexedDbMediaMap(){
-  const archive=(window.TavleMediaArchive&&typeof window.TavleMediaArchive.listMedia==='function')?window.TavleMediaArchive:null;
-  const scan=safe453i118ScanObjectForStorage(state||{});
-  const combined=safe453i125CombinedMediaUsageMap(scan);
-  const usage=combined.usage||{};
-  showModal('<h2>IndexedDB-medier</h2><p>Læser TavleMediaArchive og scanner localStorage-referencer…</p><button data-safe453i124-back-storage="1" title="Tilbage til Hvor ligger data" aria-label="Tilbage til Hvor ligger data">←</button>');
-  safe453i124WireMediaMapButtons();
-  const done=safe453i148ReadMediaArchiveListSafe(2500);
-  done.then(function(mediaList){
+  /* SAFE454l: Aktiv oprydningsvisning. Erstatter den gamle rene oversigt,
+     fordi knapper indsat senere ikke blev vist fra den lokale funktionsreference. */
+  const archive=(window.TavleMediaArchive&&typeof window.TavleMediaArchive.listMedia==='function'&&typeof window.TavleMediaArchive.deleteMedia==='function')?window.TavleMediaArchive:null;
+  const escFn=(typeof esc==='function')?esc:function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+  const fmt=(typeof safe453i118FormatBytes==='function')?safe453i118FormatBytes:function(n){n=Number(n)||0;return n>1048576?(n/1048576).toFixed(1)+' MB':(n/1024).toFixed(1)+' KB';};
+  function shortId(id){id=String(id||'');return id.length>18?id.slice(0,8)+'…'+id.slice(-6):id;}
+  function isTw(m){var s=[m&&m.kind,m&&m.source,m&&m.name,m&&m.mimeType,m&&m.id].map(function(x){return String(x||'').toLowerCase();}).join(' ');return s.indexOf('tiddlywiki')>=0||s.indexOf('tw-saver')>=0||s.indexOf('html-widget-tiddlywiki-saver')>=0;}
+  function usageMap(){try{return safe453i125CombinedMediaUsageMap(safe453i118ScanObjectForStorage(state||{})).usage||{};}catch(_e){return {};}}
+  function isUsed(m,usage){return !!(usage&&usage[String(m&&m.id||'')]&&usage[String(m&&m.id||'')].length);}
+  function usedWhere(id,usage){var used=(usage&&usage[String(id)])||[]; if(!used.length)return '—'; return used.slice(0,3).map(function(u){try{return escFn(safe453i118ShortPath(u.path||u.key||'state'));}catch(_e){return escFn(u.path||u.key||'state');}}).join('<br>')+(used.length>3?'<br><small>+'+(used.length-3)+' flere</small>':'');}
+  function installBack(){
+    if(window.__safe454lEsc)window.removeEventListener('keydown',window.__safe454lEsc,true);
+    window.__safe454lEsc=function(e){if(!modalBack||modalBack.style.display==='none')return;if(!modal||!modal.querySelector('[data-safe454l-media-map]'))return;if(e.key==='Escape'||e.key==='Esc'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.removeEventListener('keydown',window.__safe454lEsc,true);window.__safe454lEsc=null;safe453i118OpenStorageOverview();}};
+    window.addEventListener('keydown',window.__safe454lEsc,true);
+  }
+  function wire(){
+    installBack();
+    if(!modal)return;
+    modal.querySelectorAll('[data-safe454l-back]').forEach(function(btn){btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();} if(window.__safe454lEsc){window.removeEventListener('keydown',window.__safe454lEsc,true);window.__safe454lEsc=null;} safe453i118OpenStorageOverview();};});
+    modal.querySelectorAll('[data-safe454l-delete-one]').forEach(function(btn){btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();} deleteIds([btn.getAttribute('data-safe454l-delete-one')],'Slet dette forældreløse medie fra IndexedDB?');};});
+    var tw=modal.querySelector('[data-safe454l-delete-tw]'); if(tw)tw.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();} deleteByFilter('tw','Slet forældreløse TiddlyWiki-testkopier fra IndexedDB?');};
+    var all=modal.querySelector('[data-safe454l-delete-orphans]'); if(all)all.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();} deleteByFilter('orphan','Slet ALLE forældreløse medier fra IndexedDB?\n\nDette sletter kun poster uden reference i aktiv state/localStorage.');};
+  }
+  async function deleteIds(ids,msg){
+    ids=(ids||[]).map(String).filter(Boolean);
+    if(!archive||!ids.length)return;
+    if(!confirm(msg+'\n\nAntal: '+ids.length))return;
+    var ok=0,fail=0;
+    for(var i=0;i<ids.length;i++){try{await archive.deleteMedia(ids[i]);ok++;}catch(_e){fail++;}}
+    try{toast('Slettet fra IndexedDB: '+ok+(fail?' · fejl: '+fail:''));}catch(_e){}
+    safe453i124OpenIndexedDbMediaMap();
+  }
+  async function deleteByFilter(mode,msg){
+    if(!archive)return;
+    var mediaList=await archive.listMedia();
+    var usage=usageMap();
+    var ids=[];
+    (mediaList||[]).forEach(function(m){if(isUsed(m,usage))return;if(mode==='tw'&&isTw(m))ids.push(String(m.id));if(mode==='orphan')ids.push(String(m.id));});
+    if(!ids.length){try{toast(mode==='tw'?'Ingen forældreløse TiddlyWiki-testkopier fundet':'Ingen forældreløse medier fundet');}catch(_e){}return;}
+    deleteIds(ids,msg);
+  }
+  if(!archive){showModal('<h2>IndexedDB-medier</h2><p>TavleMediaArchive/deleteMedia er ikke tilgængelig.</p><button data-safe454l-back>← Tilbage</button>');wire();return;}
+  showModal('<h2>IndexedDB-medier</h2><p>Læser TavleMediaArchive og scanner referencer…</p><button data-safe454l-back>←</button>');
+  wire();
+  archive.listMedia().then(function(mediaList){
     mediaList=Array.isArray(mediaList)?mediaList:[];
-    const rows=mediaList.slice().sort(function(a,b){return (Number(b&&b.size)||0)-(Number(a&&a.size)||0);}).map(function(m){
-      const id=String(m&&m.id||'');
-      const used=usage[id]||[];
-      const where=used.length?used.slice(0,3).map(function(u){return safe453i118ShortPath(u.path||u.key||'state');}).join('<br>'):'—';
-      const extra=used.length>3?'<br><small>+'+(used.length-3)+' flere</small>':'';
-      return '<tr>'+
-        '<td>'+safe453i124MediaStatusLabel(m,usage)+'</td>'+
-        '<td>'+esc((m&&m.kind)||'media')+' / '+esc((m&&m.source)||'ukendt')+'</td>'+
-        '<td>'+esc((m&&(m.name||m.id))||'')+'</td>'+
-        '<td>'+safe453i118FormatBytes(m&&m.size)+'</td>'+
-        '<td><code title="'+esc(id)+'">'+esc(safe453i124ShortId(id))+'</code></td>'+
-        '<td>'+where+extra+'</td>'+
-      '</tr>';
+    var usage=usageMap();
+    var usedCount=0,orphanCount=0,twOrphanCount=0,total=0,orphanBytes=0,twBytes=0;
+    mediaList.forEach(function(m){var size=Number(m&&m.size)||0;total+=size;if(isUsed(m,usage))usedCount++;else{orphanCount++;orphanBytes+=size;if(isTw(m)){twOrphanCount++;twBytes+=size;}}});
+    var rows=mediaList.slice().sort(function(a,b){return (Number(b&&b.size)||0)-(Number(a&&a.size)||0);}).map(function(m){
+      var id=String(m&&m.id||'');var used=isUsed(m,usage);var tw=isTw(m);var status=used?'✅ I brug':(tw?'🧪 TW-test<br><button class="safe454lInlineDelete" data-safe454l-delete-one="'+escFn(id)+'">Slet</button>':'⚪ Forældreløs<br><button class="safe454lInlineDelete" data-safe454l-delete-one="'+escFn(id)+'">Slet</button>');
+      return '<tr class="'+(used?'':'safe454lOrphan')+(tw?' safe454lTw':'')+'"><td>'+status+'</td><td>'+escFn((m&&m.kind)||'media')+' / '+escFn((m&&m.source)||'ukendt')+'</td><td>'+escFn((m&&(m.name||m.id))||'')+'</td><td>'+fmt(m&&m.size)+'</td><td><code title="'+escFn(id)+'">'+escFn(shortId(id))+'</code></td><td>'+usedWhere(id,usage)+'</td><td>'+(used?'—':'<button data-safe454l-delete-one="'+escFn(id)+'">Slet</button>')+'</td></tr>';
     }).join('');
-    const usedCount=mediaList.filter(function(m){return usage[String(m&&m.id||'')];}).length;
-    const orphanCount=Math.max(0,mediaList.length-usedCount);
-    const total=mediaList.reduce(function(sum,m){return sum+(Number(m&&m.size)||0);},0);
-    const html='<h2>IndexedDB-medier</h2>'+
-      '<div data-safe453i124-media-map="1" class="safe453StorageTopActions"><button data-safe453i124-back-storage="1" title="Tilbage til Hvor ligger data" aria-label="Tilbage til Hvor ligger data">←</button><span>Esc går også tilbage</span></div>'+
-      '<p class="safe453Note"><b>Oprydningskort:</b> Der slettes intet her. “Muligvis forældreløs” betyder, at mediet ikke er fundet som reference i aktiv state eller localStorage.</p>'+
-      '<div class="safe453StorageCards">'+
-        '<div><b>IndexedDB-medier</b><span>'+mediaList.length+'</span><small>'+safe453i118FormatBytes(total)+' i TavleMediaArchive</small></div>'+
-        '<div><b>Fundet som reference</b><span>'+usedCount+'</span><small>aktiv state + localStorage</small></div>'+
-        '<div><b>Muligvis forældreløse</b><span>'+orphanCount+'</span><small>ikke fundet som reference</small></div>'+
-        '<div><b>Sletning</b><span>0</span><small>ingen sletning i denne fase</small></div>'+
-      '</div>'+
-      '<div class="safe453StorageOverview"><details open><summary>Alle medier i TavleMediaArchive</summary><table><thead><tr><th>Status</th><th>Type/kilde</th><th>Navn</th><th>Størrelse</th><th>ID</th><th>Fundet brugt her</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">Ingen medier fundet i TavleMediaArchive</td></tr>')+'</tbody></table></details>'+
-      '</div>'+
-      '<style>.safe453StorageTopActions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe453StorageTopActions span{font-size:.85rem;color:#526070}.safe453StorageCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}.safe453StorageCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe453StorageCards b{display:block}.safe453StorageCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe453StorageCards small{display:block;color:#526070}.safe453StorageOverview{max-height:54vh;overflow:auto;padding-right:4px}.safe453StorageOverview details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe453StorageOverview summary{font-weight:800;cursor:pointer}.safe453StorageOverview table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px}.safe453StorageOverview th,.safe453StorageOverview td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe453StorageOverview code{font-size:.76rem;word-break:break-all}@media(max-width:760px){.safe453StorageCards{grid-template-columns:1fr 1fr}.safe453StorageOverview{max-height:50vh}.safe453StorageOverview table{font-size:.76rem}.safe453StorageTopActions{align-items:stretch}.safe453StorageTopActions button{width:100%}}</style>';
-    showModal(html);
-    safe453i124WireMediaMapButtons();
-  });
+    var html='<h2>IndexedDB-medier</h2>'+ 
+      '<div data-safe454l-media-map="1" class="safe454lTop"><button data-safe454l-back>←</button><span>Esc går også tilbage</span></div>'+ 
+      '<p class="safe453Note"><b>Oprydning aktiv:</b> Knapperne sletter kun medier, der ikke er fundet som reference i aktiv state eller localStorage.</p>'+ 
+      '<div class="safe454lActions"><button data-safe454l-delete-tw '+(twOrphanCount?'':'disabled')+'>🧹 Slet TiddlyWiki-testkopier ('+twOrphanCount+' · '+fmt(twBytes)+')</button><button data-safe454l-delete-orphans '+(orphanCount?'':'disabled')+'>🗑️ Slet alle forældreløse medier ('+orphanCount+' · '+fmt(orphanBytes)+')</button></div>'+ 
+      '<div class="safe454lCards"><div><b>IndexedDB-medier</b><span>'+mediaList.length+'</span><small>'+fmt(total)+' i alt</small></div><div><b>I brug</b><span>'+usedCount+'</span><small>fundet som reference</small></div><div><b>Forældreløse</b><span>'+orphanCount+'</span><small>'+fmt(orphanBytes)+'</small></div><div><b>TW-testkopier</b><span>'+twOrphanCount+'</span><small>'+fmt(twBytes)+'</small></div></div>'+ 
+      '<div class="safe454lList"><details open><summary>Alle medier i TavleMediaArchive</summary><table><thead><tr><th>Status</th><th>Type/kilde</th><th>Navn</th><th>Størrelse</th><th>ID</th><th>Fundet brugt her</th><th>Handling</th></tr></thead><tbody>'+(rows||'<tr><td colspan="7">Ingen medier fundet</td></tr>')+'</tbody></table></details></div>'+ 
+      '<style>.safe454lTop{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe454lTop span{font-size:.85rem;color:#526070}.safe454lActions{position:sticky;top:0;z-index:10;display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 12px;padding:10px;background:rgba(255,255,255,.97);border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 6px 18px rgba(15,23,42,.10)}.safe454lActions button{background:#e5e7eb!important;color:#111827!important;font-weight:900!important}.safe454lActions button:first-child{background:#fef3c7!important;color:#78350f!important}.safe454lActions button:disabled{opacity:.45}.safe454lCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}.safe454lCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe454lCards b{display:block}.safe454lCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe454lCards small{display:block;color:#526070}.safe454lList{max-height:50vh;overflow:auto;padding-right:4px}.safe454lList details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe454lList summary{font-weight:800;cursor:pointer}.safe454lList table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:8px}.safe454lList th,.safe454lList td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe454lList code{font-size:.74rem;word-break:break-all}.safe454lOrphan{background:#fffaf0}.safe454lTw{background:#fff7ed}.safe454lInlineDelete,.safe454lList td button{padding:5px 8px!important;border-radius:8px!important;background:#fee2e2!important;color:#991b1b!important;font-weight:900!important}@media(max-width:760px){.safe454lCards{grid-template-columns:1fr 1fr}.safe454lActions button,.safe454lTop button{width:100%}.safe454lList{max-height:46vh}.safe454lList table{font-size:.7rem}}</style>';
+    showModal(html);wire();
+  }).catch(function(err){showModal('<h2>IndexedDB-medier</h2><p>Kunne ikke læse TavleMediaArchive: '+escFn(err&&err.message||err)+'</p><button data-safe454l-back>← Tilbage</button>');wire();});
 }
 
 
@@ -44879,7 +45076,7 @@ body.safe453i185uTimerPresentation [data-stopwatch-panel],
     try{
       var btn=document.getElementById('fullscreenTop');
       if(!btn) return;
-      var hide=(!supportsFullscreen()) || isStandalone();
+      var hide=(!supportsFullscreen()); /* SAFE453z: vis også knappen i standalone/PWA; klik afgør om Chrome tillader fullscreen. */
       btn.classList.toggle('safe453i186FsHidden', hide);
       btn.hidden=!!hide;
       btn.setAttribute('aria-hidden', hide ? 'true' : 'false');
@@ -48442,6 +48639,182 @@ body.focus-maximized .widget[data-type="pdf"].focusTarget .pdfControls{
     if(el)showPdfControls(el,1600);
   },true);
   window.safe453qShowPdfControls=showPdfControls;
+})();
+</script>
+
+<script id="safe454k-indexeddb-cleanup-tools">
+/* SAFE454k: Synlige sletteknapper + konservativ oprydning i TavleMediaArchive/IndexedDB.
+   - Ingen ændringer i TiddlyWiki, HTML-widget, saver eller almindelig rendering.
+   - Tilføjer kun sletteknapper i “Hvor ligger data?” -> “Medier”.
+   - Sletter kun poster, der ikke findes som mediaRef/previewMediaRef/srcMediaRef/fileMediaRef
+     i aktiv state eller localStorage. */
+(function(){
+  if(window.__safe454jIndexedDbCleanupTools)return;
+  window.__safe454jIndexedDbCleanupTools=true;
+
+  function h(v){
+    try{ if(typeof esc==='function')return esc(v); }catch(_e){}
+    return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function fmt(bytes){
+    try{ if(typeof safe453i118FormatBytes==='function')return safe453i118FormatBytes(bytes); }catch(_e){}
+    bytes=Number(bytes)||0;
+    if(bytes<1024)return bytes+' B';
+    if(bytes<1024*1024)return (bytes/1024).toFixed(1)+' KB';
+    return (bytes/1024/1024).toFixed(1)+' MB';
+  }
+  function shortId(id){
+    try{ if(typeof safe453i124ShortId==='function')return safe453i124ShortId(id); }catch(_e){}
+    id=String(id||'');return id.length>22?id.slice(0,12)+'…'+id.slice(-8):id;
+  }
+  function getArchive(){
+    return (window.TavleMediaArchive && typeof window.TavleMediaArchive.listMedia==='function' && typeof window.TavleMediaArchive.deleteMedia==='function') ? window.TavleMediaArchive : null;
+  }
+  function getUsage(){
+    try{
+      var scan=(typeof safe453i118ScanObjectForStorage==='function')?safe453i118ScanObjectForStorage(window.state||{}):{refs:[]};
+      var combined=(typeof safe453i125CombinedMediaUsageMap==='function')?safe453i125CombinedMediaUsageMap(scan):{usage:{}};
+      return combined.usage||{};
+    }catch(_e){return {};}
+  }
+  function isUsed(m,usage){return !!(usage&&usage[String(m&&m.id||'')]&&usage[String(m&&m.id||'')].length);}
+  function isTwSaver(m){
+    var s=[m&&m.kind,m&&m.source,m&&m.name,m&&m.mimeType,m&&m.id].map(function(x){return String(x||'').toLowerCase();}).join(' ');
+    return s.indexOf('tiddlywiki')>=0 || s.indexOf('tw-saver')>=0 || s.indexOf('html-widget-tiddlywiki-saver')>=0;
+  }
+  function sourceLabel(m){return h((m&&m.kind)||'media')+' / '+h((m&&m.source)||'ukendt');}
+  function usedWhere(id,usage){
+    var used=(usage&&usage[String(id)])||[];
+    if(!used.length)return '—';
+    return used.slice(0,3).map(function(u){
+      try{ return h((typeof safe453i118ShortPath==='function')?safe453i118ShortPath(u.path||u.key||'state'):(u.path||u.key||'state')); }
+      catch(_e){ return h(u.path||u.key||'state'); }
+    }).join('<br>')+(used.length>3?'<br><small>+'+(used.length-3)+' flere</small>':'');
+  }
+  function installEscBack(){
+    if(window.__safe454jEscHandler)window.removeEventListener('keydown',window.__safe454jEscHandler,true);
+    window.__safe454jEscHandler=function(e){
+      if(!window.modalBack||modalBack.style.display==='none')return;
+      if(!window.modal||!modal.querySelector('[data-safe454j-media-map]'))return;
+      if(e.key==='Escape'||e.key==='Esc'){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        window.removeEventListener('keydown',window.__safe454jEscHandler,true);window.__safe454jEscHandler=null;
+        try{ safe453i118OpenStorageOverview(); }catch(_e){ try{ closeModal(); }catch(__e){} }
+      }
+    };
+    window.addEventListener('keydown',window.__safe454jEscHandler,true);
+  }
+  function wire(){
+    installEscBack();
+    if(!window.modal)return;
+    modal.querySelectorAll('[data-safe454j-back-storage]').forEach(function(btn){
+      btn.onclick=function(e){
+        if(e){e.preventDefault();e.stopPropagation();}
+        if(window.__safe454jEscHandler){window.removeEventListener('keydown',window.__safe454jEscHandler,true);window.__safe454jEscHandler=null;}
+        try{ safe453i118OpenStorageOverview(); }catch(_e){ try{ closeModal(); }catch(__e){} }
+      };
+    });
+    modal.querySelectorAll('[data-safe454j-delete-one]').forEach(function(btn){
+      btn.onclick=function(e){
+        if(e){e.preventDefault();e.stopPropagation();}
+        var id=btn.getAttribute('data-safe454j-delete-one');
+        safe454jDeleteIds([id],'Slet dette forældreløse medie?');
+      };
+    });
+    var tw=modal.querySelector('[data-safe454j-delete-tw]');
+    if(tw)tw.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      safe454jDeleteByFilter('tw','Slet forældreløse TiddlyWiki-testkopier fra IndexedDB?');
+    };
+    var orph=modal.querySelector('[data-safe454j-delete-orphans]');
+    if(orph)orph.onclick=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      safe454jDeleteByFilter('orphan','Slet ALLE forældreløse medier fra IndexedDB?\n\nDette sletter kun poster uden reference i aktiv state/localStorage.');
+    };
+  }
+  async function safe454jDeleteIds(ids,msg){
+    var archive=getArchive();
+    ids=(ids||[]).map(String).filter(Boolean);
+    if(!archive||!ids.length)return;
+    if(!confirm(msg+'\n\nAntal: '+ids.length))return;
+    var ok=0,fail=0;
+    for(var i=0;i<ids.length;i++){
+      try{ await archive.deleteMedia(ids[i]); ok++; }catch(_e){ fail++; }
+    }
+    try{ toast('Slettet fra IndexedDB: '+ok+(fail?' · fejl: '+fail:'')); }catch(_e){}
+    try{ safe453i124OpenIndexedDbMediaMap(); }catch(_e){}
+  }
+  async function safe454jDeleteByFilter(mode,msg){
+    var archive=getArchive(); if(!archive)return;
+    var mediaList=await archive.listMedia();
+    var usage=getUsage();
+    var ids=[];
+    (mediaList||[]).forEach(function(m){
+      if(isUsed(m,usage))return;
+      if(mode==='tw' && isTwSaver(m))ids.push(String(m.id));
+      if(mode==='orphan')ids.push(String(m.id));
+    });
+    if(!ids.length){try{toast(mode==='tw'?'Ingen forældreløse TiddlyWiki-testkopier fundet':'Ingen forældreløse medier fundet');}catch(_e){} return;}
+    safe454jDeleteIds(ids,msg);
+  }
+
+  window.safe453i124OpenIndexedDbMediaMap=function(){
+    var archive=getArchive();
+    var usage=getUsage();
+    if(!archive){
+      try{ showModal('<h2>IndexedDB-medier</h2><p>TavleMediaArchive er ikke tilgængelig.</p><button data-safe454j-back-storage="1">← Tilbage</button>'); wire(); }catch(_e){}
+      return;
+    }
+    showModal('<h2>IndexedDB-medier</h2><p>Læser TavleMediaArchive og scanner referencer…</p><button data-safe454j-back-storage="1">←</button>');
+    wire();
+    archive.listMedia().then(function(mediaList){
+      mediaList=Array.isArray(mediaList)?mediaList:[];
+      usage=getUsage();
+      var usedCount=0,orphanCount=0,twOrphanCount=0,twOrphanBytes=0,total=0,orphanBytes=0;
+      mediaList.forEach(function(m){
+        var size=Number(m&&m.size)||0; total+=size;
+        if(isUsed(m,usage))usedCount++;
+        else{ orphanCount++; orphanBytes+=size; if(isTwSaver(m)){twOrphanCount++; twOrphanBytes+=size;} }
+      });
+      var rows=mediaList.slice().sort(function(a,b){return (Number(b&&b.size)||0)-(Number(a&&a.size)||0);}).map(function(m){
+        var id=String(m&&m.id||'');
+        var used=isUsed(m,usage);
+        var tw=isTwSaver(m);
+        var status=used?'✅ I brug':(tw?'🧪 TW-test · forældreløs':'⚪ Forældreløs');
+        var action=used?'—':'<button data-safe454j-delete-one="'+h(id)+'" title="Slet denne IndexedDB-post">Slet</button>';
+        var statusCell=used?status:(status+'<br><button class="safe454jInlineDelete" data-safe454j-delete-one="'+h(id)+'" title="Slet denne IndexedDB-post">Slet</button>');
+        return '<tr class="'+(used?'':'safe454jOrphan')+(tw?' safe454jTw':'')+'">'+
+          '<td>'+statusCell+'</td>'+
+          '<td>'+sourceLabel(m)+'</td>'+
+          '<td>'+h((m&&(m.name||m.id))||'')+'</td>'+
+          '<td>'+fmt(m&&m.size)+'</td>'+
+          '<td><code title="'+h(id)+'">'+h(shortId(id))+'</code></td>'+
+          '<td>'+usedWhere(id,usage)+'</td>'+
+          '<td>'+action+'</td>'+
+        '</tr>';
+      }).join('');
+      var html='<h2>IndexedDB-medier</h2>'+ 
+        '<div data-safe454j-media-map="1" class="safe454jTop"><button data-safe454j-back-storage="1">←</button><span>Esc går også tilbage</span></div>'+ 
+        '<p class="safe453Note"><b>Oprydning:</b> Her kan du slette poster i TavleMediaArchive/IndexedDB. Knapperne nedenfor sletter kun poster, der ikke findes som reference i aktiv state eller localStorage.</p>'+ 
+        '<div class="safe454jCards">'+
+          '<div><b>IndexedDB-medier</b><span>'+mediaList.length+'</span><small>'+fmt(total)+' i alt</small></div>'+ 
+          '<div><b>I brug</b><span>'+usedCount+'</span><small>fundet som reference</small></div>'+ 
+          '<div><b>Forældreløse</b><span>'+orphanCount+'</span><small>'+fmt(orphanBytes)+'</small></div>'+ 
+          '<div><b>TW-testkopier</b><span>'+twOrphanCount+'</span><small>'+fmt(twOrphanBytes)+'</small></div>'+ 
+        '</div>'+ 
+        '<div class="safe454jActions safe454jActionsSticky">'+
+          '<button data-safe454j-delete-tw '+(twOrphanCount?'':'disabled')+'>🧹 Slet TiddlyWiki-testkopier</button>'+ 
+          '<button data-safe454j-delete-orphans '+(orphanCount?'':'disabled')+'>🗑️ Slet alle forældreløse medier</button>'+ 
+        '</div>'+ 
+        '<div class="safe454jList"><details open><summary>Alle medier i TavleMediaArchive</summary><table><thead><tr><th>Status</th><th>Type/kilde</th><th>Navn</th><th>Størrelse</th><th>ID</th><th>Fundet brugt her</th><th>Handling</th></tr></thead><tbody>'+(rows||'<tr><td colspan="7">Ingen medier fundet i TavleMediaArchive</td></tr>')+'</tbody></table></details></div>'+ 
+        '<style>.safe454jTop{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe454jTop span{font-size:.85rem;color:#526070}.safe454jCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}.safe454jCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe454jCards b{display:block}.safe454jCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe454jCards small{display:block;color:#526070}.safe454jActions{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 12px}.safe454jActionsSticky{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.96);border:1px solid #e5e7eb;border-radius:14px;padding:10px;box-shadow:0 6px 18px rgba(15,23,42,.10)}.safe454jActions button{background:#e5e7eb!important;color:#111827!important}.safe454jActions button:first-child{background:#fef3c7!important;color:#78350f!important}.safe454jActions button:disabled{opacity:.45}.safe454jInlineDelete{margin-top:5px!important;padding:5px 9px!important;border-radius:999px!important;background:#fee2e2!important;color:#991b1b!important;font-weight:900!important}.safe454jList{max-height:52vh;overflow:auto;padding-right:4px}.safe454jList details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe454jList summary{font-weight:800;cursor:pointer}.safe454jList table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:8px}.safe454jList th,.safe454jList td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe454jList code{font-size:.75rem;word-break:break-all}.safe454jOrphan{background:#fffaf0}.safe454jTw{background:#fff7ed}.safe454jList td button{padding:5px 8px!important;border-radius:8px!important;background:#fee2e2!important;color:#991b1b!important}@media(max-width:760px){.safe454jCards{grid-template-columns:1fr 1fr}.safe454jList{max-height:48vh}.safe454jList table{font-size:.72rem}.safe454jActions button,.safe454jTop button{width:100%}}</style>';
+      showModal(html);
+      wire();
+    }).catch(function(err){
+      showModal('<h2>IndexedDB-medier</h2><p>Kunne ikke læse TavleMediaArchive: '+h(err&&err.message||err)+'</p><button data-safe454j-back-storage="1">← Tilbage</button>');
+      wire();
+    });
+  };
 })();
 </script>
 </body></html>
