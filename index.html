@@ -19,6 +19,10 @@
 <!-- SAFE455uH32: Aktuel URL#Session registreres automatisk øverst i TavleSessioner-datalisten uden dubletter. -->
 <!-- SAFE455uH33: TavleSessioner tidsstemples med Oprettet og Senest åbnet ved automatisk session-registrering. -->
 <!-- SAFE455uH34: DataWidget URL-knapper får robust kopiér/åbn med Quine/iPad/file:// fallback og manuel kopiboks. -->
+/* SAFE455uH40: Backup + kan nu importeres via indsat JSON-tekst i Gem / åbn. */
+
+<!-- SAFE455uH39: Backup+ manuel JSON-kopi, kompakt medieoverblik, localStorage vælg alle viste, og Skriv udtBackupRef tælles som aktiv arkivreference. -->
+<!-- SAFE455uH41: HTMLApps arkiveres som srcMediaRef i IndexedDB ved oprettelse; backup-tekstimport advarer om lang indsætningstid. -->
 <!-- SAFE455uH17: HTML/TiddlyWiki fra IndexedDB autoloades ikke; tung TW vises som manuel placeholder og eksporteres som rå Blob. -->
 <!-- SAFE455uH16: TiddlyWiki-demoliste udvidet med sikker download/import-vejledning til HTMLWidget. -->
 
@@ -93,7 +97,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.50 SAFE455uH34-session-link-fallbacks</title>
+<title>Interaktiv tavle v1.2.50 SAFE455uH39-backupplus-copy-skrivref</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -13010,6 +13014,45 @@ function isLikelyImageFile(file){
   return /^image\//.test(file.type||'') || /\.(png|jpe?g|gif|webp|svg)$/i.test(file.name||'');
 }
 
+
+async function safe455uH41StoreHtmlAppFile(file, htmlText){
+  const name=String((file&&file.name)||'HTMLApp.html').trim()||'HTMLApp.html';
+  const html=String(htmlText||'');
+  const archive=window.TavleMediaArchive;
+  if(!(archive&&typeof archive.putMedia==='function')||!html){
+    return {html:html,mode:'preview',name:name,htmlStorage:'localState'};
+  }
+  try{
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const rec=await archive.putMedia({
+      kind:'html',
+      name:name,
+      mimeType:'text/html;charset=utf-8',
+      source:'html-widget-htmlapp-file',
+      blob:blob,
+      meta:{safePhase:'SAFE455uH41',appKind:'htmlapp',originalName:name,storedAt:(new Date()).toISOString()}
+    });
+    const ref=rec&&rec.id?String(rec.id):'';
+    if(ref){
+      try{window.__safe455h17HtmlLoadedRefs=window.__safe455h17HtmlLoadedRefs||{};window.__safe455h17HtmlLoadedRefs[ref]=true;}catch(_e){}
+      return {
+        html:'<!-- HTMLApp gemt i TavleMediaArchive via data.srcMediaRef: '+ref.replace(/--/g,'')+' -->',
+        mode:'preview',
+        name:name,
+        srcMediaRef:ref,
+        htmlArchiveRef:ref,
+        htmlStorage:'indexedDB-htmlapp',
+        twMode:'htmlapp',
+        htmlApp:true,
+        htmlAppStoredAt:(new Date()).toISOString()
+      };
+    }
+  }catch(err){
+    console.warn('SAFE455uH41 HTMLApp IndexedDB fallback',err);
+  }
+  return {html:html,mode:'preview',name:name,htmlStorage:'localState-fallback'};
+}
+
 function isLikelyHtmlFile(file){
   const name=String(file.name||'').toLowerCase();
   return /(\.html?|^index\.html?)$/i.test(name) || /html/i.test(file.type||'');
@@ -14268,8 +14311,9 @@ async function handleDroppedFile(file,point){
   }
   if(isLikelyHtmlFile(file)){
     const htmlText=await readFileAsText(file);
-    addDroppedWidget('html',{html:htmlText,mode:'preview',name:file.name||'HTML'},point,file.name||'HTML');
-    toast('HTML åbnet i webvisning');
+    const data=await safe455uH41StoreHtmlAppFile(file,htmlText);
+    addDroppedWidget('html',data,point,file.name||'HTML');
+    toast(data&&data.srcMediaRef?'HTMLApp gemt i IndexedDB':'HTML åbnet i webvisning');
     return {ok:true,kind:'html',label:file.name||'HTML'};
   }
   if(isLikelyTextFile(file)){
@@ -25613,7 +25657,8 @@ if(w.type==='poll'){
   w.data.mode=w.data.mode||'edit';
   const isEdit=w.data.mode==='edit';
   const hasTwSaveRef=!!(w.data&&w.data.srcMediaRef);
-  const isTwMode=!!(w.data&&(w.data.twMode==='tiddlywiki'||w.data.isTiddlyWiki||hasTwSaveRef));
+  const isHtmlAppArchive=!!(w.data&&(w.data.htmlStorage==='indexedDB-htmlapp'||w.data.twMode==='htmlapp'||w.data.htmlApp));
+  const isTwMode=!!(w.data&&(w.data.twMode==='tiddlywiki'||w.data.isTiddlyWiki||(hasTwSaveRef&&!isHtmlAppArchive)));
   const safe455hHtmlZoom=Math.max(0.5,Math.min(3,Number(w.data.htmlZoom||1)));
   const safe455hHtmlIframeStyle=`transform:scale(${safe455hHtmlZoom});transform-origin:0 0;width:${100/safe455hHtmlZoom}%;height:${100/safe455hHtmlZoom}%;`;
   window.__safe455h17HtmlLoadedRefs=window.__safe455h17HtmlLoadedRefs||{};
@@ -25630,7 +25675,7 @@ if(w.type==='poll'){
     ${safe455h17ManualHeavy
       ? safe455h17Placeholder
       : (isEdit
-        ? `<textarea spellcheck="false">${esc(hasTwSaveRef?'Indlæser gemt HTML/TiddlyWiki fra arkiv…':(w.data.html||''))}</textarea>`
+        ? `<textarea spellcheck="false">${esc(hasTwSaveRef?(isHtmlAppArchive?'Indlæser gemt HTMLApp fra arkiv…':'Indlæser gemt HTML/TiddlyWiki fra arkiv…'):(w.data.html||''))}</textarea>`
         : `<div class="htmlFrameWrap"><iframe style="${esc(safe455hHtmlIframeStyle)}" sandbox="allow-scripts allow-forms allow-popups allow-modals allow-same-origin"></iframe><div class="htmlShield"></div></div>`)}
   </div>`;
   const setMode=(mode)=>{w.data.mode=mode;el.classList.remove('htmlInteractive');fillContent(el,w);save()};
@@ -33023,7 +33068,7 @@ function safe453i119FindMediaRefsForDownload(){
     }
     Object.keys(v).forEach(function(k){
       const val=v[k];
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef')&&typeof val==='string'&&val){
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef')&&typeof val==='string'&&val){
         add(val,k,path+'.'+k,v);
       }
       visit(val,path?path+'.'+k:k,v,depth+1);
@@ -33112,7 +33157,7 @@ function safe453i118ScanObjectForStorage(obj){
     }
     Object.keys(v).forEach(function(k){
       const val=v[k];
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef')&&typeof val==='string'&&val){
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef')&&typeof val==='string'&&val){
         found.refs.push({path:path+'.'+k,id:val,key:k});
       }
       visit(val,path?path+'.'+k:k,depth+1);
@@ -33329,6 +33374,7 @@ function safe453i122OpenLocalStorageCleanup(){
       <table><thead><tr><th></th><th>Nøgle</th><th>Vurdering</th><th>Størrelse</th><th>Indhold</th></tr></thead><tbody>${body||'<tr><td colspan="5">Ingen localStorage-nøgler fundet</td></tr>'}</tbody></table>
     </div>
     <div class="safe453i122Actions">
+      <button id="safe453i122SelectAllVisible">Vælg alle viste</button>
       <button id="safe453i122SelectOld">Vælg gamle tavle-versioner</button>
       <button id="safe453i122SelectNone">Vælg ingen</button>
       <button id="safe453i122BackupSelected" disabled>Hent backup af valgte</button>
@@ -33345,6 +33391,16 @@ function safe453i122OpenLocalStorageCleanup(){
     </style>`);
   modal.querySelectorAll('[data-safe453i122-back-storage]').forEach(function(btn){btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}safe453i118OpenStorageOverview();};});
   modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){cb.onchange=safe453i122RefreshCleanupButtons;});
+  const allVisible=modal.querySelector('#safe453i122SelectAllVisible');
+  if(allVisible)allVisible.onclick=function(){
+    modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){
+      if(cb.disabled)return;
+      const tr=cb.closest&&cb.closest('tr');
+      if(tr&&tr.offsetParent===null)return;
+      cb.checked=true;
+    });
+    safe453i122RefreshCleanupButtons();
+  };
   const old=modal.querySelector('#safe453i122SelectOld');
   if(old)old.onclick=function(){modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){
     const key=cb.getAttribute('data-safe453i122-ls-key')||'';
@@ -33476,7 +33532,7 @@ function safe453i125ScanLocalStorageMediaRefs(){
       const key=localStorage.key(i);
       const val=localStorage.getItem(key)||'';
       if(!/^\s*[\[{]/.test(val))continue;
-      if(!/(mediaRef|previewMediaRef|srcMediaRef|fileMediaRef)/.test(val))continue;
+      if(!/(mediaRef|previewMediaRef|srcMediaRef|fileMediaRef|udtBackupRef)/.test(val))continue;
       try{
         const data=JSON.parse(val);
         const scan=safe453i118ScanObjectForStorage(data);
@@ -33591,7 +33647,7 @@ function safe453i124OpenIndexedDbMediaMap(){
       '<div class="safe454lActions"><button data-safe454l-delete-tw '+(twOrphanCount?'':'disabled')+'>🧹 Slet TiddlyWiki-testkopier ('+twOrphanCount+' · '+fmt(twBytes)+')</button><button data-safe454l-delete-orphans '+(orphanCount?'':'disabled')+'>🗑️ Slet alle forældreløse medier ('+orphanCount+' · '+fmt(orphanBytes)+')</button></div>'+ 
       '<div class="safe454lCards"><div><b>IndexedDB-medier</b><span>'+mediaList.length+'</span><small>'+fmt(total)+' i alt</small></div><div><b>I brug</b><span>'+usedCount+'</span><small>fundet som reference</small></div><div><b>Forældreløse</b><span>'+orphanCount+'</span><small>'+fmt(orphanBytes)+'</small></div><div><b>TW-testkopier</b><span>'+twOrphanCount+'</span><small>'+fmt(twBytes)+'</small></div></div>'+ 
       '<div class="safe454lList"><details open><summary>Alle medier i TavleMediaArchive</summary><table><thead><tr><th>Status</th><th>Type/kilde</th><th>Navn</th><th>Størrelse</th><th>ID</th><th>Fundet brugt her</th><th>Handling</th></tr></thead><tbody>'+(rows||'<tr><td colspan="7">Ingen medier fundet</td></tr>')+'</tbody></table></details></div>'+ 
-      '<style>.safe454lTop{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe454lTop span{font-size:.85rem;color:#526070}.safe454lActions{position:sticky;top:0;z-index:10;display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 12px;padding:10px;background:rgba(255,255,255,.97);border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 6px 18px rgba(15,23,42,.10)}.safe454lActions button{background:#e5e7eb!important;color:#111827!important;font-weight:900!important}.safe454lActions button:first-child{background:#fef3c7!important;color:#78350f!important}.safe454lActions button:disabled{opacity:.45}.safe454lCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}.safe454lCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe454lCards b{display:block}.safe454lCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe454lCards small{display:block;color:#526070}.safe454lList{max-height:50vh;overflow:auto;padding-right:4px}.safe454lList details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe454lList summary{font-weight:800;cursor:pointer}.safe454lList table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:8px}.safe454lList th,.safe454lList td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe454lList code{font-size:.74rem;word-break:break-all}.safe454lOrphan{background:#fffaf0}.safe454lTw{background:#fff7ed}.safe454lInlineDelete,.safe454lList td button{padding:5px 8px!important;border-radius:8px!important;background:#fee2e2!important;color:#991b1b!important;font-weight:900!important}@media(max-width:760px){.safe454lCards{grid-template-columns:1fr 1fr}.safe454lActions button,.safe454lTop button{width:100%}.safe454lList{max-height:46vh}.safe454lList table{font-size:.7rem}}</style>';
+      '<style>.safe454lTop{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe454lTop span{font-size:.85rem;color:#526070}.safe454lActions{position:sticky;top:0;z-index:10;display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 12px;padding:10px;background:rgba(255,255,255,.97);border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 6px 18px rgba(15,23,42,.10)}.safe454lActions button{background:#e5e7eb!important;color:#111827!important;font-weight:900!important}.safe454lActions button:first-child{background:#fef3c7!important;color:#78350f!important}.safe454lActions button:disabled{opacity:.45}.safe454lCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}.safe454lCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe454lCards b{display:block}.safe454lCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe454lCards small{display:block;color:#526070}.safe454lList{max-height:50vh;overflow:auto;padding-right:4px}.safe454lList details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe454lList summary{font-weight:800;cursor:pointer}.safe454lList table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:8px}.safe454lList th,.safe454lList td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe454lList code{font-size:.74rem;word-break:break-all}.safe454lOrphan{background:#fffaf0}.safe454lTw{background:#fff7ed}.safe454lInlineDelete,.safe454lList td button{padding:5px 8px!important;border-radius:8px!important;background:#fee2e2!important;color:#991b1b!important;font-weight:900!important}.safe454lList details{margin:6px 0!important;padding:5px 7px!important}.safe454lList table{font-size:.74rem!important;margin-top:4px!important}.safe454lList th,.safe454lList td{padding:3px 5px!important;line-height:1.12!important}.safe454lList code{font-size:.68rem!important}.safe454lInlineDelete,.safe454lList td button{padding:4px 7px!important}@media(max-width:760px){.safe454lCards{grid-template-columns:1fr 1fr}.safe454lActions button,.safe454lTop button{width:100%}.safe454lList{max-height:46vh}.safe454lList table{font-size:.68rem!important}}</style>';
     showModal(html);wire();
   }).catch(function(err){showModal('<h2>IndexedDB-medier</h2><p>Kunne ikke læse TavleMediaArchive: '+escFn(err&&err.message||err)+'</p><button data-safe454l-back>← Tilbage</button>');wire();});
 }
@@ -33603,6 +33659,7 @@ function safe453i133KindForRefKey(key){
   if(key==='mediaRef')return 'Medie i widget';
   if(key==='srcMediaRef')return 'Kildemedie';
   if(key==='fileMediaRef')return 'Filmedie';
+  if(key==='udtBackupRef')return 'Skriv-backup';
   return 'Medie';
 }
 function safe453i133InstallEscBack(){
@@ -34273,7 +34330,7 @@ function safe453i138FindBackupMediaRefs(){
     if(Array.isArray(v)){for(let i=0;i<v.length;i++)visit(v[i],path+'['+i+']',depth+1);return;}
     Object.keys(v).forEach(function(k){
       const val=v[k];
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef')&&typeof val==='string'&&val){add(val,k,path+'.'+k);}
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef')&&typeof val==='string'&&val){add(val,k,path+'.'+k);}
       visit(val,path?path+'.'+k:k,depth+1);
     });
   }
@@ -34365,24 +34422,39 @@ function safe453i160OfferBackupPlusDownload(json,summary){
   }catch(e){
     console.warn('SAFE453i160 kunne ikke lave Blob-url til Backup +',e);
   }
-  if(url){
-    showModal('<h2>Backup + klar</h2>'
-      +'<p>'+esc(summary||'Backup + er klar til at blive hentet.')+'</p>'
-      +'<p class="muted">På iPad/Safari kan download efter læsning fra IndexedDB blive blokeret. Tryk derfor på knappen herunder, hvis filen ikke allerede hentes automatisk.</p>'
-      +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">'
-      +'<a id="safe453i160DownloadBackupPlus" download="'+esc(filename)+'" href="'+esc(url)+'" style="display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:14px;background:#dbeafe;color:#111827;font-weight:900;text-decoration:none;border:1px solid #bfdbfe">Hent Backup +</a>'
-      +'<button id="safe453i160CloseBackupPlus">Luk</button>'
-      +'</div>');
-    const close=modal.querySelector('#safe453i160CloseBackupPlus');
-    if(close)close.onclick=function(){try{URL.revokeObjectURL(url);}catch(_e){} closeModal();};
-    const link=modal.querySelector('#safe453i160DownloadBackupPlus');
-    // Forsøg stadig automatisk download, men behold linket som sikker iPad-fallback.
-    setTimeout(function(){try{if(link)link.click();}catch(_e){}},60);
-  }else{
-    // Sidste fallback: almindelig tekstdownload via eksisterende helper.
-    tavleDownloadTextFile(filename,json,'application/json;charset=utf-8');
-  }
+  showModal('<h2>Backup + klar</h2>'
+    +'<p>'+esc(summary||'Backup + er klar til at blive hentet.')+'</p>'
+    +'<p class="muted">Hvis download ikke virker i Quine/iPad, kan du kopiere JSON-teksten herunder og gemme den som en <b>.json</b>-fil selv.</p>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0">'
+    +(url?'<a id="safe453i160DownloadBackupPlus" download="'+esc(filename)+'" href="'+esc(url)+'" style="display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:14px;background:#dbeafe;color:#111827;font-weight:900;text-decoration:none;border:1px solid #bfdbfe">Hent Backup +</a>':'')
+    +'<button id="safe453i160CopyBackupPlus">Kopiér JSON</button>'
+    +'<button id="safe453i160SelectBackupPlus">Marker tekst</button>'
+    +'<button id="safe453i160CloseBackupPlus">Luk</button>'
+    +'</div>'
+    +'<details open style="margin-top:10px"><summary style="font-weight:900;cursor:pointer">JSON-tekst til manuel backup</summary>'
+    +'<textarea id="safe453i160BackupPlusText" spellcheck="false" style="width:100%;height:min(42vh,360px);margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.25;border:1px solid #cbd5e1;border-radius:12px;padding:10px;white-space:pre;overflow:auto"></textarea>'
+    +'<p class="muted" style="margin-top:6px">Tip: Brug “Kopiér JSON” eller marker teksten og sæt den ind i en tom tekstfil. Filnavnet bør ende på <b>.json</b>.</p>'
+    +'</details>');
+  const ta=modal.querySelector('#safe453i160BackupPlusText');
+  if(ta)ta.value=String(json||'');
+  const close=modal.querySelector('#safe453i160CloseBackupPlus');
+  if(close)close.onclick=function(){try{if(url)URL.revokeObjectURL(url);}catch(_e){} closeModal();};
+  const selectBtn=modal.querySelector('#safe453i160SelectBackupPlus');
+  if(selectBtn)selectBtn.onclick=function(){try{if(ta){ta.focus();ta.select();toast('JSON-tekst markeret');}}catch(_e){}};
+  const copyBtn=modal.querySelector('#safe453i160CopyBackupPlus');
+  if(copyBtn)copyBtn.onclick=function(){
+    const txt=ta?String(ta.value||''):String(json||'');
+    function fallback(){try{if(ta){ta.focus();ta.select();document.execCommand&&document.execCommand('copy');toast('JSON kopieret eller markeret');}}catch(_e){toast('Marker teksten og kopier manuelt');}}
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(txt).then(function(){toast('JSON kopieret');}).catch(function(){fallback();});
+      }else fallback();
+    }catch(_e){fallback();}
+  };
+  // H39: Ingen automatisk klik på blob-linket. Quine/iPad kan vise "No App found for blob:null".
+  // Brugeren kan selv trykke Hent Backup + eller kopiere JSON-teksten.
 }
+
 async function safe453i45DownloadFullBackupWithDrawings(){
   let drawings=[];
   let mediaArchive=[];
@@ -34533,7 +34605,7 @@ function safe453i141CollectRefsFromObject(root){
     if(Array.isArray(v)){for(let i=0;i<v.length;i++)visit(v[i],path+'['+i+']',depth+1);return;}
     Object.keys(v).forEach(function(k){
       const val=v[k];
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef')&&typeof val==='string'&&val){add(val,k,path+'.'+k);}
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef')&&typeof val==='string'&&val){add(val,k,path+'.'+k);}
       visit(val,path?path+'.'+k:k,depth+1);
     });
   }
@@ -34776,6 +34848,64 @@ function safe455uH25AskPdfUrl(w,el,c,src){
   }catch(err){try{toast('Kunne ikke åbne PDF-URL-dialog: '+(err&&err.message?err.message:err));}catch(_e){}}
 }
 
+
+function safe455uH40OpenBackupTextImport(){
+  try{
+    showModal(`<h2>Indsæt backup-tekst</h2>
+      <p>Indsæt JSON-teksten fra <b>Backup + klar</b>. Det er især nyttigt i Quine/iPad, hvis download eller filvalg ikke virker.</p>
+      <p style="margin:8px 0;padding:10px 12px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;font-weight:800;color:#7c2d12">Bemærk: Store Backup + tekster kan tage lang tid at indsætte og blive vist. Vent roligt, også selv om feltet ser tomt ud et øjeblik.</p>
+      <textarea id="safe455uH40BackupText" spellcheck="false" autocapitalize="off" autocomplete="off" style="width:100%;min-height:42vh;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;line-height:1.35;white-space:pre;overflow:auto" placeholder="Indsæt JSON-backup her…"></textarea>
+      <div class="modalActions" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <button id="safe455uH40ImportBackupText">Indlæs backup</button>
+        <button id="safe455uH40PasteBackupText" class="secondary">Indsæt fra udklipsholder</button>
+        <button id="safe455uH40ClearBackupText" class="secondary">Ryd</button>
+        <button id="safe455uH40CloseBackupText" class="secondary">Luk</button>
+      </div>
+      <p class="muted" style="margin-top:10px">Tip: Teksten skal starte med <code>{</code> og være en Tavle-backup i JSON-format.</p>`);
+    const ta=modal.querySelector('#safe455uH40BackupText');
+    const importBtn=modal.querySelector('#safe455uH40ImportBackupText');
+    const pasteBtn=modal.querySelector('#safe455uH40PasteBackupText');
+    const clearBtn=modal.querySelector('#safe455uH40ClearBackupText');
+    const closeBtn=modal.querySelector('#safe455uH40CloseBackupText');
+    if(ta){setTimeout(function(){try{ta.focus();}catch(_e){}},80);}
+    if(closeBtn)closeBtn.onclick=function(){closeModal();};
+    if(clearBtn)clearBtn.onclick=function(){if(ta){ta.value='';ta.focus();}};
+    if(pasteBtn)pasteBtn.onclick=async function(){
+      try{
+        if(navigator.clipboard&&navigator.clipboard.readText){
+          toast('Indsætter backup-tekst… det kan tage lidt tid');
+          const txt=await navigator.clipboard.readText();
+          if(ta){ta.value=txt||'';ta.focus();}
+          toast('Tekst indsat');
+        }else{
+          toast('Udklipsholder kan ikke læses her. Indsæt manuelt.');
+        }
+      }catch(e){
+        toast('Kunne ikke læse udklipsholder. Indsæt manuelt.');
+      }
+    };
+    if(importBtn)importBtn.onclick=function(){
+      const txt=ta?String(ta.value||'').trim():'';
+      if(!txt){toast('Indsæt backup-tekst først');return;}
+      try{
+        const parsed=JSON.parse(txt);
+        const candidate=parsed&&parsed.state?parsed.state:parsed;
+        if(!candidate||!Array.isArray(candidate.slides)){
+          toast('Teksten ligner ikke en Tavle-backup');
+          return;
+        }
+      }catch(e){
+        toast('Teksten er ikke gyldig JSON');
+        return;
+      }
+      openTavleSaveText(txt,{name:'indsat-backup.json'});
+    };
+  }catch(e){
+    console.warn('SAFE455uH40 text import modal failed',e);
+    toast('Kunne ikke åbne tekstimport');
+  }
+}
+
 function showSaveFileOptions(){
   showModal(`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">Gem / åbn</h2><button id="saveOpenHelp" type="button" title="Åbn hjælp til Gem, backup og filer" aria-label="Åbn hjælp til Gem, backup og filer" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div>
     <p class="saveDropIntro"><b>Slip filer ind i appen.</b> Almindelige filer bliver til widgets eller datawidgets. En tavlebackup/gemmefil åbner hele tavlen igen og kan erstatte det, du har åbent nu.</p>
@@ -34795,6 +34925,7 @@ function showSaveFileOptions(){
       <button id="downloadMedia">Hent filer fra tavlen</button>
       <button id="saveBackup">Gem backup</button>
       <button id="saveFullBackupDrawings" title="Backup med ekstra lokale arkivdata">Backup +</button>
+      <button id="safe455uH40OpenTextImport" title="Indsæt JSON-backup som tekst">Indsæt backup-tekst</button>
       <button id="saveTemplate">Gem skabelon</button>
       <button id="downloadEmpty">Hent tom app</button>
       <button id="closeSave" class="secondaryClose">Luk</button>
@@ -34805,6 +34936,8 @@ function showSaveFileOptions(){
   if(saveOpenHelpBtn)saveOpenHelpBtn.onclick=(e)=>{e.preventDefault();e.stopPropagation();safe455uH19OpenHelpAtSummary('Gem, backup og filer');};
   qs('saveBackup').onclick=()=>downloadTavleSaveFile({startPresentation:false,templateOnly:false});
   qs('saveFullBackupDrawings').onclick=()=>safe453i45DownloadFullBackupWithDrawings();
+  const textImportBtn=qs('safe455uH40OpenTextImport');
+  if(textImportBtn)textImportBtn.onclick=()=>safe455uH40OpenBackupTextImport();
   qs('saveTemplate').onclick=()=>downloadTavleSaveFile({startPresentation:false,templateOnly:true});
   qs('safe453i118StorageOverviewSave').onclick=safe453i118OpenStorageOverview;
   qs('downloadMedia').onclick=downloadAllEmbeddedMedia;
@@ -45310,7 +45443,7 @@ Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og un
   function collectRefsFromObject(obj){
     var refs=[];
     walk(obj,function(k,v,p){
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef') && typeof v==='string' && v.trim()){
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef') && typeof v==='string' && v.trim()){
         refs.push({id:v.trim(),path:p,key:k});
       }
     });
@@ -45333,7 +45466,7 @@ Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og un
     var found=false;
     walk(st,function(k,v){
       if(found)return;
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef') && String(v)===String(id)){found=true;}
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef') && String(v)===String(id)){found=true;}
     });
     return found;
   }
