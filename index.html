@@ -19,6 +19,7 @@
 <!-- SAFE455uH32: Aktuel URL#Session registreres automatisk øverst i TavleSessioner-datalisten uden dubletter. -->
 <!-- SAFE455uH33: TavleSessioner tidsstemples med Oprettet og Senest åbnet ved automatisk session-registrering. -->
 <!-- SAFE455uH34: DataWidget URL-knapper får robust kopiér/åbn med Quine/iPad/file:// fallback og manuel kopiboks. -->
+<!-- SAFE455uH44: Tjek saver handshake: Tjek-backupknap bruger Tavle-save når indlejret, standalone-backup udenfor Tavle, og Tjek-toast dæmpes. -->
 /* SAFE455uH40: Backup + kan nu importeres via indsat JSON-tekst i Gem / åbn. */
 
 <!-- SAFE455uH39: Backup+ manuel JSON-kopi, kompakt medieoverblik, localStorage vælg alle viste, og Skriv udtBackupRef tælles som aktiv arkivreference. -->
@@ -25364,6 +25365,184 @@ function safe351OpenDataPicker(w,el){
   window.__safe455uH29UdtalelserWidgetSaver={installed:true,phase:'SAFE455uH29',protocol:PROTOCOL};
 })();
 
+/* SAFE455uH44: Tjek HTML-widget saver bridge.
+   - Lytter på Tjek-appens postMessage-protokol: tavleapp-saver-v1.
+   - Gemmer Tjek-backup/localStorage snapshot som JSON Blob i TavleMediaArchive/IndexedDB.
+   - Reference gemmes på HTML-widgetten som tjekBackupRef, så Backup Plus ser den som aktiv.
+   - Sender gemt backup tilbage ved TJEK_READY / TJEK_LOAD_REQUEST.
+   Ingen ændring af Tjek-layout/UI. */
+(function(){
+  if(window.__safe455uH44TjekWidgetSaver&&window.__safe455uH44TjekWidgetSaver.installed)return;
+  const PROTOCOL='tavleapp-saver-v1';
+  const APP='himmerlands-tjek';
+  function findHtmlWidgetById(id){
+    id=String(id||'');
+    try{
+      const slides=(state&&state.slides)||[];
+      for(let si=0;si<slides.length;si++){
+        const ws=(slides[si]&&slides[si].widgets)||[];
+        for(let wi=0;wi<ws.length;wi++){
+          const w=ws[wi];
+          if(w&&String(w.id)===id&&w.type==='html')return w;
+        }
+      }
+    }catch(_e){}
+    return null;
+  }
+  function findHtmlWidgetBySource(srcWin){
+    if(!srcWin)return null;
+    try{
+      const frames=document.querySelectorAll('.widget[data-type="html"] iframe');
+      for(let i=0;i<frames.length;i++){
+        const fr=frames[i];
+        try{
+          if(fr&&fr.contentWindow===srcWin){
+            const host=fr.closest('.widget[data-type="html"]');
+            const id=host&&host.dataset?host.dataset.id:'';
+            return findHtmlWidgetById(id);
+          }
+        }catch(_e){}
+      }
+    }catch(_e){}
+    return null;
+  }
+  function safeJsonString(obj){try{return JSON.stringify(obj);}catch(_e){return '';}}
+  function safeParseJson(s){try{return JSON.parse(String(s||''));}catch(_e){return null;}}
+  function backupFileName(w,payload){
+    let name='tjek-backup.json';
+    try{name=String((w&&w.data&&(w.data.name||w.data.tjekTitle))||(w&&w.title)||'tjek').trim()||'tjek';}catch(_e){}
+    name=name.replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_');
+    if(!/\.json$/i.test(name))name+='_backup.json';
+    return name;
+  }
+  function postToSource(ev,type,payload,instanceId){
+    try{
+      if(ev&&ev.source&&typeof ev.source.postMessage==='function'){
+        ev.source.postMessage({protocol:PROTOCOL,app:'tavleapp',type:type,instanceId:instanceId||undefined,payload:payload||{}},'*');
+        return true;
+      }
+    }catch(_e){}
+    return false;
+  }
+  function persistStateFallback(){
+    var ok=false;
+    try{ok=!!save({silent:true});}catch(_e){ok=false;}
+    if(!ok){
+      try{localStorage.setItem(KEY,(typeof safe453i161Stringify==='function'?safe453i161Stringify(state):JSON.stringify(state)));ok=true;}catch(_e2){}
+    }
+    return ok;
+  }
+  async function readArchiveJson(ref){
+    ref=String(ref||'').trim();
+    if(!ref)return null;
+    const a=window.TavleMediaArchive;
+    if(a&&typeof a.getBlob==='function'){
+      try{
+        const blob=await a.getBlob(ref);
+        if(blob&&typeof blob.text==='function')return safeParseJson(await blob.text());
+      }catch(err){console.warn('SAFE455uH43 Tjek read failed',err);}
+    }
+    return null;
+  }
+  async function readStoredBackup(w){
+    if(w&&w.data){
+      const byWidget=await readArchiveJson(w.data.tjekBackupRef);
+      if(byWidget)return byWidget;
+      if(w.data.tjekBackup){
+        if(typeof w.data.tjekBackup==='string')return safeParseJson(w.data.tjekBackup);
+        if(typeof w.data.tjekBackup==='object')return w.data.tjekBackup;
+      }
+    }
+    try{
+      const ref=state&&state.tjekLatestBackupRef;
+      const globalBackup=await readArchiveJson(ref);
+      if(globalBackup)return globalBackup;
+      if(state&&state.tjekLatestBackup){
+        if(typeof state.tjekLatestBackup==='string')return safeParseJson(state.tjekLatestBackup);
+        if(typeof state.tjekLatestBackup==='object')return state.tjekLatestBackup;
+      }
+    }catch(_e){}
+    return null;
+  }
+  async function saveTjekBackup(ev,msg){
+    const payload=(msg&&msg.payload)||{};
+    const backup=payload.backup||payload;
+    const hash=String(payload.hash||'');
+    const instanceId=String(msg&&msg.instanceId||'');
+    if(!backup||typeof backup!=='object'||!backup.data||typeof backup.data!=='object')return;
+    const w=findHtmlWidgetBySource(ev&&ev.source);
+    if(!w)return;
+    w.data=w.data||{};
+    const json=safeJsonString(backup);
+    if(!json)return;
+    const a=window.TavleMediaArchive;
+    let savedRef='';
+    if(a&&typeof a.putMedia==='function'){
+      const existing=String(w.data.tjekBackupRef||state.tjekLatestBackupRef||'').trim();
+      const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+      const rec=await a.putMedia({
+        id:existing||undefined,
+        kind:'json',
+        name:backupFileName(w,payload),
+        mimeType:'application/json;charset=utf-8',
+        source:'html-widget-tjek-saver',
+        blob:blob,
+        meta:{safePhase:'SAFE455uH44',sourceWidgetId:String(w.id||''),app:APP,protocol:PROTOCOL,hash:hash,savedAt:(new Date()).toISOString()}
+      });
+      savedRef=(rec&&rec.id)?String(rec.id):existing;
+      if(savedRef){
+        w.data.tjekBackupRef=savedRef;
+        state.tjekLatestBackupRef=savedRef;
+        delete w.data.tjekBackup;
+        delete state.tjekLatestBackup;
+      }
+    }else{
+      w.data.tjekBackup=json;
+      state.tjekLatestBackup=json;
+    }
+    w.data.tjekSaver='tjek';
+    w.data.tjekProtocol=PROTOCOL;
+    w.data.tjekLastHash=hash;
+    w.data.tjekLastSavedAt=(new Date()).toISOString();
+    w.data.tjekTitle=String((backup&&backup.title)||payload.title||w.data.name||w.title||'Tjek');
+    state.tjekLatestHash=hash;
+    state.tjekLatestSavedAt=w.data.tjekLastSavedAt;
+    const ok=persistStateFallback();
+    if(ok){
+      postToSource(ev,'TJEK_SAVE_ACK',{hash:hash,ref:savedRef||undefined,savedAt:w.data.tjekLastSavedAt},instanceId);
+      if(String(payload.reason||'')==='manual'){try{toast('Tjek gemt i Tavle')}catch(_e){}}
+    }else{
+      postToSource(ev,'TJEK_SAVE_ERROR',{message:'TavleApp kunne ikke persistere state efter IndexedDB-gemning'},instanceId);
+      try{toast('Tjek gemt i arkiv, men widget-state kunne ikke gemmes')}catch(_e){}
+    }
+  }
+  async function sendStoredBackup(ev,msg){
+    const w=findHtmlWidgetBySource(ev&&ev.source);
+    const backup=await readStoredBackup(w);
+    if(!backup)return;
+    postToSource(ev,'TJEK_LOAD',{backup:backup,mode:'replace',source:(w&&w.data&&w.data.tjekBackupRef)?'tavleapp-widget-indexeddb':'tavleapp-global-indexeddb'},String(msg&&msg.instanceId||''));
+  }
+  window.addEventListener('message',function(ev){
+    const msg=ev&&ev.data;
+    if(!msg||msg.protocol!==PROTOCOL||msg.app!==APP)return;
+    if(msg.type==='TJEK_SAVE'){
+      saveTjekBackup(ev,msg).catch(function(err){
+        console.warn('SAFE455uH44 Tjek save failed',err);
+        postToSource(ev,'TJEK_SAVE_ERROR',{message:(err&&err.message)||'ukendt fejl'},String(msg&&msg.instanceId||''));
+        try{toast('Kunne ikke gemme Tjek')}catch(_e){}
+      });
+      return;
+    }
+    if(msg.type==='TJEK_READY'||msg.type==='TJEK_LOAD_REQUEST'){
+      postToSource(ev,'TJEK_HELLO',{ok:true,mode:'tavleapp',phase:'SAFE455uH44'},String(msg&&msg.instanceId||''));
+      sendStoredBackup(ev,msg).catch(function(err){console.warn('SAFE455uH44 Tjek load failed',err);});
+      return;
+    }
+  });
+  window.__safe455uH44TjekWidgetSaver={installed:true,phase:'SAFE455uH44',protocol:PROTOCOL};
+})();
+
+
 function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type;// --- WIDGET: TEXT / DATASET ---
  if(w.type==='text'){
   w.data=w.data||{};
@@ -33068,7 +33247,7 @@ function safe453i119FindMediaRefsForDownload(){
     }
     Object.keys(v).forEach(function(k){
       const val=v[k];
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef')&&typeof val==='string'&&val){
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef'||k==='tjekBackupRef')&&typeof val==='string'&&val){
         add(val,k,path+'.'+k,v);
       }
       visit(val,path?path+'.'+k:k,v,depth+1);
@@ -33157,7 +33336,7 @@ function safe453i118ScanObjectForStorage(obj){
     }
     Object.keys(v).forEach(function(k){
       const val=v[k];
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef')&&typeof val==='string'&&val){
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef'||k==='tjekBackupRef')&&typeof val==='string'&&val){
         found.refs.push({path:path+'.'+k,id:val,key:k});
       }
       visit(val,path?path+'.'+k:k,depth+1);
@@ -33532,7 +33711,7 @@ function safe453i125ScanLocalStorageMediaRefs(){
       const key=localStorage.key(i);
       const val=localStorage.getItem(key)||'';
       if(!/^\s*[\[{]/.test(val))continue;
-      if(!/(mediaRef|previewMediaRef|srcMediaRef|fileMediaRef|udtBackupRef)/.test(val))continue;
+      if(!/(mediaRef|previewMediaRef|srcMediaRef|fileMediaRef|udtBackupRef|tjekBackupRef)/.test(val))continue;
       try{
         const data=JSON.parse(val);
         const scan=safe453i118ScanObjectForStorage(data);
@@ -33659,7 +33838,7 @@ function safe453i133KindForRefKey(key){
   if(key==='mediaRef')return 'Medie i widget';
   if(key==='srcMediaRef')return 'Kildemedie';
   if(key==='fileMediaRef')return 'Filmedie';
-  if(key==='udtBackupRef')return 'Skriv-backup';
+  if(key==='udtBackupRef'||k==='tjekBackupRef')return 'Skriv-backup';
   return 'Medie';
 }
 function safe453i133InstallEscBack(){
@@ -34330,7 +34509,7 @@ function safe453i138FindBackupMediaRefs(){
     if(Array.isArray(v)){for(let i=0;i<v.length;i++)visit(v[i],path+'['+i+']',depth+1);return;}
     Object.keys(v).forEach(function(k){
       const val=v[k];
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef')&&typeof val==='string'&&val){add(val,k,path+'.'+k);}
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef'||k==='tjekBackupRef')&&typeof val==='string'&&val){add(val,k,path+'.'+k);}
       visit(val,path?path+'.'+k:k,depth+1);
     });
   }
@@ -34605,7 +34784,7 @@ function safe453i141CollectRefsFromObject(root){
     if(Array.isArray(v)){for(let i=0;i<v.length;i++)visit(v[i],path+'['+i+']',depth+1);return;}
     Object.keys(v).forEach(function(k){
       const val=v[k];
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef')&&typeof val==='string'&&val){add(val,k,path+'.'+k);}
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef'||k==='tjekBackupRef')&&typeof val==='string'&&val){add(val,k,path+'.'+k);}
       visit(val,path?path+'.'+k:k,depth+1);
     });
   }
@@ -45443,7 +45622,7 @@ Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og un
   function collectRefsFromObject(obj){
     var refs=[];
     walk(obj,function(k,v,p){
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef') && typeof v==='string' && v.trim()){
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef'||k==='tjekBackupRef') && typeof v==='string' && v.trim()){
         refs.push({id:v.trim(),path:p,key:k});
       }
     });
@@ -45466,7 +45645,7 @@ Ingen ændring af gitterlagets placering: det ligger fortsat over baggrund og un
     var found=false;
     walk(st,function(k,v){
       if(found)return;
-      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef') && String(v)===String(id)){found=true;}
+      if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='udtBackupRef'||k==='tjekBackupRef') && String(v)===String(id)){found=true;}
     });
     return found;
   }
