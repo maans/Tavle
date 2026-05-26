@@ -2,6 +2,7 @@
 
 <html lang="da">
 <head>
+<!-- Skriv standalone HE smalprint nodocs tavle-reset-fix 2026-05-26 -->
 <!-- Skriv standalone HE smalprint nodocs 2026-05-26 -->
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
@@ -6259,7 +6260,32 @@ function tooltipTextFor(st, scope, key){
 
     on('btnReset','click', () => {
       if (!confirm('Ryd alle lokale data i denne browser?')) return;
+
+      const isEmbeddedInTavle = (() => {
+        try { return !!(window.parent && window.parent !== window && window.__UDT_TAVLE_BRIDGE__); }
+        catch(_) { return false; }
+      })();
+
+      // Ryd appens lokale data først.
       lsDelPrefix(LS_PREFIX);
+
+      // Når Skriv kører som HTML-app i TavleAppen, ligger der også en kopi i tavlens
+      // IndexedDB-hukommelse. Hvis vi bare reloader, indlæser TavleAppen den gamle kopi igen.
+      // Derfor skal den tomme tilstand først gemmes tilbage via saver-bridge.
+      if (isEmbeddedInTavle) {
+        try {
+          const bridge = window.__UDT_TAVLE_BRIDGE__;
+          if (bridge && typeof bridge.saveNow === 'function') {
+            bridge.saveNow('manual-reset');
+          }
+          const st = document.getElementById('statusText');
+          if (st) st.textContent = 'Data ryddet – gemt tilbage til TavleAppen';
+        } catch(e) {}
+        // Giv TavleAppen tid til at modtage den tomme backup før reload.
+        setTimeout(() => location.reload(), 1200);
+        return;
+      }
+
       location.reload();
     });
 
