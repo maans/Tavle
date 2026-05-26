@@ -2,7 +2,7 @@
 
 <html lang="da">
 <head>
-<!-- Skriv standalone HE smalprint nodocs tavle-reset-fix 2026-05-26 -->
+<!-- Skriv standalone HE smalprint nodocs iPad-print-signature-flowfix-v2-signature-space 2026-05-27 -->
 <!-- Skriv standalone HE smalprint nodocs 2026-05-26 -->
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
@@ -2631,48 +2631,56 @@ const docTitle = escapeHtml(title || 'Print');
       page-break-after: auto;
     }
     .content{
-      height: 100%;
-      overflow: hidden;
-      position: relative;
+      width: 100%;
+      min-height: auto;
+      overflow: visible;
+      position: static;
     }
     pre.statement{
       white-space: pre-wrap;
       margin: 0;
-      overflow: hidden;
+      overflow: visible;
       text-align: justify;
       text-align-last: left;
       hyphens: auto;
       -webkit-hyphens: auto;
     }
 
-    /* Signatur: to faste kolonner (Kontaktlærere / Forstander) */
+    /* Signatur: almindeligt flow-indhold efter teksten.
+       iPad/WebKit kan placere fixed/absolute print-footers forkert og lægge
+       signaturerne ind over brødteksten. Flow er mere robust: ved lange
+       udtalelser flytter signaturen hellere med teksten til næste side. */
     .signatures{
-      display:flex;
-      justify-content:space-between;
-      gap: 16px;
-      margin-top: 18px;
-      width: 100%;
+      display:grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 16mm;
+      margin: 24mm auto 0 auto;
+      width: 84%;
       font-family: Arial, sans-serif;
       font-size: 10.5pt;
       line-height: 1.25;
+      position: static !important;
+      break-inside: avoid;
+      page-break-inside: avoid;
     }
  
     @media print{
-      /* Footer-signatur: fixed for enkelt-elev print, absolut pr. side ved multi-print (for at undgå overlappende fixed-elementer) */
-      body.print-single .signatures{ position: fixed; bottom: 32px; left: 0; right: 0; width: 100%; }
-      body.print-multi .page{ position: relative; }
-      body.print-multi .content{ position: relative; min-height: 281mm; }
-      body.print-multi .signatures{ position: absolute; bottom: 32px; left: 0; right: 0; width: 100%; }
-      /* Sørg for at brødtekst aldrig kan løbe ned i signaturen */
-      pre.statement{ padding-bottom: 110px; }
+      .content{ height: auto !important; min-height: auto !important; overflow: visible !important; position: static !important; }
+      pre.statement{ overflow: visible !important; padding-bottom: 0 !important; }
+      .signatures{ position: static !important; bottom: auto !important; left: auto !important; right: auto !important; }
     }
 
-    /* Giv Kontaktlærere mere plads end Forstander (2 navne vs 1) */
-    .sig-col{ break-inside: avoid; page-break-inside: avoid; min-width: 0; }
-    .sig-left{ text-align: center; flex: 2 1 0; }
-    .sig-right{ text-align: center; flex: 1 1 0; }
-    .sig-name{ display:block; }
-    .sig-label{ display:block; margin-top: 2px; }
+    /* Underskriftsfelter: balanceret og centreret, med plads til fysisk underskrift. */
+    .sig-col{ break-inside: avoid; page-break-inside: avoid; min-width: 0; text-align: center; }
+    .sig-left, .sig-right{ text-align: center; }
+    .sig-name{
+      display:block;
+      border-top: 1px solid #000;
+      padding-top: 2mm;
+      min-height: 4mm;
+      white-space: normal;
+    }
+    .sig-label{ display:block; margin-top: 1mm; }
     .sig-left .sig-label{ text-align: center; }
 
 
