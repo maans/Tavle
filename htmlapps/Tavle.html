@@ -19,8 +19,9 @@
 <!-- SAFE455uH32: Aktuel URL#Session registreres automatisk øverst i TavleSessioner-datalisten uden dubletter. -->
 <!-- SAFE455uH33: TavleSessioner tidsstemples med Oprettet og Senest åbnet ved automatisk session-registrering. -->
 <!-- SAFE455uH34: DataWidget URL-knapper får robust kopiér/åbn med Quine/iPad/file:// fallback og manuel kopiboks. -->
+<!-- SAFE455uH45f: One-click HTMLApps med TiddlyWiki straks-placeholder, baggrundshentning og manuel start. -->
+<!-- SAFE455uH45g2: Robust XLSX-import via central directory; bevarer demoer. -->
 <!-- SAFE455uH44: Tjek saver handshake: Tjek-backupknap bruger Tavle-save når indlejret, standalone-backup udenfor Tavle, og Tjek-toast dæmpes. -->
-<!-- SAFE455uH47: Minimal Excel/Google Sheets .xlsx/.xlsm import som DataWidget med central-directory ZIP-læser og UTF-8/ÆØÅ; demoer/HTMLApps/Save-bro urørt. -->
 /* SAFE455uH40: Backup + kan nu importeres via indsat JSON-tekst i Gem / åbn. */
 
 <!-- SAFE455uH39: Backup+ manuel JSON-kopi, kompakt medieoverblik, localStorage vælg alle viste, og Skriv udtBackupRef tælles som aktiv arkivreference. -->
@@ -99,7 +100,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.53 SAFE455uH47-excel-datawidget-zipfix-utf8-preserve-demos</title>
+<title>Interaktiv tavle v1.2.50 SAFE455uH45g2-demoer-excelimport</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -13036,7 +13037,12 @@ async function safe455uH41StoreHtmlAppFile(file, htmlText){
     });
     const ref=rec&&rec.id?String(rec.id):'';
     if(ref){
-      try{window.__safe455h17HtmlLoadedRefs=window.__safe455h17HtmlLoadedRefs||{};window.__safe455h17HtmlLoadedRefs[ref]=true;}catch(_e){}
+      const isTwName=/tiddlywiki/i.test(name);
+      try{
+        window.__safe455h17HtmlLoadedRefs=window.__safe455h17HtmlLoadedRefs||{};
+        if(isTwName) delete window.__safe455h17HtmlLoadedRefs[ref];
+        else window.__safe455h17HtmlLoadedRefs[ref]=true;
+      }catch(_e){}
       return {
         html:'<!-- HTMLApp gemt i TavleMediaArchive via data.srcMediaRef: '+ref.replace(/--/g,'')+' -->',
         mode:'preview',
@@ -13044,7 +13050,8 @@ async function safe455uH41StoreHtmlAppFile(file, htmlText){
         srcMediaRef:ref,
         htmlArchiveRef:ref,
         htmlStorage:'indexedDB-htmlapp',
-        twMode:'htmlapp',
+        twMode:isTwName?'tiddlywiki':'htmlapp',
+        isTiddlyWiki:isTwName,
         htmlApp:true,
         htmlAppStoredAt:(new Date()).toISOString()
       };
@@ -13074,7 +13081,7 @@ function isLikelyTsvFile(file){
 
 function isLikelyXlsxFile(file){
   const name=String(file.name||'').toLowerCase();
-  return /\.(xlsx|xlsm|xls)$/i.test(name) || /spreadsheet|excel/i.test(file.type||'');
+  return /\.(xlsx|xls)$/i.test(name) || /spreadsheet|excel/i.test(file.type||'');
 }
 function isLikelyGoogleSheetRef(file){
   return /\.gsheet$/i.test(String(file&&file.name||''));
@@ -13819,7 +13826,7 @@ function xlsxColToIndex(ref){
   return Math.max(0,n-1);
 }
 async function parseXlsxDatasetFile(file){
-  if(/\.xls$/i.test(file.name||'') && !/\.xlsx$/i.test(file.name||''))throw new Error('Ældre Excel-format (.xls) understøttes ikke. Gem/eksportér som .xlsx fra Google Sheets/Numbers.');
+  if(/\.xls$/i.test(file.name||'') && !/\.xlsx$/i.test(file.name||''))throw new Error('Ældre Excel-format (.xls) understøttes ikke endnu. Gem filen som .xlsx.');
   const zip=tavleZipEntries(await file.arrayBuffer());
   const sheetName=Object.keys(zip).sort().find(k=>/^xl\/worksheets\/sheet\d+\.xml$/.test(k));
   if(!sheetName)throw new Error('Kunne ikke finde første ark i regnearket');
@@ -13853,7 +13860,7 @@ async function parseXlsxDatasetFile(file){
   const hasHeader=numeric<first.filter(Boolean).length/2;
   const columns=hasHeader?first.map((c,i)=>c||('Kolonne '+(i+1))):Array.from({length:maxLen},(_,i)=>'Kolonne '+(i+1));
   const dataRows=(hasHeader?rows.slice(1):rows).map(r=>Array.from({length:columns.length},(_,i)=>String(r[i]||'').trim()));
-  return {id:'ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:(file.name||'Datasæt').replace(/\.[^.]+$/,''),type:'xlsx',columns,rows:dataRows,sourceName:file.name||'',importedAt:Date.now(),encoding:'utf-8/xml'};
+  return {id:'ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:(file.name||'Datasæt').replace(/\.[^.]+$/,''),type:'xlsx',columns,rows:dataRows,sourceName:file.name||'',importedAt:Date.now()};
 }
 function dropBatchPoint(base,index,type){
   const rect=app.getBoundingClientRect();
@@ -15234,44 +15241,62 @@ function parseListTextFile(txt){
   return s.split(/\n|,|;|\t/).map(x=>x.trim()).filter(Boolean);
 }
 function tavleDecodeXmlEntities(s){return String(s||'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&')}
-function tavleLe16(u,o){return (u[o]|(u[o+1]<<8))>>>0;}
-function tavleLe32(u,o){return (u[o]|(u[o+1]<<8)|(u[o+2]<<16)|(u[o+3]<<24))>>>0;}
-function tavleFindEocd(u){
-  for(let i=u.length-22;i>=Math.max(0,u.length-66000);i--){
-    if(u[i]===0x50&&u[i+1]===0x4b&&u[i+2]===0x05&&u[i+3]===0x06)return i;
-  }
-  return -1;
-}
 function tavleZipEntries(buf){
-  // SAFE455uH47: læs ZIP central directory i stedet for local headers.
-  // Google Sheets/Numbers .xlsx kan bruge data descriptors, hvor local header har csize=0.
-  const u=new Uint8Array(buf), dec=new TextDecoder('utf-8',{fatal:false}), entries={};
-  const eocd=tavleFindEocd(u);
-  if(eocd<0)throw new Error('Regnearket er ikke en gyldig .xlsx/.xlsm-fil');
-  const total=tavleLe16(u,eocd+10), cdSize=tavleLe32(u,eocd+12), cdOffset=tavleLe32(u,eocd+16);
-  let p=cdOffset, cdEnd=Math.min(u.length,cdOffset+cdSize);
-  for(let n=0;n<total && p+46<=cdEnd;n++){
-    if(!(u[p]===0x50&&u[p+1]===0x4b&&u[p+2]===0x01&&u[p+3]===0x02))break;
-    const comp=tavleLe16(u,p+10), csize=tavleLe32(u,p+20), usize=tavleLe32(u,p+24);
-    const nameLen=tavleLe16(u,p+28), extraLen=tavleLe16(u,p+30), commentLen=tavleLe16(u,p+32);
-    const localOff=tavleLe32(u,p+42);
-    const name=dec.decode(u.slice(p+46,p+46+nameLen));
-    if(localOff+30<=u.length && u[localOff]===0x50&&u[localOff+1]===0x4b&&u[localOff+2]===0x03&&u[localOff+3]===0x04){
-      const lfNameLen=tavleLe16(u,localOff+26), lfExtraLen=tavleLe16(u,localOff+28);
-      const start=localOff+30+lfNameLen+lfExtraLen, end=start+csize;
-      if(end<=u.length)entries[name]={comp:comp,csize:csize,usize:usize,data:u.slice(start,end)};
+  /* SAFE455uH45g2: robust XLSX/ZIP-læsning.
+     Den gamle scanner læste kun local file headers og fejlede på XLSX-filer,
+     hvor størrelser står i central directory/data descriptor. Denne version
+     bruger central directory først og falder kun tilbage til den gamle metode. */
+  const u=new Uint8Array(buf), dec=new TextDecoder('utf-8'), entries={};
+  const u16=p=>u[p]|(u[p+1]<<8);
+  const u32=p=>(u[p]|(u[p+1]<<8)|(u[p+2]<<16)|(u[p+3]<<24))>>>0;
+  function addFromCentral(){
+    let eocd=-1;
+    for(let p=Math.max(0,u.length-66000);p<=u.length-22;p++){
+      if(u[p]===0x50&&u[p+1]===0x4b&&u[p+2]===0x05&&u[p+3]===0x06)eocd=p;
     }
-    p+=46+nameLen+extraLen+commentLen;
+    if(eocd<0)return false;
+    const total=u16(eocd+10), cdSize=u32(eocd+12), cdOffset=u32(eocd+16);
+    let p=cdOffset, seen=0;
+    while(p+46<=u.length && (!total || seen<total) && u[p]===0x50&&u[p+1]===0x4b&&u[p+2]===0x01&&u[p+3]===0x02){
+      const comp=u16(p+10), csize=u32(p+20), usize=u32(p+24);
+      const nameLen=u16(p+28), extraLen=u16(p+30), commentLen=u16(p+32), localOff=u32(p+42);
+      const name=dec.decode(u.slice(p+46,p+46+nameLen));
+      if(localOff+30<=u.length){
+        const lfNameLen=u16(localOff+26), lfExtraLen=u16(localOff+28);
+        const start=localOff+30+lfNameLen+lfExtraLen;
+        const end=start+csize;
+        if(end<=u.length)entries[name]={comp,data:u.slice(start,end),usize};
+      }
+      p+=46+nameLen+extraLen+commentLen; seen++;
+      if(cdSize && p>=cdOffset+cdSize)break;
+    }
+    return Object.keys(entries).length>0;
+  }
+  if(addFromCentral())return entries;
+  let i=0;
+  while(i<u.length-30){
+    if(u[i]!==0x50||u[i+1]!==0x4b||u[i+2]!==0x03||u[i+3]!==0x04){i++;continue}
+    const comp=u16(i+8), csize=u32(i+18), nameLen=u16(i+26), extraLen=u16(i+28);
+    const name=dec.decode(u.slice(i+30,i+30+nameLen));
+    const start=i+30+nameLen+extraLen, end=start+csize;
+    if(csize && end<=u.length){entries[name]={comp,data:u.slice(start,end)}; i=end;} else i=start+1;
   }
   return entries;
 }
 async function tavleInflateZipEntry(entry){
   if(!entry)return '';
-  if(entry.comp===0)return new TextDecoder('utf-8',{fatal:false}).decode(entry.data);
+  if(entry.comp===0)return new TextDecoder('utf-8').decode(entry.data);
   if(entry.comp!==8)throw new Error('Ikke-understøttet XLSX-komprimering');
-  if(!('DecompressionStream' in window))throw new Error('Browseren kan ikke læse xlsx direkte');
-  const stream=new Blob([entry.data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
-  return await new Response(stream).text();
+  if(!('DecompressionStream' in window))throw new Error('Browseren kan ikke læse xlsx direkte i denne browser');
+  const formats=['deflate-raw','deflate'];
+  let lastErr=null;
+  for(const fmt of formats){
+    try{
+      const stream=new Blob([entry.data]).stream().pipeThrough(new DecompressionStream(fmt));
+      return await new Response(stream).text();
+    }catch(err){lastErr=err;}
+  }
+  throw lastErr||new Error('Kunne ikke pakke XLSX-data ud');
 }
 async function parseXlsxListFile(file){
   const zip=tavleZipEntries(await file.arrayBuffer());
@@ -16393,6 +16418,127 @@ function safe453kCreateDatasetDemo(){
     safe453kCreateDemoWidget('text',{text:'Navn\tHold\tNote\nAlma\tA\tKan hjælpe\nBertram\tB\tGod til grupper',fontSize:18},'📊 Demo: data');
   }
 }
+async function safe455uH45cInstallHtmlApp(appKey){
+  const apps={
+    Skriv:{file:'Skriv.html',title:'Skriv.html',icon:'✍️',label:'Skriv'},
+    Tjek:{file:'Tjek.html',title:'Tjek.html',icon:'✅',label:'Tjek'},
+    Tavle:{file:'Tavle.html',title:'Tavle.html',icon:'🧭',label:'Tavle'},
+    TiddlyWiki:{file:'TiddlyWiki.html',title:'TiddlyWiki.html',icon:'📝',label:'TiddlyWiki'}
+  };
+  const app=apps[String(appKey||'')];
+  if(!app){try{toast('Ukendt HTMLApp');}catch(_e){} return null;}
+  const isTw=String(appKey)==='TiddlyWiki';
+  let w=null;
+  function safe455uH45fFitSelectSave(widget){
+    try{
+      if(widget){
+        widget.w=Math.max(widget.w||420, appKey==='Tjek'?420:(isTw?720:560));
+        widget.h=Math.max(widget.h||300, appKey==='Tjek'?620:(isTw?520:420));
+        if(typeof fitWidgetToViewport==='function')fitWidgetToViewport(widget);
+      }
+      if(typeof render==='function')render();
+      if(widget&&typeof select==='function')select(widget.id,{editText:false});
+      if(typeof save==='function')save();
+    }catch(_e){}
+  }
+  function safe455uH45fTwLoadingHtml(){
+    return '<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;background:#0f172a;color:#fff;display:grid;place-items:center;min-height:100vh}.box{max-width:560px;padding:28px;border-radius:22px;background:#111827;box-shadow:0 20px 60px #0008;text-align:center}.spinner{width:44px;height:44px;border:5px solid #334155;border-top-color:#8b5cf6;border-radius:50%;margin:0 auto 18px;animation:r 1s linear infinite}@keyframes r{to{transform:rotate(360deg)}}h1{font-size:26px;margin:0 0 8px}p{opacity:.8;line-height:1.35;font-weight:700}</style></head><body><div class="box"><div class="spinner"></div><h1>Henter TiddlyWiki…</h1><p>Widgetten er oprettet. Den store HTML-fil hentes og gemmes i Tavles mediearkiv.</p></div></body></html>';
+  }
+  function safe455uH45fFetchCandidates(){
+    const candidates=[];
+    try{candidates.push(new URL('./htmlapps/'+app.file, window.location.href).href);}catch(_e){}
+    try{candidates.push(new URL('htmlapps/'+app.file, window.location.href).href);}catch(_e){}
+    candidates.push('https://maans.github.io/Tavle/htmlapps/'+app.file);
+    if(isTw)candidates.push('https://raw.githubusercontent.com/maans/Tavle/main/htmlapps/'+app.file);
+    return Array.from(new Set(candidates));
+  }
+  try{
+    if(isTw){
+      // SAFE455uH45f: TiddlyWiki er tung. Opret widgetten straks, så brugeren ser at hentningen er i gang.
+      const loadingData={
+        html:safe455uH45fTwLoadingHtml(),
+        mode:'preview',
+        name:app.file,
+        htmlApp:true,
+        htmlAppName:app.label,
+        htmlAppSource:'htmlapps/'+app.file,
+        twMode:'tiddlywiki-loading',
+        isTiddlyWiki:false,
+        htmlInstallPending:true
+      };
+      w=addWidget('html',loadingData);
+      if(w)w.title=app.title;
+      safe455uH45fFitSelectSave(w);
+      if(typeof toast==='function')toast('Henter TiddlyWiki…');
+    }else{
+      if(typeof toast==='function')toast('Henter '+app.label+'…');
+    }
+
+    let res=null, url='', lastErr=null;
+    for(const candidate of safe455uH45fFetchCandidates()){
+      try{
+        const r=await fetch(candidate,{cache:'no-store'});
+        if(r&&r.ok){res=r; url=candidate; break;}
+        lastErr=new Error('HTTP '+(r&&r.status));
+      }catch(err){lastErr=err;}
+    }
+    if(!res)throw lastErr||new Error('Kunne ikke hente HTMLApp');
+    if(isTw && typeof toast==='function')toast('Gemmer TiddlyWiki i arkivet…');
+    const htmlText=await res.text();
+    if(!htmlText || !/^\s*<!doctype|<html[\s>]/i.test(htmlText)){
+      if(!String(htmlText||'').trim())throw new Error('Tom HTML-fil');
+    }
+    let data;
+    if(typeof safe455uH41StoreHtmlAppFile==='function'){
+      data=await safe455uH41StoreHtmlAppFile({name:app.file,type:'text/html',size:htmlText.length}, htmlText);
+    }else{
+      data={html:htmlText,mode:'preview',name:app.file,htmlStorage:'localState-fallback'};
+    }
+    data=data||{};
+    data.name=app.file;
+    data.htmlApp=true;
+    data.htmlAppName=app.label;
+    data.htmlAppSource=url||('./htmlapps/'+app.file);
+    data.mode=data.mode||'preview';
+    if(isTw){
+      data.twMode='tiddlywiki';
+      data.isTiddlyWiki=true;
+      data.htmlApp=true;
+      data.htmlInstallPending=false;
+      try{
+        if(data.srcMediaRef){
+          window.__safe455h17HtmlLoadedRefs=window.__safe455h17HtmlLoadedRefs||{};
+          delete window.__safe455h17HtmlLoadedRefs[String(data.srcMediaRef)];
+        }
+      }catch(_e){}
+    }
+    if(w){
+      w.data=Object.assign({}, w.data||{}, data);
+      w.title=app.title;
+    }else{
+      w=addWidget('html',data);
+      if(w)w.title=app.title;
+    }
+    safe455uH45fFitSelectSave(w);
+    if(typeof toast==='function')toast(isTw?'TiddlyWiki er klar — klik Indlæs, når du vil starte den':app.label+' installeret som HTMLApp');
+    return w;
+  }catch(err){
+    console.error('SAFE455uH45f install failed',err);
+    if(w && isTw){
+      try{
+        w.data=w.data||{};
+        w.data.html='<!doctype html><html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;padding:24px"><h1>TiddlyWiki kunne ikke hentes</h1><p>Prøv igen senere, eller hent HTML-filen manuelt og træk den ind i Tavle.</p><p style="opacity:.7">'+String(err&&err.message?err.message:'Ukendt fejl').replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]})+'</p></body></html>';
+        w.data.twMode='htmlapp';
+        w.data.isTiddlyWiki=false;
+        w.data.htmlInstallPending=false;
+        safe455uH45fFitSelectSave(w);
+      }catch(_e){}
+    }
+    if(typeof toast==='function')toast('Kunne ikke hente '+app.label+' fra htmlapps' + (err&&err.message?': '+err.message:''));
+    return w||null;
+  }
+}
+
 function safe453kOpenDemoModal(){
   const demos=[
     ['text','Aa','Tekst-demo','En instruktionstekst til tavlen',()=>safe453kCreateDemoWidget('text',{text:'Dagens opgave\n\n1. Læs teksten\n2. Find tre nøgleord\n3. Tal med sidemanden\n4. Skriv en fælles sætning',fontSize:26},'Aa Demo: instruktion')],
@@ -16411,16 +16557,25 @@ function safe453kOpenDemoModal(){
     ['pdf','PDF','PDF-demo','En PDF-widget klar til lokal fil eller link',()=>safe453kCreateDemoWidget('pdf',{url:'',page:1},'PDF Demo')],
     ['drawings','✏️','Tegning-demo','Slår tegnetilstand til',()=>{try{setDrawActive(true); if(typeof toast==='function')toast('Tegnetilstand slået til')}catch(_e){if(typeof toast==='function')toast('Tegning er ikke klar')}}]
   ];
-  const html=`<h2>Demoer</h2>
+  const htmlApps=[
+    ['Skriv','✍️','Skriv','Udtalelser og vurderinger'],
+    ['Tjek','✅','Tjek','Weekend- og tilstedeværelsesapp'],
+    ['Tavle','🧭','Tavle','Tavle inde i tavlen'],
+    ['TiddlyWiki','📝','TiddlyWiki','Noter og små wikier']
+  ];
+  const html=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">Demoer</h2><button id="safe453kDemoHelp" type="button" title="Hjælp til demoer" aria-label="Hjælp til demoer" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div>
     <p class="safe453kDemoIntro">Vælg en demo. Demoen oprettes som en almindelig widget på tavlen, så den kan flyttes, ændres eller slettes bagefter.</p>
     <div class="safe453kDemoGrid">
       ${demos.map(d=>`<button type="button" class="safe453kDemoCard" data-demo="${d[0]}"><span class="safe453kDemoIcon">${d[1]}</span><span class="safe453kDemoText"><b>${d[2]}</b><small>${d[3]}</small></span></button>`).join('')}
+      <div class="safe453kHtmlAppsDivider">HTMLApps</div>
+      ${htmlApps.map(d=>`<button type="button" class="safe453kDemoCard" data-htmlapp="${d[0]}"><span class="safe453kDemoIcon">${d[1]}</span><span class="safe453kDemoText"><b>${d[2]}</b><small>${d[3]}</small></span></button>`).join('')}
     </div>
+    <p style="margin:10px 0 0;font-size:13px;opacity:.72;font-weight:800">HTMLApps installeres som HTMLWidget og gemmes i tavlens mediearkiv.</p>
     <div class="safe453kDemoFooter"><button id="safe453kDemoClose">Luk</button></div>`;
   showModal(html);
   const root=document.getElementById('modal');
   if(!root)return;
-  root.querySelectorAll('.safe453kDemoCard').forEach(btn=>{
+  root.querySelectorAll('.safe453kDemoCard[data-demo]').forEach(btn=>{
     btn.onclick=e=>{
       e.preventDefault();
       e.stopPropagation();
@@ -16429,6 +16584,17 @@ function safe453kOpenDemoModal(){
       if(d&&d[4])setTimeout(d[4],0);
     };
   });
+  root.querySelectorAll('.safe453kDemoCard[data-htmlapp]').forEach(btn=>{
+    btn.onclick=e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      const key=btn.dataset.htmlapp;
+      closeModal();
+      setTimeout(()=>safe455uH45cInstallHtmlApp(key),0);
+    };
+  });
+  const help=root.querySelector('#safe453kDemoHelp');
+  if(help)help.onclick=e=>{e.preventDefault();e.stopPropagation();try{safe455uH19OpenHelpAtSummary('Prøv værktøjerne herfra');}catch(_e){try{showQuickHelp();}catch(__e){}}};
   const close=root.querySelector('#safe453kDemoClose');
   if(close)close.onclick=closeModal;
 }
@@ -16444,6 +16610,11 @@ function handleTool(t){
   setTimeout(safe453kCloseMoreOnly,0);
   setTimeout(safe453kCloseMoreOnly,80);
 
+  if(/^htmlapp:/.test(String(t||''))){
+    const key=String(t).split(':')[1]||'';
+    try{safe455uH45cInstallHtmlApp(key);}catch(_e){try{toast('HTMLApp kunne ikke installeres');}catch(__e){}}
+    return;
+  }
   if(t==='demos'){safe453kOpenDemoModal();return;}
   if(t==='drawings'){
     const folder=document.getElementById('safe453DrawFolder');
@@ -31063,6 +31234,16 @@ const SAFE453I72_LINK_DEMOS=[
     rows:safe455uH30TavleSessionRows()
   },
   {
+    name:'HTMLApps',
+    desc:'Direkte links til TavleApps egne HTMLApps. Brug dem helst via Demoer → HTMLApps, hvis de skal installeres i tavlen.',
+    rows:[
+      ['Skriv','https://maans.github.io/Tavle/htmlapps/Skriv.html','Udtalelser og vurderinger som HTMLApp. Installer helst via Demoer → HTMLApps.'],
+      ['Tjek','https://maans.github.io/Tavle/htmlapps/Tjek.html','Weekend- og tilstedeværelsesapp som HTMLApp. Installer helst via Demoer → HTMLApps.'],
+      ['Tavle','https://maans.github.io/Tavle/htmlapps/Tavle.html','Tavle kan testes som HTMLApp inde i Tavle.'],
+      ['TiddlyWiki','https://maans.github.io/Tavle/htmlapps/TiddlyWiki.html','TiddlyWiki som HTMLApp/notewiki i Tavle.']
+    ]
+  },
+  {
     name:'TiddlyWiki',
     desc:'Tom wiki, officiel hjælp og kort importvejledning: hent/gem TiddlyWiki med dens egen save/download-metode og importer HTML-filen som HTMLWidget i TavleAppen.',
     rows:[
@@ -32550,6 +32731,11 @@ function showQuickHelp(){
     .helpKeyBox{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:9px 10px;line-height:1.35}
     .helpKeyBox b{display:block;margin-bottom:3px;color:#111827}
     .helpToolBtn{font:inherit;text-align:left;color:inherit;cursor:pointer;width:100%}
+    .helpIconGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+    .helpIconGrid .helpIconItem{min-height:60px!important;padding:7px 9px!important;gap:7px!important}
+    .helpIconGrid .helpIcon{width:34px!important;height:34px!important;font-size:19px!important}
+    .helpIconGrid b{font-size:13px!important;line-height:1.05!important}
+    .helpIconGrid small{font-size:11px!important;line-height:1.05!important}
     .helpToolBtn:hover,.helpToolBtn:focus-visible{background:#eef2ff!important;outline:2px solid #818cf8;outline-offset:1px}
     .safe455bHelpSectionCurrent>summary{background:#eef2ff;border-radius:10px;outline:2px solid #c7d2fe;outline-offset:2px}
     .safe455bHelpWidgetCurrent{background:#eef2ff!important;outline:3px solid #818cf8!important;outline-offset:2px!important}
@@ -32629,6 +32815,11 @@ function showQuickHelp(){
           <button class="helpIconItem helpToolBtn" data-help-tool="clock"><span class="helpIcon">🕒</span><span><b>Ur</b><small>Shift+U · vis ur på tavlen</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="background"><span class="helpIcon">🎨</span><span><b>Baggrund</b><small>Shift+B · billeder, farver og filter</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="dataSources"><span class="helpIcon">🗂️</span><span><b>Datakilder</b><small>D · oversigt over lister og datasæt</small></span></button>
+          <div class="helpHtmlAppsDivider">HTMLApps</div>
+          <button class="helpIconItem helpToolBtn" data-help-tool="htmlapp:Skriv"><span class="helpIcon">✍️</span><span><b>Skriv</b><small>udtalelser og vurderinger</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="htmlapp:Tjek"><span class="helpIcon">✅</span><span><b>Tjek</b><small>weekend og tilstedeværelse</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="htmlapp:Tavle"><span class="helpIcon">🧭</span><span><b>Tavle</b><small>Tavle som HTMLApp</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="htmlapp:TiddlyWiki"><span class="helpIcon">📝</span><span><b>TiddlyWiki</b><small>noter og små wikier</small></span></button>
         </div>
       </div>
     </details>
@@ -32693,10 +32884,12 @@ function showQuickHelp(){
 
 
     <details>
-      <summary>HTML-widget og TiddlyWiki</summary>
+      <summary>HTML-widget, HTMLApps og TiddlyWiki</summary>
       <div class="answer">
         <ul>
           <li><b>HTML-widgetten</b> kan vise, oprette, redigere og gemme lokale HTML-filer direkte i tavlens mediearkiv.</li>
+          <li><b>HTMLApps</b> er hele små apps, der installeres som HTMLWidgets. Brug Demoer eller knapperne i Hjælp til at installere Skriv, Tjek, Tavle eller TiddlyWiki.</li>
+          <li><b>Iframe viser en app. HTMLApp bor i tavlen.</b> Brug HTMLApp, hvis appen og dens data skal med i Backup Plus.</li>
           <li>Brug knappen i widget-bjælken til at skifte mellem webvisning og tekst/redigering.</li>
           <li>Klik eller tap i webvisningen for at bruge den indlejrede side. Brug <b>Esc</b> eller klik uden for widgetten for at komme tilbage til tavlen.</li>
           <li>Zoomknapperne i widget-bjælken ændrer visningen og huskes for den enkelte HTML-widget.</li>
@@ -49488,6 +49681,16 @@ var old=window.render; if(typeof old==='function'&&!window.__dr258Wrap){window._
 .safe453kDemoText b{font-size:15px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .safe453kDemoText small{font-size:12px;line-height:1.18;opacity:.70;font-weight:700;white-space:normal}
 .safe453kDemoFooter{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+.safe453kHtmlAppsDivider{grid-column:1/-1;margin:8px 0 2px;border-top:2px solid #e5e7eb;padding-top:12px;font-weight:950;color:#374151}
+.helpHtmlAppsDivider{grid-column:1/-1;margin:2px 0 0;border-top:2px solid rgba(255,255,255,.42);padding-top:6px;font-weight:950;color:white;line-height:1}
+.helpIconGrid .helpHtmlAppsDivider + .helpToolBtn,
+.helpIconGrid .helpHtmlAppsDivider + .helpToolBtn + .helpToolBtn,
+.helpIconGrid .helpHtmlAppsDivider + .helpToolBtn + .helpToolBtn + .helpToolBtn,
+.helpIconGrid .helpHtmlAppsDivider + .helpToolBtn + .helpToolBtn + .helpToolBtn + .helpToolBtn{min-height:58px!important;padding:7px 9px!important}
+.helpIconGrid .helpHtmlAppsDivider ~ .helpToolBtn .helpIcon{width:32px!important;height:32px!important;font-size:18px!important}
+.helpIconGrid .helpHtmlAppsDivider ~ .helpToolBtn b{font-size:13px!important;line-height:1.05!important}
+.helpIconGrid .helpHtmlAppsDivider ~ .helpToolBtn small{font-size:11px!important;line-height:1.05!important}
 
 
 /* SAFE453k: Mix-podium uden øverste holdkort */
