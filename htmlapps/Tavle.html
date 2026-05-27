@@ -20,7 +20,7 @@
 <!-- SAFE455uH33: TavleSessioner tidsstemples med Oprettet og Senest åbnet ved automatisk session-registrering. -->
 <!-- SAFE455uH34: DataWidget URL-knapper får robust kopiér/åbn med Quine/iPad/file:// fallback og manuel kopiboks. -->
 <!-- SAFE455uH44: Tjek saver handshake: Tjek-backupknap bruger Tavle-save når indlejret, standalone-backup udenfor Tavle, og Tjek-toast dæmpes. -->
-<!-- SAFE455uH46: Excel/Google Sheets .xlsx/.xlsm importeres som DataWidget via central-directory ZIP/XML-læser; CSV/TSV bevarer UTF-8/ÆØÅ. -->
+<!-- SAFE455uH47: Minimal Excel/Google Sheets .xlsx/.xlsm import som DataWidget med central-directory ZIP-læser og UTF-8/ÆØÅ; demoer/HTMLApps/Save-bro urørt. -->
 /* SAFE455uH40: Backup + kan nu importeres via indsat JSON-tekst i Gem / åbn. */
 
 <!-- SAFE455uH39: Backup+ manuel JSON-kopi, kompakt medieoverblik, localStorage vælg alle viste, og Skriv udtBackupRef tælles som aktiv arkivreference. -->
@@ -99,7 +99,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.52 SAFE455uH46-excel-datawidget-zipfix-utf8</title>
+<title>Interaktiv tavle v1.2.53 SAFE455uH47-excel-datawidget-zipfix-utf8-preserve-demos</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -15243,9 +15243,8 @@ function tavleFindEocd(u){
   return -1;
 }
 function tavleZipEntries(buf){
-  // SAFE455uH46: læs ZIP central directory i stedet for local headers.
+  // SAFE455uH47: læs ZIP central directory i stedet for local headers.
   // Google Sheets/Numbers .xlsx kan bruge data descriptors, hvor local header har csize=0.
-  // Det gav tidligere “Incomplete compressed input”.
   const u=new Uint8Array(buf), dec=new TextDecoder('utf-8',{fatal:false}), entries={};
   const eocd=tavleFindEocd(u);
   if(eocd<0)throw new Error('Regnearket er ikke en gyldig .xlsx/.xlsm-fil');
@@ -50849,194 +50848,4 @@ body.focus-maximized .widget[data-type="link"].linkIframeActive .linkIframeShiel
   },true);
 })();
 </script>
-
-<script id="safe455uH45-excel-datawidget-utf8">
-/* SAFE455uH46
-   Excel/Google Sheets-import som DataWidget.
-   - .xlsx og .xlsm læses som binære ZIP/XML-regneark og konverteres til samme dataset-struktur som CSV/TSV.
-   - .xls afvises med klar besked, fordi det gamle binære format ikke er et XLSX/ZIP-regneark.
-   - ZIP-læsning bruger central directory, så filer med data descriptors ikke giver “Incomplete compressed input”.
-   - XML tekst afkodes som UTF-8, og CSV/TSV bruger appens eksisterende smarte textdecoder.
-*/
-(function(){
-  'use strict';
-  if(window.__safe455uH45ExcelDataWidgetUtf8)return;
-  window.__safe455uH45ExcelDataWidgetUtf8=true;
-
-  function le16(u,o){return (u[o]|(u[o+1]<<8))>>>0;}
-  function le32(u,o){return (u[o]|(u[o+1]<<8)|(u[o+2]<<16)|(u[o+3]<<24))>>>0;}
-  function cleanCell(v){
-    v=String(v==null?'':v);
-    // Excel XML og CSV bør ikke bære BOM/zero-width videre ind i DataWidget.
-    return v.replace(/^\ufeff/,'').replace(/[\u0000\u200B\uFEFF]/g,'').trim();
-  }
-  function decodeXml(s){
-    if(typeof tavleDecodeXmlEntities==='function')return tavleDecodeXmlEntities(s);
-    return String(s||'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&amp;/g,'&');
-  }
-  function uniqueId(){return 'ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
-  function fileBaseName(file){return String((file&&file.name)||'Datasæt').replace(/\.[^.]+$/,'')||'Datasæt';}
-
-  function findEocd(u){
-    // End Of Central Directory ligger sidst, men kan have kommentar. Søg baglæns.
-    for(let i=u.length-22;i>=Math.max(0,u.length-66000);i--){
-      if(u[i]===0x50&&u[i+1]===0x4b&&u[i+2]===0x05&&u[i+3]===0x06)return i;
-    }
-    return -1;
-  }
-  function safe455uH45ZipEntries(buf){
-    const u=new Uint8Array(buf);
-    const dec=new TextDecoder('utf-8',{fatal:false});
-    const entries={};
-    const eocd=findEocd(u);
-    if(eocd<0)throw new Error('Regnearket er ikke en gyldig .xlsx/.xlsm-fil');
-    const total=le16(u,eocd+10);
-    const cdSize=le32(u,eocd+12);
-    const cdOffset=le32(u,eocd+16);
-    let p=cdOffset;
-    const cdEnd=Math.min(u.length,cdOffset+cdSize);
-    for(let n=0;n<total && p+46<=cdEnd;n++){
-      if(!(u[p]===0x50&&u[p+1]===0x4b&&u[p+2]===0x01&&u[p+3]===0x02))break;
-      const comp=le16(u,p+10);
-      const csize=le32(u,p+20);
-      const usize=le32(u,p+24);
-      const nameLen=le16(u,p+28), extraLen=le16(u,p+30), commentLen=le16(u,p+32);
-      const localOff=le32(u,p+42);
-      const name=dec.decode(u.slice(p+46,p+46+nameLen));
-      if(localOff+30<=u.length && u[localOff]===0x50&&u[localOff+1]===0x4b&&u[localOff+2]===0x03&&u[localOff+3]===0x04){
-        const lfNameLen=le16(u,localOff+26), lfExtraLen=le16(u,localOff+28);
-        const start=localOff+30+lfNameLen+lfExtraLen;
-        const end=start+csize;
-        if(end<=u.length)entries[name]={comp:comp,csize:csize,usize:usize,data:u.slice(start,end)};
-      }
-      p+=46+nameLen+extraLen+commentLen;
-    }
-    return entries;
-  }
-  async function inflateEntry(entry){
-    if(!entry)return '';
-    if(entry.comp===0)return new TextDecoder('utf-8',{fatal:false}).decode(entry.data);
-    if(entry.comp!==8)throw new Error('Regnearket bruger en ikke-understøttet ZIP-komprimering');
-    if(!('DecompressionStream' in window))throw new Error('Denne browser kan ikke udpakke .xlsx direkte');
-    const stream=new Blob([entry.data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
-    return await new Response(stream).text();
-  }
-  async function readZipText(zip,name){return await inflateEntry(zip[name]);}
-
-  function parseSharedStrings(xml){
-    const shared=[];
-    String(xml||'').replace(/<si[\s\S]*?<\/si>/g,function(si){
-      let text='';
-      si.replace(/<t([^>]*)>([\s\S]*?)<\/t>/g,function(_,attrs,t){text+=decodeXml(t);return _;});
-      shared.push(text);
-      return si;
-    });
-    return shared;
-  }
-  function colToIndex(ref){
-    const m=String(ref||'').match(/^([A-Z]+)/i); if(!m)return null;
-    let n=0; for(const ch of m[1].toUpperCase())n=n*26+(ch.charCodeAt(0)-64);
-    return Math.max(0,n-1);
-  }
-  function parseSheetRows(sheetXml,shared){
-    const rows=[];
-    String(sheetXml||'').replace(/<row\b[^>]*>[\s\S]*?<\/row>/g,function(rowXml){
-      const row=[];
-      rowXml.replace(/<c\b([^>]*)>([\s\S]*?)<\/c>/g,function(_,attrs,body){
-        const ref=(attrs.match(/\sr="([^"]+)"/)||[])[1]||'';
-        const type=(attrs.match(/\st="([^"]+)"/)||[])[1]||'';
-        const idx=colToIndex(ref); const pos=(idx==null?row.length:idx);
-        let v='';
-        const vm=body.match(/<v[^>]*>([\s\S]*?)<\/v>/);
-        const ism=body.match(/<is[\s\S]*?<t[^>]*>([\s\S]*?)<\/t>[\s\S]*?<\/is>/);
-        if(type==='s' && vm)v=shared[Number(vm[1])]||'';
-        else if(type==='inlineStr' && ism)v=decodeXml(ism[1]);
-        else if(type==='str' && vm)v=decodeXml(vm[1]);
-        else if(type==='b' && vm)v=(String(vm[1]).trim()==='1'?'TRUE':'FALSE');
-        else if(vm)v=decodeXml(vm[1]);
-        row[pos]=cleanCell(v);
-        return _;
-      });
-      while(row.length && !String(row[row.length-1]||'').trim())row.pop();
-      if(row.some(x=>String(x||'').trim()))rows.push(row);
-      return rowXml;
-    });
-    return rows;
-  }
-  function parseWorkbookFirstSheet(zipKeys){
-    // Fallback: første worksheet i filen. Sortering gør sheet1 før sheet10.
-    return zipKeys.filter(k=>/^xl\/worksheets\/sheet\d+\.xml$/i.test(k)).sort(function(a,b){
-      const na=Number((a.match(/sheet(\d+)/i)||[])[1]||0), nb=Number((b.match(/sheet(\d+)/i)||[])[1]||0);
-      return na-nb;
-    })[0]||'';
-  }
-  async function parseXlsxRows(file){
-    const name=String(file&&file.name||'').toLowerCase();
-    if(/\.xls$/i.test(name) && !/\.xlsx$/i.test(name))throw new Error('Ældre Excel-format (.xls) understøttes ikke. Gem/eksportér som .xlsx fra Google Sheets/Numbers.');
-    const zip=safe455uH45ZipEntries(await file.arrayBuffer());
-    const firstSheet=parseWorkbookFirstSheet(Object.keys(zip));
-    if(!firstSheet)throw new Error('Kunne ikke finde første ark i regnearket');
-    const shared=parseSharedStrings(await readZipText(zip,'xl/sharedStrings.xml').catch(function(){return '';}));
-    const sheetXml=await readZipText(zip,firstSheet);
-    const rows=parseSheetRows(sheetXml,shared);
-    if(!rows.length)throw new Error('Første ark indeholder ingen læsbare rækker');
-    return rows;
-  }
-  function rowsToDataset(rows,name,sourceName){
-    rows=(rows||[]).map(r=>Array.isArray(r)?r.map(cleanCell):[]).filter(r=>r.some(Boolean));
-    if(!rows.length)return null;
-    const maxLen=Math.max.apply(null,rows.map(r=>r.length));
-    rows=rows.map(r=>Array.from({length:maxLen},(_,i)=>cleanCell(r[i])));
-    const first=rows[0]||[];
-    const numeric=first.filter(c=>/^\s*-?\d+(?:[.,]\d+)?\s*$/.test(c)).length;
-    const nonEmpty=first.filter(Boolean).length;
-    const isHeader=nonEmpty>0 && numeric<Math.max(1,first.length/2);
-    let columns;
-    if(isHeader){
-      columns=first.map((c,i)=>cleanCell(c)||('Kolonne '+(i+1)));
-      rows=rows.slice(1);
-    }else{
-      columns=Array.from({length:maxLen},(_,i)=>'Kolonne '+(i+1));
-    }
-    return {id:uniqueId(),name:name||'Datasæt',type:'xlsx',columns:columns,rows:rows,sourceName:sourceName||name||'',importedAt:Date.now(),encoding:'utf-8/xml'};
-  }
-
-  // Overstyr appens eksisterende filtypegenkendelse og Excel-parser med robust version.
-  window.isLikelyXlsxFile=function(file){
-    const name=String(file&&file.name||'').toLowerCase();
-    return /\.(xlsx|xlsm|xls)$/i.test(name) || /spreadsheet|excel/i.test(String(file&&file.type||''));
-  };
-  window.parseXlsxDatasetFile=async function(file){
-    const clean=fileBaseName(file);
-    const rows=await parseXlsxRows(file);
-    const ds=rowsToDataset(rows,clean,String((file&&file.name)||clean));
-    if(!ds)throw new Error('Filen indeholdt ingen data');
-    return ds;
-  };
-  window.parseXlsxListFile=async function(file){
-    const rows=await parseXlsxRows(file);
-    let items=rows.map(r=>(r||[]).find(x=>String(x||'').trim())).filter(Boolean).map(cleanCell);
-    if(items.length>1 && /^(navn|name|elev|person|liste)$/i.test(items[0]))items=items.slice(1);
-    return items.filter(Boolean);
-  };
-
-  // Opdater import-inputs, også dem der allerede findes i modaler, så iPad kan vælge Google Sheets .xlsx direkte.
-  function widenAccepts(root){
-    try{
-      (root||document).querySelectorAll('input[type="file"]').forEach(function(inp){
-        const a=String(inp.getAttribute('accept')||'');
-        if(/csv|tsv|spreadsheet|xlsx|text\/csv|\.txt/i.test(a)){
-          const extra='.csv,.tsv,.txt,.xlsx,.xlsm,text/plain,text/csv,text/tab-separated-values,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12';
-          if(!/\.xlsx/i.test(a))inp.setAttribute('accept',a? a+','+extra : extra);
-        }
-      });
-    }catch(_e){}
-  }
-  document.addEventListener('DOMContentLoaded',function(){widenAccepts(document);});
-  try{widenAccepts(document);}catch(_e){}
-
-  window.__safe455uH45ExcelDataWidgetUtf8={installed:true,phase:'SAFE455uH46',note:'Robust XLSX/XLSM to DataWidget import; UTF-8 XML/CSV preserved; central-directory ZIP reader avoids incomplete compressed input.'};
-})();
-</script>
-
 </body></html>
