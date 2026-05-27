@@ -20,6 +20,8 @@
 <!-- SAFE455uH33: TavleSessioner tidsstemples med Oprettet og Senest åbnet ved automatisk session-registrering. -->
 <!-- SAFE455uH34: DataWidget URL-knapper får robust kopiér/åbn med Quine/iPad/file:// fallback og manuel kopiboks. -->
 <!-- SAFE455uH45f: One-click HTMLApps med TiddlyWiki straks-placeholder, baggrundshentning og manuel start. -->
+<!-- SAFE455uH45g4: Tavleoversigt-genveje er toggles: Shift+T, Q og Å åbner/lukker; Esc lukker stadig. -->
+<!-- SAFE455uH45g3: Tavleoversigt får enkelt-tast Q/Å og iframe-kontrol slipper taster, når Tavleoversigt er åben. -->
 <!-- SAFE455uH45g2: Robust XLSX-import via central directory; bevarer demoer. -->
 <!-- SAFE455uH44: Tjek saver handshake: Tjek-backupknap bruger Tavle-save når indlejret, standalone-backup udenfor Tavle, og Tjek-toast dæmpes. -->
 /* SAFE455uH40: Backup + kan nu importeres via indsat JSON-tekst i Gem / åbn. */
@@ -52,7 +54,15 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
   }
   function activeIframeWidget(){
     /* SAFE453i201: Kun eksplicit aktiv iframekontrol må reservere tastaturet.
-       En valgt/markeret iframe-widget må ikke i sig selv kapre Space/pile/genveje. */
+       En valgt/markeret iframe-widget må ikke i sig selv kapre Space/pile/genveje.
+       SAFE455uH45g3: Hvis Tavleoversigt er åben, ejer modalens keyboard pil/Enter/Esc. */
+    try{
+      const mb=document.getElementById('modalBack');
+      const m=document.getElementById('modal');
+      if(mb && mb.style && mb.style.display==='flex' && m && m.querySelector && m.querySelector('[data-safe-board-overview="1"],.safe271BoardOverview')){
+        return null;
+      }
+    }catch(_e){}
     try{
       if(window.isIframeControlActive && window.isIframeControlActive()){
         return document.querySelector('.widget.linkIframeActive[data-type="link"], .widget[data-type="link"].linkIframeActive');
@@ -100,7 +110,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.50 SAFE455uH45g2-demoer-excelimport</title>
+<title>Interaktiv tavle v1.2.50 SAFE455uH45g10l2-present-more-safe</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -11066,6 +11076,33 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
   display:none!important;
 }
 </style>
+
+
+<!-- SAFE455uH45g10f: Toolbar no-gap patch. Fjerner mobil-reservepladsen til gammel svævende toggleknap. -->
+<style id="safe455uH45g10f-toolbar-nogap">
+@media (max-width: 640px){
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar{
+    max-width:calc(100vw - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))!important;
+    left:12px!important;
+    right:auto!important;
+    transform:none!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    scrollbar-width:none!important;
+    box-sizing:border-box!important;
+  }
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar::-webkit-scrollbar{
+    display:none!important;
+  }
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar button:last-child,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbar [data-tool]:last-child{
+    margin-right:0!important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -11199,7 +11236,7 @@ Shortcut-kort: Faktiske genveje ligger i flere keydown-handlere.
 Kontroller altid handleren før ændring; nogle genveje fanges i capture-fase.
 Aktuelle centrale genveje i denne fil:
 - P/R: skifter redigering/præsentation via TAVLE_SHORTCUTS.
-- Shift+T: åbner Tavleoversigt.
+- Shift+T samt Q/Å: åbner/lukker Tavleoversigt.
 - F: fokus på valgt widget, hvis API-funktionen findes.
 - Shift+F: maksimer valgt/fokuseret widget, hvis API-funktionen findes.
 - Cmd/Ctrl+O: widget-overblik via tidlig guard + senere overview-handler.
@@ -11275,6 +11312,14 @@ Aktuelle centrale genveje i denne fil:
         p: {label:'Skift redigering/præsentation', run:()=>togglePresentationFromShortcut()},
         r: {label:'Skift redigering/præsentation', run:()=>togglePresentationFromShortcut()},
         f: {label:'Fokus på valgt widget', run:api=>api.toggleFocusShortcut&&api.toggleFocusShortcut()},
+        q: {label:'Tavleoversigt', run:()=>{
+          if(typeof window.__tavleToggleBoardOverview==='function') window.__tavleToggleBoardOverview();
+          else if(typeof window.__tavleBoardOverviewModal==='function') window.__tavleBoardOverviewModal();
+        }},
+        'å': {label:'Tavleoversigt', run:()=>{
+          if(typeof window.__tavleToggleBoardOverview==='function') window.__tavleToggleBoardOverview();
+          else if(typeof window.__tavleBoardOverviewModal==='function') window.__tavleBoardOverviewModal();
+        }},
         n: {label:'Ny tavle', run:()=>{} },
         t: {label:'Åbn papirkurv', run:()=>{
           if(typeof window.openTrashBoard==='function') window.openTrashBoard();
@@ -11295,7 +11340,8 @@ Aktuelle centrale genveje i denne fil:
         i: {label:'Billede', widget:'i'},
         l: {label:'Link', widget:'l'},
         t: {label:'Tavleoversigt', run:()=>{
-          if(typeof window.__tavleBoardOverviewModal==='function') window.__tavleBoardOverviewModal();
+          if(typeof window.__tavleToggleBoardOverview==='function') window.__tavleToggleBoardOverview();
+          else if(typeof window.__tavleBoardOverviewModal==='function') window.__tavleBoardOverviewModal();
         }},
         k: {label:'Timer', widget:'t'},
         u: {label:'Ur', widget:'u'},
@@ -11352,6 +11398,21 @@ Aktuelle centrale genveje i denne fil:
         return;
       }
       if(e.defaultPrevented) return;
+      /* SAFE455uH45g4: Når Tavleoversigt allerede er åben, skal samme genveje lukke den igen.
+         Lægger før modalOpen(), så Q/Å/Shift+T ikke bare ignoreres inde i modalen. */
+      try{
+        if(modalOpen()){
+          const keyNow=normalizeShortcutKey(e);
+          const overviewOpen=modalEl && modalEl.querySelector && modalEl.querySelector('[data-safe-board-overview="1"],.safe271BoardOverview');
+          const overviewToggleKey=overviewOpen && !e.metaKey && !e.ctrlKey && !e.altKey && ((e.shiftKey && keyNow==='t') || (!e.shiftKey && (keyNow==='q'||keyNow==='å')));
+          if(overviewToggleKey){
+            e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+            try{ if(window.__safe374BoardOverviewCleanup)window.__safe374BoardOverviewCleanup(); }catch(_e){}
+            closeModal();
+            return;
+          }
+        }
+      }catch(_e){}
       if(isTyping(e) || modalOpen()) return;
       // SAFE454a: Når Mere-menuen allerede er åben, skal dens egen tastaturnavigation eje pil/Enter/Space/Esc.
       if(document.querySelector('.moreMenu')) return;
@@ -15655,12 +15716,28 @@ function showMoreTools(){
   // Kun markup/labels her; nye data-more-tool-navne kræver matchende handleTool-case og direkte test.
   const old=document.querySelector('.moreMenuBackdrop');
   if(old){old.remove();document.querySelector('.moreMenu')?.remove();return}
+  const presentMode=!!(document.querySelector('.app.present')||(document.getElementById('app')&&document.getElementById('app').classList&&document.getElementById('app').classList.contains('present')));
   const bd=document.createElement('div');
-  bd.className='moreMenuBackdrop';
+  bd.className='moreMenuBackdrop'+(presentMode?' safe455PresentMoreBackdrop':'');
   bd.onclick=()=>{bd.remove();menu.remove()};
   const menu=document.createElement('div');
-  menu.className='moreMenu moreMenuGrouped';
-  const groups=[
+  menu.className='moreMenu moreMenuGrouped'+(presentMode?' safe455PresentMoreMenu':'');
+  const groups=presentMode ? [
+    ['Indhold',[
+      ['text','Aa','tekst'],
+      ['dataset','📊','data'],
+      ['dataTranslator','🔁','remix'],
+      ['list','☰','liste'],
+      ['calendar','📅','kalender'],
+      ['video','▶','video'],
+      ['image','🖼️','billede'],
+      ['link','🔗','link'],
+      ['pdf','PDF','pdf'],
+      ['html','&lt;/&gt;','html'],
+      ['drawings','✏️','tegn.'],
+      ['demos','🧪','demo']
+    ],4]
+  ] : [
     ['Indhold',[
       ['text','Aa','tekst'],
       ['dataset','📊','data'],
@@ -15677,14 +15754,14 @@ function showMoreTools(){
     ],2],
     ['Tavle',[
       ['bg','🎨','baggrund'],
-      ['clock','🕒','ur']
-    ],2],
+      ['clock','🕒','ur'],
+      ['help','?','hjælp']
+    ],3],
     ['System',[
       ['backup','💾','Gem/åbn'],
-      ['help','?','hjælp'],
       ['dataSources','🗂️','datakilder'],
       ['trash','🗑','papirkurv']
-    ],2]
+    ],3]
   ];
   menu.innerHTML=groups.map(g=>`
     <div class="moreMenuGroup" style="grid-column:1/-1;display:grid;gap:7px;margin:0 0 8px 0;">
@@ -17757,6 +17834,71 @@ body.focus-maximized #safe453BoardZoomLayer > #draw{
 <!-- SAFE455i: Hjælp opdateret med brugervendt HTML/TiddlyWiki-afsnit og kortere importtekst. -->
 <!-- SAFE455h: HTMLWidget removes persistent TW status line and adds zoom controls to widget chrome. -->
 <!-- SAFE455k2: Kun drop-guard for aktiv HTML/TiddlyWiki-widget. Ingen filnavne-fix, ingen drag-export, ingen template/render-ændringer. -->
+
+<!-- SAFE455uH45g10l2: Minimal præsentations-Mere. Direkte patch i eksisterende showMoreTools-flow; ingen wrapper/refactor. -->
+<style id="safe455uH45g10l2-present-more-safe-css">
+/* Fjern kun teksten/labelen fra H45g10k. Grøn ramme bevares. */
+body.safe455PresentToolsOpen .moreMenu::before,
+body.safe455ToolbarPresentPeek .app.present .toolbar::before{
+  content:none!important;
+  display:none!important;
+}
+/* Når Mere åbnes i præsentation, skal menuen være synlig trods den gamle .present-hide-regel. */
+body.safe455PresentToolsOpen .moreMenu.safe455PresentMoreMenu,
+body.safe455PresentToolsOpen .moreMenuBackdrop.safe455PresentMoreBackdrop{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+body.safe455PresentToolsOpen .moreMenuBackdrop.safe455PresentMoreBackdrop{
+  display:block!important;
+}
+.moreMenu.safe455PresentMoreMenu{
+  grid-template-columns:repeat(4,minmax(58px,1fr))!important;
+  max-width:min(94vw,430px)!important;
+  gap:8px!important;
+  padding:12px!important;
+  bottom:calc(22px + env(safe-area-inset-bottom,0px))!important;
+}
+.moreMenu.safe455PresentMoreMenu .moreMenuGroupButtons{
+  grid-template-columns:repeat(4,minmax(58px,1fr))!important;
+}
+.moreMenu.safe455PresentMoreMenu .moreMenuSection{
+  display:none!important;
+}
+.moreMenu.safe455PresentMoreMenu button{
+  min-height:54px!important;
+  padding:7px 6px!important;
+  border-radius:14px!important;
+}
+.moreMenu.safe455PresentMoreMenu button .ico{
+  font-size:20px!important;
+  line-height:1!important;
+}
+.moreMenu.safe455PresentMoreMenu button .txt{
+  font-size:10.5px!important;
+  line-height:1.08!important;
+  margin-top:4px!important;
+}
+/* Præsentation: redigeringstoolbar forbliver skjult, medmindre eksisterende Shift+Space-toggle eksplicit viser den. */
+body:not(.safe455ToolbarPresentPeek) .app.present .toolbar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+@media(max-width:640px){
+  .moreMenu.safe455PresentMoreMenu,
+  .moreMenu.safe455PresentMoreMenu .moreMenuGroupButtons{
+    grid-template-columns:repeat(4,minmax(52px,1fr))!important;
+  }
+  .moreMenu.safe455PresentMoreMenu{max-width:96vw!important;gap:7px!important;padding:10px!important;}
+  .moreMenu.safe455PresentMoreMenu button{min-height:50px!important;padding:6px 4px!important;}
+  .moreMenu.safe455PresentMoreMenu button .txt{font-size:9.5px!important;}
+}
+</style>
+
 </body></html>`,mode:'edit',name:'Ny HTML-widget'});return;}
   // SAFE23: PDF-grenen lå tidligere efter en unreachable duplikeret HTML-widgetgren.
   if(t==='pdf')addWidget('pdf',{});
@@ -35917,6 +36059,8 @@ function safe428OpenBoardRestorePointsModal(boardIndex){
 }
 function safe269BoardOverviewModal(preferredBoard=null){
   try{
+    /* SAFE455uH45g3: Tavleoversigt skal kunne åbnes og bruges, selv hvis en iframe lige før havde keyboard-/pointer-kontrol. */
+    try{ if(window.clearIframeControl) window.clearIframeControl(); }catch(_e){}
     const boardIconForType=(type)=>{
       const t=String(type||'').toLowerCase();
       if(t==='video')return '🎥';
@@ -36246,6 +36390,15 @@ function safe269BoardOverviewModal(preferredBoard=null){
           if(e.stopImmediatePropagation)e.stopImmediatePropagation();
         };
 
+        /* SAFE455uH45g4: Oversigtstasterne er toggles: Shift+T, Q og Å lukker også. */
+        const lowerKey=String(key||'').toLowerCase();
+        if(!e.metaKey && !e.ctrlKey && !e.altKey && ((e.shiftKey && lowerKey==='t') || (!e.shiftKey && (lowerKey==='q'||lowerKey==='å')))){
+          stop();
+          cleanupBoardOverviewKeys();
+          closeModal();
+          return;
+        }
+
         if(/^[1-9]$/.test(key)||key==='0'){
           const target=(key==='0')?9:(Number(key)-1);
           if(target>=0 && target<state.slides.length){
@@ -36341,6 +36494,17 @@ function safe269BoardOverviewModal(preferredBoard=null){
         return;
       }
       const key=e.key;
+
+      /* SAFE455uH45g4: Oversigtstasterne er toggles: Shift+T, Q og Å lukker også. */
+      const lowerKey=String(key||'').toLowerCase();
+      if(!e.metaKey && !e.ctrlKey && !e.altKey && ((e.shiftKey && lowerKey==='t') || (!e.shiftKey && (lowerKey==='q'||lowerKey==='å')))){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        cleanupBoardOverviewKeys();
+        closeModal();
+        return;
+      }
 
       if(/^[1-9]$/.test(key) || key==='0'){
         const target=(key==='0')?9:(Number(key)-1);
@@ -36457,6 +36621,23 @@ function safe269BoardOverviewModal(preferredBoard=null){
     try{toast('Kunne ikke åbne Tavleoversigt')}catch(_e){}
   }
 }
+/* SAFE455uH45g4: Fælles toggle til Tavleoversigt, så Q/Å/Shift+T både åbner og lukker. */
+try{
+  window.__tavleToggleBoardOverview=function(){
+    try{
+      const mb=document.getElementById('modalBack');
+      const m=document.getElementById('modal');
+      const open=!!(mb && mb.style && mb.style.display==='flex' && m && m.querySelector && m.querySelector('[data-safe-board-overview="1"],.safe271BoardOverview'));
+      if(open){
+        try{ if(window.__safe374BoardOverviewCleanup)window.__safe374BoardOverviewCleanup(); }catch(_e){}
+        if(typeof closeModal==='function')closeModal();
+        return;
+      }
+    }catch(_e){}
+    if(typeof window.__tavleBoardOverviewModal==='function')window.__tavleBoardOverviewModal();
+    else if(typeof safe269BoardOverviewModal==='function')safe269BoardOverviewModal();
+  };
+}catch(_e){}
 try{
   const info=document.getElementById('slideInfo');
   if(info){
@@ -51051,4 +51232,543 @@ body.focus-maximized .widget[data-type="link"].linkIframeActive .linkIframeShiel
   },true);
 })();
 </script>
+
+
+<!-- SAFE455uH45g7: Mere-menu kompakt, zoom-aware uden scroll-eksperiment. Bygger på H45g4. -->
+<style id="safe455uH45g7-moremenu-compact-safe-css">
+/* H45g7: Bevar Mere-menuen som fast menu, men gør den tættere på toolbar-knapperne.
+   Ingen intern scroll og ingen finger-flytning. Menuen skaleres let efter tavlezoom via JS-variablen nedenfor. */
+.moreMenu.moreMenuGrouped{
+  --safe455-more-menu-scale: 1;
+  transform:translateX(-50%) scale(var(--safe455-more-menu-scale))!important;
+  transform-origin:bottom center!important;
+  width:auto!important;
+  max-width:min(92vw,430px)!important;
+  padding:10px!important;
+  gap:7px!important;
+  overflow:visible!important;
+}
+.moreMenuGrouped .moreMenuGroup{
+  gap:6px!important;
+  margin:0 0 7px 0!important;
+}
+.moreMenuGrouped .moreMenuGroupButtons{
+  grid-template-columns:repeat(3,minmax(54px,1fr))!important;
+  gap:7px!important;
+}
+.moreMenuGrouped .moreMenuSection{
+  font-size:10px!important;
+  line-height:1!important;
+  padding:0 2px!important;
+  margin:0!important;
+  letter-spacing:.035em!important;
+}
+.moreMenuGrouped button{
+  min-width:0!important;
+  min-height:50px!important;
+  padding:5px 6px!important;
+  border-radius:12px!important;
+  gap:2px!important;
+}
+.moreMenuGrouped button .ico,
+.moreMenuGrouped .ico{
+  font-size:18px!important;
+  line-height:1!important;
+}
+.moreMenuGrouped button .txt,
+.moreMenuGrouped .txt{
+  font-size:10px!important;
+  line-height:1.05!important;
+  margin-top:2px!important;
+}
+.moreMenu button.safe454aMoreSelected{
+  transform:none!important;
+  outline:3px solid rgba(255,255,255,.95)!important;
+  box-shadow:0 0 0 3px rgba(109,93,252,.70),0 8px 18px rgba(0,0,0,.24)!important;
+}
+@media(max-height:700px), (max-width:700px){
+  .moreMenu.moreMenuGrouped{
+    bottom:82px!important;
+    max-width:min(90vw,390px)!important;
+    padding:9px!important;
+  }
+  .moreMenuGrouped button{min-height:46px!important;padding:4px 5px!important}
+  .moreMenuGrouped .moreMenuGroupButtons{gap:6px!important}
+}
+</style>
+<script id="safe455uH45g7-moremenu-compact-safe-script">
+(function(){
+  if(window.__safe455uH45g7MoreMenuCompactSafe)return;
+  window.__safe455uH45g7MoreMenuCompactSafe=true;
+  function clamp(n,min,max){n=Number(n);if(!isFinite(n))n=1;return Math.max(min,Math.min(max,n));}
+  function boardZoom(){
+    try{if(typeof window.safe453GetBoardZoom==='function')return Number(window.safe453GetBoardZoom())||1;}catch(_e){}
+    try{return Number(getComputedStyle(document.documentElement).getPropertyValue('--safe453-board-zoom'))||1;}catch(_e){}
+    return 1;
+  }
+  function menuScale(){
+    var z=clamp(boardZoom(),0.5,1.25);
+    return clamp(0.82 + (z-1)*0.28,0.68,1.03);
+  }
+  function apply(){
+    var s=String(menuScale());
+    try{document.documentElement.style.setProperty('--safe455-more-menu-scale',s);}catch(_e){}
+    try{document.querySelectorAll('.moreMenu.moreMenuGrouped').forEach(function(m){m.style.setProperty('--safe455-more-menu-scale',s);});}catch(_e){}
+  }
+  function wrapShow(){
+    if(!window.showMoreTools || window.showMoreTools.__safe455uH45g7Wrapped)return;
+    var old=window.showMoreTools;
+    window.showMoreTools=function(){
+      apply();
+      var r=old.apply(this,arguments);
+      setTimeout(apply,0);
+      return r;
+    };
+    window.showMoreTools.__safe455uH45g7Wrapped=true;
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t && t.closest && t.closest('#safe453BoardZoomOut,#safe453BoardZoomIn,#safe453BoardZoomPct'))setTimeout(apply,0);
+  },true);
+  document.addEventListener('keydown',function(e){
+    var k=String(e&&e.key||'');
+    if((e.metaKey||e.ctrlKey)&&!e.altKey&&(k==='-'||k==='_'||k==='+'||k==='='||k==='0'))setTimeout(apply,0);
+  },true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){apply();wrapShow();},{once:true});
+  else {apply();wrapShow();}
+  setTimeout(function(){apply();wrapShow();},300);
+})();
+</script>
+
+
+<!-- SAFE455uH45g9: Mere-menu: 3 kolonner i Tavle/System; Hjælp flyttet op i Tavle-gruppen. Bygger på H45g8. -->
+<style id="safe455uH45g8-moremenu-open-zoom-css">
+/* H45g8: den levende scale sættes inline af JS straks efter menuen er oprettet.
+   Den lokale H45g7-default på 1 overstyres her, så menuen ikke åbner i 125% først. */
+.moreMenu.moreMenuGrouped{
+  --safe455-more-menu-scale: var(--safe455-more-menu-open-scale, 1);
+  transform:translateX(-50%) scale(var(--safe455-more-menu-open-scale,1))!important;
+  transform-origin:bottom center!important;
+}
+/* En anelse mindre basis-knapper, tættere på nederste toolbar. */
+.moreMenuGrouped button{
+  min-height:48px!important;
+  padding:4px 6px!important;
+}
+.moreMenuGrouped button .ico,
+.moreMenuGrouped .ico{font-size:17px!important}
+.moreMenuGrouped button .txt,
+.moreMenuGrouped .txt{font-size:9.5px!important}
+</style>
+<script id="safe455uH45g8-moremenu-open-zoom-script">
+(function(){
+  if(window.__safe455uH45g8MoreMenuOpenZoom)return;
+  window.__safe455uH45g8MoreMenuOpenZoom=true;
+
+  function clamp(n,min,max){n=Number(n);if(!isFinite(n))n=1;return Math.max(min,Math.min(max,n));}
+  function boardZoom(){
+    try{if(typeof window.safe453GetBoardZoom==='function')return Number(window.safe453GetBoardZoom())||1;}catch(_e){}
+    try{return Number(getComputedStyle(document.documentElement).getPropertyValue('--safe453-board-zoom'))||1;}catch(_e){}
+    return 1;
+  }
+  function baseScale(){
+    /* Tavlezoom 75% giver ca. 75%; 100% ca. 88%; 125% ca. 95%.
+       Menuen bliver altså aldrig større end toolbar-logikken kan bære. */
+    var z=clamp(boardZoom(),0.5,1.25);
+    return clamp(0.36 + z*0.52,0.62,0.95);
+  }
+  function getMenu(){return document.querySelector('.moreMenu.moreMenuGrouped');}
+  function findGroupByTitle(title){
+    var groups=Array.prototype.slice.call(document.querySelectorAll('.moreMenuGrouped .moreMenuGroup'));
+    title=String(title||'').toLowerCase();
+    return groups.find(function(g){
+      var sec=g.querySelector('.moreMenuSection');
+      return sec && String(sec.textContent||'').trim().toLowerCase()===title;
+    })||null;
+  }
+  function moveHelpToTavle(){
+    return;
+    try{
+      var help=document.querySelector('.moreMenuGrouped button[data-more-tool="help"]');
+      var tavle=findGroupByTitle('tavle');
+      var sys=findGroupByTitle('system');
+      if(help && tavle){
+        var tb=tavle.querySelector('.moreMenuGroupButtons');
+        if(tb && help.parentNode!==tb){
+          tb.appendChild(help);
+          tb.style.gridTemplateColumns='repeat(3,minmax(50px,1fr))';
+        }
+      }
+      if(sys){
+        var sb=sys.querySelector('.moreMenuGroupButtons');
+        if(sb)sb.style.gridTemplateColumns='repeat(3,minmax(50px,1fr))';
+      }
+    }catch(_e){}
+  }
+  function viewportFitScale(menu,base){
+    if(!menu)return base;
+    var bottom=96;
+    try{
+      var cs=getComputedStyle(menu);
+      bottom=parseFloat(cs.bottom)||bottom;
+    }catch(_e){}
+    var availH=Math.max(220,(window.innerHeight||700)-bottom-18);
+    var availW=Math.max(240,(window.innerWidth||900)-22);
+    var rawH=Math.max(1,menu.scrollHeight||menu.offsetHeight||1);
+    var rawW=Math.max(1,menu.scrollWidth||menu.offsetWidth||1);
+    var fit=Math.min(base, availH/rawH, availW/rawW);
+    return clamp(fit,0.56,base);
+  }
+  function applyMoreMenuScale(){
+    var menu=getMenu();
+    var base=baseScale();
+    var scale=base;
+    if(menu){
+      moveHelpToTavle();
+      scale=viewportFitScale(menu,base);
+      menu.style.setProperty('--safe455-more-menu-open-scale',String(scale));
+      menu.style.setProperty('--safe455-more-menu-scale',String(scale));
+      menu.dataset.openScale=String(scale);
+    }
+    try{document.documentElement.style.setProperty('--safe455-more-menu-open-scale',String(scale));}catch(_e){}
+  }
+
+  function wrapShowMore(){
+    if(!window.showMoreTools || window.showMoreTools.__safe455uH45g8Wrapped)return;
+    var old=window.showMoreTools;
+    window.showMoreTools=function(){
+      var r=old.apply(this,arguments);
+      /* Gøres synkront, så menuen ikke når at vises i forkert størrelse først. */
+      applyMoreMenuScale();
+      setTimeout(applyMoreMenuScale,0);
+      setTimeout(applyMoreMenuScale,80);
+      return r;
+    };
+    window.showMoreTools.__safe455uH45g8Wrapped=true;
+  }
+
+  window.safe455uH45g8ApplyMoreMenuScale=applyMoreMenuScale;
+  document.addEventListener('click',function(e){
+    var t=e.target;
+    if(t && t.closest && t.closest('#safe453BoardZoomOut,#safe453BoardZoomIn,#safe453BoardZoomPct,.moreMenu,.moreMenuBackdrop'))setTimeout(applyMoreMenuScale,0);
+  },true);
+  window.addEventListener('resize',function(){setTimeout(applyMoreMenuScale,0);},true);
+  document.addEventListener('keydown',function(e){
+    var k=String(e&&e.key||'');
+    if((e.metaKey||e.ctrlKey)&&!e.altKey&&(k==='-'||k==='_'||k==='+'||k==='='||k==='0'))setTimeout(applyMoreMenuScale,0);
+  },true);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){wrapShowMore();applyMoreMenuScale();},{once:true});
+  else {wrapShowMore();applyMoreMenuScale();}
+  setTimeout(function(){wrapShowMore();applyMoreMenuScale();},300);
+})();
+</script>
+
+
+<!-- SAFE455uH45g10e: Toolbar-fokus: tydelig valgt-animation + ægte Shift-toggle for værktøjslinje. Bygger på H45g10d. -->
+<style id="safe455uH45g10e-toolbar-focus-css">
+html{--safe455-toolbar-btn-size:50px;--safe455-toolbar-btn-font:27px;}
+.toolbar.safe455ToolbarZoomAware .tool button{width:var(--safe455-toolbar-btn-size,50px)!important;height:var(--safe455-toolbar-btn-size,50px)!important;font-size:var(--safe455-toolbar-btn-font,27px)!important;}
+.toolbar.safe455ToolbarFocus{box-shadow:0 0 0 3px rgba(109,93,252,.20),0 12px 30px rgba(0,0,0,.26)!important;}
+.toolbar.safe455ToolbarFocus .tool button.safe455ToolbarSelected{
+  outline:3px solid rgba(109,93,252,.78)!important;
+  outline-offset:2px!important;
+  box-shadow:0 0 0 4px rgba(109,93,252,.20),0 8px 18px rgba(15,23,42,.20)!important;
+  background:#eef2ff!important;
+  color:#111827!important;
+  transform:translateY(-2px) scale(1.07)!important;
+  animation:safe455ToolbarSelectedPop .18s ease-out both!important;
+}
+@keyframes safe455ToolbarSelectedPop{
+  0%{transform:translateY(0) scale(1)}
+  65%{transform:translateY(-3px) scale(1.10)}
+  100%{transform:translateY(-2px) scale(1.07)}
+}
+body.safe455ToolbarFocusActive #toolbarFallback{box-shadow:0 0 0 3px rgba(109,93,252,.25),0 10px 24px rgba(0,0,0,.30)!important;}
+@media(max-width:640px){.toolbar.safe455ToolbarZoomAware .tool button{width:var(--safe455-toolbar-btn-size,46px)!important;height:var(--safe455-toolbar-btn-size,46px)!important;font-size:var(--safe455-toolbar-btn-font,24px)!important;}}
+</style>
+<script id="safe455uH45g10e-toolbar-focus-toggle-script">
+(function(){
+  if(window.__safe455uH45g10e)return;
+  window.__safe455uH45g10e=true;
+  var idx=0;
+  var active=false;
+
+  function stop(e){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}}
+  function clamp(n,min,max){n=Number(n);if(!isFinite(n))n=1;return Math.max(min,Math.min(max,n));}
+  function app(){return document.getElementById('app')||document.querySelector('.app');}
+  function toolbar(){return document.querySelector('.toolbar');}
+  function moreMenu(){return document.querySelector('.moreMenu,.moreMenuBackdrop');}
+  function closeMore(){try{document.querySelectorAll('.moreMenu,.moreMenuBackdrop').forEach(function(n){n.remove();});return true;}catch(_e){return false;}}
+  function typingTarget(t){try{var tag=String(t&&t.tagName||'').toLowerCase();return !!(t&&(t.isContentEditable||tag==='input'||tag==='textarea'||tag==='select'||(t.closest&&t.closest('[contenteditable="true"]'))));}catch(_e){return false;}}
+  function insideToolbar(t){try{return !!(t&&t.closest&&t.closest('.toolbar'));}catch(_e){return false;}}
+  function badPointerTarget(t){try{return !!(t&&t.closest&&t.closest('input,textarea,select,[contenteditable="true"],.modal,.modalBackdrop,.modalBack,.moreMenu,.topbar,.chrome,.mini,button,a,iframe,embed,object'));}catch(_e){return false;}}
+  function isBoardTarget(t){try{var a=app();return !!(a&&t&&(t===a||a.contains(t))&&!badPointerTarget(t));}catch(_e){return false;}}
+
+  function boardZoom(){
+    try{if(typeof window.safe453GetBoardZoom==='function')return Number(window.safe453GetBoardZoom())||1;}catch(_e){}
+    try{return Number(getComputedStyle(document.documentElement).getPropertyValue('--safe453-board-zoom'))||1;}catch(_e){}
+    return 1;
+  }
+  function applyScale(){
+    var z=clamp(boardZoom(),0.55,1.35);
+    var w=window.innerWidth||900;
+    var s=clamp(0.88+(z-1)*0.18,0.84,1.04);
+    if(w<480)s=clamp(s*0.93,0.78,0.98);
+    var size=Math.round(clamp(50*s,42,54));
+    var font=Math.round(clamp(27*s,22,28));
+    try{
+      document.documentElement.style.setProperty('--safe455-toolbar-btn-size',size+'px');
+      document.documentElement.style.setProperty('--safe455-toolbar-btn-font',font+'px');
+      var tb=toolbar(); if(tb)tb.classList.add('safe455ToolbarZoomAware');
+    }catch(_e){}
+  }
+  function visibleButtons(){
+    var tb=toolbar(); if(!tb)return [];
+    return Array.prototype.slice.call(tb.querySelectorAll('button')).filter(function(b){
+      try{var cs=getComputedStyle(b); if(cs.display==='none'||cs.visibility==='hidden'||cs.pointerEvents==='none'||b.disabled)return false;}catch(_e){}
+      return true;
+    });
+  }
+  function clearMarks(){try{document.querySelectorAll('.safe455ToolbarSelected').forEach(function(b){b.classList.remove('safe455ToolbarSelected');});}catch(_e){}}
+  function ensureToolbarVisible(){
+    try{if(typeof window.showToolbarNow==='function')window.showToolbarNow();}catch(_e){}
+    try{var a=app(); if(a)a.classList.remove('toolbarHidden'); document.body.classList.remove('toolbar-is-hidden','hints-in-toolbar-space'); if(window.UIState)window.UIState.toolbarVisible=true;}catch(_e){}
+    applyScale();
+  }
+  function toolbarIsVisible(){
+    var tb=toolbar(), a=app();
+    if(!tb)return false;
+    try{
+      var cs=getComputedStyle(tb);
+      if(cs.display==='none'||cs.visibility==='hidden'||cs.pointerEvents==='none'||parseFloat(cs.opacity||'1')<0.2)return false;
+    }catch(_e){}
+    try{if((a&&a.classList.contains('toolbarHidden'))||document.body.classList.contains('toolbar-is-hidden')||tb.classList.contains('hidden')||tb.classList.contains('forceHidden'))return false;}catch(_e){}
+    return true;
+  }
+  function hideToolbar(){
+    try{document.body.classList.remove('safe455ToolbarPresentPeek');}catch(_e){}
+    deactivate();
+    try{if(typeof window.hideToolbarNow==='function'){window.hideToolbarNow();return;}}catch(_e){}
+    try{var a=app(); if(a)a.classList.add('toolbarHidden'); document.body.classList.add('toolbar-is-hidden'); if(window.UIState)window.UIState.toolbarVisible=false;}catch(_e){}
+  }
+  function select(i){
+    var tb=toolbar(); var bs=visibleButtons(); if(!tb||!bs.length)return;
+    idx=((i%bs.length)+bs.length)%bs.length;
+    clearMarks(); tb.classList.add('safe455ToolbarFocus'); bs[idx].classList.add('safe455ToolbarSelected');
+    try{bs[idx].scrollIntoView({block:'nearest',inline:'nearest'});}catch(_e){}
+  }
+  function activate(){ensureToolbarVisible(); active=true; document.body.classList.add('safe455ToolbarFocusActive'); var tb=toolbar(); if(tb)tb.classList.add('safe455ToolbarFocus'); if(idx>=visibleButtons().length)idx=0; select(idx);}
+  function deactivate(){active=false; document.body.classList.remove('safe455ToolbarFocusActive'); var tb=toolbar(); if(tb)tb.classList.remove('safe455ToolbarFocus'); clearMarks();}
+  function toggle(){
+    var a=app();
+    var inPresent=!!(a&&a.classList&&a.classList.contains('present'));
+    if(inPresent){
+      if(active||document.body.classList.contains('safe455ToolbarPresentPeek')||toolbarIsVisible()){
+        document.body.classList.remove('safe455ToolbarPresentPeek');
+        hideToolbar();
+      }else{
+        document.body.classList.add('safe455ToolbarPresentPeek');
+        activate();
+      }
+      return;
+    }
+    if(active||toolbarIsVisible())hideToolbar();else activate();
+  }
+  window.safe455ToolbarFocusActivate=activate;
+  window.safe455ToolbarFocusDeactivate=deactivate;
+
+  /* Space alene i Mere-menuen er kun Mere-toggle/luk. Den må aldrig aktivere en knap. */
+  window.addEventListener('keydown',function(e){
+    var k=String(e.key||'');
+    if((k===' '||e.code==='Space') && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey && moreMenu()){
+      stop(e); deactivate(); closeMore(); return false;
+    }
+  },true);
+
+  /* Shift+Space vinder over almindelig Space/Mere. */
+  window.addEventListener('keydown',function(e){
+    var k=String(e.key||'');
+    if(e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey && (k===' '||e.code==='Space')){
+      if(typingTarget(e.target))return;
+      stop(e); closeMore(); toggle(); return false;
+    }
+  },true);
+
+  document.addEventListener('keydown',function(e){
+    var k=String(e.key||'');
+    if(!active)return;
+    if(moreMenu()){deactivate();return;}
+    if(k==='Escape'){stop(e);hideToolbar();return false;}
+    if(k==='ArrowRight'||k==='ArrowDown'){stop(e);select(idx+1);return false;}
+    if(k==='ArrowLeft'||k==='ArrowUp'){stop(e);select(idx-1);return false;}
+    if(k==='Enter'){
+      stop(e);
+      var b=visibleButtons()[idx]; if(b){try{b.click();}catch(_e){}}
+      setTimeout(function(){if(moreMenu())deactivate();else select(idx);},0);
+      return false;
+    }
+    /* Space alene må ikke trykke på valgt toolbar-knap. Hvis toolbar-fokus er aktiv, toggler den almindelig Mere. */
+    if((k===' '||e.code==='Space')&&!e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+      stop(e); deactivate(); try{if(typeof window.showMoreTools==='function')window.showMoreTools();}catch(_e){} return false;
+    }
+  },true);
+
+  /* Shift+højreklik på tavlen: window-capture, så Shift vinder før den gamle Mere-contextmenu. */
+  function shiftRight(e){
+    try{
+      if(!e.shiftKey)return;
+      if(!isBoardTarget(e.target))return;
+      stop(e); closeMore(); toggle(); return false;
+    }catch(_e){}
+  }
+  window.addEventListener('contextmenu',shiftRight,true);
+  window.addEventListener('mousedown',function(e){if(e&&e.button===2)shiftRight(e);},true);
+  window.addEventListener('pointerdown',function(e){if(e&&e.button===2)shiftRight(e);},true);
+
+  document.addEventListener('pointerdown',function(e){if(active&&!insideToolbar(e.target))deactivate();},true);
+  document.addEventListener('click',function(e){var t=e.target;if(t&&t.closest&&t.closest('#safe453BoardZoomOut,#safe453BoardZoomIn,#safe453BoardZoomPct'))setTimeout(applyScale,0);},true);
+  window.addEventListener('resize',function(){setTimeout(function(){applyScale(); if(active)select(idx);},0);},true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyScale,{once:true}); else applyScale();
+  setTimeout(applyScale,300);
+})();
+</script>
+
+
+<!-- SAFE455uH45g10i: præsentations-toggle uden at røre Mere/Space-logik + lavere toggleknap. -->
+<style id="safe455uH45g10i-toolbar-present-repair">
+body.safe455ToolbarPresentPeek .app.present .toolbar{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:18px!important;
+  transform:translateX(-50%)!important;
+}
+body.safe455ToolbarPresentPeek .app.present .toolbar .tool{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+body.safe455ToolbarPresentPeek .app.present .toolbar .tool button{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+@media (max-width:760px), (pointer:coarse) and (max-width:900px){
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarPinFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    bottom:calc(74px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+@media (max-width:760px) and (orientation:landscape) and (max-height:480px){
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarPinFallback,
+  body:not(.present):not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    bottom:calc(74px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+</style>
+
+<!-- SAFE455uH45g10j: kun layoutpatch - toolbar toggleknap tættere på nederste værktøjslinje i redigering. -->
+<style id="safe455uH45g10j-toolbar-toggle-lower-only">
+/* Normal redigering: den sorte toggleknap skal ligge tættere på toolbaren, men ikke dække den. */
+@media (max-width:760px), (pointer:coarse) and (max-width:900px){
+  body:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .app:not(.present) ~ #toolbarFallback,
+  body:not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarPinFallback,
+  body:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    bottom:calc(60px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+@media (max-width:760px) and (orientation:landscape) and (max-height:480px){
+  body:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .app:not(.present) ~ #toolbarFallback,
+  body:not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarFallback,
+  body:not(.focus-mode):not(.focus-edit):not(.focus-presentation) #toolbarPinFallback,
+  body:not(.focus-mode):not(.focus-edit):not(.focus-presentation) .toolbarFallback{
+    bottom:calc(60px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+/* Præsentation: toggleknappen skal fortsat ikke vises. */
+.app.present #toolbarFallback,
+.app.present #toolbarPinFallback,
+.app.present .toolbarFallback{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+</style>
+
+
+<!-- SAFE455uH45g10k: Præsentationsværktøjer markeres med grøn ramme, så toolbar/Mere i præsentation føles som midlertidig værktøjstilstand. -->
+<style id="safe455uH45g10k-present-tools-green-frame">
+:root{--safe455-present-tool-green:#22c55e;--safe455-present-tool-green-soft:rgba(34,197,94,.24);}
+body.safe455ToolbarPresentPeek .app.present .toolbar,
+body.safe455PresentToolsOpen .app.present .toolbar{
+  outline:4px solid var(--safe455-present-tool-green)!important;
+  outline-offset:5px!important;
+  box-shadow:0 0 0 9px var(--safe455-present-tool-green-soft),0 14px 34px rgba(0,0,0,.34)!important;
+}
+body.safe455PresentToolsOpen .moreMenu,
+body.safe455PresentToolsOpen .moreMenu.moreMenuGrouped{
+  outline:4px solid var(--safe455-present-tool-green)!important;
+  outline-offset:5px!important;
+  box-shadow:0 0 0 9px var(--safe455-present-tool-green-soft),0 18px 50px rgba(0,0,0,.35)!important;
+}
+body.safe455PresentToolsOpen .moreMenu::before,
+body.safe455ToolbarPresentPeek .app.present .toolbar::before{
+  content:'Præsentationsværktøjer';
+  position:absolute;
+  left:50%;
+  top:-32px;
+  transform:translateX(-50%);
+  background:var(--safe455-present-tool-green);
+  color:#052e16;
+  border-radius:999px;
+  padding:5px 11px;
+  font-size:12px;
+  line-height:1;
+  font-weight:950;
+  white-space:nowrap;
+  pointer-events:none;
+  box-shadow:0 8px 20px rgba(0,0,0,.22);
+}
+body.safe455ToolbarPresentPeek .app.present .toolbar{position:absolute!important;}
+body.safe455PresentToolsOpen .moreMenu{position:fixed!important;}
+@media(max-width:640px){
+  body.safe455PresentToolsOpen .moreMenu::before,
+  body.safe455ToolbarPresentPeek .app.present .toolbar::before{
+    top:-28px;
+    font-size:11px;
+    padding:4px 9px;
+  }
+}
+</style>
+<script id="safe455uH45g10k-present-tools-state">
+(function(){
+  if(window.__safe455uH45g10k)return;
+  window.__safe455uH45g10k=true;
+  function app(){return document.getElementById('app')||document.querySelector('.app');}
+  function isPresent(){var a=app();return !!(a&&a.classList&&a.classList.contains('present'));}
+  function hasMore(){return !!document.querySelector('.moreMenu,.moreMenuBackdrop');}
+  function sync(){
+    try{
+      var on=isPresent() && (hasMore() || document.body.classList.contains('safe455ToolbarPresentPeek'));
+      document.body.classList.toggle('safe455PresentToolsOpen',!!on);
+    }catch(_e){}
+  }
+  document.addEventListener('keydown',function(){setTimeout(sync,0);setTimeout(sync,80);},true);
+  document.addEventListener('pointerdown',function(){setTimeout(sync,0);setTimeout(sync,120);},true);
+  document.addEventListener('click',function(){setTimeout(sync,0);setTimeout(sync,120);},true);
+  try{new MutationObserver(sync).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});}catch(_e){}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync,{once:true}); else sync();
+  setTimeout(sync,300);
+})();
+</script>
+
 </body></html>
