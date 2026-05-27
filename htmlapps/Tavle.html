@@ -28210,10 +28210,10 @@ function safe453i51RenameMediaWidget(w){
 }
 
 
-/* SAFE455uH45g10l2a: Shift+L toggler lås på valgt widget.
-   Minimal patch på uploadet Tavle.html. Bruger eksisterende selected/slide/render/select/toast.
+/* SAFE455uH45g10l2b: Shift+Ø toggler lås på valgt widget.
+   Shift+L bevares til Link. Bruger eksisterende selected/slide/render/select/toast.
    Rører ikke præsentationsværktøjer, toolbar, Mere-menu eller embedded HTML-demoer. */
-function safe455uH45g10l2aToggleSelectedWidgetLock(){
+function safe455uH45g10l2bToggleSelectedWidgetLock(){
   try{
     if(!selected) return false;
     const w = slide().widgets.find(x => String(x.id) === String(selected));
@@ -28228,19 +28228,21 @@ function safe455uH45g10l2aToggleSelectedWidgetLock(){
   }
 }
 
-if(!window.__safe455uH45g10l2aShiftLLockInstalled){
-  window.__safe455uH45g10l2aShiftLLockInstalled = true;
-  document.addEventListener('keydown', function safe455uH45g10l2aShiftLLock(e){
+if(!window.__safe455uH45g10l2bShiftOeLockInstalled){
+  window.__safe455uH45g10l2bShiftOeLockInstalled = true;
+  document.addEventListener('keydown', function safe455uH45g10l2bShiftOeLock(e){
     try{
       if(e.defaultPrevented) return;
       if(e.metaKey || e.ctrlKey || e.altKey || !e.shiftKey) return;
-      if(String(e.key || '').toLowerCase() !== 'l') return;
+
+      const key = String(e.key || '').toLowerCase();
+      if(key !== 'ø') return;
 
       const t = e.target;
       const tag = String((t && t.tagName) || '').toLowerCase();
       if(t && (t.isContentEditable || tag === 'input' || tag === 'textarea' || tag === 'select')) return;
 
-      if(safe455uH45g10l2aToggleSelectedWidgetLock()){
+      if(safe455uH45g10l2bToggleSelectedWidgetLock()){
         e.preventDefault();
         e.stopPropagation();
         if(e.stopImmediatePropagation) e.stopImmediatePropagation();
