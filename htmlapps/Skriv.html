@@ -2,7 +2,7 @@
 
 <html lang="da">
 <head>
-<!-- Skriv standalone HE smalprint nodocs iPad-print-signature-flowfix-v2-signature-space 2026-05-27 -->
+<!-- Skriv standalone HE SAFE-DROPZONE-MODAL 2026-05-28 -->
 <!-- Skriv standalone HE smalprint nodocs 2026-05-26 -->
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
@@ -7970,5 +7970,183 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 })();
 </script>
+
+<!-- SAFE_DROPZONE_MODAL_2026-05-28: Tavle-inspireret app-dropzone til Skriv/Udtalelser. -->
+<style id="safe-dropzone-modal-style">
+  .safeDropBackdrop{position:fixed;inset:0;z-index:2147483600;background:rgba(15,17,21,.72);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .safeDropBackdrop.show{display:flex}
+  .safeDropModal{width:min(680px,94vw);max-height:min(82vh,720px);overflow:auto;background:#171a21;color:#e6e8ee;border:1px solid rgba(255,255,255,.14);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.5);padding:20px}
+  .safeDropHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .safeDropHead h2{margin:0;font-size:clamp(22px,4vw,34px);line-height:1.05}.safeDropHead p{margin:.35rem 0 0;color:#a8afbf;line-height:1.35}
+  .safeDropClose{border:0;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;font-weight:950;padding:9px 13px;cursor:pointer}
+  .safeDropZone{border:3px dashed #8bd3ff;border-radius:18px;background:rgba(139,211,255,.08);padding:28px 18px;text-align:center;display:grid;place-items:center;gap:10px;transition:.15s ease}
+  .safeDropZone.dragOver{background:rgba(139,211,255,.18);transform:scale(1.01);box-shadow:0 0 0 6px rgba(139,211,255,.12)}
+  .safeDropIcon{font-size:44px;line-height:1}.safeDropZone b{font-size:24px}.safeDropZone span{color:#a8afbf;font-weight:750}.safeDropZone button{border:0;border-radius:999px;background:#8bd3ff;color:#0f1115;padding:10px 14px;font-weight:950;cursor:pointer}
+  .safeDropHint{margin-top:12px;color:#a8afbf;font-size:13px;line-height:1.35}.safeDropStatus{margin-top:14px;display:grid;gap:8px}.safeDropRow{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:10px 12px;font-weight:800;line-height:1.25}.safeDropRow.ok{border-color:rgba(120,255,170,.35)}.safeDropRow.bad{border-color:rgba(255,120,120,.35);color:#ffb4b4}
+  body.safeDropDragging::after{content:"Slip filen – Skriv finder importtypen";position:fixed;inset:18px;border:4px dashed rgba(139,211,255,.85);border-radius:24px;background:rgba(255,255,255,.10);color:#fff;display:grid;place-items:center;font-size:clamp(22px,4vw,44px);font-weight:950;text-shadow:0 2px 8px rgba(0,0,0,.55);z-index:2147483500;pointer-events:none}
+</style>
+<script id="safe-dropzone-modal-script">
+(function(){
+  if(window.__SAFE_SKRIV_DROPZONE_MODAL__) return;
+  window.__SAFE_SKRIV_DROPZONE_MODAL__=true;
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s||'').replace(/[&<>\"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[ch]||ch})}
+  function ensureModal(){
+    let back=$('safeDropBackdrop');
+    if(back) return back;
+    back=document.createElement('div'); back.id='safeDropBackdrop'; back.className='safeDropBackdrop';
+    back.innerHTML='<div class="safeDropModal" role="dialog" aria-modal="true" aria-label="Importér fil"><div class="safeDropHead"><div><h2>Importér til Skriv</h2><p>Slip en backup, elevliste eller faglærerfil her. Appen vælger selv den mest sandsynlige import.</p></div><button class="safeDropClose" type="button" title="Luk">×</button></div><div id="safeDropZone" class="safeDropZone"><div class="safeDropIcon">⬆️</div><b>Slip filen her</b><span>CSV / Excel / JSON</span><button type="button" id="safeDropChoose">Vælg fil manuelt</button></div><div class="safeDropHint">Eksempler: backup.json → importér backup · elevliste.xlsx/csv → elevliste · sang/gym/elevråd-filer → faglærervurderinger · template/snippet-json → skabeloner/tekster.</div><div id="safeDropStatus" class="safeDropStatus" aria-live="polite"></div><input id="safeDropFileInput" type="file" multiple accept=".json,.csv,.txt,.xlsx,.xls,.xlsm" style="display:none"></div>';
+    document.body.appendChild(back);
+    back.querySelector('.safeDropClose').addEventListener('click',closeModal);
+    back.addEventListener('click',function(e){ if(e.target===back) closeModal(); });
+    back.querySelector('#safeDropChoose').addEventListener('click',function(){ back.querySelector('#safeDropFileInput').click(); });
+    back.querySelector('#safeDropFileInput').addEventListener('change',async function(e){ const files=Array.from(e.target.files||[]); e.target.value=''; await handleFiles(files); });
+    const zone=back.querySelector('#safeDropZone');
+    ['dragenter','dragover'].forEach(ev=>zone.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();zone.classList.add('dragOver');},true));
+    ['dragleave','dragend'].forEach(ev=>zone.addEventListener(ev,function(){zone.classList.remove('dragOver');},true));
+    zone.addEventListener('drop',async function(e){e.preventDefault();e.stopPropagation();zone.classList.remove('dragOver');await handleFiles(filesFromDt(e.dataTransfer));},true);
+    return back;
+  }
+  function openModal(){ensureModal().classList.add('show')}
+  function closeModal(){const b=$('safeDropBackdrop'); if(b)b.classList.remove('show'); document.body.classList.remove('safeDropDragging');}
+  function status(msg,ok){const box=$('safeDropStatus'); if(!box)return; const row=document.createElement('div'); row.className='safeDropRow '+(ok===false?'bad':'ok'); row.innerHTML=msg; box.prepend(row);}
+  function filesFromDt(dt){const out=[];try{if(dt&&dt.files)out.push(...Array.from(dt.files));}catch(_e){} try{for(const it of Array.from((dt&&dt.items)||[])){if(it&&it.kind==='file'){const f=it.getAsFile(); if(f&&!out.some(x=>x.name===f.name&&x.size===f.size))out.push(f);}}}catch(_e){} return out;}
+  function hasFiles(dt){try{return !!(dt&&(dt.files&&dt.files.length || Array.from(dt.items||[]).some(i=>i.kind==='file') || Array.from(dt.types||[]).includes('Files')))}catch(_e){return false}}
+  function setInputFilesAndChange(input,files){
+    if(!input) return false;
+    try{const d=new DataTransfer(); files.forEach(f=>d.items.add(f)); input.files=d.files; input.dispatchEvent(new Event('change',{bubbles:true})); return true;}catch(_e){return false;}
+  }
+  async function importJsonDirect(file,obj){
+    const name=String(file.name||'').toLowerCase();
+    if(obj && (obj.kind==='localStorage-backup' || obj.app || obj.data || obj.savedAt) && typeof window.importLocalBackup==='function'){
+      window.importLocalBackup(file); return 'backup';
+    }
+    const scope=String((obj&&obj.scope)||(obj&&obj.payload&&Object.keys(obj.payload||{})[0])||'').toLowerCase();
+    if(/template|skabelon/.test(name) || scope==='templates'){
+      if(typeof window.importOverridePackage==='function'){window.importOverridePackage('templates',obj); if(typeof window.renderSettings==='function')window.renderSettings(); return 'skabeloner';}
+    }
+    if(/sang/.test(name)||scope==='sang') { if(typeof window.importOverridePackage==='function'){window.importOverridePackage('sang',obj); if(typeof window.renderSettings==='function')window.renderSettings(); return 'sang-tekster';} }
+    if(/gym|rolle/.test(name)||scope==='gym'||scope==='roller') { if(typeof window.importOverridePackage==='function'){window.importOverridePackage(scope==='roller'?'roller':'gym',obj); if(typeof window.renderSettings==='function')window.renderSettings(); return scope==='roller'?'rolle-tekster':'gym-tekster';} }
+    if(/elevr|elevråd|elevraad/.test(name)||scope==='elevraad') { if(typeof window.importOverridePackage==='function'){window.importOverridePackage('elevraad',obj); if(typeof window.renderSettings==='function')window.renderSettings(); return 'elevråd-tekster';} }
+    return '';
+  }
+  function safeDropToast(msg){
+    try{
+      let t=document.getElementById('safeDropToast');
+      if(!t){
+        t=document.createElement('div');
+        t.id='safeDropToast';
+        t.style.cssText='position:fixed;left:50%;top:22px;transform:translateX(-50%);z-index:2147483647;background:rgba(17,24,39,.94);color:#fff;border-radius:999px;padding:11px 18px;font-weight:950;box-shadow:0 12px 30px rgba(0,0,0,.35);max-width:min(92vw,820px);text-align:center;opacity:0;transition:opacity .16s ease';
+        document.body.appendChild(t);
+      }
+      t.textContent=String(msg||'Import gennemført');
+      t.style.opacity='1';
+      clearTimeout(window.__safeDropToastTimer);
+      window.__safeDropToastTimer=setTimeout(function(){try{t.style.opacity='0'}catch(_e){}},3600);
+    }catch(_e){}
+  }
+  async function importStudentFileDirect(file){
+    if(typeof parseTabularFile!=='function' || typeof mapStudentHeaders!=='function') return '';
+    const parsed = await parseTabularFile(file);
+    const map = mapStudentHeaders(parsed.headers);
+    const required = ['fornavn','efternavn','klasse'];
+    const ok = required.every(function(r){return map[r];});
+    if(!ok) throw new Error('Kunne ikke finde de nødvendige kolonner (fornavn, efternavn, klasse).');
+    const teacherOverrides = (typeof buildTeacherOverrideMap==='function') ? buildTeacherOverrideMap(parsed.rows, map) : new Map();
+    let skippedEmpty = 0, missingTeachers = 0;
+    const missingTeacherNames = [];
+    const validRows = [];
+    for (const r of parsed.rows) {
+      const fn = (r[map.fornavn] ?? '').toString().trim();
+      const en = (r[map.efternavn] ?? '').toString().trim();
+      if (!fn && !en) { skippedEmpty++; continue; }
+      const k1 = (map.kontaktlaerer1 ? (r[map.kontaktlaerer1] ?? '') : '').toString().trim();
+      const k2 = (map.kontaktlaerer2 ? (r[map.kontaktlaerer2] ?? '') : '').toString().trim();
+      if (!k1 && !k2) {
+        missingTeachers++;
+        const nm = (fn + ' ' + en).trim() || '(ukendt elev)';
+        if (missingTeacherNames.length < 12) missingTeacherNames.push(nm);
+      }
+      validRows.push(r);
+    }
+    const studentsRaw = validRows.map(function(r){return normalizeStudentRow(r, map, teacherOverrides);});
+    const students = (typeof canonicalizeTeacherInitials==='function') ? canonicalizeTeacherInitials(studentsRaw) : studentsRaw;
+    setStudents(students);
+    const statusEl = $('importStatus');
+    if (statusEl) {
+      const parts = [];
+      if (skippedEmpty) parts.push('Sprunget over '+skippedEmpty+' tomme rækker.');
+      if (missingTeachers) {
+        const list = missingTeacherNames.length ? ' (fx: '+missingTeacherNames.join(', ')+')' : '';
+        parts.push('⚠️ '+missingTeachers+' elever mangler kontaktlærer'+list+'.');
+      }
+      statusEl.textContent = parts.length ? '✅ Elevliste indlæst. '+parts.join(' ') : '✅ Elevliste indlæst.';
+    }
+    try{ renderSettings(); renderStatus(); if (state.tab === 'k') renderKList(); setTab('set'); }catch(_e){}
+    return 'elevliste importeret: '+students.length+' elever';
+  }
+  async function importMarksFileDirect(file,kind){
+    if(typeof parseTabularFile!=='function' || typeof normalizeHeader!=='function') return '';
+    const parsed = await parseTabularFile(file);
+    const colUnilogin = parsed.headers.find(function(h){return ['unilogin','unicbrugernavn','unicusername','unic'].includes(normalizeHeader(h));});
+    if(!colUnilogin) throw new Error('Filen mangler kolonne: Unilogin');
+    let imported = 0;
+    if(kind === 'sang'){
+      const colVar = parsed.headers.find(function(h){return ['sangvariant','sang_variant','sang'].includes(normalizeHeader(h));});
+      const map = getMarks(KEYS.marksSang);
+      parsed.rows.forEach(function(r){ const u=(r[colUnilogin]||'').trim(); if(!u)return; map[u]=map[u]||{}; map[u].sang_variant=(r[colVar]||'').trim(); imported++; });
+      setMarks(KEYS.marksSang,map);
+    }
+    if(kind === 'gym'){
+      const colVar = parsed.headers.find(function(h){return ['gymvariant','gym_variant','gym'].includes(normalizeHeader(h));});
+      const roleCodes = Object.keys(SNIPPETS.roller||{});
+      const map = getMarks(KEYS.marksGym);
+      parsed.rows.forEach(function(r){ const u=(r[colUnilogin]||'').trim(); if(!u)return; map[u]=map[u]||{}; map[u].gym_variant=(r[colVar]||'').trim(); roleCodes.forEach(function(rc){ const col=parsed.headers.find(function(h){return normalizeHeader(h)===normalizeHeader(rc);}); if(col){ const val=String(r[col]||'').trim(); map[u][rc]=(val==='1'||normalizeName(val)==='true'||normalizeName(val)==='ja'); }}); imported++; });
+      setMarks(KEYS.marksGym,map);
+    }
+    if(kind === 'elevraad'){
+      const colER = parsed.headers.find(function(h){return ['elevraad','elevråd'].includes(normalizeHeader(h));});
+      const map = getMarks(KEYS.marksElev);
+      parsed.rows.forEach(function(r){ const u=(r[colUnilogin]||'').trim(); if(!u)return; map[u]=map[u]||{}; const val=String(r[colER]||'').trim(); map[u].elevraad=(val==='1'||normalizeName(val)==='true'||normalizeName(val)==='ja'); imported++; });
+      setMarks(KEYS.marksElev,map);
+    }
+    const st=$('importStatus'); if(st) st.textContent='✅ Importeret '+imported+' rækker fra '+file.name;
+    try{ if(state.tab==='set')renderMarksTable(); if(state.tab==='edit')renderEdit(); }catch(_e){}
+    return imported+' rækker importeret';
+  }
+  async function routeFile(file){
+    const name=String(file&&file.name||'').toLowerCase();
+    if(!file) return {ok:false,msg:'Ingen fil'};
+    if(/\.json$/i.test(name) || /json/i.test(file.type||'')){
+      try{const obj=JSON.parse(await file.text()); const direct=await importJsonDirect(file,obj); if(direct)return {ok:true,msg:esc(file.name)+' → '+direct};}catch(err){return {ok:false,msg:esc(file.name)+' → JSON kunne ikke læses'};}
+      if(setInputFilesAndChange($('backupFileInput'),[file])) return {ok:true,msg:esc(file.name)+' → backup-import'};
+      return {ok:false,msg:esc(file.name)+' → ingen JSON-import fundet'};
+    }
+    if(/sang/.test(name)){ const m=await importMarksFileDirect(file,'sang'); if(m)return {ok:true,msg:esc(file.name)+' → sangvurderinger ('+esc(m)+')'}; if(setInputFilesAndChange($('importSang'),[file])) return {ok:true,msg:esc(file.name)+' → sangvurderinger'}; }
+    if(/gym|rolle/.test(name)){ const m=await importMarksFileDirect(file,'gym'); if(m)return {ok:true,msg:esc(file.name)+' → gymnastik/roller ('+esc(m)+')'}; if(setInputFilesAndChange($('importGym'),[file])) return {ok:true,msg:esc(file.name)+' → gymnastik/roller'}; }
+    if(/elevr|elevråd|elevraad/.test(name)){ const m=await importMarksFileDirect(file,'elevraad'); if(m)return {ok:true,msg:esc(file.name)+' → elevråd ('+esc(m)+')'}; if(setInputFilesAndChange($('importElevraad'),[file])) return {ok:true,msg:esc(file.name)+' → elevråd'}; }
+    if(/\.(csv|txt|xlsx|xls|xlsm)$/i.test(name)){ const m=await importStudentFileDirect(file); if(m)return {ok:true,msg:esc(file.name)+' → '+esc(m)}; if(setInputFilesAndChange($('studentsFile'),[file])) return {ok:true,msg:esc(file.name)+' → elevliste'}; }
+    return {ok:false,msg:esc(file.name)+' → filtypen blev ikke genkendt'};
+  }
+  async function handleFiles(files){
+    files=Array.from(files||[]).filter(Boolean); openModal(); const box=$('safeDropStatus'); if(box)box.innerHTML='';
+    if(!files.length){status('Ingen filer fundet',false);return;}
+    let okCount=0, lastMsg='';
+    for(const f of files){ try{const r=await routeFile(f); status(r.msg,r.ok); if(r&&r.ok){okCount++; lastMsg=r.msg;}}catch(err){status(esc(f.name)+' → '+esc(err&&err.message||'ukendt fejl'),false);} }
+    if(okCount){
+      const plain=(lastMsg||'Import gennemført').replace(/<[^>]*>/g,'');
+      safeDropToast(plain);
+      setTimeout(function(){ closeModal(); }, 650);
+    }
+  }
+  document.addEventListener('dragenter',function(e){if(!hasFiles(e.dataTransfer))return; e.preventDefault(); openModal(); document.body.classList.add('safeDropDragging');},true);
+  document.addEventListener('dragover',function(e){if(!hasFiles(e.dataTransfer))return; e.preventDefault(); try{e.dataTransfer.dropEffect='copy'}catch(_e){} openModal(); document.body.classList.add('safeDropDragging'); const z=$('safeDropZone'); if(z)z.classList.add('dragOver');},true);
+  document.addEventListener('dragleave',function(e){if(!e.relatedTarget || e.relatedTarget===document.body || e.relatedTarget===document.documentElement){document.body.classList.remove('safeDropDragging'); const z=$('safeDropZone'); if(z)z.classList.remove('dragOver');}},true);
+  document.addEventListener('drop',async function(e){if(!hasFiles(e.dataTransfer))return; e.preventDefault(); e.stopPropagation(); document.body.classList.remove('safeDropDragging'); const z=$('safeDropZone'); if(z)z.classList.remove('dragOver'); await handleFiles(filesFromDt(e.dataTransfer));},true);
+  window.addEventListener('dragend',function(){document.body.classList.remove('safeDropDragging');});
+  window.addEventListener('blur',function(){document.body.classList.remove('safeDropDragging');});
+})();
+</script>
+
 </body>
 </html>
