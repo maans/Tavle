@@ -48225,6 +48225,113 @@ body.focus-presentation .toolbar,
 </script>
 
 
+
+<script id="safe455uH45g10l2c-space-more-body-focus-fix">
+/* SAFE455uH45g10l2c:
+   Gendan Space -> Mere når fokus ligger på body/html/document i præsentation/fullscreen.
+   Årsag: SAFE453i232 kræver isInsideApp(e.target); ved body/html-fokus falder den igennem.
+   Bevarer tekstfelter, iframe-kontrol, KaPardy/interaktive targets og eksisterende højreklik-flow. */
+(function(){
+  if(window.__safe455uH45g10l2cSpaceMoreBodyFocusFix)return;
+  window.__safe455uH45g10l2cSpaceMoreBodyFocusFix=true;
+
+  function app(){
+    return document.getElementById('app') || document.querySelector('.app');
+  }
+  function modalOrMenuOpen(){
+    try{
+      const mb=document.getElementById('modalBack');
+      if(mb){
+        const cs=getComputedStyle(mb);
+        if(cs.display!=='none' && cs.visibility!=='hidden' && cs.opacity!=='0' && cs.pointerEvents!=='none')return true;
+      }
+    }catch(_e){}
+    try{
+      return !!document.querySelector('.moreMenu,.moreMenuBackdrop,.moveWidgetDialog,.kpPromptTool:not(.kpPromptHidden)');
+    }catch(_e){return false;}
+  }
+  function typingTarget(t){
+    try{
+      if(!t)return false;
+      const tag=String(t.tagName||'').toLowerCase();
+      return !!(t.isContentEditable || tag==='input' || tag==='textarea' || tag==='select' || (t.closest&&t.closest('[contenteditable="true"]')));
+    }catch(_e){return false;}
+  }
+  function iframeHasKeyboard(){
+    try{return !!(window.isIframeControlActive && window.isIframeControlActive());}
+    catch(_e){return false;}
+  }
+  function interactiveTarget(t){
+    try{
+      if(!t || t===document || t===window)return false;
+      if(t===document.body || t===document.documentElement)return false;
+      return !!(t.closest && t.closest('.widget,.topbar,.toolbar,#title,.moreMenu,.modal,#modal,#modalBack,button,input,textarea,select,a,iframe,embed,object,[contenteditable="true"]'));
+    }catch(_e){return true;}
+  }
+  function boardLikeTarget(t){
+    const a=app();
+    try{
+      if(!a)return false;
+      if(!t || t===document || t===window || t===document.body || t===document.documentElement)return true;
+      if(t===a || a.contains(t))return !interactiveTarget(t);
+      return false;
+    }catch(_e){return false;}
+  }
+  function appAllowsMore(){
+    const a=app();
+    if(!a)return false;
+    if(a.classList.contains('trashBoardActive'))return false;
+    if(a.classList.contains('drawActive') || document.body.classList.contains('mode-draw'))return false;
+    if(modalOrMenuOpen())return false;
+    return true;
+  }
+  function openMore(){
+    const a=app();
+    try{
+      /* Kun tving toolbar frem i redigering. I præsentation skal toolbar stadig være skjult. */
+      if(a && !a.classList.contains('present')){
+        a.classList.remove('toolbarHidden');
+        document.body.classList.remove('toolbar-is-hidden','hints-in-toolbar-space');
+        if(window.UIState)window.UIState.toolbarVisible=true;
+      }
+    }catch(_e){}
+    try{
+      if(typeof window.showMoreTools==='function'){
+        window.showMoreTools();
+        return true;
+      }
+    }catch(_e){}
+    try{
+      const more=document.querySelector('[data-tool="more"],[data-more-tool="more"],.toolbar button.more');
+      if(more){more.click();return true;}
+    }catch(_e){}
+    return false;
+  }
+
+  function onSpace(e){
+    try{
+      const key=String(e.key||'');
+      if(!(key===' ' || key==='Spacebar' || e.code==='Space'))return;
+      if(e.shiftKey || e.ctrlKey || e.metaKey || e.altKey)return;
+      if(typingTarget(e.target))return;
+      if(iframeHasKeyboard())return;
+      if(!appAllowsMore())return;
+      if(!boardLikeTarget(e.target))return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      openMore();
+      return false;
+    }catch(_e){}
+  }
+
+  window.addEventListener('keydown',onSpace,true);
+  document.addEventListener('keydown',onSpace,true);
+})();
+</script>
+
+
 <!-- SAFE453i233: Native fullscreen skal bruge documentElement, så Mere/modaler også kan vises. -->
 <style id="safe453i233-document-fullscreen-css">
 /* Når hele dokumentet er fullscreen, skal appens egne hovedkontroller stadig være klikbare. */
