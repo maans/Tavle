@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Weekend – single file test</title>
+    <title>Tjek / Weekend – SAFE dropzone modal feedback</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Weekend">
@@ -609,6 +609,75 @@ Fællesområder: ${X.join(" • ")||"—"}`;return v.jsxs("div",{className:`p-5 
   setTimeout(()=>{if(isEmbedded())post('TJEK_LOAD_REQUEST',{title:'Tjek'});},600);
   setTimeout(()=>{if(isEmbedded())sendSave('startup');},1800);
   window.__tjekTavleSaverBridgeH50={installed:true,protocol:PROTOCOL,app:APP,keys:KEYS};
+})();
+</script>
+
+
+<!-- SAFE_DROPZONE_MODAL_2026-05-28: Tavle-inspireret app-dropzone til Tjek/Weekend. -->
+<style id="safe-tjek-dropzone-style">
+  .safeTjekDropBackdrop{position:fixed;inset:0;z-index:2147483600;background:rgba(10,14,26,.78);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:white;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+  .safeTjekDropBackdrop.show{display:flex}.safeTjekDropModal{width:min(620px,94vw);max-height:min(82vh,700px);overflow:auto;background:#151926;border:1px solid rgba(255,255,255,.14);border-radius:28px;box-shadow:0 30px 90px rgba(0,0,0,.55);padding:22px}.safeTjekDropHead{display:flex;justify-content:space-between;gap:12px;margin-bottom:14px}.safeTjekDropHead h2{margin:0;color:#FFB300;font-size:clamp(24px,4vw,36px);font-weight:950;text-transform:uppercase;font-style:italic}.safeTjekDropHead p{margin:.35rem 0 0;opacity:.65;line-height:1.35;font-size:14px}.safeTjekDropClose{border:0;border-radius:999px;background:rgba(255,255,255,.08);color:#fff;font-weight:950;padding:10px 14px;cursor:pointer}.safeTjekDropZone{border:3px dashed #00BFA5;border-radius:22px;background:rgba(0,191,165,.08);padding:30px 18px;text-align:center;display:grid;place-items:center;gap:10px;transition:.15s ease}.safeTjekDropZone.dragOver{background:rgba(0,191,165,.18);transform:scale(1.01);box-shadow:0 0 0 6px rgba(0,191,165,.13)}.safeTjekDropIcon{font-size:44px}.safeTjekDropZone b{font-size:23px;font-weight:950;text-transform:uppercase;font-style:italic}.safeTjekDropZone span{opacity:.65;font-weight:800}.safeTjekDropZone button{border:0;border-radius:999px;background:#00BFA5;color:#000;padding:12px 16px;font-weight:950;cursor:pointer;text-transform:uppercase;font-style:italic}.safeTjekDropHint{margin-top:12px;opacity:.62;font-size:13px;line-height:1.35}.safeTjekDropStatus{margin-top:14px;display:grid;gap:8px}.safeTjekDropRow{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:15px;padding:11px 13px;font-weight:900;font-size:13px}.safeTjekDropRow.ok{border-color:rgba(0,191,165,.38)}.safeTjekDropRow.bad{border-color:rgba(216,27,96,.45);color:#ff9cbc}body.safeTjekDropDragging::after{content:"Slip filen – Tjek importerer til appen";position:fixed;inset:18px;border:4px dashed rgba(0,191,165,.8);border-radius:28px;background:rgba(255,255,255,.08);color:white;display:grid;place-items:center;font-size:clamp(22px,4vw,44px);font-weight:950;text-shadow:0 2px 8px rgba(0,0,0,.7);z-index:2147483500;pointer-events:none}
+</style>
+<script id="safe-tjek-dropzone-script">
+(function(){
+  if(window.__SAFE_TJEK_DROPZONE_MODAL__)return; window.__SAFE_TJEK_DROPZONE_MODAL__=true;
+  function esc(s){return String(s||'').replace(/[&<>\"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[ch]||ch})}
+  function ensureModal(){let back=document.getElementById('safeTjekDropBackdrop'); if(back)return back; back=document.createElement('div'); back.id='safeTjekDropBackdrop'; back.className='safeTjekDropBackdrop'; back.innerHTML='<div class="safeTjekDropModal" role="dialog" aria-modal="true" aria-label="Importér fil"><div class="safeTjekDropHead"><div><h2>Importér til Tjek</h2><p>Slip Excel/CSV-filen her. Dropzonen åbner Dashboard/import ved behov og sender filen videre.</p></div><button class="safeTjekDropClose" type="button">×</button></div><div id="safeTjekDropZone" class="safeTjekDropZone"><div class="safeTjekDropIcon">📄</div><b>Slip filen her</b><span>Excel / CSV / tekst</span><button type="button" id="safeTjekDropChoose">Vælg fil manuelt</button></div><div class="safeTjekDropHint">Hvis filfelterne ikke er monteret endnu, åbner dropzonen først Dashboard/import og prøver derefter igen.</div><div id="safeTjekDropStatus" class="safeTjekDropStatus" aria-live="polite"></div><input id="safeTjekDropFileInput" type="file" multiple accept=".xlsx,.xls,.xlsm,.csv,.txt,.json" style="display:none"></div>'; document.body.appendChild(back);
+    back.querySelector('.safeTjekDropClose').addEventListener('click',closeModal); back.addEventListener('click',e=>{if(e.target===back)closeModal();}); back.querySelector('#safeTjekDropChoose').addEventListener('click',()=>back.querySelector('#safeTjekDropFileInput').click()); back.querySelector('#safeTjekDropFileInput').addEventListener('change',async e=>{const files=Array.from(e.target.files||[]); e.target.value=''; await handleFiles(files);});
+    const zone=back.querySelector('#safeTjekDropZone'); ['dragenter','dragover'].forEach(ev=>zone.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();zone.classList.add('dragOver');},true)); ['dragleave','dragend'].forEach(ev=>zone.addEventListener(ev,()=>zone.classList.remove('dragOver'),true)); zone.addEventListener('drop',async e=>{e.preventDefault();e.stopPropagation();zone.classList.remove('dragOver');await handleFiles(filesFromDt(e.dataTransfer));},true); return back;}
+  function openModal(){ensureModal().classList.add('show')} function closeModal(){const b=document.getElementById('safeTjekDropBackdrop'); if(b)b.classList.remove('show'); document.body.classList.remove('safeTjekDropDragging');}
+  function status(msg,ok){const box=document.getElementById('safeTjekDropStatus'); if(!box)return; const row=document.createElement('div'); row.className='safeTjekDropRow '+(ok===false?'bad':'ok'); row.innerHTML=msg; box.prepend(row);}
+  function filesFromDt(dt){const out=[];try{if(dt&&dt.files)out.push(...Array.from(dt.files));}catch(_e){} try{for(const it of Array.from((dt&&dt.items)||[])){if(it&&it.kind==='file'){const f=it.getAsFile(); if(f&&!out.some(x=>x.name===f.name&&x.size===f.size))out.push(f);}}}catch(_e){} return out;}
+  function hasFiles(dt){try{return !!(dt&&(dt.files&&dt.files.length || Array.from(dt.items||[]).some(i=>i.kind==='file') || Array.from(dt.types||[]).includes('Files')))}catch(_e){return false}}
+  function ext(name){const m=String(name||'').toLowerCase().match(/\.([a-z0-9]+)$/); return m?'.'+m[1]:''}
+  function matchesAccept(input,file){const a=String(input.getAttribute('accept')||'').toLowerCase(); if(!a)return true; const e=ext(file.name); const type=String(file.type||'').toLowerCase(); return a.split(',').map(x=>x.trim()).some(x=>!x || x===e || (x.endsWith('/*')&&type.startsWith(x.slice(0,-1))) || x===type);}
+  function setInputFilesAndChange(input,files){try{const d=new DataTransfer(); files.forEach(f=>d.items.add(f)); input.files=d.files; input.dispatchEvent(new Event('input',{bubbles:true})); input.dispatchEvent(new Event('change',{bubbles:true})); return true;}catch(_e){return false;}}
+  function findBestInput(file){
+    const inputs=Array.from(document.querySelectorAll('input[type="file"]')).filter(i=>i.id!=='safeTjekDropFileInput');
+    const matching=inputs.filter(i=>matchesAccept(i,file));
+    if(!matching.length)return inputs[0]||null;
+    const name=String(file.name||'').toLowerCase();
+    if(/backup|json/.test(name)){
+      const j=matching.find(i=>/json/i.test(i.accept||'')||/restore|backup|import/i.test(i.id||''));
+      if(j)return j;
+    }
+    const tab=matching.find(i=>/xlsx|xls|csv/i.test(i.accept||'')||String(i.id||'')==='up');
+    return tab||matching[0];
+  }
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  async function ensureTjekImportInput(file){
+    let input=findBestInput(file);
+    if(input)return input;
+    // Tjek/Weekend HU monterer først filfelterne, når Dashboard/import-fanen er aktiv.
+    // Klik derfor nederste navigations første knap (Dashboard/import), vent på React-render og prøv igen.
+    try{localStorage.setItem('tjek_active_tab_v1','import');}catch(_e){}
+    try{
+      const navs=Array.from(document.querySelectorAll('nav'));
+      const nav=navs.find(n=>String(n.className||'').includes('bottom'))||navs[navs.length-1];
+      const btn=nav&&nav.querySelector('button');
+      if(btn)btn.click();
+    }catch(_e){}
+    for(let i=0;i<12;i++){
+      await sleep(120);
+      input=findBestInput(file);
+      if(input)return input;
+    }
+    return null;
+  }
+  async function routeFile(file){
+    const input=await ensureTjekImportInput(file);
+    if(!input)return {ok:false,msg:esc(file.name)+' → ingen filimport fundet. Åbn Dashboard én gang og prøv igen.'};
+    if(setInputFilesAndChange(input,[file]))return {ok:true,msg:esc(file.name)+' → sendt til Tjek-import'};
+    return {ok:false,msg:esc(file.name)+' → kunne ikke sende filen videre'};
+  }
+  function safeNotify(msg){try{if(typeof toast==='function')toast(msg,true);else{const el=document.createElement('div');el.textContent=msg;el.style.cssText='position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:2147483647;background:rgba(15,23,42,.94);color:white;padding:11px 15px;border-radius:999px;font:900 13px system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 12px 28px rgba(0,0,0,.30);max-width:90vw;text-align:center;';document.body.appendChild(el);setTimeout(()=>el.remove(),2200);}}catch(_e){}}
+  function successText(file){const e=ext(file.name); if(/^\.(xlsx?|xlsm|csv|txt)$/.test(e))return file.name+' importeret / sendt til Tjek'; if(e==='.json')return file.name+' importeret'; return file.name+' sendt til import';}
+  async function handleFiles(files){files=Array.from(files||[]).filter(Boolean); openModal(); const box=document.getElementById('safeTjekDropStatus'); if(box)box.innerHTML=''; if(!files.length){status('Ingen filer fundet',false);return;} let okCount=0; let lastOk=null; for(const f of files){try{const r=await routeFile(f); status(r.msg,r.ok); if(r.ok){okCount++; lastOk=f;}}catch(err){status(esc(f.name)+' → '+esc(err&&err.message||'ukendt fejl'),false);}} if(okCount){setTimeout(()=>{closeModal(); safeNotify(okCount===1?successText(lastOk):okCount+' filer sendt til Tjek-import');},650);}}
+  document.addEventListener('dragenter',e=>{if(!hasFiles(e.dataTransfer))return; e.preventDefault(); openModal(); document.body.classList.add('safeTjekDropDragging');},true);
+  document.addEventListener('dragover',e=>{if(!hasFiles(e.dataTransfer))return; e.preventDefault(); try{e.dataTransfer.dropEffect='copy'}catch(_e){} openModal(); document.body.classList.add('safeTjekDropDragging'); const z=document.getElementById('safeTjekDropZone'); if(z)z.classList.add('dragOver');},true);
+  document.addEventListener('dragleave',e=>{if(!e.relatedTarget||e.relatedTarget===document.body||e.relatedTarget===document.documentElement){document.body.classList.remove('safeTjekDropDragging'); const z=document.getElementById('safeTjekDropZone'); if(z)z.classList.remove('dragOver');}},true);
+  document.addEventListener('drop',async e=>{if(!hasFiles(e.dataTransfer))return; e.preventDefault(); e.stopPropagation(); document.body.classList.remove('safeTjekDropDragging'); const z=document.getElementById('safeTjekDropZone'); if(z)z.classList.remove('dragOver'); await handleFiles(filesFromDt(e.dataTransfer));},true);
+  window.addEventListener('dragend',()=>document.body.classList.remove('safeTjekDropDragging')); window.addEventListener('blur',()=>document.body.classList.remove('safeTjekDropDragging'));
 })();
 </script>
 
