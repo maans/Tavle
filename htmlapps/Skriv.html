@@ -2,7 +2,7 @@
 
 <html lang="da">
 <head>
-<!-- Skriv Lav PDF v6 2026-05-29: PDF preview pager, auto controls, reflow and date alignment -->
+<!-- Skriv Lav PDF v16 2026-05-29: PDF preview pager, auto controls, reflow and date alignment -->
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <title>Udtalelser v1.0 – standalone</title>
@@ -2810,14 +2810,15 @@ function _pdfEnsurePreviewModal(){
         <button id="pdfPreviewClose" class="btn small" type="button" style="margin-left:auto">×</button>
       </div>
       <div style="display:flex;min-height:0;flex:1">
-        <div style="flex:1;min-width:0;background:#777;display:flex;flex-direction:column">
+        <div style="flex:1;min-width:0;background:#252a31;display:flex;flex-direction:column">
           <div id="pdfPreviewNotice" style="padding:6px 14px;font-size:12px;opacity:.72;background:#10151d;border-bottom:1px solid rgba(255,255,255,.08)">Preview viser én side ad gangen. “Hent fuld PDF” laver alle valgte sider.</div>
-          <iframe id="pdfPreviewFrame" title="PDF-preview" style="border:0;flex:1;background:#777;width:100%;min-height:0"></iframe>
+          <div id="pdfPaperFrame" style="flex:1;min-height:0;background:#252a31;padding:16px 10px;box-sizing:border-box;display:flex;align-items:flex-start;justify-content:center;overflow:auto"><div id="pdfHtmlPreview" style="background:white;color:#111;border:1px solid rgba(0,0,0,.45);box-shadow:0 8px 28px rgba(0,0,0,.35);width:min(100%, 760px);aspect-ratio:210/297;box-sizing:border-box;position:relative;overflow:hidden"></div></div>
         </div>
-        <aside style="width:285px;max-width:38vw;border-left:1px solid rgba(255,255,255,.12);padding:14px;box-sizing:border-box;overflow:auto;background:#10151d">
+        <aside style="width:285px;max-width:38vw;border-left:1px solid rgba(255,255,255,.12);padding:10px;box-sizing:border-box;overflow:auto;background:#10151d">
           <div style="font-weight:700;margin-bottom:12px">Layout</div>
-          <label style="display:block;margin:0 0 14px 0">Størrelse<br><input id="pdfScaleRange" type="range" min="55" max="110" value="100" step="1" style="width:100%"><span id="pdfScaleLabel">100%</span></label>
-          <label style="display:block;margin:0 0 14px 0">Margin<br><select id="pdfMarginSelect" style="width:100%"><option value="normal">Normal</option><option value="small" selected>Smal</option><option value="tiny">Meget smal</option></select></label>
+          <div id="pdfFontInfo" style="font-size:12px;opacity:.78;margin-bottom:12px;line-height:1.35">Font: Arial · 10,2 pt → 11,2 pt</div>
+          <label style="display:block;margin:0 0 14px 0">Størrelse<br><input id="pdfScaleRange" type="range" min="55" max="170" value="110" step="1" style="width:100%"><span id="pdfScaleLabel">110%</span></label>
+          <label style="display:block;margin:0 0 14px 0">Margin<br><select id="pdfMarginSelect" style="width:100%"><option value="normal" selected>Normal</option><option value="small">Smal</option><option value="tiny">Meget smal</option></select></label>
           <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input id="pdfJustifyText" type="checkbox" checked> Lige højre margen</label>
           <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input id="pdfAutoFit" type="checkbox" checked> Autotilpas pr. side</label>
           <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input id="pdfShowLogo" type="checkbox" checked> Logo</label>
@@ -2829,7 +2830,7 @@ function _pdfEnsurePreviewModal(){
               <span id="pdfPageLabel" style="font-size:13px;min-width:86px;text-align:center;opacity:.85">Side 1 / 1</span>
               <button id="pdfNextPage" class="btn small" type="button">▶</button>
             </div>
-            <button id="pdfOpenTab" class="btn small" type="button" style="width:100%;margin-bottom:8px">Åbn preview</button>
+            <button id="pdfOpenTab" class="btn small" type="button" style="width:100%;margin-bottom:8px">Åbn PDF-preview</button>
             <a id="pdfDownloadLink" class="btn small" download="udtalelser.pdf" href="#" style="display:block;text-align:center;margin-bottom:8px">Hent fuld PDF</a>
             <span id="pdfStatus" style="font-size:13px;opacity:.75"></span>
           </div>
@@ -2844,7 +2845,15 @@ function _pdfEnsurePreviewModal(){
     pdfAutoTimer = setTimeout(_pdfRenderPreview, 300);
   };
   m.querySelector('#pdfScaleRange').addEventListener('input', () => {
-    m.querySelector('#pdfScaleLabel').textContent = m.querySelector('#pdfScaleRange').value + '%';
+    const val = Number(m.querySelector('#pdfScaleRange').value || 110);
+    m.dataset.userScale = String(val);
+    m.querySelector('#pdfScaleLabel').textContent = val + '%';
+    const fontInfo = m.querySelector('#pdfFontInfo');
+    if (fontInfo) {
+      const basePt = 10.2;
+      const finalPt = basePt * (val / 100);
+      fontInfo.textContent = `Font: Arial · ${basePt.toFixed(1).replace('.', ',')} pt → ${finalPt.toFixed(1).replace('.', ',')} pt`;
+    }
     schedulePdfPreview();
   });
   ['#pdfMarginSelect','#pdfJustifyText','#pdfAutoFit','#pdfShowLogo','#pdfShowDate','#pdfShowSignatures'].forEach(sel => {
@@ -2862,7 +2871,22 @@ function _pdfEnsurePreviewModal(){
     __pdfPreviewCtx.pageIndex = Math.min(Math.max(0,n-1), (__pdfPreviewCtx.pageIndex || 0) + 1);
     _pdfRenderPreview();
   });
-  m.querySelector('#pdfOpenTab').addEventListener('click', () => { if (__pdfPreviewUrl) window.open(__pdfPreviewUrl, '_blank'); });
+  m.querySelector('#pdfOpenTab').addEventListener('click', async () => {
+    const status = m.querySelector('#pdfStatus');
+    status.textContent = 'Laver PDF-preview…';
+    try {
+      const idx = (__pdfPreviewCtx && __pdfPreviewCtx.pageIndex) || 0;
+      const students = (__pdfPreviewCtx && __pdfPreviewCtx.students) || [];
+      const one = students[idx] ? [students[idx]] : [];
+      const layout = _pdfCurrentLayoutFromModal(m);
+      const res = await makePdfForStudents(one, __pdfPreviewCtx.settings, (__pdfPreviewCtx.title || 'Udtalelser') + ' – preview', Object.assign({}, __pdfPreviewCtx.opts || {}, {layout, returnOnly:true, preserveOrder:true}));
+      if (res && res.url) window.open(res.url, '_blank');
+      status.textContent = 'Klar';
+    } catch(err) {
+      console.error(err);
+      status.textContent = 'Fejl: ' + (err && err.message ? err.message : err);
+    }
+  });
   return m;
 }
 function _pdfClosePreviewModal(){
@@ -2873,6 +2897,10 @@ async function _pdfShowPreview(students, settings, title, opts){
   const m = _pdfEnsurePreviewModal();
   __pdfPreviewCtx = { students, settings, title, opts: opts || {}, pageIndex: 0 };
   m.querySelector('#pdfPreviewTitle').textContent = title || '';
+  const sr = m.querySelector('#pdfScaleRange');
+  const sl = m.querySelector('#pdfScaleLabel');
+  if (sr) m.dataset.userScale = sr.value || '110';
+  if (sr && sl) sl.textContent = sr.value + '%';
   m.style.display = 'flex';
   await _pdfRenderPreview();
 }
@@ -2887,15 +2915,39 @@ function _pdfCurrentLayoutFromModal(m){
     showSignatures: !!m.querySelector('#pdfShowSignatures').checked
   };
 }
-async function _pdfRenderPreview(){
+
+function _pdfEscapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function _pdfStripSignatureTailFromPreview(text){
+  let s = String(text || '').replace(/\r/g,'').trim();
+  const names = ['Måns Patrik Mårtensson','Måns Patrick Mårtensson','Stinne Krogh Poulsen','Kontaktlærere','Kontaktlærer','Forstander'];
+  let cut = -1;
+  for (const n of names) {
+    const i = s.indexOf(n);
+    if (i > 0 && (cut < 0 || i < cut)) cut = i;
+  }
+  if (cut > 0) {
+    let before = s.slice(0, cut).trim();
+    before = before.replace(/\s*&\s*$/,'').trim();
+    return before;
+  }
+  return s;
+}
+function _pdfGetTeacherNames(settings){
+  const s = settings || {};
+  const teacher = s.teacherName || s.kontaktTeacherName || s.kontaktlaererName || s.kontaktlaererNavn || 'Måns Patrik Mårtensson';
+  const head = s.forstanderName || s.forstanderNavn || 'Stinne Krogh Poulsen';
+  return {teacher, head};
+}
+async function _pdfRenderHtmlPreviewOnly(){
   const m = _pdfEnsurePreviewModal();
   if (!__pdfPreviewCtx) return;
-  const status = m.querySelector('#pdfStatus');
-  const frame = m.querySelector('#pdfPreviewFrame');
-  const link = m.querySelector('#pdfDownloadLink');
+  const box = m.querySelector('#pdfHtmlPreview');
   const pageLabel = m.querySelector('#pdfPageLabel');
   const prevBtn = m.querySelector('#pdfPrevPage');
   const nextBtn = m.querySelector('#pdfNextPage');
+  const status = m.querySelector('#pdfStatus');
   const students = __pdfPreviewCtx.students || [];
   const n = students.length || 0;
   __pdfPreviewCtx.pageIndex = Math.max(0, Math.min(n-1, __pdfPreviewCtx.pageIndex || 0));
@@ -2903,29 +2955,154 @@ async function _pdfRenderPreview(){
   pageLabel.textContent = n ? `Side ${idx+1} / ${n}` : 'Side 0 / 0';
   prevBtn.disabled = idx <= 0;
   nextBtn.disabled = idx >= n-1;
-  status.textContent = 'Genererer…';
-  try {
-    if (__pdfPreviewUrl) { try { URL.revokeObjectURL(__pdfPreviewUrl); } catch(_) {} __pdfPreviewUrl = null; }
-    if (__pdfDownloadUrl) { try { URL.revokeObjectURL(__pdfDownloadUrl); } catch(_) {} __pdfDownloadUrl = null; }
-    const layout = _pdfCurrentLayoutFromModal(m);
-    const baseOpts = Object.assign({}, __pdfPreviewCtx.opts || {}, { layout, returnOnly:true });
-    // Preview: one selected side/student at a time.
-    const one = students[idx] ? [students[idx]] : [];
-    const previewRes = await makePdfForStudents(one, __pdfPreviewCtx.settings, (__pdfPreviewCtx.title || 'Udtalelser') + ' – preview', Object.assign({}, baseOpts, {preserveOrder:true}));
-    __pdfPreviewUrl = previewRes.url;
-    frame.src = __pdfPreviewUrl;
-    // Download: all selected students, same layout.
-    const fullRes = await makePdfForStudents(students, __pdfPreviewCtx.settings, __pdfPreviewCtx.title || 'Udtalelser', baseOpts);
-    __pdfDownloadUrl = fullRes.url;
-    link.href = __pdfDownloadUrl;
-    link.download = fullRes.filename || 'udtalelser.pdf';
-    status.textContent = 'Klar';
-  } catch(err) {
-    console.error(err);
-    status.textContent = 'Fejl: ' + (err && err.message ? err.message : err);
+  const pagerWrap = prevBtn && prevBtn.parentElement;
+  if (pagerWrap) pagerWrap.style.display = n <= 1 ? 'none' : 'flex';
+
+  const layout = _pdfCurrentLayoutFromModal(m);
+  const st = students[idx];
+  if (!st) { box.innerHTML = ''; status.textContent = 'Ingen side'; return; }
+
+  let headerDateText = '';
+  try { const p = computePeriod((__pdfPreviewCtx.settings||{}).schoolYearEnd); headerDateText = (p && p.dateMonthYear) ? String(p.dateMonthYear) : ''; } catch(e) {}
+  if (!headerDateText) { headerDateText = new Date().toLocaleDateString('da-DK',{month:'long',year:'numeric'}); if (headerDateText) headerDateText = headerDateText.charAt(0).toUpperCase()+headerDateText.slice(1); }
+
+  const names = _pdfGetTeacherNames(__pdfPreviewCtx.settings || {});
+  let txt = '';
+  try { txt = buildStatement(st, __pdfPreviewCtx.settings || {}); } catch(e) { txt = ''; }
+  txt = _pdfStripSignatureTailFromPreview(txt);
+  const lines = String(txt || '').replace(/\r/g,'').split('\n');
+  const title = (lines.shift() || '').trim();
+  const paras = lines.join('\n').split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
+
+  const basePt = 10.2;
+  const desiredScalePct = Number((m.dataset && m.dataset.userScale) || layout.fontScale || 110);
+  const chosenScale = Math.max(55, Math.min(170, desiredScalePct)) / 100;
+  const minScale = 0.55;
+  const marginCss = layout.marginMode === 'tiny' ? '18mm 18mm 15mm 18mm' : layout.marginMode === 'small' ? '20mm 20mm 16mm 20mm' : '22mm 22mm 17mm 22mm';
+  const textAlign = layout.justifyText ? 'justify' : 'left';
+
+  const renderAtScale = async (scale) => {
+    let logoHtml = `<div style="height:4mm"></div>`;
+    if (layout.logo) {
+      let logoSrc = '';
+      try { logoSrc = await resolvePrintLogoDataUrl(); } catch(_) {}
+      logoHtml = logoSrc
+        ? `<div style="text-align:center;margin:0 0 4.5mm 0"><img src="${logoSrc}" alt="Logo" style="width:17mm;height:17mm;object-fit:contain"></div>`
+        : `<div style="text-align:center;margin:0 0 4.5mm 0"><div style="width:17mm;height:17mm;margin:0 auto;border:1px solid #8b93a0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:5.5px;color:#4b5563">LOGO</div></div>`;
+    }
+    const fontSize = basePt * scale;
+    const lineHeight = 1.24;
+    const dateHtml = layout.showDate ? `<div style="position:absolute;right:22mm;top:22mm;font-size:${8.5*scale}px">${_pdfEscapeHtml(headerDateText || '')}</div>` : '';
+    const sigHtml = layout.showSignatures ? `<div class="pdfPreviewSig" style="position:absolute;left:0;right:0;bottom:15mm;display:flex;justify-content:center;gap:28mm;font-size:${8.1*scale}px;text-align:center"><div style="width:48mm"><div style="border-top:1px solid #111;padding-top:1.8mm">${_pdfEscapeHtml(names.teacher)}</div><div>Kontaktlærere</div></div><div style="width:48mm"><div style="border-top:1px solid #111;padding-top:1.8mm">${_pdfEscapeHtml(names.head)}</div><div>Forstander</div></div></div>` : '';
+    const bodyHtml = paras.map(p=>`<p style="margin:0 0 ${2.7*scale}mm 0;text-align:${textAlign}">${_pdfEscapeHtml(p).replace(/\n/g,'<br>')}</p>`).join('');
+    box.innerHTML = `${dateHtml}<div class="pdfPreviewPageInner" style="box-sizing:border-box;width:100%;height:100%;padding:${marginCss};font-family:Arial, Helvetica, sans-serif;font-size:${fontSize}px;line-height:${lineHeight};position:relative">${logoHtml}<h1 style="font-size:${12.2*scale}px;text-align:center;margin:0 0 6mm 0;font-weight:700">${_pdfEscapeHtml(title)}</h1><div class="pdfPreviewBody" style="max-width:100%;padding-bottom:${layout.showSignatures ? '38mm' : '0'}">${bodyHtml}</div>${sigHtml}</div>`;
+  };
+
+  let effectiveScale = chosenScale;
+  await renderAtScale(effectiveScale);
+
+  if (layout.autoFit) {
+    for (let i=0; i<18; i++) {
+      const body = box.querySelector('.pdfPreviewBody');
+      const sig = box.querySelector('.pdfPreviewSig');
+      const inner = box.querySelector('.pdfPreviewPageInner');
+      if (!body || !inner) break;
+
+      const children = Array.from(body.children || []);
+      const last = children.length ? children[children.length - 1] : body;
+      const lastRect = last.getBoundingClientRect();
+      const sigRect = sig ? sig.getBoundingClientRect() : null;
+      const innerRect = inner.getBoundingClientRect();
+
+      // Mindre aggressiv autofit:
+      // Teksten må gerne gå tæt på signaturblokken, men ikke ramme den.
+      const limitY = sigRect ? (sigRect.top - 22) : (innerRect.bottom - 10);
+      const overflow = lastRect.bottom > limitY;
+
+      if (!overflow || effectiveScale <= minScale) break;
+
+      // Prøv først at holde slutstørrelsen omkring 12 pt.
+      const targetScale = 12 / basePt;
+      if (effectiveScale > targetScale) {
+        effectiveScale = Math.max(targetScale, effectiveScale - 0.025);
+      } else {
+        // Kun under 12 pt hvis det stadig kolliderer.
+        effectiveScale = Math.max(minScale, effectiveScale - 0.018);
+      }
+      await renderAtScale(effectiveScale);
+    }
   }
+
+  const effectivePct = Math.round(effectiveScale * 100);
+  const sr = m.querySelector('#pdfScaleRange');
+  const sl = m.querySelector('#pdfScaleLabel');
+  if (layout.autoFit && sr && Math.abs(effectivePct - desiredScalePct) >= 1) {
+    sr.value = String(effectivePct);
+    if (sl) sl.textContent = effectivePct + '%';
+  } else if (sr && sl) {
+    sr.value = String(Math.round(desiredScalePct));
+    sl.textContent = Math.round(desiredScalePct) + '%';
+  }
+  const fontInfo = m.querySelector('#pdfFontInfo');
+  if (fontInfo) {
+    const chosenPt = basePt * chosenScale;
+    const finalPt = basePt * effectiveScale;
+    const extra = (layout.autoFit && Math.abs(finalPt - chosenPt) > 0.05) ? ' · autotilpasset' : '';
+    fontInfo.textContent = `Font: Arial · ${chosenPt.toFixed(1).replace('.', ',')} pt → ${finalPt.toFixed(1).replace('.', ',')} pt${extra}`;
+  }
+
+  try {
+    const frameBox = m.querySelector('#pdfPaperFrame');
+    if (frameBox) frameBox.scrollTop = 0;
+  } catch(_) {}
+  status.textContent = 'Klar';
 }
 
+async function _pdfGenerateFullForCurrentLayout(){
+  const m = _pdfEnsurePreviewModal();
+  if (!__pdfPreviewCtx) return null;
+  const layout = _pdfCurrentLayoutFromModal(m);
+  const baseOpts = Object.assign({}, __pdfPreviewCtx.opts || {}, { layout, returnOnly:true });
+  const fullRes = await makePdfForStudents(__pdfPreviewCtx.students || [], __pdfPreviewCtx.settings, __pdfPreviewCtx.title || 'Udtalelser', baseOpts);
+  return fullRes;
+}
+
+async function _pdfRenderPreview(){
+  try {
+    if (__pdfPreviewUrl) { try { URL.revokeObjectURL(__pdfPreviewUrl); } catch(_) {} __pdfPreviewUrl = null; }
+    await _pdfRenderHtmlPreviewOnly();
+    const m = _pdfEnsurePreviewModal();
+    const link = m.querySelector('#pdfDownloadLink');
+    if (link) {
+      link.removeAttribute('href');
+      link.onclick = async (ev) => {
+        ev.preventDefault();
+        const status = m.querySelector('#pdfStatus');
+        status.textContent = 'Laver fuld PDF…';
+        try {
+          const res = await _pdfGenerateFullForCurrentLayout();
+          if (res && res.url) {
+            const a = document.createElement('a');
+            a.href = res.url;
+            a.download = res.filename || 'udtalelser.pdf';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(()=>{ try{ URL.revokeObjectURL(res.url); }catch(_){} a.remove(); }, 15000);
+            status.textContent = 'PDF hentet';
+          }
+        } catch(err) {
+          console.error(err);
+          status.textContent = 'Fejl: ' + (err && err.message ? err.message : err);
+        }
+      };
+    }
+  } catch(err) {
+    console.error(err);
+    const m = _pdfEnsurePreviewModal();
+    const status = m.querySelector('#pdfStatus');
+    if (status) status.textContent = 'Fejl: ' + (err && err.message ? err.message : err);
+  }
+}
 async function pdfAllKStudents(opts){
   const studs = getStudents();
   const kGroups = buildKGroups(studs);
