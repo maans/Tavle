@@ -2,8 +2,7 @@
 
 <html lang="da">
 <head>
-<!-- Skriv standalone HE SAFE-DROPZONE-MODAL 2026-05-28 -->
-<!-- Skriv standalone HE smalprint nodocs 2026-05-26 -->
+<!-- Skriv Lav PDF v6 2026-05-29: PDF preview pager, auto controls, reflow and date alignment -->
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <title>Udtalelser v1.0 – standalone</title>
@@ -384,15 +383,11 @@ tr:hover td{background: rgba(255,255,255,.02)}
     padding:0;
     white-space: pre-wrap;
     min-height:auto;
-    text-align: justify;
-    text-align-last: left;
-    hyphens: auto;
-    -webkit-hyphens: auto;
     transform: scale(var(--printScale, 1));
     transform-origin: top left;
     width: calc(100% / var(--printScale, 1));
   }
-  @page{size:A4; margin: 8mm 9mm}
+  @page{size:A4; margin: 18mm 16mm}
 }
 
 /* Mark buttons (checkbox-style) */
@@ -931,6 +926,7 @@ body.udt-readonly main.app{
           <button class="h1btn" id="kTitleBtn" type="button" title="Skift visning: K-elever ↔ Alle K-grupper"><h1 id="kTitle">K-elever</h1></button>
           <div id="kTitleActions" class="titleCenter no-print">
             <button class="btn small no-print" id="btnPrintAllK" type="button" title="Print alle dine K-elever som én samlet udskrift">🖨️ Print dine K-elever</button>
+            <button class="btn small no-print" id="btnPdfAllK" type="button" title="Lav PDF med alle dine K-elever uden browserens print-header/footer">📄 Lav PDF</button>
           </div>
           <div id="kTitleRight" class="titleRight no-print">
             <div class="muted small" id="kHeaderInfo"></div>
@@ -962,6 +958,7 @@ body.udt-readonly main.app{
   <div class="titleCenter no-print" id="editTitleCenter">
     <div class="pill muted" id="autosavePill"></div>
     <button class="btn no-print" id="btnPrint">🖨️ Print elev</button>
+    <button class="btn no-print" id="btnPdfOne">📄 Lav PDF</button>
   </div>
   <div class="titleRight no-print"><div class="muted small" id="editHeaderInfo"></div></div>
 </div>
@@ -1131,8 +1128,8 @@ body.udt-readonly main.app{
         <label class="btn" for="backupFileInput" title="Vælg backupfil">⬆️ Importér backup</label>
         <input type="file" id="backupFileInput" accept="application/json" style="display:none" />
 
-        <label class="btn" for="studentsFile" title="Vælg elevliste">⬆️ Indlæs elevliste (CSV / Excel)</label>
-        <input accept=".csv,.txt,.xlsx,.xls,.xlsm" id="studentsFile" type="file" style="display:none"/>
+        <label class="btn" for="studentsFile" title="Vælg elevliste">⬆️ Indlæs elevliste (CSV)</label>
+        <input accept=".csv,.txt" id="studentsFile" type="file" style="display:none"/>
       </div>
 
       <div class="row between" style="gap:1rem; align-items:flex-start; flex-wrap:wrap;">
@@ -1145,7 +1142,7 @@ body.udt-readonly main.app{
       <details class="fold no-print" style="margin-top:.8rem">
         <summary>Accepterede kolonner (eksempler)</summary>
         <div class="muted small">
-          <div><b>Demo / standard-elevliste:</b> Fornavn, Efternavn, Unilogin, Køn, Klasse, Kontaktlærer1, Kontaktlærer2, Initialer for k-lærer1, Initialer for k-lærer2</div><div style="margin-top:.35rem"><b>Filtyper:</b> CSV, TXT og Excel (.xlsx fra Google Sheets/Numbers). Gammelt .xls accepteres i filvælgeren, men bør eksporteres som .xlsx.</div>
+          <div><b>Demo / standard-elevliste:</b> Fornavn, Efternavn, Unilogin, Køn, Klasse, Kontaktlærer1, Kontaktlærer2, Initialer for k-lærer1, Initialer for k-lærer2</div>
 
           <div style="margin-top:.35rem"><b>Kontaktlærere og initialer:</b></div>
           <ul style="margin:.25rem 0 0 1.1rem">
@@ -1166,16 +1163,16 @@ body.udt-readonly main.app{
       <div class="cardSubTitle">Import af faglærer-CSV’er (for kontaktlærere)</div>
       <div class="grid3">
         <div class="field">
-          <label>sang_vurderinger.csv / .xlsx</label>
-          <input accept=".csv,.txt,.xlsx,.xls,.xlsm" id="importSang" type="file"/>
+          <label>sang_vurderinger.csv</label>
+          <input accept=".csv,.txt" id="importSang" type="file"/>
         </div>
         <div class="field">
-          <label>gym_rolle_vurderinger.csv / .xlsx</label>
-          <input accept=".csv,.txt,.xlsx,.xls,.xlsm" id="importGym" type="file"/>
+          <label>gym_rolle_vurderinger.csv</label>
+          <input accept=".csv,.txt" id="importGym" type="file"/>
         </div>
         <div class="field">
-          <label>elevraad_vurderinger.csv / .xlsx</label>
-          <input accept=".csv,.txt,.xlsx,.xls,.xlsm" id="importElevraad" type="file"/>
+          <label>elevraad_vurderinger.csv</label>
+          <input accept=".csv,.txt" id="importElevraad" type="file"/>
         </div>
       </div>
 
@@ -1190,7 +1187,9 @@ body.udt-readonly main.app{
         <div class="cardTitle" style="margin:0">Eksport</div>
         <div class="exportActions" aria-label="Eksport handlinger">
           <button class="btn exportActionBtn" id="btnPrintAllStudents" type="button" title="Printer alle elever alfabetisk efter fornavn – uden hensyn til K-grupper.">🖨️ Print alle elever</button>
+          <button class="btn exportActionBtn" id="btnPdfAllStudents" type="button" title="Lav PDF med alle elever alfabetisk efter fornavn – uden browserens print-header/footer.">📄 PDF alle elever</button>
           <button class="btn exportActionBtn" id="btnPrintAllGroups" type="button" title="Printer alle K-grupper på én gang. K-grupper sorteres alfabetisk efter K-lærer, og elever sorteres alfabetisk inden for hver gruppe.">🖨️ Print alle K-grupper</button>
+          <button class="btn exportActionBtn" id="btnPdfAllGroups" type="button" title="Lav PDF med alle K-grupper uden browserens print-header/footer.">📄 PDF alle K-grupper</button>
           <button class="btn exportActionBtn" id="btnBackupDownload" type="button" title="Download backup af alle lokale data">⬇️ Backup (download)</button>
         </div>
       </div>
@@ -1501,6 +1500,7 @@ body.udt-readonly main.app{
         <div class="muted small" style="margin-top:.6rem; line-height:1.45">
           <p><b>Er der en server?</b><br/>Nej. Alt gemmes lokalt i din browser. Der sendes ingen data nogen steder.</p>
           <p><b>Er det GDPR-sikkert?</b><br/>Ja. Ingen elevdata forlader computeren.</p>
+          <p><b>Kan jeg downloade appen?</b><br/>Ja. Appen kan bruges direkte i browseren, men kan også <a href="" target="_blank" rel="noopener">downloades som ZIP til offline brug, arkiv eller deling</a>.</p>
           <p><b>Hvordan fjerner man en elev?</b><br/>Elever fjernes ved at genindlæse elevlisten (CSV) uden eleven. Appen har bevidst ingen slet-knap for enkelt-elever for at undgå utilsigtet datatab.</p>
           <p><b>Kan flere lærere arbejde på de samme elever?</b><br/>Ja. Hvis du importerer en kollegas backup, kan appen vise, hvem der sidst har redigeret en elev.</p>
           <p><b>Hvad hvis browseren crasher?</b><br/>Data gemmes løbende i browseren. Det anbefales at tage backup jævnligt.</p>
@@ -1563,7 +1563,7 @@ function resolveFullName(row) {
   'use strict';
 
 // --- Embedded fallbacks for file:// usage (avoids CORS blocked fetch) ---
-const EMBEDDED_FILE_OVERRIDES = {"sang":{"schema":"hu-elevudtalelser-snippets-override@1","scope":"sang","author":"","createdAt":"2025-12-29","payload":{"sang":{"items":{"S1":{"label":"Sang – niveau 1","text":"{{FORNAVN}} har bidraget til fællessang på allerbedste vis. Med sangglæde, engagement og nysgerrighed har {{FORNAVN}} været en drivkraft i timerne og en inspiration for andre, så de har oplevet det fællesskab, som fællessang kan give."},"S2":{"label":"Sang – niveau 2","text":"{{FORNAVN}} har med godt humør bidraget til fællessang og kor og har derigennem vist sangglæde og åbenhed og fået kendskab til nye sange. {{FORNAVN}} har oplevet det fællesskab, som fællessang kan give."},"S3":{"label":"Sang – niveau 3","text":"{{FORNAVN}} har deltaget i fællessang og kor og har derigennem fået kendskab til nye sange og har oplevet det fællesskab, som fællessang kan give."}},"order":["S1","S2","S3"]}}},"gym":{"schema":"hu-elevudtalelser-snippets-override@1","scope":"gym","author":"","createdAt":"2025-12-29","payload":{"gym":{"variants":{"G1":{"label":"Meget engageret","text":"{{FORNAVN}} har udvist stor interesse for fællesgymnastik, opvisningerne og skolens fællesskab heri. {{FORNAVN}} har udvist stor glæde ved at være en del af, og inddrage andre i fællesskabet og har gennem sin energiske deltagelse i timerne og opvisningerne vist stort engagement, hvilket har virket som en stor drivkraft og motivator for skolens andre elever."},"G2":{"label":"Stabil deltagelse","text":"{{FORNAVN}} har udvist interesse for fællesgymnastik, opvisningerne og for at lære og dygtiggøre sig. {{FORNAVN}} har gennem sin deltagelse i timerne og opvisningerne bidraget positivt og meget aktivt til det store fællesskab."},"G3":{"label":"Varierende deltagelse","text":"{{FORNAVN}} har deltaget aktivt i fællesgymnastik og opvisninger. {{FORNAVN}} har lært alle skolens obligatoriske serier, hvilket har bidraget positivt til opvisningerne og fællesskabet."}},"variantOrder":["G1","G2","G3"],"roles":{"FANEBÆRER":{"label":"Fanebærer","text":"{{FORNAVN}} har været udtaget som en af skolens fanebærere til de fælles gymnastikopvisninger. Et hverv {(HAN_HUN)} fuldt ud har opfyldt, både ansvarsfuldt og respektfuldt. {{FORNAVN}} har som fanebærer repræsenteret skolen og dens værdier på fornemmeste vis."},"REDSKAB":{"label":"Redskabshold","text":"{{FORNAVN}} har været en del af redskabsholdet, som {(HAN_HUN)} frivilligt har meldt sig til. {(HAN_HUN_CAP)} har været en stor hjælp og ydet en kæmpe indsats for at lykkes med skolens opvisninger. {{FORNAVN}} har i den forbindelse vist stort initiativ og ansvar, samt evnen til at løse praktiske problemstillinger på egen hånd."},"DGI":{"label":"DGI-instruktør","text":"{{FORNAVN}} har deltaget aktivt i skolens frivillige samarbejde med Haubro IF, hvor {(HAN_HUN)} har trænet gymnastikholdet for skolebørnene, sideløbende med at {(HAN_HUN)} har taget DGI’s gymnastikuddannelse på skolen. {{FORNAVN}} har vist interesse og engagement for det frivillige foreningsarbejde, {(HAN_HUN)} har ydet en stor indsats i foreningens arbejde og taget det fornødne ansvar."}},"roleOrder":["FANEBÆRER","REDSKAB","DGI"]}}},"elevraad":{"schema":"hu-elevudtalelser-snippets-override@1","scope":"elevraad","author":"","createdAt":"2025-12-29","payload":{"elevraad":{"label":"Elevrådsrepræsentant","text":"{{ELEV_FORNAVN}} har været en del af elevrådet på Himmerlands Efterskole, hvor elevrådet blandt andet har stået for ugentlige fællesmøder for elever og lærere. Derudover har elevrådsarbejdet omfattet en række forskellige opgaver i løbet af året med ansvar for at sætte aktiviteter i gang i fællesskabets ånd. I den forbindelse har {{ELEV_FORNAVN}} vist engagement og vilje til at påtage sig og gennemføre forskellige opgaver og aktiviteter."}}},"templates":{"schema":"hu-elevudtalelser-snippets-override@1","scope":"templates","author":"MM","createdAt":"2026-01-04","payload":{"templates":{"forstanderNavn":"Stinne Krogh Poulsen","schoolText":"På Himmerlands Efterskole arbejder vi med både faglighed, fællesskab og personlig udvikling.\nUdtalelsen er skrevet med udgangspunkt i elevens hverdag og deltagelse gennem skoleåret.","template":"Udtalelse vedrørende {{ELEV_FULDE_NAVN}}\n\n{{ELEV_FORNAVN}} {{ELEV_EFTERNAVN}} har været elev på Himmerlands Efterskole i perioden fra {{PERIODE_FRA}} til {{PERIODE_TIL}} i {{ELEV_KLASSE}}.\n\nHimmerlands Efterskole er en traditionsrig efterskole, som prioriterer fællesskabet og faglig fordybelse højt. Elevernes hverdag er præget af frie rammer og mange muligheder. Vi møder eleverne med tillid, positive forventninger og faglige udfordringer. I løbet af et efterskoleår på Himmerlands Efterskole er oplevelserne mange og udfordringerne ligeså. Det gælder i hverdagens almindelige undervisning, som fordeler sig over boglige fag, fællesfag og linjefag. Det gælder også alle de dage, hvor hverdagen ændres til fordel for temauger, studieture mm. \n\n{{ELEV_UDVIKLING_AFSNIT}}\n{{ELEVRAAD_AFSNIT}}\n{{ROLLE_AFSNIT}}\n\nSom en del af et efterskoleår på Himmerlands Efterskole deltager eleverne ugentligt i fællessang og fællesgymnastik. Begge fag udgør en del af efterskolelivet, hvor eleverne oplever nye sider af sig selv, flytter grænser og oplever, at deres bidrag til fællesskabet har betydning. I løbet af året optræder eleverne med fælleskor og gymnastikopvisninger.\n{{SANG_GYM_AFSNIT}}\n\nPå en efterskole er der mange praktiske opgaver. {{PRAKTISK_AFSNIT}}\n{{ELEV_FORNAVN}} har på Himmerlands Efterskole været en del af en kontaktgruppe på {{KONTAKTGRUPPE_ANTAL}} elever. I kontaktgruppen kender vi {{HAM_HENDE}} som {{KONTAKTGRUPPE_BESKRIVELSE}}.\n\nVi har været rigtig glade for at have {{ELEV_FORNAVN}} som elev på skolen og ønsker {{HAM_HENDE}} held og lykke fremover.\n\n\n\n{{KONTAKTLÆRER_1_NAVN}} & {{KONTAKTLÆRER_2_NAVN}}     {{FORSTANDER_NAVN}}\nKontaktlærere                                                           Forstander\n"}}}};
+const EMBEDDED_FILE_OVERRIDES = {"sang":{"schema":"hu-elevudtalelser-snippets-override@1","scope":"sang","author":"","createdAt":"2025-12-29","payload":{"sang":{"items":{"S1":{"label":"Sang – niveau 1","text":"{{FORNAVN}} har bidraget til fællessang på allerbedste vis. Med sangglæde, engagement og nysgerrighed har {{FORNAVN}} været en drivkraft i timerne og en inspiration for andre, så de har oplevet det fællesskab, som fællessang kan give."},"S2":{"label":"Sang – niveau 2","text":"{{FORNAVN}} har med godt humør bidraget til fællessang og kor og har derigennem vist sangglæde og åbenhed og fået kendskab til nye sange. {{FORNAVN}} har oplevet det fællesskab, som fællessang kan give."},"S3":{"label":"Sang – niveau 3","text":"{{FORNAVN}} har deltaget i fællessang og kor og har derigennem fået kendskab til nye sange og har oplevet det fællesskab, som fællessang kan give."}},"order":["S1","S2","S3"]}}},"gym":{"schema":"hu-elevudtalelser-snippets-override@1","scope":"gym","author":"","createdAt":"2025-12-29","payload":{"gym":{"variants":{"G1":{"label":"Meget engageret","text":"{{FORNAVN}} har udvist stor interesse for fællesgymnastik, opvisningerne og skolens fællesskab heri. {{FORNAVN}} har udvist stor glæde ved at være en del af, og inddrage andre i fællesskabet og har gennem sin energiske deltagelse i timerne og opvisningerne vist stort engagement, hvilket har virket som en stor drivkraft og motivator for skolens andre elever."},"G2":{"label":"Stabil deltagelse","text":"{{FORNAVN}} har udvist interesse for fællesgymnastik, opvisningerne og for at lære og dygtiggøre sig. {{FORNAVN}} har gennem sin deltagelse i timerne og opvisningerne bidraget positivt og meget aktivt til det store fællesskab."},"G3":{"label":"Varierende deltagelse","text":"{{FORNAVN}} har deltaget aktivt i fællesgymnastik og opvisninger. {{FORNAVN}} har lært alle skolens obligatoriske serier, hvilket har bidraget positivt til opvisningerne og fællesskabet."}},"variantOrder":["G1","G2","G3"],"roles":{"FANEBÆRER":{"label":"Fanebærer","text":"{{FORNAVN}} har været udtaget som en af skolens fanebærere til de fælles gymnastikopvisninger. Et hverv {(HAN_HUN)} fuldt ud har opfyldt, både ansvarsfuldt og respektfuldt. {{FORNAVN}} har som fanebærer repræsenteret skolen og dens værdier på fornemmeste vis."},"REDSKAB":{"label":"Redskabshold","text":"{{FORNAVN}} har været en del af redskabsholdet, som {(HAN_HUN)} frivilligt har meldt sig til. {(HAN_HUN_CAP)} har været en stor hjælp og ydet en kæmpe indsats for at lykkes med skolens opvisninger. {{FORNAVN}} har i den forbindelse vist stort initiativ og ansvar, samt evnen til at løse praktiske problemstillinger på egen hånd."},"DGI":{"label":"DGI-instruktør","text":"{{FORNAVN}} har deltaget aktivt i skolens frivillige samarbejde med Haubro IF, hvor {(HAN_HUN)} har trænet gymnastikholdet for skolebørnene, sideløbende med at {(HAN_HUN)} har taget DGI’s gymnastikuddannelse på skolen. {{FORNAVN}} har vist interesse og engagement for det frivillige foreningsarbejde, {(HAN_HUN)} har ydet en stor indsats i foreningens arbejde og taget det fornødne ansvar."}},"roleOrder":["FANEBÆRER","REDSKAB","DGI"]}}},"elevraad":{"schema":"hu-elevudtalelser-snippets-override@1","scope":"elevraad","author":"","createdAt":"2025-12-29","payload":{"elevraad":{"label":"Elevrådsrepræsentant","text":"{{ELEV_FORNAVN}} har været en del af elevrådet på Himmerlands Efterskole, hvor elevrådet blandt andet har stået for ugentlige fællesmøder for elever og lærere. Derudover har elevrådsarbejdet omfattet en række forskellige opgaver i løbet af året med ansvar for at sætte aktiviteter i gang i fællesskabets ånd. I den forbindelse har {{ELEV_FORNAVN}} vist engagement og vilje til at påtage sig og gennemføre forskellige opgaver og aktiviteter."}}},"templates":{"schema":"hu-elevudtalelser-snippets-override@1","scope":"templates","author":"MM","createdAt":"2026-01-04","payload":{"templates":{"forstanderNavn":"Stinne Krogh Poulsen","schoolText":"På Himmerlands Efterskole arbejder vi med både faglighed, fællesskab og personlig udvikling.\nUdtalelsen er skrevet med udgangspunkt i elevens hverdag og deltagelse gennem skoleåret.","template":"Udtalelse vedrørende {{ELEV_FULDE_NAVN}}\n\n{{ELEV_FORNAVN}} {{ELEV_EFTERNAVN}} har været elev på Himmerlands Efterskole i perioden fra {{PERIODE_FRA}} til {{PERIODE_TIL}} i {{ELEV_KLASSE}}.\n\nHimmerlands Efterskole er en traditionsrig efterskole, som prioriterer fællesskabet og faglig fordybelse højt. Elevernes hverdag er præget af frie rammer og mange muligheder. Vi møder eleverne med tillid, positive forventninger og faglige udfordringer. I løbet af et efterskoleår på Himmerlands Efterskole er oplevelserne mange og udfordringerne ligeså. Det gælder i hverdagens almindelige undervisning, som fordeler sig over boglige fag, fællesfag og profilfag. Det gælder også alle de dage, hvor hverdagen ændres til fordel for temauger, studieture mm. \n\n{{ELEV_UDVIKLING_AFSNIT}}\n{{ELEVRAAD_AFSNIT}}\n{{ROLLE_AFSNIT}}\n\nSom en del af et efterskoleår på Himmerlands Efterskole deltager eleverne ugentligt i fællessang og fællesgymnastik. Begge fag udgør en del af efterskolelivet, hvor eleverne oplever nye sider af sig selv, flytter grænser og oplever, at deres bidrag til fællesskabet har betydning. I løbet af året optræder eleverne med fælleskor og gymnastikopvisninger.\n{{SANG_GYM_AFSNIT}}\n\nPå en efterskole er der mange praktiske opgaver. {{PRAKTISK_AFSNIT}}\n{{ELEV_FORNAVN}} har på Himmerlands Efterskole været en del af en kontaktgruppe på {{KONTAKTGRUPPE_ANTAL}} elever. I kontaktgruppen kender vi {{HAM_HENDE}} som {{KONTAKTGRUPPE_BESKRIVELSE}}.\n\nVi har været rigtig glade for at have {{ELEV_FORNAVN}} som elev på skolen og ønsker {{HAM_HENDE}} held og lykke fremover.\n\n\n\n{{KONTAKTLÆRER_1_NAVN}} & {{KONTAKTLÆRER_2_NAVN}}     {{FORSTANDER_NAVN}}\nKontaktlærere                                                           Forstander\n"}}}};
 const EMBEDDED_DEMO_STUDENTS_CSV = `Fornavn,Efternavn,Unilogin,Køn,Klasse,Kontaktlærer1,Kontaktlærer2,Initialer for k-lærer1,Initialer for k-lærer2
 Yrsa,Dahl,u10000,k,9A,Qha Kbæk,Lel Rlund,QK,LR
 Zara,Zacho,u10001,k,10B,Tsa Ahavn,Vbo Nberg,TA,VN
@@ -2039,7 +2039,7 @@ Oline,Dahl,u10151,k,10B,Oal Ygaard,Dno Svang,OY,DS`;
 const DEFAULT_SCHOOL_TEXT = `På Himmerlands Efterskole arbejder vi med både faglighed, fællesskab og personlig udvikling.
 Udtalelsen er skrevet med udgangspunkt i elevens hverdag og deltagelse gennem skoleåret.`;
 
-  const DEFAULT_TEMPLATE = "Udtalelse vedrørende {{ELEV_FULDE_NAVN}}\n\n{{ELEV_FORNAVN}} {{ELEV_EFTERNAVN}} har været elev på Himmerlands Efterskole i perioden fra {{PERIODE_FRA}} til {{PERIODE_TIL}} i {{ELEV_KLASSE}}.\n\nHimmerlands Efterskole er en traditionsrig efterskole, som prioriterer fællesskabet og faglig fordybelse højt. Elevernes hverdag er præget af frie rammer og mange muligheder. Vi møder eleverne med tillid, positive forventninger og faglige udfordringer. I løbet af et efterskoleår på Himmerlands Efterskole er oplevelserne mange og udfordringerne ligeså. Det gælder i hverdagens almindelige undervisning, som fordeler sig over boglige fag, fællesfag og linjefag. Det gælder også alle de dage, hvor hverdagen ændres til fordel for temauger, studieture mm. \n\n{{ELEV_UDVIKLING_AFSNIT}}\n{{ELEVRAAD_AFSNIT}}\n{{ROLLE_AFSNIT}}\n\nSom en del af et efterskoleår på Himmerlands Efterskole deltager eleverne ugentligt i fællessang og fællesgymnastik. Begge fag udgør en del af efterskolelivet, hvor eleverne oplever nye sider af sig selv, flytter grænser og oplever, at deres bidrag til fællesskabet har betydning. I løbet af året optræder eleverne med fælleskor og gymnastikopvisninger.\n{{SANG_GYM_AFSNIT}}\n\nPå en efterskole er der mange praktiske opgaver. {{PRAKTISK_AFSNIT}}\n{{ELEV_FORNAVN}} har på Himmerlands Efterskole været en del af en kontaktgruppe på {{KONTAKTGRUPPE_ANTAL}} elever. I kontaktgruppen kender vi {{HAM_HENDE}} som {{KONTAKTGRUPPE_BESKRIVELSE}}.\n\nVi har været rigtig glade for at have {{ELEV_FORNAVN}} som elev på skolen og ønsker {{HAM_HENDE}} held og lykke fremover.\n\n\n\n{{KONTAKTLÆRER_1_NAVN}} & {{KONTAKTLÆRER_2_NAVN}}     {{FORSTANDER_NAVN}}\nKontaktlærere                                                           Forstander\n";
+  const DEFAULT_TEMPLATE = "Udtalelse vedrørende {{ELEV_FULDE_NAVN}}\n\n{{ELEV_FORNAVN}} {{ELEV_EFTERNAVN}} har været elev på Himmerlands Efterskole i perioden fra {{PERIODE_FRA}} til {{PERIODE_TIL}} i {{ELEV_KLASSE}}.\n\nHimmerlands Efterskole er en traditionsrig efterskole, som prioriterer fællesskabet og faglig fordybelse højt. Elevernes hverdag er præget af frie rammer og mange muligheder. Vi møder eleverne med tillid, positive forventninger og faglige udfordringer. I løbet af et efterskoleår på Himmerlands Efterskole er oplevelserne mange og udfordringerne ligeså. Det gælder i hverdagens almindelige undervisning, som fordeler sig over boglige fag, fællesfag og profilfag. Det gælder også alle de dage, hvor hverdagen ændres til fordel for temauger, studieture mm. \n\n{{ELEV_UDVIKLING_AFSNIT}}\n{{ELEVRAAD_AFSNIT}}\n{{ROLLE_AFSNIT}}\n\nSom en del af et efterskoleår på Himmerlands Efterskole deltager eleverne ugentligt i fællessang og fællesgymnastik. Begge fag udgør en del af efterskolelivet, hvor eleverne oplever nye sider af sig selv, flytter grænser og oplever, at deres bidrag til fællesskabet har betydning. I løbet af året optræder eleverne med fælleskor og gymnastikopvisninger.\n{{SANG_GYM_AFSNIT}}\n\nPå en efterskole er der mange praktiske opgaver. {{PRAKTISK_AFSNIT}}\n{{ELEV_FORNAVN}} har på Himmerlands Efterskole været en del af en kontaktgruppe på {{KONTAKTGRUPPE_ANTAL}} elever. I kontaktgruppen kender vi {{HAM_HENDE}} som {{KONTAKTGRUPPE_BESKRIVELSE}}.\n\nVi har været rigtig glade for at have {{ELEV_FORNAVN}} som elev på skolen og ønsker {{HAM_HENDE}} held og lykke fremover.\n\n\n\n{{KONTAKTLÆRER_1_NAVN}} & {{KONTAKTLÆRER_2_NAVN}}     {{FORSTANDER_NAVN}}\nKontaktlærere                                                           Forstander\n";
 
   // ---------- storage ----------
   function lsGet(key, fallback) {
@@ -2451,6 +2451,507 @@ function syncPrintLogoTestUI() {
 }
 
 
+
+
+// --- Direkte PDF-generering uden browserens printdialog/header/footer ---
+// Første stabile forsøg: bygger PDF'en selv med A4-sider, tekst, logo, sidefit og signaturer.
+function _pdfWinAnsiBytes(str){
+  const map = {
+    '€':128,'‚':130,'ƒ':131,'„':132,'…':133,'†':134,'‡':135,'ˆ':136,'‰':137,'Š':138,'‹':139,'Œ':140,'Ž':142,
+    '‘':145,'’':146,'“':147,'”':148,'•':149,'–':150,'—':151,'˜':152,'™':153,'š':154,'›':155,'œ':156,'ž':158,'Ÿ':159
+  };
+  const out=[];
+  for (const ch of String(str||'')) {
+    const cp=ch.codePointAt(0);
+    if (cp>=0 && cp<=255) out.push(cp);
+    else if (map[ch] != null) out.push(map[ch]);
+    else out.push(63);
+  }
+  return out;
+}
+function _pdfHex(str){
+  return _pdfWinAnsiBytes(str).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+function _pdfAsciiBytes(str){ return Array.from(String(str||''), c => c.charCodeAt(0)&255); }
+function _pdfConcatByteArrays(parts){
+  let n=0; parts.forEach(p=>n+=p.length);
+  const out=new Uint8Array(n); let o=0;
+  parts.forEach(p=>{ out.set(p,o); o+=p.length; });
+  return out;
+}
+function _pdfSanitizeFileName(s){
+  return String(s||'Udtalelser').replace(/[\\/:*?"<>|]+/g,'-').replace(/\s+/g,' ').trim().slice(0,120) || 'Udtalelser';
+}
+
+function _pdfPrepareOutputWindow(){
+  // iPad/webapp mister ofte bruger-aktivering, hvis vi først åbner PDF'en efter async-generering.
+  // Derfor åbnes en tom fane/vindue synkront i selve klik-handleren og udfyldes senere.
+  try {
+    const w = window.open('', '_blank');
+    if (w && w.document) {
+      w.document.open();
+      w.document.write('<!doctype html><html><head><title>Lav PDF…</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;padding:24px;line-height:1.4} .muted{color:#666}</style></head><body><h2>PDF genereres…</h2><p class="muted">Vent et øjeblik. PDF-filen åbnes her, når den er klar.</p></body></html>');
+      w.document.close();
+    }
+    return w;
+  } catch(e) { return null; }
+}
+function _pdfFailOutputWindow(w, message){
+  try {
+    if (w && !w.closed && w.document) {
+      w.document.open();
+      w.document.write('<!doctype html><html><head><title>PDF-fejl</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif;padding:24px"><h2>PDF kunne ikke genereres</h2><p>'+String(message||'Ukendt fejl').replace(/[&<>]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))+'</p></body></html>');
+      w.document.close();
+    }
+  } catch(e) {}
+}
+function _pdfSplitStatementText(st, settings){
+  const txt = buildStatement(st, settings);
+  const raw = String(txt || '').replaceAll('\r','');
+  const nl = raw.indexOf('\n');
+  let titleLine = nl >= 0 ? raw.slice(0,nl).trim() : raw.trim();
+  let bodyText = nl >= 0 ? raw.slice(nl+1) : '';
+  while (bodyText.startsWith('\n')) bodyText = bodyText.slice(1);
+
+  let bodyForPre = bodyText;
+  let kontaktNavn = [st.kontaktlaerer1, st.kontaktlaerer2]
+    .filter(x => String(x||'').trim())
+    .map(x => String(x||'').trim()).join(' & ');
+  let forstanderNavn = String((settings && settings.forstanderName) || '').trim();
+  try {
+    const lines = String(bodyText || '').split('\n');
+    let sigIdx = -1;
+    for (let i=lines.length-1; i>=0; i--) {
+      const ln = lines[i] || '';
+      if (ln.includes('Kontaktlærere') && ln.includes('Forstander')) { sigIdx = i; break; }
+    }
+    if (sigIdx > 0) {
+      let cutStart = sigIdx - 1;
+      while (cutStart > 0 && !String(lines[cutStart - 1] || '').trim()) cutStart--;
+      const kept = lines.slice(0, cutStart);
+      while (kept.length && !String(kept[kept.length - 1] || '').trim()) kept.pop();
+      bodyForPre = kept.join('\n');
+    }
+  } catch(e) {}
+  return {titleLine, bodyForPre, kontaktNavn, forstanderNavn};
+}
+function _pdfWrapText(ctx, text, maxWidth, fontSize, fontFamily){
+  ctx.font = `${fontSize}px ${fontFamily || 'Arial'}`;
+  const result=[];
+  // Reflow soft line breaks from app/print text so PDF can use the full page width.
+  // Blank lines are preserved as paragraph breaks.
+  const normalized = String(text||'')
+    .replaceAll('\r','')
+    .replace(/\n[ \t]*\n+/g, '\n\n');
+  const paras = normalized.split(/\n\s*\n/);
+  for (const para0 of paras) {
+    const p = String(para0||'').replace(/\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!p) { if (result.length && result[result.length-1] !== '') result.push(''); continue; }
+    const words = p.split(/\s+/).filter(Boolean);
+    let line='';
+    for (const w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width <= maxWidth || !line) {
+        line = test;
+      } else {
+        result.push(line);
+        line = w;
+      }
+    }
+    if (line) result.push(line);
+    result.push('');
+  }
+  while (result.length && result[result.length-1] === '') result.pop();
+  return result;
+}
+async function _pdfLogoJpeg(){
+  try {
+    const src = await resolvePrintLogoDataUrl();
+    if (!src) return null;
+    const img = new Image();
+    img.src = src;
+    await new Promise((resolve,reject)=>{ img.onload=resolve; img.onerror=reject; });
+    const canvas = document.createElement('canvas');
+    const maxW = 900;
+    const scale = Math.min(1, maxW / Math.max(1,img.naturalWidth || img.width));
+    canvas.width = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
+    canvas.height = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.86);
+    const bin = atob(dataUrl.split(',')[1] || '');
+    const bytes = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    return {bytes, width: canvas.width, height: canvas.height};
+  } catch(e) { return null; }
+}
+function _pdfBuildFile(pages, jpegLogo, fileTitle){
+  const objects=[];
+  const addObj=(sOrBytes)=>{ objects.push(sOrBytes); return objects.length; };
+  const fontRegular = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+  const fontBold = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+  let logoObj = null;
+  if (jpegLogo && jpegLogo.bytes && jpegLogo.width && jpegLogo.height) {
+    const head = _pdfAsciiBytes(`<< /Type /XObject /Subtype /Image /Width ${jpegLogo.width} /Height ${jpegLogo.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegLogo.bytes.length} >>\nstream\n`);
+    const tail = _pdfAsciiBytes('\nendstream');
+    logoObj = addObj(_pdfConcatByteArrays([head, jpegLogo.bytes, tail]));
+  }
+  const pageObjIds=[];
+  const contentObjIds=[];
+  const pageW=595.28, pageH=841.89;
+  for (const page of pages) {
+    const stream = page.stream;
+    const bytes = new TextEncoder().encode(stream);
+    const contentObj = addObj(_pdfConcatByteArrays([_pdfAsciiBytes(`<< /Length ${bytes.length} >>\nstream\n`), bytes, _pdfAsciiBytes('\nendstream')]));
+    contentObjIds.push(contentObj);
+    let xobj = logoObj ? `/XObject << /Im1 ${logoObj} 0 R >>` : '';
+    const pageObj = addObj(`<< /Type /Page /Parent __PAGES__ 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1 ${fontRegular} 0 R /F2 ${fontBold} 0 R >> ${xobj} >> /Contents ${contentObj} 0 R >>`);
+    pageObjIds.push(pageObj);
+  }
+  const pagesObj = addObj(`<< /Type /Pages /Kids [${pageObjIds.map(id=>`${id} 0 R`).join(' ')}] /Count ${pageObjIds.length} >>`);
+  const catalogObj = addObj(`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`);
+  const infoObj = addObj(`<< /Title <${_pdfHex(fileTitle||'Udtalelser')}> /Producer <${_pdfHex('Skriv Lav PDF')}> >>`);
+
+  const chunks=[]; let offset=0; const offsets=[0];
+  const write=(part)=>{ const bytes = part instanceof Uint8Array ? part : _pdfAsciiBytes(part); chunks.push(bytes); offset += bytes.length; };
+  write('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+  objects.forEach((obj, idx)=>{
+    const n=idx+1; offsets[n]=offset;
+    write(`${n} 0 obj\n`);
+    if (obj instanceof Uint8Array) write(obj); else write(String(obj).replaceAll('__PAGES__', String(pagesObj)));
+    write('\nendobj\n');
+  });
+  const xref=offset;
+  write(`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`);
+  for (let i=1;i<=objects.length;i++) write(String(offsets[i]).padStart(10,'0') + ' 00000 n \n');
+  write(`trailer\n<< /Size ${objects.length+1} /Root ${catalogObj} 0 R /Info ${infoObj} 0 R >>\nstartxref\n${xref}\n%%EOF`);
+  return new Blob([_pdfConcatByteArrays(chunks)], {type:'application/pdf'});
+}
+function _pdfTextLine(x,y,font,size,text){
+  return `BT /${font} ${size.toFixed(2)} Tf ${x.toFixed(2)} ${y.toFixed(2)} Td <${_pdfHex(text)}> Tj ET\n`;
+}
+function _pdfCenterText(y,font,size,text,pageW){
+  const approx = String(text||'').length * size * 0.52;
+  const x = Math.max(24, (pageW - approx)/2);
+  return _pdfTextLine(x,y,font,size,text);
+}
+function _pdfCenteredTextAt(cx,y,font,size,text){
+  const approx = String(text||'').length * size * 0.52;
+  return _pdfTextLine(cx - approx/2, y, font, size, text);
+}
+function _pdfRightText(xRight,y,font,size,text){
+  const approx = String(text||'').length * size * 0.52;
+  return _pdfTextLine(xRight - approx, y, font, size, text);
+}
+function _pdfLine(x1,y1,x2,y2,width){
+  return `${(width||0.7).toFixed(2)} w ${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S\n`;
+}
+function _pdfJustifiedTextLine(ctx, x, y, font, size, text, maxWidth){
+  const words = String(text||'').trim().split(/\s+/).filter(Boolean);
+  if (words.length <= 1) return _pdfTextLine(x, y, font, size, text);
+  ctx.font = `${size}px Arial`;
+  const wordWidths = words.map(w => ctx.measureText(w).width);
+  const textW = wordWidths.reduce((a,b)=>a+b,0);
+  const gap = (maxWidth - textW) / (words.length - 1);
+  if (!Number.isFinite(gap) || gap < size*0.18 || gap > size*2.2) return _pdfTextLine(x, y, font, size, text);
+  let out='', xx=x;
+  words.forEach((w,i)=>{
+    out += _pdfTextLine(xx, y, font, size, w);
+    xx += wordWidths[i] + gap;
+  });
+  return out;
+}
+async function makePdfForStudents(students, settings, title, opts){
+  try {
+    try { await loadRemoteOverrides(); applyTemplatesFromOverridesToLocal({ preserveLocks: true }); } catch(_) {}
+    const list0 = Array.isArray(students) ? students : [];
+    const list = (opts && opts.preserveOrder) ? list0 : sortedStudents(list0);
+    if (!list.length) { alert('Der er ingen elever at lave PDF for.'); return; }
+
+    let headerDateText = '';
+    try {
+      const p = computePeriod(settings && settings.schoolYearEnd);
+      headerDateText = (p && p.dateMonthYear) ? String(p.dateMonthYear) : '';
+    } catch(e) {}
+    if (!headerDateText) {
+      const d = new Date();
+      headerDateText = d.toLocaleDateString('da-DK',{month:'long',year:'numeric'});
+      if (headerDateText) headerDateText = headerDateText.charAt(0).toUpperCase()+headerDateText.slice(1);
+    }
+
+    const canvas=document.createElement('canvas');
+    const ctx=canvas.getContext('2d');
+    const pageW=595.28, pageH=841.89;
+    const layout = (opts && opts.layout) || {};
+    const fontScale = Math.max(55, Math.min(115, Number(layout.fontScale || 100))) / 100;
+    const marginMode = String(layout.marginMode || 'small');
+    const marginX = marginMode === 'tiny' ? 24 : (marginMode === 'normal' ? 42 : 30);
+    const justifyText = !!layout.justifyText;
+    const showDate = layout.showDate !== false;
+    const showSignatures = layout.showSignatures !== false;
+    const logo = (layout.logo === false) ? null : await _pdfLogoJpeg();
+    const dateY = logo ? 764 : 812;
+    const logoH = logo ? 48 : 0;
+    const logoW = logo ? Math.min(150, logo.width * logoH / Math.max(1,logo.height)) : 0;
+    const titleY = logo ? 706 : 748;
+    const bodyStartY = titleY - 26;
+    const bodyBottomY = showSignatures ? 160 : 72;
+    const maxWidthPt = pageW - marginX*2;
+    // canvas pixels treated like points for measurement; close enough for Helvetica/Arial
+
+    const pdfPages=[];
+    const fitInfos=[];
+    for (const st of list) {
+      const part = _pdfSplitStatementText(st, settings);
+      let best = null;
+      const baseFs = 10.5 * fontScale;
+      const autoFit = layout.autoFit !== false;
+      const minFs = autoFit ? 5.8 : baseFs;
+      for (let fs=baseFs; fs>=minFs; fs-=0.25) {
+        const lines = _pdfWrapText(ctx, part.bodyForPre, maxWidthPt, fs, 'Arial');
+        const lh = fs * 1.33;
+        const totalH = lines.length * lh;
+        if (!autoFit || bodyStartY - totalH >= bodyBottomY) { best = {fs, lh, lines}; break; }
+      }
+      if (!best) {
+        const fs=5.6, lh=7.2;
+        best = {fs, lh, lines:_pdfWrapText(ctx, part.bodyForPre, maxWidthPt, fs, 'Arial')};
+      }
+      let stream='';
+      // date top-right
+      if (showDate) stream += _pdfRightText(pageW - marginX, dateY, 'F1', 9.5, headerDateText);
+      if (logo) {
+        const x=(pageW-logoW)/2, y=734;
+        stream += `q ${logoW.toFixed(2)} 0 0 ${logoH.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm /Im1 Do Q\n`;
+      }
+      stream += _pdfCenterText(titleY, 'F2', 12, part.titleLine, pageW);
+      let y=bodyStartY;
+      for (let i=0; i<best.lines.length; i++) {
+        const line = best.lines[i];
+        if (line === '') { y -= best.lh; continue; }
+        const next = best.lines[i+1];
+        const isParagraphEnd = (next === '' || next == null);
+        if (justifyText && !isParagraphEnd) stream += _pdfJustifiedTextLine(ctx, marginX, y, 'F1', best.fs, line, maxWidthPt);
+        else stream += _pdfTextLine(marginX, y, 'F1', best.fs, line);
+        y -= best.lh;
+      }
+      // signatures — whole signature block can be toggled. Lines + names + labels belong together.
+      if (showSignatures) {
+        const leftCx=185, rightCx=430, lineW=150;
+        const sigLineY = Math.max(82, Math.min(138, y - 34));
+        const sigNameY = sigLineY - 16;
+        const sigLabelY = sigNameY - 15;
+        stream += _pdfLine(leftCx - lineW/2, sigLineY, leftCx + lineW/2, sigLineY, 0.65);
+        stream += _pdfLine(rightCx - lineW/2, sigLineY, rightCx + lineW/2, sigLineY, 0.65);
+        stream += _pdfCenteredTextAt(leftCx, sigNameY, 'F1', 10.2, part.kontaktNavn || '');
+        stream += _pdfCenteredTextAt(leftCx, sigLabelY, 'F1', 10.2, 'Kontaktlærere');
+        stream += _pdfCenteredTextAt(rightCx, sigNameY, 'F1', 10.2, part.forstanderNavn || '');
+        stream += _pdfCenteredTextAt(rightCx, sigLabelY, 'F1', 10.2, 'Forstander');
+      }
+      pdfPages.push({stream});
+      const scalePct = Math.round((best.fs / 10.5) * 100);
+      fitInfos.push(`${st.fornavn||st.navn||''}: ${scalePct}%`);
+    }
+    const blob = _pdfBuildFile(pdfPages, logo, title || 'Udtalelser');
+    const url=URL.createObjectURL(blob);
+    const stamp = new Date().toISOString().slice(0,16).replace('T','-').replace(':','');
+    const filename = _pdfSanitizeFileName(title || 'Udtalelser') + '-' + stamp + '.pdf';
+    if (opts && opts.returnOnly) {
+      return {blob, url, filename, fitInfos};
+    }
+    const outWin = opts && opts.pdfWindow;
+    if (outWin && !outWin.closed) {
+      try {
+        outWin.location.href = url;
+      } catch(e) {
+        try { outWin.document.body.innerHTML = '<p>PDF er klar, men kunne ikke åbnes automatisk.</p><p><a href="'+url+'" download="'+filename+'">Hent PDF</a></p>'; } catch(_) {}
+      }
+      // Behold blob-url'en længere, fordi den nu bruges i en anden fane/webview.
+      setTimeout(()=>URL.revokeObjectURL(url), 10*60*1000);
+    } else {
+      const a=document.createElement('a');
+      a.href=url;
+      a.download=filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      // Fallback: hvis download ignoreres, prøv at åbne PDF'en synligt.
+      setTimeout(()=>{ try { window.open(url, '_blank'); } catch(_) {} }, 250);
+      setTimeout(()=>URL.revokeObjectURL(url), 10*60*1000);
+    }
+    try {
+      const low = fitInfos.filter(s => /: [0-7][0-9]%$/.test(s));
+      if (low.length) console.info('Lav PDF: automatisk kompakt layout', low.join(', '));
+    } catch(e) {}
+  } catch(err) {
+    console.error(err);
+    _pdfFailOutputWindow(opts && opts.pdfWindow, err && err.message ? err.message : err);
+    alert('PDF kunne ikke genereres. Brug Print som fallback. Fejl: ' + (err && err.message ? err.message : err));
+  }
+}
+
+
+// --- PDF-previewmodal med layoutkontroller (v5) ---
+let __pdfPreviewUrl = null;
+let __pdfDownloadUrl = null;
+let __pdfPreviewCtx = null;
+function _pdfEnsurePreviewModal(){
+  let m = document.getElementById('pdfPreviewModal');
+  if (m) return m;
+  m = document.createElement('div');
+  m.id = 'pdfPreviewModal';
+  m.className = 'no-print';
+  m.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box';
+  m.innerHTML = `
+    <div style="width:min(1180px,97vw);height:min(920px,94vh);background:#10151d;color:#eef3fb;border:1px solid rgba(255,255,255,.18);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.45);display:flex;flex-direction:column;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.12)">
+        <strong style="font-size:18px">Lav PDF</strong>
+        <span id="pdfPreviewTitle" style="opacity:.75;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
+        <button id="pdfPreviewClose" class="btn small" type="button" style="margin-left:auto">×</button>
+      </div>
+      <div style="display:flex;min-height:0;flex:1">
+        <div style="flex:1;min-width:0;background:#777;display:flex;flex-direction:column">
+          <div id="pdfPreviewNotice" style="padding:6px 14px;font-size:12px;opacity:.72;background:#10151d;border-bottom:1px solid rgba(255,255,255,.08)">Preview viser én side ad gangen. “Hent fuld PDF” laver alle valgte sider.</div>
+          <iframe id="pdfPreviewFrame" title="PDF-preview" style="border:0;flex:1;background:#777;width:100%;min-height:0"></iframe>
+        </div>
+        <aside style="width:285px;max-width:38vw;border-left:1px solid rgba(255,255,255,.12);padding:14px;box-sizing:border-box;overflow:auto;background:#10151d">
+          <div style="font-weight:700;margin-bottom:12px">Layout</div>
+          <label style="display:block;margin:0 0 14px 0">Størrelse<br><input id="pdfScaleRange" type="range" min="55" max="110" value="100" step="1" style="width:100%"><span id="pdfScaleLabel">100%</span></label>
+          <label style="display:block;margin:0 0 14px 0">Margin<br><select id="pdfMarginSelect" style="width:100%"><option value="normal">Normal</option><option value="small" selected>Smal</option><option value="tiny">Meget smal</option></select></label>
+          <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input id="pdfJustifyText" type="checkbox" checked> Lige højre margen</label>
+          <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input id="pdfAutoFit" type="checkbox" checked> Autotilpas pr. side</label>
+          <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input id="pdfShowLogo" type="checkbox" checked> Logo</label>
+          <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input id="pdfShowDate" type="checkbox" checked> Dato</label>
+          <label style="display:flex;align-items:center;gap:8px;margin:10px 0 18px 0"><input id="pdfShowSignatures" type="checkbox" checked> Underskrifter</label>
+          <div style="border-top:1px solid rgba(255,255,255,.12);padding-top:12px;margin-top:12px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <button id="pdfPrevPage" class="btn small" type="button">◀</button>
+              <span id="pdfPageLabel" style="font-size:13px;min-width:86px;text-align:center;opacity:.85">Side 1 / 1</span>
+              <button id="pdfNextPage" class="btn small" type="button">▶</button>
+            </div>
+            <button id="pdfOpenTab" class="btn small" type="button" style="width:100%;margin-bottom:8px">Åbn preview</button>
+            <a id="pdfDownloadLink" class="btn small" download="udtalelser.pdf" href="#" style="display:block;text-align:center;margin-bottom:8px">Hent fuld PDF</a>
+            <span id="pdfStatus" style="font-size:13px;opacity:.75"></span>
+          </div>
+        </aside>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+  m.querySelector('#pdfPreviewClose').addEventListener('click', _pdfClosePreviewModal);
+  let pdfAutoTimer = null;
+  const schedulePdfPreview = () => {
+    clearTimeout(pdfAutoTimer);
+    pdfAutoTimer = setTimeout(_pdfRenderPreview, 300);
+  };
+  m.querySelector('#pdfScaleRange').addEventListener('input', () => {
+    m.querySelector('#pdfScaleLabel').textContent = m.querySelector('#pdfScaleRange').value + '%';
+    schedulePdfPreview();
+  });
+  ['#pdfMarginSelect','#pdfJustifyText','#pdfAutoFit','#pdfShowLogo','#pdfShowDate','#pdfShowSignatures'].forEach(sel => {
+    const el = m.querySelector(sel);
+    if (el) el.addEventListener('change', schedulePdfPreview);
+  });
+  m.querySelector('#pdfPrevPage').addEventListener('click', () => {
+    if (!__pdfPreviewCtx) return;
+    __pdfPreviewCtx.pageIndex = Math.max(0, (__pdfPreviewCtx.pageIndex || 0) - 1);
+    _pdfRenderPreview();
+  });
+  m.querySelector('#pdfNextPage').addEventListener('click', () => {
+    if (!__pdfPreviewCtx) return;
+    const n = (__pdfPreviewCtx.students || []).length;
+    __pdfPreviewCtx.pageIndex = Math.min(Math.max(0,n-1), (__pdfPreviewCtx.pageIndex || 0) + 1);
+    _pdfRenderPreview();
+  });
+  m.querySelector('#pdfOpenTab').addEventListener('click', () => { if (__pdfPreviewUrl) window.open(__pdfPreviewUrl, '_blank'); });
+  return m;
+}
+function _pdfClosePreviewModal(){
+  const m = document.getElementById('pdfPreviewModal');
+  if (m) m.style.display = 'none';
+}
+async function _pdfShowPreview(students, settings, title, opts){
+  const m = _pdfEnsurePreviewModal();
+  __pdfPreviewCtx = { students, settings, title, opts: opts || {}, pageIndex: 0 };
+  m.querySelector('#pdfPreviewTitle').textContent = title || '';
+  m.style.display = 'flex';
+  await _pdfRenderPreview();
+}
+function _pdfCurrentLayoutFromModal(m){
+  return {
+    fontScale: Number(m.querySelector('#pdfScaleRange').value || 100),
+    marginMode: m.querySelector('#pdfMarginSelect').value || 'small',
+    justifyText: !!m.querySelector('#pdfJustifyText').checked,
+    autoFit: !!m.querySelector('#pdfAutoFit').checked,
+    logo: !!m.querySelector('#pdfShowLogo').checked,
+    showDate: !!m.querySelector('#pdfShowDate').checked,
+    showSignatures: !!m.querySelector('#pdfShowSignatures').checked
+  };
+}
+async function _pdfRenderPreview(){
+  const m = _pdfEnsurePreviewModal();
+  if (!__pdfPreviewCtx) return;
+  const status = m.querySelector('#pdfStatus');
+  const frame = m.querySelector('#pdfPreviewFrame');
+  const link = m.querySelector('#pdfDownloadLink');
+  const pageLabel = m.querySelector('#pdfPageLabel');
+  const prevBtn = m.querySelector('#pdfPrevPage');
+  const nextBtn = m.querySelector('#pdfNextPage');
+  const students = __pdfPreviewCtx.students || [];
+  const n = students.length || 0;
+  __pdfPreviewCtx.pageIndex = Math.max(0, Math.min(n-1, __pdfPreviewCtx.pageIndex || 0));
+  const idx = __pdfPreviewCtx.pageIndex;
+  pageLabel.textContent = n ? `Side ${idx+1} / ${n}` : 'Side 0 / 0';
+  prevBtn.disabled = idx <= 0;
+  nextBtn.disabled = idx >= n-1;
+  status.textContent = 'Genererer…';
+  try {
+    if (__pdfPreviewUrl) { try { URL.revokeObjectURL(__pdfPreviewUrl); } catch(_) {} __pdfPreviewUrl = null; }
+    if (__pdfDownloadUrl) { try { URL.revokeObjectURL(__pdfDownloadUrl); } catch(_) {} __pdfDownloadUrl = null; }
+    const layout = _pdfCurrentLayoutFromModal(m);
+    const baseOpts = Object.assign({}, __pdfPreviewCtx.opts || {}, { layout, returnOnly:true });
+    // Preview: one selected side/student at a time.
+    const one = students[idx] ? [students[idx]] : [];
+    const previewRes = await makePdfForStudents(one, __pdfPreviewCtx.settings, (__pdfPreviewCtx.title || 'Udtalelser') + ' – preview', Object.assign({}, baseOpts, {preserveOrder:true}));
+    __pdfPreviewUrl = previewRes.url;
+    frame.src = __pdfPreviewUrl;
+    // Download: all selected students, same layout.
+    const fullRes = await makePdfForStudents(students, __pdfPreviewCtx.settings, __pdfPreviewCtx.title || 'Udtalelser', baseOpts);
+    __pdfDownloadUrl = fullRes.url;
+    link.href = __pdfDownloadUrl;
+    link.download = fullRes.filename || 'udtalelser.pdf';
+    status.textContent = 'Klar';
+  } catch(err) {
+    console.error(err);
+    status.textContent = 'Fejl: ' + (err && err.message ? err.message : err);
+  }
+}
+
+async function pdfAllKStudents(opts){
+  const studs = getStudents();
+  const kGroups = buildKGroups(studs);
+  const isAll = state.viewMode === 'ALL';
+  const list = isAll
+    ? ((kGroups[state.kGroupIndex] && kGroups[state.kGroupIndex].students) ? kGroups[state.kGroupIndex].students.slice() : [])
+    : getMyKStudents();
+  if (!list.length) { alert(isAll ? 'Der er ingen elever i denne K-gruppe.' : 'Der er ingen K-elever.'); return; }
+  const title = isAll ? 'Udtalelser PDF K-gruppe' : 'Udtalelser PDF K-elever';
+  await makePdfForStudents(sortedStudents(list), getSettings(), title, opts || {});
+}
+async function pdfAllKGroups(opts){
+  const studs = getStudents();
+  if (!studs.length) { alert('Der er ingen elevliste indlæst endnu.'); return; }
+  const kGroups = buildKGroups(studs);
+  const all=[];
+  const sortedGroups = kGroups.slice().sort((a,b)=>String(a.key||'').localeCompare(String(b.key||''),'da-DK'));
+  sortedGroups.forEach(g => sortedStudents(g.students||[]).forEach(st => all.push(st)));
+  await makePdfForStudents(all, getSettings(), 'Udtalelser PDF alle K-grupper', Object.assign({preserveOrder:true}, opts || {}));
+}
+async function pdfAllStudents(opts){
+  const all = sortedStudents(getStudents());
+  if (!all.length) { alert('Der er ingen elevliste indlæst endnu.'); return; }
+  await makePdfForStudents(all, getSettings(), 'Udtalelser PDF alle elever', Object.assign({preserveOrder:true}, opts || {}));
+}
+
 async function openPrintWindowForStudents(students, settings, title) {
   const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({
     '&': '&amp;',
@@ -2555,7 +3056,7 @@ const docTitle = escapeHtml(title || 'Print');
   <meta charset="utf-8">
   <title>${docTitle}</title>
   <style>
-    @page { size: A4; margin: 8mm 9mm; }
+    @page { size: A4; margin: 12mm 14mm; }
     html, body { margin: 0; padding: 0; background: #fff; }
     .page{
       page-break-after: always;
@@ -2566,11 +3067,8 @@ const docTitle = escapeHtml(title || 'Print');
       white-space: pre-wrap;
       font-family: Arial, sans-serif;
       font-size: 10.5pt;
+      font-size: 10.5pt;
       line-height: 1.45;
-      text-align: justify;
-      text-align-last: left;
-      hyphens: auto;
-      -webkit-hyphens: auto;
       transform: none;
       transform-origin: top left;
     }
@@ -2631,56 +3129,44 @@ const docTitle = escapeHtml(title || 'Print');
       page-break-after: auto;
     }
     .content{
-      width: 100%;
-      min-height: auto;
-      overflow: visible;
-      position: static;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
     }
     pre.statement{
       white-space: pre-wrap;
       margin: 0;
-      overflow: visible;
-      text-align: justify;
-      text-align-last: left;
-      hyphens: auto;
-      -webkit-hyphens: auto;
+      overflow: hidden;
     }
 
-    /* Signatur: almindeligt flow-indhold efter teksten.
-       iPad/WebKit kan placere fixed/absolute print-footers forkert og lægge
-       signaturerne ind over brødteksten. Flow er mere robust: ved lange
-       udtalelser flytter signaturen hellere med teksten til næste side. */
+    /* Signatur: to faste kolonner (Kontaktlærere / Forstander) */
     .signatures{
-      display:grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      column-gap: 16mm;
-      margin: 24mm auto 0 auto;
-      width: 84%;
+      display:flex;
+      justify-content:space-between;
+      gap: 16px;
+      margin-top: 18px;
+      width: 100%;
       font-family: Arial, sans-serif;
       font-size: 10.5pt;
       line-height: 1.25;
-      position: static !important;
-      break-inside: avoid;
-      page-break-inside: avoid;
     }
  
     @media print{
-      .content{ height: auto !important; min-height: auto !important; overflow: visible !important; position: static !important; }
-      pre.statement{ overflow: visible !important; padding-bottom: 0 !important; }
-      .signatures{ position: static !important; bottom: auto !important; left: auto !important; right: auto !important; }
+      /* Footer-signatur: fixed for enkelt-elev print, absolut pr. side ved multi-print (for at undgå overlappende fixed-elementer) */
+      body.print-single .signatures{ position: fixed; bottom: 32px; left: 0; right: 0; width: 100%; }
+      body.print-multi .page{ position: relative; }
+      body.print-multi .content{ position: relative; min-height: 273mm; }
+      body.print-multi .signatures{ position: absolute; bottom: 32px; left: 0; right: 0; width: 100%; }
+      /* Sørg for at brødtekst aldrig kan løbe ned i signaturen */
+      pre.statement{ padding-bottom: 110px; }
     }
 
-    /* Underskriftsfelter: balanceret og centreret, med plads til fysisk underskrift. */
-    .sig-col{ break-inside: avoid; page-break-inside: avoid; min-width: 0; text-align: center; }
-    .sig-left, .sig-right{ text-align: center; }
-    .sig-name{
-      display:block;
-      border-top: 1px solid #000;
-      padding-top: 2mm;
-      min-height: 4mm;
-      white-space: normal;
-    }
-    .sig-label{ display:block; margin-top: 1mm; }
+    /* Giv Kontaktlærere mere plads end Forstander (2 navne vs 1) */
+    .sig-col{ break-inside: avoid; page-break-inside: avoid; min-width: 0; }
+    .sig-left{ text-align: center; flex: 2 1 0; }
+    .sig-right{ text-align: center; flex: 1 1 0; }
+    .sig-name{ display:block; }
+    .sig-label{ display:block; margin-top: 2px; }
     .sig-left .sig-label{ text-align: center; }
 
 
@@ -3638,90 +4124,13 @@ function normalizePlaceholderKey(key) {
 
 
 
-  const COMPOUND_FIRST_NAMES = new Set([
-    // Piger / kvinder
-    "anna sofie", "anne sofie", "anne-sofie", "anne marie", "anne-marie",
-    "sofie amalie", "sofia amalie", "sophie amalie", "ida marie", "ida sofie",
-    "emma sofie", "emma marie", "ella marie", "ella sofie", "alma sofie", "alma marie",
-    "clara sofie", "clara marie", "klara sofie", "klara marie", "laura sofie", "laura marie",
-    "maria louise", "maria-louise", "maria magdalena", "maria elisabeth",
-    "sara sofie", "sara marie", "sarah sofie", "sarah marie", "line marie", "line sofie",
-    "nanna sofie", "nanna marie", "mille marie", "mille sofie", "maja sofie", "maja marie",
-    "karen marie", "karen margrethe", "maren sofie", "maren kirstine", "mette marie",
-    "lene marie", "lene sofie", "liv marie", "liv sofie", "liva marie", "liva sofie",
-    "amalie sofie", "amalie marie", "josefine marie", "josefine sofie", "victoria marie", "victoria sofie",
-    "freja sofie", "freja marie", "frida sofie", "frida marie", "astrid marie", "astrid sofie",
-    "mathilde marie", "mathilde sofie", "emilie marie", "emilie sofie", "karla marie", "karla sofie",
-    "thea marie", "thea sofie", "lea marie", "lea sofie", "molly sofie", "molly marie",
-
-    // Drenge / mænd
-    "hans peter", "hans-peter", "niels peter", "niels-peter", "peter christian", "peter-christian",
-    "carl emil", "carl-emil", "karl emil", "karl-emil", "carl johan", "carl-johan", "karl johan", "karl-johan",
-    "carl august", "carl-august", "karl august", "karl-august", "carl christian", "carl-christian", "karl christian", "karl-christian",
-    "mads christian", "mads-christian", "jens christian", "jens-christian", "lars christian", "lars-christian",
-    "niels christian", "niels-christian", "anders christian", "anders-christian", "per christian", "per-christian",
-    "søren christian", "søren-christian", "ole christian", "ole-christian", "jan christian", "jan-christian",
-    "jonas peter", "jonas-peter", "mikkel christian", "mikkel-christian",
-    "magnus christian", "magnus-christian", "emil christian", "emil-christian", "oscar christian", "oscar-christian",
-    "viktor emil", "viktor-emil", "victor emil", "victor-emil", "william emil", "william-emil",
-    "noah emil", "noah-emil", "oliver emil", "oliver-emil", "alfred emil", "alfred-emil",
-    "theo emil", "theo-emil", "malthe emil", "malthe-emil", "august emil", "august-emil",
-    "villiam emil", "villiam-emil", "marcus emil", "marcus-emil", "marcus christian", "marcus-christian",
-    "christian august", "christian-august", "christian emil", "christian-emil", "christian johan", "christian-johan",
-    "anders peter", "anders-peter", "ole peter", "ole-peter", "lars peter", "lars-peter",
-    "jens peter", "jens-peter", "sven erik", "sven-erik", "svend erik", "svend-erik",
-    "knud erik", "knud-erik", "poul erik", "poul-erik", "per erik", "per-erik",
-    "jens jakob", "jens-jakob", "jens jacob", "jens-jacob", "niels jakob", "niels-jakob", "niels jacob", "niels-jacob"
-  ].map(s => s.toLocaleLowerCase('da-DK')));
-
-  function firstNameParts(rawFirstName) {
-    const s = (rawFirstName ?? '').toString().trim();
-    return s ? s.split(/\s+/).filter(Boolean) : [];
-  }
-
-  function compoundKey(parts) {
-    return parts.slice(0, 2).join(' ').toLocaleLowerCase('da-DK');
-  }
-
-  function isApprovedCompoundFirstName(parts) {
-    return Array.isArray(parts) && parts.length >= 2 && COMPOUND_FIRST_NAMES.has(compoundKey(parts));
-  }
-
-  function splitFirstNameAndMiddle(rawFirstName) {
-    // HU-data: Fornavn-feltet kan indeholde både fornavn og mellemnavn.
-    // Regel: to ord bevares kun som fornavn, hvis kombinationen findes i godkendt dobbeltnavnsliste.
-    // Eksempler:
-    //   Anne Sofie Kragh -> fornavn: Anne Sofie, ekstra: Kragh
-    //   Christian Toftegaard -> fornavn: Christian, ekstra: Toftegaard
-    //   Enne Bolding -> fornavn: Enne, ekstra: Bolding
-    const parts = firstNameParts(rawFirstName);
-    if (!parts.length) return { firstName: '', extraSurname: '' };
-    const keep = isApprovedCompoundFirstName(parts) ? 2 : 1;
-    return {
-      firstName: parts.slice(0, keep).join(' '),
-      extraSurname: parts.slice(keep).join(' ')
-    };
-  }
-
   function callName(rawFirstName) {
-    // Omtalenavn i tekst: brug godkendt dobbeltnavn – ellers kun første ord.
-    return splitFirstNameAndMiddle(rawFirstName).firstName;
-  }
-
-  function studentCallName(student) {
-    // Reparationsregel for ældre/importerede data:
-    // Anne + Sofie Kragh Petersen -> Anne Sofie, men kun fordi "Anne Sofie" er godkendt.
-    // Christian + Toftegaard Jensen -> Christian, fordi "Christian Toftegaard" ikke er godkendt.
-    const st = student || {};
-    const direct = callName(st.fornavn || st.firstName || st.firstname || '');
-    const directParts = firstNameParts(direct);
-    if (directParts.length >= 2) return direct;
-
-    const allParts = [st.fornavn, st.efternavn].join(' ').trim().split(/\s+/).filter(Boolean);
-    if (directParts.length === 1 && allParts.length >= 3 && allParts[0] === directParts[0] && isApprovedCompoundFirstName(allParts)) {
-      return allParts.slice(0, 2).join(' ');
-    }
-    return direct;
+    // HU-data: hvis fornavn-feltet indeholder ekstra efternavn, brug kun første ord.
+    // Behold bindestreg-navne (fx Anne-Sofie) uændret.
+    const s = (rawFirstName ?? '').toString().trim();
+    if (!s) return '';
+    const parts = s.split(/\s+/).filter(Boolean);
+    return parts.length ? parts[0] : s;
   }
   function normalizeHeader(input) { return normalizeName(input).replace(/[^a-z0-9]+/g, ""); }
 
@@ -3818,158 +4227,6 @@ const on = (id, ev, fn, opts) => { const el = document.getElementById(id); if (e
     }
     return { headers, rows, delim };
   }
-
-
-  // ---------- CSV / Excel (.xlsx) import ----------
-  // Excel import is deliberately converted to the same {headers, rows} shape as parseCsv().
-  // This keeps the existing student/snippet import pipeline unchanged.
-  function _xmlDecode(s) {
-    return String(s ?? '')
-      .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
-      .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
-      .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => String.fromCharCode(parseInt(n, 16)));
-  }
-  function _xlsxColIndex(cellRef) {
-    const letters = String(cellRef || '').replace(/[^A-Za-z].*$/,'').toUpperCase();
-    let n = 0;
-    for (let i = 0; i < letters.length; i++) n = n * 26 + (letters.charCodeAt(i) - 64);
-    return Math.max(0, n - 1);
-  }
-  async function _inflateRaw(bytes) {
-    if (typeof DecompressionStream !== 'function') {
-      throw new Error('Denne browser kan ikke pakke .xlsx ud direkte. Brug CSV eller en nyere Safari/Chrome.');
-    }
-    const ds = new DecompressionStream('deflate-raw');
-    const stream = new Blob([bytes]).stream().pipeThrough(ds);
-    return new Uint8Array(await new Response(stream).arrayBuffer());
-  }
-  async function _xlsxZipEntries(arrayBuffer) {
-    const u8 = new Uint8Array(arrayBuffer);
-    const dv = new DataView(arrayBuffer);
-    let eocd = -1;
-    for (let i = u8.length - 22; i >= Math.max(0, u8.length - 66000); i--) {
-      if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
-    }
-    if (eocd < 0) throw new Error('Kunne ikke læse .xlsx-filen (zip-indeks mangler).');
-    const count = dv.getUint16(eocd + 10, true);
-    const cdOffset = dv.getUint32(eocd + 16, true);
-    const textDecoder = new TextDecoder('utf-8');
-    const out = new Map();
-    let p = cdOffset;
-    for (let i = 0; i < count; i++) {
-      if (dv.getUint32(p, true) !== 0x02014b50) break;
-      const method = dv.getUint16(p + 10, true);
-      const compSize = dv.getUint32(p + 20, true);
-      const uncompSize = dv.getUint32(p + 24, true);
-      const nameLen = dv.getUint16(p + 28, true);
-      const extraLen = dv.getUint16(p + 30, true);
-      const commentLen = dv.getUint16(p + 32, true);
-      const localOffset = dv.getUint32(p + 42, true);
-      const name = textDecoder.decode(u8.slice(p + 46, p + 46 + nameLen));
-
-      if (dv.getUint32(localOffset, true) !== 0x04034b50) throw new Error('Kunne ikke læse .xlsx-filen (lokal zip-header mangler).');
-      const lfNameLen = dv.getUint16(localOffset + 26, true);
-      const lfExtraLen = dv.getUint16(localOffset + 28, true);
-      const dataStart = localOffset + 30 + lfNameLen + lfExtraLen;
-      const comp = u8.slice(dataStart, dataStart + compSize);
-      let data;
-      if (method === 0) data = comp;
-      else if (method === 8) data = await _inflateRaw(comp);
-      else throw new Error('XLSX-komprimering understøttes ikke: metode ' + method);
-      // uncompSize can be 0 for directories; do not fail on those.
-      if (uncompSize && data.length !== uncompSize) {
-        // Safari/Chrome can still produce a valid byte stream; keep going rather than blocking import.
-      }
-      out.set(name, textDecoder.decode(data));
-      p += 46 + nameLen + extraLen + commentLen;
-    }
-    return out;
-  }
-  function _xlsxReadSharedStrings(xml) {
-    if (!xml) return [];
-    const arr = [];
-    const siRe = /<si[\s\S]*?<\/si>/g;
-    let m;
-    while ((m = siRe.exec(xml))) {
-      const si = m[0];
-      const parts = [];
-      const tRe = /<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g;
-      let tm;
-      while ((tm = tRe.exec(si))) parts.push(_xmlDecode(tm[1]));
-      arr.push(parts.join(''));
-    }
-    return arr;
-  }
-  function _xlsxCellValue(cellXml, sharedStrings) {
-    const tMatch = cellXml.match(/\st="([^"]+)"/);
-    const type = tMatch ? tMatch[1] : '';
-    if (type === 'inlineStr') {
-      const parts = [];
-      const tRe = /<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g;
-      let tm;
-      while ((tm = tRe.exec(cellXml))) parts.push(_xmlDecode(tm[1]));
-      return parts.join('').trim();
-    }
-    const vMatch = cellXml.match(/<v(?:\s[^>]*)?>([\s\S]*?)<\/v>/);
-    const raw = vMatch ? _xmlDecode(vMatch[1]) : '';
-    if (type === 's') return (sharedStrings[Number(raw)] ?? '').trim();
-    if (type === 'b') return raw === '1' ? 'TRUE' : 'FALSE';
-    return String(raw ?? '').trim();
-  }
-  async function parseXlsxFile(file) {
-    const entries = await _xlsxZipEntries(await file.arrayBuffer());
-    const shared = _xlsxReadSharedStrings(entries.get('xl/sharedStrings.xml') || '');
-    let sheetPath = 'xl/worksheets/sheet1.xml';
-    // If workbook metadata exists, prefer the first visible sheet relation.
-    const workbook = entries.get('xl/workbook.xml') || '';
-    const rels = entries.get('xl/_rels/workbook.xml.rels') || '';
-    const firstSheet = workbook.match(/<sheet\b[^>]*r:id="([^"]+)"[^>]*>/);
-    if (firstSheet && rels) {
-      const rid = firstSheet[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const re = new RegExp('<Relationship\\b[^>]*Id="' + rid + '"[^>]*Target="([^"]+)"[^>]*/>');
-      const rm = rels.match(re);
-      if (rm && rm[1]) sheetPath = 'xl/' + rm[1].replace(/^\//, '').replace(/^xl\//, '');
-    }
-    const sheet = entries.get(sheetPath) || entries.get('xl/worksheets/sheet1.xml');
-    if (!sheet) throw new Error('Kunne ikke finde første ark i .xlsx-filen.');
-    const rows = [];
-    const rowRe = /<row\b[\s\S]*?<\/row>/g;
-    let rm;
-    while ((rm = rowRe.exec(sheet))) {
-      const rowXml = rm[0];
-      const vals = [];
-      const cellRe = /<c\b([^>]*)>([\s\S]*?)<\/c>/g;
-      let cm;
-      while ((cm = cellRe.exec(rowXml))) {
-        const attrs = cm[1] || '';
-        const ref = (attrs.match(/\sr="([^"]+)"/) || [,''])[1];
-        const idx = _xlsxColIndex(ref) || vals.length;
-        vals[idx] = _xlsxCellValue('<c ' + attrs + '>' + cm[2] + '</c>', shared);
-      }
-      // Keep rows with at least one non-empty value.
-      if (vals.some(v => String(v ?? '').trim())) rows.push(vals.map(v => String(v ?? '').trim()));
-    }
-    if (!rows.length) return { headers: [], rows: [], source: 'xlsx' };
-    const headers = rows[0].map(h => String(h || '').trim());
-    const outRows = [];
-    for (let r = 1; r < rows.length; r++) {
-      const obj = {};
-      headers.forEach((h, i) => { if (h) obj[h] = rows[r][i] ?? ''; });
-      if (Object.values(obj).some(v => String(v ?? '').trim())) outRows.push(obj);
-    }
-    return { headers, rows: outRows, source: 'xlsx' };
-  }
-  async function parseTabularFile(file) {
-    const name = String(file && file.name || '').toLowerCase();
-    if (/\.(xlsx|xlsm|xltx|xltm)$/.test(name)) return await parseXlsxFile(file);
-    if (/\.xls$/.test(name)) {
-      throw new Error('Gammelt .xls-format kan ikke læses sikkert direkte i browseren. Eksportér fra Google Sheets/Numbers som .xlsx.');
-    }
-    const text = await readFileText(file);
-    return parseCsv(text);
-  }
-
   function toCsv(rows, headers) {
     const esc = (v) => {
       const s = (v ?? '').toString();
@@ -4368,12 +4625,12 @@ if (chosen && erObj[chosen]) {
 }
 
     const fullName = `${student.fornavn} ${student.efternavn}`.trim();
-    const firstName = studentCallName(student);
+    const firstName = callName(student.fornavn);
     const pr = pronouns(student.koen);
     const snMap = {
-      "ELEV_FORNAVN": firstName,
+      "ELEV_FORNAVN": (student.fornavn||'').trim(),
       "ELEV_NAVN": fullName,
-      "FORNAVN": firstName,
+      "FORNAVN": (student.fornavn||'').trim(),
       "NAVN": fullName,
       "HAN_HUN": pr.HAN_HUN,
       "HAM_HENDE": pr.HAM_HENDE,
@@ -4577,19 +4834,20 @@ if (chosen && erObj[chosen]) {
   function normalizeStudentRow(row, map, teacherOverrides) {
     const get = (field) => (row[map[field]] ?? '').trim();
 
-    // Rens fornavn-felt: nogle elevlister har mellemnavne skrevet i Fornavn-kolonnen.
-    // Regel: behold kun to ord som fornavn, hvis kombinationen er et godkendt sammensat fornavn.
-    // Eksempler:
-    //   Anne Sofie Kragh + Petersen -> Anne Sofie / Kragh Petersen
-    //   Christian Toftegaard + Jensen -> Christian / Toftegaard Jensen
-    //   Enne Bolding + Sørensen -> Enne / Bolding Sørensen
+    // Rens fornavn-felt: nogle elever har et "ekstra efternavn" i fornavn-kolonnen.
+    // Regel: hvis fornavn har flere ord og IKKE indeholder bindestreg, så bruges første ord som kaldnavn,
+    // og resten flyttes over i efternavn (foran eksisterende efternavn).
     const fornavnRaw = get('fornavn');
     let efternavnRaw = get('efternavn');
 
-    const splitName = splitFirstNameAndMiddle(fornavnRaw);
-    const fornavn = splitName.firstName;
-    if (splitName.extraSurname) {
-      efternavnRaw = (splitName.extraSurname + ' ' + (efternavnRaw || '')).trim();
+    let fornavn = fornavnRaw;
+    if (fornavnRaw && !fornavnRaw.includes('-')) {
+      const parts = fornavnRaw.split(/\s+/).filter(Boolean);
+      if (parts.length > 1) {
+        fornavn = parts[0];
+        const extraSurname = parts.slice(1).join(' ');
+        efternavnRaw = (extraSurname + ' ' + (efternavnRaw || '')).trim();
+      }
     }
 
     const efternavn = efternavnRaw;
@@ -5932,7 +6190,7 @@ function restoreMarksGridFocus(){
     };
     const placeholderMapFor = (st) => {
       const full = `${st.fornavn||''} ${st.efternavn||''}`.trim();
-      const first = studentCallName(st) || full.split(' ')[0] || '';
+      const first = (st.fornavn||'').trim() || full.split(' ')[0] || '';
       const pr = pronouns(st.koen || st.gender || st.sex || '');
       return {
         "FORNAVN": first,
@@ -6158,7 +6416,7 @@ function tooltipTextFor(st, scope, key){
         if (!snip) return '';
         const p = pronouns(st.koen || st.køn || st.gender || '');
         const base = (p.HAN_HUN === 'hun' && snip.text_k) ? snip.text_k : (snip.text_m || snip.text_k || '');
-        const filled = applyPlaceholders(base, Object.assign({ FORNAVN: studentCallName(st) || st.fornavn || '', ELEV_FORNAVN: studentCallName(st) || st.fornavn || '' }, p));
+        const filled = applyPlaceholders(base, Object.assign({ FORNAVN: st.fornavn || '' }, p));
         const flat = String(filled || '').trim().replace(/\s+/g,' ');
         if (!flat) return '';
         const pretty = flat.replace(/([.!?])\s+/g, '$1\n\n');
@@ -6400,10 +6658,11 @@ function tooltipTextFor(st, scope, key){
   async function importMarksFile(e, kind) {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
-    const parsed = await parseTabularFile(f);
+    const text = await readFileText(f);
+    const parsed = parseCsv(text);
 
     const colUnilogin = parsed.headers.find(h => ['unilogin','unicbrugernavn','unicusername','unic'].includes(normalizeHeader(h)));
-    if (!colUnilogin) { alert('Filen mangler kolonne: Unilogin'); return; }
+    if (!colUnilogin) { alert('CSV mangler kolonne: Unilogin'); return; }
 
     let imported = 0;
     if (kind === 'sang') {
@@ -6495,32 +6754,7 @@ function tooltipTextFor(st, scope, key){
 
     on('btnReset','click', () => {
       if (!confirm('Ryd alle lokale data i denne browser?')) return;
-
-      const isEmbeddedInTavle = (() => {
-        try { return !!(window.parent && window.parent !== window && window.__UDT_TAVLE_BRIDGE__); }
-        catch(_) { return false; }
-      })();
-
-      // Ryd appens lokale data først.
       lsDelPrefix(LS_PREFIX);
-
-      // Når Skriv kører som HTML-app i TavleAppen, ligger der også en kopi i tavlens
-      // IndexedDB-hukommelse. Hvis vi bare reloader, indlæser TavleAppen den gamle kopi igen.
-      // Derfor skal den tomme tilstand først gemmes tilbage via saver-bridge.
-      if (isEmbeddedInTavle) {
-        try {
-          const bridge = window.__UDT_TAVLE_BRIDGE__;
-          if (bridge && typeof bridge.saveNow === 'function') {
-            bridge.saveNow('manual-reset');
-          }
-          const st = document.getElementById('statusText');
-          if (st) st.textContent = 'Data ryddet – gemt tilbage til TavleAppen';
-        } catch(e) {}
-        // Giv TavleAppen tid til at modtage den tomme backup før reload.
-        setTimeout(() => location.reload(), 1200);
-        return;
-      }
-
       location.reload();
     });
 
@@ -6883,13 +7117,8 @@ if (document.getElementById('btnDownloadElevraad')) {
     on('studentsFile','change', async (e) => {
       const f = e.target.files && e.target.files[0];
       if (!f) return;
-      let parsed;
-      try {
-        parsed = await parseTabularFile(f);
-      } catch (err) {
-        alert(err?.message || 'Kunne ikke indlæse filen.');
-        return;
-      }
+      const text = await readFileText(f);
+      const parsed = parseCsv(text);
       const map = mapStudentHeaders(parsed.headers);
       const required = ['fornavn','efternavn','klasse'];
       const ok = required.every(r => map[r]);
@@ -7110,6 +7339,13 @@ if (document.getElementById('btnDownloadElevraad')) {
       const settings = getSettings();
       const title = (`Udtalelse - ${(st.fornavn || '').trim()} ${(st.efternavn || '').trim()}`).trim() || 'Udtalelse';
       await openPrintWindowForStudents([st], settings, title);
+    });
+
+    on('btnPdfOne','click', async () => {
+      const st = getSelectedStudent();
+      if (!st) return;
+      const title = (`Udtalelse - ${(st.fornavn || '').trim()} ${(st.efternavn || '').trim()}`).trim() || 'Udtalelse';
+      await _pdfShowPreview([st], getSettings(), title, {preserveOrder:true});
     });
   
     // --- Faglærer-markeringer (Eksport) ---
@@ -7504,14 +7740,39 @@ const modOk = (e.ctrlKey && e.altKey);
     // K-elever: Print alle
     const btnPrintAllK = $("btnPrintAllK");
     if (btnPrintAllK) btnPrintAllK.addEventListener("click", printAllKStudents);
+    const btnPdfAllK = $("btnPdfAllK");
+    if (btnPdfAllK) btnPdfAllK.addEventListener("click", async () => {
+      const studs = getStudents();
+      const kGroups = buildKGroups(studs);
+      const isAll = state.viewMode === 'ALL';
+      const list = isAll ? ((kGroups[state.kGroupIndex] && kGroups[state.kGroupIndex].students) ? kGroups[state.kGroupIndex].students.slice() : []) : getMyKStudents();
+      if (!list.length) { alert(isAll ? 'Der er ingen elever i denne K-gruppe.' : 'Der er ingen K-elever.'); return; }
+      await _pdfShowPreview(sortedStudents(list), getSettings(), isAll ? 'Udtalelser PDF K-gruppe' : 'Udtalelser PDF K-elever', {preserveOrder:true});
+    });
 
         // Indstillinger → Eksport: Print alle elever (alfabetisk efter fornavn)
     const btnPrintAllStudents = $("btnPrintAllStudents");
     if (btnPrintAllStudents) btnPrintAllStudents.addEventListener("click", printAllStudents);
+    const btnPdfAllStudents = $("btnPdfAllStudents");
+    if (btnPdfAllStudents) btnPdfAllStudents.addEventListener("click", async () => {
+      const all = sortedStudents(getStudents());
+      if (!all.length) { alert('Der er ingen elevliste indlæst endnu.'); return; }
+      await _pdfShowPreview(all, getSettings(), 'Udtalelser PDF alle elever', {preserveOrder:true});
+    });
 
 // Indstillinger → Eksport: Print alle K-grupper (alle elever)
     const btnPrintAllGroups = $("btnPrintAllGroups");
     if (btnPrintAllGroups) btnPrintAllGroups.addEventListener("click", printAllKGroups);
+    const btnPdfAllGroups = $("btnPdfAllGroups");
+    if (btnPdfAllGroups) btnPdfAllGroups.addEventListener("click", async () => {
+      const studs = getStudents();
+      if (!studs.length) { alert('Der er ingen elevliste indlæst endnu.'); return; }
+      const kGroups = buildKGroups(studs);
+      const all=[];
+      const sortedGroups = kGroups.slice().sort((a,b)=>String(a.key||'').localeCompare(String(b.key||''),'da-DK'));
+      sortedGroups.forEach(g => sortedStudents(g.students||[]).forEach(st => all.push(st)));
+      await _pdfShowPreview(all, getSettings(), 'Udtalelser PDF alle K-grupper', {preserveOrder:true});
+    });
 
     // Hjælp-links (hop til relevante faner)
     document.body.addEventListener("click", (ev) => {
@@ -7970,183 +8231,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 })();
 </script>
-
-<!-- SAFE_DROPZONE_MODAL_2026-05-28: Tavle-inspireret app-dropzone til Skriv/Udtalelser. -->
-<style id="safe-dropzone-modal-style">
-  .safeDropBackdrop{position:fixed;inset:0;z-index:2147483600;background:rgba(15,17,21,.72);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  .safeDropBackdrop.show{display:flex}
-  .safeDropModal{width:min(680px,94vw);max-height:min(82vh,720px);overflow:auto;background:#171a21;color:#e6e8ee;border:1px solid rgba(255,255,255,.14);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.5);padding:20px}
-  .safeDropHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
-  .safeDropHead h2{margin:0;font-size:clamp(22px,4vw,34px);line-height:1.05}.safeDropHead p{margin:.35rem 0 0;color:#a8afbf;line-height:1.35}
-  .safeDropClose{border:0;border-radius:999px;background:rgba(255,255,255,.10);color:#fff;font-weight:950;padding:9px 13px;cursor:pointer}
-  .safeDropZone{border:3px dashed #8bd3ff;border-radius:18px;background:rgba(139,211,255,.08);padding:28px 18px;text-align:center;display:grid;place-items:center;gap:10px;transition:.15s ease}
-  .safeDropZone.dragOver{background:rgba(139,211,255,.18);transform:scale(1.01);box-shadow:0 0 0 6px rgba(139,211,255,.12)}
-  .safeDropIcon{font-size:44px;line-height:1}.safeDropZone b{font-size:24px}.safeDropZone span{color:#a8afbf;font-weight:750}.safeDropZone button{border:0;border-radius:999px;background:#8bd3ff;color:#0f1115;padding:10px 14px;font-weight:950;cursor:pointer}
-  .safeDropHint{margin-top:12px;color:#a8afbf;font-size:13px;line-height:1.35}.safeDropStatus{margin-top:14px;display:grid;gap:8px}.safeDropRow{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:10px 12px;font-weight:800;line-height:1.25}.safeDropRow.ok{border-color:rgba(120,255,170,.35)}.safeDropRow.bad{border-color:rgba(255,120,120,.35);color:#ffb4b4}
-  body.safeDropDragging::after{content:"Slip filen – Skriv finder importtypen";position:fixed;inset:18px;border:4px dashed rgba(139,211,255,.85);border-radius:24px;background:rgba(255,255,255,.10);color:#fff;display:grid;place-items:center;font-size:clamp(22px,4vw,44px);font-weight:950;text-shadow:0 2px 8px rgba(0,0,0,.55);z-index:2147483500;pointer-events:none}
-</style>
-<script id="safe-dropzone-modal-script">
-(function(){
-  if(window.__SAFE_SKRIV_DROPZONE_MODAL__) return;
-  window.__SAFE_SKRIV_DROPZONE_MODAL__=true;
-  function $(id){return document.getElementById(id)}
-  function esc(s){return String(s||'').replace(/[&<>\"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[ch]||ch})}
-  function ensureModal(){
-    let back=$('safeDropBackdrop');
-    if(back) return back;
-    back=document.createElement('div'); back.id='safeDropBackdrop'; back.className='safeDropBackdrop';
-    back.innerHTML='<div class="safeDropModal" role="dialog" aria-modal="true" aria-label="Importér fil"><div class="safeDropHead"><div><h2>Importér til Skriv</h2><p>Slip en backup, elevliste eller faglærerfil her. Appen vælger selv den mest sandsynlige import.</p></div><button class="safeDropClose" type="button" title="Luk">×</button></div><div id="safeDropZone" class="safeDropZone"><div class="safeDropIcon">⬆️</div><b>Slip filen her</b><span>CSV / Excel / JSON</span><button type="button" id="safeDropChoose">Vælg fil manuelt</button></div><div class="safeDropHint">Eksempler: backup.json → importér backup · elevliste.xlsx/csv → elevliste · sang/gym/elevråd-filer → faglærervurderinger · template/snippet-json → skabeloner/tekster.</div><div id="safeDropStatus" class="safeDropStatus" aria-live="polite"></div><input id="safeDropFileInput" type="file" multiple accept=".json,.csv,.txt,.xlsx,.xls,.xlsm" style="display:none"></div>';
-    document.body.appendChild(back);
-    back.querySelector('.safeDropClose').addEventListener('click',closeModal);
-    back.addEventListener('click',function(e){ if(e.target===back) closeModal(); });
-    back.querySelector('#safeDropChoose').addEventListener('click',function(){ back.querySelector('#safeDropFileInput').click(); });
-    back.querySelector('#safeDropFileInput').addEventListener('change',async function(e){ const files=Array.from(e.target.files||[]); e.target.value=''; await handleFiles(files); });
-    const zone=back.querySelector('#safeDropZone');
-    ['dragenter','dragover'].forEach(ev=>zone.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();zone.classList.add('dragOver');},true));
-    ['dragleave','dragend'].forEach(ev=>zone.addEventListener(ev,function(){zone.classList.remove('dragOver');},true));
-    zone.addEventListener('drop',async function(e){e.preventDefault();e.stopPropagation();zone.classList.remove('dragOver');await handleFiles(filesFromDt(e.dataTransfer));},true);
-    return back;
-  }
-  function openModal(){ensureModal().classList.add('show')}
-  function closeModal(){const b=$('safeDropBackdrop'); if(b)b.classList.remove('show'); document.body.classList.remove('safeDropDragging');}
-  function status(msg,ok){const box=$('safeDropStatus'); if(!box)return; const row=document.createElement('div'); row.className='safeDropRow '+(ok===false?'bad':'ok'); row.innerHTML=msg; box.prepend(row);}
-  function filesFromDt(dt){const out=[];try{if(dt&&dt.files)out.push(...Array.from(dt.files));}catch(_e){} try{for(const it of Array.from((dt&&dt.items)||[])){if(it&&it.kind==='file'){const f=it.getAsFile(); if(f&&!out.some(x=>x.name===f.name&&x.size===f.size))out.push(f);}}}catch(_e){} return out;}
-  function hasFiles(dt){try{return !!(dt&&(dt.files&&dt.files.length || Array.from(dt.items||[]).some(i=>i.kind==='file') || Array.from(dt.types||[]).includes('Files')))}catch(_e){return false}}
-  function setInputFilesAndChange(input,files){
-    if(!input) return false;
-    try{const d=new DataTransfer(); files.forEach(f=>d.items.add(f)); input.files=d.files; input.dispatchEvent(new Event('change',{bubbles:true})); return true;}catch(_e){return false;}
-  }
-  async function importJsonDirect(file,obj){
-    const name=String(file.name||'').toLowerCase();
-    if(obj && (obj.kind==='localStorage-backup' || obj.app || obj.data || obj.savedAt) && typeof window.importLocalBackup==='function'){
-      window.importLocalBackup(file); return 'backup';
-    }
-    const scope=String((obj&&obj.scope)||(obj&&obj.payload&&Object.keys(obj.payload||{})[0])||'').toLowerCase();
-    if(/template|skabelon/.test(name) || scope==='templates'){
-      if(typeof window.importOverridePackage==='function'){window.importOverridePackage('templates',obj); if(typeof window.renderSettings==='function')window.renderSettings(); return 'skabeloner';}
-    }
-    if(/sang/.test(name)||scope==='sang') { if(typeof window.importOverridePackage==='function'){window.importOverridePackage('sang',obj); if(typeof window.renderSettings==='function')window.renderSettings(); return 'sang-tekster';} }
-    if(/gym|rolle/.test(name)||scope==='gym'||scope==='roller') { if(typeof window.importOverridePackage==='function'){window.importOverridePackage(scope==='roller'?'roller':'gym',obj); if(typeof window.renderSettings==='function')window.renderSettings(); return scope==='roller'?'rolle-tekster':'gym-tekster';} }
-    if(/elevr|elevråd|elevraad/.test(name)||scope==='elevraad') { if(typeof window.importOverridePackage==='function'){window.importOverridePackage('elevraad',obj); if(typeof window.renderSettings==='function')window.renderSettings(); return 'elevråd-tekster';} }
-    return '';
-  }
-  function safeDropToast(msg){
-    try{
-      let t=document.getElementById('safeDropToast');
-      if(!t){
-        t=document.createElement('div');
-        t.id='safeDropToast';
-        t.style.cssText='position:fixed;left:50%;top:22px;transform:translateX(-50%);z-index:2147483647;background:rgba(17,24,39,.94);color:#fff;border-radius:999px;padding:11px 18px;font-weight:950;box-shadow:0 12px 30px rgba(0,0,0,.35);max-width:min(92vw,820px);text-align:center;opacity:0;transition:opacity .16s ease';
-        document.body.appendChild(t);
-      }
-      t.textContent=String(msg||'Import gennemført');
-      t.style.opacity='1';
-      clearTimeout(window.__safeDropToastTimer);
-      window.__safeDropToastTimer=setTimeout(function(){try{t.style.opacity='0'}catch(_e){}},3600);
-    }catch(_e){}
-  }
-  async function importStudentFileDirect(file){
-    if(typeof parseTabularFile!=='function' || typeof mapStudentHeaders!=='function') return '';
-    const parsed = await parseTabularFile(file);
-    const map = mapStudentHeaders(parsed.headers);
-    const required = ['fornavn','efternavn','klasse'];
-    const ok = required.every(function(r){return map[r];});
-    if(!ok) throw new Error('Kunne ikke finde de nødvendige kolonner (fornavn, efternavn, klasse).');
-    const teacherOverrides = (typeof buildTeacherOverrideMap==='function') ? buildTeacherOverrideMap(parsed.rows, map) : new Map();
-    let skippedEmpty = 0, missingTeachers = 0;
-    const missingTeacherNames = [];
-    const validRows = [];
-    for (const r of parsed.rows) {
-      const fn = (r[map.fornavn] ?? '').toString().trim();
-      const en = (r[map.efternavn] ?? '').toString().trim();
-      if (!fn && !en) { skippedEmpty++; continue; }
-      const k1 = (map.kontaktlaerer1 ? (r[map.kontaktlaerer1] ?? '') : '').toString().trim();
-      const k2 = (map.kontaktlaerer2 ? (r[map.kontaktlaerer2] ?? '') : '').toString().trim();
-      if (!k1 && !k2) {
-        missingTeachers++;
-        const nm = (fn + ' ' + en).trim() || '(ukendt elev)';
-        if (missingTeacherNames.length < 12) missingTeacherNames.push(nm);
-      }
-      validRows.push(r);
-    }
-    const studentsRaw = validRows.map(function(r){return normalizeStudentRow(r, map, teacherOverrides);});
-    const students = (typeof canonicalizeTeacherInitials==='function') ? canonicalizeTeacherInitials(studentsRaw) : studentsRaw;
-    setStudents(students);
-    const statusEl = $('importStatus');
-    if (statusEl) {
-      const parts = [];
-      if (skippedEmpty) parts.push('Sprunget over '+skippedEmpty+' tomme rækker.');
-      if (missingTeachers) {
-        const list = missingTeacherNames.length ? ' (fx: '+missingTeacherNames.join(', ')+')' : '';
-        parts.push('⚠️ '+missingTeachers+' elever mangler kontaktlærer'+list+'.');
-      }
-      statusEl.textContent = parts.length ? '✅ Elevliste indlæst. '+parts.join(' ') : '✅ Elevliste indlæst.';
-    }
-    try{ renderSettings(); renderStatus(); if (state.tab === 'k') renderKList(); setTab('set'); }catch(_e){}
-    return 'elevliste importeret: '+students.length+' elever';
-  }
-  async function importMarksFileDirect(file,kind){
-    if(typeof parseTabularFile!=='function' || typeof normalizeHeader!=='function') return '';
-    const parsed = await parseTabularFile(file);
-    const colUnilogin = parsed.headers.find(function(h){return ['unilogin','unicbrugernavn','unicusername','unic'].includes(normalizeHeader(h));});
-    if(!colUnilogin) throw new Error('Filen mangler kolonne: Unilogin');
-    let imported = 0;
-    if(kind === 'sang'){
-      const colVar = parsed.headers.find(function(h){return ['sangvariant','sang_variant','sang'].includes(normalizeHeader(h));});
-      const map = getMarks(KEYS.marksSang);
-      parsed.rows.forEach(function(r){ const u=(r[colUnilogin]||'').trim(); if(!u)return; map[u]=map[u]||{}; map[u].sang_variant=(r[colVar]||'').trim(); imported++; });
-      setMarks(KEYS.marksSang,map);
-    }
-    if(kind === 'gym'){
-      const colVar = parsed.headers.find(function(h){return ['gymvariant','gym_variant','gym'].includes(normalizeHeader(h));});
-      const roleCodes = Object.keys(SNIPPETS.roller||{});
-      const map = getMarks(KEYS.marksGym);
-      parsed.rows.forEach(function(r){ const u=(r[colUnilogin]||'').trim(); if(!u)return; map[u]=map[u]||{}; map[u].gym_variant=(r[colVar]||'').trim(); roleCodes.forEach(function(rc){ const col=parsed.headers.find(function(h){return normalizeHeader(h)===normalizeHeader(rc);}); if(col){ const val=String(r[col]||'').trim(); map[u][rc]=(val==='1'||normalizeName(val)==='true'||normalizeName(val)==='ja'); }}); imported++; });
-      setMarks(KEYS.marksGym,map);
-    }
-    if(kind === 'elevraad'){
-      const colER = parsed.headers.find(function(h){return ['elevraad','elevråd'].includes(normalizeHeader(h));});
-      const map = getMarks(KEYS.marksElev);
-      parsed.rows.forEach(function(r){ const u=(r[colUnilogin]||'').trim(); if(!u)return; map[u]=map[u]||{}; const val=String(r[colER]||'').trim(); map[u].elevraad=(val==='1'||normalizeName(val)==='true'||normalizeName(val)==='ja'); imported++; });
-      setMarks(KEYS.marksElev,map);
-    }
-    const st=$('importStatus'); if(st) st.textContent='✅ Importeret '+imported+' rækker fra '+file.name;
-    try{ if(state.tab==='set')renderMarksTable(); if(state.tab==='edit')renderEdit(); }catch(_e){}
-    return imported+' rækker importeret';
-  }
-  async function routeFile(file){
-    const name=String(file&&file.name||'').toLowerCase();
-    if(!file) return {ok:false,msg:'Ingen fil'};
-    if(/\.json$/i.test(name) || /json/i.test(file.type||'')){
-      try{const obj=JSON.parse(await file.text()); const direct=await importJsonDirect(file,obj); if(direct)return {ok:true,msg:esc(file.name)+' → '+direct};}catch(err){return {ok:false,msg:esc(file.name)+' → JSON kunne ikke læses'};}
-      if(setInputFilesAndChange($('backupFileInput'),[file])) return {ok:true,msg:esc(file.name)+' → backup-import'};
-      return {ok:false,msg:esc(file.name)+' → ingen JSON-import fundet'};
-    }
-    if(/sang/.test(name)){ const m=await importMarksFileDirect(file,'sang'); if(m)return {ok:true,msg:esc(file.name)+' → sangvurderinger ('+esc(m)+')'}; if(setInputFilesAndChange($('importSang'),[file])) return {ok:true,msg:esc(file.name)+' → sangvurderinger'}; }
-    if(/gym|rolle/.test(name)){ const m=await importMarksFileDirect(file,'gym'); if(m)return {ok:true,msg:esc(file.name)+' → gymnastik/roller ('+esc(m)+')'}; if(setInputFilesAndChange($('importGym'),[file])) return {ok:true,msg:esc(file.name)+' → gymnastik/roller'}; }
-    if(/elevr|elevråd|elevraad/.test(name)){ const m=await importMarksFileDirect(file,'elevraad'); if(m)return {ok:true,msg:esc(file.name)+' → elevråd ('+esc(m)+')'}; if(setInputFilesAndChange($('importElevraad'),[file])) return {ok:true,msg:esc(file.name)+' → elevråd'}; }
-    if(/\.(csv|txt|xlsx|xls|xlsm)$/i.test(name)){ const m=await importStudentFileDirect(file); if(m)return {ok:true,msg:esc(file.name)+' → '+esc(m)}; if(setInputFilesAndChange($('studentsFile'),[file])) return {ok:true,msg:esc(file.name)+' → elevliste'}; }
-    return {ok:false,msg:esc(file.name)+' → filtypen blev ikke genkendt'};
-  }
-  async function handleFiles(files){
-    files=Array.from(files||[]).filter(Boolean); openModal(); const box=$('safeDropStatus'); if(box)box.innerHTML='';
-    if(!files.length){status('Ingen filer fundet',false);return;}
-    let okCount=0, lastMsg='';
-    for(const f of files){ try{const r=await routeFile(f); status(r.msg,r.ok); if(r&&r.ok){okCount++; lastMsg=r.msg;}}catch(err){status(esc(f.name)+' → '+esc(err&&err.message||'ukendt fejl'),false);} }
-    if(okCount){
-      const plain=(lastMsg||'Import gennemført').replace(/<[^>]*>/g,'');
-      safeDropToast(plain);
-      setTimeout(function(){ closeModal(); }, 650);
-    }
-  }
-  document.addEventListener('dragenter',function(e){if(!hasFiles(e.dataTransfer))return; e.preventDefault(); openModal(); document.body.classList.add('safeDropDragging');},true);
-  document.addEventListener('dragover',function(e){if(!hasFiles(e.dataTransfer))return; e.preventDefault(); try{e.dataTransfer.dropEffect='copy'}catch(_e){} openModal(); document.body.classList.add('safeDropDragging'); const z=$('safeDropZone'); if(z)z.classList.add('dragOver');},true);
-  document.addEventListener('dragleave',function(e){if(!e.relatedTarget || e.relatedTarget===document.body || e.relatedTarget===document.documentElement){document.body.classList.remove('safeDropDragging'); const z=$('safeDropZone'); if(z)z.classList.remove('dragOver');}},true);
-  document.addEventListener('drop',async function(e){if(!hasFiles(e.dataTransfer))return; e.preventDefault(); e.stopPropagation(); document.body.classList.remove('safeDropDragging'); const z=$('safeDropZone'); if(z)z.classList.remove('dragOver'); await handleFiles(filesFromDt(e.dataTransfer));},true);
-  window.addEventListener('dragend',function(){document.body.classList.remove('safeDropDragging');});
-  window.addEventListener('blur',function(){document.body.classList.remove('safeDropDragging');});
-})();
-</script>
-
 </body>
 </html>
