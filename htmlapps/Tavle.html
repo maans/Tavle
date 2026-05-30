@@ -21,6 +21,8 @@
 <!-- SAFE455uH34: DataWidget URL-knapper får robust kopiér/åbn med Quine/iPad/file:// fallback og manuel kopiboks. -->
 <!-- SAFE455uH45f: One-click HTMLApps med TiddlyWiki straks-placeholder, baggrundshentning og manuel start. -->
 <!-- SAFE455uH45g4: Tavleoversigt-genveje er toggles: Shift+T, Q og Å åbner/lukker; Esc lukker stadig. -->
+<!-- SAFE455uH45g10l40: Skriv gemmefil gemmes som separat JSON med filnavn sendt fra Skriv standalone-logik. -->
+<!-- SAFE455uH45g10l32: Ren genstart fra l23. Ustabile media-overrides l24-l31 bruges ikke; gamle l11-l22 media-overrideblokke fjernet; tomme tegneoverlays gemmes ikke. -->
 <!-- SAFE455uH45g3: Tavleoversigt får enkelt-tast Q/Å og iframe-kontrol slipper taster, når Tavleoversigt er åben. -->
 <!-- SAFE455uH45g2: Robust XLSX-import via central directory; bevarer demoer. -->
 <!-- SAFE455uH44: Tjek saver handshake: Tjek-backupknap bruger Tavle-save når indlejret, standalone-backup udenfor Tavle, og Tjek-toast dæmpes. -->
@@ -28,6 +30,18 @@
 
 <!-- SAFE455uH39: Backup+ manuel JSON-kopi, kompakt medieoverblik, localStorage vælg alle viste, og Skriv udtBackupRef tælles som aktiv arkivreference. -->
 <!-- SAFE455uH41: HTMLApps arkiveres som srcMediaRef i IndexedDB ved oprettelse; backup-tekstimport advarer om lang indsætningstid. -->
+<!-- SAFE455uH45g10l23: Udtalelser/Skriv lock- og bridge-meta filtreres før TavleMediaArchive, så Overtag redigering ikke skaber forældreløse medier. -->
+<!-- SAFE455uH45g10l44: Skriv-savebro repareret: cloneWithoutUdtMeta genskabt og filename fra Skriv bruges til separat JSON-backup. -->
+<!-- SAFE455uH45g10l66: Skriv-backupnavn rettes i den aktive savebro; HTML-filnavn må aldrig bruges som initial-prefix. -->
+<!-- SAFE455uH45g10l70: Skriv ejer backupfilnavn. Hent-filer viser arkivnavn + dato. -->
+<!-- SAFE455uH45g10l74: Performance patch 4: mørk transform-pauseflade i stedet for hvidt felt under træk/resize/rotation. -->
+<!-- SAFE455uH45g10l75: Performance patch 5: mørk transform-overlay retter PDF/PDF.js-hvid flade under træk. -->
+<!-- SAFE455uH45g10l76: Performance patch 6: transform-pause må kun blanke den aktive widget; andre HTML/PDF/billede/canvas-widgets forbliver synlige. -->
+<!-- SAFE455uH45g10l92: Performance patch 20: tung papirkurv-badge observer erstattet af let state-baseret badge. -->
+<!-- SAFE455uH45g10l71: Performance patch 1: HTML-widget iframes pauses visuelt under flyt/resize/rotation; ingen render-/bridge-/IndexedDB-ændringer. -->
+<!-- SAFE455uH45g10l72: Performance patch 2: rAF-throttle på drag/resize/rotation style-opdateringer; ingen render-/bridge-/IndexedDB-ændringer. -->
+<!-- SAFE455uH45g10l73: Performance patch 3: samme lette transform-pause udvides til PDF/billede/tegning/hjul/KaPardy/grupper/afstemning/ordsky; ingen render-/bridge-/IndexedDB-ændringer. -->
+<!-- SAFE455uH45g10l45: Skriv-savebro faktisk rettet: manglende cloneWithoutUdtMeta/stableUdtBackupHash indsat i bridge-scope, og filename fra Skriv bruges. -->
 <!-- SAFE455uH17: HTML/TiddlyWiki fra IndexedDB autoloades ikke; tung TW vises som manuel placeholder og eksporteres som rå Blob. -->
 <!-- SAFE455uH16: TiddlyWiki-demoliste udvidet med sikker download/import-vejledning til HTMLWidget. -->
 
@@ -110,7 +124,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.50 SAFE455uH45g10l2-present-more-safe</title>
+<title>Interaktiv tavle v1.2.50 SAFE455uH45g10l98-performance-patch-26-restore-all-to-original-boards</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -12672,10 +12686,26 @@ function safe453i163RescueOldTavleStateKeys(){
   return removed;
 }
 
-function save(opts={}){
+function safe455l24CanvasHasInk(){
   try{
-    if(draw&&draw.toDataURL&&slide())slide().draw=draw.toDataURL('image/png');
-  }catch(e){}
+    if(!draw||!draw.width||!draw.height||!ctx||!ctx.getImageData)return false;
+    const img=ctx.getImageData(0,0,draw.width,draw.height).data;
+    for(let i=3;i<img.length;i+=4){ if(img[i]!==0)return true; }
+  }catch(_e){
+    try{return !!(slide()&&slide().draw); }catch(__e){return false;}
+  }
+  return false;
+}
+function safe455l24StoreDrawIfNeeded(){
+  try{
+    const sl=slide&&slide();
+    if(!sl||!draw||!draw.toDataURL)return;
+    if(safe455l24CanvasHasInk()) sl.draw=draw.toDataURL('image/png');
+    else if(Object.prototype.hasOwnProperty.call(sl,'draw')) delete sl.draw;
+  }catch(_e){}
+}
+function save(opts={}){
+  try{ safe455l24StoreDrawIfNeeded(); }catch(e){}
   try{ safe453i152CleanupDuplicateEmbeddedPdfUrlInState(); }catch(_e){}
   // SAFE453i164: Mutér ikke levende PDF.js-runtime her.
   // safe453i161Stringify()/safe453i162DecycleClone udelader _runtime-felter i JSON-klonen,
@@ -13022,6 +13052,125 @@ function addDroppedWidget(type,data,point,title){
   save();
   return w;
 }
+
+/* SAFE455uH45g10l19: Eksponér den rigtige interne widget-opretter til sene Mediearkiv-patches. */
+try{
+  window.__TAVLE_ADDDROPPEDWIDGET__ = addDroppedWidget;
+  window.__TAVLE_ADDWIDGET__ = addWidget;
+}catch(_e){}
+
+
+/* SAFE455uH45g10l11: PDF-modtager i hovedscope.
+   Skal ligge lige efter addDroppedWidget(), så den kan genbruge Tavles normale widgetoprettelse.
+   Skriv må først vise succes efter ACK herfra. */
+(function(){
+  if(window.__safe455uH45g10l11PdfReceiver){return;}
+  window.__safe455uH45g10l11PdfReceiver=true;
+  var __pdfRequests=Object.create(null);
+  var __pdfFingerprints=Object.create(null);
+  function cleanName(name,fallback){
+    name=String(name||fallback||'Tavle PDF.pdf').trim()||String(fallback||'Tavle PDF.pdf');
+    name=name.replace(/[\\/:*?"<>|]+/g,'_');
+    if(!/\.pdf$/i.test(name))name+='.pdf';
+    return name.slice(0,180);
+  }
+  function dataUrlToBlob(dataUrl){
+    dataUrl=String(dataUrl||'');
+    if(!/^data:application\/pdf(;[^,]*)?,/i.test(dataUrl))throw new Error('Ugyldig PDF-modtagelse');
+    var comma=dataUrl.indexOf(',');
+    var meta=dataUrl.slice(5,comma).toLowerCase();
+    var body=dataUrl.slice(comma+1);
+    var bytes;
+    if(meta.indexOf(';base64')>=0){
+      var bin=atob(body); bytes=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    }else{
+      var txt=decodeURIComponent(body); bytes=new Uint8Array(txt.length); for(var j=0;j<txt.length;j++)bytes[j]=txt.charCodeAt(j);
+    }
+    return new Blob([bytes],{type:'application/pdf'});
+  }
+  function archiveReady(){
+    var a=window.TavleMediaArchive;
+    return !!(a&&typeof a.putMedia==='function'&&typeof a.getBlob==='function');
+  }
+  function dropPoint(){
+    var rect=(typeof app!=='undefined'&&app&&app.getBoundingClientRect)?app.getBoundingClientRect():{width:innerWidth,height:innerHeight};
+    return {x:Math.max(40,Math.min((rect.width||innerWidth)*0.50-260,(rect.width||innerWidth)-720)),y:Math.max(86,Math.min((rect.height||innerHeight)*0.18,(rect.height||innerHeight)-560))};
+  }
+  function createWidgetFromMedia(m,opts){
+    opts=opts||{};
+    if(!m||!m.id)throw new Error('Mangler medie-id');
+    var kind=String(m.kind||'').toLowerCase();
+    var mime=String(m.mimeType||'').toLowerCase();
+    var name=String(m.name||m.id||'Medie');
+    var p=opts.point||dropPoint();
+    var w=null;
+    if(kind==='pdf'||mime==='application/pdf'||/\.pdf$/i.test(name)){
+      w=addDroppedWidget('pdf',{fileMediaRef:String(m.id),name:name,mimeType:m.mimeType||'application/pdf',size:Number(m.size)||0,source:m.source||'indexeddb-adoption',page:1},p,name);
+    }else if(kind==='image'||/^image\//.test(mime)||/\.(png|jpe?g|gif|webp|svg)$/i.test(name)){
+      w=addDroppedWidget('image',{mediaRef:String(m.id),name:name,mimeType:m.mimeType||mime,size:Number(m.size)||0,source:m.source||'indexeddb-adoption'},p,name);
+    }else if(kind==='html'||mime==='text/html'||/\.html?$/i.test(name)){
+      w=addDroppedWidget('html',{srcMediaRef:String(m.id),name:name,mimeType:m.mimeType||'text/html',source:m.source||'indexeddb-adoption',html:'<!-- HTML gemt i TavleMediaArchive: '+String(m.id).replace(/--/g,'')+' -->'},p,name);
+    }else if(kind==='audio'||/^audio\//.test(mime)||/\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(name)){
+      w=addDroppedWidget('audio',{mediaRef:String(m.id),name:name,mimeType:m.mimeType||mime,source:m.source||'indexeddb-adoption'},p,name);
+    }else if(kind==='video'||/^video\//.test(mime)||/\.(mp4|webm|mov|m4v)$/i.test(name)){
+      w=addDroppedWidget('video',{mediaRef:String(m.id),name:name,mimeType:m.mimeType||mime,source:m.source||'indexeddb-adoption'},p,name);
+    }else if(kind==='dataset'||kind==='csv'||mime==='text/csv'||/\.(csv|tsv|xlsx?|ods)$/i.test(name)){
+      w=addDroppedWidget('dataset',{mediaRef:String(m.id),name:name,mimeType:m.mimeType||mime,source:m.source||'indexeddb-adoption'},p,name);
+    }else{
+      throw new Error('Filtypen kan ikke genskabes som widget endnu');
+    }
+    if(!w||!w.id)throw new Error('Widget kunne ikke oprettes');
+    try{select(w.id); if(w.z!==undefined){w.z=++z;} save(); render(); select(w.id);}catch(_e){}
+    return w;
+  }
+  async function importPdf(payload,sourceWindow){
+    payload=payload||{};
+    var requestId=String(payload.requestId||payload.id||'');
+    if(requestId&&__pdfRequests[requestId])return __pdfRequests[requestId];
+    var promise=(async function(){
+      var source=String(payload.source||payload.app||'Skriv').slice(0,80)||'Skriv';
+      var filename=cleanName(payload.filename||payload.name||('PDF fra '+source+'.pdf'),'PDF fra '+source+'.pdf');
+      if(payload.mime&&String(payload.mime).toLowerCase()!=='application/pdf')throw new Error('Ugyldig PDF-modtagelse');
+      var blob=dataUrlToBlob(payload.dataUrl||payload.dataURL||payload.data);
+      var fp=source+'|'+filename+'|'+blob.size+'|'+String(payload.dataUrl||'').slice(0,100);
+      var now=Date.now();
+      if(__pdfFingerprints[fp]&&now-__pdfFingerprints[fp].t<8000&&__pdfFingerprints[fp].result)return __pdfFingerprints[fp].result;
+      if(!archiveReady())throw new Error('Mediearkiv er ikke klar');
+      var rec=await window.TavleMediaArchive.putMedia({kind:'pdf',name:filename,mimeType:'application/pdf',size:blob.size||0,blob:blob,source:'htmlapp-pdf-handoff',meta:{safePhase:'SAFE455uH45g10l11',flow:'htmlapp-pdf-to-pdfwidget',sourceApp:source,requestId:requestId,receivedAt:new Date().toISOString()}});
+      if(!rec||!rec.id)throw new Error('PDF kunne ikke importeres');
+      var w=createWidgetFromMedia({id:rec.id,kind:'pdf',name:filename,mimeType:'application/pdf',size:blob.size||0,source:'htmlapp-pdf-handoff'});
+      var result={ok:true,widgetId:w.id,mediaRef:rec.id,filename:filename};
+      __pdfFingerprints[fp]={t:now,result:result};
+      try{toast('PDF modtaget fra '+source);}catch(_e){}
+      return result;
+    })();
+    if(requestId)__pdfRequests[requestId]=promise;
+    try{
+      var res=await promise;
+      try{ if(sourceWindow&&typeof sourceWindow.postMessage==='function')sourceWindow.postMessage(Object.assign({type:'TAVLE_IMPORT_PDF_ACK',ok:true,requestId:requestId},res),'*'); }catch(_e){}
+      return res;
+    }catch(err){
+      var msg=(err&&err.message)||String(err||'PDF kunne ikke importeres');
+      try{ if(sourceWindow&&typeof sourceWindow.postMessage==='function')sourceWindow.postMessage({type:'TAVLE_IMPORT_PDF_ACK',ok:false,requestId:requestId,error:msg},'*'); }catch(_e){}
+      try{toast(msg.indexOf('Ugyldig')>=0?'Ugyldig PDF-modtagelse':'PDF kunne ikke importeres');}catch(_e){}
+      throw err;
+    }finally{
+      if(requestId)setTimeout(function(){delete __pdfRequests[requestId];},15000);
+    }
+  }
+  function extractPayload(data){
+    if(!data)return null;
+    if(data.type==='TAVLE_IMPORT_PDF')return data;
+    if(data.payload&&data.payload.type==='TAVLE_IMPORT_PDF')return data.payload;
+    if(data.tavleImportPdf&&data.tavleImportPdf.type==='TAVLE_IMPORT_PDF')return data.tavleImportPdf;
+    return null;
+  }
+  window.TavleImportPDF=function(payload){return importPdf(payload,null);};
+  window.__TAVLE_HTMLAPP_IMPORT_PDF__=window.TavleImportPDF;
+  window.__TAVLE_CREATE_WIDGET_FROM_MEDIA__=createWidgetFromMedia;
+  window.addEventListener('message',function(ev){var p=extractPayload(ev&&ev.data); if(!p)return; importPdf(p,ev&&ev.source).catch(function(err){try{console.warn('TAVLE_IMPORT_PDF fejlede',err);}catch(_e){}});},false);
+})();
+
 function readFileAsDataURL(file){
   return new Promise((resolve,reject)=>{
     const r=new FileReader();
@@ -25561,11 +25710,124 @@ function safe351OpenDataPicker(w,el){
   function safeJsonString(obj){try{return JSON.stringify(obj);}catch(_e){return '';}}
   function safeParseJson(s){try{return JSON.parse(String(s||''));}catch(_e){return null;}}
   function backupFileName(w,payload){
-    let name='udtalelser-backup.json';
-    try{name=String((w&&w.data&&(w.data.name||w.data.udtTitle))||(w&&w.title)||'udtalelser').trim()||'udtalelser';}catch(_e){}
-    name=name.replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_');
-    if(!/\.json$/i.test(name))name+='_backup.json';
-    return name;
+    payload=payload||{};
+    const backup=payload.backup||payload||{};
+    function cleanName(n){
+      n=String(n||'').trim().replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_');
+      if(!/\.json$/i.test(n)) n+='_backup.json';
+      return n;
+    }
+    function validIni(x){
+      x=String(x||'').toUpperCase().replace(/[^A-ZÆØÅ]/g,'');
+      return /^[A-ZÆØÅ]{1,4}$/.test(x)?x:'';
+    }
+    function iniFromName(x){
+      try{
+        const raw=String(x||'').trim();
+        if(!raw)return '';
+        const d=validIni(raw); if(d)return d;
+        const parts=raw.split(/\s+/).filter(Boolean);
+        if(parts.length>=2)return validIni((parts[0][0]||'')+(parts[parts.length-1][0]||''));
+        return validIni(parts.map(p=>p[0]||'').join(''));
+      }catch(_e){return '';}
+    }
+    function tryObj(o,depth){
+      if(!o||typeof o!=='object'||depth>4)return '';
+      const keys=['meInitials','initials','kontaktlaererInitialer','kontaktlærerInitialer','teacherInitials','kInitials','selectedTeacherInitials','me','meResolvedConfirmed','meResolved','meFullName','teacherName','kontaktTeacherName','kontaktlaererName','kontaktlærerNavn','kontaktlaererNavn','name','fullName'];
+      for(const k of keys){const v=validIni(o[k])||iniFromName(o[k]); if(v)return v;}
+      for(const k of Object.keys(o)){
+        const v=o[k];
+        if(v&&typeof v==='object'){const r=tryObj(v,depth+1); if(r)return r;}
+        else if(typeof v==='string'){
+          const t=v.trim();
+          if((t[0]==='{'&&t.endsWith('}'))||(t[0]==='['&&t.endsWith(']'))){try{const r=tryObj(JSON.parse(t),depth+1); if(r)return r;}catch(_e){}}
+        }
+      }
+      return '';
+    }
+    function extractIni(){
+      const fromPayload=tryObj(payload,0)||tryObj(backup,0);
+      if(fromPayload)return fromPayload;
+      try{
+        const data=(backup&&backup.data)||{};
+        const pref=String(backup.prefix||'udt_');
+        for(const key of [pref+'settings','udt_settings','settings','elevudtalelser_settings']){
+          if(data[key]){try{const r=tryObj(JSON.parse(String(data[key])),0); if(r)return r;}catch(_e){}}
+        }
+      }catch(_e){}
+      try{
+        const txt=JSON.stringify(backup||{});
+        let m=txt.match(/"(?:meInitials|initials|me|meResolved|meResolvedConfirmed)"\s*:\s*"([A-ZÆØÅ]{1,4})"/i);
+        if(m)return validIni(m[1]);
+        m=txt.match(/"(?:meFullName|teacherName|kontaktlaererNavn|kontaktlærerNavn)"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/i);
+        if(m)return iniFromName(m[1]);
+      }catch(_e){}
+      return '';
+    }
+    function stampFromCreated(){
+      try{
+        const d=new Date(backup.createdAt||payload.createdAt||Date.now());
+        if(!isNaN(d.getTime())){
+          const pad=n=>String(n).padStart(2,'0');
+          return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
+        }
+      }catch(_e){}
+      return new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
+    }
+    let name='';
+    try{name=String(payload.filename||payload.name||backup.filename||backup.suggestedFilename||'').trim();}catch(_e){}
+    // Hvis Skriv af en eller anden grund sender et generisk navn uden initialer,
+    // retter Tavle det som sikkerhedsnet ud fra backupens settings-data.
+    const ini=extractIni();
+    const rawName=String(name||'').trim();
+    // l65: Et navn som starter med "Skriv_" er IKKE et initial-prefix.
+    // Det er typisk selve HTML-appens filnavn, som tidligere blev genbrugt til backupen
+    // og endte som fx Skriv_Tavle_...html_backup.json. Det skal erstattes af initialer.
+    const hasInitialPrefix=/^[A-ZÆØÅ]{1,4}[_-]/i.test(rawName) && !/^(skriv|tavle|tjek)[_-]/i.test(rawName);
+    const looksLikeHtmlAppName=/^(skriv[_-]?tavle|skriv[_-]?pdf|tavle[_-]?safe|tjek[_-]?|.*handoff.*\.html|.*\.html[_-]?backup\.json|.*\.html\.json)/i.test(rawName);
+    const generic=!rawName
+      || /^Skriv[-_ ]?Backup/i.test(rawName)
+      || /\.html(?:\.bin)?$/i.test(rawName)
+      || looksLikeHtmlAppName
+      || !hasInitialPrefix;
+    if(generic && ini){
+      name=`${ini}_UdtalelsesBackup_${stampFromCreated()}.json`;
+    }
+    if(!name){
+      try{name=String((w&&w.data&&(w.data.name||w.data.udtTitle))||(w&&w.title)||'udtalelser').trim()||'udtalelser';}catch(_e){name='udtalelser';}
+    }
+    return cleanName(name);
+  }
+  function cloneWithoutUdtMeta(obj){
+    /* l45: Funktionen manglede i l44. Uden den endte UDT_SAVE i catch => "Kunne ikke gemme Udtalelser".
+       Kopiér backupdata og fjern kun Tavle/Skriv bridge-/tab-/lock-støj. */
+    try{
+      const src=(obj&&typeof obj==='object')?obj:{};
+      const out=Object.assign({},src);
+      const data={};
+      const prefix=String(src.prefix||'udt_');
+      const keys=Object.keys((src&&src.data)||{});
+      for(let i=0;i<keys.length;i++){
+        const k=String(keys[i]||'');
+        if(!k)continue;
+        if(k===prefix+'tavle_bridge_instance_id'||k===prefix+'tavle_bridge_last_restore_hash'||k===prefix+'tavle_bridge_last_clean_hash'||k===prefix+'tab_id'||k===prefix+'tab_lock')continue;
+        if(/^udt_.*(?:tab|lock|bridge).*$/i.test(k))continue;
+        data[k]=src.data[k];
+      }
+      out.data=data;
+      return out;
+    }catch(_e){return obj;}
+  }
+  function stableUdtBackupHash(obj){
+    try{
+      const data=(obj&&obj.data)||{};
+      const keys=Object.keys(data).sort();
+      let txt='';
+      for(let i=0;i<keys.length;i++){const k=keys[i]; txt+=k+'='+String(data[k])+'\n';}
+      let h=2166136261;
+      for(let i=0;i<txt.length;i++){h^=txt.charCodeAt(i); h=Math.imul(h,16777619);}
+      return String(h>>>0);
+    }catch(_e){return '';}
   }
   function postToSource(ev,type,payload,instanceId){
     try{
@@ -25620,13 +25882,23 @@ function safe351OpenDataPicker(w,el){
   }
   async function saveUdtalelserBackup(ev,msg){
     const payload=(msg&&msg.payload)||{};
-    const backup=payload.backup||payload;
-    const hash=String(payload.hash||'');
+    const rawBackup=payload.backup||payload;
     const instanceId=String(msg&&msg.instanceId||'');
-    if(!backup||typeof backup!=='object'||!backup.data||typeof backup.data!=='object')return;
+    if(!rawBackup||typeof rawBackup!=='object'||!rawBackup.data||typeof rawBackup.data!=='object')return;
     const w=findHtmlWidgetBySource(ev&&ev.source);
     if(!w)return;
     w.data=w.data||{};
+    const backup=cloneWithoutUdtMeta(rawBackup);
+    if(!backup||!backup.data||typeof backup.data!=='object')return;
+    const hash=stableUdtBackupHash(backup)||String(payload.hash||'');
+    const previousSanitizedHash=String(w.data.udtSanitizedHash||state.udtalelserLatestSanitizedHash||'');
+    if(hash&&previousSanitizedHash&&hash===previousSanitizedHash){
+      /* Kun lock/tab/bridge-meta ændrede sig. ACK barnet, men opret ikke ny IndexedDB-fil. */
+      w.data.udtLastMetaIgnoredAt=(new Date()).toISOString();
+      try{persistStateFallback();}catch(_e){}
+      postToSource(ev,'UDT_SAVE_ACK',{hash:String(payload.hash||hash),ref:w.data.udtBackupRef||state.udtalelserLatestBackupRef||undefined,ignoredMeta:true},instanceId);
+      return;
+    }
     const json=safeJsonString(backup);
     if(!json)return;
     const a=window.TavleMediaArchive;
@@ -25635,17 +25907,18 @@ function safe351OpenDataPicker(w,el){
       const existing=String(w.data.udtBackupRef||state.udtalelserLatestBackupRef||'').trim();
       const blob=new Blob([json],{type:'application/json;charset=utf-8'});
       const rec=await a.putMedia({
-        id:existing||undefined,
         kind:'json',
         name:backupFileName(w,payload),
         mimeType:'application/json;charset=utf-8',
         source:'html-widget-udtalelser-saver',
         blob:blob,
-        meta:{safePhase:'SAFE455uH29',sourceWidgetId:String(w.id||''),app:APP,protocol:PROTOCOL,hash:hash,savedAt:(new Date()).toISOString()}
+        meta:{safePhase:'SAFE455uH45g10l44',sourceWidgetId:String(w.id||''),producer:'Skriv',app:APP,protocol:PROTOCOL,hash:hash,filename:backupFileName(w,payload),sanitized:true,ignoredKeys:'udt_tab/udt_lock/udt_bridge',savedAt:(new Date()).toISOString()}
       });
       savedRef=(rec&&rec.id)?String(rec.id):existing;
       if(savedRef){
         w.data.udtBackupRef=savedRef;
+        if(!Array.isArray(w.data.udtBackupRefs))w.data.udtBackupRefs=[];
+        w.data.udtBackupRefs=[savedRef].concat(w.data.udtBackupRefs.filter(r=>String(r)!==String(savedRef))).slice(0,25);
         state.udtalelserLatestBackupRef=savedRef;
         delete w.data.udtBackup;
         delete state.udtalelserLatestBackup;
@@ -25657,13 +25930,16 @@ function safe351OpenDataPicker(w,el){
     w.data.udtSaver='udtalelser';
     w.data.udtProtocol=PROTOCOL;
     w.data.udtLastHash=hash;
+    w.data.udtSanitizedHash=hash;
     w.data.udtLastSavedAt=(new Date()).toISOString();
     w.data.udtTitle=String((backup&&backup.title)||payload.title||w.data.name||w.title||'Udtalelser');
+    w.data.udtBackupFilename=backupFileName(w,payload);
     state.udtalelserLatestHash=hash;
+    state.udtalelserLatestSanitizedHash=hash;
     state.udtalelserLatestSavedAt=w.data.udtLastSavedAt;
     const ok=persistStateFallback();
     if(ok){
-      postToSource(ev,'UDT_SAVE_ACK',{hash:hash,ref:savedRef||undefined,savedAt:w.data.udtLastSavedAt},instanceId);
+      postToSource(ev,'UDT_SAVE_ACK',{hash:hash,ref:savedRef||undefined,filename:backupFileName(w,payload),savedAt:w.data.udtLastSavedAt},instanceId);
       try{toast('Udtalelser gemt')}catch(_e){}
     }else{
       postToSource(ev,'UDT_SAVE_ERROR',{message:'TavleApp kunne ikke persistere state efter IndexedDB-gemning'},instanceId);
@@ -25692,7 +25968,7 @@ function safe351OpenDataPicker(w,el){
       return;
     }
   });
-  window.__safe455uH29UdtalelserWidgetSaver={installed:true,phase:'SAFE455uH29',protocol:PROTOCOL};
+  window.__safe455uH29UdtalelserWidgetSaver={installed:true,phase:'SAFE455uH45g10l23',protocol:PROTOCOL,note:'lock/tab/bridge meta ignored before IndexedDB save'};
 })();
 
 /* SAFE455uH44: Tjek HTML-widget saver bridge.
@@ -25796,13 +26072,23 @@ function safe351OpenDataPicker(w,el){
   }
   async function saveTjekBackup(ev,msg){
     const payload=(msg&&msg.payload)||{};
-    const backup=payload.backup||payload;
-    const hash=String(payload.hash||'');
+    const rawBackup=payload.backup||payload;
     const instanceId=String(msg&&msg.instanceId||'');
-    if(!backup||typeof backup!=='object'||!backup.data||typeof backup.data!=='object')return;
+    if(!rawBackup||typeof rawBackup!=='object'||!rawBackup.data||typeof rawBackup.data!=='object')return;
     const w=findHtmlWidgetBySource(ev&&ev.source);
     if(!w)return;
     w.data=w.data||{};
+    const backup=cloneWithoutUdtMeta(rawBackup);
+    if(!backup||!backup.data||typeof backup.data!=='object')return;
+    const hash=stableUdtBackupHash(backup)||String(payload.hash||'');
+    const previousSanitizedHash=String(w.data.udtSanitizedHash||state.udtalelserLatestSanitizedHash||'');
+    if(hash&&previousSanitizedHash&&hash===previousSanitizedHash){
+      /* Kun lock/tab/bridge-meta ændrede sig. ACK barnet, men opret ikke ny IndexedDB-fil. */
+      w.data.udtLastMetaIgnoredAt=(new Date()).toISOString();
+      try{persistStateFallback();}catch(_e){}
+      postToSource(ev,'UDT_SAVE_ACK',{hash:String(payload.hash||hash),ref:w.data.udtBackupRef||state.udtalelserLatestBackupRef||undefined,ignoredMeta:true},instanceId);
+      return;
+    }
     const json=safeJsonString(backup);
     if(!json)return;
     const a=window.TavleMediaArchive;
@@ -27625,6 +27911,28 @@ function ensureTrashBoard(){
   }
   return idx;
 }
+
+function updateTrashTopIconState(){
+  try{
+    const btn=document.getElementById('trashTop');
+    if(!btn || !state || !Array.isArray(state.slides))return;
+    const trash=state.slides.find(isTrashBoard);
+    const count=(trash && Array.isArray(trash.widgets)) ? trash.widgets.length : 0;
+
+    /* SAFE455uH45g10l97:
+       State markeres ved at skifte selve papirkurvikonet.
+       Ingen badge-DOM, ingen MutationObserver, ingen interval, ingen localStorage-scan.
+       Tom papirkurv: 🗑️
+       Indhold i papirkurv: 🧺
+    */
+    btn.textContent = count ? '🧺' : '🗑️';
+    btn.title = count ? ('Papirkurv – '+count+' slettede widget'+(count===1?'':'s')) : 'Papirkurv';
+    btn.classList.toggle('trashHasItemsIconState', count>0);
+    btn.setAttribute('data-trash-count', String(count));
+    btn.setAttribute('aria-label', count ? ('Papirkurv med '+count+' slettede widget'+(count===1?'':'s')) : 'Papirkurv');
+  }catch(_e){}
+}
+
 function openTrashBoard(){
   const idx=ensureTrashBoard();
   if(idx<0)return false;
@@ -27633,6 +27941,7 @@ function openTrashBoard(){
   selected=null;
   if(window.UIState) UIState.selectedWidgetId=null;
   render();
+  updateTrashTopIconState();
   save({silent:true});
   try{toast('Papirkurv')}catch(_e){}
   return true;
@@ -27656,6 +27965,7 @@ function returnFromTrashBoard(){
   selected=null;
   if(window.UIState) UIState.selectedWidgetId=null;
   render();
+  updateTrashTopIconState();
   save({silent:true});
 }
 function updateTrashBoardUI(){
@@ -27664,6 +27974,7 @@ function updateTrashBoardUI(){
   const on=isTrashBoard(s);
   app.classList.toggle('trashBoardActive',on);
   document.body.classList.toggle('trashBoardActive',on);
+  updateTrashTopIconState();
   /* SAFE126: Papirkurven bruger titelområdet som fast tilbageknap, ikke som redigerbar tavletitel. */
   try{
     if(on){
@@ -27691,25 +28002,7 @@ function updateTrashBoardUI(){
   if(restoreAll)restoreAll.onclick=function(e){
     e.preventDefault();
     e.stopPropagation();
-    const trash=slide();
-    const items=Array.isArray(trash.widgets)?trash.widgets:[];
-    if(!items.length){try{toast('Papirkurven er tom')}catch(_e){};return;}
-    let targetIdx=Number(state&&state.trashReturnIndex);
-    if(!Number.isInteger(targetIdx) || targetIdx<0 || targetIdx>=state.slides.length || isTrashBoard(state.slides[targetIdx])){
-      targetIdx=state.slides.findIndex(s=>!isTrashBoard(s));
-      if(targetIdx<0)targetIdx=0;
-    }
-    const target=state.slides[targetIdx];
-    if(!Array.isArray(target.widgets))target.widgets=[];
-    const moved=items.length;
-    target.widgets.push(...items);
-    trash.widgets=[];
-    selected=null;
-    if(window.UIState)UIState.selectedWidgetId=null;
-    state.active=targetIdx;
-    render();
-    save({silent:true});
-    try{toast('Gendannede '+moved+' widgets')}catch(_e){}
+    restoreAllTrashWidgetsToOriginalBoards();
   };
   const clearAll=bar.querySelector('#trashClearAllBtn');
   if(clearAll)clearAll.onclick=function(e){
@@ -27757,6 +28050,8 @@ function trashWidgetToBoard(id){
   trash.widgets=trash.widgets||[];
   trash.widgets.push(w);
   trashOverviewLayout(trash);
+  updateTrashTopIconState();
+  try{ if(window.safe455L37SyncTrashBadge) window.safe455L37SyncTrashBadge(); }catch(_e){}
   if(String(selected)===String(id)){selected=null; if(window.UIState)UIState.selectedWidgetId=null;}
   render();
   save({silent:true});
@@ -27790,7 +28085,7 @@ function restoreTrashWidgetAt(idx){
   state.slides[target].widgets.push(w);
   state.active=target;
   selected=w.id; if(window.UIState)UIState.selectedWidgetId=w.id;
-  render(); select(w.id,{editText:false}); save({silent:true});
+  render(); updateTrashTopIconState(); select(w.id,{editText:false}); save({silent:true});
   try{toast('Widget gendannet')}catch(_e){}
   return true;
 }
@@ -27803,13 +28098,149 @@ function restoreLatestTrashWidget(){
   if(!ok){state.active=oldActive; render();}
   return ok;
 }
+
+function restoreAllTrashWidgetsToOriginalBoards(){
+  const trash=slide();
+  if(!isTrashBoard(trash)){try{toast('Åbn papirkurven først')}catch(_e){};return false;}
+  const items=Array.isArray(trash.widgets)?trash.widgets.slice():[];
+  if(!items.length){try{toast('Papirkurven er tom')}catch(_e){};return false;}
+
+  let fallbackIdx=Number(state&&state.trashReturnIndex);
+  if(!Number.isInteger(fallbackIdx) || fallbackIdx<0 || fallbackIdx>=state.slides.length || isTrashBoard(state.slides[fallbackIdx])){
+    fallbackIdx=state.slides.findIndex(s=>!isTrashBoard(s));
+    if(fallbackIdx<0)fallbackIdx=0;
+  }
+
+  trash.widgets=[];
+  let restored=0;
+  items.forEach(function(w){
+    let targetIdx=Number(w._trashOriginSlideIndex);
+    if(!Number.isInteger(targetIdx) || targetIdx<0 || targetIdx>=state.slides.length || isTrashBoard(state.slides[targetIdx])){
+      targetIdx=fallbackIdx;
+    }
+
+    w.x=Number.isFinite(Number(w._trashOriginalX)) ? Number(w._trashOriginalX) : (Number(w.x)||140);
+    w.y=Number.isFinite(Number(w._trashOriginalY)) ? Number(w._trashOriginalY) : (Number(w.y)||130);
+    w.w=Number.isFinite(Number(w._trashOriginalW)) ? Number(w._trashOriginalW) : (Number(w.w)||360);
+    w.h=Number.isFinite(Number(w._trashOriginalH)) ? Number(w._trashOriginalH) : (Number(w.h)||240);
+    w.rotation=Number.isFinite(Number(w._trashOriginalRotation)) ? Number(w._trashOriginalRotation) : (Number(w.rotation)||0);
+    w.z=Number.isFinite(Number(w._trashOriginalZ)) ? Number(w._trashOriginalZ) : (++z);
+
+    delete w._trashOriginSlideIndex;
+    delete w._trashOriginTitle;
+    delete w._trashOriginalX;
+    delete w._trashOriginalY;
+    delete w._trashOriginalW;
+    delete w._trashOriginalH;
+    delete w._trashOriginalZ;
+    delete w._trashOriginalRotation;
+    delete w._trashDeletedAt;
+
+    state.slides[targetIdx].widgets=state.slides[targetIdx].widgets||[];
+    state.slides[targetIdx].widgets.push(w);
+    restored++;
+  });
+
+  selected=null;
+  if(window.UIState)UIState.selectedWidgetId=null;
+
+  state.active=fallbackIdx;
+  render();
+  try{updateTrashTopIconState();}catch(_e){}
+  save({silent:true});
+  try{toast('Gendannede '+restored+' widgets til oprindelige tavler')}catch(_e){}
+  return true;
+}
+
+
+/* SAFE455uH45g10l39: direkte medieoprydning ved permanent sletning.
+   Minimal kerneregel: saml widgettens mediaRefs FØR splice/sletning, og slet
+   kun IndexedDB-poster, der ikke længere findes som reference i state. */
+function tavleL39WalkMediaRefs(obj, out, seen){
+  out=out||[]; seen=seen||new Set();
+  if(!obj || typeof obj!=='object')return out;
+  if(seen.has(obj))return out; seen.add(obj);
+  if(Array.isArray(obj)){ for(var i=0;i<obj.length;i++)tavleL39WalkMediaRefs(obj[i],out,seen); return out; }
+  Object.keys(obj).forEach(function(k){
+    var v=obj[k];
+    if((k==='mediaRef'||k==='previewMediaRef'||k==='srcMediaRef'||k==='fileMediaRef'||k==='htmlArchiveRef'||k==='udtBackupRef'||k==='tjekBackupRef'||k==='dataBackupRef'||k==='restoreMediaRef'||k==='audioMediaRef'||k==='imageMediaRef'||k==='pdfMediaRef') && typeof v==='string' && v.trim()){
+      out.push(v.trim());
+    }
+    if(v && typeof v==='object')tavleL39WalkMediaRefs(v,out,seen);
+  });
+  return out;
+}
+function tavleL39WidgetMediaRefs(w){
+  var raw=tavleL39WalkMediaRefs(w,[],new Set());
+  var seen={};
+  return raw.filter(function(id){ if(!id||seen[id])return false; seen[id]=true; return true; });
+}
+function tavleL39StateUsesMediaRef(id){
+  id=String(id||''); if(!id)return false;
+  var found=false;
+  try{
+    tavleL39WalkMediaRefs(window.state||state||{},[],new Set()).some(function(ref){ if(String(ref)===id){found=true;return true;} return false; });
+  }catch(_e){}
+  return found;
+}
+function tavleL39DeleteMediaDirect(id){
+  id=String(id||'').trim();
+  if(!id)return Promise.resolve(false);
+  return new Promise(function(resolve,reject){
+    var req;
+    try{ req=indexedDB.open('maans_tavle_media_archive',1); }
+    catch(err){ reject(err); return; }
+    req.onerror=function(){ reject(req.error||new Error('Kunne ikke åbne TavleMediaArchive.')); };
+    req.onblocked=function(){ reject(new Error('TavleMediaArchive er blokeret af en anden fane.')); };
+    req.onupgradeneeded=function(ev){
+      var db=ev.target.result;
+      try{ if(!db.objectStoreNames.contains('media')) db.createObjectStore('media',{keyPath:'id'}); }catch(_e){}
+      try{ if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta',{keyPath:'key'}); }catch(_e){}
+    };
+    req.onsuccess=function(ev){
+      var db=ev.target.result;
+      try{
+        var tx=db.transaction('media','readwrite');
+        var store=tx.objectStore('media');
+        store.delete(id);
+        tx.oncomplete=function(){try{db.close();}catch(_e){} resolve(true);};
+        tx.onerror=function(){var err=tx.error||new Error('Kunne ikke slette medie.');try{db.close();}catch(_e){} reject(err);};
+        tx.onabort=function(){var err=tx.error||new Error('Sletning blev afbrudt.');try{db.close();}catch(_e){} reject(err);};
+      }catch(err){try{db.close();}catch(_e){} reject(err);}
+    };
+  });
+}
+function tavleL39DeleteMediaRefsAfterPermanentDelete(refs, reason){
+  refs=(refs||[]).map(String).filter(Boolean);
+  if(!refs.length)return;
+  setTimeout(function(){
+    var deleted=0, failed=0;
+    refs.forEach(function(id){
+      try{
+        if(tavleL39StateUsesMediaRef(id))return;
+        tavleL39DeleteMediaDirect(id).then(function(){
+          deleted++;
+          try{console.log('SAFE455uH45g10l39 slettede medie',id,reason||'');}catch(_e){}
+        }).catch(function(err){
+          failed++;
+          try{console.warn('SAFE455uH45g10l39 kunne ikke slette medie',id,err);}catch(_e){}
+        });
+      }catch(err){failed++;}
+    });
+    setTimeout(function(){ if(deleted||failed){try{toast('Medieoprydning: '+deleted+' slettet'+(failed?' · fejl: '+failed:''));}catch(_e){}} },450);
+  },120);
+}
+
 function permanentlyDeleteSelectedTrashWidget(){
   const s=slide();
   const idx=selectedTrashWidgetIndex();
   if(!isTrashBoard(s)||idx<0){try{toast('Vælg en widget i papirkurven')}catch(_e){};return false;}
-  const w=s.widgets.splice(idx,1)[0];
+  const w=s.widgets[idx];
+  const mediaRefs=tavleL39WidgetMediaRefs(w);
+  s.widgets.splice(idx,1);
   if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
-  trashOverviewLayout(s); render(); save({silent:true});
+  trashOverviewLayout(s); render(); updateTrashTopIconState(); save({silent:true});
+  tavleL39DeleteMediaRefsAfterPermanentDelete(mediaRefs,'permanent-trash:'+String(w&&w.id||''));
   try{toast('Widget slettet permanent')}catch(_e){}
   return true;
 }
@@ -27824,14 +28255,24 @@ function clearTrashBoardPermanently(){
   }
   const count=s.widgets.length;
   function doClearTrashBoardPermanently(){
+    var mediaRefs=[];
     try{
-      s.widgets.forEach(w=>{ try{ if(window.__tavleCleanupWidget) window.__tavleCleanupWidget(w.id); }catch(_e){} });
+      s.widgets.forEach(function(w){ mediaRefs=mediaRefs.concat(tavleL39WidgetMediaRefs(w)); });
+      mediaRefs=Array.from(new Set(mediaRefs.map(String).filter(Boolean)));
     }catch(_e){}
     s.widgets=[];
     selected=null;
     if(window.UIState)UIState.selectedWidgetId=null;
-    render();
-    save({silent:true});
+    /* SAFE455uH45g10l38: Når papirkurven tømmes, skal brugeren sendes tilbage til seneste almindelige tavle. */
+    try{
+      returnFromTrashBoard();
+      updateTrashTopIconState();
+    }catch(_e){
+      render();
+      updateTrashTopIconState();
+      save({silent:true});
+    }
+    tavleL39DeleteMediaRefsAfterPermanentDelete(mediaRefs,'clear-trash');
     try{toast('Papirkurv ryddet')}catch(_e){}
     return true;
   }
@@ -27865,10 +28306,12 @@ function permanentlyDeleteNormalWidgetById(id){
   if(!s||!Array.isArray(s.widgets)||isTrashBoard(s))return false;
   const idx=s.widgets.findIndex(w=>String(w.id)===String(id));
   if(idx<0){try{toast('Vælg en widget først')}catch(_e){};return false;}
-  const w=s.widgets.splice(idx,1)[0];
-  try{ if(window.__tavleCleanupWidget) window.__tavleCleanupWidget(w.id); }catch(_e){}
+  const w=s.widgets[idx];
+  const mediaRefs=tavleL39WidgetMediaRefs(w);
+  s.widgets.splice(idx,1);
   if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
-  render(); save({silent:true});
+  render(); updateTrashTopIconState(); save({silent:true});
+  tavleL39DeleteMediaRefsAfterPermanentDelete(mediaRefs,'permanent-normal:'+String(w&&w.id||''));
   try{toast('Widget slettet permanent')}catch(_e){}
   return true;
 }
@@ -28518,7 +28961,96 @@ const renameMediaBtn=el.querySelector('[data-act=renameMedia]');
     safe453i51RenameMediaWidget(w);
   };
 el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
- let drag=false,rot=false,res=false,start={}; let rotHoldTimer=null, rotHoldStart=null, rotHoldDidReset=false; const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
+ let drag=false,rot=false,res=false,start={}; let rotHoldTimer=null, rotHoldStart=null, rotHoldDidReset=false;
+ /* SAFE455uH45g10l72 performance patch 2:
+    Pointermove kan komme langt oftere end skærmens opdateringsrate, især på iPad/Mac med iframe-widgets.
+    Vi samler derfor drag/resize/rotation style-opdateringer i requestAnimationFrame.
+    State gemmes stadig først ved pointerup/cancel, og render()/HTML/Skriv/IndexedDB berøres ikke. */
+ let safe455l72MoveFrame=0, safe455l72LatestMove=null;
+ let safe455l72RotateFrame=0, safe455l72LatestRotate=null;
+ const safe455l72Raf=(window.requestAnimationFrame||function(fn){return setTimeout(fn,16)}).bind(window);
+ function safe455l72ApplyMove(m){
+    if(!m)return;
+    if(drag){
+      w.x=start.wx+m.clientX-start.x;
+      w.y=start.wy+m.clientY-start.y;
+      el.style.transform=transformFor(w);
+    }
+    if(res){
+      w.w=Math.max(120,start.ww+m.clientX-start.x);
+      w.h=Math.max(90,start.wh+m.clientY-start.y);
+      el.style.width=w.w+'px';
+      el.style.height=w.h+'px';
+      el.style.setProperty('--widget-w',w.w+'px');
+      el.style.setProperty('--widget-h',w.h+'px');
+    }
+    if(rot){
+      if(rotHoldStart && (Math.abs(m.clientX-rotHoldStart.x)>6 || Math.abs(m.clientY-rotHoldStart.y)>6)){
+        clearTimeout(rotHoldTimer);
+        rotHoldTimer=null;
+      }
+      const nowAngle=Math.atan2(m.clientY-start.cy,m.clientX-start.cx)*180/Math.PI;
+      let delta=nowAngle-start.startAngle;
+      if(delta>180)delta-=360;
+      if(delta<-180)delta+=360;
+      let deg=start.startRotation+delta;
+      if(m.shiftKey)deg=Math.round(deg/15)*15;
+      w.rotation=deg;
+      el.style.transform=transformFor(w);
+    }
+ }
+ function safe455l72ScheduleMove(e){
+    safe455l72LatestMove={clientX:e.clientX,clientY:e.clientY,shiftKey:!!e.shiftKey};
+    if(safe455l72MoveFrame)return;
+    safe455l72MoveFrame=safe455l72Raf(()=>{
+      safe455l72MoveFrame=0;
+      const m=safe455l72LatestMove;
+      safe455l72LatestMove=null;
+      safe455l72ApplyMove(m);
+    });
+ }
+ function safe455l72FlushMove(){
+    if(safe455l72LatestMove){
+      const m=safe455l72LatestMove;
+      safe455l72LatestMove=null;
+      safe455l72ApplyMove(m);
+    }
+    safe455l72MoveFrame=0;
+ }
+ function safe455l72ApplyRotate(m){
+      if(!m || !rot)return;
+      if(rotHoldStart && (Math.abs(m.clientX-rotHoldStart.x)>6 || Math.abs(m.clientY-rotHoldStart.y)>6)){
+        clearTimeout(rotHoldTimer);
+        rotHoldTimer=null;
+      }
+      const nowAngle=Math.atan2(m.clientY-start.cy,m.clientX-start.cx)*180/Math.PI;
+      let delta=nowAngle-start.startAngle;
+      if(delta>180)delta-=360;
+      if(delta<-180)delta+=360;
+      let deg=start.startRotation+delta;
+      if(m.shiftKey)deg=Math.round(deg/15)*15;
+      w.rotation=deg;
+      el.style.transform=transformFor(w);
+ }
+ function safe455l72ScheduleRotate(ev){
+      safe455l72LatestRotate={clientX:ev.clientX,clientY:ev.clientY,shiftKey:!!ev.shiftKey};
+      if(safe455l72RotateFrame)return;
+      safe455l72RotateFrame=safe455l72Raf(()=>{
+        safe455l72RotateFrame=0;
+        const m=safe455l72LatestRotate;
+        safe455l72LatestRotate=null;
+        safe455l72ApplyRotate(m);
+      });
+ }
+ function safe455l72FlushRotate(){
+      if(safe455l72LatestRotate){
+        const m=safe455l72LatestRotate;
+        safe455l72LatestRotate=null;
+        safe455l72ApplyRotate(m);
+      }
+      safe455l72RotateFrame=0;
+ }
+ const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
  if(rh){
    rh.title='Dobbeltklik / hold inde for at nulstille rotation';
    rh.addEventListener('dblclick',e=>{e.preventDefault();e.stopPropagation();rot=false;rotHoldDidReset=true;resetWidgetRotation(w,el)});
@@ -28571,22 +29103,12 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
     el.classList.add('widgetTransforming');
     const docRotateMove=(ev)=>{
       if(!rot)return;
-      if(rotHoldStart && (Math.abs(ev.clientX-rotHoldStart.x)>6 || Math.abs(ev.clientY-rotHoldStart.y)>6)){
-        clearTimeout(rotHoldTimer);
-        rotHoldTimer=null;
-      }
-      const nowAngle=Math.atan2(ev.clientY-start.cy,ev.clientX-start.cx)*180/Math.PI;
-      let delta=nowAngle-start.startAngle;
-      if(delta>180)delta-=360;
-      if(delta<-180)delta+=360;
-      let deg=start.startRotation+delta;
-      if(ev.shiftKey)deg=Math.round(deg/15)*15;
-      w.rotation=deg;
-      el.style.transform=transformFor(w);
+      safe455l72ScheduleRotate(ev);
       if(ev.cancelable)ev.preventDefault();
       ev.stopPropagation();
     };
     const docRotateEnd=(ev)=>{
+      safe455l72FlushRotate();
       clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
       if(rot)save();
       rot=false; rotHoldDidReset=false;
@@ -28602,35 +29124,11 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
     document.addEventListener('pointercancel',docRotateEnd,{capture:true,passive:false});
   });
  el.addEventListener('pointermove',e=>{
-    if(drag){
-      w.x=start.wx+e.clientX-start.x;
-      w.y=start.wy+e.clientY-start.y;
-      el.style.transform=transformFor(w);
-    }
-    if(res){
-      w.w=Math.max(120,start.ww+e.clientX-start.x);
-      w.h=Math.max(90,start.wh+e.clientY-start.y);
-      el.style.width=w.w+'px';
-      el.style.height=w.h+'px';
-      el.style.setProperty('--widget-w',w.w+'px');
-      el.style.setProperty('--widget-h',w.h+'px');
-    }
-    if(rot){
-      if(rotHoldStart && (Math.abs(e.clientX-rotHoldStart.x)>6 || Math.abs(e.clientY-rotHoldStart.y)>6)){
-        clearTimeout(rotHoldTimer);
-        rotHoldTimer=null;
-      }
-      const nowAngle=Math.atan2(e.clientY-start.cy,e.clientX-start.cx)*180/Math.PI;
-      let delta=nowAngle-start.startAngle;
-      if(delta>180)delta-=360;
-      if(delta<-180)delta+=360;
-      let deg=start.startRotation+delta;
-      if(e.shiftKey)deg=Math.round(deg/15)*15;
-      w.rotation=deg;
-      el.style.transform=transformFor(w);
-    }
+    if(drag||res||rot)safe455l72ScheduleMove(e);
   });
  ['pointerup','pointercancel'].forEach(ev=>el.addEventListener(ev,()=>{
+    safe455l72FlushMove();
+    safe455l72FlushRotate();
     clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
     if(drag||res||rot)save();
     drag=res=rot=false; rotHoldDidReset=false;
@@ -28639,7 +29137,7 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
   }));}
 
 let hintTimer=null;
-let hintsEnabled=localStorage.getItem('maans_tavle_hints_enabled')!=='0';
+let hintsEnabled=localStorage.getItem('maans_tavle_hints_enabled')==='1';
 function widgetById(id){
   try{return slide().widgets.find(w=>String(w.id)===String(id))||null}catch(_e){return null}
 }
@@ -33668,7 +34166,11 @@ async function collectDownloadableMedia(){
       const rec=await archive.getMedia(r.id);
       if(!rec||!rec.blob)continue;
       const ext=safe453i119ExtFromMime(rec.mimeType,'bin');
-      const name=r.name||rec.name||r.id||'medie';
+      // l70: Tavle skal vise arkivfilens faktiske navn.
+      // For Skriv-gemmefiler ejer Skriv navngivningen; widgettens HTML-navn må ikke vinde.
+      const name=rec.name||r.name||r.id||'medie';
+      const meta=(rec&&rec.meta)||{};
+      const date=meta.savedAt||meta.receivedAt||rec.updatedAt||rec.createdAt||'';
       items.push({
         type:safe453i119MediaLabel(rec,r.key),
         slide:safe453i118ShortPath(r.path||'state'),
@@ -33680,7 +34182,10 @@ async function collectDownloadableMedia(){
         label:safe453i119MediaLabel(rec,r.key),
         id:'mediaRefDl'+items.length,
         mediaRef:r.id,
-        source:'indexeddb'
+        source:'indexeddb',
+        date:date,
+        size:Number(rec.size)||(rec.blob&&rec.blob.size)||0,
+        meta:meta
       });
     }catch(_e){}
   }
@@ -34216,7 +34721,7 @@ function safe453i124OpenIndexedDbMediaMap(){
       return '<tr class="'+(used?'':'safe454lOrphan')+(tw?' safe454lTw':'')+'"><td>'+status+'</td><td>'+escFn((m&&m.kind)||'media')+' / '+escFn((m&&m.source)||'ukendt')+'</td><td>'+escFn((m&&(m.name||m.id))||'')+'</td><td>'+fmt(m&&m.size)+'</td><td><code title="'+escFn(id)+'">'+escFn(shortId(id))+'</code></td><td>'+usedWhere(id,usage)+'</td><td>'+(used?'—':'<button data-safe454l-delete-one="'+escFn(id)+'">Slet</button>')+'</td></tr>';
     }).join('');
     var html='<h2>IndexedDB-medier</h2>'+ 
-      '<div data-safe454l-media-map="1" class="safe454lTop"><button data-safe454l-back>←</button><span>Esc går også tilbage</span></div>'+ 
+      '<div data-safe454l-media-map="1" class="safe454lTop"><button data-safe454l-back>←</button><span>Esc lukker</span></div>'+ 
       '<p class="safe453Note"><b>Oprydning aktiv:</b> Knapperne sletter kun medier, der ikke er fundet som reference i aktiv state eller localStorage.</p>'+ 
       '<div class="safe454lActions"><button data-safe454l-delete-tw '+(twOrphanCount?'':'disabled')+'>🧹 Slet TiddlyWiki-testkopier ('+twOrphanCount+' · '+fmt(twBytes)+')</button><button data-safe454l-delete-orphans '+(orphanCount?'':'disabled')+'>🗑️ Slet alle forældreløse medier ('+orphanCount+' · '+fmt(orphanBytes)+')</button></div>'+ 
       '<div class="safe454lCards"><div><b>IndexedDB-medier</b><span>'+mediaList.length+'</span><small>'+fmt(total)+' i alt</small></div><div><b>I brug</b><span>'+usedCount+'</span><small>fundet som reference</small></div><div><b>Forældreløse</b><span>'+orphanCount+'</span><small>'+fmt(orphanBytes)+'</small></div><div><b>TW-testkopier</b><span>'+twOrphanCount+'</span><small>'+fmt(twBytes)+'</small></div></div>'+ 
@@ -34377,7 +34882,7 @@ function safe453i133OpenBackupPlusReferenceScan(){
       return '<tr><td class="safe453CompactArchive">'+esc((m&&m.kind)||'media')+' / '+esc((m&&m.source)||'ukendt')+'</td><td class="safe453CompactName" title="'+esc((m&&(m.name||m.id))||'')+'">'+esc((m&&(m.name||m.id))||'')+'</td><td class="safe453CompactSize">'+safe453i118FormatBytes(m&&m.size)+'</td><td class="safe453CompactId"><code title="'+esc(id)+'">'+esc(id?id.slice(0,8)+'…':'-')+'</code></td></tr>';
     }).join('');
     const html='<h2>Backup + kontrol</h2>'+      
-      '<div data-safe453i133-backup-map="1" class="safe453StorageTopActions"><button data-safe453i133-back-storage="1" title="Tilbage" aria-label="Tilbage">←</button><span>Esc går også tilbage</span></div>'+      
+      '<div data-safe453i133-backup-map="1" class="safe453StorageTopActions"><button data-safe453i133-back-storage="1" title="Tilbage" aria-label="Tilbage">←</button><span>Esc lukker</span></div>'+      
       '<p class="safe453Note">Foreløbig tjek. Der gemmes ikke noget her. Den viser kun, hvilke lokale medier den åbne tavle peger på, og som en fremtidig Backup + skal kunne tage med.</p>'+      
       '<div class="safe453StorageCards">'+        
         '<div><b>Referencer i tavlen</b><span>'+refs.length+'</span><small>mediaRef / previewMediaRef</small></div>'+        
@@ -34436,7 +34941,7 @@ function safe453i118OpenStorageOverview(){
     const drawTraceBytes=drawTraces.reduce((sum,x)=>sum+(Number(x&&x.bytes)||0),0);
     const drawRows=safe453i144DrawRows(drawTraces,40);
     const html=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">Hvor ligger data?</h2><button id="storageOverviewHelp" type="button" title="Åbn hjælp til data og backup" aria-label="Åbn hjælp til data og backup" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div>
-      <div class="safe453StorageTopActions"><button data-safe453i120-back-downloads="1" title="Tilbage til Gem/åbn" aria-label="Tilbage til Gem/åbn">←</button><button data-safe453i124-open-media-map="1" title="Vis IndexedDB-medier">Medier</button><button data-safe453i133-open-backup-plus-map="1" title="Se hvad Backup + vil skulle have med">Backup +</button><button data-safe453i122-open-cleanup="1" title="Ryd gamle localStorage-data">Oprydning</button><span>Esc går også tilbage</span></div>
+      <div class="safe453StorageTopActions"><button data-safe453i120-back-downloads="1" title="Tilbage til Gem/åbn" aria-label="Tilbage til Gem/åbn">←</button><button data-safe453i124-open-media-map="1" title="Vis IndexedDB-medier">Medier</button><button data-safe453i133-open-backup-plus-map="1" title="Se hvad Backup + vil skulle have med">Backup +</button><button data-safe453i122-open-cleanup="1" title="Ryd gamle localStorage-data">Oprydning</button><span>Esc lukker</span></div>
       <p class="safe453Note">Foreløbig kontrolvisning. Den flytter ikke data — den viser kun, hvad der ligger i tavle-state/localStorage, og hvad der ligger i mediearkivet/IndexedDB.</p>
       <div class="safe453StorageOverview">
         <div class="safe453StorageCards">
@@ -34462,53 +34967,109 @@ function safe453i118OpenStorageOverview(){
 }
 
 async function downloadAllEmbeddedMedia(){
-  showModal(`<h2>Hent filer fra tavlen</h2>
-    <p>Leder efter filer på tavlen…</p>
-    <button id="closeMediaDownloads">Luk</button>`);
-  const closeLoading=modal.querySelector('#closeMediaDownloads');
-  if(closeLoading)closeLoading.onclick=closeModal;
-
-  const items=await collectDownloadableMedia().catch(function(){return collectEmbeddedMedia();});
-  const rows=items.map((it,i)=>`
-    <div class="mediaDownloadItem">
-      <div>
-        <b>${i+1}. ${esc(it.filename)}</b>
-        <small>${esc(it.label)} · ${esc(it.slide||'Tavle')}${it.source==='indexeddb'?' · Gem i appens arkiv':''}</small>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-        <button class="mediaDownloadBtn" data-i="${i}">${it.boardShotPackage?'Kun billede':'Hent fil'}</button>
-        ${it.boardShotPackage?`<button class="mediaDownloadBoardShotBtn" data-i="${i}">Billede + tavledata</button>`:''}
-      </div>
-    </div>`).join('');
-  showModal(`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">Hent filer fra tavlen</h2><button id="mediaDownloadsHelp" type="button" title="Åbn hjælp til filer og backup" aria-label="Åbn hjælp til filer og backup" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div>
-    <p>Her kan du hente enkelte billeder og filer ud fra den åbne tavle.</p>
-    <p>Vil du gemme hele tavlen, skal du bruge <b>Gem backup</b> eller <b>Backup +</b>.</p>
-    ${items.length?`<div class="mediaDownloadList">${rows}</div>`:`<p class="safe453Note">Der er ingen separate filer at hente fra den aktuelle tavle.</p>`}
-    <button id="closeMediaDownloads">Luk</button>`);
-  safe455uH22WireModalHelp('mediaDownloadsHelp','Gem, backup og filer');
-  modal.querySelectorAll('.mediaDownloadBtn').forEach(btn=>{
-    btn.onclick=()=>{
-      const it=items[Number(btn.dataset.i)];
-      if(!it)return;
-      if(it.blob){
-        safeDownload(it.filename||it.name||'download', it.blob, it.mimeType||it.blob.type||'application/octet-stream');
-        return;
+  // SAFE455uH45g10l63: Smart, direkte kernefunktion — ingen append/override.
+  // Klik på titel åbner widgetten. Hent-knap downloader filen.
+  function h63Short(s,n){s=String(s||''); n=n||54; return s.length>n?s.slice(0,n-1)+'…':s;}
+  function h63Bytes(b){try{return safe453i118FormatBytes(b||0);}catch(_e){b=Number(b)||0; if(b<1024)return b+' B'; if(b<1048576)return (Math.round(b/102.4)/10)+' KB'; return (Math.round(b/104857.6)/10)+' MB';}}
+  function h63DateFromName(name, rawDate){
+    function fmtDate(d){
+      try{
+        d=new Date(d);
+        if(!isNaN(d.getTime())){
+          const pad=n=>String(n).padStart(2,'0');
+          return pad(d.getDate())+'/'+pad(d.getMonth()+1)+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+        }
+      }catch(_e){}
+      return '';
+    }
+    const fromRaw=fmtDate(rawDate);
+    if(fromRaw)return fromRaw;
+    name=String(name||'');
+    let m=name.match(/(20\d{2})[-_](\d{1,2})[-_](\d{1,2})[-_T ](\d{1,2})[-_:.]?(\d{2})?/);
+    if(m)return String(m[3]).padStart(2,'0')+'/'+String(m[2]).padStart(2,'0')+' '+String(m[4]).padStart(2,'0')+':'+String(m[5]||'00').padStart(2,'0');
+    m=name.match(/(20\d{2})-(\d{2})-(\d{2})/);
+    if(m)return m[3]+'/'+m[2]+'/'+m[1];
+    return 'dato ukendt';
+  }
+  function h63Mime(it){return String(it.mimeType||(it.blob&&it.blob.type)||'').toLowerCase();}
+  function h63Ext(it){
+    const fn=String(it.filename||it.name||''); const m=fn.match(/\.([a-z0-9]{2,6})(?:$|\?)/i); if(m)return m[1].toLowerCase();
+    const mime=h63Mime(it); if(mime.includes('pdf'))return 'pdf'; if(mime.includes('json'))return 'json'; if(mime.includes('html'))return 'html'; if(mime.startsWith('image/'))return mime.split('/')[1]||'img'; return String(it.ext||'fil');
+  }
+  function h63Producer(it){
+    const txt=((it.filename||'')+' '+(it.name||'')+' '+(it.label||'')+' '+(it.slide||'')).toLowerCase();
+    const mime=h63Mime(it), ext=h63Ext(it);
+    if(txt.includes('udtbackupref')||txt.includes('skriv-backup')||txt.includes('udtalelsesbackup')||txt.includes('udtalelser-saver'))return {icon:'✍️',label:'Skriv/Udtalelser'};
+    if(ext==='pdf'||mime.includes('pdf'))return {icon:'📄',label:'PDF-widget'};
+    if(ext==='html'||mime.includes('html'))return {icon:'🧩',label:'HTML-widget'};
+    if(mime.startsWith('image/'))return {icon:'🖼️',label:'Billedwidget'};
+    return {icon:'📦',label:'Tavle'};
+  }
+  function h63Group(it){
+    const ext=h63Ext(it), mime=h63Mime(it), txt=((it.filename||'')+' '+(it.name||'')+' '+(it.label||'')+' '+(it.slide||'')).toLowerCase();
+    if(ext==='json'||mime.includes('json')||txt.includes('udtbackupref')||txt.includes('backupref')||txt.includes('skriv-backup')||txt.includes('udtalelsesbackup')) return {key:'save',icon:'💾',title:'Skriv-gemmefiler',desc:'Data, importerede elever og ændringer fra Skriv/Udtalelser.',color:'#22c55e'};
+    if(ext==='pdf'||mime.includes('pdf')) return {key:'pdf',icon:'📄',title:'PDF-filer',desc:'PDF’er produceret eller importeret på tavlen.',color:'#ef4444'};
+    if(ext==='html'||mime.includes('html')) return {key:'html',icon:'🧩',title:'HTML-apps',desc:'Indlejrede HTML-apps som Skriv, Tjek eller TiddlyWiki.',color:'#7c3aed'};
+    if(mime.startsWith('image/')||['png','jpg','jpeg','webp','gif','svg'].includes(ext)) return {key:'image',icon:'🖼️',title:'Billeder',desc:'Billeder og grafiske filer på tavlen.',color:'#0ea5e9'};
+    return {key:'other',icon:'📦',title:'Andre filer',desc:'Andre hentbare filer fra tavlen.',color:'#64748b'};
+  }
+  function h63FindWidgetForMediaRef(ref){
+    ref=String(ref||''); if(!ref||!state||!Array.isArray(state.slides))return null;
+    for(let si=0;si<state.slides.length;si++){
+      const sl=state.slides[si]||{}; const widgets=Array.isArray(sl.widgets)?sl.widgets:[];
+      for(let wi=0;wi<widgets.length;wi++){
+        const w=widgets[wi]||{}; const d=w.data||{};
+        if([d.mediaRef,d.previewMediaRef,d.srcMediaRef,d.fileMediaRef,d.udtBackupRef,d.tjekBackupRef].some(x=>String(x||'')===ref)){
+          return {slideIndex:si,widget:w,path:'state.slides['+si+'].widgets['+wi+']'};
+        }
       }
-      if(it.src)downloadDataUrl(it.src,it.filename||it.name||'download');
-      else toast('Filen kunne ikke hentes');
-    };
-  });
-  modal.querySelectorAll('.mediaDownloadBoardShotBtn').forEach(btn=>{
-    btn.onclick=()=>{
-      const it=items[Number(btn.dataset.i)];
-      if(!it||!it.boardShotPackage){toast('Tavledata mangler');return;}
-      const base=String(it.name||it.filename||'tavleshot').replace(/\.(webp|png|jpg|jpeg|json)$/i,'');
-      const filename=safeFileName(base,'json').replace(/\.json$/i,'.tavleshot.json');
-      safeDownload(filename,JSON.stringify(it.boardShotPackage,null,2),'application/json;charset=utf-8');
-    };
-  });
-  const close=modal.querySelector('#closeMediaDownloads');
-  if(close)close.onclick=closeModal;
+    }
+    return null;
+  }
+  function h63Normalize(items){
+    return (items||[]).map(function(it){
+      const ref=it.mediaRef||it.srcMediaRef||it.fileMediaRef||it.udtBackupRef||it.tjekBackupRef||'';
+      const owner=h63FindWidgetForMediaRef(ref);
+      const recName=String(it.filename||it.name||'fil');
+      const fn=safeFileName? safeFileName(recName,h63Ext(it)) : recName;
+      return Object.assign({},it,{filename:fn,owner:owner,ownerPath:owner?owner.path:(it.slide||'')});
+    });
+  }
+  function h63OpenWidget(it){
+    const owner=it&&it.owner;
+    if(!owner||!owner.widget){toast('Kunne ikke finde widgetten på tavlen');return;}
+    try{state.active=owner.slideIndex;}catch(_e){}
+    try{closeModal();}catch(_e){}
+    try{render();}catch(_e){}
+    setTimeout(function(){
+      try{select(String(owner.widget.id));}catch(_e){try{selected=owner.widget.id;if(window.UIState)UIState.selectedWidgetId=owner.widget.id;render();}catch(__e){}}
+      try{toast('Åbnede widget: '+String(owner.widget.title||owner.widget.type||'widget').slice(0,40));}catch(_e){}
+    },40);
+  }
+  function h63Download(it){
+    if(!it){return;}
+    const fn=it.filename||it.name||'download';
+    if(it.blob){safeDownload(fn,it.blob,it.mimeType||(it.blob&&it.blob.type)||'application/octet-stream');return;}
+    if(it.src){downloadDataUrl(it.src,fn);return;}
+    toast('Filen kunne ikke hentes');
+  }
+  function h63Render(items){
+    items=h63Normalize(items);
+    const groups={}; const order=[];
+    items.forEach(function(it){const g=h63Group(it); if(!groups[g.key]){groups[g.key]={meta:g,items:[]};order.push(g.key);} groups[g.key].items.push(it);});
+    const total=items.reduce(function(sum,it){return sum+(it.blob?it.blob.size:(Number(it.size)||0));},0);
+    const body=order.map(function(key){const g=groups[key]; return '<section class="h63Group" style="--h63c:'+g.meta.color+'"><header><span class="h63Icon">'+g.meta.icon+'</span><div><h3>'+esc(g.meta.title)+'</h3><p>'+esc(g.meta.desc)+'</p></div><b>'+g.items.length+'</b></header><div class="h63Grid">'+g.items.map(function(it,idx){const globalIdx=items.indexOf(it); const prod=h63Producer(it); const size=it.blob?h63Bytes(it.blob.size):h63Bytes(it.size||0); const ref=String(it.mediaRef||'').slice(0,14); return '<article class="h63Card"><button class="h63Title" data-open="'+globalIdx+'" title="Åbn widget: '+esc(it.filename||it.name||'fil')+'">'+esc(it.filename||it.name||'fil')+'</button><div class="h63Pills"><span>'+esc(h63DateFromName(it.filename||it.name,it.date||(it.meta&&it.meta.savedAt)||''))+'</span><span>'+esc(size)+'</span><span>'+esc((h63Mime(it)||h63Ext(it)||'fil').slice(0,32))+'</span></div><div class="h63Producer"><span>'+prod.icon+' '+esc(prod.label)+'</span><span>'+esc(h63Short(it.ownerPath||it.slide||'tavle',46))+'</span></div><div class="h63Bottom"><span class="h63State">I appens arkiv</span>'+(ref?'<code>'+esc(ref)+'</code>':'')+'<button class="h63Download" data-dl="'+globalIdx+'">Hent</button></div></article>';}).join('')+'</div></section>';}).join('');
+    showModal('<div class="h63"><div class="h63Head"><div><h2>Hent filer fra tavlen</h2><p>Klik på filnavnet for at åbne widgetten. Brug <b>Hent</b> for at downloade filen.</p></div><button id="mediaDownloadsHelp" type="button">?</button></div><div class="h63Summary"><div><b>'+items.length+'</b><span>filer</span></div><div><b>'+esc(h63Bytes(total))+'</b><span>samlet størrelse</span></div><div><b>'+order.length+'</b><span>filtyper</span></div></div>'+(items.length?body:'<p class="safe453Note">Der er ingen separate filer at hente fra den aktuelle tavle.</p>')+'<div class="h63Footer"><button id="closeMediaDownloads">Luk</button></div></div><style>.modal:has(.h63){width:min(1120px,94vw);max-height:92vh;overflow:auto}.h63Head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.h63Head h2{margin:0 0 4px}.h63Head p{margin:0;color:#526070;line-height:1.25}.h63Head button{min-width:42px;height:42px;border-radius:999px;font-weight:950}.h63Summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.h63Summary>div{border:1px solid #dbe3ef;border-radius:15px;background:#f8fafc;padding:10px 12px}.h63Summary b{display:block;font-size:1.3rem}.h63Summary span{font-size:.82rem;color:#64748b}.h63Group{border:1px solid #dbe3ef;border-left:7px solid var(--h63c);border-radius:18px;background:#fbfdff;margin:12px 0;overflow:hidden}.h63Group header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(90deg,rgba(248,250,252,.98),rgba(255,255,255,.9))}.h63Icon{width:38px;height:38px;display:grid;place-items:center;border-radius:13px;background:#eef2ff;font-size:1.35rem}.h63Group h3{margin:0;font-size:1.05rem}.h63Group p{margin:2px 0 0;color:#64748b;font-size:.85rem}.h63Group header b{margin-left:auto;background:#eef2f7;border-radius:999px;padding:4px 10px}.h63Grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(315px,1fr));gap:10px;padding:0 12px 12px}.h63Card{border:1px solid #dbe3ef;background:white;border-radius:15px;padding:10px 11px;box-shadow:0 1px 0 rgba(15,23,42,.03)}.h63Title{display:block;width:100%;border:1px solid #d5dde8;background:#f4f7fb;color:#0f172a;text-align:left;border-radius:11px;padding:8px 10px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.h63Title:hover{text-decoration:underline;background:#edf4ff}.h63Pills{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.h63Pills span{font-size:.76rem;font-weight:800;background:#f1f5f9;border-radius:999px;padding:3px 7px;color:#475569}.h63Producer{display:flex;gap:7px;flex-wrap:wrap;font-size:.84rem;color:#334155;font-weight:800}.h63Producer span:last-child{font-weight:650;color:#64748b;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.h63Bottom{display:flex;align-items:center;gap:8px;margin-top:9px}.h63State{font-size:.76rem;font-weight:900;background:#dcfce7;color:#166534;border-radius:999px;padding:4px 8px}.h63Bottom code{font-size:.72rem;background:#f1f5f9;border-radius:7px;padding:3px 6px;color:#64748b}.h63Download{margin-left:auto;font-weight:950}.h63Footer{display:flex;justify-content:flex-end;border-top:1px solid #eef2f7;margin-top:12px;padding-top:10px}@media(max-width:760px){.modal:has(.h63){width:94vw}.h63Summary{grid-template-columns:1fr 1fr}.h63Summary>div:last-child{grid-column:1/-1}.h63Grid{grid-template-columns:1fr}.h63Head p{font-size:.9rem}}</style>');
+    try{safe455uH22WireModalHelp('mediaDownloadsHelp','Gem, backup og filer');}catch(_e){}
+    const close=modal.querySelector('#closeMediaDownloads'); if(close)close.onclick=closeModal;
+    modal.querySelectorAll('[data-open]').forEach(function(btn){btn.onclick=function(){h63OpenWidget(items[Number(btn.getAttribute('data-open'))]);};});
+    modal.querySelectorAll('[data-dl]').forEach(function(btn){btn.onclick=function(e){e.stopPropagation();h63Download(items[Number(btn.getAttribute('data-dl'))]);};});
+  }
+  showModal('<h2>Hent filer fra tavlen</h2><p>Finder aktive filer…</p><button id="closeMediaDownloads">Luk</button>');
+  const closeLoading=modal.querySelector('#closeMediaDownloads'); if(closeLoading)closeLoading.onclick=closeModal;
+  let items=[];
+  try{items=await collectDownloadableMedia();}catch(e){try{console.warn('l63 collect media failed',e);}catch(_e){} try{items=collectEmbeddedMedia();}catch(_e2){items=[];}}
+  h63Render(items||[]);
 }
 
 
@@ -37679,7 +38240,7 @@ function restoreSnapshot(){if(drawSnapshot)ctx.putImageData(drawSnapshot,0,0)}
 function drawShape(from,to){setupStroke();if(drawMode==='eraser'){ctx.globalCompositeOperation='destination-out';ctx.lineWidth*=2;ctx.beginPath();ctx.moveTo(from.x,from.y);ctx.lineTo(to.x,to.y);ctx.stroke();ctx.globalCompositeOperation='source-over';return}ctx.globalCompositeOperation='source-over';ctx.beginPath();if(drawMode==='line'){ctx.moveTo(from.x,from.y);ctx.lineTo(to.x,to.y);ctx.stroke()}else if(drawMode==='rect'){ctx.strokeRect(from.x,from.y,to.x-from.x,to.y-from.y)}else if(drawMode==='circle'){let rx=(to.x-from.x)/2,ry=(to.y-from.y)/2;ctx.ellipse(from.x+rx,from.y+ry,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2);ctx.stroke()}else{ctx.moveTo(from.x,from.y);ctx.lineTo(to.x,to.y);ctx.stroke()}}
 draw.addEventListener('pointerdown',e=>{if(!draw.classList.contains('active'))return;isDrawing=true;draw.setPointerCapture(e.pointerId);drawStart=drawPt(e);drawSnapshot=ctx.getImageData(0,0,draw.width,draw.height);if(drawMode==='pen'||drawMode==='eraser'){ctx.beginPath();ctx.moveTo(drawStart.x,drawStart.y)}});
 draw.addEventListener('pointermove',e=>{if(!isDrawing)return;const p=drawPt(e);if(drawMode==='pen'||drawMode==='eraser'){drawShape(drawStart,p);drawStart=p}else{restoreSnapshot();drawShape(drawStart,p)}});
-draw.addEventListener('pointerup',e=>{if(!isDrawing)return;const p=drawPt(e);if(!(drawMode==='pen'||drawMode==='eraser')){restoreSnapshot();drawShape(drawStart,p)}isDrawing=false;drawSnapshot=null;ctx.globalCompositeOperation='source-over';save()});
+draw.addEventListener('pointerup',e=>{if(!isDrawing)return;const p=drawPt(e);if(!(drawMode==='pen'||drawMode==='eraser')){restoreSnapshot();drawShape(drawStart,p)}isDrawing=false;drawSnapshot=null;ctx.globalCompositeOperation='source-over';window.__safe455l24DrawTouched=true;save()});
 draw.addEventListener('pointercancel',()=>{isDrawing=false;drawSnapshot=null;ctx.globalCompositeOperation='source-over'});
 document.querySelectorAll('[data-drawmode]').forEach(b=>b.onclick=()=>setDrawTool(b.dataset.drawmode));
 document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,innerHeight);slide().draw='';save()};
@@ -47668,6 +48229,139 @@ body.widget-transform-active .widget[data-type="link"] iframe,
   visibility:hidden!important;
   pointer-events:none!important;
 }
+
+/* SAFE455uH45g10l71 performance patch 1:
+   HTML-widgets bruger samme lette transform-pause som link/iframe-widgets.
+   Kun visuel pause under flyt/resize/rotation; iframe/src/blob/postMessage/IndexedDB berøres ikke. */
+body.safe453i226-transforming-iframe .widget[data-type="html"] iframe,
+body.widget-transform-active .widget[data-type="html"] iframe,
+.widget[data-type="html"].widgetTransforming iframe{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body.safe453i226-transforming-iframe .widget[data-type="html"],
+body.widget-transform-active .widget[data-type="html"],
+.widget[data-type="html"].widgetTransforming{
+  will-change:transform,width,height;
+}
+
+/* SAFE455uH45g10l73 performance patch 3:
+   Samme konservative princip som l71, men for andre visuelt tunge widgets.
+   Under flyt/resize/rotation skjules kun tunge visningslag midlertidigt.
+   Widget-state, data, canvas-indhold, PDF-src, billeder, KaPardy-data, render(), save(), IndexedDB og broer ændres ikke. */
+body.safe453i226-transforming-iframe .widget,
+body.widget-transform-active .widget,
+.widget.widgetTransforming{
+  will-change:transform,width,height;
+}
+
+/* PDF: native PDF-iframe/object/embed er dyrt at repainte under transform. */
+body.safe453i226-transforming-iframe .widget[data-type="pdf"] iframe,
+body.safe453i226-transforming-iframe .widget[data-type="pdf"] object,
+body.safe453i226-transforming-iframe .widget[data-type="pdf"] embed,
+body.widget-transform-active .widget[data-type="pdf"] iframe,
+body.widget-transform-active .widget[data-type="pdf"] object,
+body.widget-transform-active .widget[data-type="pdf"] embed,
+.widget[data-type="pdf"].widgetTransforming iframe,
+.widget[data-type="pdf"].widgetTransforming object,
+.widget[data-type="pdf"].widgetTransforming embed{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Billeder og tegningskopier: store bitmaps/canvas pauser visuelt, men data ændres ikke. */
+body.safe453i226-transforming-iframe .widget[data-type="image"] img,
+body.safe453i226-transforming-iframe .widget[data-type="drawcopy"] img,
+body.safe453i226-transforming-iframe .widget[data-type="drawcopy"] canvas,
+body.widget-transform-active .widget[data-type="image"] img,
+body.widget-transform-active .widget[data-type="drawcopy"] img,
+body.widget-transform-active .widget[data-type="drawcopy"] canvas,
+.widget[data-type="image"].widgetTransforming img,
+.widget[data-type="drawcopy"].widgetTransforming img,
+.widget[data-type="drawcopy"].widgetTransforming canvas{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Canvas-/animations-tunge widgets: hjul/grupper/afstemning/ordsky/KaPardy pauser kun indholdslaget under transform. */
+body.safe453i226-transforming-iframe .widget[data-type="wheel"] canvas,
+body.safe453i226-transforming-iframe .widget[data-type="groups"] canvas,
+body.safe453i226-transforming-iframe .widget[data-type="wordcloud"] canvas,
+body.safe453i226-transforming-iframe .widget[data-type="poll"] canvas,
+body.safe453i226-transforming-iframe .widget[data-type="kahoopardy"] .content,
+body.widget-transform-active .widget[data-type="wheel"] canvas,
+body.widget-transform-active .widget[data-type="groups"] canvas,
+body.widget-transform-active .widget[data-type="wordcloud"] canvas,
+body.widget-transform-active .widget[data-type="poll"] canvas,
+body.widget-transform-active .widget[data-type="kahoopardy"] .content,
+.widget[data-type="wheel"].widgetTransforming canvas,
+.widget[data-type="groups"].widgetTransforming canvas,
+.widget[data-type="wordcloud"].widgetTransforming canvas,
+.widget[data-type="poll"].widgetTransforming canvas,
+.widget[data-type="kahoopardy"].widgetTransforming .content{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+
+/* SAFE455uH45g10l74 performance patch 4:
+   Mørk, billig pauseflade under transform, så skjulte PDF/HTML/billede/canvas-lag
+   ikke efterlader et stort hvidt felt på mørke tavlebaggrunde.
+   Kun aktivt transformeret widget rammes via .widgetTransforming; normalt udseende ændres ikke. */
+.widget.widgetTransforming{
+  background:#111827!important;
+}
+.widget.widgetTransforming .content,
+.widget.widgetTransforming .pdfBox,
+.widget.widgetTransforming .imageWidget,
+.widget.widgetTransforming .videoBox,
+.widget.widgetTransforming .linkBox,
+.widget.widgetTransforming .htmlWidgetFrameWrap,
+.widget.widgetTransforming .linkIframeFrame{
+  background:#111827!important;
+}
+.widget.widgetTransforming .content::before{
+  content:"";
+  position:absolute;
+  inset:34px 0 0 0;
+  border-radius:0 0 12px 12px;
+  background:#111827;
+  pointer-events:none;
+  z-index:0;
+}
+.widget.widgetTransforming .chrome{
+  background:#30394a!important;
+}
+
+
+
+/* SAFE455uH45g10l75 performance patch 5:
+   L74 ramte containerbaggrunde, men PDF.js-canvas/viewer kunne stadig efterlade hvid flade.
+   Denne overlay ligger oven på content-laget KUN mens widgetten transformeres.
+   Den ændrer ikke kilder, canvas-data, iframe-src, render(), save() eller broer. */
+.widget.widgetTransforming .content{
+  position:relative!important;
+  background:#111827!important;
+}
+.widget.widgetTransforming .content::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2147483000;
+  display:block;
+  pointer-events:none;
+  border-radius:0 0 12px 12px;
+  background:#111827!important;
+}
+.widget[data-type="pdf"].widgetTransforming .pdfJsViewer,
+.widget[data-type="pdf"].widgetTransforming .pdfJsCanvas{
+  background:#111827!important;
+}
+.widget[data-type="pdf"].widgetTransforming .pdfJsCanvas{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
 body.safe453i226-transforming-iframe .widget[data-type="link"] .linkIframeFrame::before{
   content:"Flytter webside…";
   position:absolute;
@@ -47675,10 +48369,32 @@ body.safe453i226-transforming-iframe .widget[data-type="link"] .linkIframeFrame:
   z-index:5;
   display:grid;
   place-items:center;
-  background:rgba(15,23,42,.08);
-  color:#334155;
+  background:#111827;
+  color:#e5e7eb;
   font-weight:950;
 }
+
+/* SAFE455uH45g10l76 performance patch 6:
+   Retter l73/l75-bivirkning: body.widget-transform-active måtte ikke skjule indhold
+   i andre widgets end den widget, der faktisk flyttes/resizes/roteres.
+   Den aktive widget har stadig .widgetTransforming og pauses som før;
+   ikke-aktive HTML/PDF/billede/canvas-widgets forbliver synlige.
+   Pointer-events ændres bevidst ikke her, så eksisterende iframe/link-sikkerhed bevares. */
+body.safe453i226-transforming-iframe .widget:not(.widgetTransforming) iframe,
+body.safe453i226-transforming-iframe .widget:not(.widgetTransforming) object,
+body.safe453i226-transforming-iframe .widget:not(.widgetTransforming) embed,
+body.safe453i226-transforming-iframe .widget:not(.widgetTransforming) img,
+body.safe453i226-transforming-iframe .widget:not(.widgetTransforming) canvas,
+body.safe453i226-transforming-iframe .widget:not(.widgetTransforming)[data-type="kahoopardy"] .content,
+body.widget-transform-active .widget:not(.widgetTransforming) iframe,
+body.widget-transform-active .widget:not(.widgetTransforming) object,
+body.widget-transform-active .widget:not(.widgetTransforming) embed,
+body.widget-transform-active .widget:not(.widgetTransforming) img,
+body.widget-transform-active .widget:not(.widgetTransforming) canvas,
+body.widget-transform-active .widget:not(.widgetTransforming)[data-type="kahoopardy"] .content{
+  visibility:visible!important;
+}
+
 </style>
 <script id="safe453i226-unified-iframe-performance">
 (function(){
@@ -50687,7 +51403,7 @@ body.focus-maximized .widget[data-type="pdf"].focusTarget .pdfControls{
         '</tr>';
       }).join('');
       var html='<h2>IndexedDB-medier</h2>'+ 
-        '<div data-safe454j-media-map="1" class="safe454jTop"><button data-safe454j-back-storage="1">←</button><span>Esc går også tilbage</span></div>'+ 
+        '<div data-safe454j-media-map="1" class="safe454jTop"><button data-safe454j-back-storage="1">←</button><span>Esc lukker</span></div>'+ 
         '<p class="safe453Note"><b>Oprydning:</b> Her kan du slette poster i TavleMediaArchive/IndexedDB. Knapperne nedenfor sletter kun poster, der ikke findes som reference i aktiv state eller localStorage.</p>'+ 
         '<div class="safe454jCards">'+
           '<div><b>IndexedDB-medier</b><span>'+mediaList.length+'</span><small>'+fmt(total)+' i alt</small></div>'+ 
@@ -51918,6 +52634,997 @@ body.safe455PresentToolsOpen .moreMenu{position:fixed!important;}
   try{new MutationObserver(sync).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});}catch(_e){}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync,{once:true}); else sync();
   setTimeout(sync,300);
+})();
+</script>
+
+
+
+<!-- SAFE455uH45g10l24: Fjernet ustabil media-override-kæde l11-l22. Funktionerne erstattes af én ren kildepatch sidst i dokumentet. -->
+
+
+
+
+<script id="safe455uH45g10l24-clean-media-archive-and-trash-badge">
+(function(){
+  if(window.__safe455L24CleanMediaArchive)return;
+  window.__safe455L24CleanMediaArchive=true;
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function fmt(n){n=Number(n)||0;if(n>=1048576)return (n/1048576).toFixed(1)+' MB';if(n>=1024)return (n/1024).toFixed(1)+' KB';return n+' B';}
+  function toast2(msg){try{toast(msg);}catch(_e){try{var t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2400);return;}}catch(__e){} try{console.log(msg);}catch(__e){}}}
+  function show(html){try{showModal(html);}catch(_e){var mb=document.getElementById('modalBack'),m=document.getElementById('modal');if(m)m.innerHTML=html;if(mb)mb.style.display='flex';}}
+  function backToStorage(){try{safe453i118OpenStorageOverview();return;}catch(_e){}try{closeModal();}catch(__e){}}
+  function closeOrBack(e){if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}backToStorage();return false;}
+  function nameOf(m){return String((m&&(m.name||m.filename||m.id))||'Medie');}
+  function kindOf(m){var name=nameOf(m).toLowerCase(),mime=String((m&&(m.mimeType||m.mime))||'').toLowerCase(),kind=String((m&&m.kind)||'').toLowerCase(),src=String((m&&m.source)||'').toLowerCase();
+    if(kind==='pdf'||mime==='application/pdf'||/\.pdf($|\?)/.test(name)||src.indexOf('pdf')>=0)return 'pdf';
+    if(kind==='html'||mime.indexOf('text/html')===0||/\.html?($|\?)/.test(name)||src.indexOf('html-widget-htmlapp-file')>=0)return 'html';
+    if(kind==='image'||/^image\//.test(mime)||/\.(png|jpe?g|gif|webp|svg)($|\?)/.test(name))return 'image';
+    if(kind==='audio'||/^audio\//.test(mime)||/\.(mp3|wav|m4a|aac|ogg|flac)($|\?)/.test(name))return 'audio';
+    if(kind==='video'||/^video\//.test(mime)||/\.(mp4|webm|mov|m4v)($|\?)/.test(name))return 'video';
+    if(kind==='dataset'||kind==='csv'||mime==='text/csv'||/\.(csv|tsv|xlsx?|ods)($|\?)/.test(name))return 'dataset';
+    if(/^text\//.test(mime)||/\.(txt|md)($|\?)/.test(name))return 'text';
+    return '';
+  }
+  function isChildAsset(m){var n=nameOf(m).toLowerCase(),src=String((m&&m.source)||'').toLowerCase(),kind=String((m&&m.kind)||'').toLowerCase();
+    if(/(backup|saver|state|lock|tab|bridge|heartbeat|session|autosave)/.test(src+' '+n+' '+kind))return true;
+    if(/\.(json|bin)$/i.test(n)&&src.indexOf('html-widget-htmlapp-file')<0)return true;
+    return false;
+  }
+  function canRestoreAsWidget(m){var k=kindOf(m); if(!k)return false; if(isChildAsset(m))return false; return true;}
+  function refKeys(){return /(mediaRef|previewMediaRef|srcMediaRef|fileMediaRef|htmlArchiveRef|udtBackupRef|tjekBackupRef|skrivBackupRef|backupMediaRef|backupRef|dataRef|saverRef|stateRef|latestBackupRef)$/i;}
+  function scanRefs(root,ids,prefix,out){out=out||Object.create(null);ids=ids||Object.create(null);prefix=prefix||'state';
+    function add(id,path){id=String(id||'').trim();if(!id||!ids[id])return;if(!out[id])out[id]=[];out[id].push(path||prefix);}
+    function walk(v,path,key){if(v==null)return;if(typeof v==='string'){if(key&&refKeys().test(key))add(v,path);else if(/^tavle-media-/i.test(v))add(v,path);return;} if(Array.isArray(v)){for(var i=0;i<v.length;i++)walk(v[i],path+'['+i+']','');return;} if(typeof v==='object'){Object.keys(v).forEach(function(k){walk(v[k],path?path+'.'+k:k,k);});}}
+    try{walk(root,prefix,'');}catch(_e){}
+    return out;
+  }
+  function usageMap(list){var ids=Object.create(null);(list||[]).forEach(function(m){if(m&&m.id)ids[String(m.id)]=true;});var out=Object.create(null);
+    try{scanRefs((typeof state!=='undefined'?state:null),ids,'aktiv state',out);}catch(_e){}
+    try{scanRefs((window.state||null),ids,'window.state',out);}catch(_e){}
+    try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i),v=localStorage.getItem(k)||'';if(!v||v.indexOf('tavle-media-')<0)continue;try{if(/^\s*[\[{]/.test(v))scanRefs(JSON.parse(v),ids,'localStorage:'+k,out);}catch(_e){(v.match(/tavle-media-[A-Za-z0-9_\-.]+/g)||[]).forEach(function(id){if(ids[id]){if(!out[id])out[id]=[];out[id].push('localStorage:'+k);}});}}}catch(_e){}
+    return out;
+  }
+  function isUsed(m,map){return !!(m&&map&&map[String(m.id)]&&map[String(m.id)].length);}
+  function where(id,map){var a=(map&&map[String(id)])||[];return a.length?a.slice(0,3).map(function(x){return esc(String(x).replace(/^aktiv state\./,''));}).join('<br>')+(a.length>3?'<br><small>+'+(a.length-3)+' flere</small>':''):'—';}
+  function point(i){i=Number(i)||0;var r;try{r=document.getElementById('app').getBoundingClientRect();}catch(_e){r={width:innerWidth,height:innerHeight};}return {x:Math.max(60,Math.min((r.width||innerWidth)*0.34+(i%4)*54,(r.width||innerWidth)-680)),y:Math.max(90,Math.min((r.height||innerHeight)*0.18+Math.floor(i/4)*54,(r.height||innerHeight)-520))};}
+  function dataFor(m){var id=String(m.id),k=kindOf(m),n=nameOf(m),mime=String(m.mimeType||m.mime||'');var d={name:n,mimeType:mime,size:Number(m.size)||0,source:m.source||'indexeddb-restore'};
+    if(k==='pdf'){d.fileMediaRef=id;d.page=1;d.mimeType=mime||'application/pdf';}
+    else if(k==='html'){d.srcMediaRef=id;d.htmlArchiveRef=id;d.mimeType=mime||'text/html';d.mode='preview';d.htmlStorage='indexedDB-htmlapp';d.twMode=/tiddlywiki/i.test(n)?'tiddlywiki':'htmlapp';d.htmlApp=!/tiddlywiki/i.test(n);d.html='<!-- HTMLApp genskabt fra TavleMediaArchive: '+id.replace(/--/g,'')+' -->';}
+    else if(k==='image'||k==='audio'||k==='video'){d.mediaRef=id;}
+    else if(k==='dataset'||k==='text'){d.mediaRef=id;d.text='[Genskabt reference til '+n+' i IndexedDB]';}
+    return d;
+  }
+  function widgetType(m){var k=kindOf(m);return k==='dataset'||k==='text'?'text':k;}
+  function restoreOne(m,idx){if(!m||!m.id)throw new Error('Mediet mangler');if(!canRestoreAsWidget(m))throw new Error('Dette er en hjælpefil og genskabes ikke som widget');var type=widgetType(m),d=dataFor(m),p=point(idx),n=nameOf(m),w=null;
+    if(typeof addDroppedWidget==='function')w=addDroppedWidget(type,d,p,n); else if(window.__TAVLE_ADDDROPPEDWIDGET__)w=window.__TAVLE_ADDDROPPEDWIDGET__(type,d,p,n); else throw new Error('Widget-opretter mangler');
+    if(w&&w.data){Object.keys(d).forEach(function(k){w.data[k]=d[k];});}
+    try{if(w&&w.z!==undefined&&typeof z!=='undefined')w.z=++z; if(typeof save==='function')save(); if(typeof render==='function')render(); if(w&&typeof select==='function')select(w.id);}catch(_e){}
+    return w;
+  }
+  async function openCleanMediaArchive(){
+    var archive=window.TavleMediaArchive;
+    if(!archive||typeof archive.listMedia!=='function'){show('<h2>Mediearkiv</h2><p>TavleMediaArchive er ikke tilgængelig.</p><button data-l24-back>← Tilbage</button>');wire([]);return;}
+    show('<h2>Mediearkiv</h2><p>Læser IndexedDB…</p><button data-l24-back>← Tilbage</button>');wire([]);
+    try{var list=await archive.listMedia();list=Array.isArray(list)?list:[];var map=usageMap(list);var total=0,used=0,orph=0,bytes=0,can=0;
+      list.forEach(function(m){var sz=Number(m&&m.size)||0;total+=sz;if(isUsed(m,map))used++;else{orph++;bytes+=sz;if(canRestoreAsWidget(m))can++;}});
+      var rows=list.slice().sort(function(a,b){return (isUsed(a,map)?1:0)-(isUsed(b,map)?1:0)||(Number(b&&b.size)||0)-(Number(a&&a.size)||0);}).map(function(m){var id=String(m&&m.id||''),u=isUsed(m,map),k=kindOf(m)||String(m&&m.kind||'media'),child=isChildAsset(m),canThis=!u&&canRestoreAsWidget(m);var act=u?'—':((canThis?'<button data-l24-restore="'+esc(id)+'">Genskab</button> ':'')+'<button class="danger" data-l24-delete="'+esc(id)+'">Slet</button>');return '<tr class="'+(u?'used':'orphan')+(child?' child':'')+'"><td>'+(u?'✅ I brug':(child?'🧩 Hjælpefil':'⚪ Forældreløs'))+'</td><td>'+esc(k||'media')+'<br><small>'+esc((m&&m.source)||'')+'</small></td><td>'+esc(nameOf(m))+'</td><td>'+fmt(m&&m.size)+'</td><td>'+where(id,map)+'</td><td>'+act+'</td></tr>';}).join('');
+      show('<h2>Mediearkiv</h2><div data-l24-media-map="1" class="l24top"><button data-l24-back>← Tilbage</button><span>Esc lukker</span></div><p class="safe453Note"><b>Ren visning:</b> Genskab laver widgets af egentlige brugerfiler. Backup-, saver-, lock- og statefiler behandles som hjælpefiler.</p><div class="l24actions"><button data-l24-restore-all '+(can?'':'disabled')+'>🍼 Genskab alle genskabelige ('+can+')</button><button data-l24-delete-orphans '+(orph?'':'disabled')+'>🗑️ Slet alle forældreløse ('+orph+' · '+fmt(bytes)+')</button></div><div class="l24cards"><div><b>IndexedDB</b><strong>'+list.length+'</strong><small>'+fmt(total)+'</small></div><div><b>I brug</b><strong>'+used+'</strong><small>live state + localStorage</small></div><div><b>Forældreløse</b><strong>'+orph+'</strong><small>'+fmt(bytes)+'</small></div><div><b>Kan genskabes</b><strong>'+can+'</strong><small>PDF/HTML/billede/lyd/video/data</small></div></div><div class="l24list"><table><thead><tr><th>Status</th><th>Type/kilde</th><th>Navn</th><th>Str.</th><th>Fundet brugt her</th><th>Handling</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">Ingen medier</td></tr>')+'</tbody></table></div><style>.l24top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:4px 0 8px}.l24top span{font-size:.78rem;color:#64748b}.l24actions{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0;padding:7px;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc}.l24cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:6px 0}.l24cards>div{border:1px solid #dbe3ef;background:#f4f7fb;border-radius:10px;padding:7px}.l24cards b,.l24cards small{display:block}.l24cards strong{display:block;font-size:1.12rem}.l24list{max-height:54vh;overflow:auto;border:1px solid #e5e7eb;border-radius:12px}.l24list table{width:100%;border-collapse:collapse;font-size:.66rem;table-layout:fixed}.l24list th,.l24list td{padding:3px 4px;border-top:1px solid #eef2f7;text-align:left;vertical-align:middle;line-height:1.05;overflow-wrap:anywhere}.l24list th:nth-child(1),.l24list td:nth-child(1){width:15%}.l24list th:nth-child(2),.l24list td:nth-child(2){width:18%}.l24list th:nth-child(4),.l24list td:nth-child(4){width:10%}.l24list th:nth-child(5),.l24list td:nth-child(5){width:24%}.l24list th:nth-child(6),.l24list td:nth-child(6){width:18%}.l24list tr.orphan{background:#fffaf0}.l24list tr.child{background:#f8fafc;color:#475569}.l24list button{padding:5px 7px!important;border-radius:8px!important;font-size:.66rem!important;margin:1px!important}.l24list button.danger{background:#fee2e2!important;color:#991b1b!important}@media(max-width:760px){.l24cards{grid-template-columns:1fr 1fr}.l24list table{font-size:.58rem}.l24list th,.l24list td{padding:2px 3px}}</style>');wire(list,archive,map);
+    }catch(err){show('<h2>Mediearkiv</h2><p>Kunne ikke læse IndexedDB: '+esc(err&&err.message||err)+'</p><button data-l24-back>← Tilbage</button>');wire([]);}
+  }
+  function wire(list,archive,map){var m=document.getElementById('modal')||document.querySelector('.modal');if(!m)return;m.querySelectorAll('[data-l24-back]').forEach(function(b){b.onclick=closeOrBack;});
+    m.querySelectorAll('[data-l24-restore]').forEach(function(btn){btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}var id=btn.getAttribute('data-l24-restore');var item=(list||[]).find(function(x){return String(x&&x.id)===String(id);});try{restoreOne(item,0);toast2('Widget genskabt');setTimeout(openCleanMediaArchive,120);}catch(err){toast2(err&&err.message||'Kunne ikke genskabe');}};});
+    var all=m.querySelector('[data-l24-restore-all]');if(all)all.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}var ok=0,fail=0;try{var freshMap=usageMap(list||[]);(list||[]).forEach(function(item){if(!item||!item.id||isUsed(item,freshMap)||!canRestoreAsWidget(item))return;try{restoreOne(item,ok);ok++;freshMap=usageMap(list||[]);}catch(_e){fail++;}});toast2('Genskabt: '+ok+(fail?' · fejl: '+fail:''));setTimeout(openCleanMediaArchive,180);}catch(err){toast2(err&&err.message||'Kunne ikke genskabe alle');}};
+    m.querySelectorAll('[data-l24-delete]').forEach(function(btn){btn.onclick=async function(e){if(e){e.preventDefault();e.stopPropagation();}var id=btn.getAttribute('data-l24-delete');if(!archive||!id)return;if(!confirm('Slet mediet permanent fra IndexedDB?'))return;try{await archive.deleteMedia(id);toast2('Slettet permanent');openCleanMediaArchive();}catch(_e){toast2('Kunne ikke slette');}};});
+    var delAll=m.querySelector('[data-l24-delete-orphans]');if(delAll)delAll.onclick=async function(e){if(e){e.preventDefault();e.stopPropagation();}if(!archive)return;var mp=usageMap(list||[]);var ids=(list||[]).filter(function(x){return x&&x.id&&!isUsed(x,mp);}).map(function(x){return String(x.id);});if(!ids.length){toast2('Ingen forældreløse medier');return;}if(!confirm('Slet alle forældreløse medier permanent fra IndexedDB?\n\nAntal: '+ids.length))return;var ok=0;for(var i=0;i<ids.length;i++){try{await archive.deleteMedia(ids[i]);ok++;}catch(_e){}}toast2('Slettet permanent: '+ok);openCleanMediaArchive();};
+  }
+  function escBackHandler(e){try{if(!e||!(e.key==='Escape'||e.key==='Esc'))return;var mb=document.getElementById('modalBack'),m=document.getElementById('modal');if(!mb||mb.style.display==='none'||!m||!m.querySelector('[data-l24-media-map]'))return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();backToStorage();}catch(_e){}}
+  window.addEventListener('keydown',escBackHandler,true);
+  window.safe455L24OpenMediaArchive=openCleanMediaArchive;
+  window.openMediaArchive=openCleanMediaArchive;
+  window.safe453i124OpenIndexedDbMediaMap=openCleanMediaArchive;
+  try{safe453i124OpenIndexedDbMediaMap=openCleanMediaArchive;}catch(_e){}
+
+  function isTrashSlide(sl){try{return !!(sl&&(sl.isTrashBoard===true||sl.isTrash===true||sl.trash===true||sl.type==='trash'||/papirkurv/i.test(String(sl.title||''))));}catch(_e){return false;}}
+  function trashCount(){var n=0;try{var arr=(typeof state!=='undefined'&&state&&Array.isArray(state.slides))?state.slides:[];arr.forEach(function(sl){if(isTrashSlide(sl)&&Array.isArray(sl.widgets))n+=sl.widgets.length;});}catch(_e){}return n;}
+  function syncTrashBadge(){try{var b=document.getElementById('trashTop');if(!b)return;var n=trashCount();var badge=b.querySelector('.safe455l24TrashBadge');if(!badge){badge=document.createElement('span');badge.className='safe455l24TrashBadge';badge.style.cssText='position:absolute;right:-6px;top:-6px;min-width:18px;height:18px;border-radius:999px;background:#ef4444;color:white;font-size:11px;font-weight:950;display:none;align-items:center;justify-content:center;padding:0 5px;box-shadow:0 2px 8px rgba(0,0,0,.35);';b.style.position='relative';b.appendChild(badge);}if(n>0){badge.textContent=n>9?'9+':String(n);badge.style.display='flex';b.title='Papirkurv – '+n+' slettede widget'+(n===1?'':'s');}else{badge.style.display='none';b.title='Papirkurv';}}catch(_e){}
+  }
+  window.safe455UpdateTrashTopBadge=syncTrashBadge;
+  ['render','save','openTrashBoard','returnFromTrashBoard','trashWidgetToBoard','clearTrashBoardPermanently','restoreTrashWidgetAt','restoreSelectedOrLatestFromTrash','updateTrashBoardUI'].forEach(function(n){try{var old=window[n]||eval(n);if(typeof old==='function'&&!old.__safe455l24Badge){var wrap=function(){var r=old.apply(this,arguments);setTimeout(syncTrashBadge,0);setTimeout(syncTrashBadge,150);return r;};wrap.__safe455l24Badge=true;try{window[n]=wrap;eval(n+'=wrap');}catch(_e){}}}catch(_e){}});
+  setInterval(syncTrashBadge,1000);setTimeout(syncTrashBadge,200);setTimeout(syncTrashBadge,1000);
+})();
+</script>
+
+
+<!-- SAFE455uH45g10l33: Kontekstuelle hints starter slukket; modaltekster siger nu at Esc lukker, mens pil tilbage navigerer tilbage. -->
+<script id="safe455uH45g10l33-hints-off-esc-copy">
+(function(){
+  try{
+    var mig='maans_tavle_hints_default_off_l33_applied';
+    var key='maans_tavle_hints_enabled';
+    if(localStorage.getItem(mig)!=='1'){
+      localStorage.setItem(key,'0');
+      localStorage.setItem(mig,'1');
+      if(typeof window.hintsEnabled!=='undefined') window.hintsEnabled=false;
+      try{ if(typeof setHintsEnabled==='function') setHintsEnabled(false); }catch(_e){}
+    }
+  }catch(_e){}
+  function fixEscCopy(root){
+    try{
+      root=root||document;
+      var nodes=root.querySelectorAll ? root.querySelectorAll('span,small,p,div') : [];
+      nodes.forEach(function(n){
+        var t=String(n.textContent||'').trim();
+        if(t==='Esc går også tilbage' || t==='Esc går også tilbage til Hvor ligger data'){ n.textContent='Esc lukker'; }
+      });
+    }catch(_e){}
+  }
+  document.addEventListener('DOMContentLoaded',function(){fixEscCopy(document);},false);
+  try{
+    new MutationObserver(function(muts){
+      muts.forEach(function(m){
+        (m.addedNodes||[]).forEach(function(n){ if(n&&n.nodeType===1)fixEscCopy(n); });
+      });
+    }).observe(document.documentElement,{childList:true,subtree:true});
+  }catch(_e){}
+})();
+</script>
+
+
+
+<style id="safe455-l97-trash-icon-state-style">
+#trashTop.trashHasItemsIconState{
+  outline:3px solid rgba(239,68,68,.85)!important;
+  box-shadow:0 0 0 5px rgba(239,68,68,.22),0 6px 18px rgba(0,0,0,.26)!important;
+  background:#fff7f7!important;
+}
+</style>
+
+<!-- SAFE455uH45g10l37: Stabil rollback til l33 + passiv papirkurv-badge. Ingen wrapping/ændring af slettefunktioner. -->
+<script id="safe455uH45g10l37-passive-trash-badge-only">
+/* SAFE455uH45g10l92:
+   Replaces the old l37 passive trash badge.
+   The old version listened globally to pointer/key/storage events, scanned localStorage,
+   installed a document-wide MutationObserver, and ran setInterval(sync,1500).
+   That made the app progressively sluggish once Papirkurv contained widgets.
+   This replacement is deliberately lightweight: it only counts the live in-memory state
+   and exposes the same window.safe455L37SyncTrashBadge API for existing callers. */
+(function(){
+  if(window.__safe455L37PassiveTrashBadge){
+    /* The old l37 guard may already be set in some re-injection contexts. Still replace the public sync API. */
+  }
+  window.__safe455L37PassiveTrashBadge=true;
+  let scheduled=false;
+  let lastCount=null;
+  function isTrashSlide(sl){
+    try{return !!(sl && (sl.isTrashBoard===true || sl.isTrash===true || sl.trash===true || sl.type==='trash' || sl.internal==='trash' || /papirkurv/i.test(String(sl.title||''))));}
+    catch(_e){return false;}
+  }
+  function countTrashFromLiveState(){
+    try{
+      const st=(typeof state!=='undefined' && state) ? state : (window.state||null);
+      const slides=st && Array.isArray(st.slides) ? st.slides : [];
+      let n=0;
+      slides.forEach(function(sl){ if(isTrashSlide(sl) && Array.isArray(sl.widgets)) n+=sl.widgets.length; });
+      return n;
+    }catch(_e){return 0;}
+  }
+  function ensureBadge(btn){
+    let badge=btn.querySelector('.safe455l37TrashBadge');
+    if(!badge){
+      badge=document.createElement('span');
+      badge.className='safe455l37TrashBadge';
+      badge.style.cssText='position:absolute;right:-7px;top:-7px;min-width:19px;height:19px;border-radius:999px;background:#ef4444;color:#fff;font-size:11px;font-weight:950;line-height:19px;text-align:center;padding:0 5px;box-shadow:0 2px 8px rgba(0,0,0,.38);display:none;pointer-events:none;z-index:5;';
+      btn.style.position='relative';
+      btn.appendChild(badge);
+    }
+    return badge;
+  }
+  function syncNow(){
+    scheduled=false;
+    try{
+      const btn=document.getElementById('trashTop') || document.querySelector('[title*="Papirkurv"],button[aria-label*="Papirkurv"]');
+      if(!btn)return;
+      const n=countTrashFromLiveState();
+      if(n===lastCount && btn.querySelector('.safe455l37TrashBadge'))return;
+      lastCount=n;
+      const badge=ensureBadge(btn);
+      if(n>0){
+        badge.textContent=n>99?'99+':(n>9?'9+':String(n));
+        badge.style.display='block';
+        btn.classList.add('safe455l37TrashHasItems');
+        btn.title='Papirkurv – '+n+' slettede widget'+(n===1?'':'s');
+      }else{
+        badge.style.display='none';
+        btn.classList.remove('safe455l37TrashHasItems');
+        btn.title='Papirkurv';
+      }
+    }catch(_e){}
+  }
+  function schedule(){
+    if(scheduled)return;
+    scheduled=true;
+    try{requestAnimationFrame(syncNow);}catch(_e){setTimeout(syncNow,0);}
+  }
+  if(!document.getElementById('safe455l37-trash-badge-style')){
+    const st=document.createElement('style');
+    st.id='safe455l37-trash-badge-style';
+    st.textContent='button.safe455l37TrashHasItems{outline:3px solid #ef4444!important;box-shadow:0 0 0 5px rgba(239,68,68,.22),0 6px 18px rgba(0,0,0,.26)!important;}';
+    document.head.appendChild(st);
+  }
+  window.safe455L37SyncTrashBadge=schedule;
+  document.addEventListener('DOMContentLoaded',schedule,{once:true});
+  setTimeout(schedule,50);
+})();
+</script>
+
+
+<script id="safe455uH45g10l39-robust-media-delete-api">
+/* SAFE455uH45g10l39: TavleMediaArchive list/delete med frisk IndexedDB-forbindelse.
+   Retter "The database connection is closing" ved manuel sletning i IndexedDB-medier. */
+(function(){
+  'use strict';
+  if(window.__safe455uH45g10l39RobustMediaDeleteApi)return;
+  window.__safe455uH45g10l39RobustMediaDeleteApi=true;
+  var DB='maans_tavle_media_archive', STORE='media';
+  function openFresh(){
+    return new Promise(function(resolve,reject){
+      var req;
+      try{req=indexedDB.open(DB,1);}catch(err){reject(err);return;}
+      req.onupgradeneeded=function(ev){
+        var db=ev.target.result;
+        try{if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:'id'});}catch(_e){}
+        try{if(!db.objectStoreNames.contains('meta'))db.createObjectStore('meta',{keyPath:'key'});}catch(_e){}
+      };
+      req.onsuccess=function(ev){resolve(ev.target.result);};
+      req.onerror=function(){reject(req.error||new Error('Kunne ikke åbne TavleMediaArchive.'));};
+      req.onblocked=function(){reject(new Error('TavleMediaArchive er blokeret af en anden fane.'));};
+    });
+  }
+  function directDelete(id){
+    id=String(id||'').trim();
+    if(!id)return Promise.resolve(false);
+    return openFresh().then(function(db){
+      return new Promise(function(resolve,reject){
+        try{
+          var tx=db.transaction(STORE,'readwrite');
+          tx.objectStore(STORE).delete(id);
+          tx.oncomplete=function(){try{db.close();}catch(_e){} resolve(true);};
+          tx.onerror=function(){var err=tx.error||new Error('Kunne ikke slette medie.');try{db.close();}catch(_e){} reject(err);};
+          tx.onabort=function(){var err=tx.error||new Error('Sletning blev afbrudt.');try{db.close();}catch(_e){} reject(err);};
+        }catch(err){try{db.close();}catch(_e){} reject(err);}
+      });
+    });
+  }
+  function directList(){
+    return openFresh().then(function(db){
+      return new Promise(function(resolve,reject){
+        var out=[];
+        try{
+          var tx=db.transaction(STORE,'readonly');
+          var req=tx.objectStore(STORE).openCursor();
+          req.onsuccess=function(ev){
+            var c=ev.target.result;
+            if(!c)return;
+            var v=c.value||{};
+            out.push({id:v.id,kind:v.kind,name:v.name,mimeType:v.mimeType,size:v.size||(v.blob&&v.blob.size)||0,source:v.source,createdAt:v.createdAt,updatedAt:v.updatedAt,meta:v.meta||{}});
+            c.continue();
+          };
+          tx.oncomplete=function(){try{db.close();}catch(_e){} resolve(out);};
+          tx.onerror=function(){var err=tx.error||new Error('Kunne ikke læse medier.');try{db.close();}catch(_e){} reject(err);};
+          tx.onabort=function(){var err=tx.error||new Error('Læsning blev afbrudt.');try{db.close();}catch(_e){} reject(err);};
+        }catch(err){try{db.close();}catch(_e){} reject(err);}
+      });
+    });
+  }
+  window.__tavleMediaArchiveDirectDelete=directDelete;
+  window.__tavleMediaArchiveDirectList=directList;
+  function patchArchive(){
+    try{
+      if(window.TavleMediaArchive){
+        window.TavleMediaArchive.deleteMedia=directDelete;
+        window.TavleMediaArchive.listMedia=directList;
+      }
+    }catch(_e){}
+  }
+  patchArchive();
+  setTimeout(patchArchive,0);
+  setTimeout(patchArchive,500);
+})();
+</script>
+
+
+<!-- SAFE455uH45g10l44: Skriv v43 gemmer separat JSON-backup med Skriv-konstrueret filnavn + l41 filoverblik. -->
+<script id="safe455uH45g10l41-download-media-file-overview">
+(function(){
+  if(window.__safe455uH45g10l41DownloadMediaOverview)return;
+  window.__safe455uH45g10l41DownloadMediaOverview={installed:true,phase:'SAFE455uH45g10l44'};
+
+  function escHtml(s){
+    try{ if(typeof esc==='function')return esc(s); }catch(_e){}
+    return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function formatBytes(n){
+    try{ if(typeof safe453i118FormatBytes==='function')return safe453i118FormatBytes(n); }catch(_e){}
+    n=Number(n)||0;
+    if(n<1024)return n+' B';
+    if(n<1024*1024)return (Math.round(n/102.4)/10)+' KB';
+    return (Math.round(n/(1024*102.4))/10)+' MB';
+  }
+  function safeName(name,ext){
+    try{ if(typeof safeFileName==='function')return safeFileName(name,ext); }catch(_e){}
+    name=String(name||'download').replace(/[\\/:*?"<>|]+/g,'_').trim()||'download';
+    if(ext && !new RegExp('\\.'+String(ext).replace(/^\./,'')+'$','i').test(name))name+='.'+String(ext).replace(/^\./,'');
+    return name;
+  }
+  function extFromMime(mime,fallback){
+    mime=String(mime||'').toLowerCase();
+    if(mime.indexOf('json')>=0)return 'json';
+    if(mime.indexOf('pdf')>=0)return 'pdf';
+    if(mime.indexOf('html')>=0)return 'html';
+    if(mime.indexOf('csv')>=0)return 'csv';
+    if(mime.indexOf('plain')>=0)return 'txt';
+    if(mime.indexOf('png')>=0)return 'png';
+    if(mime.indexOf('jpeg')>=0||mime.indexOf('jpg')>=0)return 'jpg';
+    if(mime.indexOf('webp')>=0)return 'webp';
+    if(mime.indexOf('gif')>=0)return 'gif';
+    if(mime.indexOf('svg')>=0)return 'svg';
+    if(mime.indexOf('audio/')>=0)return 'audio';
+    if(mime.indexOf('video/')>=0)return 'video';
+    return fallback||'bin';
+  }
+  function parseDate(v){
+    if(!v)return 0;
+    var t=Date.parse(v);
+    return isFinite(t)?t:0;
+  }
+  function formatDate(v){
+    var t=parseDate(v);
+    if(!t)return 'Ukendt dato';
+    var d=new Date(t);
+    function pad(n){return String(n).padStart(2,'0');}
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+  function widgetById(id){
+    id=String(id||'');
+    if(!id)return null;
+    try{
+      var slides=(window.state||state||{}).slides||[];
+      for(var si=0;si<slides.length;si++){
+        var ws=(slides[si]&&slides[si].widgets)||[];
+        for(var wi=0;wi<ws.length;wi++){
+          var w=ws[wi];
+          if(w&&String(w.id)===id)return {widget:w,slide:slides[si],slideIndex:si,widgetIndex:wi};
+        }
+      }
+    }catch(_e){}
+    return null;
+  }
+  function currentMediaRefs(){
+    var refs={};
+    function add(id,path,key,parent){
+      id=String(id||'').trim();
+      if(!id)return;
+      if(!refs[id])refs[id]=[];
+      refs[id].push({path:path||'',key:key||'',parent:parent||null});
+    }
+    function visit(v,path,parent,depth){
+      if(depth>14||v==null)return;
+      if(typeof v!=='object')return;
+      if(Array.isArray(v)){ for(var i=0;i<v.length;i++)visit(v[i],path+'['+i+']',parent,depth+1); return; }
+      Object.keys(v).forEach(function(k){
+        var val=v[k];
+        if((/^(mediaRef|previewMediaRef|srcMediaRef|fileMediaRef|htmlArchiveRef|udtBackupRef|tjekBackupRef|dataBackupRef|restoreMediaRef|audioMediaRef|imageMediaRef|pdfMediaRef)$/).test(k) && typeof val==='string')add(val,path+'.'+k,k,v);
+        if(val&&typeof val==='object')visit(val,path?path+'.'+k:k,v,depth+1);
+      });
+    }
+    try{visit(window.state||state||{},'state',null,0);}catch(_e){}
+    return refs;
+  }
+  function classifyArchive(rec, refHits){
+    var source=String(rec&&rec.source||'');
+    var mime=String(rec&&rec.mimeType||'').toLowerCase();
+    var kind=String(rec&&rec.kind||'media').toLowerCase();
+    var meta=(rec&&rec.meta)||{};
+    if(source.indexOf('udtalelser')>=0 || meta.app==='himmerlands-udtalelser' || /backup.*\.json$/i.test(String(rec&&rec.name||'')))return {group:'Skriv gemmefiler',label:'Skriv-backup JSON',icon:'💾'};
+    if(kind==='html'||mime.indexOf('html')>=0)return {group:'HTML-apps',label:'HTML-app',icon:'🌐'};
+    if(kind==='pdf'||mime.indexOf('pdf')>=0)return {group:'PDF’er',label:'PDF',icon:'📄'};
+    if(kind==='image'||mime.indexOf('image/')===0)return {group:'Billeder',label:'Billede',icon:'🖼️'};
+    if(kind==='audio'||mime.indexOf('audio/')===0)return {group:'Lyd',label:'Lyd',icon:'🔊'};
+    if(kind==='video'||mime.indexOf('video/')===0)return {group:'Video',label:'Video',icon:'🎬'};
+    if(mime.indexOf('json')>=0)return {group:'JSON / backup',label:'JSON',icon:'{}'};
+    return {group:'Andre filer',label:kind||'Medie',icon:'📦'};
+  }
+  async function buildFileOverviewItems(){
+    var items=[];
+    var refs=currentMediaRefs();
+    // Aktive IndexedDB-medier + historiske/orphan medier fra arkivet.
+    var archive=window.TavleMediaArchive;
+    if(archive&&typeof archive.listMedia==='function'){
+      try{
+        var list=await archive.listMedia();
+        (Array.isArray(list)?list:[]).forEach(function(rec){
+          if(!rec||!rec.id)return;
+          var hits=refs[String(rec.id)]||[];
+          var cls=classifyArchive(rec,hits);
+          var meta=rec.meta||{};
+          var wb=widgetById(meta.sourceWidgetId);
+          var producedBy='';
+          if(wb&&wb.widget)producedBy=String(wb.widget.title||wb.widget.data&&wb.widget.data.name||'Widget');
+          else if(meta.sourceWidgetId)producedBy='Widget '+String(meta.sourceWidgetId).slice(0,8)+'…';
+          else if(rec.source)producedBy=String(rec.source).replace(/^html-widget-/,'HTML-widget · ');
+          var date=rec.updatedAt||meta.savedAt||meta.receivedAt||rec.createdAt||'';
+          var ext=extFromMime(rec.mimeType,'bin');
+          items.push({
+            id:'idb:'+String(rec.id),
+            mediaRef:String(rec.id),
+            source:'indexeddb',
+            active:hits.length>0,
+            filename:safeName(rec.name||rec.id,ext),
+            title:String(rec.name||rec.id||'Medie'),
+            label:cls.label,
+            group:cls.group,
+            icon:cls.icon,
+            size:Number(rec.size)||0,
+            date:date,
+            dateMs:parseDate(date),
+            producer:producedBy||'Ukendt kilde',
+            slide:(wb&&wb.slide?String(wb.slide.title||('Tavle '+(wb.slideIndex+1))):''),
+            path:hits.map(function(h){return h.path;}).filter(Boolean).slice(0,2).join(' · '),
+            mimeType:rec.mimeType||'application/octet-stream',
+            kind:rec.kind||'media',
+            status:hits.length?'I brug':'Forældreløs / historik',
+            meta:meta
+          });
+        });
+      }catch(err){
+        try{console.warn('l41 listMedia failed',err);}catch(_e){}
+      }
+    }
+    // Indlejrede dataURL-medier fra den aktuelle tavle som supplement.
+    try{
+      var embedded=(typeof collectEmbeddedMedia==='function'?collectEmbeddedMedia():[]);
+      embedded.forEach(function(it,i){
+        var size=0;
+        try{ size=typeof safe453i118DataUrlBytes==='function'?safe453i118DataUrlBytes(it.src):new Blob([String(it.src||'')]).size; }catch(_e){}
+        items.push({
+          id:'embedded:'+i,
+          source:'embedded',
+          active:true,
+          src:it.src,
+          boardShotPackage:it.boardShotPackage,
+          filename:it.filename||safeName(it.name,it.ext||''),
+          title:it.name||it.filename||'Indlejret fil',
+          label:it.label||it.type||'Indlejret fil',
+          group:'Indlejret i tavlen',
+          icon:'📎',
+          size:size,
+          date:'',
+          dateMs:0,
+          producer:it.slide||'Aktuel tavle',
+          slide:it.slide||'',
+          path:'dataURL i tavle-state',
+          mimeType:'',
+          kind:'embedded',
+          status:'I brug'
+        });
+      });
+    }catch(_e){}
+    items.sort(function(a,b){
+      var ga=a.group==='Skriv gemmefiler'?0:1, gb=b.group==='Skriv gemmefiler'?0:1;
+      if(ga!==gb)return ga-gb;
+      return (b.dateMs||0)-(a.dateMs||0) || String(a.filename).localeCompare(String(b.filename),'da');
+    });
+    return items;
+  }
+  async function downloadOverviewItem(item){
+    if(!item)return;
+    try{
+      if(item.source==='indexeddb'){
+        var a=window.TavleMediaArchive;
+        if(!(a&&typeof a.getMedia==='function')){toast('IndexedDB-arkivet er ikke klar');return;}
+        var rec=await a.getMedia(item.mediaRef);
+        if(!rec||!rec.blob){toast('Filen blev ikke fundet i IndexedDB');return;}
+        safeDownload(item.filename||rec.name||'download',rec.blob,rec.mimeType||rec.blob.type||'application/octet-stream');
+        return;
+      }
+      if(item.boardShotPackage){
+        var base=String(item.title||item.filename||'tavleshot').replace(/\.(webp|png|jpg|jpeg|json)$/i,'');
+        safeDownload(safeName(base,'tavleshot.json').replace(/\.tavleshot\.json\.json$/i,'.tavleshot.json'),JSON.stringify(item.boardShotPackage,null,2),'application/json;charset=utf-8');
+        return;
+      }
+      if(item.src){downloadDataUrl(item.src,item.filename||item.title||'download');return;}
+      toast('Filen kunne ikke hentes');
+    }catch(err){
+      try{console.warn('l41 download failed',err);}catch(_e){}
+      toast('Kunne ikke hente fil: '+(err&&err.message?err.message:'ukendt fejl'));
+    }
+  }
+  function groupItems(items){
+    var order=[]; var map={};
+    items.forEach(function(it){var g=it.group||'Filer'; if(!map[g]){map[g]=[];order.push(g);} map[g].push(it);});
+    return {order:order,map:map};
+  }
+  window.downloadAllEmbeddedMedia=async function(){
+    showModal('<h2>Hent filer fra tavlen</h2><p>Læser filer og metadata…</p><button id="closeMediaDownloads">Luk</button>');
+    var closeLoading=modal&&modal.querySelector?modal.querySelector('#closeMediaDownloads'):null;
+    if(closeLoading)closeLoading.onclick=closeModal;
+    var items=await buildFileOverviewItems();
+    var grouped=groupItems(items);
+    var cards='';
+    grouped.order.forEach(function(group){
+      var arr=grouped.map[group]||[];
+      var rows=arr.map(function(it){
+        var idx=items.indexOf(it);
+        var date=formatDate(it.date);
+        var statusCls=it.active?'active':'orphan';
+        var sub=[it.label, formatBytes(it.size), date, it.producer].filter(Boolean).join(' · ');
+        var metaLine=[it.status, it.slide, it.mimeType].filter(Boolean).join(' · ');
+        return '<article class="l41FileCard '+statusCls+'">'+
+          '<button class="l41FileTitle" data-i="'+idx+'" title="Hent '+escHtml(it.filename)+'"><span class="l41Icon">'+escHtml(it.icon||'📦')+'</span><span>'+escHtml(it.filename)+'</span></button>'+ 
+          '<div class="l41FileMeta">'+escHtml(sub)+'</div>'+ 
+          '<div class="l41FileTags"><span>'+escHtml(metaLine||'')+'</span>'+(it.mediaRef?'<code title="'+escHtml(it.mediaRef)+'">'+escHtml(String(it.mediaRef).slice(0,10))+'…</code>':'')+'</div>'+ 
+        '</article>';
+      }).join('');
+      cards+='<section class="l41FileGroup"><h3>'+escHtml(group)+' <span>'+arr.length+'</span></h3><div class="l41FileGrid">'+rows+'</div></section>';
+    });
+    var html='<div class="l41Header"><div><h2>Hent filer fra tavlen</h2><p>Vælg en fil ved at klikke på filnavnet. Filerne er sorteret med Skriv-gemmefiler og nyeste versioner først.</p></div><button id="mediaDownloadsHelp" type="button" title="Åbn hjælp">?</button></div>'+ 
+      '<div class="l41Summary"><div><b>'+items.length+'</b><span>filer</span></div><div><b>'+items.filter(function(x){return x.active;}).length+'</b><span>i brug</span></div><div><b>'+formatBytes(items.reduce(function(s,x){return s+(Number(x.size)||0);},0))+'</b><span>samlet</span></div></div>'+ 
+      (items.length?'<div class="l41FileOverview">'+cards+'</div>':'<p class="safe453Note">Der er ingen separate filer at hente fra den aktuelle tavle eller IndexedDB.</p>')+
+      '<div class="l41Footer"><button id="closeMediaDownloads">Luk</button></div>'+ 
+      '<style>'+ 
+      '.modal:has(.l41Header){width:min(1120px,94vw);max-height:92vh;overflow:hidden;display:flex;flex-direction:column}.l41Header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.l41Header h2{margin:0 0 4px}.l41Header p{margin:0;color:#526070;line-height:1.25}.l41Header button{min-width:40px;height:40px;border-radius:999px;padding:0;font-weight:950}.l41Summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.l41Summary>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:14px;padding:10px 12px}.l41Summary b{display:block;font-size:1.35rem}.l41Summary span{color:#526070;font-size:.85rem}.l41FileOverview{overflow:auto;padding:2px 4px 18px;max-height:62vh}.l41FileGroup{margin:0 0 14px}.l41FileGroup h3{margin:8px 0;font-size:1rem;display:flex;align-items:center;gap:8px}.l41FileGroup h3 span{font-size:.8rem;background:#e8eef7;color:#526070;border-radius:999px;padding:2px 8px}.l41FileGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:9px}.l41FileCard{border:1px solid #dbe3ef;background:white;border-radius:15px;padding:10px 11px;box-shadow:0 1px 0 rgba(15,23,42,.03)}.l41FileCard.orphan{background:#fffaf0;border-color:#f4d59a}.l41FileTitle{appearance:none;border:0;background:transparent!important;color:#102a43!important;text-align:left;padding:0;margin:0 0 6px;width:100%;font-weight:900;display:flex;gap:7px;align-items:flex-start;line-height:1.15;cursor:pointer}.l41FileTitle:hover span:last-child{text-decoration:underline}.l41Icon{flex:0 0 auto}.l41FileMeta{font-size:.82rem;color:#526070;line-height:1.25}.l41FileTags{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:7px;font-size:.75rem;color:#6b7280}.l41FileTags span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.l41FileTags code{font-size:.7rem;background:#f1f5f9;border-radius:7px;padding:2px 5px;color:#475569}.l41Footer{display:flex;justify-content:flex-end;border-top:1px solid #eef2f7;padding-top:10px;margin-top:8px}@media(max-width:760px){.modal:has(.l41Header){width:94vw;max-height:90vh}.l41Summary{grid-template-columns:1fr 1fr}.l41Summary>div:last-child{grid-column:1/-1}.l41FileOverview{max-height:58vh}.l41FileGrid{grid-template-columns:1fr}.l41Header{align-items:center}.l41Header p{font-size:.88rem}}'+ 
+      '</style>';
+    showModal(html);
+    try{ if(typeof safe455uH22WireModalHelp==='function')safe455uH22WireModalHelp('mediaDownloadsHelp','Gem, backup og filer'); }catch(_e){}
+    if(modal&&modal.querySelectorAll){
+      modal.querySelectorAll('.l41FileTitle').forEach(function(btn){
+        btn.onclick=function(){ downloadOverviewItem(items[Number(btn.getAttribute('data-i'))]); };
+      });
+      var close=modal.querySelector('#closeMediaDownloads');
+      if(close)close.onclick=closeModal;
+    }
+  };
+})();
+</script>
+<script id="safe455uH45g10l42-skriv-json-save-v43">
+(function(){
+  if(window.__safe455uH45g10l42SkrivJsonSave)return;
+  window.__safe455uH45g10l42SkrivJsonSave={installed:true,phase:'SAFE455uH45g10l44'};
+  const PROTOCOL='tavleapp-saver-v1';
+  const APP='himmerlands-udtalelser';
+  function escName(s){
+    s=String(s||'').trim()||'Skriv-Backup.json';
+    s=s.replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,'_');
+    if(!/\.json$/i.test(s))s+='.json';
+    return s;
+  }
+  function nowStamp(){
+    const d=new Date();
+    const p=n=>String(n).padStart(2,'0');
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+'-'+p(d.getMinutes());
+  }
+  function fallbackName(payload,backup){
+    payload=payload||{}; backup=backup||{};
+    function validIni(x){
+      x=String(x||'').toUpperCase().replace(/[^A-ZÆØÅ]/g,'');
+      if(/^(SKRIV|TAVLE|TJEK|HTML|PDF|JSON|BACKUP)$/i.test(x))return '';
+      return /^[A-ZÆØÅ]{1,4}$/.test(x)?x:'';
+    }
+    function initialsFromName(x){
+      try{
+        const raw=String(x||'').trim();
+        if(!raw)return '';
+        const direct=validIni(raw); if(direct)return direct;
+        const parts=raw.split(/\s+/).filter(Boolean);
+        if(parts.length>=2)return validIni((parts[0][0]||'')+(parts[parts.length-1][0]||''));
+        return validIni(parts.map(p=>p[0]||'').join(''));
+      }catch(_e){return '';}
+    }
+    function parseMaybe(v){
+      if(typeof v!=='string')return v;
+      const t=v.trim();
+      if(!t)return v;
+      if((t[0]==='{'&&t.endsWith('}'))||(t[0]==='['&&t.endsWith(']'))){try{return JSON.parse(t);}catch(_e){} }
+      return v;
+    }
+    function scan(o,depth){
+      if(!o||typeof o!=='object'||depth>5)return '';
+      const keys=['meInitials','initials','kontaktlaererInitialer','kontaktlærerInitialer','teacherInitials','kInitials','selectedTeacherInitials','me','meResolvedConfirmed','meResolved','meFullName','teacherName','kontaktTeacherName','kontaktlaererName','kontaktlærerNavn','kontaktlaererNavn','name','fullName'];
+      for(const k of keys){
+        const v=o[k];
+        const r=validIni(v)||initialsFromName(v);
+        if(r)return r;
+      }
+      for(const k of Object.keys(o||{})){
+        const v=parseMaybe(o[k]);
+        if(v&&typeof v==='object'){
+          const r=scan(v,depth+1); if(r)return r;
+        }else if(typeof v==='string'){
+          // Fallback: find embedded teacher/name fields inside escaped JSON strings.
+          const t=v;
+          let m=t.match(/"(?:meInitials|initials)"\s*:\s*"([A-ZÆØÅ]{1,4})"/i); if(m){const r=validIni(m[1]); if(r)return r;}
+          m=t.match(/"(?:meFullName|meResolved|meResolvedConfirmed|teacherName|kontaktlaererNavn|kontaktlærerNavn)"\s*:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/i); if(m){const r=initialsFromName(m[1]); if(r)return r;}
+        }
+      }
+      return '';
+    }
+    function extractIni(){
+      const r=scan(payload,0)||scan(backup,0); if(r)return r;
+      try{
+        const data=(backup&&backup.data)||{};
+        const pref=String(backup.prefix||'udt_');
+        for(const key of [pref+'settings','udt_settings','settings','elevudtalelser_settings']){
+          const v=parseMaybe(data[key]);
+          const rr=scan(v,0); if(rr)return rr;
+        }
+      }catch(_e){}
+      return '';
+    }
+    function stamp(){
+      try{
+        const d=new Date(backup.createdAt||payload.createdAt||Date.now());
+        if(!isNaN(d.getTime())){
+          const pad=n=>String(n).padStart(2,'0');
+          return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'_'+pad(d.getHours())+'-'+pad(d.getMinutes());
+        }
+      }catch(_e){}
+      return nowStamp();
+    }
+    let name=String((payload&&payload.filename)||(backup&&(backup.filename||backup.suggestedFilename))||'').trim();
+    const raw=name;
+    const hasRealInitialPrefix=/^[A-ZÆØÅ]{1,4}[_-]/i.test(raw) && !/^(skriv|tavle|tjek|html|pdf|json|backup)[_-]/i.test(raw);
+    const looksLikeAppFile=/^(skriv[_-]?tavle|skriv[_-]?pdf|tavle[_-]?safe|tjek[_-]?|.*handoff.*\.html|.*\.html[_-]?backup\.json|.*\.html\.json|.*\.html\.bin)$/i.test(raw);
+    const generic=!raw || /^Skriv[-_ ]?Backup/i.test(raw) || looksLikeAppFile || !hasRealInitialPrefix;
+    const ini=extractIni();
+    if(generic && ini) name=ini+'_UdtalelsesBackup_'+stamp()+'.json';
+    if(!name) name='Skriv-Backup-'+nowStamp()+'.json';
+    return escName(name);
+  }
+  function stableHash(obj){
+    try{
+      const data=obj&&obj.data?obj.data:obj;
+      const keys=Object.keys(data||{}).sort();
+      let s='';
+      keys.forEach(k=>{s+=k+'='+String(data[k])+'\n';});
+      let h=2166136261;
+      for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+      return String(h>>>0);
+    }catch(_e){return String(Date.now());}
+  }
+  function cloneWithoutBridgeMeta(raw){
+    const out=JSON.parse(JSON.stringify(raw||{}));
+    if(out&&out.data&&typeof out.data==='object'){
+      Object.keys(out.data).forEach(k=>{
+        if(/^udt_.*(?:tab|lock|bridge).*$/i.test(String(k||'')))delete out.data[k];
+      });
+    }
+    return out;
+  }
+  function findHtmlWidgetById(id){
+    id=String(id||'');
+    try{
+      const slides=(window.state&&state.slides)||[];
+      for(let si=0;si<slides.length;si++){
+        const ws=(slides[si]&&slides[si].widgets)||[];
+        for(let wi=0;wi<ws.length;wi++){
+          const w=ws[wi];
+          if(w&&String(w.id)===id&&w.type==='html')return w;
+        }
+      }
+    }catch(_e){}
+    return null;
+  }
+  function findHtmlWidgetBySource(srcWin){
+    if(!srcWin)return null;
+    try{
+      const frames=document.querySelectorAll('.widget[data-type="html"] iframe');
+      for(let i=0;i<frames.length;i++){
+        const fr=frames[i];
+        try{
+          if(fr&&fr.contentWindow===srcWin){
+            const host=fr.closest('.widget[data-type="html"]');
+            return findHtmlWidgetById(host&&host.dataset?host.dataset.id:'');
+          }
+        }catch(_e){}
+      }
+    }catch(_e){}
+    return null;
+  }
+  function postToSource(ev,type,payload,instanceId){
+    try{
+      if(ev&&ev.source&&typeof ev.source.postMessage==='function'){
+        ev.source.postMessage({protocol:PROTOCOL,app:'tavleapp',type,instanceId:instanceId||undefined,payload:payload||{}},'*');
+        return true;
+      }
+    }catch(_e){}
+    return false;
+  }
+  function persistState(){
+    let ok=false;
+    try{ok=!!save({silent:true});}catch(_e){ok=false;}
+    if(!ok){
+      try{localStorage.setItem(KEY,(typeof safe453i161Stringify==='function'?safe453i161Stringify(state):JSON.stringify(state)));ok=true;}catch(_e2){}
+    }
+    return ok;
+  }
+  async function handleSave(ev,msg){
+    const payload=(msg&&msg.payload)||{};
+    const instanceId=String(msg&&msg.instanceId||'');
+    const raw=payload.backup||payload;
+    if(!raw||typeof raw!=='object'||!raw.data||typeof raw.data!=='object')return;
+    const w=findHtmlWidgetBySource(ev&&ev.source);
+    if(!w){
+      postToSource(ev,'UDT_SAVE_ERROR',{message:'Tavle kunne ikke finde den Skriv-widget, der sendte backup.'},instanceId);
+      return;
+    }
+    w.data=w.data||{};
+    const backup=cloneWithoutBridgeMeta(raw);
+    const filename=fallbackName(payload,backup);
+    backup.filename=filename;
+    backup.suggestedFilename=filename;
+    if(!backup.createdAt)backup.createdAt=new Date().toISOString();
+    const json=JSON.stringify(backup,null,2);
+    const hash=String(payload.hash||stableHash(backup));
+    const a=window.TavleMediaArchive;
+    let savedRef='';
+    if(a&&typeof a.putMedia==='function'){
+      const blob=new Blob([json],{type:'application/json;charset=utf-8'});
+      /* Bevidst uden id: hver manuel Skriv-gemning er en selvstændig gemmefil/version. */
+      const rec=await a.putMedia({
+        kind:'json',
+        name:filename,
+        mimeType:'application/json;charset=utf-8',
+        source:'html-widget-udtalelser-json-backup',
+        blob,
+        meta:{safePhase:'SAFE455uH45g10l44',sourceWidgetId:String(w.id||''),producer:'Skriv',app:APP,protocol:PROTOCOL,hash,filename,savedAt:new Date().toISOString()}
+      });
+      savedRef=(rec&&rec.id)?String(rec.id):'';
+    }
+    if(savedRef){
+      w.data.udtBackupRef=savedRef;
+      if(!Array.isArray(w.data.udtBackupRefs))w.data.udtBackupRefs=[];
+      w.data.udtBackupRefs=[savedRef].concat(w.data.udtBackupRefs.filter(r=>String(r)!==savedRef)).slice(0,25);
+      state.udtalelserLatestBackupRef=savedRef;
+      delete w.data.udtBackup; delete state.udtalelserLatestBackup;
+    }else{
+      w.data.udtBackup=json;
+      state.udtalelserLatestBackup=json;
+    }
+    w.data.udtSaver='udtalelser';
+    w.data.udtProtocol=PROTOCOL;
+    w.data.udtLastHash=hash;
+    w.data.udtSanitizedHash=hash;
+    w.data.udtLastSavedAt=new Date().toISOString();
+    w.data.udtTitle=String((backup&&backup.title)||payload.title||w.data.name||w.title||'Udtalelser');
+    w.data.udtBackupFilename=filename;
+    state.udtalelserLatestHash=hash;
+    state.udtalelserLatestSanitizedHash=hash;
+    state.udtalelserLatestSavedAt=w.data.udtLastSavedAt;
+    const ok=persistState();
+    if(ok){
+      postToSource(ev,'UDT_SAVE_ACK',{hash,ref:savedRef||undefined,filename,savedAt:w.data.udtLastSavedAt},instanceId);
+      try{toast('Skriv-backup gemt: '+filename);}catch(_e){}
+    }else{
+      postToSource(ev,'UDT_SAVE_ERROR',{message:'Tavle kunne gemme JSON, men ikke persistere widget-state.'},instanceId);
+    }
+  }
+  window.addEventListener('message',function(ev){
+    const msg=ev&&ev.data;
+    if(!msg||msg.protocol!==PROTOCOL||msg.app!==APP||msg.type!=='UDT_SAVE_JSON')return;
+    handleSave(ev,msg).catch(err=>{
+      try{console.warn('l42 UDT_SAVE_JSON failed',err);}catch(_e){}
+      postToSource(ev,'UDT_SAVE_ERROR',{message:(err&&err.message)||'Kunne ikke gemme Skriv-backup i Tavle.'},String(msg&&msg.instanceId||''));
+    });
+  },true);
+})();
+</script>
+
+
+
+<script>
+/* SAFE455uH45g10l58: Fresh IndexedDB media archive override.
+   Recovery patch: do not reuse a cached IDBDatabase connection, because iPad/Safari can leave
+   the cached connection in "closing" state after media-map cleanup/modals. Every media operation
+   opens its own connection and closes it after the transaction completes. This restores PDF handoff
+   and Skriv/Tjek backup writes without touching widget/render flow. */
+(function(){
+  'use strict';
+  var DB_NAME='maans_tavle_media_archive';
+  var DB_VERSION=1;
+  var STORE_MEDIA='media';
+  var STORE_META='meta';
+  function nowIso(){ try{return new Date().toISOString();}catch(_e){return String(Date.now());} }
+  function supported(){ return !!(window.indexedDB && window.Blob); }
+  function normalizeKind(kind){
+    kind=String(kind||'media').toLowerCase();
+    if(['image','pdf','audio','video','drawing','restorepoint','restorepoint','boardshot','html','media'].indexOf(kind)<0) return 'media';
+    return kind==='restorePoint'?'restorepoint':kind;
+  }
+  function makeId(prefix){
+    var p=prefix||'media', rnd='';
+    try{ if(window.crypto&&crypto.getRandomValues){ var a=new Uint32Array(2); crypto.getRandomValues(a); rnd=Array.prototype.map.call(a,function(n){return n.toString(36);}).join(''); } }catch(_e){}
+    if(!rnd) rnd=Math.random().toString(36).slice(2);
+    return p+'_'+Date.now().toString(36)+'_'+rnd;
+  }
+  function openFreshDb(){
+    if(!supported()) return Promise.reject(new Error('IndexedDB understøttes ikke i denne browser.'));
+    return new Promise(function(resolve,reject){
+      var req;
+      try{ req=indexedDB.open(DB_NAME, DB_VERSION); }catch(err){ reject(err); return; }
+      req.onupgradeneeded=function(ev){
+        var db=ev.target.result, media;
+        if(!db.objectStoreNames.contains(STORE_MEDIA)){
+          media=db.createObjectStore(STORE_MEDIA,{keyPath:'id'});
+          try{media.createIndex('kind','kind',{unique:false});}catch(_e){}
+          try{media.createIndex('createdAt','createdAt',{unique:false});}catch(_e){}
+          try{media.createIndex('source','source',{unique:false});}catch(_e){}
+        }
+        if(!db.objectStoreNames.contains(STORE_META)) db.createObjectStore(STORE_META,{keyPath:'key'});
+      };
+      req.onsuccess=function(ev){
+        var db=ev.target.result;
+        try{ db.onversionchange=function(){ try{db.close();}catch(_e){} }; }catch(_e){}
+        resolve(db);
+      };
+      req.onerror=function(){ reject(req.error||new Error('Kunne ikke åbne mediearkiv.')); };
+      req.onblocked=function(){ reject(new Error('Mediearkivet er blokeret af en anden fane.')); };
+    });
+  }
+  function withStore(mode, work){
+    return openFreshDb().then(function(db){
+      return new Promise(function(resolve,reject){
+        var tx, store, settled=false, result;
+        function close(){ try{db.close();}catch(_e){} }
+        try{
+          tx=db.transaction(STORE_MEDIA, mode||'readonly');
+          store=tx.objectStore(STORE_MEDIA);
+          result=work(store, tx, db, function(v){ settled=true; resolve(v); close(); }, function(e){ settled=true; reject(e); close(); });
+        }catch(err){ close(); reject(err); return; }
+        tx.oncomplete=function(){ if(!settled){ resolve(result); close(); } };
+        tx.onerror=function(){ if(!settled){ reject(tx.error||new Error('IndexedDB-transaktion fejlede.')); close(); } };
+        tx.onabort=function(){ if(!settled){ reject(tx.error||new Error('IndexedDB-transaktion blev afbrudt.')); close(); } };
+      });
+    });
+  }
+  function requestPromise(req){
+    return new Promise(function(resolve,reject){
+      req.onsuccess=function(){ resolve(req.result); };
+      req.onerror=function(){ reject(req.error||new Error('IndexedDB-fejl.')); };
+    });
+  }
+  function createRef(kind,name){ return {id:makeId(normalizeKind(kind||'media')),kind:normalizeKind(kind||'media'),name:name||'',createdAt:nowIso()}; }
+  function putMedia(item){
+    item=item||{};
+    var blob=item.blob||item.data||null;
+    if(!blob) return Promise.reject(new Error('Mangler medie-data/blob.'));
+    if(!(blob instanceof Blob)){
+      try{ blob=new Blob([blob],{type:item.mimeType||'application/octet-stream'}); }catch(err){ return Promise.reject(err); }
+    }
+    var id=item.id||makeId(normalizeKind(item.kind));
+    var rec={
+      id:id, kind:normalizeKind(item.kind), name:item.name||id,
+      mimeType:item.mimeType||blob.type||'application/octet-stream',
+      size:typeof item.size==='number'?item.size:blob.size,
+      source:item.source||'unknown', createdAt:item.createdAt||nowIso(), updatedAt:nowIso(),
+      meta:item.meta||{}, blob:blob
+    };
+    return withStore('readwrite', function(store, tx, db, done, fail){
+      var req=store.put(rec);
+      req.onsuccess=function(){ done(rec); };
+      req.onerror=function(){ fail(req.error||new Error('Kunne ikke gemme medie.')); };
+    });
+  }
+  function getMedia(id){
+    if(!id) return Promise.resolve(null);
+    return withStore('readonly', function(store, tx, db, done, fail){
+      var req=store.get(String(id));
+      req.onsuccess=function(){ done(req.result||null); };
+      req.onerror=function(){ fail(req.error||new Error('Kunne ikke læse medie.')); };
+    });
+  }
+  function getBlob(id){ return getMedia(id).then(function(rec){ return rec&&rec.blob?rec.blob:null; }); }
+  function getObjectURL(id){ return getBlob(id).then(function(blob){ return blob?URL.createObjectURL(blob):null; }); }
+  function revokeObjectURL(url){ try{ if(url) URL.revokeObjectURL(url); }catch(_e){} }
+  function listMedia(){
+    return withStore('readonly', function(store, tx, db, done, fail){
+      var out=[], req=store.openCursor();
+      req.onsuccess=function(ev){
+        var cursor=ev.target.result;
+        if(!cursor){ done(out); return; }
+        var v=cursor.value||{};
+        out.push({id:v.id,kind:v.kind,name:v.name,mimeType:v.mimeType,size:v.size||(v.blob&&v.blob.size)||0,source:v.source,createdAt:v.createdAt,updatedAt:v.updatedAt,meta:v.meta||{}});
+        cursor.continue();
+      };
+      req.onerror=function(){ fail(req.error||new Error('Kunne ikke læse mediearkiv.')); };
+    });
+  }
+  function deleteMedia(id){
+    if(!id) return Promise.resolve(false);
+    return withStore('readwrite', function(store, tx, db, done, fail){
+      var req=store.delete(String(id));
+      req.onsuccess=function(){ done(true); };
+      req.onerror=function(){ fail(req.error||new Error('Kunne ikke slette medie.')); };
+    });
+  }
+  function exportMedia(ids){
+    var wanted=ids&&ids.length?ids.map(String):null;
+    if(wanted) return Promise.all(wanted.map(getMedia)).then(function(items){ return items.filter(Boolean); });
+    return openFreshDb().then(function(db){
+      return new Promise(function(resolve,reject){
+        var tx, store, req;
+        try{ tx=db.transaction(STORE_MEDIA,'readonly'); store=tx.objectStore(STORE_MEDIA); req=store.getAll(); }
+        catch(err){ try{db.close();}catch(_e){} reject(err); return; }
+        req.onsuccess=function(){ resolve(req.result||[]); try{db.close();}catch(_e){} };
+        req.onerror=function(){ reject(req.error||new Error('Kunne ikke eksportere medier.')); try{db.close();}catch(_e){} };
+        tx.onabort=function(){ reject(tx.error||new Error('Eksport blev afbrudt.')); try{db.close();}catch(_e){} };
+      });
+    });
+  }
+  function importMedia(items){
+    items=Array.isArray(items)?items:[];
+    return withStore('readwrite', function(store, tx, db, done, fail){
+      var count=0;
+      try{
+        items.forEach(function(item){
+          if(!item||!item.id||!(item.blob||item.data)) return;
+          var blob=item.blob||item.data;
+          if(!(blob instanceof Blob)) blob=new Blob([blob],{type:item.mimeType||'application/octet-stream'});
+          store.put({id:String(item.id),kind:normalizeKind(item.kind),name:item.name||String(item.id),mimeType:item.mimeType||blob.type||'application/octet-stream',size:typeof item.size==='number'?item.size:blob.size,source:item.source||'backup',createdAt:item.createdAt||nowIso(),updatedAt:nowIso(),meta:item.meta||{},blob:blob});
+          count++;
+        });
+        tx.oncomplete=function(){ done(count); };
+      }catch(err){ fail(err); }
+    });
+  }
+  function estimateSize(){ return listMedia().then(function(list){ return {count:list.length,bytes:list.reduce(function(sum,item){return sum+(Number(item.size)||0);},0),items:list}; }); }
+  window.TavleMediaArchive={__safe453i84:true,__safe455uL58Fresh:true,dbName:DB_NAME,storeName:STORE_MEDIA,isSupported:supported,createRef:createRef,putMedia:putMedia,getMedia:getMedia,getBlob:getBlob,getObjectURL:getObjectURL,revokeObjectURL:revokeObjectURL,listMedia:listMedia,deleteMedia:deleteMedia,exportMedia:exportMedia,importMedia:importMedia,estimateSize:estimateSize};
+})();
+</script>
+
+<script id="safe455-l97-trash-icon-load-sync">
+(function(){
+  function sync(){try{ if(typeof updateTrashTopIconState==='function') updateTrashTopIconState(); }catch(_e){}}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',sync,{once:true});
+  else sync();
+  setTimeout(sync,100);
+})();
+</script>
+
+
+<script id="safe455-l98-restore-all-button-rebind">
+(function(){
+  function bind(){
+    try{
+      const btn=document.getElementById('trashRestoreAllBtn');
+      if(btn && !btn.__safe455L98RestoreAllBound){
+        btn.__safe455L98RestoreAllBound=true;
+        btn.onclick=function(e){
+          e.preventDefault();
+          e.stopPropagation();
+          if(typeof restoreAllTrashWidgetsToOriginalBoards==='function'){
+            restoreAllTrashWidgetsToOriginalBoards();
+          }
+        };
+      }
+    }catch(_e){}
+  }
+  function wrap(name){
+    try{
+      const fn=window[name];
+      if(typeof fn!=='function' || fn.__safe455L98RestoreAllWrap)return;
+      window[name]=function(){
+        const r=fn.apply(this,arguments);
+        setTimeout(bind,0);
+        return r;
+      };
+      window[name].__safe455L98RestoreAllWrap=true;
+    }catch(_e){}
+  }
+  wrap('updateTrashBoardUI');
+  wrap('openTrashBoard');
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});
+  else bind();
 })();
 </script>
 
