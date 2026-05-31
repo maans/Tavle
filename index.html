@@ -38,6 +38,7 @@
 <!-- SAFE455uH45g10l75: Performance patch 5: mørk transform-overlay retter PDF/PDF.js-hvid flade under træk. -->
 <!-- SAFE455uH45g10l76: Performance patch 6: transform-pause må kun blanke den aktive widget; andre HTML/PDF/billede/canvas-widgets forbliver synlige. -->
 <!-- SAFE455uH45g10l92: Performance patch 20: tung papirkurv-badge observer erstattet af let state-baseret badge. -->
+<!-- SAFE455uH45g10l101: Hjælp retter TiddlyWiki-vejledning: installeres via Demoer/Hjælp, ikke manuel download/import. -->
 <!-- SAFE455uH45g10l71: Performance patch 1: HTML-widget iframes pauses visuelt under flyt/resize/rotation; ingen render-/bridge-/IndexedDB-ændringer. -->
 <!-- SAFE455uH45g10l72: Performance patch 2: rAF-throttle på drag/resize/rotation style-opdateringer; ingen render-/bridge-/IndexedDB-ændringer. -->
 <!-- SAFE455uH45g10l73: Performance patch 3: samme lette transform-pause udvides til PDF/billede/tegning/hjul/KaPardy/grupper/afstemning/ordsky; ingen render-/bridge-/IndexedDB-ændringer. -->
@@ -124,7 +125,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.50 SAFE455uH45g10l98-performance-patch-26-restore-all-to-original-boards</title>
+<title>Interaktiv tavle v1.2.51 SAFE455uH45g10l101-help-tiddlywiki-demo-install-fix</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -33409,7 +33410,8 @@ function showQuickHelp(){
   <style id="safe455a-help-manual-css">
     .helpQuickStart{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 12px}
     .helpQuickCard{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:10px 12px;line-height:1.3}
-    .helpQuickCard b{display:block;margin-bottom:4px}
+    .helpQuickCard>b:first-child{display:block;margin-bottom:4px}
+    .helpQuickCard b:not(:first-child){display:inline;margin-bottom:0}
     .helpKeyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
     .helpKeyBox{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:9px 10px;line-height:1.35}
     .helpKeyBox b{display:block;margin-bottom:3px;color:#111827}
@@ -33439,7 +33441,7 @@ function showQuickHelp(){
   <div class="helpQuickStart">
     <div class="helpQuickCard"><b>1. Byg tavlen</b> Brug værktøjslinjen nederst eller <b>Mere</b>. Træk widgets rundt, ændr størrelse og læg dem i lag.</div>
     <div class="helpQuickCard"><b>2. Brug tavlen live</b> <b>P/R</b> skifter præsentation. <b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer.</div>
-    <div class="helpQuickCard"><b>3. Find hurtigt rundt</b> <b>Shift+T</b> åbner Tavleoverblik. <b>D</b> åbner Datakilder. <b>Mellemrum</b> åbner Mere, når ingen widget er valgt.</div>
+    <div class="helpQuickCard"><b>3. Find hurtigt rundt</b> <b>Q/Å/Shift+T</b> åbner/lukker Tavleoverblik. <b>D</b> åbner Datakilder. <b>Mellemrum</b> åbner Mere, når ingen widget er valgt.</div>
   </div>
 
   <div class="helpShortcutPrinciples" style="margin:10px 0 14px;padding:10px 12px;border-radius:12px;background:#eef2ff;color:#111827;font-size:14px;line-height:1.35">
@@ -33454,10 +33456,10 @@ function showQuickHelp(){
           <li><b>← / →</b> skifter tavle. <b>1–9</b> går direkte til tavle 1–9. <b>0</b> går til tavle 10.</li>
           <li><b>↑ / ↓</b> vælger widgets på tavlen. Den valgte widget lægges forrest, så du kan arbejde med den.</li>
           <li><b>P</b> eller <b>R</b> skifter mellem redigering og præsentation.</li>
-          <li><b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer valgt/fokuseret widget. <b>Esc</b> går tilbage.</li>
+          <li><b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer valgt/fokuseret widget. <b>Esc</b> går tilbage eller lukker det, du er i.</li>
           <li><b>Mellemrum</b> åbner <b>Mere</b>, når ingen widget er valgt. Hvis et hjul, grupper eller afstemning er valgt, bruges mellemrum til widgettens egen handling.</li>
           <li><b>Højreklik på tom tavlebaggrund</b> åbner også <b>Mere</b>. Det skal ikke ske på widgets eller i modaler.</li>
-          <li><b>Shift+T</b> åbner Tavleoverblik. Her kan du hurtigt hoppe, flytte, slette, lave Tavleshot og se gendannelsespunkter.</li>
+          <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik. Her kan du hurtigt hoppe, flytte, slette, lave Tavleshot og se gendannelsespunkter.</li>
         </ul>
       </div>
     </details>
@@ -33467,13 +33469,26 @@ function showQuickHelp(){
       <div class="answer">
         <div class="helpKeyGrid">
           <div class="helpKeyBox"><b>Live</b><b>P/R</b> præsentation · <b>F</b> fokus · <b>Shift+F</b> maksimer · <b>Esc</b> tilbage/luk</div>
-          <div class="helpKeyBox"><b>Tavler</b><b>N</b> ny tavle · <b>←/→</b> skift tavle · <b>Shift+T</b> Tavleoverblik · <b>Cmd/Ctrl+O</b> widget-overblik</div>
-          <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt til anden tavle</div>
+          <div class="helpKeyBox"><b>Tavler</b><b>N</b> ny tavle · <b>←/→</b> skift tavle · <b>Q/Å/Shift+T</b> Tavleoverblik · <b>Cmd/Ctrl+O</b> widget-overblik</div>
+          <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt til anden tavle · <b>Shift+Ø</b> lås/lås op</div>
           <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
-          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid</div>
+          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid · <b>Shift+Enter</b> fuld skærm</div>
           <div class="helpKeyBox"><b>Opret</b><b>Shift+A/P/I/L/H/V</b> tekst/PDF/billede/link/HTML/video · <b>Shift+W/R/S/X/Q</b> hjul/grupper/ordsky/afstemning/KaPardy</div>
+          <div class="helpKeyBox"><b>Ekstra</b><b>Shift+Enter</b> fuld skærm · <b>Shift+N</b> værktøjslinje til/fra · <b>Shift+L</b> link · <b>Shift+Ø</b> lås valgt widget</div>
         </div>
         <p class="helpMiniNote">I en modal betyder <b>Enter</b> ofte “vælg/åbn”, piletaster flytter markering, og <b>Esc</b> lukker. Det gælder bl.a. Datakilder, Mere, Tavleoverblik og flere vælgere.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Widget-lås og valgte widgets</summary>
+      <div class="answer">
+        <ul>
+          <li><b>Shift+Ø</b> låser eller låser op for den valgte widget.</li>
+          <li>En låst widget bliver stående, så du ikke så let kommer til at flytte eller ændre den ved et uheld.</li>
+          <li><b>Shift+L</b> er stadig genvejen til Link-widget. Brug derfor <b>Shift+Ø</b> til lås.</li>
+          <li><b>↑/↓</b> vælger widgets på tavlen, og den valgte widget lægges forrest.</li>
+        </ul>
       </div>
     </details>
 
@@ -33511,7 +33526,7 @@ function showQuickHelp(){
       <summary>Tavleoverblik, Tavleshot og gendannelsespunkter</summary>
       <div class="answer">
         <ul>
-          <li><b>Shift+T</b> åbner Tavleoverblik. Brug <b>piletaster</b> til at markere en tavle og <b>Enter</b> til at åbne den.</li>
+          <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik. Brug <b>piletaster</b> til at markere en tavle og <b>Enter</b> til at åbne den.</li>
           <li><b>S</b> i Tavleoverblik laver Tavleshot af den markerede tavle.</li>
           <li><b>G</b> i Tavleoverblik åbner Gendannelsespunkter. Marker et punkt og tryk <b>Enter</b> for at gendanne som ny tavle.</li>
           <li><b>Delete/Backspace</b> sletter en almindelig tavle. <b>Cmd/Ctrl + piletaster</b> flytter tavlen i rækkefølgen.</li>
@@ -33567,16 +33582,19 @@ function showQuickHelp(){
 
 
     <details>
-      <summary>HTML-widget, HTMLApps og TiddlyWiki</summary>
+      <summary>HTML-widget, HTMLApps, Skriv, Tjek og TiddlyWiki</summary>
       <div class="answer">
         <ul>
           <li><b>HTML-widgetten</b> kan vise, oprette, redigere og gemme lokale HTML-filer direkte i tavlens mediearkiv.</li>
-          <li><b>HTMLApps</b> er hele små apps, der installeres som HTMLWidgets. Brug Demoer eller knapperne i Hjælp til at installere Skriv, Tjek, Tavle eller TiddlyWiki.</li>
+          <li><b>HTMLApps</b> er hele små apps, der bor inde i Tavle som HTML-widgets. Brug Demoer eller knapperne i Hjælp til at installere Skriv, Tjek, Tavle eller TiddlyWiki.</li>
           <li><b>Iframe viser en app. HTMLApp bor i tavlen.</b> Brug HTMLApp, hvis appen og dens data skal med i Backup Plus.</li>
+          <li>Når <b>Skriv</b> kører inde i Tavle, kan Skriv gemme sin backup tilbage til Tavle. Tavle viser filnavn og dato under <b>Hent filer</b>.</li>
+          <li>Skriv kan også sende en <b>PDF direkte til Tavle</b>. PDF’en bliver modtaget som en almindelig PDF-widget, der kan flyttes, fokuseres, maksimeres og gemmes sammen med tavlen.</li>
+          <li>Når <b>Tjek</b> kører inde i Tavle, kan Tjek også gemme via Tavle. Uden for Tavle gemmer Skriv og Tjek som almindelige standalone-apps.</li>
           <li>Brug knappen i widget-bjælken til at skifte mellem webvisning og tekst/redigering.</li>
-          <li>Klik eller tap i webvisningen for at bruge den indlejrede side. Brug <b>Esc</b> eller klik uden for widgetten for at komme tilbage til tavlen.</li>
+          <li>Klik eller tap i webvisningen for at bruge den indlejrede side. Klik/tap uden for widgetten for at komme tilbage til tavlen. <b>Esc</b> er stadig den generelle tilbage/luk-tast.</li>
           <li>Zoomknapperne i widget-bjælken ændrer visningen og huskes for den enkelte HTML-widget.</li>
-          <li><b>TiddlyWiki</b> bør hentes med TiddlyWikis egen download/save-metode og derefter importeres som HTMLWidget. Brug ikke browserens “Gem side som…”.</li>
+          <li><b>TiddlyWiki</b> kan installeres direkte fra <b>Demoer</b> eller vælges som HTMLApp/widget via <b>Hjælp</b>. Brug Tavles knapper til at oprette den i stedet for at gemme websiden med browserens “Gem side som…”.</li>
           <li>Store HTML-/TiddlyWiki-filer indlæses sikkert med manuel start, så appen ikke låser ved opstart.</li>
           <li>Når du henter en HTML-/TiddlyWiki-fil ud fra TavleAppen, eksporteres den rå gemte fil igen som HTML.</li>
           <li>Når en HTML-/TiddlyWiki-widget slettes permanent, ryddes dens gemte medie også, hvis det ikke bruges af andre widgets.</li>
@@ -33668,22 +33686,25 @@ function showQuickHelp(){
       <div class="answer">
         <ul>
           <li><b>Gem backup</b> gemmer den åbne tavleopsætning, så du kan åbne den igen senere.</li>
-          <li><b>Backup +</b> er den sikre udgave, når tavlen også bruger lokale billeder, tegninger, kameraoptagelser eller gendannelsespunkter.</li>
+          <li><b>Backup +</b> er den sikre udgave, når tavlen også bruger lokale billeder, tegninger, kameraoptagelser, HTMLApps, lokale PDF’er eller gendannelsespunkter.</li>
+          <li><b>Backup +</b> kan også importeres ved at indsætte JSON-tekst i Gem/åbn, hvis almindelig filimport driller på iPad eller i en bestemt browser.</li>
           <li><b>Gem skabelon</b> er til tomme eller genbrugelige tavleopsætninger, som du vil starte fra igen.</li>
-          <li><b>Hent filer fra tavlen</b> bruges, når du vil hente enkelte billeder eller filer ud fra den aktuelle tavle.</li>
+          <li><b>Hent filer fra tavlen</b> bruges, når du vil hente enkelte billeder, PDF’er, HTMLApps eller filer fra fx Skriv ud af tavlen.</li>
           <li><b>Hvor ligger data?</b> er et kontrolvindue. Det viser, hvad tavlen bruger, uden at flytte eller slette noget.</li>
         </ul>
       </div>
     </details>
 
     <details>
-      <summary>Papirkurv, sletning og backup</summary>
+      <summary>Papirkurv, sletning og gendannelse</summary>
       <div class="answer">
         <ul>
           <li><b>T</b> åbner Papirkurv. I Papirkurv lukker <b>T</b>, <b>Esc</b> eller <b>Mellemrum</b>.</li>
           <li><b>Delete/Backspace</b> flytter valgt widget til papirkurven.</li>
           <li><b>Shift+Delete/Backspace</b> eller <b>Shift+klik på X</b> sletter permanent.</li>
           <li><b>Cmd/Ctrl+Z</b> gendanner senest slettede widget.</li>
+          <li>Når en widget gendannes, forsøger Tavle at lægge den tilbage på den tavle, den kom fra — med samme størrelse, placering og rotation.</li>
+          <li><b>Gendan alle</b> er tænkt som en tryg vej tilbage, hvis du har slettet flere ting fra forskellige tavler.</li>
         </ul>
       </div>
     </details>
@@ -33692,9 +33713,11 @@ function showQuickHelp(){
       <summary>PDF, iframe, fokus og præsentation</summary>
       <div class="answer">
         <ul>
-          <li>I præsentation skjules redigeringsværktøjer, så tavlen kan bruges foran elever.</li>
+          <li>I præsentation skjules redigeringsværktøjer, så tavlen kan bruges roligt foran elever.</li>
           <li><b>F</b> bruges til at fremhæve én widget uden at forlade tavlen. <b>Shift+F</b> maksimerer.</li>
-          <li>Klik i PDF eller iframe kan give widgetten kontrol. <b>Esc</b> bruges til at slippe kontrollen igen.</li>
+          <li>PDF’er kan bruges som almindelige tavleobjekter: flyt dem, forstør dem, fokuser dem eller brug dem i præsentation.</li>
+          <li>Når Skriv sender en PDF til Tavle, lander den som en PDF-widget og kan bruges på samme måde som andre PDF’er.</li>
+          <li>I en iframe/HTMLApp kan du klikke/tappe i webvisningen for at bruge den indlejrede app. Klik/tap uden for widgetten for at komme tilbage til Tavlen. <b>Esc</b> er generelt din “tilbage/luk”-tast.</li>
           <li>Hvis noget virker “låst”, prøv først <b>Esc</b>, derefter <b>Redningsbælte</b> med <b>Shift+O</b>.</li>
         </ul>
       </div>
@@ -33702,7 +33725,7 @@ function showQuickHelp(){
   </div>
 
   <div class="helpPager">
-    <span>Hurtigst i gang: N · Shift+A · Shift+I · P/R · F · Shift+T · D · Mellemrum · I Hjælp: → næste/åbn · ← forrige/luk undervejs · ↑/↓ scroll · Enter skifter · Esc lukker</span>
+    <span>Hurtigst i gang: N · Shift+A · Shift+I · P/R · F · Q/Å/Shift+T · D · Mellemrum · I Hjælp: → næste/åbn · ← forrige/luk undervejs · ↑/↓ scroll · Enter skifter · Esc lukker</span>
     <button id="closeHelp">Luk</button>
   </div>`);
   modal.querySelector('#closeHelp').onclick=closeModal;
