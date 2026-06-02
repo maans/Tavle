@@ -16361,6 +16361,37 @@ function safe455uH150ClearPdfDataLinkForBlankTemplate(w){
   }catch(err){console.warn('SAFE455uH150 kunne ikke afkoble PDF-datakobling',err);}
 }
 
+
+function safe470PreparePdfWidgetForNewExternalSource(w){
+  /* SAFE470: Når en PDFWidget skifter til lokal PDF/URL, skal gammel demo/skabelon
+     og koblede formularsvar ryddes først. Det gør skift fra KaPardy-skabelon/demo
+     til almindelig PDF på samme widget stabilt. */
+  try{
+    if(!w)return;
+    if(!w.data||typeof w.data!=='object'||Array.isArray(w.data))w.data={};
+    try{
+      if(typeof safe455uH150ClearPdfDataLinkForBlankTemplate==='function'){
+        safe455uH150ClearPdfDataLinkForBlankTemplate(w);
+      }
+    }catch(_e){}
+    delete w.data.isDemoPdf;
+    delete w.data.isPdfTemplate;
+    delete w.data.templateKind;
+    delete w.data.templateCapacity;
+    delete w.data.pdfFormData;
+    delete w.data.pdfFormUpdatedAt;
+    delete w.data.pdfFormDatasetId;
+    delete w.data.pdfFormDatasetName;
+    delete w.data.sourceDatasetId;
+    delete w.data.sourceDatasetName;
+    delete w.data.lastLocalDataWidgetSourceDatasetId;
+    delete w.data.lastLocalDataWidgetSourceName;
+    try{ if(typeof safe450ClearLinkedData==='function')safe450ClearLinkedData(w,'data'); }catch(_e){}
+    w.data.pdfInteractive=false;
+  }catch(err){console.warn('SAFE470 kunne ikke forberede PDFWidget til ny PDF-kilde',err);}
+}
+
+
 /* SAFE455uH45g10l142: Første sikre Åbn PDF-modal.
    Wrapper kun eksisterende PDF-knapper/handlers og kan nulstille den aktuelle PDFWidget til den indbyggede demo.
    Ingen ændring af PDF-rendering, formularfelter, sidevælger, outline, links, IndexedDB eller resize-flow. */
@@ -16446,9 +16477,22 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
     const clickExisting=function(sel,opts){
       opts=opts||{};
       const btn=c&&c.querySelector?c.querySelector(sel):null;
-      if(opts.detach!==false)detachForNewPdfSource();
-      close();
-      setTimeout(function(){try{if(btn&&typeof btn.click==='function')btn.click();else toast('PDF-knappen blev ikke fundet');}catch(e){console.warn('SAFE455uH142 PDF open wrapper failed',e);try{toast('Kunne ikke åbne PDF-valg');}catch(_e){}}},0);
+      /* SAFE471: Filvælger på iPad/Safari/Quine skal åbnes i samme brugerklik.
+         Derfor må vi ikke lukke modal og vente med setTimeout før .pdfLocal.click().
+         Første klik skal ramme den skjulte PDF-knap synkront. */
+      try{
+        if(!btn||typeof btn.click!=='function'){toast('PDF-knappen blev ikke fundet');return;}
+        if(sel==='.pdfLocal'){
+          btn.click();              // bevar user activation til filvælgeren
+          setTimeout(close,60);     // luk først efter at filvælgeren er trigget
+        }else{
+          close();
+          btn.click();
+        }
+      }catch(e){
+        console.warn('SAFE455uH142 PDF open wrapper failed',e);
+        try{toast('Kunne ikke åbne PDF-valg');}catch(_e){}
+      }
     };
     const openTemplate=function(opts){
       try{
@@ -30258,32 +30302,37 @@ if(w.type==='drawcopy'){
     return false;
   };
   const local=c.querySelector('.pdfLocal');
-  if(local)local.onclick=(e)=>{e.stopPropagation();pickLocalPdf(async (dataUrl,file)=>{
-    let archived=false;
-    try{
-      const rec=await safe453i155StoreLocalPdfFile(file);
-      w.data.fileMediaRef=rec.id;
-      w.data.name=file.name||rec.name||'PDF';
-      w.data.mimeType=rec.mimeType||file.type||'application/pdf';
-      w.data.size=rec.size||file.size||0;
-      w.data.source='pdf-local-widget';
-      delete w.data.src;
-      delete w.data.url;
-      archived=true;
-    }catch(err){
-      console.warn('SAFE453i155 PDF IndexedDB fallback til legacy dataURL',err);
-      w.data.src=dataUrl;
-      delete w.data.url;
-      delete w.data.fileMediaRef;
-      w.data.name=file.name||'PDF';
-      w.data.source='pdf-local-widget-legacy-fallback';
-    }
-    w.data.page=1;
-    delete w.data.pages;
-    fillContent(el,w);
-    save();
-    toast(archived?'PDF gemt i IndexedDB':'PDF indlejret i tavlen');
-  })};
+  if(local)local.onclick=(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    pickLocalPdf(async (dataUrl,file)=>{
+      let archived=false;
+      try{ safe470PreparePdfWidgetForNewExternalSource(w); }catch(_e){}
+      try{
+        const rec=await safe453i155StoreLocalPdfFile(file);
+        w.data.fileMediaRef=rec.id;
+        w.data.name=file.name||rec.name||'PDF';
+        w.data.mimeType=rec.mimeType||file.type||'application/pdf';
+        w.data.size=rec.size||file.size||0;
+        w.data.source='pdf-local-widget';
+        delete w.data.src;
+        delete w.data.url;
+        archived=true;
+      }catch(err){
+        console.warn('SAFE453i155 PDF IndexedDB fallback til legacy dataURL',err);
+        w.data.src=dataUrl;
+        delete w.data.url;
+        delete w.data.fileMediaRef;
+        w.data.name=file.name||'PDF';
+        w.data.source='pdf-local-widget-legacy-fallback';
+      }
+      w.data.page=1;
+      delete w.data.pages;
+      fillContent(el,w);
+      save();
+      toast(archived?'PDF gemt i IndexedDB':'PDF indlejret i tavlen');
+    });
+  };
   const pdfDownload=c.querySelector('.pdfDownload');
   if(pdfDownload)pdfDownload.onclick=(e)=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else safe453i157DownloadPdfWidget(w)};
   const pdfToolbarMiniToggle=c.querySelector('.pdfToolbarMiniToggle');
@@ -30318,8 +30367,10 @@ if(w.type==='drawcopy'){
   if(formDataExport)formDataExport.onclick=(e)=>{e.preventDefault();e.stopPropagation();safe455uH103TogglePdfAnswersDataWidget(w);};
   const urlBtn=c.querySelector('.pdfUrl');
   if(urlBtn)urlBtn.onclick=(e)=>{
+    e.preventDefault();
     e.stopPropagation();
-    safe455uH25AskPdfUrl(w,el,c,src);
+    try{ safe470PreparePdfWidgetForNewExternalSource(w); }catch(_e){}
+    safe455uH25AskPdfUrl(w,el,c,'');
   };
   const prev=c.querySelector('.pdfPrev');
   const next=c.querySelector('.pdfNext');
