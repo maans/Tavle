@@ -11548,6 +11548,12 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
 .safe460SizeTabs{display:flex;flex-wrap:wrap;gap:8px}
 .safe460SizeTabs button{border:1px solid rgba(15,23,42,.16);border-radius:999px;background:#f8fafc;padding:8px 12px;font-weight:950;cursor:pointer}
 .safe460SizeTabs button.active{background:#facc15;color:#111827;border-color:#eab308}
+.safe472GenreBox{display:flex;flex-direction:column;gap:6px;border:1px solid rgba(148,163,184,.32);border-radius:14px;background:#f8fafc;padding:10px 11px}
+.safe472GenreLabel{font-size:12px;font-weight:950;color:#475569;text-transform:uppercase;letter-spacing:.04em}
+.safe472GenreTabs{display:flex;flex-wrap:wrap;gap:7px}
+.safe472GenreTabs button{border:1px solid rgba(15,23,42,.14);border-radius:999px;background:#fff;padding:7px 10px;font-weight:900;cursor:pointer;color:#334155}
+.safe472GenreTabs button.active{background:#dbeafe;border-color:#60a5fa;color:#0f172a;box-shadow:0 0 0 3px rgba(96,165,250,.16)}
+.safe472GenreTabs button .count{opacity:.65;font-size:11px;margin-left:3px}
 .safe460Status{border:1px solid rgba(148,163,184,.35);border-radius:14px;padding:11px 12px;background:#f8fafc;font-weight:800;color:#334155;line-height:1.35}
 .safe460Games{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;max-height:min(46vh,470px);overflow:auto;padding-right:2px}
 .safe460GameCard{border:1px solid rgba(148,163,184,.42);border-radius:16px;background:#fff;padding:12px;box-shadow:0 1px 4px rgba(15,23,42,.06);display:flex;flex-direction:column;gap:8px;cursor:pointer;text-align:left;transition:transform .08s ease,box-shadow .08s ease,border-color .08s ease}
@@ -11758,6 +11764,356 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
 </style>
 
 
+
+
+<!-- SAFE473: Clean tabbed Spilbibliotek UI. Kun modal-layout, ikke KaPardy/PDF-logik. -->
+<style id="safe473-clean-game-library-tabs">
+.safe473GameLib{
+  width:min(760px,92vw)!important;
+  max-width:min(760px,92vw)!important;
+  max-height:min(82vh,780px)!important;
+  gap:12px!important;
+  overflow:auto!important;
+  padding:18px!important;
+  box-sizing:border-box!important;
+}
+.safe473Header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:2px}
+.safe473Header h2{margin:0 0 3px 0;font-size:24px;line-height:1.15}
+.safe473Header #safe473TopClose{width:38px;height:38px;border-radius:999px;border:1px solid rgba(15,23,42,.14);background:#f8fafc;font-weight:950;font-size:20px;cursor:pointer}
+.safe473Tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#eef2f7;border:1px solid rgba(148,163,184,.28);padding:5px;border-radius:16px}
+.safe473Tabs button{border:0;border-radius:12px;background:transparent;color:#64748b;font-weight:950;padding:9px 6px;cursor:pointer;white-space:nowrap}
+.safe473Tabs button.active{background:#fff;color:#0f172a;box-shadow:0 1px 6px rgba(15,23,42,.10)}
+.safe473Tabs button.disabled{opacity:.35;cursor:not-allowed}
+.safe473Pane{border:1px solid rgba(148,163,184,.30);border-radius:18px;background:#fff;padding:14px;box-shadow:0 1px 8px rgba(15,23,42,.05)}
+.safe473PaneHead h3{margin:0 0 4px 0;font-size:18px;color:#0f172a}
+.safe473PaneHead p{margin:0 0 14px 0;font-size:13px;font-weight:800;color:#64748b;line-height:1.35}
+.safe473SizeCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.safe473GenreGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:min(42vh,380px);overflow:auto;padding-right:3px}
+.safe473BigCard{border:1px solid rgba(148,163,184,.36);border-radius:16px;background:#f8fafc;padding:13px 14px;text-align:left;cursor:pointer;box-shadow:0 1px 5px rgba(15,23,42,.05);display:flex;flex-direction:column;gap:4px;min-height:68px}
+.safe473BigCard b{font-size:17px;color:#0f172a;line-height:1.15}.safe473BigCard small{font-size:12px;font-weight:850;color:#64748b;line-height:1.25}
+.safe473BigCard.selected{background:#fff7cc;border-color:#facc15;box-shadow:0 0 0 3px rgba(250,204,21,.22)}
+.safe473GameList{display:flex;flex-direction:column;gap:8px;max-height:min(44vh,390px);overflow:auto;padding-right:3px}
+.safe473GameRow{border:1px solid rgba(148,163,184,.34);border-radius:15px;background:#fff;padding:12px 13px;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;cursor:pointer;box-shadow:0 1px 5px rgba(15,23,42,.05)}
+.safe473GameRow b{display:block;font-size:16px;color:#0f172a;margin-bottom:3px}.safe473GameRow small{display:block;font-size:12px;font-weight:850;color:#64748b}.safe473GameRow strong{border-radius:999px;background:#eef2ff;color:#334155;padding:6px 10px;font-size:12px;white-space:nowrap}
+.safe473GameRow.selected{background:#fff7cc;border-color:#facc15;box-shadow:0 0 0 3px rgba(250,204,21,.22)}
+.safe473OpenCard{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;border-radius:18px;background:linear-gradient(135deg,#fff7cc,#eff6ff);border:1px solid rgba(250,204,21,.5);padding:16px}
+.safe473OpenCard h3{margin:5px 0 4px 0;font-size:22px}.safe473OpenCard p{margin:0;color:#475569;font-weight:850}.safe473Badge{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#713f12;font-weight:950}
+.safe473OpenActions{display:flex;gap:9px;flex-wrap:wrap}.safe473OpenActions button{border:1px solid rgba(15,23,42,.14);border-radius:999px;background:#fff;padding:10px 13px;font-weight:950;cursor:pointer}.safe473OpenActions button.primary{background:#facc15;border-color:#eab308;color:#111827}.safe473OpenActions button.blue{background:#bae6fd;border-color:#38bdf8;color:#0f172a}
+.safe473QuietNote{margin:10px 2px 0;font-size:12px;font-weight:800;color:#64748b}
+.safe473Nav{display:flex;justify-content:space-between;gap:10px}.safe473Nav button,.safe473Utility button{border:1px solid rgba(15,23,42,.14);border-radius:999px;background:#fff;padding:9px 13px;font-weight:950;cursor:pointer}.safe473Nav button:disabled{opacity:.35;cursor:not-allowed}.safe473Utility{display:flex;justify-content:flex-end;margin-top:-2px}.safe473Utility button{font-size:12px;color:#64748b;background:#f8fafc}
+.safe473GameLib .safe460Status{font-size:13px;padding:10px 12px!important;border-radius:14px!important;background:#f8fafc!important;color:#334155!important}
+.safe473GameLib .safe460Choice,.safe473GameLib .safe460Games,.safe473GameLib .safe472GenreBox,.safe473GameLib .safe460SizeTabs{display:none!important}
+@media(max-width:760px){.safe473GameLib{width:94vw!important;padding:14px!important}.safe473Tabs{grid-template-columns:repeat(2,1fr)}.safe473SizeCards,.safe473GenreGrid{grid-template-columns:1fr}.safe473OpenActions button{width:100%}}
+</style>
+
+
+<!-- SAFE474: Spilbibliotek clean tabs fit-fix.
+     Holder faner og kort inde i modalvinduet og fjerner bredde-overløb. -->
+<style id="safe474-game-library-fit-fix">
+.safe473GameLib{
+  width:min(660px, calc(100vw - 34px))!important;
+  max-width:calc(100vw - 34px)!important;
+  max-height:min(86vh, 760px)!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  padding:18px!important;
+  box-sizing:border-box!important;
+}
+.safe473Header{flex:0 0 auto!important;min-width:0!important}
+.safe473Header>div{min-width:0!important}
+.safe473Header h2{font-size:23px!important}
+.safe473Tabs{
+  flex:0 0 auto!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  overflow:hidden!important;
+}
+.safe473Tabs button{
+  min-width:0!important;
+  width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.safe473GameLib .safe460Status{
+  flex:0 0 auto!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+.safe473Pane{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  overflow:auto!important;
+  min-width:0!important;
+  max-height:min(52vh, 430px)!important;
+}
+.safe473SizeCards,
+.safe473GenreGrid{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  overflow:auto!important;
+}
+.safe473GameList{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  overflow:auto!important;
+}
+.safe473BigCard,
+.safe473GameRow{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.safe473BigCard b,
+.safe473BigCard small,
+.safe473GameRow b,
+.safe473GameRow small{
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.safe473OpenCard{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+.safe473OpenActions{
+  width:100%!important;
+}
+.safe473OpenActions button{
+  flex:1 1 150px!important;
+}
+.safe473Nav,
+.safe473Utility{
+  flex:0 0 auto!important;
+}
+@media(max-width:760px){
+  .safe473GameLib{
+    width:calc(100vw - 24px)!important;
+    max-width:calc(100vw - 24px)!important;
+    padding:14px!important;
+  }
+  .safe473Tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .safe473SizeCards,
+  .safe473GenreGrid{grid-template-columns:1fr!important}
+  .safe473Pane{max-height:min(54vh, 420px)!important}
+}
+</style>
+
+
+<!-- SAFE475: Kompakt Spilbibliotek-layout.
+     Valgene er chips/knapper, ikke store kort. Stopper horisontalt overløb i alle faner. -->
+<style id="safe475-game-library-compact-overflow-fix">
+.safe473GameLib,
+.safe473GameLib *{
+  box-sizing:border-box!important;
+}
+.safe473GameLib{
+  width:min(620px, calc(100vw - 44px))!important;
+  max-width:calc(100vw - 44px)!important;
+  overflow:hidden!important;
+  padding:16px!important;
+}
+.safe473Header{
+  margin-bottom:0!important;
+}
+.safe473Header h2{
+  font-size:22px!important;
+}
+.safe473Tabs{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:5px!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  padding:4px!important;
+}
+.safe473Tabs button{
+  min-width:0!important;
+  max-width:100%!important;
+  padding:8px 4px!important;
+  font-size:14px!important;
+  line-height:1.05!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.safe473GameLib .safe460Status{
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  font-size:12px!important;
+  padding:8px 10px!important;
+  margin:0!important;
+}
+.safe473Pane{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow:auto!important;
+  overflow-x:hidden!important;
+  padding:12px!important;
+  max-height:min(50vh,410px)!important;
+}
+.safe473PaneHead h3{
+  font-size:17px!important;
+}
+.safe473PaneHead p{
+  margin-bottom:10px!important;
+}
+
+/* Antal og fag bliver kompakte valgchips */
+.safe473SizeCards,
+.safe473GenreGrid{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:flex-start!important;
+  gap:8px!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:visible!important;
+  padding:0!important;
+}
+.safe473BigCard{
+  width:auto!important;
+  max-width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  flex:0 1 auto!important;
+  padding:8px 11px!important;
+  border-radius:13px!important;
+  display:inline-flex!important;
+  flex-direction:row!important;
+  align-items:baseline!important;
+  gap:7px!important;
+  box-shadow:0 1px 3px rgba(15,23,42,.05)!important;
+}
+.safe473BigCard b{
+  font-size:15px!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+}
+.safe473BigCard small{
+  font-size:11px!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+  opacity:.75!important;
+}
+.safe473BigCard.selected{
+  background:#fef3c7!important;
+  color:#0f172a!important;
+}
+
+/* Spil-listen bliver rolig, én kolonne, uden vandret overløb */
+.safe473GameList{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:7px!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:auto!important;
+  overflow-x:hidden!important;
+  padding-right:2px!important;
+}
+.safe473GameRow{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  padding:9px 10px!important;
+  border-radius:13px!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:8px!important;
+  align-items:center!important;
+}
+.safe473GameRow > div{
+  min-width:0!important;
+}
+.safe473GameRow b{
+  font-size:15px!important;
+  line-height:1.12!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.safe473GameRow small{
+  font-size:11px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.safe473GameRow strong{
+  font-size:11px!important;
+  padding:5px 8px!important;
+  white-space:nowrap!important;
+}
+
+/* Åbn-fanen */
+.safe473OpenCard{
+  width:100%!important;
+  max-width:100%!important;
+  display:block!important;
+  padding:13px!important;
+}
+.safe473OpenCard h3{
+  font-size:19px!important;
+}
+.safe473OpenActions{
+  display:flex!important;
+  gap:7px!important;
+  flex-wrap:wrap!important;
+  width:100%!important;
+  margin-top:12px!important;
+}
+.safe473OpenActions button{
+  flex:1 1 130px!important;
+  min-width:0!important;
+  padding:9px 10px!important;
+  font-size:13px!important;
+}
+
+/* Bundknapper skal ikke presse layoutet ud */
+.safe473Nav,
+.safe473Utility{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+}
+.safe473Nav button,
+.safe473Utility button{
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+@media(max-width:760px){
+  .safe473GameLib{
+    width:calc(100vw - 28px)!important;
+    max-width:calc(100vw - 28px)!important;
+    padding:12px!important;
+  }
+  .safe473Tabs{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+  .safe473Tabs button{
+    font-size:12px!important;
+    padding:8px 2px!important;
+  }
+  .safe473BigCard{
+    padding:7px 9px!important;
+  }
+  .safe473BigCard b{
+    font-size:14px!important;
+  }
+}
+</style>
 
 </head>
 <body>
@@ -17080,56 +17436,166 @@ async function safe460OpenGame(game,action,root){
     try{btns.forEach(b=>b.disabled=false);}catch(_e){}
   }
 }
+
+function safe473GameLibraryCounts(games,selectedSize,selectedGenre){
+  const bySize=(Array.isArray(games)?games:[]).filter(g=>Number(g.size)===Number(selectedSize||5));
+  const genreCounts={};
+  bySize.forEach(g=>{const gr=String(g.genre||'Andet').trim()||'Andet'; genreCounts[gr]=(genreCounts[gr]||0)+1;});
+  const genres=Object.keys(genreCounts).sort((a,b)=>a.localeCompare(b,'da'));
+  if(selectedGenre&&selectedGenre!=='Alle'&&genres.indexOf(selectedGenre)<0)selectedGenre='Alle';
+  const filtered=bySize.filter(g=>!selectedGenre||selectedGenre==='Alle'||String(g.genre||'Andet')===selectedGenre);
+  return {bySize,genreCounts,genres,selectedGenre:selectedGenre||'Alle',filtered};
+}
+function safe473SetStep(root,step){try{root.dataset.safe473Step=String(step||'size');}catch(_e){}}
+function safe473StepLabel(step){return step==='size'?'1. Antal':step==='genre'?'2. Fag':step==='game'?'3. Spil':'4. Åbn';}
 function safe460RenderGameLibrary(root,games,selectedSize){
   try{
-    root.querySelectorAll('[data-safe460-size]').forEach(b=>b.classList.toggle('active',Number(b.dataset.safe460Size)===Number(selectedSize)));
-    const list=root.querySelector('#safe460Games');
+    selectedSize=Number(selectedSize||root.dataset.safe460Size||5)||5;
+    root.dataset.safe460Size=String(selectedSize);
+    const esc=(v)=>String(v==null?'':v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     const status=root.querySelector('#safe460Status');
+    const list=root.querySelector('#safe460Games');
     const choice=root.querySelector('#safe460Choice');
-    const filtered=(games||[]).filter(g=>Number(g.size)===Number(selectedSize));
-    if(status){status.className='safe460Status';status.textContent=filtered.length?('Viser '+filtered.length+' spil med '+selectedSize+' spørgsmål. Vælg ét spil; åbneknapperne vises over listen.'):'Ingen spil med '+selectedSize+' spørgsmål i spiloversigten.';}
-    if(!list)return;
-    if(!filtered.length){list.innerHTML=''; if(choice)choice.innerHTML=''; return;}
+    const tabbar=root.querySelector('#safe473Tabs');
+    const sizePane=root.querySelector('#safe473SizePane');
+    const genrePane=root.querySelector('#safe473GenrePane');
+    const gamePane=root.querySelector('#safe473GamePane');
+    const openPane=root.querySelector('#safe473OpenPane');
+    const nav=root.querySelector('#safe473Nav');
+    let step=String(root.dataset.safe473Step||'size');
+    let selectedGenre=String(root.dataset.safe472Genre||'Alle');
+    const counts=safe473GameLibraryCounts(games,selectedSize,selectedGenre);
+    selectedGenre=counts.selectedGenre;
+    root.dataset.safe472Genre=selectedGenre;
+    const filtered=counts.filtered;
+    let selectedKey=String(root.dataset.safe460SelectedKey||'');
+    let selectedGame=null;
+    if(selectedKey){
+      selectedGame=filtered.find(g=>(String(g.size)+'|'+String(g.url))===selectedKey)||null;
+    }
+    if(!selectedGame && filtered.length && (step==='open')) step='game';
+    if(step==='genre' && !counts.bySize.length) step='size';
+    if(step==='game' && !filtered.length) step='genre';
+    root.dataset.safe473Step=step;
 
-    // Bevar valgt spil, hvis det stadig findes efter filtrering; ellers vælg første spil.
-    const prevKey=String(root.dataset.safe460SelectedKey||'');
-    let selectedIndex=filtered.findIndex(g=>(String(g.size)+'|'+String(g.url))===prevKey);
-    if(selectedIndex<0)selectedIndex=0;
-    const selected=filtered[selectedIndex];
-    root.dataset.safe460SelectedKey=String(selected.size)+'|'+String(selected.url);
-
-    list.innerHTML=filtered.map((g,i)=>{
-      const title=esc(g.title||safe460TitleFromUrl(g.url)||'Spil');
-      const desc=g.description?'<small>'+esc(g.description)+'</small>':'';
-      const meta='<div class="safe460GameMeta"><span>'+esc(String(g.size||selectedSize))+' spørgsmål</span>'+(g.genre?'<span>'+esc(g.genre)+'</span>':'')+'</div>';
-      return '<button type="button" class="safe460GameCard '+(i===selectedIndex?'selected':'')+'" data-safe460-pick="'+i+'"><b>'+title+'</b>'+desc+meta+'</button>';
-    }).join('');
-
-    list.querySelectorAll('[data-safe460-pick]').forEach(btn=>{btn.onclick=function(e){
-      e.preventDefault();e.stopPropagation();
-      const g=filtered[Number(btn.dataset.safe460Pick)];
-      if(!g)return;
-      root.dataset.safe460SelectedKey=String(g.size)+'|'+String(g.url);
-      safe460RenderGameLibrary(root,games,selectedSize);
-    };});
-
-    if(choice){
-      choice.innerHTML='<div><div class="safe460ChoiceTitle">Valgt spil: '+esc(selected.title||safe460TitleFromUrl(selected.url)||'Spil')+'</div><span class="safe460ChoiceHint">Vælg hvordan spillet skal åbnes. Spilfilen hentes først nu.</span></div><div class="safe460ChoiceActions"><button class="primary" data-safe460-action="kapardy">Åbn i KaPardy</button><button class="blue" data-safe460-action="pdf">Åbn i PDFWidget</button><button data-safe460-action="both">Åbn begge</button></div>';
-      choice.querySelectorAll('[data-safe460-action]').forEach(btn=>{btn.onclick=function(e){
+    const stepIndex={size:0,genre:1,game:2,open:3};
+    if(tabbar){
+      tabbar.innerHTML=['size','genre','game','open'].map(s=>{
+        const disabled=(s==='genre'&&!counts.bySize.length)||(s==='game'&&!counts.bySize.length)||(s==='open'&&!selectedGame);
+        return '<button type="button" class="'+(s===step?'active ':'')+(disabled?'disabled':'')+'" '+(disabled?'disabled ':'')+'data-safe473-step="'+s+'"><span>'+esc(safe473StepLabel(s))+'</span></button>';
+      }).join('');
+      tabbar.querySelectorAll('[data-safe473-step]').forEach(btn=>{btn.onclick=function(e){
         e.preventDefault();e.stopPropagation();
-        safe460OpenGame(selected,btn.dataset.safe460Action,root);
+        if(btn.disabled)return;
+        root.dataset.safe473Step=btn.dataset.safe473Step;
+        safe460RenderGameLibrary(root,games,selectedSize);
       };});
+    }
+
+    [sizePane,genrePane,gamePane,openPane].forEach(p=>{if(p)p.style.display='none';});
+    const pane={size:sizePane,genre:genrePane,game:gamePane,open:openPane}[step];
+    if(pane)pane.style.display='block';
+
+    if(sizePane){
+      sizePane.innerHTML='<div class="safe473PaneHead"><h3>Vælg antal spørgsmål</h3><p>Korte spil skal være skarpe. Store spil giver mere bredde.</p></div><div class="safe473SizeCards">'+[5,10,15,20,25,30].map(n=>{
+        const c=(Array.isArray(games)?games:[]).filter(g=>Number(g.size)===n).length;
+        const hint=n<=10?'Hurtigt spil':n<=20?'Klassequiz':'Fuld runde';
+        return '<button type="button" class="safe473BigCard '+(n===selectedSize?'selected':'')+'" data-safe460-size="'+n+'"><b>'+n+' spørgsmål</b><small>'+hint+' · '+c+' spil</small></button>';
+      }).join('')+'</div>';
+      sizePane.querySelectorAll('[data-safe460-size]').forEach(btn=>{btn.onclick=function(e){
+        e.preventDefault();e.stopPropagation();
+        root.dataset.safe460Size=String(btn.dataset.safe460Size||5);
+        root.dataset.safe472Genre='Alle';
+        root.dataset.safe460SelectedKey='';
+        root.dataset.safe473Step='genre';
+        safe460RenderGameLibrary(root,games,Number(btn.dataset.safe460Size||5));
+      };});
+    }
+
+    if(genrePane){
+      const genreCards=['Alle'].concat(counts.genres).map(gr=>{
+        const n=gr==='Alle'?counts.bySize.length:counts.genreCounts[gr];
+        const selected=gr===selectedGenre;
+        return '<button type="button" class="safe473BigCard safe473GenreCard '+(selected?'selected':'')+'" data-safe472-genre="'+esc(gr)+'"><b>'+esc(gr)+'</b><small>'+n+' spil med '+selectedSize+' spørgsmål</small></button>';
+      }).join('');
+      genrePane.innerHTML='<div class="safe473PaneHead"><h3>Vælg fag / genre</h3><p>Kun de fag der findes for '+selectedSize+' spørgsmål vises.</p></div><div class="safe473GenreGrid">'+genreCards+'</div>';
+      genrePane.querySelectorAll('[data-safe472-genre]').forEach(btn=>{btn.onclick=function(e){
+        e.preventDefault();e.stopPropagation();
+        root.dataset.safe472Genre=String(btn.dataset.safe472Genre||'Alle');
+        root.dataset.safe460SelectedKey='';
+        root.dataset.safe473Step='game';
+        safe460RenderGameLibrary(root,games,selectedSize);
+      };});
+    }
+
+    if(gamePane){
+      if(!filtered.length){
+        gamePane.innerHTML='<div class="safe473PaneHead"><h3>Ingen spil her</h3><p>Vælg et andet fag eller antal spørgsmål.</p></div>';
+      }else{
+        gamePane.innerHTML='<div class="safe473PaneHead"><h3>Vælg spil</h3><p>'+filtered.length+' spil · '+selectedSize+' spørgsmål · '+esc(selectedGenre)+'</p></div><div class="safe473GameList">'+filtered.map((g,i)=>{
+          const key=String(g.size)+'|'+String(g.url);
+          const sel=key===selectedKey;
+          const title=esc(g.title||safe460TitleFromUrl(g.url)||'Spil');
+          const genre=esc(g.genre||'Andet');
+          return '<button type="button" class="safe473GameRow '+(sel?'selected':'')+'" data-safe460-pick="'+i+'"><span><b>'+title+'</b><small>'+genre+' · '+esc(String(g.size||selectedSize))+' spørgsmål</small></span><strong>Vælg</strong></button>';
+        }).join('')+'</div>';
+        gamePane.querySelectorAll('[data-safe460-pick]').forEach(btn=>{btn.onclick=function(e){
+          e.preventDefault();e.stopPropagation();
+          const g=filtered[Number(btn.dataset.safe460Pick)];
+          if(!g)return;
+          root.dataset.safe460SelectedKey=String(g.size)+'|'+String(g.url);
+          root.dataset.safe473Step='open';
+          safe460RenderGameLibrary(root,games,selectedSize);
+        };});
+      }
+    }
+
+    if(openPane){
+      if(!selectedGame){
+        openPane.innerHTML='<div class="safe473PaneHead"><h3>Vælg et spil først</h3><p>Gå tilbage til spillisten og vælg det spil, du vil åbne.</p></div>';
+      }else{
+        const title=esc(selectedGame.title||safe460TitleFromUrl(selectedGame.url)||'Spil');
+        const genre=esc(selectedGame.genre||'Andet');
+        openPane.innerHTML='<div class="safe473OpenCard"><div><span class="safe473Badge">Valgt spil</span><h3>'+title+'</h3><p>'+genre+' · '+esc(String(selectedGame.size||selectedSize))+' spørgsmål</p></div><div class="safe473OpenActions"><button class="primary" data-safe460-action="kapardy">Åbn i KaPardy</button><button class="blue" data-safe460-action="pdf">Åbn i PDFWidget</button><button data-safe460-action="both">Åbn begge</button></div></div><p class="safe473QuietNote">Spilfilen hentes først, når du vælger hvordan spillet skal åbnes.</p>';
+        openPane.querySelectorAll('[data-safe460-action]').forEach(btn=>{btn.onclick=function(e){
+          e.preventDefault();e.stopPropagation();
+          safe460OpenGame(selectedGame,btn.dataset.safe460Action,root);
+        };});
+      }
+    }
+
+    if(list)list.innerHTML='';
+    if(choice)choice.innerHTML='';
+    if(status){
+      status.className='safe460Status';
+      if(step==='size')status.textContent='Trin 1 af 4: vælg spillets størrelse.';
+      else if(step==='genre')status.textContent='Trin 2 af 4: vælg fag/genre for '+selectedSize+' spørgsmål.';
+      else if(step==='game')status.textContent='Trin 3 af 4: vælg ét spil i '+selectedGenre+'.';
+      else status.textContent='Trin 4 af 4: vælg hvordan spillet skal åbnes.';
+    }
+    if(nav){
+      const backDisabled=step==='size';
+      nav.innerHTML='<button type="button" id="safe473Back" '+(backDisabled?'disabled':'')+'>Tilbage</button><button type="button" id="safe473Close">Luk</button>';
+      const back=nav.querySelector('#safe473Back');
+      const close=nav.querySelector('#safe473Close');
+      if(back)back.onclick=function(e){e.preventDefault();e.stopPropagation(); const order=['size','genre','game','open']; const i=Math.max(0,order.indexOf(step)-1); root.dataset.safe473Step=order[i]; safe460RenderGameLibrary(root,games,selectedSize);};
+      if(close)close.onclick=function(e){e.preventDefault();e.stopPropagation();try{closeModal();}catch(_e){}};
     }
   }catch(err){console.warn('safe460RenderGameLibrary failed',err);}
 }
+
 async function safe460OpenGameLibraryModal(){
   try{
-    showModal('<div class="safe460GameLib"><h2>📚 Spilbibliotek</h2><p class="safe460Intro">Vælg antal spørgsmål, vælg et spil, og åbn det fra valgfeltet.</p><div class="safe460SizeTabs">'+[5,10,15,20,25,30].map(n=>'<button type="button" data-safe460-size="'+n+'">'+n+' spørgsmål</button>').join('')+'</div><div id="safe460Status" class="safe460Status">Henter spiloversigt…</div><div id="safe460Choice" class="safe460Choice"></div><div id="safe460Games" class="safe460Games"></div><div class="calendarModalBtns"><button id="safe460Reload" type="button">Opdater spiloversigt</button><button id="close" type="button">Luk</button></div></div>');
+    showModal('<div class="safe460GameLib safe473GameLib"><div class="safe473Header"><div><h2>📚 Spilbibliotek</h2></div><button id="safe473TopClose" type="button" aria-label="Luk">×</button></div><div id="safe473Tabs" class="safe473Tabs"></div><div id="safe460Status" class="safe460Status">Henter spiloversigt…</div><div id="safe473SizePane" class="safe473Pane"></div><div id="safe473GenrePane" class="safe473Pane"></div><div id="safe473GamePane" class="safe473Pane"></div><div id="safe473OpenPane" class="safe473Pane"></div><div id="safe460Choice" class="safe460Choice" style="display:none"></div><div id="safe460Games" class="safe460Games" style="display:none"></div><div id="safe473Nav" class="safe473Nav"></div><div class="safe473Utility"><button id="safe460Reload" type="button">Opdater spiloversigt</button></div></div>');
     const root=document.getElementById('modal'); if(!root)return;
     let games=[]; let selected=5;
+    root.dataset.safe473Step='size';
+    root.dataset.safe460Size='5';
+    root.dataset.safe472Genre='Alle';
+    root.dataset.safe460SelectedKey='';
     const load=async()=>{
-      const status=root.querySelector('#safe460Status'); const list=root.querySelector('#safe460Games');
-      try{if(status){status.className='safe460Status';status.textContent='Henter spiloversigt…';} if(list)list.innerHTML='';}catch(_e){}
+      const status=root.querySelector('#safe460Status');
+      try{if(status){status.className='safe460Status';status.textContent='Henter spiloversigt…';}}catch(_e){}
       try{
         const manifestUrl=safe460ResolveAssetPath('docs/manifest_spil.json');
         const text=await safe460FetchText(manifestUrl);
@@ -17141,13 +17607,13 @@ async function safe460OpenGameLibraryModal(){
         try{if(status){status.className='safe460Status safe460Error';status.textContent='Spiloversigten kunne ikke hentes. Tjek at docs/manifest_spil.json ligger online sammen med appens ressourcer.';}}catch(_e){}
       }
     };
-    root.querySelectorAll('[data-safe460-size]').forEach(btn=>{btn.onclick=function(e){e.preventDefault();e.stopPropagation();selected=Number(btn.dataset.safe460Size||5);safe460RenderGameLibrary(root,games,selected);};});
     const reload=root.querySelector('#safe460Reload'); if(reload)reload.onclick=function(e){e.preventDefault();e.stopPropagation();load();};
-    const close=root.querySelector('#close'); if(close)close.onclick=function(){try{closeModal();}catch(_e){}};
+    const close=root.querySelector('#safe473TopClose'); if(close)close.onclick=function(e){e.preventDefault();e.stopPropagation();try{closeModal();}catch(_e){}};
     await load();
   }catch(err){console.warn('safe460OpenGameLibraryModal failed',err);try{toast('Kunne ikke åbne spilbibliotek');}catch(_e){}}
 }
 try{window.safe460OpenGameLibraryModal=safe460OpenGameLibraryModal;}catch(_e){}
+
 
 /* SAFE461 / FASE 3d: Spilpakke-kobling mellem DataWidget, KaPardy og PDFWidget.
    Hvis de tre dele er oprettet fra samme spil/datasæt, må Åbn i KaPardy / Åbn i PDFWidget
