@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="da">
 <head>
+<!-- SAFE480: Fra disk i Åbn PDF-modal bruger direkte filvælger fra samme brugerklik. Bygger kirurgisk på brugerens seneste fungerende Tavle(1).html. -->
 <meta charset="UTF-8">
 <!-- SAFE453y: KaPardy/iPhone audio guard: gamle vinderlyd-timers stoppes før ny afspilning, og HTMLAudio fallback capped. -->
 
@@ -16830,6 +16831,46 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
     const detachForNewPdfSource=function(){
       try{ safe455uH150ClearPdfDataLinkForBlankTemplate(w); }catch(_e){}
     };
+    /* SAFE480: Direkte lokal PDF-åbning fra Åbn PDF-modal.
+       Bevidst kirurgisk: ingen skjult knap, ingen syntetisk .pdfLocal.click(), ingen setTimeout før filvælger.
+       Filvælgeren startes direkte i samme brugerklik fra modalens Fra disk-knap. */
+    const safe480OpenLocalPdfDirect=function(e){
+      if(e){e.preventDefault();e.stopPropagation();}
+      try{
+        pickLocalPdf(async function(dataUrl,file){
+          if(!file)return;
+          let archived=false;
+          try{ safe470PreparePdfWidgetForNewExternalSource(w); }catch(_e){}
+          try{
+            const rec=await safe453i155StoreLocalPdfFile(file);
+            w.data.fileMediaRef=rec.id;
+            w.data.name=file.name||rec.name||'PDF';
+            w.data.mimeType=rec.mimeType||file.type||'application/pdf';
+            w.data.size=rec.size||file.size||0;
+            w.data.source='pdf-local-widget';
+            delete w.data.src;
+            delete w.data.url;
+            archived=true;
+          }catch(err){
+            console.warn('SAFE480 PDF IndexedDB fallback til legacy dataURL',err);
+            w.data.src=dataUrl;
+            delete w.data.url;
+            delete w.data.fileMediaRef;
+            w.data.name=file.name||'PDF';
+            w.data.source='pdf-local-widget-legacy-fallback';
+          }
+          w.data.page=1;
+          delete w.data.pages;
+          try{ close(); }catch(_e){}
+          fillContent(el,w);
+          save();
+          toast(archived?'PDF gemt i IndexedDB':'PDF indlejret i tavlen');
+        });
+      }catch(err){
+        console.warn('SAFE480 direkte PDF-filvalg fejlede',err);
+        try{toast('Kunne ikke åbne filvælger');}catch(_e){}
+      }
+    };
     const clickExisting=function(sel,opts){
       opts=opts||{};
       const btn=c&&c.querySelector?c.querySelector(sel):null;
@@ -16886,11 +16927,11 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
       if(ds) safe455uH147ApplyDatasetToPdfWidget(w,el,c,ds);
     };});
     const disk=root.querySelector('#safe455uH142UseDisk');
-    if(disk)disk.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfLocal');};
+    if(disk)disk.onclick=safe480OpenLocalPdfDirect;
     const url=root.querySelector('#safe455uH142UseUrl');
     if(url)url.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfUrl');};
     const diskTop=root.querySelector('#safe455uH152UseDisk');
-    if(diskTop)diskTop.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfLocal');};
+    if(diskTop)diskTop.onclick=safe480OpenLocalPdfDirect;
     const urlTop=root.querySelector('#safe455uH152UseUrl');
     if(urlTop)urlTop.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfUrl');};
     const demoTop=root.querySelector('#safe455uH152UseDemo');
