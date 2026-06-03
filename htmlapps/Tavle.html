@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="da">
 <head>
-<!-- SAFE480: Fra disk i Åbn PDF-modal bruger direkte filvælger fra samme brugerklik. Bygger kirurgisk på brugerens seneste fungerende Tavle(1).html. -->
+<!-- SAFE-WHEEL-ENTER-ESC-01: Lykkehjul Enter=Drej, ESC i resultatmodal=Behold/stop. Ingen Space-patch. -->
 <meta charset="UTF-8">
 <!-- SAFE453y: KaPardy/iPhone audio guard: gamle vinderlyd-timers stoppes før ny afspilning, og HTMLAudio fallback capped. -->
 
@@ -8304,6 +8304,11 @@ body.focus-presentation .content.pdf .pdfFormOverlay{
 .safe458OpenPdfBtn{background:#38bdf8!important;color:#111827!important;border:1px solid #0ea5e9!important;border-radius:999px!important;font-weight:950!important;padding:7px 11px!important;box-shadow:0 1px 4px rgba(15,23,42,.12)!important;white-space:nowrap!important}
 .safe458OpenPdfBtn:active{transform:scale(.97)}
 .present .safe458OpenPdfBtn,body.focus-mode .safe458OpenPdfBtn,body.focus-edit .safe458OpenPdfBtn,body.focus-presentation .safe458OpenPdfBtn{display:none!important}
+
+/* SAFE-WHEEL-ENTER-ESC-01: KaPardy skjult stilling i redigering/forside. */
+.kahoopardyBlindEdit .kahoopardyTableWrap{display:none!important;}
+.kahoopardyBlindEdit .kahoopardyEditHelp{margin-bottom:10px!important;}
+
 </style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 
@@ -16831,46 +16836,6 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
     const detachForNewPdfSource=function(){
       try{ safe455uH150ClearPdfDataLinkForBlankTemplate(w); }catch(_e){}
     };
-    /* SAFE480: Direkte lokal PDF-åbning fra Åbn PDF-modal.
-       Bevidst kirurgisk: ingen skjult knap, ingen syntetisk .pdfLocal.click(), ingen setTimeout før filvælger.
-       Filvælgeren startes direkte i samme brugerklik fra modalens Fra disk-knap. */
-    const safe480OpenLocalPdfDirect=function(e){
-      if(e){e.preventDefault();e.stopPropagation();}
-      try{
-        pickLocalPdf(async function(dataUrl,file){
-          if(!file)return;
-          let archived=false;
-          try{ safe470PreparePdfWidgetForNewExternalSource(w); }catch(_e){}
-          try{
-            const rec=await safe453i155StoreLocalPdfFile(file);
-            w.data.fileMediaRef=rec.id;
-            w.data.name=file.name||rec.name||'PDF';
-            w.data.mimeType=rec.mimeType||file.type||'application/pdf';
-            w.data.size=rec.size||file.size||0;
-            w.data.source='pdf-local-widget';
-            delete w.data.src;
-            delete w.data.url;
-            archived=true;
-          }catch(err){
-            console.warn('SAFE480 PDF IndexedDB fallback til legacy dataURL',err);
-            w.data.src=dataUrl;
-            delete w.data.url;
-            delete w.data.fileMediaRef;
-            w.data.name=file.name||'PDF';
-            w.data.source='pdf-local-widget-legacy-fallback';
-          }
-          w.data.page=1;
-          delete w.data.pages;
-          try{ close(); }catch(_e){}
-          fillContent(el,w);
-          save();
-          toast(archived?'PDF gemt i IndexedDB':'PDF indlejret i tavlen');
-        });
-      }catch(err){
-        console.warn('SAFE480 direkte PDF-filvalg fejlede',err);
-        try{toast('Kunne ikke åbne filvælger');}catch(_e){}
-      }
-    };
     const clickExisting=function(sel,opts){
       opts=opts||{};
       const btn=c&&c.querySelector?c.querySelector(sel):null;
@@ -16927,11 +16892,11 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
       if(ds) safe455uH147ApplyDatasetToPdfWidget(w,el,c,ds);
     };});
     const disk=root.querySelector('#safe455uH142UseDisk');
-    if(disk)disk.onclick=safe480OpenLocalPdfDirect;
+    if(disk)disk.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfLocal');};
     const url=root.querySelector('#safe455uH142UseUrl');
     if(url)url.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfUrl');};
     const diskTop=root.querySelector('#safe455uH152UseDisk');
-    if(diskTop)diskTop.onclick=safe480OpenLocalPdfDirect;
+    if(diskTop)diskTop.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfLocal');};
     const urlTop=root.querySelector('#safe455uH152UseUrl');
     if(urlTop)urlTop.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfUrl');};
     const demoTop=root.querySelector('#safe455uH152UseDemo');
@@ -26373,7 +26338,8 @@ function kahoopardyQuestionBankStatusHtml(w){
   return `<button type="button" class="kahoopardyQuestionBankStatus" title="${esc(action)}" aria-label="${esc(action)}: ${esc(label)}"><span class="kpQuestionBankLink" aria-hidden="true">🔗</span><span class="kpBankLabel">Spørgsmålsbank</span><span class="kpBankName" title="${esc(label)}">${esc(label)}</span></button>`;
 }
 function kahoopardyBlindScoreActive(w){
-  return !!(w&&w.data&&w.data.blindScore&&!w.data.editing&&w.data.stage!=='done'&&!(w.data.stage==='score'&&w.data.finalScoreRevealed));
+  /* SAFE-WHEEL-ENTER-ESC-01: Skjult stilling gælder også KaPardys forside/redigering. */
+  return !!(w&&w.data&&w.data.blindScore&&w.data.stage!=='done'&&!(w.data.stage==='score'&&w.data.finalScoreRevealed));
 }
 function kahoopardyBlindTeamResult(w,i,qKey,isCorrect,pickedDefined){
   if(!kahoopardyBlindScoreActive(w))return '';
@@ -26460,7 +26426,7 @@ function renderKahoopardy(el,w){
     </button>`;
   }).join('')+`<button type="button" class="kahoopardyAddTeam" title="Tilføj hold">+</button>`;
   if(w.data.editing){
-    c.innerHTML=`<div class="kahoopardyBox">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyEdit">
+    c.innerHTML=`<div class="kahoopardyBox ${w.data.blindScore?'kahoopardyBlindEdit':''}">${!w.data.editing?kahoopardyFixedModeButtonHtml(w):''}<div class="kahoopardyTeams">${teamHtml}</div><div class="kahoopardyEdit">
       ${kahoopardyModeBarHtml(w)}
       <div class="kahoopardyEditHelp"><span>Mulighed 1 er altid korrekt. Gem/backup opretter en spørgsmålsbank; Vælg spørgsmålsbank henter fra interne data-/listewidgets.</span><button type="button" class="kahoopardyInfoBtn" title="Vis forklaring">?</button></div>
       ${kahoopardyEditRowsHtml(w)}
@@ -34496,13 +34462,15 @@ function wheelInternalConfirm(message,{okText='OK',cancelText='Annuller',okKeys=
   };
   keyHandler=(e)=>{
     const oks=okKeys||['Enter'];
-    if(oks.includes(e.key) || (oks.includes(' ') && e.code==='Space')){
+    if(oks.includes(e.key) || (oks.includes(' ') && (e.code==='Space'||e.key===' '||e.key==='Spacebar'))){
       e.preventDefault();
       e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
       done(true);
-    }else if(e.key==='Escape'||e.key==='Esc'){
+    }else if(e.key==='Escape'||e.key==='Esc'||e.code==='Escape'){
       e.preventDefault();
       e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
       done(false);
     }
   };
@@ -34916,6 +34884,21 @@ function wireWheel(c,w){
   });
  const chosenToWheel=c.querySelector('.chosenToWheel'); if(chosenToWheel)chosenToWheel.onclick=()=>{const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);if(!selected.length){toast('Ingen valgte endnu');return}w.data.names=[...selected];w.data.original=[...selected];w.data.chosen=[];w.data.statsView=false;w.data.rot=0;fillContent(el,w);save()};
  const spin=c.querySelector('.spinCenter'); if(spin)spin.onclick=()=>{if(w.data.auto){startWheelAuto(c,w)}else{runWheelSpin(c,w,{auto:false})}};
+  /* SAFE-WHEEL-ENTER-ESC-01: Lokal Enter=Drej på Lykkehjulet. Space røres ikke. */
+  try{
+    c.setAttribute('tabindex','0');
+    c.addEventListener('pointerdown',()=>{try{c.focus({preventScroll:true});}catch(_e){}},{passive:true});
+    c.onkeydown=function(e){
+      const isEnter=(e.key==='Enter'||e.key==='Return'||e.code==='Enter'||e.code==='NumpadEnter');
+      if(!isEnter||e.ctrlKey||e.metaKey||e.altKey)return;
+      const t=e.target,tag=String((t&&t.tagName)||'').toLowerCase();
+      if(t&&(t.isContentEditable||tag==='input'||tag==='textarea'||tag==='select'))return;
+      if(spin&&!spin.disabled){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        spin.click();
+      }
+    };
+  }catch(_e){}
  // SAFE450b: Klik på Lykkehjulets PULJE-bjælke toggler kun en allerede koblet datawidget.
  const poolStatus=c.querySelector('.wheelLinkedPoolBar .safe450LinkedDataStatus');
  if(poolStatus){
@@ -57159,5 +57142,134 @@ body.safe455PresentToolsOpen .moreMenu{position:fixed!important;}
 
 
 <!-- v47w: fjernet tidligere v47u2/v47u4/v47u5/v47v KaPardy-knapforsøg. -->
+
+
+<script id="safe-wheel-enter-esc-01-helper">
+/* SAFE-WHEEL-ENTER-ESC-01:
+   Kun Enter for aktivt/senest berørt Lykkehjul.
+   Ingen Space-håndtering. Space/Mere/Shift+Space efterlades til Tavlens eksisterende logik. */
+(function(){
+  if(window.__safeWheelEnterEsc01Helper)return;
+  window.__safeWheelEnterEsc01Helper=true;
+
+  var lastWheelWidgetId=null;
+
+  function visible(el){
+    try{
+      if(!el || !el.isConnected)return false;
+      var cs=getComputedStyle(el);
+      if(cs.display==='none'||cs.visibility==='hidden'||cs.opacity==='0'||cs.pointerEvents==='none')return false;
+      var r=el.getBoundingClientRect();
+      return !!(r.width>8 && r.height>8 && r.bottom>0 && r.right>0 && r.top<window.innerHeight && r.left<window.innerWidth);
+    }catch(_e){return false;}
+  }
+
+  function editable(t){
+    try{
+      if(!t)return false;
+      var tag=String(t.tagName||'').toLowerCase();
+      return !!(t.isContentEditable||tag==='input'||tag==='textarea'||tag==='select'||(t.closest&&t.closest('input,textarea,select,[contenteditable="true"]')));
+    }catch(_e){return false;}
+  }
+
+  function looksLikeWheel(w){
+    try{
+      if(!w)return false;
+      var type=String((w.dataset&&w.dataset.type)||w.getAttribute('data-type')||'').toLowerCase();
+      if(type.indexOf('wheel')>=0||type.indexOf('lykke')>=0)return true;
+      var title=String((w.querySelector('.chrome .title,.chromeTitle,.widgetTitle,.title')||{}).textContent||'').toLowerCase();
+      if(title.indexOf('lykkehjulet')>=0||title.indexOf('lykkehjul')>=0)return true;
+      return !!w.querySelector('.wheelBox,.wheelCanvas,.spinCenter,button.spinCenter');
+    }catch(_e){return false;}
+  }
+
+  function widgetById(id){
+    try{
+      if(!id)return null;
+      var esc=(window.CSS&&CSS.escape)?CSS.escape(String(id)):String(id).replace(/"/g,'\\"');
+      var w=document.querySelector('.widget[data-id="'+esc+'"]');
+      return visible(w)?w:null;
+    }catch(_e){return null;}
+  }
+
+  function activeWheel(){
+    try{
+      var ae=document.activeElement;
+      if(ae&&ae.closest){
+        var fw=ae.closest('.widget[data-id]');
+        if(visible(fw)&&looksLikeWheel(fw))return fw;
+      }
+
+      var nodes=[].slice.call(document.querySelectorAll(
+        '.widget.selected[data-id],.widget.focusTarget[data-id],.widget.active[data-id],.widget.is-active[data-id]'
+      ));
+      for(var i=0;i<nodes.length;i++){
+        if(visible(nodes[i])&&looksLikeWheel(nodes[i]))return nodes[i];
+      }
+
+      var id=null;
+      try{if(window.selected!=null)id=String(window.selected);}catch(_e){}
+      try{if(!id&&window.UIState&&window.UIState.selectedWidgetId!=null)id=String(window.UIState.selectedWidgetId);}catch(_e){}
+      var byGlobal=widgetById(id);
+      if(byGlobal&&looksLikeWheel(byGlobal))return byGlobal;
+
+      var byLast=widgetById(lastWheelWidgetId);
+      if(byLast&&looksLikeWheel(byLast))return byLast;
+    }catch(_e){}
+    return null;
+  }
+
+  function wheelConfirmOpen(){
+    try{
+      var nodes=[].slice.call(document.querySelectorAll('.modal,[role="dialog"],#modalBack > *, .modalBackdrop > *, div'));
+      for(var i=nodes.length-1;i>=0;i--){
+        if(!visible(nodes[i]))continue;
+        var txt=String(nodes[i].textContent||'').toLowerCase();
+        if(txt.indexOf('behold / stop')>=0 && txt.indexOf('fjern og spin igen')>=0)return true;
+      }
+    }catch(_e){}
+    return false;
+  }
+
+  function clickSpin(w){
+    try{
+      var c=w.querySelector('.content')||w;
+      var btn=c.querySelector('button.spinCenter,.spinCenter,button.spin');
+      if(btn&&!btn.disabled&&visible(btn)){btn.click();return true;}
+    }catch(_e){}
+    return false;
+  }
+
+  document.addEventListener('pointerdown',function(e){
+    try{
+      var w=e.target&&e.target.closest&&e.target.closest('.widget[data-id]');
+      if(w&&visible(w)&&looksLikeWheel(w)){
+        lastWheelWidgetId=w.dataset.id||null;
+      }
+    }catch(_e){}
+  },true);
+
+  window.addEventListener('keydown',function(e){
+    try{
+      if(e.defaultPrevented)return;
+      if(e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
+      var isEnter=(e.key==='Enter'||e.key==='Return'||e.code==='Enter'||e.code==='NumpadEnter');
+      if(!isEnter)return;
+      if(editable(e.target))return;
+      if(wheelConfirmOpen())return; /* Modalens egen keyhandler ejer Enter/Esc/Space. */
+
+      var w=activeWheel();
+      if(!w)return;
+
+      if(clickSpin(w)){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        return false;
+      }
+    }catch(_e){}
+  },true);
+})();
+</script>
 
 </body></html>
