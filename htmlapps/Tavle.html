@@ -8,6 +8,7 @@
 <!-- SAFE-WHEEL-ENTER-ESC-01: Lykkehjul Enter=Drej, ESC i resultatmodal=Behold/stop. Ingen Space-patch. -->
 <!-- l541-datawidget-url-buttons: DataWidget URL-celler viser trunkeret URL + kopiér-ikon + ekstern pil; pointer/click-handlere gøres robuste på iPad. -->
 <!-- l542-datawidget-url-buttons-left: DataWidget URL-celler viser kopiér/ekstern-åbn-knapper før den trunkerede URL, så knapperne altid er synlige i smalle widgets. -->
+<!-- l544-kapardy-hjaelp-remix-spilbanker: KaPardy-hjælp suppleret kort med Remix, spilbanker/Spilbibliotek og spørgsmålsbanker. Ingen widgetlogik ændret. -->
 <!-- l536-bgvaelger-enter-godkend: Enter bekræfter altid den markerede baggrund fra baggrundsvælgeren og lukker modalen. Billedkilde-valg via Enter anvendes og lukker efter succes. -->
 <!-- l535-bgvaelger-piletaster-fix: Kirurgisk fix: den generelle modal-keyboard-guard slipper baggrundsvælgerens pile/Enter/Esc/Home/End/Space videre til bgModal-handleren, så piletaster kan bladre i eksempler. -->
 <!-- l533-bgvaelger-kompakt-eksempler: Baggrundsvælgeren komprimeret kirurgisk: dropdowns i stedet for brede chip-rækker, større eksempelgrid, overlay-titler på kort og mindre bundkontroller. -->
@@ -157,7 +158,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.68 l539-linkwidget-datakilde-restore</title>
+<title>Interaktiv tavle v1.2.68 l544-kapardy-hjaelp-remix-spilbanker</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -37818,7 +37819,7 @@ function showQuickHelp(){
           <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
           <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid · <b>Shift+Enter</b> fuld skærm</div>
           <div class="helpKeyBox"><b>Opret</b><b>Shift+A/P/I/L/H/V</b> tekst/PDF/billede/link/HTML/video · <b>Shift+W/R/S/X/Q</b> hjul/grupper/ordsky/afstemning/KaPardy</div>
-          <div class="helpKeyBox"><b>Ekstra</b><b>Shift+Enter</b> fuld skærm · <b>Shift+N</b> værktøjslinje til/fra · <b>Shift+L</b> link · <b>Shift+Ø</b> lås valgt widget</div>
+          <div class="helpKeyBox"><b>KaPardy</b><b>K/J/M/L</b> vælg Kahoot/Jeopardy/Mester/Mix · <b>1–4</b> svar i Kahoot · <b>1/R, 2/H, 3/F</b> bedøm svar · <b>Shift+N</b> værktøjslinje til/fra</div>
         </div>
         <p class="helpMiniNote">I en modal betyder <b>Enter</b> ofte “vælg/åbn”, piletaster flytter markering, og <b>Esc</b> lukker. Det gælder bl.a. Datakilder, Mere, Tavleoverblik og flere vælgere.</p>
       </div>
@@ -37848,7 +37849,7 @@ function showQuickHelp(){
           <button class="helpIconItem helpToolBtn" data-help-tool="groups"><span class="helpIcon">👥</span><span><b>Grupper</b><small>Shift+R · dan grupper fra en liste</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="poll"><span class="helpIcon">😊</span><span><b>Afstemning</b><small>Shift+X · hurtige elevsvar</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="wordcloud"><span class="helpIcon">☁️</span><span><b>Ordsky</b><small>Shift+S · ord og frekvenser</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="kahoopardy"><span class="helpIcon">🏆</span><span><b>KaPardy</b><small>Shift+Q · Kahoot, Jeopardy og Mester</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="kahoopardy"><span class="helpIcon">🏆</span><span><b>KaPardy</b><small>Shift+Q · spilformer, remix og spilbanker</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="pdf"><span class="helpIcon">📄</span><span><b>PDF</b><small>Shift+P · dokumenter og opgaver</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · 1 enhed · 2 appen · 3 URL · 4 kamera</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="link"><span class="helpIcon">🔗</span><span><b>Link / iframe</b><small>Shift+L · websteder og indlejring</small></span></button>
@@ -37977,14 +37978,17 @@ function showQuickHelp(){
       <summary>KaPardy — quiz og spil</summary>
       <div class="answer">
         <ul>
-          <li><b>Shift+Q</b> opretter KaPardy.</li>
-          <li>Der er fire spilformer: <b>Kahoot</b>, <b>Jeopardy</b>, <b>Mester</b> og <b>Mix</b>.</li>
-          <li><b>Mix</b> blander spilformerne, så samme spørgebank kan bruges mere varieret.</li>
-          <li>Når KaPardy er aktiv, vælger <b>K</b>, <b>J</b> og <b>M</b> spilform. Mix vælges fra KaPardy-widgettens egne knapper.</li>
-          <li>I Kahoot bruges <b>1–4</b> til svar. I Jeopardy/Mester bruges <b>1/R</b>, <b>2/H</b>, <b>3/F</b> til rigtigt, halvt og forkert.</li>
-          <li>Du kan vælge at skjule point undervejs, hvis spillet skal føles mindre konkurrencepræget.</li>
-          <li><b>AI-promptgeneratoren</b> hjælper med at lave spørgsmål i et format, der kan importeres tilbage i KaPardy.</li>
-          <li>Importér gerne fra CSV/Excel via Datawidget. Første svar er det korrekte svar.</li>
+          <li><b>Shift+Q</b> opretter KaPardy. Brug <b>⚙️</b> til at redigere spørgsmål, hold, skjult stilling, AI-prompt og spørgsmålsbank.</li>
+          <li>Start fra redigering: <b>K</b> = Kahoot, <b>J</b> = Jeopardy, <b>M</b> = Mester og <b>L</b> = Mix. <b>Enter</b> starter den valgte form, og <b>Shift+Mellemrum</b> skifter mellem Kahoot, Jeopardy og Mester.</li>
+          <li><b>Mix</b> bruger samme spørgebank i flere spilformer og slutter med podiumkåring. Brug <b>🏁 Finale</b>, hvis du vil stoppe et spil og fejre den aktuelle stilling.</li>
+          <li>I <b>Kahoot</b> svarer holdene med <b>1–4</b>. Du kan også flytte markeringen med <b>Shift+Mellemrum</b> og vælge med <b>Enter</b>.</li>
+          <li>I <b>Jeopardy</b> kan pointkort vælges med klik. Tastatur: <b>Tab</b> eller <b>Shift+Mellemrum</b> flytter markeringen, og <b>Enter</b> åbner kortet.</li>
+          <li>I <b>Jeopardy</b> og <b>Mester</b> bedømmes svar med <b>1/R</b> for rigtigt, <b>2/H</b> for halvt og <b>3/F</b> for forkert. <b>Shift+Mellemrum</b> flytter mellem bedømmelsesknapperne, og <b>Enter</b> vælger.</li>
+          <li><b>Mellemrum</b> eller <b>Enter</b> går typisk videre: vis svar, vis stilling eller næste spørgsmål. I podiumkåring afslører <b>Mellemrum</b> næste plads, mens <b>Shift+Mellemrum</b> starter kåringen forfra.</li>
+          <li>Spørgsmål kan skrives direkte, hentes fra <b>CSV/Excel/Datawidget</b>, laves via <b>AI-promptgeneratoren</b> eller vælges fra <b>Spilbiblioteket</b>. Når du skriver selv, er <b>mulighed 1</b> altid det rigtige svar.</li>
+          <li><b>Spilbanker</b> er færdige KaPardy-sæt, du kan hente ind som udgangspunkt. De kan bruges direkte eller blandes med dine egne spørgsmål.</li>
+          <li><b>Remix</b> bruges, når du vil samle spørgsmål fra flere spil, spilbanker, datawidgets eller filer. Resultatet oprettes som nye spørgsmålsbanker på tavlen, så du kan tjekke og bruge dem videre i KaPardy.</li>
+          <li>I editoren tilføjer <b>Cmd/Ctrl+Enter</b> en ny spørgsmålsrække. <b>Esc</b> forlader et aktivt tekstfelt, så KaPardy-genvejene virker igen.</li>
         </ul>
       </div>
     </details>
