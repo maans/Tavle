@@ -1,7 +1,16 @@
 <!doctype html>
 <html lang="da">
 <head>
+<!-- l540-linkwidget-clean-linkbar: Kirurgisk UX-oprydning: LinkWidgettens indholds-bjælke viser kun den koblede 🔗 Liste-status; Vælg link, + og Gem flyttes til ☰-dropdownen i widgetbjælken. -->
+<!-- l539-linkwidget-datakilde-restore: Kirurgisk fix: LinkWidgettens 🔗-status kan igen åbne den koblede linkliste som datawidget; hvis widgetten mangler, genskabes den fra datasættet og koblingen repareres. -->
+<!-- l538-linkwidget-linkdropdown: Kirurgisk fix: ☰ i LinkWidget åbner nu dropdown med links fra den koblede linkliste i både link- og iframevisning. Skift linkliste bevares som sekundær dropdown-handling. -->
+<!-- l537-linkwidget-iframe-knapper: Kirurgisk fix af LinkWidget iframe-visning: bjælketitel viser linkliste/linktitel, iframebjælken får Linkliste-knap, og fuldskærm/lås skjules ikke længere i iframe-mode. -->
 <!-- SAFE-WHEEL-ENTER-ESC-01: Lykkehjul Enter=Drej, ESC i resultatmodal=Behold/stop. Ingen Space-patch. -->
+<!-- l541-datawidget-url-buttons: DataWidget URL-celler viser trunkeret URL + kopiér-ikon + ekstern pil; pointer/click-handlere gøres robuste på iPad. -->
+<!-- l542-datawidget-url-buttons-left: DataWidget URL-celler viser kopiér/ekstern-åbn-knapper før den trunkerede URL, så knapperne altid er synlige i smalle widgets. -->
+<!-- l536-bgvaelger-enter-godkend: Enter bekræfter altid den markerede baggrund fra baggrundsvælgeren og lukker modalen. Billedkilde-valg via Enter anvendes og lukker efter succes. -->
+<!-- l535-bgvaelger-piletaster-fix: Kirurgisk fix: den generelle modal-keyboard-guard slipper baggrundsvælgerens pile/Enter/Esc/Home/End/Space videre til bgModal-handleren, så piletaster kan bladre i eksempler. -->
+<!-- l533-bgvaelger-kompakt-eksempler: Baggrundsvælgeren komprimeret kirurgisk: dropdowns i stedet for brede chip-rækker, større eksempelgrid, overlay-titler på kort og mindre bundkontroller. -->
 <meta charset="UTF-8">
 <!-- SAFE453y: KaPardy/iPhone audio guard: gamle vinderlyd-timers stoppes før ny afspilning, og HTMLAudio fallback capped. -->
 
@@ -148,7 +157,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.61 SAFE455uH45g10l151-pdf-tabs-unlink-no-midrender</title>
+<title>Interaktiv tavle v1.2.68 l539-linkwidget-datakilde-restore</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -6819,11 +6828,16 @@ body.focus-presentation .widget:not(.focused){
 .widget[data-dataset-view="true"] .content.text{background:linear-gradient(135deg,#f8fafc,#eef2ff)!important}
 .widget.datasetTextWidget .text textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace!important;font-size:15px!important;line-height:1.35!important;white-space:pre!important}
 .datasetCard{height:100%;padding:14px;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:9px;background:linear-gradient(135deg,#f8fafc,#eef2ff);border-radius:0 0 12px 12px;overflow:hidden}.widget:not(.selected) .datasetCard{border-radius:12px}.datasetTitle{font-size:22px;font-weight:950;display:flex;align-items:center;gap:8px}.datasetMeta{display:flex;gap:8px;flex-wrap:wrap}.datasetMeta span{background:white;border-radius:999px;padding:5px 9px;font-weight:850;color:#334155;box-shadow:0 1px 4px rgba(15,23,42,.08)}.datasetPreview{min-height:0;overflow:auto;background:white;border-radius:12px;border:1px solid #e2e8f0}.datasetPreview table{width:100%;border-collapse:collapse;font-size:13px}.datasetPreview th,.datasetPreview td{border-bottom:1px solid #e5e7eb;padding:6px 8px;text-align:left;white-space:nowrap}.datasetPreview th{position:sticky;top:0;background:#f8fafc;font-weight:900}.datasetActions{display:flex;gap:8px;flex-wrap:wrap}.datasetActions button{border:0;border-radius:999px;background:#6d5dfc;color:white;font-weight:900;padding:8px 12px}.datasetActions button.secondary{background:#e0e7ff;color:#312e81}.datasetActions [data-act="datasetPasteCsv"],.datasetActions .datasetPasteCSV{background:#fff!important;color:#111827!important;border:1px solid #cbd5e1!important;box-shadow:0 1px 4px rgba(15,23,42,.08)!important}.present .datasetActions,.present .datasetTextTools{display:none!important}
-.datasetUrlCell{display:inline-flex!important;align-items:center!important;gap:6px!important;white-space:nowrap!important}
-.datasetCopyUrlBtn{border:0!important;border-radius:999px!important;background:#eef2ff!important;color:#312e81!important;font-weight:950!important;padding:4px 8px!important;cursor:pointer!important;line-height:1!important}
-.datasetCopyUrlBtn:active{transform:scale(.96)}
+.datasetUrlCell{display:inline-flex!important;align-items:center!important;gap:6px!important;white-space:nowrap!important;max-width:min(42vw,420px)!important;vertical-align:middle!important}
+.datasetUrlText{display:inline-block!important;min-width:0!important;flex:1 1 auto!important;max-width:min(34vw,330px)!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;font-size:12px!important;font-weight:800!important;color:#334155!important;cursor:pointer!important;line-height:1.2!important;vertical-align:middle!important}
+.datasetUrlText:hover{text-decoration:underline!important;text-decoration-thickness:1px!important;text-underline-offset:3px!important}
+.datasetCopyUrlBtn,.datasetOpenUrlBtn{border:0!important;border-radius:999px!important;font-weight:950!important;cursor:pointer!important;line-height:1!important;min-width:28px!important;min-height:28px!important;padding:5px 8px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;touch-action:manipulation!important;user-select:none!important;-webkit-user-select:none!important;flex:0 0 auto!important}
+.datasetCopyUrlBtn{background:#eef2ff!important;color:#312e81!important}
+.datasetOpenUrlBtn{background:#6d5dfc!important;color:#fff!important;text-decoration:none!important;font-size:16px!important}
+.datasetCopyUrlBtn:active,.datasetOpenUrlBtn:active{transform:scale(.96)!important}
 .datasetOpenUrlLink{display:inline-flex!important;align-items:center!important;border-radius:999px!important;background:#6d5dfc!important;color:#fff!important;text-decoration:none!important;font-weight:950!important;padding:4px 10px!important;line-height:1!important}
 .datasetOpenUrlLink:hover{text-decoration:underline!important}
+@media(max-width:700px){.datasetUrlCell{max-width:72vw!important}.datasetUrlText{max-width:48vw!important}}
 
 
 
@@ -8060,12 +8074,10 @@ body.focus-presentation .widget[data-type="link"] .linkBox.safe455oLinkMode{heig
 /* SAFE455uC: LinkWidget iframeMode minimal toolbar – CSS ONLY.
    Bygger på SAFE455uA2. Ingen JS, ingen render-/templateændringer.
    Skjuler kun ekstra chrome-knapper i LinkWidget når toggle-knappen står i iframe-mode.
-   Ønsket synlig række: ▣ − ＋ ↗ ×
+   Ønsket synlig række: ▣ ☰ − ＋ ↗ ⛶ 🔒/🔓 ×
 */
 .widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="up"],
 .widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="down"],
-.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="max"],
-.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="lock"],
 .widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="move"]{
   display:none!important;
 }
@@ -11424,9 +11436,7 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
 .widget[data-type="link"] .mini button[data-act="down"]{
   display:none!important;
 }
-/* I iframeMode bevares SAFE455uC-minimalismen: ▣ − ＋ ↗ × */
-.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="max"],
-.widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="lock"],
+/* I iframeMode bevares en kompakt række: ▣ ☰ − ＋ ↗ ⛶ 🔒/🔓 ×. */
 .widget[data-type="link"]:has(.linkModeToggle[data-mode="iframe"]) .mini button[data-act="move"]{
   display:none!important;
 }
@@ -12389,6 +12399,203 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
 }
 </style>
 
+
+
+<style id="l533-bgvaelger-kompakt-eksempler-css">
+/* l533: Baggrundsvælger kompakt. Målet er maksimal plads til eksempelkort uden at ændre dataflow. */
+#modal:has(.bgModalShell){
+  width:min(980px,calc(100vw - 30px))!important;
+  max-width:calc(100vw - 30px)!important;
+  max-height:calc(100dvh - 34px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border-radius:24px!important;
+  background:#f8fafc!important;
+}
+.bgModalShell{display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:inherit;min-height:0;background:#f8fafc;color:#111827;overflow:hidden}
+.bgModalTop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px 10px;background:linear-gradient(135deg,#273142,#111827);color:white;border-bottom:1px solid rgba(255,255,255,.12)}
+.bgModalTitleBlock{min-width:0;display:grid;gap:2px}.bgModalTitleBlock h2{margin:0!important;color:white!important;font-size:clamp(21px,2.2vw,29px);line-height:1.02}.bgModalTitleBlock p{margin:0!important;color:rgba(255,255,255,.74)!important;font-weight:750;line-height:1.18;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bgModalTopButtons{display:flex;gap:8px;align-items:center;flex:0 0 auto}.bgModalTopButtons button{min-width:40px!important;height:40px!important;border-radius:999px!important;background:rgba(255,255,255,.14)!important;color:white!important;border:1px solid rgba(255,255,255,.20)!important;padding:0!important;font-weight:950!important;font-size:18px!important;margin:0!important}.bgModalTopButtons .bgCloseX{font-size:26px!important;line-height:1!important}
+.bgKeyboardHint{display:none!important}
+.bgLibraryWrap.v46{margin:0!important;padding:10px 12px 0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);overflow:hidden;background:#f8fafc}.bgLibraryHead{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin:0 0 8px!important}.bgLibraryHead h3{font-size:17px!important;line-height:1.1!important;margin:0!important}.bgLibraryHead p{display:none!important}.bgLibraryCount{white-space:nowrap;background:#e5e7eb;border:1px solid #d1d5db;border-radius:999px;padding:6px 10px;font-weight:950;color:#374151;line-height:1}
+.bgCompactControls{display:grid;grid-template-columns:minmax(220px,1fr) minmax(118px,.35fr) minmax(128px,.38fr) minmax(112px,.32fr) auto;gap:8px;align-items:end;margin:0 0 9px}.bgCompactControls input{min-width:0!important;width:100%!important;margin:0!important;border-radius:14px!important;background:#fff!important;border:1px solid #cbd5e1!important;min-height:38px!important;padding:7px 12px!important;font-weight:850!important}.bgCompactControls label{display:grid;gap:2px;min-width:0}.bgCompactControls label span,.bgFitLabel span,.bgSourceLabel span{font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.06em;color:#64748b}.bgCompactControls select,.bgFitLabel select,.bgSourceLabel select{width:100%!important;min-width:0!important;margin:0!important;border-radius:14px!important;min-height:38px!important;padding:7px 30px 7px 10px!important;font-weight:900!important;background:#fff!important;border:1px solid #cbd5e1!important;color:#111827!important}
+.bgGridToggleBtn{min-height:38px!important;border-radius:14px!important;background:#fff!important;color:#111827!important;border:1px solid #cbd5e1!important;box-shadow:0 1px 4px rgba(15,23,42,.08)!important;padding:8px 11px!important;margin:0!important;white-space:nowrap;font-weight:950!important}.bgGridToggleBtn.active{background:#30394a!important;color:#fff!important;border-color:#30394a!important}.bgGridToggleBtn small{font-size:10px;opacity:.72;margin-left:4px}
+.bgCategoryBar.v46,.bgFilterBar,.bgControlGroup{display:none!important}
+.bgGrid.v46{min-height:0!important;max-height:none!important;height:100%!important;overflow-y:auto!important;overflow-x:hidden!important;grid-template-columns:repeat(auto-fill,minmax(136px,1fr))!important;gap:9px!important;padding:3px 3px 12px!important;align-content:start!important;scroll-padding:16px!important}.bgChoice.v46{position:relative!important;display:block!important;border-radius:16px!important;padding:0!important;background:white!important;border:1px solid #dbe3ef!important;box-shadow:0 2px 8px rgba(15,23,42,.10)!important;min-height:0!important;aspect-ratio:16/10!important;overflow:hidden!important;touch-action:manipulation}.bgChoice.v46:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,23,42,.16)!important}.bgChoice.v46.active{background:#f8f7ff!important;border-color:#c7d2fe!important;outline-color:#6c5cff!important}.bgChoice.kbSelected{outline-color:#f59e0b!important;box-shadow:0 0 0 4px rgba(245,158,11,.24),0 8px 22px rgba(15,23,42,.18)!important}.bgChoice.kbPreview{outline-style:dashed!important}
+.bgChoicePreview{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border-radius:15px!important;background:#e5e7eb!important;overflow:hidden!important}.bgChoicePreview img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;border-radius:0!important}.bgChoiceOverlay{position:absolute!important;inset:0!important}.bgChoicePreview::after{content:"";position:absolute;left:0;right:0;bottom:0;height:56%;background:linear-gradient(to top,rgba(15,23,42,.72),rgba(15,23,42,.22),transparent);pointer-events:none}.swatchPreview .swatchTexture{position:absolute;inset:0;background:radial-gradient(circle at 18% 18%,rgba(255,255,255,.32),transparent 34%),radial-gradient(circle at 78% 75%,rgba(0,0,0,.10),transparent 38%)}.swatchPreview .swatchOverlay{position:absolute;inset:0;background:var(--swatch-overlay)}
+.bgChoiceMeta{position:absolute!important;left:7px;right:7px;bottom:7px;z-index:3;display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:6px!important;min-width:0!important}.bgChoice.v46 .bgChoiceTitle{min-width:0!important;max-width:calc(100% - 44px)!important;color:white!important;font-size:13px!important;font-weight:950!important;line-height:1.05!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;text-shadow:0 1px 5px rgba(0,0,0,.55)}.bgChoice.active .bgChoiceTitle::before{content:'✓ ';color:#a7f3d0}.bgChoice.v46 .bgChoiceDesc{display:none!important}.bgBadge{font-size:10px!important;padding:3px 6px!important;border-radius:999px!important;background:rgba(224,242,254,.94)!important;color:#075985!important;white-space:nowrap!important;box-shadow:0 1px 3px rgba(15,23,42,.18)}.bgBadge.swatch{background:rgba(220,252,231,.95)!important;color:#166534!important}.bgBadge.old{background:rgba(254,243,199,.96)!important;color:#92400e!important}
+.bgActions{display:grid!important;grid-template-columns:minmax(180px,.9fr) auto minmax(140px,.55fr) auto!important;align-items:end!important;gap:8px!important;margin:0!important;padding:9px 12px 11px!important;background:#fff!important;border-top:1px solid #e2e8f0!important}.bgActions button{margin:0!important;border-radius:14px!important;font-weight:950!important;min-height:38px!important;background:#30394a!important;color:white!important;padding:8px 12px!important}.bgActionClose{background:#6d5dfc!important}.bgFitLabel,.bgSourceLabel{display:grid!important;gap:2px!important;min-width:0!important}.bgSourceRun{white-space:nowrap}.bgActionSecondary{background:#e5e7eb!important;color:#111827!important}
+@media(max-width:760px){#modal:has(.bgModalShell){width:calc(100vw - 18px)!important;max-width:calc(100vw - 18px)!important;border-radius:20px!important}.bgModalTop{padding:10px 12px}.bgModalTitleBlock p{display:none}.bgLibraryWrap.v46{padding:8px 9px 0}.bgCompactControls{grid-template-columns:1fr 1fr;gap:7px}.bgCompactControls input{grid-column:1/-1}.bgGridToggleBtn{width:100%}.bgGrid.v46{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}.bgActions{grid-template-columns:1fr auto!important}.bgFitLabel{grid-column:1/-1}.bgActionClose{width:100%!important}.bgSourceRun{width:100%!important}}
+@media(max-height:760px){.bgModalTop{padding-top:9px;padding-bottom:8px}.bgLibraryWrap.v46{padding-top:8px}.bgLibraryHead{margin-bottom:6px!important}.bgCompactControls{margin-bottom:7px}.bgGrid.v46{grid-template-columns:repeat(auto-fill,minmax(122px,1fr))!important;gap:8px!important}.bgChoice.v46 .bgChoiceTitle{font-size:12px!important}.bgBadge{font-size:9px!important}.bgActions{padding-top:8px;padding-bottom:8px}.bgCompactControls label span,.bgFitLabel span,.bgSourceLabel span{display:none}}
+</style>
+
+<style id="l534-bgvaelger-keyboard-preview-typefix-css">
+/* l534: Typefilter-fix + mere tavlepreview under tastaturnavigation. */
+.bgChoice.v46.hiddenByFilter{display:none!important;}
+.modalBackdrop.bgModalKeyboard.bgPreviewing #modal:has(.bgModalShell){
+  opacity:.46!important;
+  transform:scale(.985)!important;
+  transition:opacity .12s ease, transform .12s ease!important;
+}
+.modalBackdrop.bgModalKeyboard.bgPreviewing .bgModalShell{
+  box-shadow:0 25px 60px rgba(15,23,42,.30)!important;
+}
+.bgSourceRun{background:#6d5dfc!important;}
+</style>
+
+<style id="safe537-linkdropdown-css">
+/* l538: LinkWidget ☰ åbner en lokal link-dropdown, ikke den brede linkliste-modal. */
+.safe537LinkDropdownBackdrop{
+  position:fixed;
+  inset:0;
+  z-index:2147483400;
+  background:transparent;
+}
+.safe537LinkDropdown{
+  position:fixed;
+  z-index:2147483401;
+  width:min(380px,calc(100vw - 24px));
+  max-height:min(58vh,520px);
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  border-radius:18px;
+  background:rgba(255,255,255,.98);
+  color:#111827;
+  box-shadow:0 22px 60px rgba(15,23,42,.34),0 0 0 1px rgba(148,163,184,.38);
+  overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+.safe537LinkDropdownHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:11px 12px 9px;
+  border-bottom:1px solid #e5e7eb;
+  background:#f8fafc;
+}
+.safe537LinkDropdownTitle{
+  min-width:0;
+  display:grid;
+  gap:2px;
+  font-weight:950;
+  line-height:1.1;
+}
+.safe537LinkDropdownTitle b{
+  display:block;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:14px;
+}
+.safe537LinkDropdownTitle small{
+  color:#64748b;
+  font-weight:850;
+  font-size:11px;
+}
+.safe537LinkDropdownClose{
+  flex:0 0 auto;
+  border:0;
+  border-radius:999px;
+  width:32px;
+  height:32px;
+  background:#e5e7eb;
+  color:#111827;
+  font-weight:950;
+  cursor:pointer;
+}
+.safe537LinkDropdownRows{
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:7px;
+  display:grid;
+  gap:5px;
+}
+.safe537LinkDropdownRow{
+  width:100%;
+  border:0;
+  border-radius:13px;
+  background:#fff;
+  color:#111827;
+  padding:9px 10px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  text-align:left;
+  cursor:pointer;
+  box-shadow:inset 0 0 0 1px #e5e7eb;
+}
+.safe537LinkDropdownRow:hover,
+.safe537LinkDropdownRow:focus{
+  outline:none;
+  background:#eef2ff;
+  box-shadow:inset 0 0 0 2px rgba(109,93,252,.52);
+}
+.safe537LinkDropdownRow.current{
+  background:#f5f3ff;
+  box-shadow:inset 0 0 0 2px rgba(109,93,252,.72);
+}
+.safe537LinkDropdownRow b{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:14px;
+  line-height:1.15;
+}
+.safe537LinkDropdownRow small{
+  display:block;
+  margin-top:3px;
+  color:#475569;
+  font-size:11px;
+  font-weight:750;
+  line-height:1.15;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.safe537LinkDropdownRow .safe537CurrentMark{
+  color:#6d5dfc;
+  font-weight:950;
+}
+.safe537LinkDropdownFoot{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  padding:9px 10px 10px;
+  border-top:1px solid #e5e7eb;
+  background:#f8fafc;
+}
+.safe537LinkDropdownFoot button{
+  border:0;
+  border-radius:999px;
+  padding:7px 11px;
+  background:#e5e7eb;
+  color:#111827;
+  font-weight:950;
+  cursor:pointer;
+}
+.safe537LinkDropdownFoot button.primary{
+  background:#6d5dfc;
+  color:white;
+}
+@media(max-width:700px){
+  .safe537LinkDropdown{width:min(340px,calc(100vw - 18px));max-height:min(64vh,520px)}
+}
+
+/* l540: Når linkvalg/tilføj/gem nu ligger i ☰-dropdownen, skal indholds-bjælken kun vise datakilde-status. */
+.widget[data-type="link"] .linkLinkedListBar.safe455oLinkListBar{
+  justify-content:center!important;
+}
+.widget[data-type="link"] .linkLinkedListBar.safe455oLinkListBar .linkListStatus{
+  max-width:100%!important;
+}
+
+</style>
+
 </head>
 <body>
 
@@ -13143,9 +13350,18 @@ function resolveAssetPath(path){
   if(/^data:/i.test(path) || /^blob:/i.test(path) || /^https?:\/\//i.test(path))return path;
   // remove leading './'
   path=path.replace(/^\.\//,'');
-  const running=isRunningFromFile();
-  const base=window.TAVLE_ASSET_BASE || DEFAULT_TAVLE_ASSET_BASE;
-  return running ? (base + path) : path;
+  const base=String(window.TAVLE_ASSET_BASE || DEFAULT_TAVLE_ASSET_BASE || '').replace(/\/?$/,'/');
+  let inFrame=false;
+  try{inFrame=!!(window.parent && window.parent!==window);}catch(_e){inFrame=false;}
+  const proto=String(location.protocol||'');
+  const href=String(location.href||'');
+  // Relative asset paths break when Tavle is loaded from file:, blob:, about:blank/srcdoc
+  // or as an embedded HTMLWidget/iframe outside the GitHub Pages folder. Use the full
+  // GitHub Pages base in those contexts, while preserving normal relative paths when
+  // the standalone app is already served from its own folder.
+  const needsFullBase=isRunningFromFile() || proto==='blob:' || proto==='about:' ||
+    (inFrame && !/\/Tavle\//i.test(href) && !/\/liste\//i.test(href));
+  return needsFullBase ? (base + path) : path;
 }
 
 // Listen for environment messages from parent contexts (e.g. the
@@ -13323,21 +13539,12 @@ const TAVLE_BACKGROUNDS=[
     "id": "bg1-new",
     "baseId": "bg1",
     "title": "Klassisk tavle",
-    "desc": "Neutral grøn tavle",
+    "desc": "Neutral mørk tavle",
     "group": "Tavle",
     "version": "HD",
     "src": "backgrounds/new/bg1.webp",
-    "name": "bg1.webp"
-  },
-  {
-    "id": "bg1-old",
-    "baseId": "bg1",
-    "title": "Klassisk tavle",
-    "desc": "Neutral grøn tavle",
-    "group": "Tavle",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg1.webp",
-    "name": "old-bg1.webp"
+    "name": "bg1.webp",
+    "search": "klassisk grøn tavle kridt neutral mørk"
   },
   {
     "id": "bg2-new",
@@ -13347,17 +13554,8 @@ const TAVLE_BACKGROUNDS=[
     "group": "Fag",
     "version": "HD",
     "src": "backgrounds/new/bg2.webp",
-    "name": "bg2.webp"
-  },
-  {
-    "id": "bg2-old",
-    "baseId": "bg2",
-    "title": "Matematik",
-    "desc": "Tal og formler",
-    "group": "Fag",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg2.webp",
-    "name": "old-bg2.webp"
+    "name": "bg2.webp",
+    "search": "matematik tal formler geometri algebra"
   },
   {
     "id": "bg3-new",
@@ -13367,37 +13565,19 @@ const TAVLE_BACKGROUNDS=[
     "group": "Fag",
     "version": "HD",
     "src": "backgrounds/new/bg3.webp",
-    "name": "bg3.webp"
-  },
-  {
-    "id": "bg3-old",
-    "baseId": "bg3",
-    "title": "Naturfag",
-    "desc": "Undersøgelse og forsøg",
-    "group": "Fag",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg3.webp",
-    "name": "old-bg3.webp"
+    "name": "bg3.webp",
+    "search": "naturfag fysik kemi biologi forsøg mikroskop"
   },
   {
     "id": "bg4-new",
     "baseId": "bg4",
     "title": "Historie",
-    "desc": "Tidslinjer og fortællinger",
+    "desc": "Kilder og fortællinger",
     "group": "Fag",
     "version": "HD",
     "src": "backgrounds/new/bg4.webp",
-    "name": "bg4.webp"
-  },
-  {
-    "id": "bg4-old",
-    "baseId": "bg4",
-    "title": "Historie",
-    "desc": "Tidslinjer og fortællinger",
-    "group": "Fag",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg4.webp",
-    "name": "old-bg4.webp"
+    "name": "bg4.webp",
+    "search": "historie kilder renæssance tidslinje fortælling"
   },
   {
     "id": "bg5-new",
@@ -13407,37 +13587,19 @@ const TAVLE_BACKGROUNDS=[
     "group": "Fag",
     "version": "HD",
     "src": "backgrounds/new/bg5.webp",
-    "name": "bg5.webp"
-  },
-  {
-    "id": "bg5-old",
-    "baseId": "bg5",
-    "title": "Geografi",
-    "desc": "Kort og verden",
-    "group": "Fag",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg5.webp",
-    "name": "old-bg5.webp"
+    "name": "bg5.webp",
+    "search": "geografi kort verden kompas rejse"
   },
   {
     "id": "bg6-new",
     "baseId": "bg6",
-    "title": "Noter",
+    "title": "Noter og idéer",
     "desc": "Skrivefelt med ro",
     "group": "Struktur",
     "version": "HD",
     "src": "backgrounds/new/bg6.webp",
-    "name": "bg6.webp"
-  },
-  {
-    "id": "bg6-old",
-    "baseId": "bg6",
-    "title": "Noter",
-    "desc": "Skrivefelt med ro",
-    "group": "Struktur",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg6.webp",
-    "name": "old-bg6.webp"
+    "name": "bg6.webp",
+    "search": "noter ideer skrivefelt planlægning struktur"
   },
   {
     "id": "bg7-new",
@@ -13447,17 +13609,8 @@ const TAVLE_BACKGROUNDS=[
     "group": "Struktur",
     "version": "HD",
     "src": "backgrounds/new/bg7.webp",
-    "name": "bg7.webp"
-  },
-  {
-    "id": "bg7-old",
-    "baseId": "bg7",
-    "title": "Priknet",
-    "desc": "Idéer og struktur",
-    "group": "Struktur",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg7.webp",
-    "name": "old-bg7.webp"
+    "name": "bg7.webp",
+    "search": "priknet prikker struktur design plan"
   },
   {
     "id": "bg8-new",
@@ -13467,17 +13620,8 @@ const TAVLE_BACKGROUNDS=[
     "group": "Struktur",
     "version": "HD",
     "src": "backgrounds/new/bg8.webp",
-    "name": "bg8.webp"
-  },
-  {
-    "id": "bg8-old",
-    "baseId": "bg8",
-    "title": "Kvadreret",
-    "desc": "Overblik og system",
-    "group": "Struktur",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg8.webp",
-    "name": "old-bg8.webp"
+    "name": "bg8.webp",
+    "search": "kvadreret grid system overblik felter"
   },
   {
     "id": "bg9-new",
@@ -13487,17 +13631,8 @@ const TAVLE_BACKGROUNDS=[
     "group": "Fag",
     "version": "HD",
     "src": "backgrounds/new/bg9.webp",
-    "name": "bg9.webp"
-  },
-  {
-    "id": "bg9-old",
-    "baseId": "bg9",
-    "title": "Musik",
-    "desc": "Noder og rytme",
-    "group": "Fag",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg9.webp",
-    "name": "old-bg9.webp"
+    "name": "bg9.webp",
+    "search": "musik noder rytme hørelære"
   },
   {
     "id": "bg10-new",
@@ -13507,17 +13642,8 @@ const TAVLE_BACKGROUNDS=[
     "group": "Fag",
     "version": "HD",
     "src": "backgrounds/new/bg10.webp",
-    "name": "bg10.webp"
-  },
-  {
-    "id": "bg10-old",
-    "baseId": "bg10",
-    "title": "Sprog",
-    "desc": "Ord og kommunikation",
-    "group": "Fag",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg10.webp",
-    "name": "old-bg10.webp"
+    "name": "bg10.webp",
+    "search": "sprog ord kommunikation dansk engelsk hej hallo"
   },
   {
     "id": "bg11-new",
@@ -13527,37 +13653,19 @@ const TAVLE_BACKGROUNDS=[
     "group": "Fag",
     "version": "HD",
     "src": "backgrounds/new/bg11.webp",
-    "name": "bg11.webp"
-  },
-  {
-    "id": "bg11-old",
-    "baseId": "bg11",
-    "title": "Astronomi",
-    "desc": "Rum og perspektiv",
-    "group": "Fag",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg11.webp",
-    "name": "old-bg11.webp"
+    "name": "bg11.webp",
+    "search": "astronomi rum stjerner planeter"
   },
   {
     "id": "bg12-new",
     "baseId": "bg12",
-    "title": "Natur & Miljø",
+    "title": "Natur og miljø",
     "desc": "Bæredygtighed",
     "group": "Fag",
     "version": "HD",
     "src": "backgrounds/new/bg12.webp",
-    "name": "bg12.webp"
-  },
-  {
-    "id": "bg12-old",
-    "baseId": "bg12",
-    "title": "Natur & Miljø",
-    "desc": "Bæredygtighed",
-    "group": "Fag",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg12.webp",
-    "name": "old-bg12.webp"
+    "name": "bg12.webp",
+    "search": "natur miljø bæredygtighed planter klima energi"
   },
   {
     "id": "bg13-new",
@@ -13567,17 +13675,8 @@ const TAVLE_BACKGROUNDS=[
     "group": "Kreativ",
     "version": "HD",
     "src": "backgrounds/new/bg13.webp",
-    "name": "bg13.webp"
-  },
-  {
-    "id": "bg13-old",
-    "baseId": "bg13",
-    "title": "Kreativ",
-    "desc": "Skabende arbejde",
-    "group": "Kreativ",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg13.webp",
-    "name": "old-bg13.webp"
+    "name": "bg13.webp",
+    "search": "kreativ kunst ideer farver skitse"
   },
   {
     "id": "bg14-new",
@@ -13587,17 +13686,8 @@ const TAVLE_BACKGROUNDS=[
     "group": "Kreativ",
     "version": "HD",
     "src": "backgrounds/new/bg14.webp",
-    "name": "bg14.webp"
-  },
-  {
-    "id": "bg14-old",
-    "baseId": "bg14",
-    "title": "Kunst",
-    "desc": "Farve og form",
-    "group": "Kreativ",
-    "version": "Klassisk",
-    "src": "backgrounds/old/bg14.webp",
-    "name": "old-bg14.webp"
+    "name": "bg14.webp",
+    "search": "kunst farve form pensel billede"
   },
   {
     "id": "bg15-new",
@@ -13607,17 +13697,173 @@ const TAVLE_BACKGROUNDS=[
     "group": "Rolig",
     "version": "HD",
     "src": "backgrounds/new/bg15.webp",
-    "name": "bg15.webp"
+    "name": "bg15.webp",
+    "search": "rolig fokus fordybelse grøn blad zen"
+  },
+  {
+    "id": "bg1-old",
+    "baseId": "bg1",
+    "title": "Matematik sort",
+    "desc": "Formler og geometri",
+    "group": "Fag",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg1.webp",
+    "name": "old-bg1.webp",
+    "search": "matematik sort tavle formler geometri"
+  },
+  {
+    "id": "bg2-old",
+    "baseId": "bg2",
+    "title": "Matematik grøn",
+    "desc": "Funktioner og formler",
+    "group": "Fag",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg2.webp",
+    "name": "old-bg2.webp",
+    "search": "matematik grøn tavle funktioner cos sin formler"
+  },
+  {
+    "id": "bg3-old",
+    "baseId": "bg3",
+    "title": "Naturfag blå",
+    "desc": "Fysik, kemi og biologi",
+    "group": "Fag",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg3.webp",
+    "name": "old-bg3.webp",
+    "search": "naturfag blå fysik kemi biologi dna planet"
+  },
+  {
+    "id": "bg4-old",
+    "baseId": "bg4",
+    "title": "Historie klassisk",
+    "desc": "Kilder og skitser",
+    "group": "Fag",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg4.webp",
+    "name": "old-bg4.webp",
+    "search": "historie klassisk renæssance vitruviansk arkitektur kilder"
+  },
+  {
+    "id": "bg5-old",
+    "baseId": "bg5",
+    "title": "Geografi kort",
+    "desc": "Verdenskort og kompas",
+    "group": "Fag",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg5.webp",
+    "name": "old-bg5.webp",
+    "search": "geografi kort verdenskort kompas"
+  },
+  {
+    "id": "bg6-old",
+    "baseId": "bg6",
+    "title": "Akvarel",
+    "desc": "Lys kreativ flade",
+    "group": "Kreativ",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg6.webp",
+    "name": "old-bg6.webp",
+    "search": "akvarel lys kreativ farve rolig"
+  },
+  {
+    "id": "bg7-old",
+    "baseId": "bg7",
+    "title": "Priknet lyst",
+    "desc": "Idéer og struktur",
+    "group": "Struktur",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg7.webp",
+    "name": "old-bg7.webp",
+    "search": "priknet lyst prikker struktur"
+  },
+  {
+    "id": "bg8-old",
+    "baseId": "bg8",
+    "title": "Kvadreret lyst",
+    "desc": "Overblik og system",
+    "group": "Struktur",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg8.webp",
+    "name": "old-bg8.webp",
+    "search": "kvadreret lyst grid system tern"
+  },
+  {
+    "id": "bg9-old",
+    "baseId": "bg9",
+    "title": "Musik nodelinjer",
+    "desc": "Noder og rytme",
+    "group": "Fag",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg9.webp",
+    "name": "old-bg9.webp",
+    "search": "musik nodelinjer noder rytme"
+  },
+  {
+    "id": "bg10-old",
+    "baseId": "bg10",
+    "title": "Idétavle",
+    "desc": "Brainstorm og deltagelse",
+    "group": "Kreativ",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg10.webp",
+    "name": "old-bg10.webp",
+    "search": "ideer tæller brainstorm tale bobler kreativ"
+  },
+  {
+    "id": "bg11-old",
+    "baseId": "bg11",
+    "title": "Astronomi blå",
+    "desc": "Rum og stjerner",
+    "group": "Fag",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg11.webp",
+    "name": "old-bg11.webp",
+    "search": "astronomi blå rum stjerner planeter"
+  },
+  {
+    "id": "bg12-old",
+    "baseId": "bg12",
+    "title": "Linjeret papir",
+    "desc": "Noter og skrivning",
+    "group": "Struktur",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg12.webp",
+    "name": "old-bg12.webp",
+    "search": "linjeret papir noter skrivning struktur"
+  },
+  {
+    "id": "bg13-old",
+    "baseId": "bg13",
+    "title": "Natur ro",
+    "desc": "Blomster og blade",
+    "group": "Rolig",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg13.webp",
+    "name": "old-bg13.webp",
+    "search": "natur rolig blomster blade beige"
+  },
+  {
+    "id": "bg14-old",
+    "baseId": "bg14",
+    "title": "Træ og blade",
+    "desc": "Naturlig mørk flade",
+    "group": "Rolig",
+    "version": "Klassisk",
+    "src": "backgrounds/old/bg14.webp",
+    "name": "old-bg14.webp",
+    "search": "træ blade natur mørk rolig"
   },
   {
     "id": "bg15-old",
     "baseId": "bg15",
-    "title": "Rolig",
-    "desc": "Fokus og fordybelse",
-    "group": "Rolig",
+    "title": "Stjerner",
+    "desc": "Leg og markering",
+    "group": "Kreativ",
     "version": "Klassisk",
     "src": "backgrounds/old/bg15.webp",
-    "name": "old-bg15.webp"
+    "name": "old-bg15.webp",
+    "search": "stjerner leg markering kreativ farver"
   }
 ];
 const BACKGROUND_LIBRARY=TAVLE_BACKGROUNDS;
@@ -15457,7 +15703,7 @@ function datasetPreviewHtml(ds){
     const raw=String(decoded||'').trim();
     const href=(isUrlColumnName(colName)||/^(https?:|file:|#)/i.test(raw))?normalizePreviewUrl(raw):'';
     if(!href)return esc(decoded);
-    return `<span class="datasetUrlCell"><button type="button" class="datasetCopyUrlBtn" data-dataset-copy-url="${esc(href)}" title="Kopiér link">⧉</button><a class="datasetOpenUrlLink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" title="${esc(href)}">Åbn</a></span>`;
+    return `<span class="datasetUrlCell" title="${esc(href)}"><button type="button" class="datasetCopyUrlBtn" data-dataset-copy-url="${esc(href)}" title="Kopiér URL" aria-label="Kopiér URL">⧉</button><button type="button" class="datasetOpenUrlBtn" data-dataset-open-url="${esc(href)}" title="Åbn URL i ny fane/side" aria-label="Åbn URL i ny fane/side">↗</button><span class="datasetUrlText" data-dataset-copy-url="${esc(href)}" title="Kopiér URL: ${esc(href)}">${esc(href)}</span></span>`;
   }
   // SAFE174: grupperesultater må ikke visuelt afkortes til de første få grupper.
   const maxRows=(ds.type==='groups-results') ? rows.length : Math.min(rows.length,16);
@@ -15483,7 +15729,7 @@ function safe455uH34ManualLinkBox(val,reason){
     const link=String(val||'');
     if(!link)return;
     const msg=reason||'Hvis automatisk kopi/åbn blokeres, kan du kopiere linket herfra.';
-    showModal(`<h2>Sessionslink</h2><p style="font-weight:800;opacity:.75;line-height:1.35">${esc(msg)}</p><textarea id="safe455uH34ManualLink" readonly style="width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px;padding:10px;font:13px ui-monospace,SFMono-Regular,Menlo,monospace">${esc(link)}</textarea><div class="calendarModalBtns"><button id="safe455uH34SelectLink" class="primary">Marker link</button><button id="safe455uH34TryOpen">Prøv at åbne igen</button><button id="close">Luk</button></div>`);
+    showModal(`<h2>URL</h2><p style="font-weight:800;opacity:.75;line-height:1.35">${esc(msg)}</p><textarea id="safe455uH34ManualLink" readonly style="width:100%;min-height:110px;border:1px solid #cbd5e1;border-radius:12px;padding:10px;font:13px ui-monospace,SFMono-Regular,Menlo,monospace">${esc(link)}</textarea><div class="calendarModalBtns"><button id="safe455uH34SelectLink" class="primary">Marker link</button><button id="safe455uH34TryOpen">Prøv at åbne igen</button><button id="close">Luk</button></div>`);
     setTimeout(function(){
       try{const ta=document.getElementById('safe455uH34ManualLink'); if(ta){ta.focus();ta.select();}}
       catch(_e){}
@@ -15530,27 +15776,55 @@ function safe455uH34OpenUrl(url,fromManual){
   if(!link)return false;
   try{
     const win=window.open(link,'_blank','noopener,noreferrer');
-    if(win){try{toast('Åbner link…');}catch(_e){} return true;}
+    if(win){try{toast('Åbner URL uden for Tavle…');}catch(_e){} return true;}
+  }catch(_e){}
+  try{
+    const a=document.createElement('a');
+    a.href=link;
+    a.target='_blank';
+    a.rel='noopener noreferrer';
+    a.style.position='fixed';
+    a.style.left='-9999px';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    try{toast('Åbner URL uden for Tavle…');}catch(_e){}
+    return true;
   }catch(_e){}
   try{safe455uH31CopyText(link);}catch(_e){}
-  if(!fromManual)safe455uH34ManualLinkBox(link,'Appen/browseren blokerede åbning af linket. Linket er forsøgt kopieret — ellers kan du kopiere det herfra.');
+  if(!fromManual)safe455uH34ManualLinkBox(link,'Appen/browseren blokerede åbning af URL’en. URL’en er forsøgt kopieret — ellers kan du kopiere den herfra.');
   return false;
 }
 if(!window.__safe455uH31CopyUrlWired){
   window.__safe455uH31CopyUrlWired=true;
-  document.addEventListener('click',function(e){
-    const b=e.target&&e.target.closest&&e.target.closest('[data-dataset-copy-url]');
-    if(!b)return;
-    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-    safe455uH31CopyText(b.getAttribute('data-dataset-copy-url')||'');
-  },true);
-  document.addEventListener('click',function(e){
-    const a=e.target&&e.target.closest&&e.target.closest('a.datasetOpenUrlLink');
-    if(!a)return;
-    const href=a.getAttribute('href')||'';
-    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-    safe455uH34OpenUrl(href,false);
-  },true);
+  window.__safe541LastDatasetUrlAction={key:'',time:0};
+  function safe541HandleDatasetUrlAction(e){
+    try{
+      const target=e&&e.target;
+      if(!target||!target.closest)return;
+      const openBtn=target.closest('[data-dataset-open-url],a.datasetOpenUrlLink');
+      const copyBtn=!openBtn?target.closest('[data-dataset-copy-url]'):null;
+      if(!openBtn&&!copyBtn)return;
+      const url=openBtn?(openBtn.getAttribute('data-dataset-open-url')||openBtn.getAttribute('href')||''):(copyBtn.getAttribute('data-dataset-copy-url')||'');
+      if(!url)return;
+      const action=openBtn?'open':'copy';
+      const now=Date.now();
+      const key=action+'|'+url;
+      const last=window.__safe541LastDatasetUrlAction||{key:'',time:0};
+      if(last.key===key && now-last.time<650){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        return false;
+      }
+      window.__safe541LastDatasetUrlAction={key:key,time:now};
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      if(action==='open')safe455uH34OpenUrl(url,false);
+      else safe455uH31CopyText(url);
+      return false;
+    }catch(err){try{console.warn('SAFE541 dataset URL action failed',err);}catch(_e){}}
+  }
+  try{document.addEventListener('pointerup',safe541HandleDatasetUrlAction,true);}catch(_e){}
+  try{document.addEventListener('touchend',safe541HandleDatasetUrlAction,true);}catch(_e){}
+  document.addEventListener('click',safe541HandleDatasetUrlAction,true);
 }
 function openDatasetToListDialog(ds,sourceWidget){
   if(!ds||!Array.isArray(ds.rows)||!ds.rows.length){toast('Ingen data at lave liste af');return;}
@@ -16283,7 +16557,7 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -16294,9 +16568,10 @@ if(w.type==='link'){
   try{
     const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
     const listName=String((ref&&ref.datasetId&&(ref.name||''))||'').trim();
-    const linkTitle=String(w.data&&w.data.text||'').trim();
-    if(listName) widgetTitle=listName;
+    const linkTitle=String(w.data&&w.data.text||w.data&&w.data.title||w.title||'').trim();
+    if(listName && linkTitle && linkTitle!=='Klikbart link' && linkTitle!=='Link' && linkTitle!==listName) widgetTitle=listName+' / '+linkTitle;
     else if(linkTitle && linkTitle!=='Klikbart link' && linkTitle!=='Link') widgetTitle=linkTitle;
+    else if(listName) widgetTitle=listName;
   }catch(_e){}
 }
 /* SAFE453q: PDF-widget viser filnavn i bjælken i stedet for kun "PDF". */
@@ -19324,7 +19599,7 @@ function chooseSharedList(title,callback){
   });
   if(typeof wireImportDataWidgetButton==='function') wireImportDataWidgetButton();
   else wireImportListButton((name,items)=>{callback(name,items,{type:'import',source:'file'});closeModal()});
-  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
+  modal.querySelector('#close').onclick=()=>{bgClearPreviewTransparency();bgClose()};
 }
 
 /* SAFE76 LOCAL MAP: showMoreTools()
@@ -32177,7 +32452,7 @@ function widgetMoveModal(w){
   });
   modal.querySelector('#moveNew').onclick=()=>{closeModal();newSlideForWidget(w.id,'move',sourceIndex)};
   modal.querySelector('#copyNew').onclick=()=>{closeModal();newSlideForWidget(w.id,'copy',sourceIndex)};
-  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
+  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);window.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
 
@@ -32547,13 +32822,14 @@ function wireWidget(el,w){
     askLink(w);
   };
 
-  // SAFE453i71: Link/iframe kan vælge og skrive tilbage til koblet linkliste.
+  // SAFE453i71/l538: Link/iframe kan vælge links fra koblet linkliste direkte fra widgetbjælken.
   const linkListBtn=el.querySelector('[data-act=linkList]');
   if(linkListBtn)linkListBtn.onclick=e=>{
     e.preventDefault();e.stopPropagation();
     if(!canEditWidgets())return;
     select(w.id,{editText:false});
-    safe453i71OpenLinkListChooser(w);
+    if(typeof safe537OpenLinkDropdown==='function')safe537OpenLinkDropdown(w,linkListBtn);
+    else safe453i71OpenLinkPicker(w);
   };
   const linkListStatus=el.querySelector('.linkListStatus');
   if(linkListStatus)linkListStatus.onclick=e=>{
@@ -32561,7 +32837,8 @@ function wireWidget(el,w){
     if(!canEditWidgets())return;
     select(w.id,{editText:false});
     const ref=safe453i71LinkListRef(w);
-    if(ref.datasetId && typeof safe450ToggleLinkedData==='function')safe450ToggleLinkedData(w,'linkList');
+    if(ref.datasetId && typeof safe538ToggleLinkListDataWidget==='function')safe538ToggleLinkListDataWidget(w);
+    else if(ref.datasetId && typeof safe450ToggleLinkedData==='function')safe450ToggleLinkedData(w,'linkList');
     else safe453i71OpenLinkListChooser(w);
   };
   const linkListPick=el.querySelector('.linkListPick');
@@ -32569,7 +32846,8 @@ function wireWidget(el,w){
     e.preventDefault();e.stopPropagation();
     if(!canEditWidgets())return;
     select(w.id,{editText:false});
-    safe453i71OpenLinkPicker(w);
+    if(typeof safe537OpenLinkDropdown==='function')safe537OpenLinkDropdown(w,linkListPick);
+    else safe453i71OpenLinkPicker(w);
   };
   const linkListSave=el.querySelector('.linkListSave');
   if(linkListSave)linkListSave.onclick=e=>{
@@ -35552,12 +35830,11 @@ function safe453i71LinkListBarHtml(w){
     const ref=safe453i71LinkListRef(w);
     const has=!!ref.datasetId;
     const name=has?String(ref.name||'Linkliste'):'Ingen linkliste';
-    const shortName=name.length>28?name.slice(0,27)+'…':name;
+    const shortName=name.length>36?name.slice(0,35)+'…':name;
     const status=`<button type="button" class="linkListStatus ${has?'':'empty'}" title="${has?'Vis/skjul koblet linkliste: '+esc(name):'Vælg linkliste'}">🔗 ${esc(shortName)}</button>`;
-    const pick=has?'<button type="button" class="linkListPick" title="Vælg link fra linklisten">Vælg</button>':'';
-    const addBtn='<button type="button" class="linkListAdd" title="Tilføj link til linklisten">＋</button>';
-    const saveBtn=has?'<button type="button" class="linkListSave" title="Gem den aktuelle adresse i linklisten">Gem</button>':'<button type="button" class="linkListPick" title="Vælg eller opret linkliste">Vælg</button>';
-    return `<div class="linkLinkedListBar widget-control safe455oLinkListBar">${status}${pick}${addBtn}${saveBtn}</div>`;
+    /* l540: Vælg link, + Tilføj link og Gem aktuel findes nu i widgetbjælkens ☰-dropdown.
+       Denne indholds-bjælke bevarer kun den vigtige datakilde-status/åbn-luk-knap. */
+    return `<div class="linkLinkedListBar widget-control safe455oLinkListBar">${status}</div>`;
   }catch(_e){return '';}
 }
 function safe453i80IsLinkListDataset(ds){
@@ -35836,6 +36113,197 @@ function safe453i72OpenDemoLinkLists(w){
 }
 function safe453i72AfterDemoModal(w,ds){
   try{toast('Linkliste koblet. Åbn 🔗-linklisten, hvis du vil redigere den.');}catch(_e){}
+}
+
+
+/* l538: Lokal dropdown for linkvalg fra den koblede linkliste.
+   Den erstatter kun ☰-/Vælg-link-adfærden for LinkWidget og genbruger eksisterende linkliste-data,
+   safe453i78ApplyLinkItemToWidget(), render(), save() og select(). */
+function safe537CloseLinkDropdown(){
+  try{document.querySelectorAll('.safe537LinkDropdown,.safe537LinkDropdownBackdrop').forEach(n=>n.remove());}catch(_e){}
+  try{
+    const h=window.__safe537LinkDropdownKeyHandler;
+    if(h){document.removeEventListener('keydown',h,true);window.__safe537LinkDropdownKeyHandler=null;}
+  }catch(_e){}
+}
+function safe537Clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+function safe538EnsureLinkListDataWidget(w){
+  try{
+    if(!w||w.type!=='link')return null;
+    const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
+    const dsId=String((ref&&ref.datasetId)||'').trim();
+    if(!dsId)return null;
+    let hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(dsId):null;
+    if(hit&&hit.w)return hit;
+
+    const ds=(typeof findDatasetById==='function')?findDatasetById(dsId):null;
+    if(!ds)return null;
+
+    /* l539: Linklisten kan godt findes som dataset, selvom den synlige/skjulte
+       datawidget mangler efter tidligere versioner. Genskab kun den præcise
+       datawidget for dette dataset og reparer kun linkList-koblingen på ejeren. */
+    let dw=null;
+    try{
+      const dataW=Math.max(460,Math.min(680,innerWidth*.46));
+      const dataH=Math.max(300,Math.min(440,innerHeight*.38));
+      const point={
+        x:Math.max(24,Math.min((Number(w.x)||120)+44,innerWidth-dataW-30)),
+        y:Math.max(80,Math.min((Number(w.y)||120)+44,innerHeight-dataH-40))
+      };
+      dw=(typeof addDatasetWidget==='function')?addDatasetWidget(ds,point):null;
+    }catch(_e){dw=null;}
+    if(!dw||!dw.id)return null;
+
+    try{
+      dw.title='📊 '+String(ds.name||ref.name||'Linkliste');
+      dw.data=dw.data||{};
+      dw.data.datasetId=ds.id;
+      dw.data.datasetView=true;
+      dw.data.sourceType=String(ds.sourceType||ds.type||'link-list');
+      dw.data.sourceOpen=false;
+      if(typeof formatDatasetAsTextWidgetContent==='function')dw.data.text=formatDatasetAsTextWidgetContent(ds);
+    }catch(_e){}
+
+    try{
+      const name=String(ds.name||ref.name||'Linkliste');
+      if(typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,{w:dw},'linkList',name);
+      else{
+        w.data=w.data||{};
+        w.data.linkedDataSources=w.data.linkedDataSources||{};
+        w.data.linkedDataSources.linkList={datasetId:ds.id,widgetId:dw.id,name,role:'linkList'};
+      }
+      w.data=w.data||{};
+      w.data.linkListDatasetId=ds.id;
+      w.data.linkListDatasetName=name;
+      w.data.linkListWidgetId=dw.id;
+    }catch(_e){}
+
+    return {w:dw,slide:(typeof slide==='function'?slide():null)};
+  }catch(err){console.warn('safe538EnsureLinkListDataWidget failed',err);return null;}
+}
+function safe538ToggleLinkListDataWidget(w){
+  try{
+    const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
+    if(!(ref&&ref.datasetId)){
+      if(typeof safe453i71OpenLinkListChooser==='function')safe453i71OpenLinkListChooser(w);
+      return false;
+    }
+    const hit=safe538EnsureLinkListDataWidget(w);
+    if(!hit||!hit.w){try{toast('Datawidget kunne ikke genskabes fra linklisten')}catch(_e){};return false;}
+    if(typeof safe450ToggleLinkedData==='function')return safe450ToggleLinkedData(w,'linkList');
+    if(typeof safe381OpenDatasetSourceNearWidget==='function')return safe381OpenDatasetSourceNearWidget(ref.datasetId,w);
+    return false;
+  }catch(err){console.warn('safe538ToggleLinkListDataWidget failed',err);try{toast('Linklistens datawidget kunne ikke åbnes')}catch(_e){};return false;}
+}
+function safe537OpenLinkDropdown(w,anchor){
+  try{
+    if(!w||w.type!=='link')return false;
+    if(!canEditWidgets())return false;
+    safe537CloseLinkDropdown();
+    const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
+    const ds=(ref&&ref.datasetId&&typeof findDatasetById==='function')?findDatasetById(ref.datasetId):null;
+    if(!ds){
+      if(typeof safe453i71OpenLinkListChooser==='function')safe453i71OpenLinkListChooser(w);
+      return false;
+    }
+    const items=(typeof safe453i71LinkItemsFromDataset==='function')?safe453i71LinkItemsFromDataset(ds):[];
+    if(!items||!items.length){try{toast('Linklisten har ingen links endnu')}catch(_e){};return false;}
+    const cur=(typeof safe453i79CurrentLinkIndex==='function')?safe453i79CurrentLinkIndex(w,items):-1;
+    const escFn=(typeof esc==='function')?esc:(v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+    const listName=String(ds.name||'Linkliste');
+    const currentUrl=(typeof normalizeLinkUrl==='function')?normalizeLinkUrl(w.data&&w.data.url||''):String(w.data&&w.data.url||'').trim();
+    const backdrop=document.createElement('div');
+    backdrop.className='safe537LinkDropdownBackdrop';
+    backdrop.setAttribute('data-safe537-linkdropdown','backdrop');
+    const menu=document.createElement('div');
+    menu.className='safe537LinkDropdown';
+    menu.setAttribute('role','menu');
+    menu.setAttribute('aria-label','Vælg link fra linkliste');
+    menu.innerHTML=`
+      <div class="safe537LinkDropdownHead">
+        <div class="safe537LinkDropdownTitle"><b>${escFn(listName)}</b><small>${items.length} link${items.length===1?'':'s'} · vælg med klik, piletaster eller Enter</small></div>
+        <button type="button" class="safe537LinkDropdownClose" title="Luk">×</button>
+      </div>
+      <div class="safe537LinkDropdownRows">
+        ${items.map((it,i)=>{
+          const title=String(it&&it.title||'Link').trim()||'Link';
+          const url=String(it&&it.url||'').trim();
+          const note=String(it&&it.note||'').trim();
+          const meta=url+(note?' · '+note:'');
+          return `<button type="button" role="menuitem" class="safe537LinkDropdownRow ${i===cur?'current':''}" data-safe537-link-index="${i}"><span><b>${escFn(title)}</b><small>${escFn(meta)}</small></span><span class="safe537CurrentMark">${i===cur?'✓':'Åbn'}</span></button>`;
+        }).join('')}
+      </div>
+      <div class="safe537LinkDropdownFoot">
+        <button type="button" data-safe537-action="switch">Skift linkliste</button>
+        <button type="button" data-safe537-action="add">＋ Tilføj link</button>
+        ${currentUrl?'<button type="button" data-safe537-action="save" class="primary">Gem aktuel</button>':''}
+      </div>`;
+    document.body.appendChild(backdrop);
+    document.body.appendChild(menu);
+    const closeBtn=menu.querySelector('.safe537LinkDropdownClose');
+    if(closeBtn)closeBtn.onclick=e=>{e.preventDefault();e.stopPropagation();safe537CloseLinkDropdown();};
+    backdrop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();safe537CloseLinkDropdown();},{passive:false});
+    menu.addEventListener('pointerdown',e=>e.stopPropagation());
+    menu.querySelectorAll('[data-safe537-link-index]').forEach(btn=>{
+      btn.onclick=e=>{
+        e.preventDefault();e.stopPropagation();
+        const item=items[Number(btn.getAttribute('data-safe537-link-index'))];
+        if(!item)return;
+        if(typeof safe453i78ApplyLinkItemToWidget==='function')safe453i78ApplyLinkItemToWidget(w,item);
+        safe537CloseLinkDropdown();
+        try{save();}catch(_e){}
+        try{render();}catch(_e){}
+        setTimeout(()=>{try{select(w.id,{editText:false});}catch(_e){}},0);
+      };
+    });
+    const switchBtn=menu.querySelector('[data-safe537-action="switch"]');
+    if(switchBtn)switchBtn.onclick=e=>{e.preventDefault();e.stopPropagation();safe537CloseLinkDropdown();safe453i71OpenLinkListChooser(w);};
+    const addBtn=menu.querySelector('[data-safe537-action="add"]');
+    if(addBtn)addBtn.onclick=e=>{e.preventDefault();e.stopPropagation();safe537CloseLinkDropdown();if(typeof safe453i80OpenAddLinkModal==='function')safe453i80OpenAddLinkModal(w,{current:false});};
+    const saveBtn=menu.querySelector('[data-safe537-action="save"]');
+    if(saveBtn)saveBtn.onclick=e=>{e.preventDefault();e.stopPropagation();safe537CloseLinkDropdown();if(typeof safe453i71SaveCurrentLinkToList==='function')safe453i71SaveCurrentLinkToList(w);};
+    const position=()=>{
+      const r=anchor&&anchor.getBoundingClientRect?anchor.getBoundingClientRect():null;
+      const pad=8;
+      const mw=menu.offsetWidth||360;
+      const mh=menu.offsetHeight||320;
+      let left=r?(r.left):((window.innerWidth-mw)/2);
+      let top=r?(r.bottom+8):80;
+      left=safe537Clamp(left,pad,Math.max(pad,window.innerWidth-mw-pad));
+      if(top+mh+pad>window.innerHeight && r)top=r.top-mh-8;
+      top=safe537Clamp(top,pad,Math.max(pad,window.innerHeight-mh-pad));
+      menu.style.left=left+'px';
+      menu.style.top=top+'px';
+    };
+    position();
+    const keyHandler=function(e){
+      try{
+        if(!document.body.contains(menu)){safe537CloseLinkDropdown();return;}
+        if(e.key==='Escape'){
+          e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();safe537CloseLinkDropdown();return;
+        }
+        if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+          const rows=[...menu.querySelectorAll('[data-safe537-link-index]')];
+          if(!rows.length)return;
+          e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+          const active=document.activeElement;
+          let idx=rows.indexOf(active);
+          if(idx<0)idx=cur>=0?cur:0;
+          idx=(idx+(e.key==='ArrowDown'?1:-1)+rows.length)%rows.length;
+          rows[idx].focus();
+        }
+      }catch(_e){}
+    };
+    window.__safe537LinkDropdownKeyHandler=keyHandler;
+    document.addEventListener('keydown',keyHandler,true);
+    setTimeout(()=>{
+      try{
+        const rows=[...menu.querySelectorAll('[data-safe537-link-index]')];
+        (rows[cur>=0?cur:0]||rows[0]||menu).focus();
+      }catch(_e){}
+    },0);
+    return true;
+  }catch(err){console.warn('safe537OpenLinkDropdown failed',err);try{toast('Kunne ikke åbne linklisten')}catch(_e){};return false;}
 }
 
 function safe453i71OpenLinkPicker(w){
@@ -36681,31 +37149,31 @@ function bgModal(){
   const filterDef=getBgFilterDef(currentFilter), previewCss=bgFilterCss(currentFilter), previewOverlay=bgFilterOverlay(currentFilter);
   const isInfoBg=slide().bgImageSource==='builtin' || slide().bgImageSource==='builtin-url' || slide().bgImage===BUILTIN_INFOGRAFIK_BG || slide().bgImageName==='README_infografik.png';
   const activeCat=window.__tavleBgCat || 'alle';
-  const categories=[{key:'alle',label:'Alle'},{key:'Tavle',label:'Tavle'},{key:'Fag',label:'Fag'},{key:'Struktur',label:'Struktur'},{key:'Kreativ',label:'Kreativ'},{key:'Rolig',label:'Rolig'}];
+  const categories=[{key:'alle',label:'Alle'},{key:'Farver',label:'Farver'},{key:'Tavle',label:'Tavle'},{key:'Fag',label:'Fag'},{key:'Struktur',label:'Struktur'},{key:'Kreativ',label:'Kreativ'},{key:'Rolig',label:'Rolig'}];
   const bgSwatches=[
-    {kind:'swatch',title:'Lys blå',desc:'Neutral og rolig',group:'Rolig',version:'Farve',bg:'linear-gradient(135deg,#eef7ff,#d6ecff)',search:'lys blå neutral rolig grøn undervisning'},
-    {kind:'swatch',title:'Minimal grå',desc:'Rolig skriveflade',group:'Tavle',version:'Farve',bg:'linear-gradient(135deg,#f8fafc,#e5e7eb)',search:'minimal grå neutral lys tavle'},
-    {kind:'swatch',title:'Varm kreativ',desc:'Blød varm energi',group:'Kreativ',version:'Farve',bg:'linear-gradient(135deg,#fff7ed,#fde68a)',search:'varm kreativ gul orange lys'},
-    {kind:'swatch',title:'Lilla ro',desc:'Rolig fokusfarve',group:'Rolig',version:'Farve',bg:'linear-gradient(135deg,#f5f3ff,#ddd6fe)',search:'lilla ro fokus kreativ'},
-    {kind:'swatch',title:'Blå fokus',desc:'Kølig og tydelig',group:'Struktur',version:'Farve',bg:'linear-gradient(135deg,#dbeafe,#bfdbfe)',search:'blå fokus kølig struktur'},
-    {kind:'swatch',title:'Grøn tavle',desc:'Klassisk ro',group:'Tavle',version:'Farve',bg:'linear-gradient(135deg,#dcfce7,#bbf7d0)',search:'grøn tavle klassisk rolig'},
-    {kind:'swatch',title:'Mørk grøn',desc:'Dæmpet tavlestemning',group:'Tavle',version:'Farve',bg:'linear-gradient(135deg,#0f172a,#064e3b)',search:'mørk grøn tavle dæmpet'},
-    {kind:'swatch',title:'Dyb blå',desc:'Mørk præsentation',group:'Struktur',version:'Farve',bg:'linear-gradient(135deg,#0f172a,#1d4ed8)',search:'mørk blå præsentation struktur'},
-    {kind:'swatch',title:'Kontrast',desc:'Kraftig sort/hvid',group:'Struktur',version:'Farve',bg:'linear-gradient(135deg,#020617,#475569)',search:'kontrast mørk sort grå tydelig'}
+    {kind:'swatch',title:'Lys blå',desc:'Neutral og rolig',group:'Farver',version:'Farve',bg:'linear-gradient(135deg,#eef7ff,#d6ecff)',search:'lys blå neutral rolig undervisning'},
+    {kind:'swatch',title:'Minimal grå',desc:'Rolig skriveflade',group:'Farver',version:'Farve',bg:'linear-gradient(135deg,#f8fafc,#e5e7eb)',search:'minimal grå neutral lys tavle'},
+    {kind:'swatch',title:'Varm kreativ',desc:'Blød varm energi',group:'Farver',version:'Farve',bg:'linear-gradient(135deg,#fff7ed,#fde68a)',search:'varm kreativ gul orange lys'},
+    {kind:'swatch',title:'Lilla ro',desc:'Rolig fokusfarve',group:'Farver',version:'Farve',bg:'linear-gradient(135deg,#f5f3ff,#ddd6fe)',search:'lilla ro fokus kreativ'},
+    {kind:'swatch',title:'Blå fokus',desc:'Kølig og tydelig',group:'Farver',version:'Farve',bg:'linear-gradient(135deg,#dbeafe,#bfdbfe)',search:'blå fokus kølig struktur'},
+    {kind:'swatch',title:'Grøn tavle',desc:'Lys klassisk ro',group:'Farver',version:'Farve',bg:'linear-gradient(135deg,#dcfce7,#bbf7d0)',search:'grøn tavle klassisk rolig lys'},
+    {kind:'swatch',title:'Mørk grøn',desc:'Dæmpet tavlestemning',group:'Farver',version:'Farve',bg:'linear-gradient(135deg,#0f172a,#064e3b)',search:'mørk grøn tavle dæmpet'},
+    {kind:'swatch',title:'Dyb blå',desc:'Mørk præsentation',group:'Farver',version:'Farve',bg:'linear-gradient(135deg,#0f172a,#1d4ed8)',search:'mørk blå præsentation struktur'},
+    {kind:'swatch',title:'Kontrast',desc:'Kraftig sort/hvid',group:'Farver',version:'Farve',bg:'linear-gradient(135deg,#020617,#475569)',search:'kontrast mørk sort grå tydelig'}
   ];
   const bgItems=[
     ...bgSwatches,
     ...(TAVLE_BACKGROUNDS||[]).map(bg=>({...bg,kind:'image'}))
   ];
 
-  const filterButtons=(TAVLE_BG_FILTERS||[]).map(f=>`<button class="bgFilterChip ${currentFilter===f.key?'active':''}" data-bg-filter="${esc(f.key)}" title="${esc(f.desc||f.title)}">${esc(f.title)}</button>`).join('');
-  const categoryButtons=categories.map(c=>`<button class="bgCategoryChip ${activeCat===c.key?'active':''}" data-bg-cat="${esc(c.key)}">${esc(c.label)}</button>`).join('');
+  const filterOptions=(TAVLE_BG_FILTERS||[]).map(f=>`<option value="${esc(f.key)}" ${currentFilter===f.key?'selected':''}>${esc(f.title)}</option>`).join('');
+  const categoryOptions=categories.map(c=>`<option value="${esc(c.key)}" ${activeCat===c.key?'selected':''}>${esc(c.label)}</option>`).join('');
 
   const bgCards=bgItems.map((bg,idx)=>{
     if(bg.kind==='swatch'){
       const active=(!slide().bgImage && String(slide().bg||'')===String(bg.bg||'')) || (slide().bgImageSource==='swatch' && slide().bgImageTitle===bg.title);
       const swatchOverlay=bgFilterOverlay(currentFilter);
-      return `<button class="bgChoice v46 ${active?'active':''}" data-bg-index="${idx}" data-bg-kind="swatch" data-bg-bg="${esc(bg.bg||'')}" data-bg-title="${esc(bg.title||'Farve')}" data-bg-version="${esc(bg.version||'Farve')}" data-bg-group="${esc(bg.group||'Tavle')}" data-bg-search="${esc((bg.title+' '+bg.desc+' '+bg.group+' '+bg.version+' '+(bg.search||'')).toLowerCase())}" title="${esc(bg.title+' — '+bg.desc)}">
+      return `<button class="bgChoice v46 ${active?'active':''}" data-bg-index="${idx}" data-bg-kind="swatch" data-bg-bg="${esc(bg.bg||'')}" data-bg-title="${esc(bg.title||'Farve')}" data-bg-version="${esc(bg.version||'Farve')}" data-bg-group="${esc(bg.group||'Tavle')}" data-bg-search="${esc((bg.title+' '+bg.desc+' '+bg.group+' '+bg.version+' '+(bg.search||'')).toLowerCase())}" aria-pressed="${active?'true':'false'}" title="${esc(bg.title+' — '+bg.desc)}">
         <span class="bgChoicePreview swatchPreview" style="--swatch-bg:${esc(bg.bg)};--swatch-overlay:${esc(swatchOverlay)};background:${esc(bg.bg)} !important;filter:${esc(previewCss)}">
           <span class="swatchTexture"></span>
           <span class="swatchOverlay"></span>
@@ -36717,50 +37185,62 @@ function bgModal(){
     const resolvedSrc=resolveAssetPath(bg.src);
     const active=currentBg===bg.src || currentBg===resolvedSrc || (slide().bgImageTitle===bg.title && slide().bgImageVersion===bg.version);
     const badgeClass=bg.version==='Klassisk'?'old':'';
-    return `<button class="bgChoice v46 ${active?'active':''}" data-bg-index="${idx}" data-bg-kind="image" data-bg-group="${esc(bg.group||'Andre')}" data-bg-search="${esc((bg.title+' '+bg.desc+' '+bg.group+' '+bg.version).toLowerCase())}" title="${esc(bg.title+' — '+bg.desc+' — '+(bg.version==='HD'?'HD / forbedret skarp version':'Klassisk / oprindelig webversion'))}">
+    return `<button class="bgChoice v46 ${active?'active':''}" data-bg-index="${idx}" data-bg-kind="image" data-bg-group="${esc(bg.group||'Andre')}" data-bg-search="${esc((bg.title+' '+bg.desc+' '+bg.group+' '+bg.version+' '+(bg.search||'')).toLowerCase())}" aria-pressed="${active?'true':'false'}" title="${esc(bg.title+' — '+bg.desc+' — '+(bg.version==='HD'?'HD / forbedret skarp version':'Klassisk / oprindelig webversion'))}">
       <span class="bgChoicePreview"><img src="${esc(resolvedSrc)}" alt="${esc(bg.title)}" loading="lazy" style="filter:${esc(previewCss)}" onerror="this.classList.add('bgImgMissing')"><span class="bgChoiceOverlay" style="background:${esc(previewOverlay)}"></span></span>
       <span class="bgChoiceMeta"><span class="bgChoiceTitle">${esc(bg.title)}</span><span class="bgBadge ${badgeClass}">${esc(bg.version)}</span></span>
       <span class="bgChoiceDesc">${esc(bg.desc)}</span>
     </button>`;
   }).join('');
 
-  showModal(`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">Baggrund</h2><button id="backgroundModalHelp" type="button" title="Åbn hjælp til baggrunde" aria-label="Åbn hjælp til baggrunde" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div>
-    <p style="margin-top:0;opacity:.75;font-weight:800">${hasImg?'Baggrundsbillede er valgt. Justér visning, filter eller fjern billedet.':'Vælg en farve, vælg en tavlebaggrund, vælg et lokalt billede eller indsæt en billed-URL.'}</p>
+  showModal(`<div class="bgModalShell" role="dialog" aria-label="Vælg tavlebaggrund">
+    <div class="bgModalTop">
+      <div class="bgModalTitleBlock">
+        <h2>Baggrund</h2>
+        <p>${hasImg?'Baggrundsbillede er valgt. Vælg nyt, justér visning eller skift filter.':'Vælg baggrund, farve eller eget billede.'}</p>
+      </div>
+      <div class="bgModalTopButtons">
+        <button id="backgroundModalHelp" type="button" title="Åbn hjælp til baggrunde" aria-label="Åbn hjælp til baggrunde">?</button>
+        <button id="bgCloseTop" class="bgCloseX" type="button" title="Luk baggrundsvælger" aria-label="Luk baggrundsvælger">×</button>
+      </div>
+    </div>
+    <div class="bgKeyboardHint" aria-hidden="true">Piletaster forhåndsviser · Enter vælger · Esc lukker · / søger</div>
     <div class="bgLibraryWrap v46">
       <div class="bgLibraryHead">
-        <div>
-          <h3>Tavlebaggrunde</h3>
-          <p>Aktivt filter: <span class="filterName">${esc(filterDef.title)}</span></p>
-        </div>
-      </div>
-      <div class="bgGridToggleRow"><button id="bgGridToggle" class="bgGridToggleBtn ${slide().grid?'active':''}" type="button">Gitter: ${slide().grid?'Til':'Fra'} <small>Shift+G</small></button></div>
-      <div class="bgFilterBar">${filterButtons}</div>
-      <div class="bgCategoryBar v46">${categoryButtons}</div>
-      <div class="bgSelectorTools">
-        <input id="bgSearch" type="search" placeholder="Søg fx musik, klassisk, HD, rolig, geografi…" autocomplete="off">
+        <h3>Tavlebaggrunde</h3>
         <span class="bgLibraryCount" id="bgCount"></span>
       </div>
-      <div class="bgGrid v46" id="bgGrid">${bgCards}</div>
+      <div class="bgCompactControls" aria-label="Baggrundsfiltre">
+        <input id="bgSearch" type="search" placeholder="Søg fx musik, klassisk, HD, rolig, geografi…" autocomplete="off" aria-label="Søg i baggrunde">
+        <label><span>Type</span><select id="bgCatSelect" aria-label="Vælg type">${categoryOptions}</select></label>
+        <label><span>Stemning</span><select id="bgFilterSelect" aria-label="Vælg stemning/filter">${filterOptions}</select></label>
+        <button id="bgGridToggle" class="bgGridToggleBtn ${slide().grid?'active':''}" type="button">Gitter ${slide().grid?'til':'fra'}<small>⇧G</small></button>
+      </div>
+      <div class="bgGrid v46" id="bgGrid" role="listbox" aria-label="Tavlebaggrunde">${bgCards}</div>
     </div>
-    <hr>
     <div class="bgActions">
-      <button id="bgInfo">${isInfoBg?'✓ Online-infografik som baggrund':'Brug online-infografik som baggrund'}</button>
-      <button id="bgImg">Vælg lokalt baggrundsbillede</button>
-      <button id="bgUrl">Indsæt billed-URL</button>
-      <select id="fit">
-        <option value="cover" ${fit==='cover'?'selected':''}>cover – fyld tavlen</option>
-        <option value="contain" ${fit==='contain'?'selected':''}>contain – vis hele billedet</option>
-        <option value="auto" ${fit==='auto'?'selected':''}>auto – original størrelse</option>
-      </select>
-      <button id="close">Luk</button>
-    </div>`);
+      <label class="bgSourceLabel"><span>Billede</span><select id="bgSourceAction" aria-label="Vælg billedkilde">
+        <option value="" ${isInfoBg?'':'selected'}>Billedkilde…</option>
+        <option value="info" ${isInfoBg?'selected':''}>Online-infografik</option>
+        <option value="local">Lokalt billede</option>
+        <option value="url">Billed-URL</option>
+        <option value="clear" ${hasImg?'':'disabled'}>Fjern billede</option>
+      </select></label>
+      <button id="bgSourceRun" class="bgSourceRun">Vælg</button>
+      <label class="bgFitLabel"><span>Visning</span><select id="fit">
+        <option value="cover" ${fit==='cover'?'selected':''}>Fyld tavlen</option>
+        <option value="contain" ${fit==='contain'?'selected':''}>Vis hele</option>
+        <option value="auto" ${fit==='auto'?'selected':''}>Original</option>
+      </select></label>
+      <button id="close" class="bgActionClose">Luk</button>
+    </div>
+  </div>`);
   safe455uH22WireModalHelp('backgroundModalHelp','Baggrunde, grid og redningsbælte');
 
   const bgGridToggle=modal.querySelector('#bgGridToggle');
   function syncBgGridButton(){
     if(!bgGridToggle)return;
     bgGridToggle.classList.toggle('active',!!slide().grid);
-    bgGridToggle.innerHTML='Gitter: '+(slide().grid?'Til':'Fra')+' <small>Shift+G</small>';
+    bgGridToggle.innerHTML='Gitter '+(slide().grid?'til':'fra')+'<small>⇧G</small>';
   }
   function toggleBgGrid(){
     slide().grid=!slide().grid;
@@ -36786,12 +37266,17 @@ function bgModal(){
     if(count)count.textContent=visible+' vist';
   }
 
-  modal.querySelectorAll('[data-bg-cat]').forEach(btn=>btn.onclick=()=>{
-    window.__tavleBgCat=btn.dataset.bgCat||'alle';
-    modal.querySelectorAll('[data-bg-cat]').forEach(b=>b.classList.toggle('active',b===btn));
+  const catSelect=modal.querySelector('#bgCatSelect');
+  if(catSelect)catSelect.onchange=()=>{
+    window.__tavleBgCat=catSelect.value||'alle';
     applyBgLibraryFilter();
     setTimeout(()=>bgHighlight(0),0);
-  });
+  };
+  const filterSelect=modal.querySelector('#bgFilterSelect');
+  if(filterSelect)filterSelect.onchange=()=>{
+    slide().bgFilter=filterSelect.value||'none';
+    render();save();bgModal();
+  };
   const searchInput=modal.querySelector('#bgSearch');
   if(searchInput)searchInput.oninput=()=>{applyBgLibraryFilter();setTimeout(()=>bgHighlight(0),0)};
   applyBgLibraryFilter();
@@ -36857,18 +37342,46 @@ function bgModal(){
   function bgClearPreviewTransparency(){
     modalBack.classList.remove('bgPreviewing');
   }
+  function bgPreviewHighlighted(){
+    const card=bgVisibleCards()[bgKbIndex];
+    if(!card)return;
+    bgApplyFromCard(card,false);
+    bgFlashPreviewTransparency();
+  }
   function bgLiveApplyToBoard(){
     // Tving preview direkte på tavlen, så gradient-swatches ses med det samme,
     // også mens modalens tastatur-state stadig er aktiv.
     applyBg();
   }
   function bgApplyFilterByNumber(n){
-    const chips=Array.from(modal.querySelectorAll('[data-bg-filter]'));
-    const chip=chips[n-1];
-    if(!chip)return false;
-    chip.click();
-    setTimeout(()=>bgHighlight(0),80);
-    return true;
+    const sel=modal.querySelector('#bgFilterSelect');
+    if(sel && sel.options && sel.options[n-1]){
+      sel.value=sel.options[n-1].value;
+      sel.dispatchEvent(new Event('change',{bubbles:true}));
+      setTimeout(()=>{bgHighlight(0);bgPreviewHighlighted();},80);
+      return true;
+    }
+    return false;
+  }
+  function bgSyncActiveCards(){
+    try{
+      const s=slide();
+      const current=String(s.bgImage||'');
+      modal.querySelectorAll('.bgChoice[data-bg-index]').forEach(card=>{
+        const item=bgItems[Number(card.dataset.bgIndex)];
+        let active=false;
+        if(item){
+          if(item.kind==='swatch'){
+            active=(!s.bgImage && String(s.bg||'')===String(item.bg||'')) || (s.bgImageSource==='swatch' && s.bgImageTitle===item.title);
+          }else{
+            const resolved=typeof resolveAssetPath==='function' ? resolveAssetPath(item.src) : item.src;
+            active=current===item.src || current===resolved || (s.bgImageTitle===item.title && s.bgImageVersion===item.version);
+          }
+        }
+        card.classList.toggle('active',!!active);
+        card.setAttribute('aria-pressed',active?'true':'false');
+      });
+    }catch(_e){}
   }
   function bgApplyFromCard(card, permanent){
     const idx=Number(card?.dataset?.bgIndex);
@@ -36897,7 +37410,7 @@ function bgModal(){
       s.bgImageTitle=item.title||'Baggrund';
       s.bgImageVersion=item.version||'';
       s.bgFilter=s.bgFilter||'none';
-      s.bgFit=s.bgFit||'cover';
+      s.bgFit='cover';
     }
 
     applyBg();
@@ -36908,7 +37421,8 @@ function bgModal(){
       save({silent:true});
     }
 
-    renderBgChoices();
+    if(typeof renderBgChoices==='function')renderBgChoices();
+    else bgSyncActiveCards();
     try{
       if(item.kind==='swatch' && typeof window.safe292PatchSwatches==='function'){
         setTimeout(window.safe292PatchSwatches,20);
@@ -36926,24 +37440,87 @@ function bgModal(){
   }
   function bgClose(){
     document.removeEventListener('keydown',bgKeyHandler,true);
+    window.removeEventListener('keydown',bgKeyHandler,true);
     modalBack.classList.remove('bgModalKeyboard','bgPreviewing');
     closeModal();
     setTimeout(()=>{try{if(window.__safe296BgCommitted&&Date.now()-window.__safe296BgCommitted.time>500)window.__safe296BgCommitted=null;}catch(_e){}},700);
   }
+  const bgCloseTop=modal.querySelector('#bgCloseTop');
+  if(bgCloseTop)bgCloseTop.onclick=e=>{e.preventDefault();e.stopPropagation();bgClearPreviewTransparency();bgClose();};
+
+  function bgConfirmHighlighted(){
+    const cards=bgVisibleCards(), card=cards[bgKbIndex];
+    if(!card)return false;
+    bgClearPreviewTransparency();
+    bgApplyFromCard(card,true);
+    toast('Baggrund valgt');
+    bgClose();
+    try{
+      const commit=window.__safe296BgCommitted;
+      if(commit&&commit.slideIndex===state.active){
+        setTimeout(()=>{try{Object.assign(slide(),commit.data);applyBg();render();save({silent:true});}catch(_e){}},30);
+      }
+    }catch(_e){}
+    return true;
+  }
+
+  function bgCommitAndClose(message){
+    bgClearPreviewTransparency();
+    bgMarkCommitted();
+    render();
+    save({silent:true});
+    if(message)toast(message);
+    bgClose();
+  }
+
   function bgKeyHandler(e){
     if(modalBack.style.display!=='flex')return;
     if(!modal || !/Baggrund/i.test(modal.textContent||''))return;
     const active=document.activeElement;
     const typing=active && (active.tagName==='INPUT' || active.tagName==='TEXTAREA');
+    const selecting=active && active.tagName==='SELECT';
+    if(selecting){
+      if(e.key==='Enter'){
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        /* l536: Enter betyder godkend i baggrundsvælgeren.
+           - I Billedkilde-menuen udføres den valgte billedhandling.
+           - I Type/Stemning/Visning godkendes den markerede baggrund og modalen lukkes. */
+        if(active.id==='bgSourceAction'){
+          const run=modal.querySelector('#bgSourceRun');
+          if(run)run.click();
+        }else{
+          if(!bgConfirmHighlighted()){
+            active.blur();
+            try{modal.focus({preventScroll:true});}catch(_e){}
+          }
+        }
+      }else if(e.key==='Escape'){
+        e.preventDefault(); e.stopPropagation();
+        bgRestore();
+        bgClose();
+      }
+      return;
+    }
     if(typing){
       if(e.key==='Enter'){
-        e.preventDefault();
-        active.blur();
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        /* l536: Enter i søgefeltet vælger den markerede baggrund i stedet for blot at fjerne fokus. */
+        if(!bgConfirmHighlighted()){
+          active.blur();
+          try{modal.focus({preventScroll:true});}catch(_e){}
+        }
       }else if(e.key==='Escape'){
         e.preventDefault();
         bgRestore();
         bgClose();
       }
+      return;
+    }
+    if(e.key==='/' || String(e.key||'').toLowerCase()==='s'){
+      e.preventDefault(); e.stopPropagation();
+      bgClearPreviewTransparency();
+      const si=modal.querySelector('#bgSearch');
+      if(si){try{si.focus({preventScroll:true}); si.select&&si.select();}catch(_e){si.focus();}}
       return;
     }
     if(e.shiftKey && String(e.key||'').toLowerCase()==='g'){
@@ -36954,26 +37531,26 @@ function bgModal(){
     }
     if(e.key==='ArrowRight'){
       e.preventDefault(); e.stopPropagation();
-      bgClearPreviewTransparency();
       bgHighlight(bgKbIndex+1);
+      bgPreviewHighlighted();
       return;
     }
     if(e.key==='ArrowLeft'){
       e.preventDefault(); e.stopPropagation();
-      bgClearPreviewTransparency();
       bgHighlight(bgKbIndex-1);
+      bgPreviewHighlighted();
       return;
     }
     if(e.key==='ArrowDown'){
       e.preventDefault(); e.stopPropagation();
-      bgClearPreviewTransparency();
       bgHighlight(bgKbIndex+bgGridColumns());
+      bgPreviewHighlighted();
       return;
     }
     if(e.key==='ArrowUp'){
       e.preventDefault(); e.stopPropagation();
-      bgClearPreviewTransparency();
       bgHighlight(bgKbIndex-bgGridColumns());
+      bgPreviewHighlighted();
       return;
     }
     if(/^[1-6]$/.test(e.key)){
@@ -36983,10 +37560,10 @@ function bgModal(){
       return;
     }
     if(e.key==='Home'){
-      e.preventDefault(); e.stopPropagation(); bgClearPreviewTransparency(); bgHighlight(0); return;
+      e.preventDefault(); e.stopPropagation(); bgHighlight(0); bgPreviewHighlighted(); return;
     }
     if(e.key==='End'){
-      e.preventDefault(); e.stopPropagation(); bgClearPreviewTransparency(); bgHighlight(bgVisibleCards().length-1); return;
+      e.preventDefault(); e.stopPropagation(); bgHighlight(bgVisibleCards().length-1); bgPreviewHighlighted(); return;
     }
     if(e.key===' '){
       const cards=bgVisibleCards(), card=cards[bgKbIndex];
@@ -37002,20 +37579,8 @@ function bgModal(){
       return;
     }
     if(e.key==='Enter'){
-      const cards=bgVisibleCards(), card=cards[bgKbIndex];
-      if(card){
-        e.preventDefault(); e.stopPropagation();
-        bgClearPreviewTransparency();
-        bgApplyFromCard(card,true);
-        toast('Baggrund valgt');
-        bgClose();
-        try{
-          const commit=window.__safe296BgCommitted;
-          if(commit&&commit.slideIndex===state.active){
-            setTimeout(()=>{try{Object.assign(slide(),commit.data);applyBg();render();save({silent:true});}catch(_e){}},30);
-          }
-        }catch(_e){}
-      }
+      e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      bgConfirmHighlighted();
       return;
     }
     if(e.key==='Escape'){
@@ -37027,8 +37592,9 @@ function bgModal(){
     }
   }
   modal.addEventListener('pointerdown',()=>bgClearPreviewTransparency(),true);
-  if(window.__bgKeyHandler)document.removeEventListener('keydown',window.__bgKeyHandler,true);
+  if(window.__bgKeyHandler){document.removeEventListener('keydown',window.__bgKeyHandler,true);window.removeEventListener('keydown',window.__bgKeyHandler,true);}
   window.__bgKeyHandler=bgKeyHandler;
+  window.addEventListener('keydown',bgKeyHandler,true);
   document.addEventListener('keydown',bgKeyHandler,true);
   setTimeout(()=>{
     const cards=bgVisibleCards();
@@ -37038,7 +37604,7 @@ function bgModal(){
   },60);
 
   modal.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{slide().bg=b.dataset.bg;slide().bgImage='';slide().bgImageName='';slide().bgImageSource='';delete slide().bgImageTitle;delete slide().bgImageVersion;render();save();bgModal()});
-  modal.querySelectorAll('[data-bg-filter]').forEach(btn=>btn.onclick=()=>{slide().bgFilter=btn.dataset.bgFilter||'none';render();save();bgModal()});
+  // l533: Filter vælges nu via dropdown (#bgFilterSelect) for at frigøre plads til eksempelgrid.
 
   modal.querySelectorAll('[data-bg-index]').forEach(btn=>btn.onclick=()=>{
     const item=bgItems[Number(btn.dataset.bgIndex)];
@@ -37053,26 +37619,69 @@ function bgModal(){
     modal.querySelectorAll('.bgChoice[data-bg-index]').forEach(c=>c.classList.remove('active'));
     btn.classList.add('active');
     toast((item.title||'Baggrund')+' valgt som baggrund');
+    bgClose();
   });
 
-  modal.querySelector('#bgInfo').onclick=()=>{
+  function chooseOnlineInfografik(){
     const img=new Image();
-    img.onload=()=>{slide().bgImage=BUILTIN_INFOGRAFIK_BG;slide().bgImageName='README_infografik.png';slide().bgImageSource='builtin-url';slide().bgFilter=slide().bgFilter||'none';slide().bgFit='contain';render();save();toast('Online-infografik valgt som baggrund');bgModal()};
+    img.onload=()=>{
+      slide().bgImage=BUILTIN_INFOGRAFIK_BG;
+      slide().bgImageName='README_infografik.png';
+      slide().bgImageSource='builtin-url';
+      slide().bgFilter=slide().bgFilter||'none';
+      slide().bgFit='cover';
+      bgCommitAndClose('Online-infografik valgt som baggrund');
+    };
     img.onerror=()=>toast('Kunne ikke hente online-infografik');
     img.src=BUILTIN_INFOGRAFIK_BG;
-  };
-  modal.querySelector('#bgImg').onclick=()=>pickFile('image/*',(src,file)=>{slide().bgImage=src;slide().bgImageName=(file&&file.name)||'baggrundsbillede';slide().bgImageSource='local';slide().bgFilter=slide().bgFilter||'none';delete slide().bgImageTitle;delete slide().bgImageVersion;if(!slide().bgFit)slide().bgFit='contain';render();save();toast('Baggrundsbillede valgt');bgModal()});
-  modal.querySelector('#bgUrl').onclick=()=>{
+  }
+  function chooseLocalBackground(){
+    pickFile('image/*',(src,file)=>{
+      slide().bgImage=src;
+      slide().bgImageName=(file&&file.name)||'baggrundsbillede';
+      slide().bgImageSource='local';
+      slide().bgFilter=slide().bgFilter||'none';
+      delete slide().bgImageTitle;
+      delete slide().bgImageVersion;
+      slide().bgFit='cover';
+      bgCommitAndClose('Baggrundsbillede valgt');
+    });
+  }
+  function chooseUrlBackground(){
     const current=slide().bgImageSource==='url'?(slide().bgImage||''):'';
     const url=prompt('Indsæt URL til eksternt billede',current);
     if(url===null)return;
     const trimmed=String(url||'').trim();
     if(!trimmed){toast('Ingen URL indsat');return}
     if(!/^https?:\/\//i.test(trimmed)){toast('URL skal starte med http:// eller https://');return}
-    slide().bgImage=trimmed;slide().bgImageName='eksternt baggrundsbillede';slide().bgImageSource='url';slide().bgFilter=slide().bgFilter||'none';delete slide().bgImageTitle;delete slide().bgImageVersion;if(!slide().bgFit)slide().bgFit='cover';render();save();toast('Eksternt baggrundsbillede valgt');bgModal();
+    slide().bgImage=trimmed;
+    slide().bgImageName='eksternt baggrundsbillede';
+    slide().bgImageSource='url';
+    slide().bgFilter=slide().bgFilter||'none';
+    delete slide().bgImageTitle;
+    delete slide().bgImageVersion;
+    slide().bgFit='cover';
+    bgCommitAndClose('Eksternt baggrundsbillede valgt');
+  }
+  function clearBackgroundImage(){
+    slide().bgImage='';
+    slide().bgImageName='';
+    slide().bgImageSource='';
+    delete slide().bgImageTitle;
+    delete slide().bgImageVersion;
+    bgCommitAndClose('Baggrundsbillede fjernet');
+  }
+  const bgSourceRun=modal.querySelector('#bgSourceRun');
+  if(bgSourceRun)bgSourceRun.onclick=()=>{
+    const choice=(modal.querySelector('#bgSourceAction')?.value)||'';
+    if(!choice){toast('Vælg først en billedkilde');return;}
+    if(choice==='local')return chooseLocalBackground();
+    if(choice==='url')return chooseUrlBackground();
+    if(choice==='clear')return clearBackgroundImage();
+    return chooseOnlineInfografik();
   };
   modal.querySelector('#fit').onchange=e=>{slide().bgFit=e.target.value;render();save()};
-  const clearBgBtn=modal.querySelector('#clearBg');if(clearBgBtn)clearBgBtn.onclick=()=>{slide().bgImage='';slide().bgImageName='';slide().bgImageSource='';delete slide().bgImageTitle;delete slide().bgImageVersion;render();save();bgModal()};
+  // l533: Fjern billede ligger i dropdownen Billede → Fjern billede.
   modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
 }
 
@@ -51510,6 +52119,21 @@ body.safe453i185uTimerPresentation [data-stopwatch-panel],
       if(helpOpen){
         const helpKeys=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter','Escape',' ','Spacebar'];
         if(helpKeys.includes(key) || e.code==='Space')return;
+      }
+    }catch(_e){}
+
+    /* l535: Baggrundsvælgeren har sin egen lokale tastaturstyring.
+       Den generelle modal-guard kører på window/capture og slugte derfor pile/Enter,
+       før bgModal-handleren på document kunne bladre i eksempelgrid'et.
+       Slip kun de relevante baggrundsvælger-taster videre, så Tavlen bag modalen
+       stadig er beskyttet af bgModal-handlerens preventDefault/stopPropagation. */
+    try{
+      const bgOpen=modal && modal.querySelector && modal.querySelector('.bgModalShell');
+      if(bgOpen){
+        const bgKeys=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home','End','Enter','Escape',' ','Spacebar'];
+        const bgPlainNumber=/^[1-6]$/.test(key) && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey;
+        const bgSearchKey=(key==='/' || String(key||'').toLowerCase()==='s') && !e.metaKey && !e.ctrlKey && !e.altKey;
+        if(bgKeys.includes(key) || e.code==='Space' || bgPlainNumber || bgSearchKey)return;
       }
     }catch(_e){}
 
