@@ -14,6 +14,7 @@
 <!-- l535-bgvaelger-piletaster-fix: Kirurgisk fix: den generelle modal-keyboard-guard slipper baggrundsvælgerens pile/Enter/Esc/Home/End/Space videre til bgModal-handleren, så piletaster kan bladre i eksempler. -->
 <!-- l533-bgvaelger-kompakt-eksempler: Baggrundsvælgeren komprimeret kirurgisk: dropdowns i stedet for brede chip-rækker, større eksempelgrid, overlay-titler på kort og mindre bundkontroller. -->
 <meta charset="UTF-8">
+<!-- l547-auto-system-theme-help: Første opstart vælger tema efter systemets lys/mørk visning; Hjælp forklarer det kort. -->
 <!-- SAFE453y: KaPardy/iPhone audio guard: gamle vinderlyd-timers stoppes før ny afspilning, og HTMLAudio fallback capped. -->
 
 
@@ -38,7 +39,7 @@
 <!-- SAFE455uH45g3: Tavleoversigt får enkelt-tast Q/Å og iframe-kontrol slipper taster, når Tavleoversigt er åben. -->
 <!-- SAFE455uH45g2: Robust XLSX-import via central directory; bevarer demoer. -->
 <!-- SAFE455uH44: Tjek saver handshake: Tjek-backupknap bruger Tavle-save når indlejret, standalone-backup udenfor Tavle, og Tjek-toast dæmpes. -->
-/* SAFE455uH40: Backup + kan nu importeres via indsat JSON-tekst i Gem / åbn. */
+<!-- SAFE455uH40: Backup + kan nu importeres via indsat JSON-tekst i Gem / åbn. -->
 
 <!-- SAFE455uH39: Backup+ manuel JSON-kopi, kompakt medieoverblik, localStorage vælg alle viste, og Skriv udtBackupRef tælles som aktiv arkivreference. -->
 <!-- SAFE455uH41: HTMLApps arkiveres som srcMediaRef i IndexedDB ved oprettelse; backup-tekstimport advarer om lang indsætningstid. -->
@@ -8365,6 +8366,24 @@ body.focus-presentation .content.pdf .pdfFormOverlay{
 @media(max-width:620px){.safe526Title h2{font-size:19px!important}.safe526Title p{font-size:13px!important}.safe526Name{font-size:17px!important}.safe526Select{width:128px!important;min-width:128px!important;max-width:128px!important}}
 
 </style>
+<!-- Added theme support: define classic and modern themes and editing/presentation title colours -->
+<style id="custom-themes">
+  /* Theme definitions: apply via class on <html> element.
+     Themes intentionally avoid changing the --bg variable so that
+     users can continue to switch slide backgrounds via the built‑in
+     baggrundsvælger.  Each theme only adjusts the accent colour
+     and bar colour.  */
+  html.theme-classic {
+    /* Klassisk tavle: original accent colour. */
+    --bar: #1f2937;
+    --accent: #6d5dfc;
+  }
+  html.theme-modern {
+    /* Præsentationslook: pastel/lilla accent. */
+    --bar: #1f2937;
+    --accent: #a855f7;
+  }
+</style>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_32.png">
 
 <style id="phase1-import-feedback-css">
@@ -12669,6 +12688,57 @@ SAFE455 EARLY FULLSCREEN SHIFT+ENTER GUARD
   window.addEventListener('keydown',handle,true);
   document.addEventListener('keydown',handle,true);
 })();
+</script>
+<!-- Theme switcher: toggles between classic and modern themes with Alt+1 and Alt+2 -->
+<script id="custom-theme-switcher">
+  (function() {
+    const themes = ['classic', 'modern'];
+    function applyTheme(name) {
+      const html = document.documentElement;
+      themes.forEach(t => html.classList.remove('theme-' + t));
+      html.classList.add('theme-' + name);
+      try {
+        localStorage.setItem('tavleTheme', name);
+      } catch(_e) {}
+      // show quick toast if available
+      try {
+        const msg = name === 'classic'
+          ? 'Klassisk tavle aktiveret'
+          : 'Præsentationslook aktiveret';
+        if (typeof showToast === 'function') showToast(msg, 2000);
+      } catch(_e) {}
+    }
+    // On load, pick saved theme or default to classic (the original app appearance)
+    try {
+      const saved = localStorage.getItem('tavleTheme');
+      if (saved && themes.includes(saved)) {
+        applyTheme(saved);
+      } else {
+        applyTheme('classic');
+      }
+    } catch(_e) {
+      applyTheme('classic');
+    }
+    // Keyboard shortcuts: Ctrl+Shift+1 for classic, Ctrl+Shift+2 for modern.
+    // We avoid using Alt-only shortcuts because other parts of the app
+    // swallow Alt+key events. This combination is currently unused by Tavle.
+    document.addEventListener('keydown', function(e) {
+      // ignore if typing in a text field or if any meta key (Alt/Meta) is pressed
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) return;
+      if (e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey) {
+        const key = String(e.key);
+        if (key === '1') {
+          applyTheme('classic');
+          e.preventDefault();
+        } else if (key === '2') {
+          applyTheme('modern');
+          e.preventDefault();
+        }
+      }
+    }, true);
+    // Expose applyTheme globally for background chooser or future UI integration
+    window.setTavleTheme = applyTheme;
+  })();
 </script>
 
 
@@ -37884,6 +37954,9 @@ function showQuickHelp(){
     .safe455bHelpWidgetCurrent{background:#eef2ff!important;outline:3px solid #818cf8!important;outline-offset:2px!important}
     .helpMiniNote{font-size:13px;opacity:.78;margin-top:7px}
     .helpTwoCol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .helpThemeMini{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0 2px}
+    .helpThemeMini span{display:grid;place-items:center;min-height:42px;border-radius:13px;background:#f8fafc;border:1px solid #e5e7eb;font-weight:950;font-size:13px;text-align:center;line-height:1.1}
+    .helpThemeMini .themeGlass{background:#eef6ff;color:#175cd3}.helpThemeMini .themeFlip{background:#fff7ed;color:#7c2d12}.helpThemeMini .themeSmart{background:#0f172a;color:#7dd3fc}.helpThemeMini .themeOpslag{background:#f3f4f6;color:#111827}
     .helpNavList li{margin-bottom:6px!important}
     @media(max-width:760px){.helpQuickStart,.helpKeyGrid,.helpTwoCol{grid-template-columns:1fr}.helpIconGrid{grid-template-columns:1fr!important}}
   </style>
@@ -37899,7 +37972,7 @@ function showQuickHelp(){
   <div class="helpQuickStart">
     <div class="helpQuickCard"><b>1. Byg tavlen</b> Brug værktøjslinjen nederst eller <b>Mere</b>. Træk widgets rundt, ændr størrelse og læg dem i lag.</div>
     <div class="helpQuickCard"><b>2. Brug tavlen live</b> <b>P/R</b> skifter præsentation. <b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer.</div>
-    <div class="helpQuickCard"><b>3. Find hurtigt rundt</b> <b>Q/Å/Shift+T</b> åbner/lukker Tavleoverblik. <b>D</b> åbner Datakilder. <b>Mellemrum</b> åbner Mere, når ingen widget er valgt.</div>
+    <div class="helpQuickCard"><b>3. Find hurtigt rundt</b> <b>Q/Å/Shift+T</b> åbner/lukker Tavleoverblik. <b>D</b> åbner Datakilder. <b>Mellemrum</b> åbner Mere. <b>Shift+N</b> viser/skjuler værktøjslinjen.</div>
   </div>
 
   <div class="helpShortcutPrinciples" style="margin:10px 0 14px;padding:10px 12px;border-radius:12px;background:#eef2ff;color:#111827;font-size:14px;line-height:1.35">
@@ -37915,7 +37988,9 @@ function showQuickHelp(){
           <li><b>↑ / ↓</b> vælger widgets på tavlen. Den valgte widget lægges forrest, så du kan arbejde med den.</li>
           <li><b>P</b> eller <b>R</b> skifter mellem redigering og præsentation.</li>
           <li><b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer valgt/fokuseret widget. <b>Esc</b> går tilbage eller lukker det, du er i.</li>
-          <li><b>Mellemrum</b> åbner <b>Mere</b>, når ingen widget er valgt. Hvis et hjul, grupper eller afstemning er valgt, bruges mellemrum til widgettens egen handling.</li>
+          <li><b>Mellemrum</b> åbner <b>Mere</b>, når ingen widget er valgt. I Mere vælger <b>Enter</b> eller <b>Mellemrum</b> det markerede ikon, og <b>Esc</b> lukker.</li>
+          <li><b>Shift+N</b> viser/skjuler værktøjslinjen. Den lille knap nederst til højre gør det samme.</li>
+          <li><b>Shift+klik</b> på den lille værktøjslinjeknap skifter til næste tema.</li>
           <li><b>Højreklik på tom tavlebaggrund</b> åbner også <b>Mere</b>. Det skal ikke ske på widgets eller i modaler.</li>
           <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik. Her kan du hurtigt hoppe, flytte, slette, lave Tavleshot og se gendannelsespunkter.</li>
         </ul>
@@ -37926,15 +38001,15 @@ function showQuickHelp(){
       <summary>Genvejskort — hurtigt overblik</summary>
       <div class="answer">
         <div class="helpKeyGrid">
-          <div class="helpKeyBox"><b>Live</b><b>P/R</b> præsentation · <b>F</b> fokus · <b>Shift+F</b> maksimer · <b>Esc</b> tilbage/luk</div>
+          <div class="helpKeyBox"><b>Live</b><b>P/R</b> præsentation · <b>F</b> fokus · <b>Shift+F</b> maksimer · <b>Mellemrum</b> Mere · <b>Esc</b> tilbage/luk</div>
           <div class="helpKeyBox"><b>Tavler</b><b>N</b> ny tavle · <b>←/→</b> skift tavle · <b>Q/Å/Shift+T</b> Tavleoverblik · <b>Cmd/Ctrl+O</b> widget-overblik</div>
           <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt til anden tavle · <b>Shift+Ø</b> lås/lås op</div>
-          <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
-          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid · <b>Shift+Enter</b> fuld skærm</div>
+          <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Shift+N</b> værktøjslinje · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
+          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund/tema · <b>B</b> næste tema · <b>Shift+1–4</b> tema · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid · <b>Shift+Enter</b> fuld skærm</div>
           <div class="helpKeyBox"><b>Opret</b><b>Shift+A/P/I/L/H/V</b> tekst/PDF/billede/link/HTML/video · <b>Shift+W/R/S/X/Q</b> hjul/grupper/ordsky/afstemning/KaPardy</div>
-          <div class="helpKeyBox"><b>KaPardy</b><b>K/J/M/L</b> vælg Kahoot/Jeopardy/Mester/Mix · <b>1–4</b> svar i Kahoot · <b>1/R, 2/H, 3/F</b> bedøm svar · <b>Shift+N</b> værktøjslinje til/fra</div>
+          <div class="helpKeyBox"><b>KaPardy</b><b>K/J/M/L</b> vælg Kahoot/Jeopardy/Mester/Mix · <b>1–4</b> svar i Kahoot · <b>1/R, 2/H, 3/F</b> bedøm svar</div>
         </div>
-        <p class="helpMiniNote">I en modal betyder <b>Enter</b> ofte “vælg/åbn”, piletaster flytter markering, og <b>Esc</b> lukker. Det gælder bl.a. Datakilder, Mere, Tavleoverblik og flere vælgere.</p>
+        <p class="helpMiniNote">I en modal betyder <b>Enter</b> ofte “vælg/åbn”, piletaster flytter markering, og <b>Esc</b> lukker. Tema vælges automatisk første gang på en enhed, men dine egne temavalg vinder altid.</p>
       </div>
     </details>
 
@@ -38110,7 +38185,14 @@ function showQuickHelp(){
       <summary>Baggrunde, grid og redningsbælte</summary>
       <div class="answer">
         <ul>
-          <li><b>Shift+B</b> åbner baggrundsvælgeren. <b>Cmd/Ctrl+B</b> vælger en tilfældig baggrund.</li>
+          <li><b>Shift+B</b> åbner baggrundsvælgeren. Her vælger du både baggrundsbillede og tema.</li>
+          <li><b>Tema</b> ændrer appens udseende uden at overskrive den baggrund, du har valgt. Første gang vælger Tavle selv et tema, der passer til lys/mørk visning. Når du selv vælger tema, husker Tavle dit valg.
+            <div class="helpThemeMini" aria-label="Tavletemaer">
+              <span class="themeOpslag">📌 OpslagsTavle</span><span class="themeGlass">🪟 GlasTavle</span><span class="themeFlip">🗒️ FlipOver</span><span class="themeSmart">💡 SmartBoard</span>
+            </div>
+          </li>
+          <li><b>B</b> skifter til næste tema. <b>Shift+1–4</b> vælger et tema direkte. <b>Shift+klik</b> på den lille værktøjslinjeknap gør det samme som B.</li>
+          <li><b>Cmd/Ctrl+B</b> vælger en tilfældig baggrund på den aktive tavle.</li>
           <li><b>Shift+G</b> slår grid til/fra.</li>
           <li><b>Shift+O</b> åbner Redningsbælte, hvis widgets er havnet uden for skærmen, eller tavlen er blevet rodet.</li>
           <li><b>Cmd/Ctrl+Delete/Backspace</b> rydder aktiv tavle til papirkurven efter bekræftelse.</li>
@@ -38186,7 +38268,7 @@ function showQuickHelp(){
   </div>
 
   <div class="helpPager">
-    <span>Hurtigst i gang: N · Shift+A · Shift+I · P/R · F · Q/Å/Shift+T · D · Mellemrum · I Hjælp: → næste/åbn · ← forrige/luk undervejs · ↑/↓ scroll · Enter skifter · Esc lukker</span>
+    <span>Hurtigst i gang: N · Shift+A · Shift+I · P/R · F · Q/Å/Shift+T · D · Mellemrum=Mere · Shift+N=værktøjslinje · B=tema · I Hjælp: → næste/åbn · ← forrige/luk undervejs · ↑/↓ scroll · Enter skifter · Esc lukker</span>
     <button id="closeHelp">Luk</button>
   </div>`);
   modal.querySelector('#closeHelp').onclick=closeModal;
@@ -59334,4 +59416,1789 @@ body.safe455PresentToolsOpen .moreMenu{position:fixed!important;}
   }catch(_e){}
 })();
 </script>
+
+<!-- TAVLE THEME SELECTOR v3-real START -->
+<style id="tavle-theme-selector-v3-real-css">
+/*
+  Tema 1 = Klassisk tavle. Tema 2 = Præsentationslook.
+  Dette lag ændrer appens UI og widgets, men ændrer ikke .app background.
+  Derfor virker Baggrundsvælgerens almindelige baggrunde stadig.
+*/
+html.theme-classic,
+html[data-tavle-theme="classic"]{
+  --accent:#6d5dfc;
+  --bar:#1f2937;
+}
+html.theme-presentation,
+html[data-tavle-theme="presentation"]{
+  --accent:#2563eb;
+  --bar:#1f2937;
+  --tavleAccent2:#16a34a;
+  --tavleInk:#111827;
+  --tavleMuted:#667085;
+  --tavleLine:rgba(16,24,40,.10);
+  --tavleGlass:rgba(255,255,255,.88);
+}
+
+/* Baggrundsvælger: plads til temavælger ved siden af søgning. */
+.bgCompactControls{
+  grid-template-columns:minmax(160px,1fr) minmax(150px,.42fr) minmax(116px,.30fr) minmax(128px,.34fr) minmax(112px,.28fr)!important;
+}
+.bgCompactControls .tavleThemeLabel{display:grid!important;gap:2px!important;min-width:0!important;}
+.bgCompactControls .tavleThemeLabel span{font-size:10px!important;font-weight:950!important;text-transform:uppercase!important;letter-spacing:.06em!important;color:#64748b!important;}
+.bgCompactControls #tavleThemeSelect{width:100%!important;min-width:0!important;margin:0!important;border-radius:14px!important;min-height:38px!important;padding:7px 30px 7px 10px!important;font-weight:900!important;background:#fff!important;border:1px solid #cbd5e1!important;color:#111827!important;}
+@media(max-width:760px){
+  .bgCompactControls{grid-template-columns:1fr 1fr!important;gap:7px!important;}
+  .bgCompactControls input{grid-column:1/-1!important;}
+  .bgCompactControls .tavleThemeLabel{grid-column:auto!important;}
+}
+@media(max-height:760px){
+  .bgCompactControls .tavleThemeLabel span{display:none!important;}
+}
+
+/* Præsentationslook: et visuelt lag over appen. Ingen background på .app. */
+html.theme-presentation body,
+html[data-tavle-theme="presentation"] body{color:var(--tavleInk)!important;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;}
+html.theme-presentation button,
+html.theme-presentation input,
+html.theme-presentation textarea,
+html.theme-presentation select,
+html[data-tavle-theme="presentation"] button,
+html[data-tavle-theme="presentation"] input,
+html[data-tavle-theme="presentation"] textarea,
+html[data-tavle-theme="presentation"] select{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Arial,sans-serif!important;}
+html.theme-presentation .app.grid:before,
+html[data-tavle-theme="presentation"] .app.grid:before{background-image:radial-gradient(circle,rgba(20,34,61,.13) 1px,transparent 1.2px)!important;background-size:20px 20px!important;opacity:.56!important;}
+
+/* Titel: rød i redigering, grøn i præsentation. */
+html.theme-presentation .title,
+html[data-tavle-theme="presentation"] .title{
+  top:18px!important;left:18px!important;max-width:min(42vw,560px)!important;min-height:48px!important;
+  display:flex!important;align-items:center!important;gap:10px!important;
+  padding:10px 18px 10px 38px!important;background:rgba(255,255,255,.86)!important;color:#111827!important;
+  border:2px solid rgba(239,68,68,.94)!important;border-radius:17px!important;
+  box-shadow:0 0 0 1px rgba(239,68,68,.20),0 14px 32px rgba(15,23,42,.13)!important;
+  backdrop-filter:blur(18px) saturate(1.18)!important;-webkit-backdrop-filter:blur(18px) saturate(1.18)!important;
+  font-size:clamp(18px,1.7vw,25px)!important;font-weight:850!important;letter-spacing:-.03em!important;line-height:1.1!important;text-shadow:none!important;
+}
+html.theme-presentation .app.present .title,
+html.theme-presentation .title.mode-present,
+html[data-tavle-theme="presentation"] .app.present .title,
+html[data-tavle-theme="presentation"] .title.mode-present{border-color:rgba(22,163,74,.94)!important;box-shadow:0 0 0 1px rgba(22,163,74,.18),0 14px 32px rgba(15,23,42,.13)!important;}
+html.theme-presentation .modeBadge,
+html[data-tavle-theme="presentation"] .modeBadge{background:#ef4444!important;border:2px solid rgba(255,255,255,.96)!important;box-shadow:0 0 0 3px rgba(17,24,39,.36),0 0 18px rgba(239,68,68,.42)!important;}
+html.theme-presentation .modeBadge.is-present,
+html[data-tavle-theme="presentation"] .modeBadge.is-present{background:#16a34a!important;box-shadow:0 0 0 3px rgba(17,24,39,.36),0 0 18px rgba(22,163,74,.42)!important;}
+
+/* Topbar og toolbar som i præsentationsbillederne. */
+html.theme-presentation .topbar,
+html[data-tavle-theme="presentation"] .topbar{
+  top:18px!important;right:18px!important;background:rgba(255,255,255,.88)!important;border:1px solid var(--tavleLine)!important;border-radius:18px!important;
+  padding:7px!important;gap:7px!important;box-shadow:0 14px 36px rgba(15,23,42,.16)!important;color:#101828!important;
+  backdrop-filter:blur(18px) saturate(1.18)!important;-webkit-backdrop-filter:blur(18px) saturate(1.18)!important;
+}
+html.theme-presentation .topbar b,
+html[data-tavle-theme="presentation"] .topbar b{color:#101828!important;background:#f8fafc!important;border:1px solid #e5e7eb!important;border-radius:12px!important;padding:9px 12px!important;line-height:1!important;font-weight:900!important;}
+html.theme-presentation .topbar button,
+html[data-tavle-theme="presentation"] .topbar button{min-width:40px!important;min-height:40px!important;padding:8px 11px!important;background:#fff!important;color:#344054!important;border:1px solid var(--tavleLine)!important;border-radius:13px!important;font-weight:850!important;box-shadow:none!important;}
+html.theme-presentation #addSlide,
+html[data-tavle-theme="presentation"] #addSlide{background:#2563eb!important;color:#fff!important;border-color:#2563eb!important;}
+html.theme-presentation #present,
+html[data-tavle-theme="presentation"] #present{background:#fee2e2!important;color:#991b1b!important;border-color:#fca5a5!important;}
+html.theme-presentation .app.present #present,
+html[data-tavle-theme="presentation"] .app.present #present{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important;}
+html.theme-presentation #fullscreenTop,
+html[data-tavle-theme="presentation"] #fullscreenTop{background:#f5f3ff!important;color:#6d28d9!important;border-color:#ddd6fe!important;}
+html.theme-presentation .toolbar,
+html[data-tavle-theme="presentation"] .toolbar{
+  bottom:18px!important;left:50%!important;transform:translateX(-50%)!important;max-width:min(92vw,980px)!important;overflow-x:auto!important;
+  padding:9px 10px!important;gap:7px!important;background:rgba(255,255,255,.88)!important;border:1px solid var(--tavleLine)!important;border-radius:22px!important;
+  box-shadow:0 18px 44px rgba(15,23,42,.18)!important;color:#101828!important;backdrop-filter:blur(20px) saturate(1.18)!important;-webkit-backdrop-filter:blur(20px) saturate(1.18)!important;
+}
+html.theme-presentation .toolbar::-webkit-scrollbar,
+html[data-tavle-theme="presentation"] .toolbar::-webkit-scrollbar{display:none!important;}
+html.theme-presentation .tool,
+html[data-tavle-theme="presentation"] .tool{min-width:55px!important;color:#667085!important;font-size:10.5px!important;font-weight:800!important;letter-spacing:-.01em!important;}
+html.theme-presentation .tool button,
+html[data-tavle-theme="presentation"] .tool button{width:46px!important;height:42px!important;background:transparent!important;color:#101828!important;border:1px solid transparent!important;border-radius:15px!important;font-size:22px!important;box-shadow:none!important;}
+html.theme-presentation .tool button:hover,
+html.theme-presentation .tool button:focus-visible,
+html.theme-presentation .tool button.active,
+html[data-tavle-theme="presentation"] .tool button:hover,
+html[data-tavle-theme="presentation"] .tool button:focus-visible,
+html[data-tavle-theme="presentation"] .tool button.active{background:#eef4ff!important;color:#175cd3!important;outline:none!important;}
+
+/* Widgets */
+html.theme-presentation .widget,
+html[data-tavle-theme="presentation"] .widget{border-radius:20px!important;background:#fff!important;border:1px solid rgba(16,24,40,.11)!important;box-shadow:0 18px 48px rgba(15,23,42,.18)!important;overflow:visible!important;}
+html.theme-presentation .widget:not(.selected),
+html[data-tavle-theme="presentation"] .widget:not(.selected){box-shadow:0 12px 30px rgba(15,23,42,.12)!important;}
+html.theme-presentation .widget.selected,
+html[data-tavle-theme="presentation"] .widget.selected{outline:3px solid rgba(37,99,235,.42)!important;outline-offset:3px!important;box-shadow:0 20px 58px rgba(37,99,235,.20),0 10px 30px rgba(15,23,42,.16)!important;}
+html.theme-presentation .widget::before,
+html[data-tavle-theme="presentation"] .widget::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:20px 0 0 20px;background:#2563eb;opacity:.86;pointer-events:none;z-index:4;}
+html.theme-presentation .widget[data-type="timer"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="timer"]::before{background:#16a34a;}
+html.theme-presentation .widget[data-type="wheel"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="wheel"]::before{background:#f59e0b;}
+html.theme-presentation .widget[data-type="groups"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="groups"]::before{background:#7c3aed;}
+html.theme-presentation .widget[data-type="kahoopardy"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="kahoopardy"]::before{background:#4f46e5;}
+html.theme-presentation .widget[data-type="wordcloud"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="wordcloud"]::before{background:#06b6d4;}
+html.theme-presentation .widget[data-type="poll"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="poll"]::before{background:#ec4899;}
+html.theme-presentation .widget[data-type="calendar"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="calendar"]::before{background:#22c55e;}
+html.theme-presentation .widget[data-type="pdf"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="pdf"]::before{background:#ef4444;}
+html.theme-presentation .widget[data-type="html"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="html"]::before{background:#111827;}
+html.theme-presentation .widget[data-type="dataset"]::before,
+html.theme-presentation .widget.datasetTextWidget::before,
+html.theme-presentation .widget[data-dataset-view="true"]::before,
+html[data-tavle-theme="presentation"] .widget[data-type="dataset"]::before,
+html[data-tavle-theme="presentation"] .widget.datasetTextWidget::before,
+html[data-tavle-theme="presentation"] .widget[data-dataset-view="true"]::before{background:#10b981;}
+html.theme-presentation .chrome,
+html[data-tavle-theme="presentation"] .chrome{min-height:46px!important;height:46px!important;background:rgba(255,255,255,.94)!important;color:#101828!important;border-radius:20px 20px 0 0!important;border-bottom:1px solid #eaecf0!important;padding:0 10px 0 14px!important;font-size:14px!important;font-weight:850!important;letter-spacing:-.015em!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;}
+html.theme-presentation .chrome .titleText,
+html[data-tavle-theme="presentation"] .chrome .titleText{color:#101828!important;line-height:1.12!important;}
+html.theme-presentation .mini button,
+html[data-tavle-theme="presentation"] .mini button{min-width:30px!important;min-height:30px!important;padding:4px 7px!important;border-radius:10px!important;background:#f8fafc!important;color:#475467!important;border:1px solid #e5e7eb!important;font-size:12px!important;font-weight:900!important;box-shadow:none!important;}
+html.theme-presentation .content,
+html[data-tavle-theme="presentation"] .content{background:#fff!important;color:#111827!important;border-radius:0 0 20px 20px!important;}
+html.theme-presentation .present .content,
+html[data-tavle-theme="presentation"] .present .content{border-radius:20px!important;}
+html.theme-presentation .resize,
+html[data-tavle-theme="presentation"] .resize{background:#fff!important;border:3px solid #2563eb!important;box-shadow:0 8px 18px rgba(37,99,235,.24)!important;}
+html.theme-presentation .rotater,
+html[data-tavle-theme="presentation"] .rotater{background:#fff!important;color:#2563eb!important;border:3px solid #2563eb!important;box-shadow:0 8px 18px rgba(37,99,235,.20)!important;}
+
+/* Selected special widgets */
+html.theme-presentation .timerBox .display,
+html[data-tavle-theme="presentation"] .timerBox .display{font-size:clamp(56px,9vw,104px)!important;line-height:1!important;font-weight:900!important;letter-spacing:-.05em!important;color:#111827!important;}
+html.theme-presentation .timerBox button,
+html.theme-presentation .wheel button,
+html.theme-presentation .linkBox button,
+html.theme-presentation .modal button,
+html.theme-presentation .datasetActions button,
+html.theme-presentation .datasetTextTools button,
+html[data-tavle-theme="presentation"] .timerBox button,
+html[data-tavle-theme="presentation"] .wheel button,
+html[data-tavle-theme="presentation"] .linkBox button,
+html[data-tavle-theme="presentation"] .modal button,
+html[data-tavle-theme="presentation"] .datasetActions button,
+html[data-tavle-theme="presentation"] .datasetTextTools button{border-radius:12px!important;background:#2563eb!important;color:#fff!important;border:1px solid rgba(37,99,235,.18)!important;font-weight:850!important;}
+html.theme-presentation .wheelCanvas,
+html[data-tavle-theme="presentation"] .wheelCanvas{box-shadow:0 0 0 10px #fff,0 14px 36px rgba(15,23,42,.18)!important;}
+html.theme-presentation .content.kahoopardy,
+html[data-tavle-theme="presentation"] .content.kahoopardy{background:#0b1026!important;color:#fff!important;border-radius:0 0 20px 20px!important;}
+html.theme-presentation .kahoopardyBox,
+html[data-tavle-theme="presentation"] .kahoopardyBox{background:radial-gradient(circle at 50% 5%,rgba(79,70,229,.45),rgba(15,23,42,0) 34%),linear-gradient(135deg,#0b1026,#1e1b4b)!important;}
+html.theme-presentation .pdfControls,
+html.theme-presentation .mediaActions,
+html.theme-presentation .linkBar,
+html.theme-presentation .safePdfTopbar,
+html[data-tavle-theme="presentation"] .pdfControls,
+html[data-tavle-theme="presentation"] .mediaActions,
+html[data-tavle-theme="presentation"] .linkBar,
+html[data-tavle-theme="presentation"] .safePdfTopbar{background:rgba(255,255,255,.94)!important;border-color:#eaecf0!important;color:#344054!important;}
+html.theme-presentation .videoBox,
+html[data-tavle-theme="presentation"] .videoBox{background:#0f172a!important;border-radius:0 0 20px 20px!important;}
+html.theme-presentation .drawPanel,
+html.theme-presentation .moreMenu,
+html.theme-presentation .toolbarPeek,
+html.theme-presentation .toolbarPinFloat,
+html.theme-presentation .widgetOverviewPanel,
+html.theme-presentation .trashBoardBar,
+html[data-tavle-theme="presentation"] .drawPanel,
+html[data-tavle-theme="presentation"] .moreMenu,
+html[data-tavle-theme="presentation"] .toolbarPeek,
+html[data-tavle-theme="presentation"] .toolbarPinFloat,
+html[data-tavle-theme="presentation"] .widgetOverviewPanel,
+html[data-tavle-theme="presentation"] .trashBoardBar{background:rgba(255,255,255,.93)!important;color:#111827!important;border:1px solid var(--tavleLine)!important;border-radius:18px!important;box-shadow:0 18px 44px rgba(15,23,42,.18)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;}
+html.theme-presentation .modalBackdrop,
+html[data-tavle-theme="presentation"] .modalBackdrop{background:rgba(15,23,42,.28)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;}
+html.theme-presentation .modal,
+html[data-tavle-theme="presentation"] .modal{background:rgba(255,255,255,.96)!important;color:#111827!important;border:1px solid var(--tavleLine)!important;border-radius:24px!important;box-shadow:0 28px 80px rgba(15,23,42,.25)!important;padding:24px!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;}
+html.theme-presentation .modal h2,
+html.theme-presentation .modal h3,
+html[data-tavle-theme="presentation"] .modal h2,
+html[data-tavle-theme="presentation"] .modal h3{letter-spacing:-.035em!important;color:#101828!important;}
+html.theme-presentation .toast,
+html[data-tavle-theme="presentation"] .toast{top:76px!important;background:rgba(17,24,39,.90)!important;color:#fff!important;border:1px solid rgba(255,255,255,.15)!important;box-shadow:0 14px 34px rgba(15,23,42,.22)!important;}
+html.theme-presentation .app.present .widget,
+html[data-tavle-theme="presentation"] .app.present .widget{border-radius:22px!important;box-shadow:0 20px 70px rgba(15,23,42,.12)!important;border:0!important;}
+html.theme-presentation .app.present .widget::before,
+html[data-tavle-theme="presentation"] .app.present .widget::before{display:none!important;}
+html.theme-presentation .app.present .content,
+html[data-tavle-theme="presentation"] .app.present .content{border-radius:22px!important;}
+@media(max-width:760px){
+  html.theme-presentation .title,html[data-tavle-theme="presentation"] .title{top:12px!important;left:12px!important;max-width:56vw!important;min-height:40px!important;padding:8px 12px 8px 36px!important;border-radius:14px!important;}
+  html.theme-presentation .topbar,html[data-tavle-theme="presentation"] .topbar{top:12px!important;right:12px!important;max-width:38vw!important;border-radius:15px!important;padding:5px!important;}
+  html.theme-presentation .toolbar,html[data-tavle-theme="presentation"] .toolbar{bottom:12px!important;border-radius:18px!important;padding:7px!important;gap:4px!important;}
+  html.theme-presentation .tool,html[data-tavle-theme="presentation"] .tool{min-width:48px!important;font-size:9.5px!important;}
+  html.theme-presentation .tool button,html[data-tavle-theme="presentation"] .tool button{width:40px!important;height:38px!important;font-size:20px!important;}
+}
+</style>
+<script id="tavle-theme-selector-v3-real-script">
+(function(){
+  var THEMES={classic:'Klassisk tavle',presentation:'Præsentationslook'};
+  function norm(name){
+    name=String(name||'').toLowerCase();
+    if(name==='modern'||name==='theme2'||name==='tema2'||name==='presentation-look'||name==='praesentation'||name==='præsentation'||name==='presentation')return 'presentation';
+    return 'classic';
+  }
+  function isTyping(t){
+    try{var tag=String((t&&t.tagName)||'').toLowerCase();return !!(t&&(t.isContentEditable||tag==='input'||tag==='textarea'||tag==='select'));}catch(_e){return false;}
+  }
+  function toast(msg){
+    try{ if(typeof window.showToast==='function')window.showToast(msg,1800); else if(typeof window.toast==='function')window.toast(msg); }catch(_e){}
+  }
+  function current(){
+    try{return norm(localStorage.getItem('tavleUiTheme')||localStorage.getItem('tavleTheme')||'classic');}catch(_e){return 'classic';}
+  }
+  function setTheme(name,silent){
+    name=norm(name);
+    var root=document.documentElement;
+    root.classList.remove('theme-classic','theme-modern','theme-presentation');
+    root.classList.add(name==='presentation'?'theme-presentation':'theme-classic');
+    root.setAttribute('data-tavle-theme',name);
+    try{document.body.setAttribute('data-tavle-theme',name);}catch(_e){}
+    try{var app=document.getElementById('app'); if(app)app.setAttribute('data-tavle-theme',name);}catch(_e){}
+    try{localStorage.setItem('tavleUiTheme',name); localStorage.setItem('tavleTheme',name==='presentation'?'modern':'classic');}catch(_e){}
+    updateThemeSelect();
+    if(!silent)toast((THEMES[name]||name)+' aktiveret');
+  }
+  function ensureThemeSelect(){
+    var controls=document.querySelector('.bgModalShell .bgCompactControls');
+    if(!controls)return;
+    var sel=controls.querySelector('#tavleThemeSelect');
+    if(!sel){
+      var label=document.createElement('label');
+      label.className='tavleThemeLabel';
+      label.innerHTML='<span>Tema</span><select id="tavleThemeSelect" aria-label="Vælg app-tema"><option value="classic">Klassisk tavle</option><option value="presentation">Præsentationslook</option></select>';
+      var search=controls.querySelector('#bgSearch');
+      if(search && search.nextSibling)controls.insertBefore(label,search.nextSibling);
+      else controls.insertBefore(label,controls.firstChild);
+      sel=label.querySelector('select');
+      sel.addEventListener('change',function(ev){setTheme(ev.target.value);},true);
+    }
+    updateThemeSelect();
+  }
+  function updateThemeSelect(){
+    var sel=document.getElementById('tavleThemeSelect');
+    if(sel)sel.value=current();
+  }
+  function handleKey(e){
+    try{
+      if(isTyping(e.target))return;
+      var digit='';
+      if(e.code==='Digit1'||e.code==='Numpad1'||e.key==='1'||e.key==='!')digit='1';
+      if(e.code==='Digit2'||e.code==='Numpad2'||e.key==='2'||e.key==='"'||e.key==='@')digit='2';
+      if(!digit)return;
+      var combo=(e.ctrlKey&&e.shiftKey&&!e.altKey&&!e.metaKey) || (e.altKey&&e.shiftKey&&!e.ctrlKey&&!e.metaKey);
+      if(!combo)return;
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      setTheme(digit==='1'?'classic':'presentation');
+      return false;
+    }catch(_e){}
+  }
+  function start(){
+    setTheme(current(),true);
+    ensureThemeSelect();
+    try{new MutationObserver(function(){ensureThemeSelect();}).observe(document.body,{childList:true,subtree:true});}catch(_e){}
+    window.addEventListener('keydown',handleKey,true);
+    document.addEventListener('keydown',handleKey,true);
+    window.addEventListener('keyup',handleKey,true);
+    window.setTavleTheme=setTheme;
+    window.getTavleTheme=current;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
+})();
+</script>
+<!-- TAVLE THEME SELECTOR v3-real END -->
+
+
+<style id="tavle-theme-center-toast-css">
+.tavleThemeCenterToast{
+  position:fixed!important;
+  left:50%!important;
+  top:calc(50% - 64px)!important;
+  transform:translate(-50%,-50%) scale(.94)!important;
+  z-index:2147483647!important;
+  pointer-events:none!important;
+  min-width:min(360px,72vw)!important;
+  max-width:min(560px,82vw)!important;
+  padding:18px 26px!important;
+  border-radius:999px!important;
+  background:rgba(15,23,42,.92)!important;
+  color:#fff!important;
+  text-align:center!important;
+  font-weight:950!important;
+  font-size:clamp(22px,3.8vw,42px)!important;
+  line-height:1.05!important;
+  letter-spacing:-.035em!important;
+  box-shadow:0 28px 80px rgba(0,0,0,.36), inset 0 0 0 1px rgba(255,255,255,.14)!important;
+  backdrop-filter:blur(18px) saturate(1.15)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.15)!important;
+  opacity:0!important;
+  transition:opacity .14s ease, transform .14s ease!important;
+}
+.tavleThemeCenterToast.show{
+  opacity:1!important;
+  transform:translate(-50%,-50%) scale(1)!important;
+}
+html[data-tavle-theme="opslagstavle"] .tavleThemeCenterToast{background:rgba(17,24,39,.93)!important;color:#fff!important;}
+html[data-tavle-theme="glastavle"] .tavleThemeCenterToast{background:rgba(255,255,255,.88)!important;color:#175cd3!important;box-shadow:0 28px 80px rgba(15,23,42,.25), inset 0 0 0 1px rgba(16,24,40,.12)!important;}
+html[data-tavle-theme="flipover"] .tavleThemeCenterToast{background:rgba(255,247,237,.96)!important;color:#7c2d12!important;box-shadow:0 16px 0 rgba(120,53,15,.12),0 28px 70px rgba(120,53,15,.25)!important;}
+html[data-tavle-theme="smartboard"] .tavleThemeCenterToast{background:rgba(2,6,23,.94)!important;color:#7dd3fc!important;box-shadow:0 0 32px rgba(56,189,248,.26),0 28px 80px rgba(0,0,0,.42)!important;}
+</style>
+
+<!-- TAVLE THEME SELECTOR v4-four-themes START -->
+<style id="tavle-theme-selector-v4-four-themes-css">
+/* v4: Fire navngivne temaer. UI-temaet ændrer ikke tavlens valgte baggrundsbillede. */
+html.theme-opslagstavle,
+html[data-tavle-theme="opslagstavle"]{
+  --accent:#6d5dfc;
+  --bar:#1f2937;
+}
+html.theme-glastavle,
+html[data-tavle-theme="glastavle"]{
+  --accent:#2563eb;
+  --bar:#1f2937;
+  --tavleAccent2:#16a34a;
+  --tavleInk:#111827;
+  --tavleMuted:#667085;
+  --tavleLine:rgba(16,24,40,.10);
+  --tavleGlass:rgba(255,255,255,.88);
+}
+html.theme-flipover,
+html[data-tavle-theme="flipover"]{
+  --accent:#f59e0b;
+  --bar:#78350f;
+  --tavleInk:#1f2937;
+  --tavleLine:rgba(120,53,15,.16);
+}
+html.theme-smartboard,
+html[data-tavle-theme="smartboard"]{
+  --accent:#38bdf8;
+  --bar:#020617;
+  --tavleInk:#e0f2fe;
+  --tavleLine:rgba(125,211,252,.20);
+}
+
+/* Baggrundsvælgerens filterlinje: kortere søgning + tema som almindelig dropdown. */
+.bgCompactControls{
+  grid-template-columns:minmax(210px,1fr) minmax(145px,.34fr) minmax(112px,.27fr) minmax(130px,.31fr) minmax(112px,.25fr)!important;
+  align-items:end!important;
+}
+.bgCompactControls .tavleThemeLabel{display:grid!important;gap:2px!important;min-width:0!important;order:2!important;}
+.bgCompactControls .tavleThemeLabel span{font-size:10px!important;font-weight:950!important;text-transform:uppercase!important;letter-spacing:.06em!important;color:#64748b!important;line-height:1!important;}
+.bgCompactControls #tavleThemeSelect{width:100%!important;min-width:0!important;margin:0!important;border-radius:14px!important;min-height:38px!important;padding:7px 30px 7px 10px!important;font-weight:900!important;background:#fff!important;border:1px solid #cbd5e1!important;color:#111827!important;}
+.bgCompactControls #bgSearch{order:1!important;}
+.bgCompactControls label:not(.tavleThemeLabel){order:3!important;}
+@media(max-width:760px){
+  .bgCompactControls{grid-template-columns:1fr 1fr!important;gap:7px!important;}
+  .bgCompactControls input{grid-column:1/-1!important;}
+  .bgCompactControls .tavleThemeLabel{grid-column:auto!important;}
+}
+@media(max-height:760px){.bgCompactControls .tavleThemeLabel span{display:none!important;}}
+
+/* GlasTavle genbruger det tidligere præsentationslook via theme-presentation-klassen. */
+
+/* FlipOver: papir, tusch, varme kanter. */
+html.theme-flipover body,
+html[data-tavle-theme="flipover"] body{color:#1f2937!important;-webkit-font-smoothing:antialiased;}
+html.theme-flipover .title,
+html[data-tavle-theme="flipover"] .title{
+  background:rgba(255,251,235,.94)!important;color:#1f2937!important;border:2px solid rgba(239,68,68,.92)!important;border-radius:10px!important;
+  box-shadow:0 8px 0 rgba(120,53,15,.12),0 18px 36px rgba(120,53,15,.16)!important;text-shadow:none!important;
+}
+html.theme-flipover .app.present .title,
+html.theme-flipover .title.mode-present,
+html[data-tavle-theme="flipover"] .app.present .title,
+html[data-tavle-theme="flipover"] .title.mode-present{border-color:rgba(22,163,74,.94)!important;}
+html.theme-flipover .topbar,
+html.theme-flipover .toolbar,
+html[data-tavle-theme="flipover"] .topbar,
+html[data-tavle-theme="flipover"] .toolbar{
+  background:rgba(255,251,235,.94)!important;color:#1f2937!important;border:1px solid rgba(120,53,15,.18)!important;border-radius:12px!important;
+  box-shadow:0 10px 0 rgba(120,53,15,.10),0 18px 38px rgba(120,53,15,.15)!important;
+}
+html.theme-flipover .topbar button,
+html.theme-flipover .tool button,
+html[data-tavle-theme="flipover"] .topbar button,
+html[data-tavle-theme="flipover"] .tool button{background:#fff7ed!important;color:#431407!important;border:1px solid rgba(120,53,15,.18)!important;border-radius:10px!important;}
+html.theme-flipover #addSlide,
+html[data-tavle-theme="flipover"] #addSlide{background:#f59e0b!important;color:#111827!important;border-color:#f59e0b!important;}
+html.theme-flipover .widget,
+html[data-tavle-theme="flipover"] .widget{background:#fffef7!important;border:2px solid rgba(146,64,14,.22)!important;border-radius:8px!important;box-shadow:0 12px 0 rgba(120,53,15,.09),0 22px 42px rgba(120,53,15,.14)!important;}
+html.theme-flipover .widget::before,
+html[data-tavle-theme="flipover"] .widget::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:#f59e0b;opacity:.85;pointer-events:none;z-index:4;border-radius:8px 0 0 8px;}
+html.theme-flipover .chrome,
+html[data-tavle-theme="flipover"] .chrome{background:#fffbeb!important;color:#1f2937!important;border-bottom:2px solid rgba(146,64,14,.16)!important;border-radius:8px 8px 0 0!important;font-weight:900!important;}
+html.theme-flipover .content,
+html[data-tavle-theme="flipover"] .content{background:#fffef7!important;color:#1f2937!important;border-radius:0 0 8px 8px!important;}
+html.theme-flipover .modal,
+html[data-tavle-theme="flipover"] .modal{background:#fffef7!important;color:#1f2937!important;border:2px solid rgba(146,64,14,.18)!important;border-radius:14px!important;box-shadow:0 18px 0 rgba(120,53,15,.08),0 32px 70px rgba(120,53,15,.22)!important;}
+
+/* SmartBoard: digitalt mørkt chrome, men indhold forbliver læsbart. */
+html.theme-smartboard body,
+html[data-tavle-theme="smartboard"] body{color:#e0f2fe!important;-webkit-font-smoothing:antialiased;}
+html.theme-smartboard .title,
+html[data-tavle-theme="smartboard"] .title{
+  background:rgba(2,6,23,.88)!important;color:#e0f2fe!important;border:2px solid rgba(239,68,68,.95)!important;border-radius:16px!important;
+  box-shadow:0 0 0 1px rgba(56,189,248,.18),0 0 28px rgba(56,189,248,.18),0 14px 34px rgba(2,6,23,.42)!important;
+  backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;
+}
+html.theme-smartboard .app.present .title,
+html.theme-smartboard .title.mode-present,
+html[data-tavle-theme="smartboard"] .app.present .title,
+html[data-tavle-theme="smartboard"] .title.mode-present{border-color:rgba(34,197,94,.95)!important;}
+html.theme-smartboard .topbar,
+html.theme-smartboard .toolbar,
+html[data-tavle-theme="smartboard"] .topbar,
+html[data-tavle-theme="smartboard"] .toolbar{
+  background:rgba(2,6,23,.88)!important;color:#e0f2fe!important;border:1px solid rgba(56,189,248,.24)!important;border-radius:18px!important;
+  box-shadow:0 0 28px rgba(56,189,248,.13),0 20px 44px rgba(2,6,23,.36)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;
+}
+html.theme-smartboard .topbar b,
+html[data-tavle-theme="smartboard"] .topbar b{color:#e0f2fe!important;background:rgba(15,23,42,.84)!important;border:1px solid rgba(56,189,248,.20)!important;border-radius:12px!important;padding:9px 12px!important;}
+html.theme-smartboard .topbar button,
+html.theme-smartboard .tool button,
+html[data-tavle-theme="smartboard"] .topbar button,
+html[data-tavle-theme="smartboard"] .tool button{background:rgba(15,23,42,.88)!important;color:#e0f2fe!important;border:1px solid rgba(56,189,248,.22)!important;border-radius:13px!important;}
+html.theme-smartboard #addSlide,
+html[data-tavle-theme="smartboard"] #addSlide{background:#0284c7!important;color:#fff!important;border-color:#38bdf8!important;}
+html.theme-smartboard .widget,
+html[data-tavle-theme="smartboard"] .widget{background:#f8fafc!important;border:1px solid rgba(56,189,248,.32)!important;border-radius:18px!important;box-shadow:0 0 0 1px rgba(56,189,248,.10),0 18px 52px rgba(2,6,23,.34)!important;}
+html.theme-smartboard .widget::before,
+html[data-tavle-theme="smartboard"] .widget::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#38bdf8;opacity:.90;pointer-events:none;z-index:4;border-radius:18px 0 0 18px;}
+html.theme-smartboard .chrome,
+html[data-tavle-theme="smartboard"] .chrome{background:linear-gradient(135deg,#020617,#0f172a)!important;color:#e0f2fe!important;border-bottom:1px solid rgba(56,189,248,.28)!important;border-radius:18px 18px 0 0!important;}
+html.theme-smartboard .content,
+html[data-tavle-theme="smartboard"] .content{background:#f8fafc!important;color:#111827!important;border-radius:0 0 18px 18px!important;}
+html.theme-smartboard .modal,
+html[data-tavle-theme="smartboard"] .modal{background:rgba(15,23,42,.96)!important;color:#e0f2fe!important;border:1px solid rgba(56,189,248,.25)!important;border-radius:24px!important;box-shadow:0 0 40px rgba(56,189,248,.16),0 32px 80px rgba(2,6,23,.52)!important;}
+html.theme-smartboard .modal h2,
+html.theme-smartboard .modal h3,
+html[data-tavle-theme="smartboard"] .modal h2,
+html[data-tavle-theme="smartboard"] .modal h3{color:#e0f2fe!important;}
+html.theme-smartboard .modal input,
+html.theme-smartboard .modal textarea,
+html.theme-smartboard .modal select,
+html[data-tavle-theme="smartboard"] .modal input,
+html[data-tavle-theme="smartboard"] .modal textarea,
+html[data-tavle-theme="smartboard"] .modal select{background:#f8fafc!important;color:#111827!important;}
+
+
+/* l548-theme-modal-contrast-safe: Kun kontrast for data-/filmodaler i temaer.
+   Ingen JS, ingen modal-flow, ingen z-index eller pointer-events. */
+html.theme-smartboard .modal .safe453Note,
+html[data-tavle-theme="smartboard"] .modal .safe453Note,
+html.theme-smartboard .modal .h63Head p,
+html[data-tavle-theme="smartboard"] .modal .h63Head p,
+html.theme-smartboard .modal .l41Header p,
+html[data-tavle-theme="smartboard"] .modal .l41Header p,
+html.theme-smartboard .modal .safe453StorageTopActions span,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageTopActions span{
+  color:#cbd5e1!important;
+}
+
+html.theme-smartboard .modal .safe453StorageCards>div,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageCards>div,
+html.theme-smartboard .modal .safe453StorageOverview details,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageOverview details,
+html.theme-smartboard .modal .h63Summary>div,
+html[data-tavle-theme="smartboard"] .modal .h63Summary>div,
+html.theme-smartboard .modal .h63Group,
+html[data-tavle-theme="smartboard"] .modal .h63Group,
+html.theme-smartboard .modal .h63Card,
+html[data-tavle-theme="smartboard"] .modal .h63Card,
+html.theme-smartboard .modal .l41Summary>div,
+html[data-tavle-theme="smartboard"] .modal .l41Summary>div,
+html.theme-smartboard .modal .l41FileGroup,
+html[data-tavle-theme="smartboard"] .modal .l41FileGroup,
+html.theme-smartboard .modal .l41FileCard,
+html[data-tavle-theme="smartboard"] .modal .l41FileCard{
+  background:#f8fafc!important;
+  color:#0f172a!important;
+  border-color:#dbe3ef!important;
+}
+
+html.theme-smartboard .modal .safe453StorageCards b,
+html.theme-smartboard .modal .safe453StorageCards span,
+html.theme-smartboard .modal .safe453StorageOverview summary,
+html.theme-smartboard .modal .safe453StorageOverview th,
+html.theme-smartboard .modal .safe453StorageOverview td,
+html.theme-smartboard .modal .safe453StorageOverview code,
+html.theme-smartboard .modal .h63Summary b,
+html.theme-smartboard .modal .h63Group h3,
+html.theme-smartboard .modal .h63Group header b,
+html.theme-smartboard .modal .h63Card,
+html.theme-smartboard .modal .h63Title,
+html.theme-smartboard .modal .l41Summary b,
+html.theme-smartboard .modal .l41FileGroup h3,
+html.theme-smartboard .modal .l41FileTitle,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageCards b,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageCards span,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageOverview summary,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageOverview th,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageOverview td,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageOverview code,
+html[data-tavle-theme="smartboard"] .modal .h63Summary b,
+html[data-tavle-theme="smartboard"] .modal .h63Group h3,
+html[data-tavle-theme="smartboard"] .modal .h63Group header b,
+html[data-tavle-theme="smartboard"] .modal .h63Card,
+html[data-tavle-theme="smartboard"] .modal .h63Title,
+html[data-tavle-theme="smartboard"] .modal .l41Summary b,
+html[data-tavle-theme="smartboard"] .modal .l41FileGroup h3,
+html[data-tavle-theme="smartboard"] .modal .l41FileTitle{
+  color:#0f172a!important;
+}
+
+html.theme-smartboard .modal .safe453StorageCards small,
+html.theme-smartboard .modal .h63Summary span,
+html.theme-smartboard .modal .h63Group p,
+html.theme-smartboard .modal .h63Pills span,
+html.theme-smartboard .modal .h63Producer,
+html.theme-smartboard .modal .h63Producer span,
+html.theme-smartboard .modal .h63Bottom code,
+html.theme-smartboard .modal .l41Summary span,
+html.theme-smartboard .modal .l41FileMeta,
+html.theme-smartboard .modal .l41FileTags,
+html.theme-smartboard .modal .l41FileTags span,
+html.theme-smartboard .modal .l41FileTags code,
+html[data-tavle-theme="smartboard"] .modal .safe453StorageCards small,
+html[data-tavle-theme="smartboard"] .modal .h63Summary span,
+html[data-tavle-theme="smartboard"] .modal .h63Group p,
+html[data-tavle-theme="smartboard"] .modal .h63Pills span,
+html[data-tavle-theme="smartboard"] .modal .h63Producer,
+html[data-tavle-theme="smartboard"] .modal .h63Producer span,
+html[data-tavle-theme="smartboard"] .modal .h63Bottom code,
+html[data-tavle-theme="smartboard"] .modal .l41Summary span,
+html[data-tavle-theme="smartboard"] .modal .l41FileMeta,
+html[data-tavle-theme="smartboard"] .modal .l41FileTags,
+html[data-tavle-theme="smartboard"] .modal .l41FileTags span,
+html[data-tavle-theme="smartboard"] .modal .l41FileTags code{
+  color:#526070!important;
+}
+
+html.theme-smartboard .modal .h63Title,
+html[data-tavle-theme="smartboard"] .modal .h63Title,
+html.theme-smartboard .modal .l41FileTitle,
+html[data-tavle-theme="smartboard"] .modal .l41FileTitle{
+  background:#f4f7fb!important;
+  border-color:#d5dde8!important;
+}
+
+html.theme-smartboard .modal .h63State,
+html[data-tavle-theme="smartboard"] .modal .h63State{
+  background:#dcfce7!important;
+  color:#166534!important;
+}
+
+html.theme-flipover .modal .safe453StorageCards>div,
+html[data-tavle-theme="flipover"] .modal .safe453StorageCards>div,
+html.theme-flipover .modal .safe453StorageOverview details,
+html[data-tavle-theme="flipover"] .modal .safe453StorageOverview details,
+html.theme-flipover .modal .h63Summary>div,
+html[data-tavle-theme="flipover"] .modal .h63Summary>div,
+html.theme-flipover .modal .h63Group,
+html[data-tavle-theme="flipover"] .modal .h63Group,
+html.theme-flipover .modal .h63Card,
+html[data-tavle-theme="flipover"] .modal .h63Card,
+html.theme-flipover .modal .l41Summary>div,
+html[data-tavle-theme="flipover"] .modal .l41Summary>div,
+html.theme-flipover .modal .l41FileCard,
+html[data-tavle-theme="flipover"] .modal .l41FileCard{
+  color:#1f2937!important;
+}
+
+</style>
+<script id="tavle-theme-selector-v4-four-themes-script">
+(function(){
+  var ORDER=['opslagstavle','glastavle','flipover','smartboard'];
+  var NAMES={opslagstavle:'OpslagsTavle',glastavle:'GlasTavle',flipover:'FlipOver',smartboard:'SmartBoard'};
+  function norm(name){
+    name=String(name||'').toLowerCase();
+    if(name==='classic'||name==='klassisk'||name==='klassisk tavle'||name==='opslag'||name==='opslagstavle'||name==='opslagstavle')return 'opslagstavle';
+    if(name==='modern'||name==='presentation'||name==='presentation-look'||name==='praesentation'||name==='præsentation'||name==='glastavle'||name==='glas')return 'glastavle';
+    if(name==='flip'||name==='flipover'||name==='flip-over'||name==='papir')return 'flipover';
+    if(name==='smart'||name==='smartboard'||name==='smart-board'||name==='digital')return 'smartboard';
+    return ORDER.indexOf(name)>=0?name:'opslagstavle';
+  }
+  function isTyping(t){try{var tag=String((t&&t.tagName)||'').toLowerCase();return !!(t&&(t.isContentEditable||tag==='input'||tag==='textarea'||tag==='select'));}catch(_e){return false;}}
+  function isModalOpen(){try{var mb=document.getElementById('modalBack');return !!(mb && (mb.classList.contains('show') || mb.style.display==='flex' || mb.style.display==='block'));}catch(_e){return false;}}
+  function toast(msg){
+    try{
+      var id='tavleThemeCenterToast';
+      var el=document.getElementById(id);
+      if(!el){
+        el=document.createElement('div');
+        el.id=id;
+        el.className='tavleThemeCenterToast';
+        el.setAttribute('aria-live','polite');
+        document.body.appendChild(el);
+      }
+      el.textContent=msg;
+      el.classList.remove('show');
+      void el.offsetWidth;
+      el.classList.add('show');
+      clearTimeout(el.__timer);
+      el.__timer=setTimeout(function(){el.classList.remove('show');},1450);
+    }catch(_e){
+      try{ if(typeof window.showToast==='function')window.showToast(msg,1800); else if(typeof window.toast==='function')window.toast(msg); }catch(_e2){}
+    }
+  }
+  function current(){try{return norm(localStorage.getItem('tavleUiTheme')||localStorage.getItem('tavleTheme')||'opslagstavle');}catch(_e){return 'opslagstavle';}}
+  function setTheme(name,silent){
+    name=norm(name);
+    var root=document.documentElement;
+    root.classList.remove('theme-classic','theme-modern','theme-presentation','theme-opslagstavle','theme-glastavle','theme-flipover','theme-smartboard');
+    if(name==='opslagstavle')root.classList.add('theme-classic','theme-opslagstavle');
+    if(name==='glastavle')root.classList.add('theme-presentation','theme-glastavle');
+    if(name==='flipover')root.classList.add('theme-flipover');
+    if(name==='smartboard')root.classList.add('theme-smartboard');
+    root.setAttribute('data-tavle-theme',name);
+    try{document.body.setAttribute('data-tavle-theme',name);}catch(_e){}
+    try{var app=document.getElementById('app'); if(app)app.setAttribute('data-tavle-theme',name);}catch(_e){}
+    try{localStorage.setItem('tavleUiTheme',name); localStorage.setItem('tavleTheme',name);}catch(_e){}
+    updateThemeSelect();
+    if(!silent)toast((NAMES[name]||name)+' aktiveret');
+  }
+  function cycleTheme(){
+    var idx=ORDER.indexOf(current());
+    setTheme(ORDER[(idx+1+ORDER.length)%ORDER.length]);
+  }
+  function ensureThemeSelect(){
+    var controls=document.querySelector('.bgModalShell .bgCompactControls');
+    if(!controls)return;
+    var sel=controls.querySelector('#tavleThemeSelect');
+    if(!sel){
+      var label=document.createElement('label');
+      label.className='tavleThemeLabel';
+      label.innerHTML='<span>Tema</span><select id="tavleThemeSelect" aria-label="Vælg app-tema"></select>';
+      var search=controls.querySelector('#bgSearch');
+      if(search && search.nextSibling)controls.insertBefore(label,search.nextSibling);
+      else controls.insertBefore(label,controls.firstChild);
+      sel=label.querySelector('select');
+      sel.addEventListener('change',function(ev){setTheme(ev.target.value);},true);
+    }
+    var wanted=ORDER.map(function(k){return '<option value="'+k+'">'+NAMES[k]+'</option>';}).join('');
+    if(sel.innerHTML!==wanted)sel.innerHTML=wanted;
+    updateThemeSelect();
+  }
+  function updateThemeSelect(){var sel=document.getElementById('tavleThemeSelect'); if(sel)sel.value=current();}
+  function digitFromEvent(e){
+    var code=String(e.code||'');
+    var m=code.match(/^(Digit|Numpad)([1-4])$/); if(m)return m[2];
+    var k=String(e.key||'');
+    if(/^[1-4]$/.test(k))return k;
+    if(k==='!')return '1'; if(k==='"'||k==='@')return '2'; if(k==='#'||k==='£')return '3'; if(k==='$'||k==='€'||k==='¤')return '4';
+    return '';
+  }
+  function handleKey(e){
+    try{
+      if(isTyping(e.target) || isModalOpen())return;
+      if(!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && String(e.key||'').toLowerCase()==='b'){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();cycleTheme();return false;
+      }
+      if(e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey){
+        var d=digitFromEvent(e); if(!d)return;
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();setTheme(ORDER[Number(d)-1]);return false;
+      }
+    }catch(_e){}
+  }
+  function start(){
+    setTheme(current(),true);
+    ensureThemeSelect();
+    try{new MutationObserver(function(){ensureThemeSelect();}).observe(document.body,{childList:true,subtree:true});}catch(_e){}
+    window.addEventListener('keydown',handleKey,true);
+    document.addEventListener('keydown',handleKey,true);
+    window.setTavleTheme=setTheme;
+    window.getTavleTheme=current;
+    window.cycleTavleTheme=cycleTheme;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
+})();
+</script>
+<!-- TAVLE THEME SELECTOR v4-four-themes END -->
+
+<!-- TAVLE THEME SELECTOR v5-toolbar-toggle START -->
+<style id="tavle-theme-selector-v5-toolbar-toggle-css">
+/* v5: Den lille værktøjslinje-toggle følger valgt tema.
+   Ren visuel ændring: ingen ændring af toolbarens eksisterende show/hide-logik. */
+#toolbarFallback,
+.toolbarFallback{
+  font-size:0!important;
+  line-height:1!important;
+  overflow:hidden!important;
+}
+#toolbarFallback::before,
+.toolbarFallback::before{
+  display:grid!important;
+  place-items:center!important;
+  width:100%!important;
+  height:100%!important;
+  font-size:24px!important;
+  line-height:1!important;
+  color:inherit!important;
+}
+html[data-tavle-theme="opslagstavle"] #toolbarFallback,
+html[data-tavle-theme="opslagstavle"] .toolbarFallback,
+html.theme-opslagstavle #toolbarFallback,
+html.theme-opslagstavle .toolbarFallback{
+  background:#26313f!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  border-radius:16px!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.30)!important;
+}
+html[data-tavle-theme="opslagstavle"] #toolbarFallback::before,
+html[data-tavle-theme="opslagstavle"] .toolbarFallback::before,
+html.theme-opslagstavle #toolbarFallback::before,
+html.theme-opslagstavle .toolbarFallback::before{content:"📌";}
+
+html[data-tavle-theme="glastavle"] #toolbarFallback,
+html[data-tavle-theme="glastavle"] .toolbarFallback,
+html.theme-glastavle #toolbarFallback,
+html.theme-glastavle .toolbarFallback{
+  background:rgba(255,255,255,.88)!important;
+  color:#175cd3!important;
+  border:1px solid rgba(16,24,40,.10)!important;
+  border-radius:20px!important;
+  box-shadow:0 18px 44px rgba(15,23,42,.18)!important;
+  backdrop-filter:blur(18px) saturate(1.18)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.18)!important;
+}
+html[data-tavle-theme="glastavle"] #toolbarFallback::before,
+html[data-tavle-theme="glastavle"] .toolbarFallback::before,
+html.theme-glastavle #toolbarFallback::before,
+html.theme-glastavle .toolbarFallback::before{content:"◇";font-size:31px!important;font-weight:950!important;}
+
+html[data-tavle-theme="flipover"] #toolbarFallback,
+html[data-tavle-theme="flipover"] .toolbarFallback,
+html.theme-flipover #toolbarFallback,
+html.theme-flipover .toolbarFallback{
+  background:#fff7ed!important;
+  color:#7c2d12!important;
+  border:2px solid rgba(120,53,15,.20)!important;
+  border-radius:10px!important;
+  box-shadow:0 7px 0 rgba(120,53,15,.16),0 13px 24px rgba(120,53,15,.18)!important;
+}
+html[data-tavle-theme="flipover"] #toolbarFallback::before,
+html[data-tavle-theme="flipover"] .toolbarFallback::before,
+html.theme-flipover #toolbarFallback::before,
+html.theme-flipover .toolbarFallback::before{content:"▱";font-size:32px!important;font-weight:950!important;transform:rotate(-4deg);}
+
+html[data-tavle-theme="smartboard"] #toolbarFallback,
+html[data-tavle-theme="smartboard"] .toolbarFallback,
+html.theme-smartboard #toolbarFallback,
+html.theme-smartboard .toolbarFallback{
+  background:rgba(2,6,23,.92)!important;
+  color:#7dd3fc!important;
+  border:1px solid rgba(56,189,248,.35)!important;
+  border-radius:18px!important;
+  box-shadow:0 0 22px rgba(56,189,248,.24),0 16px 34px rgba(2,6,23,.42)!important;
+}
+html[data-tavle-theme="smartboard"] #toolbarFallback::before,
+html[data-tavle-theme="smartboard"] .toolbarFallback::before,
+html.theme-smartboard #toolbarFallback::before,
+html.theme-smartboard .toolbarFallback::before{content:"▣";font-size:29px!important;font-weight:950!important;}
+
+body.toolbar-is-hidden #toolbarFallback,
+.app.toolbarHidden ~ #toolbarFallback,
+body.toolbar-is-hidden .toolbarFallback{
+  opacity:.94!important;
+}
+</style>
+<script id="tavle-theme-selector-v5-toolbar-toggle-script">
+(function(){
+  var NAMES={opslagstavle:'OpslagsTavle',glastavle:'GlasTavle',flipover:'FlipOver',smartboard:'SmartBoard'};
+  function current(){
+    try{return document.documentElement.getAttribute('data-tavle-theme') || localStorage.getItem('tavleUiTheme') || 'opslagstavle';}catch(_e){return 'opslagstavle';}
+  }
+  function update(){
+    try{
+      var name=current();
+      var label='Værktøjslinje · '+(NAMES[name]||name)+' · B skifter tema';
+      document.querySelectorAll('#toolbarFallback,.toolbarFallback,#toolbarPinFallback').forEach(function(btn){
+        btn.setAttribute('title',label);
+        btn.setAttribute('aria-label',label);
+        btn.setAttribute('data-tavle-theme',name);
+      });
+    }catch(_e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update,{once:true}); else update();
+  try{new MutationObserver(update).observe(document.documentElement,{attributes:true,attributeFilter:['data-tavle-theme','class']});}catch(_e){}
+  try{new MutationObserver(update).observe(document.body,{childList:true,subtree:true});}catch(_e){}
+  window.updateTavleToolbarThemeButton=update;
+})();
+</script>
+<!-- TAVLE THEME SELECTOR v5-toolbar-toggle END -->
+
+<!-- TAVLE THEME SELECTOR v7-bg-layout START -->
+<style id="tavle-theme-selector-v7-bg-layout-css">
+/* v7: Baggrundsvælgerens filterlinje strammes op.
+   Søgning længst til venstre, tema som almindelig dropdown, og gitter som lille #-knap. */
+.bgLibraryWrap.v46{
+  padding-top:8px!important;
+}
+.bgLibraryHead{
+  margin:0 0 6px!important;
+  min-height:0!important;
+  align-items:center!important;
+}
+.bgLibraryHead h3{
+  margin:0!important;
+  font-size:16px!important;
+  line-height:1!important;
+  opacity:.78!important;
+}
+.bgLibraryCount{
+  min-height:28px!important;
+  height:28px!important;
+  padding:0 10px!important;
+  border-radius:999px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:13px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  background:#edf2f7!important;
+  color:#334155!important;
+  box-shadow:none!important;
+}
+.bgCompactControls{
+  grid-template-columns:minmax(270px,1fr) minmax(120px,.27fr) minmax(112px,.24fr) minmax(118px,.26fr) 48px!important;
+  gap:8px!important;
+  align-items:end!important;
+  margin-bottom:8px!important;
+}
+.bgCompactControls #bgSearch{
+  order:1!important;
+  min-width:0!important;
+}
+.bgCompactControls .tavleThemeLabel{
+  order:2!important;
+  min-width:0!important;
+}
+.bgCompactControls label:has(#bgCatSelect),
+.bgCompactControls .bgTypeLabel{
+  order:3!important;
+  min-width:0!important;
+}
+.bgCompactControls label:has(#bgFilterSelect),
+.bgCompactControls .bgMoodLabel{
+  order:4!important;
+  min-width:0!important;
+}
+.bgCompactControls #bgGridToggle{
+  order:5!important;
+  width:48px!important;
+  min-width:48px!important;
+  max-width:48px!important;
+  height:38px!important;
+  min-height:38px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:14px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:0!important;
+  font-size:0!important;
+  line-height:1!important;
+  font-weight:950!important;
+  background:#f8fafc!important;
+  border:1px solid #cbd5e1!important;
+  color:#111827!important;
+  box-shadow:none!important;
+}
+.bgCompactControls #bgGridToggle::before{
+  content:"#";
+  font-size:22px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  transform:translateY(-1px);
+}
+.bgCompactControls #bgGridToggle.active{
+  background:#dbeafe!important;
+  border-color:#93c5fd!important;
+  color:#1d4ed8!important;
+  box-shadow:0 0 0 3px rgba(59,130,246,.12)!important;
+}
+.bgCompactControls #bgGridToggle small{
+  display:none!important;
+}
+.bgCompactControls #tavleThemeSelect,
+.bgCompactControls #bgCatSelect,
+.bgCompactControls #bgFilterSelect,
+.bgCompactControls input{
+  min-height:38px!important;
+}
+@media(max-width:760px){
+  .bgLibraryWrap.v46{padding-top:7px!important;}
+  .bgLibraryHead{margin-bottom:5px!important;}
+  .bgCompactControls{
+    grid-template-columns:minmax(0,1fr) minmax(112px,.42fr) minmax(98px,.34fr) 44px!important;
+    gap:7px!important;
+  }
+  .bgCompactControls #bgSearch{grid-column:1 / span 1!important;order:1!important;}
+  .bgCompactControls .tavleThemeLabel{grid-column:auto!important;order:2!important;}
+  .bgCompactControls label:has(#bgCatSelect),
+  .bgCompactControls .bgTypeLabel{order:3!important;}
+  .bgCompactControls label:has(#bgFilterSelect),
+  .bgCompactControls .bgMoodLabel{order:4!important;grid-column:1 / span 1!important;}
+  .bgCompactControls #bgGridToggle{order:5!important;width:44px!important;min-width:44px!important;max-width:44px!important;}
+}
+@media(max-height:760px){
+  .bgLibraryWrap.v46{padding-top:6px!important;}
+  .bgLibraryHead{margin-bottom:4px!important;}
+  .bgCompactControls{margin-bottom:6px!important;}
+}
+</style>
+<script id="tavle-theme-selector-v7-bg-layout-script">
+(function(){
+  function polishBgControls(){
+    try{
+      var controls=document.querySelector('.bgModalShell .bgCompactControls');
+      if(!controls)return;
+      var type=document.getElementById('bgCatSelect');
+      var mood=document.getElementById('bgFilterSelect');
+      if(type&&type.closest('label'))type.closest('label').classList.add('bgTypeLabel');
+      if(mood&&mood.closest('label'))mood.closest('label').classList.add('bgMoodLabel');
+      var grid=document.getElementById('bgGridToggle');
+      if(grid){
+        var isOn=/til/i.test(grid.textContent||'') || grid.classList.contains('active') || grid.getAttribute('data-v7-grid-state')==='on';
+        var state=isOn?'on':'off';
+        grid.title=(isOn?'Skjul gitter':'Vis gitter')+' (Shift+G)';
+        grid.setAttribute('aria-label',grid.title);
+        if(grid.getAttribute('data-v7-grid-state')!==state){
+          grid.setAttribute('data-v7-grid-state',state);
+          grid.innerHTML='<span class="srOnly">'+(isOn?'Gitter til':'Gitter fra')+'</span><small>⇧G</small>';
+        }
+      }
+      var search=document.getElementById('bgSearch');
+      if(search)search.placeholder='Søg baggrund…';
+    }catch(_e){}
+  }
+  function start(){
+    polishBgControls();
+    try{new MutationObserver(polishBgControls).observe(document.body,{childList:true,subtree:true,characterData:true});}catch(_e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
+})();
+</script>
+<!-- TAVLE THEME SELECTOR v7-bg-layout END -->
+
+
+
+<!-- TAVLE THEME SELECTOR v11 SAFE FROM v7 START -->
+<style id="tavle-theme-selector-v11-safe-css">
+/* v11: Sikker append-only patch oven på fungerende v7.
+   Retter tema-dropdown, mørk zoom-% i lyse temaer, Mere-menu temafarver og Shift+klik på toolbar-toggle. */
+html.theme-glastavle .safe453BoardZoomControls .safe453BoardZoomPct,
+html[data-tavle-theme="glastavle"] .safe453BoardZoomControls .safe453BoardZoomPct,
+html.theme-flipover .safe453BoardZoomControls .safe453BoardZoomPct,
+html[data-tavle-theme="flipover"] .safe453BoardZoomControls .safe453BoardZoomPct{
+  color:#111827!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+
+/* OpslagsTavle: eksisterende Tavle-look. */
+html[data-tavle-theme="opslagstavle"] .moreMenu,
+html.theme-opslagstavle .moreMenu{
+  background:#273142!important;
+  color:white!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  border-radius:20px!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.35)!important;
+}
+html[data-tavle-theme="opslagstavle"] .moreMenu button,
+html.theme-opslagstavle .moreMenu button{
+  background:#ffffff!important;
+  color:#111827!important;
+  border:1px solid rgba(15,23,42,.08)!important;
+  border-radius:14px!important;
+}
+html[data-tavle-theme="opslagstavle"] .moreMenuSection,
+html.theme-opslagstavle .moreMenuSection{color:rgba(255,255,255,.78)!important;}
+
+/* GlasTavle: lys, rolig glas-menu. */
+html[data-tavle-theme="glastavle"] .moreMenu,
+html.theme-glastavle .moreMenu,
+html.theme-presentation .moreMenu{
+  background:rgba(255,255,255,.88)!important;
+  color:#111827!important;
+  border:1px solid rgba(16,24,40,.10)!important;
+  border-radius:24px!important;
+  box-shadow:0 22px 60px rgba(15,23,42,.22)!important;
+  backdrop-filter:blur(22px) saturate(1.18)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(1.18)!important;
+}
+html[data-tavle-theme="glastavle"] .moreMenu button,
+html.theme-glastavle .moreMenu button,
+html.theme-presentation .moreMenu button{
+  background:rgba(255,255,255,.96)!important;
+  color:#111827!important;
+  border:1px solid rgba(16,24,40,.10)!important;
+  border-radius:16px!important;
+  box-shadow:0 8px 18px rgba(15,23,42,.08)!important;
+}
+html[data-tavle-theme="glastavle"] .moreMenuSection,
+html.theme-glastavle .moreMenuSection,
+html.theme-presentation .moreMenuSection{color:#475569!important;}
+
+/* FlipOver: papir/tusch-menu der matcher den lyse topbar. */
+html[data-tavle-theme="flipover"] .moreMenu,
+html.theme-flipover .moreMenu{
+  background:#fffbeb!important;
+  color:#1f2937!important;
+  border:2px solid rgba(120,53,15,.18)!important;
+  border-radius:16px!important;
+  box-shadow:0 11px 0 rgba(120,53,15,.13),0 24px 54px rgba(120,53,15,.20)!important;
+}
+html[data-tavle-theme="flipover"] .moreMenu button,
+html.theme-flipover .moreMenu button{
+  background:#fff7ed!important;
+  color:#431407!important;
+  border:1px solid rgba(120,53,15,.18)!important;
+  border-radius:11px!important;
+  box-shadow:0 4px 0 rgba(120,53,15,.09),0 9px 16px rgba(120,53,15,.10)!important;
+}
+html[data-tavle-theme="flipover"] .moreMenu button:active,
+html.theme-flipover .moreMenu button:active{
+  transform:translateY(2px)!important;
+  box-shadow:0 2px 0 rgba(120,53,15,.10),0 5px 10px rgba(120,53,15,.10)!important;
+}
+html[data-tavle-theme="flipover"] .moreMenuSection,
+html.theme-flipover .moreMenuSection{color:#92400e!important;}
+
+/* SmartBoard: mørk digital menu med blå kant/glød. */
+html[data-tavle-theme="smartboard"] .moreMenu,
+html.theme-smartboard .moreMenu{
+  background:rgba(2,6,23,.94)!important;
+  color:#e0f2fe!important;
+  border:1px solid rgba(56,189,248,.32)!important;
+  border-radius:22px!important;
+  box-shadow:0 0 34px rgba(56,189,248,.22),0 28px 70px rgba(2,6,23,.58)!important;
+  backdrop-filter:blur(18px) saturate(1.12)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.12)!important;
+}
+html[data-tavle-theme="smartboard"] .moreMenu button,
+html.theme-smartboard .moreMenu button{
+  background:rgba(15,23,42,.92)!important;
+  color:#e0f2fe!important;
+  border:1px solid rgba(56,189,248,.28)!important;
+  border-radius:15px!important;
+  box-shadow:inset 0 0 0 1px rgba(125,211,252,.04),0 0 18px rgba(56,189,248,.12)!important;
+}
+html[data-tavle-theme="smartboard"] .moreMenu button:hover,
+html.theme-smartboard .moreMenu button:hover,
+html[data-tavle-theme="smartboard"] .moreMenu button:focus-visible,
+html.theme-smartboard .moreMenu button:focus-visible{
+  background:rgba(12,74,110,.72)!important;
+  border-color:rgba(125,211,252,.55)!important;
+}
+html[data-tavle-theme="smartboard"] .moreMenuSection,
+html.theme-smartboard .moreMenuSection{color:#7dd3fc!important;}
+
+html[data-tavle-theme] .moreMenu button .ico,
+html[data-tavle-theme] .moreMenu button .txt,
+html[class*="theme-"] .moreMenu button .ico,
+html[class*="theme-"] .moreMenu button .txt{color:inherit!important;}
+
+/* Lille indikator på toolbar-toggle: Shift+klik skifter tema uden at åbne baggrundsvælgeren. */
+#toolbarFallback,
+.toolbarFallback{position:fixed!important;}
+#toolbarFallback::after,
+.toolbarFallback::after{
+  content:"⇧";
+  position:absolute!important;
+  right:6px!important;
+  top:4px!important;
+  width:14px!important;
+  height:14px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:999px!important;
+  font-size:10px!important;
+  font-weight:950!important;
+  line-height:1!important;
+  opacity:.70!important;
+  background:rgba(255,255,255,.78)!important;
+  color:#111827!important;
+  pointer-events:none!important;
+}
+html[data-tavle-theme="smartboard"] #toolbarFallback::after,
+html.theme-smartboard #toolbarFallback::after,
+html[data-tavle-theme="smartboard"] .toolbarFallback::after,
+html.theme-smartboard .toolbarFallback::after{
+  background:rgba(56,189,248,.22)!important;
+  color:#e0f2fe!important;
+  border:1px solid rgba(125,211,252,.32)!important;
+}
+</style>
+<script id="tavle-theme-selector-v11-safe-script">
+(function(){
+  var ORDER=['opslagstavle','glastavle','flipover','smartboard'];
+  var NAMES={opslagstavle:'OpslagsTavle',glastavle:'GlasTavle',flipover:'FlipOver',smartboard:'SmartBoard'};
+  var CLASS_NAMES=['theme-classic','theme-modern','theme-presentation','theme-opslagstavle','theme-glastavle','theme-flipover','theme-smartboard'];
+  var AUTO_INIT_KEY='tavleThemeAutoInitializedV16';
+  var USER_CHOICE_KEY='tavleThemeUserChoiceV16';
+  function norm(name){
+    name=String(name||'').toLowerCase();
+    if(name==='classic'||name==='klassisk'||name==='klassisk tavle'||name==='opslag'||name==='opslagstavle')return 'opslagstavle';
+    if(name==='modern'||name==='presentation'||name==='presentation-look'||name==='praesentation'||name==='præsentation'||name==='glastavle'||name==='glas')return 'glastavle';
+    if(name==='flip'||name==='flipover'||name==='flip-over'||name==='papir')return 'flipover';
+    if(name==='smart'||name==='smartboard'||name==='smart-board'||name==='digital')return 'smartboard';
+    return ORDER.indexOf(name)>=0?name:'opslagstavle';
+  }
+  function current(){
+    try{return norm(document.documentElement.getAttribute('data-tavle-theme')||localStorage.getItem('tavleUiTheme')||localStorage.getItem('tavleTheme')||'opslagstavle');}
+    catch(_e){return 'opslagstavle';}
+  }
+  function systemDefaultTheme(){
+    try{return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'smartboard':'glastavle';}
+    catch(_e){return 'glastavle';}
+  }
+  function storedTheme(){
+    try{return norm(localStorage.getItem('tavleUiTheme')||localStorage.getItem('tavleTheme')||'');}
+    catch(_e){return '';}
+  }
+  function firstRunAutoTheme(){
+    try{
+      if(localStorage.getItem(USER_CHOICE_KEY)==='1')return '';
+      if(localStorage.getItem(AUTO_INIT_KEY)==='1')return '';
+      var stored=storedTheme();
+      if(stored&&stored!=='opslagstavle'){
+        localStorage.setItem(USER_CHOICE_KEY,'1');
+        localStorage.setItem(AUTO_INIT_KEY,'1');
+        return '';
+      }
+      return systemDefaultTheme();
+    }catch(_e){return '';}
+  }
+  function isTyping(t){try{var tag=String((t&&t.tagName)||'').toLowerCase();return !!(t&&(t.isContentEditable||tag==='input'||tag==='textarea'||tag==='select'));}catch(_e){return false;}}
+  function modalOpen(){try{var mb=document.getElementById('modalBack');return !!(mb&&(mb.classList.contains('show')||mb.style.display==='flex'||mb.style.display==='block'));}catch(_e){return false;}}
+  function centerToast(msg){
+    try{
+      var el=document.getElementById('tavleThemeCenterToast');
+      if(!el){
+        el=document.createElement('div');
+        el.id='tavleThemeCenterToast';
+        el.className='tavleThemeCenterToast';
+        el.setAttribute('aria-live','polite');
+        document.body.appendChild(el);
+      }
+      /* v13: flyt toast-elementet sidst i body ved hvert temaskift.
+         Det bevarer placeringen midt på tavlen, men lægger toasten øverst
+         i samme z-stack som Mere-menu/modaler med maksimal z-index. */
+      try{document.body.appendChild(el);}catch(_moveErr){}
+      el.textContent=msg;
+      el.classList.remove('show');
+      void el.offsetWidth;
+      el.classList.add('show');
+      clearTimeout(el.__timer);
+      el.__timer=setTimeout(function(){el.classList.remove('show');},1450);
+    }catch(_e){try{if(typeof window.showToast==='function')window.showToast(msg,1600); else if(typeof window.toast==='function')window.toast(msg);}catch(_e2){}}
+  }
+  function syncSelect(){try{var sel=document.getElementById('tavleThemeSelect'); if(sel)sel.value=current();}catch(_e){}}
+  function applyTheme(name,silent,source){
+    name=norm(name);
+    var root=document.documentElement;
+    CLASS_NAMES.forEach(function(c){root.classList.remove(c);});
+    if(name==='opslagstavle')root.classList.add('theme-classic','theme-opslagstavle');
+    else if(name==='glastavle')root.classList.add('theme-presentation','theme-glastavle');
+    else if(name==='flipover')root.classList.add('theme-flipover');
+    else if(name==='smartboard')root.classList.add('theme-smartboard');
+    root.setAttribute('data-tavle-theme',name);
+    try{document.body.setAttribute('data-tavle-theme',name);}catch(_e){}
+    try{var app=document.getElementById('app'); if(app)app.setAttribute('data-tavle-theme',name);}catch(_e){}
+    try{localStorage.setItem('tavleUiTheme',name); localStorage.setItem('tavleTheme',name);}catch(_e){}
+    if(source==='user'){
+      try{localStorage.setItem(USER_CHOICE_KEY,'1'); localStorage.setItem(AUTO_INIT_KEY,'1');}catch(_e){}
+    }
+    syncSelect();
+    if(!silent)centerToast((NAMES[name]||name)+' aktiveret');
+  }
+  function cycleTheme(){var idx=ORDER.indexOf(current());applyTheme(ORDER[(idx+1+ORDER.length)%ORDER.length],false,'user');}
+  function ensureThemeSelect(){
+    try{
+      var controls=document.querySelector('.bgModalShell .bgCompactControls');
+      if(!controls)return;
+      var sel=controls.querySelector('#tavleThemeSelect');
+      if(!sel){
+        var label=document.createElement('label');
+        label.className='tavleThemeLabel';
+        label.innerHTML='<span>Tema</span><select id="tavleThemeSelect" aria-label="Vælg app-tema"></select>';
+        var search=controls.querySelector('#bgSearch');
+        if(search&&search.parentNode===controls&&search.nextSibling)controls.insertBefore(label,search.nextSibling);
+        else controls.insertBefore(label,controls.firstChild);
+        sel=label.querySelector('select');
+      }
+      var wanted=ORDER.map(function(k){return '<option value="'+k+'">'+NAMES[k]+'</option>';}).join('');
+      if(sel.innerHTML!==wanted)sel.innerHTML=wanted;
+      syncSelect();
+    }catch(_e){}
+  }
+  function digitFromEvent(e){
+    var code=String(e.code||'');
+    var m=code.match(/^(Digit|Numpad)([1-4])$/); if(m)return m[2];
+    var k=String(e.key||'');
+    if(/^[1-4]$/.test(k))return k;
+    if(k==='!')return '1'; if(k==='"'||k==='@')return '2'; if(k==='#'||k==='£')return '3'; if(k==='$'||k==='€'||k==='¤')return '4';
+    return '';
+  }
+  function handleThemeSelectEvent(e){
+    var t=e&&e.target;
+    if(!t||!t.matches||!t.matches('#tavleThemeSelect'))return;
+    try{e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+    applyTheme(t.value,false,'user');
+    return false;
+  }
+  function handleKey(e){
+    try{
+      if(isTyping(e.target)||modalOpen())return;
+      if(!e.ctrlKey&&!e.altKey&&!e.metaKey&&!e.shiftKey&&String(e.key||'').toLowerCase()==='b'){
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();cycleTheme();return false;
+      }
+      if(e.shiftKey&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
+        var d=digitFromEvent(e); if(!d)return;
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();applyTheme(ORDER[Number(d)-1],false,'user');return false;
+      }
+    }catch(_e){}
+  }
+  function isToolbarThemeClickTarget(t){try{return !!(t&&t.closest&&t.closest('#toolbarFallback,.toolbarFallback,#toolbarPinFallback,.toolbarPinFloat,#toolbarPeek'));}catch(_e){return false;}}
+  function handleShiftToolbarClick(e){
+    try{
+      if(!e||!e.shiftKey||!isToolbarThemeClickTarget(e.target))return;
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();cycleTheme();return false;
+    }catch(_e){}
+  }
+  function start(){
+    window.setTavleTheme=function(name){applyTheme(name,false,'user');};
+    window.getTavleTheme=current;
+    window.cycleTavleTheme=cycleTheme;
+    var autoTheme=firstRunAutoTheme();
+    if(autoTheme){
+      applyTheme(autoTheme,true,'auto');
+      try{localStorage.setItem(AUTO_INIT_KEY,'1');}catch(_e){}
+    }else{
+      applyTheme(current(),true,'load');
+    }
+    ensureThemeSelect();
+    document.addEventListener('change',handleThemeSelectEvent,true);
+    document.addEventListener('input',handleThemeSelectEvent,true);
+    window.addEventListener('keydown',handleKey,true);
+    document.addEventListener('keydown',handleKey,true);
+    document.addEventListener('click',handleShiftToolbarClick,true);
+    try{new MutationObserver(ensureThemeSelect).observe(document.body,{childList:true,subtree:true});}catch(_e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
+})();
+</script>
+<!-- TAVLE THEME SELECTOR v11 SAFE FROM v7 END -->
+
+
+
+<!-- TAVLE FLIPOVER HELP CONTRAST PATCH v20 START -->
+<style id="tavle-flipover-help-contrast-v20-css">
+/* v20: Kun Hjælp i FlipOver-temaet.
+   Ingen JS, ingen z-index, ingen pointer-events, ingen modal-flow. */
+html.theme-flipover .modal .helpIntro,
+html[data-tavle-theme="flipover"] .modal .helpIntro,
+html.theme-flipover .modal .helpQuickCard,
+html[data-tavle-theme="flipover"] .modal .helpQuickCard,
+html.theme-flipover .modal .helpShortcutPrinciples,
+html[data-tavle-theme="flipover"] .modal .helpShortcutPrinciples,
+html.theme-flipover .modal .helpFAQ details,
+html[data-tavle-theme="flipover"] .modal .helpFAQ details,
+html.theme-flipover .modal .helpFAQ .answer,
+html[data-tavle-theme="flipover"] .modal .helpFAQ .answer,
+html.theme-flipover .modal .helpKeyBox,
+html[data-tavle-theme="flipover"] .modal .helpKeyBox,
+html.theme-flipover .modal .helpTip,
+html[data-tavle-theme="flipover"] .modal .helpTip,
+html.theme-flipover .modal .helpPager,
+html[data-tavle-theme="flipover"] .modal .helpPager{
+  background:#fffaf0!important;
+  color:#1f2937!important;
+  border-color:#fed7aa!important;
+}
+html.theme-flipover .modal .helpFAQ summary,
+html[data-tavle-theme="flipover"] .modal .helpFAQ summary{
+  background:#fff7ed!important;
+  color:#7c2d12!important;
+  border-color:#fed7aa!important;
+}
+html.theme-flipover .modal .helpFAQ details[open] summary,
+html[data-tavle-theme="flipover"] .modal .helpFAQ details[open] summary{
+  background:#ffedd5!important;
+  color:#7c2d12!important;
+}
+html.theme-flipover .modal .helpIntro p,
+html[data-tavle-theme="flipover"] .modal .helpIntro p,
+html.theme-flipover .modal .helpHintToggleRow,
+html[data-tavle-theme="flipover"] .modal .helpHintToggleRow,
+html.theme-flipover .modal .helpQuickCard,
+html[data-tavle-theme="flipover"] .modal .helpQuickCard,
+html.theme-flipover .modal .helpShortcutPrinciples,
+html[data-tavle-theme="flipover"] .modal .helpShortcutPrinciples,
+html.theme-flipover .modal .helpFAQ .answer,
+html[data-tavle-theme="flipover"] .modal .helpFAQ .answer,
+html.theme-flipover .modal .helpFAQ li,
+html[data-tavle-theme="flipover"] .modal .helpFAQ li,
+html.theme-flipover .modal .helpFAQ p,
+html[data-tavle-theme="flipover"] .modal .helpFAQ p,
+html.theme-flipover .modal .helpKeyBox,
+html[data-tavle-theme="flipover"] .modal .helpKeyBox,
+html.theme-flipover .modal .helpKeyBox b,
+html[data-tavle-theme="flipover"] .modal .helpKeyBox b,
+html.theme-flipover .modal .helpMiniNote,
+html[data-tavle-theme="flipover"] .modal .helpMiniNote{
+  color:#1f2937!important;
+  opacity:1!important;
+}
+html.theme-flipover .modal .helpIconItem,
+html[data-tavle-theme="flipover"] .modal .helpIconItem{
+  background:#fffaf0!important;
+  color:#1f2937!important;
+  border-color:#fed7aa!important;
+}
+html.theme-flipover .modal .helpIconItem small,
+html[data-tavle-theme="flipover"] .modal .helpIconItem small,
+html.theme-flipover .modal .helpTip,
+html[data-tavle-theme="flipover"] .modal .helpTip{
+  color:#475569!important;
+  opacity:1!important;
+}
+html.theme-flipover .modal .helpIconItem b,
+html[data-tavle-theme="flipover"] .modal .helpIconItem b{
+  color:#111827!important;
+  opacity:1!important;
+}
+html.theme-flipover .modal .helpToolBtn:hover,
+html.theme-flipover .modal .helpToolBtn:focus-visible,
+html[data-tavle-theme="flipover"] .modal .helpToolBtn:hover,
+html[data-tavle-theme="flipover"] .modal .helpToolBtn:focus-visible{
+  background:#ffedd5!important;
+  outline-color:#f59e0b!important;
+}
+</style>
+<!-- TAVLE FLIPOVER HELP CONTRAST PATCH v20 END -->
+
+<!-- TAVLE SMARTBOARD HELP CONTRAST PATCH v21b START -->
+<style id="tavle-smartboard-help-contrast-v21b-css">
+/* v21b: Kun Hjælp i SmartBoard-temaet. Bevarer v20/FlipOver. Ingen JS, ingen z-index, ingen pointer-events, ingen modal-flow. */
+html.theme-smartboard .modal .helpIntro,
+html[data-tavle-theme="smartboard"] .modal .helpIntro,
+html.theme-smartboard .modal .helpQuickCard,
+html[data-tavle-theme="smartboard"] .modal .helpQuickCard,
+html.theme-smartboard .modal .helpShortcutPrinciples,
+html[data-tavle-theme="smartboard"] .modal .helpShortcutPrinciples,
+html.theme-smartboard .modal .helpFAQ details,
+html[data-tavle-theme="smartboard"] .modal .helpFAQ details,
+html.theme-smartboard .modal .helpFAQ .answer,
+html[data-tavle-theme="smartboard"] .modal .helpFAQ .answer,
+html.theme-smartboard .modal .helpKeyBox,
+html[data-tavle-theme="smartboard"] .modal .helpKeyBox,
+html.theme-smartboard .modal .helpTip,
+html[data-tavle-theme="smartboard"] .modal .helpTip,
+html.theme-smartboard .modal .helpPager,
+html[data-tavle-theme="smartboard"] .modal .helpPager{
+  background:#f8fafc!important;
+  color:#111827!important;
+  border-color:#bfdbfe!important;
+}
+html.theme-smartboard .modal .helpFAQ summary,
+html[data-tavle-theme="smartboard"] .modal .helpFAQ summary{
+  background:#eff6ff!important;
+  color:#1e3a8a!important;
+  border-color:#bfdbfe!important;
+}
+html.theme-smartboard .modal .helpFAQ details[open] summary,
+html[data-tavle-theme="smartboard"] .modal .helpFAQ details[open] summary{
+  background:#dbeafe!important;
+  color:#1d4ed8!important;
+}
+html.theme-smartboard .modal .helpIntro *,
+html[data-tavle-theme="smartboard"] .modal .helpIntro *,
+html.theme-smartboard .modal .helpQuickCard,
+html[data-tavle-theme="smartboard"] .modal .helpQuickCard,
+html.theme-smartboard .modal .helpQuickCard *,
+html[data-tavle-theme="smartboard"] .modal .helpQuickCard *,
+html.theme-smartboard .modal .helpShortcutPrinciples,
+html[data-tavle-theme="smartboard"] .modal .helpShortcutPrinciples,
+html.theme-smartboard .modal .helpShortcutPrinciples *,
+html[data-tavle-theme="smartboard"] .modal .helpShortcutPrinciples *,
+html.theme-smartboard .modal .helpFAQ .answer,
+html[data-tavle-theme="smartboard"] .modal .helpFAQ .answer,
+html.theme-smartboard .modal .helpFAQ .answer *,
+html[data-tavle-theme="smartboard"] .modal .helpFAQ .answer *,
+html.theme-smartboard .modal .helpKeyBox,
+html[data-tavle-theme="smartboard"] .modal .helpKeyBox,
+html.theme-smartboard .modal .helpKeyBox *,
+html[data-tavle-theme="smartboard"] .modal .helpKeyBox *,
+html.theme-smartboard .modal .helpMiniNote,
+html[data-tavle-theme="smartboard"] .modal .helpMiniNote{
+  color:#111827!important;
+  opacity:1!important;
+}
+html.theme-smartboard .modal .helpIconItem,
+html[data-tavle-theme="smartboard"] .modal .helpIconItem{
+  background:#f8fafc!important;
+  color:#111827!important;
+  border-color:#bfdbfe!important;
+}
+html.theme-smartboard .modal .helpIconItem *,
+html[data-tavle-theme="smartboard"] .modal .helpIconItem *{
+  color:#111827!important;
+  opacity:1!important;
+}
+html.theme-smartboard .modal .helpIconItem small,
+html[data-tavle-theme="smartboard"] .modal .helpIconItem small,
+html.theme-smartboard .modal .helpTip,
+html[data-tavle-theme="smartboard"] .modal .helpTip{
+  color:#475569!important;
+  opacity:1!important;
+}
+html.theme-smartboard .modal .helpToolBtn:hover,
+html.theme-smartboard .modal .helpToolBtn:focus-visible,
+html[data-tavle-theme="smartboard"] .modal .helpToolBtn:hover,
+html[data-tavle-theme="smartboard"] .modal .helpToolBtn:focus-visible{
+  background:#dbeafe!important;
+  outline-color:#2563eb!important;
+}
+</style>
+<!-- TAVLE SMARTBOARD HELP CONTRAST PATCH v21b END -->
+
+<!-- TAVLE THEME ACTIVE ACCENT PATCH v22 START -->
+<style id="tavle-theme-active-accent-v22-css">
+/* v22: Temaets accentfarve overtager den aktive markering i GlasTavle, FlipOver og SmartBoard.
+   OpslagsTavle bevarer den klassiske røde markering. Ingen JS, ingen modal-flow. */
+html.theme-glastavle,
+html[data-tavle-theme="glastavle"]{
+  --tavle-theme-active:#2563eb;
+  --tavle-theme-active-glow:rgba(37,99,235,.30);
+}
+html.theme-flipover,
+html[data-tavle-theme="flipover"]{
+  --tavle-theme-active:#b45309;
+  --tavle-theme-active-glow:rgba(180,83,9,.30);
+}
+html.theme-smartboard,
+html[data-tavle-theme="smartboard"]{
+  --tavle-theme-active:#38bdf8;
+  --tavle-theme-active-glow:rgba(56,189,248,.34);
+}
+
+html.theme-glastavle #title,
+html[data-tavle-theme="glastavle"] #title,
+html.theme-flipover #title,
+html[data-tavle-theme="flipover"] #title,
+html.theme-smartboard #title,
+html[data-tavle-theme="smartboard"] #title{
+  border-color:var(--tavle-theme-active)!important;
+  box-shadow:
+    0 0 0 1px var(--tavle-theme-active-glow),
+    0 0 16px var(--tavle-theme-active-glow),
+    0 8px 18px rgba(0,0,0,.18)!important;
+}
+
+html.theme-glastavle .widget.selected:not(.locked),
+html[data-tavle-theme="glastavle"] .widget.selected:not(.locked),
+html.theme-flipover .widget.selected:not(.locked),
+html[data-tavle-theme="flipover"] .widget.selected:not(.locked),
+html.theme-smartboard .widget.selected:not(.locked),
+html[data-tavle-theme="smartboard"] .widget.selected:not(.locked){
+  outline:3px solid var(--tavle-theme-active)!important;
+  outline-offset:0!important;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.22),
+    0 0 0 5px var(--tavle-theme-active-glow),
+    0 14px 28px rgba(0,0,0,.22)!important;
+}
+
+html.theme-glastavle .widget.selected.locked,
+html[data-tavle-theme="glastavle"] .widget.selected.locked,
+html.theme-flipover .widget.selected.locked,
+html[data-tavle-theme="flipover"] .widget.selected.locked,
+html.theme-smartboard .widget.selected.locked,
+html[data-tavle-theme="smartboard"] .widget.selected.locked{
+  outline:3px dashed var(--tavle-theme-active)!important;
+}
+
+html.theme-glastavle .widget.selected .resize,
+html.theme-glastavle .widget.selected .rotater,
+html[data-tavle-theme="glastavle"] .widget.selected .resize,
+html[data-tavle-theme="glastavle"] .widget.selected .rotater,
+html.theme-flipover .widget.selected .resize,
+html.theme-flipover .widget.selected .rotater,
+html[data-tavle-theme="flipover"] .widget.selected .resize,
+html[data-tavle-theme="flipover"] .widget.selected .rotater,
+html.theme-smartboard .widget.selected .resize,
+html.theme-smartboard .widget.selected .rotater,
+html[data-tavle-theme="smartboard"] .widget.selected .resize,
+html[data-tavle-theme="smartboard"] .widget.selected .rotater{
+  border-color:var(--tavle-theme-active)!important;
+  color:var(--tavle-theme-active)!important;
+}
+
+/* Fjern den ekstra indre temastreg kun på den aktive widget, så aktiv markering bliver én ren kant. */
+html.theme-glastavle .widget.selected::before,
+html[data-tavle-theme="glastavle"] .widget.selected::before,
+html.theme-flipover .widget.selected::before,
+html[data-tavle-theme="flipover"] .widget.selected::before,
+html.theme-smartboard .widget.selected::before,
+html[data-tavle-theme="smartboard"] .widget.selected::before{
+  content:none!important;
+  display:none!important;
+}
+</style>
+<!-- TAVLE THEME ACTIVE ACCENT PATCH v22 END -->
+
+
+
+
+<!-- TAVLE COMPACT TOPBAR PATCH v25 START -->
+<style id="tavle-compact-topbar-v25-css">
+/* v25: Bygger direkte på v22.
+   Mål: De tre redesign-temaer skal bruge en topbar, der visuelt følger OpslagsTavles kompakte proportioner.
+   Kun topbar-metrik. Ingen JS, ingen modal-flow, ingen z-index, ingen pointer-events. */
+
+/* Selve topbaren: kortere og tættere. */
+html.theme-glastavle .topbar,
+html[data-tavle-theme="glastavle"] .topbar,
+html.theme-flipover .topbar,
+html[data-tavle-theme="flipover"] .topbar,
+html.theme-smartboard .topbar,
+html[data-tavle-theme="smartboard"] .topbar{
+  width:auto!important;
+  max-width:max-content!important;
+  min-width:0!important;
+  padding:6px!important;
+  gap:6px!important;
+  border-radius:12px!important;
+  align-items:center!important;
+  box-sizing:border-box!important;
+}
+
+/* Knapper og slideInfo må ikke blæse topbaren op. */
+html.theme-glastavle .topbar button,
+html[data-tavle-theme="glastavle"] .topbar button,
+html.theme-flipover .topbar button,
+html[data-tavle-theme="flipover"] .topbar button,
+html.theme-smartboard .topbar button,
+html[data-tavle-theme="smartboard"] .topbar button{
+  padding:8px 10px!important;
+  min-height:40px!important;
+  height:40px!important;
+  border-radius:10px!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+}
+
+html.theme-glastavle .topbar #slideInfo,
+html[data-tavle-theme="glastavle"] .topbar #slideInfo,
+html.theme-flipover .topbar #slideInfo,
+html[data-tavle-theme="flipover"] .topbar #slideInfo,
+html.theme-smartboard .topbar #slideInfo,
+html[data-tavle-theme="smartboard"] .topbar #slideInfo{
+  min-width:40px!important;
+  min-height:40px!important;
+  height:40px!important;
+  padding:0 6px!important;
+  border-radius:10px!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+}
+
+/* Zoomfeltet komprimeres, især i de mørke/lyse redesign-topbars. */
+html.theme-glastavle .safe453BoardZoomControls .safe453BoardZoomPct,
+html[data-tavle-theme="glastavle"] .safe453BoardZoomControls .safe453BoardZoomPct,
+html.theme-flipover .safe453BoardZoomControls .safe453BoardZoomPct,
+html[data-tavle-theme="flipover"] .safe453BoardZoomControls .safe453BoardZoomPct,
+html.theme-smartboard .safe453BoardZoomControls .safe453BoardZoomPct,
+html[data-tavle-theme="smartboard"] .safe453BoardZoomControls .safe453BoardZoomPct{
+  min-height:40px!important;
+  height:40px!important;
+  padding:0 6px!important;
+  min-width:auto!important;
+  line-height:1!important;
+  font-size:16px!important;
+}
+
+/* + tavle må gerne være lidt tydeligere, men stadig kompakt. */
+html.theme-glastavle .topbar #addSlide,
+html[data-tavle-theme="glastavle"] .topbar #addSlide,
+html.theme-flipover .topbar #addSlide,
+html[data-tavle-theme="flipover"] .topbar #addSlide,
+html.theme-smartboard .topbar #addSlide,
+html[data-tavle-theme="smartboard"] .topbar #addSlide{
+  min-width:80px!important;
+  height:40px!important;
+  padding-left:12px!important;
+  padding-right:12px!important;
+}
+
+/* Temaernes tidligere store runde topbar-look dæmpes en anelse. */
+html.theme-smartboard .topbar,
+html[data-tavle-theme="smartboard"] .topbar{
+  box-shadow:0 0 20px rgba(56,189,248,.10),0 14px 30px rgba(2,6,23,.28)!important;
+}
+html.theme-flipover .topbar,
+html[data-tavle-theme="flipover"] .topbar{
+  box-shadow:0 7px 0 rgba(120,53,15,.08),0 14px 28px rgba(120,53,15,.12)!important;
+}
+html.theme-glastavle .topbar,
+html[data-tavle-theme="glastavle"] .topbar{
+  box-shadow:0 10px 22px rgba(15,23,42,.12)!important;
+}
+
+/* Sikkerhed: Zoom-kontroller i topbaren må ikke få ekstra luft af flex. */
+html.theme-glastavle .topbar .safe453BoardZoomControls,
+html[data-tavle-theme="glastavle"] .topbar .safe453BoardZoomControls,
+html.theme-flipover .topbar .safe453BoardZoomControls,
+html[data-tavle-theme="flipover"] .topbar .safe453BoardZoomControls,
+html.theme-smartboard .topbar .safe453BoardZoomControls,
+html[data-tavle-theme="smartboard"] .topbar .safe453BoardZoomControls{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:6px!important;
+}
+
+/* Mobil: hold samme logik. */
+@media (max-width:760px){
+  html.theme-glastavle .topbar,
+  html[data-tavle-theme="glastavle"] .topbar,
+  html.theme-flipover .topbar,
+  html[data-tavle-theme="flipover"] .topbar,
+  html.theme-smartboard .topbar,
+  html[data-tavle-theme="smartboard"] .topbar{
+    padding:5px!important;
+    gap:5px!important;
+  }
+  html.theme-glastavle .topbar button,
+  html[data-tavle-theme="glastavle"] .topbar button,
+  html.theme-flipover .topbar button,
+  html[data-tavle-theme="flipover"] .topbar button,
+  html.theme-smartboard .topbar button,
+  html[data-tavle-theme="smartboard"] .topbar button,
+  html.theme-glastavle .topbar #slideInfo,
+  html[data-tavle-theme="glastavle"] .topbar #slideInfo,
+  html.theme-flipover .topbar #slideInfo,
+  html[data-tavle-theme="flipover"] .topbar #slideInfo,
+  html.theme-smartboard .topbar #slideInfo,
+  html[data-tavle-theme="smartboard"] .topbar #slideInfo{
+    min-height:36px!important;
+    height:36px!important;
+    min-width:36px!important;
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+  html.theme-glastavle .topbar #addSlide,
+  html[data-tavle-theme="glastavle"] .topbar #addSlide,
+  html.theme-flipover .topbar #addSlide,
+  html[data-tavle-theme="flipover"] .topbar #addSlide,
+  html.theme-smartboard .topbar #addSlide,
+  html[data-tavle-theme="smartboard"] .topbar #addSlide{
+    min-width:72px!important;
+  }
+}
+</style>
+<!-- TAVLE COMPACT TOPBAR PATCH v25 END -->
+
+
+<!-- TAVLE GLASTAVLE TITLE SIZE PATCH v26 START -->
+<style id="tavle-glastavle-title-size-v26-css">
+/* v26: Kun lille størrelsesjustering af GlasTavles tavletitel.
+   Bygger på v25. Ingen JS, ingen modal-flow. */
+
+html.theme-glastavle #title,
+html[data-tavle-theme="glastavle"] #title{
+  font-size:clamp(20px,1.9vw,27px)!important;
+  min-height:50px!important;
+  padding-top:10px!important;
+  padding-bottom:10px!important;
+}
+@media (max-width:760px){
+  html.theme-glastavle #title,
+  html[data-tavle-theme="glastavle"] #title{
+    font-size:clamp(19px,4.6vw,24px)!important;
+    min-height:48px!important;
+  }
+}
+</style>
+<!-- TAVLE GLASTAVLE TITLE SIZE PATCH v26 END -->
+
+
+<!-- TAVLE GLASTAVLE TITLE SAME AS FLIPOVER PATCH v27 START -->
+<style id="tavle-glastavle-title-same-as-flipover-v27-css">
+/* v27: GlasTavle skal bruge samme tavletitel-tekstmetrik som FlipOver.
+   Kun lokal patch. Bygger på v26. */
+
+html.theme-glastavle #title,
+html[data-tavle-theme="glastavle"] #title{
+  font-size:clamp(18px,1.7vw,25px)!important;
+  font-weight:850!important;
+  letter-spacing:-.03em!important;
+  line-height:1.1!important;
+  min-height:48px!important;
+  padding-top:10px!important;
+  padding-bottom:10px!important;
+}
+
+@media (max-width:760px){
+  html.theme-glastavle #title,
+  html[data-tavle-theme="glastavle"] #title{
+    font-size:18px!important;
+    min-height:46px!important;
+  }
+}
+</style>
+<!-- TAVLE GLASTAVLE TITLE SAME AS FLIPOVER PATCH v27 END -->
+
+
+<!-- TAVLE GLASTAVLE TITLE REAL FLIPOVER SIZE PATCH v28 START -->
+<style id="tavle-glastavle-title-real-flipover-size-v28-css">
+/* v28: Retter v27.
+   FlipOver arver den oprindelige titelstørrelse fra baselayoutet.
+   Derfor sættes GlasTavles tavletitel til samme reelle størrelse i stedet for presentation-clamp.
+   Kun GlasTavle-titel. Ingen JS, ingen modal-flow. */
+
+html.theme-glastavle #title,
+html[data-tavle-theme="glastavle"] #title{
+  font-size:24px!important;
+  font-weight:700!important;
+  line-height:1.05!important;
+  letter-spacing:0!important;
+  min-height:auto!important;
+  padding-top:10px!important;
+  padding-bottom:10px!important;
+}
+
+@media (max-width:800px){
+  html.theme-glastavle #title,
+  html[data-tavle-theme="glastavle"] #title{
+    font-size:24px!important;
+  }
+}
+
+@media (max-width:520px){
+  html.theme-glastavle #title,
+  html[data-tavle-theme="glastavle"] #title{
+    font-size:22px!important;
+  }
+}
+</style>
+<!-- TAVLE GLASTAVLE TITLE REAL FLIPOVER SIZE PATCH v28 END -->
+
 </body></html>
