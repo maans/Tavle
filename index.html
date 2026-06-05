@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="da">
 <head>
+<!-- l551-pdf-toolbar-actual-higher-narrow: Retter l550-fejl hvor CSS endte i en indlejret HTML-template. PDF-toolbar CSS lægges nu ved faktisk dokument-slut; toolbaren løftes, komprimeres og gøres transparent uden JS/render/dataændringer. -->
+
 <!-- l540-linkwidget-clean-linkbar: Kirurgisk UX-oprydning: LinkWidgettens indholds-bjælke viser kun den koblede 🔗 Liste-status; Vælg link, + og Gem flyttes til ☰-dropdownen i widgetbjælken. -->
 <!-- l539-linkwidget-datakilde-restore: Kirurgisk fix: LinkWidgettens 🔗-status kan igen åbne den koblede linkliste som datawidget; hvis widgetten mangler, genskabes den fra datasættet og koblingen repareres. -->
 <!-- l538-linkwidget-linkdropdown: Kirurgisk fix: ☰ i LinkWidget åbner nu dropdown med links fra den koblede linkliste i både link- og iframevisning. Skift linkliste bevares som sekundær dropdown-handling. -->
@@ -160,7 +162,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.69 l545-kalender-dagbog</title>
+<title>Interaktiv tavle v1.2.74 l556-pdf-answers-autodata-exit</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -18634,6 +18636,18 @@ function safe455uH102IsPdfFormEditAllowed(w){
   }catch(_e){}
   return !!(w&&w.data&&w.data.pdfInteractive===true);
 }
+
+/* l555: Rigtige PDF-inputfelter skal være til stede allerede før visuel "Udfyld"-tilstand.
+   På iPad åbner tastaturet kun stabilt, når brugeren tapper et faktisk inputfelt
+   direkte – ikke når et senere async re-render forsøger at fokusere feltet. */
+function safe455uH102CanRenderPdfFormFields(w){
+  try{
+    const appEl=document.getElementById('app');
+    if(appEl&&appEl.classList&&appEl.classList.contains('present'))return false;
+    if(document.body&&document.body.classList&&(document.body.classList.contains('focus-edit')||document.body.classList.contains('focus-presentation')))return false;
+  }catch(_e){}
+  return !!(w&&w.data);
+}
 function safe455uH102PdfRectStyle(viewport,rect){
   try{
     const r=viewport.convertToViewportRectangle(rect||[0,0,0,0]);
@@ -18654,7 +18668,10 @@ function safe455uH102SavePdfFormValue(w,key,value){
   const data=safe455uH102EnsurePdfFormData(w);
   data[String(key)]=value;
   w.data.pdfFormUpdatedAt=(new Date()).toISOString();
-  try{safe455uH103SyncPdfAnswersDataset(w,{silent:true});}catch(_e){}
+  /* l556: PDF-svar skal ikke først kræve manuel "Svar/Data"-handling.
+     Ved første reelle indtastning oprettes/synkroniseres en rigtig DataWidget,
+     så svarene kan findes og kobles på samme måde som øvrige Tavle-data. */
+  try{safe556SchedulePdfAnswersAutoDataWidget(w);}catch(_e){try{safe455uH103SyncPdfAnswersDataset(w,{silent:true});}catch(__e){}}
   try{save();}catch(_e){}
 }
 function safe455uH104CollapsePdfControls(w,c){
@@ -19079,9 +19096,10 @@ function safe455uH129GoDemoPdfPage(w,c,pageNo){
 
 async function safe455uH102RenderPdfFormOverlay(w,page,viewport,viewer,wrap){
   if(!w||!page||!viewport||!viewer||!wrap)return;
-  const active=safe455uH102IsPdfFormEditAllowed(w);
+  const formUiActive=safe455uH102IsPdfFormEditAllowed(w);
+  const active=safe455uH102CanRenderPdfFormFields(w);
   const content=viewer.closest&&viewer.closest('.content.pdf');
-  if(content&&content.classList)content.classList.toggle('pdfFormActive',active);
+  if(content&&content.classList)content.classList.toggle('pdfFormActive',formUiActive);
   let overlay=wrap.querySelector('.pdfFormOverlay');
   if(!overlay){overlay=document.createElement('div');overlay.className='pdfFormOverlay';wrap.appendChild(overlay);}else overlay.innerHTML='';
   // v16: PDF-flade-toggle må kun ske én gang pr. tap/klik.
@@ -19104,6 +19122,24 @@ async function safe455uH102RenderPdfFormOverlay(w,page,viewport,viewer,wrap){
     }
   },true);
   const saved=safe455uH102EnsurePdfFormData(w);
+  function safe455uH102MarkPdfFieldEditing(){
+    try{
+      if(w&&w.data&&w.data.pdfInteractive!==true){
+        w.data.pdfInteractive=true;
+        try{save();}catch(_e){}
+      }
+      if(content&&content.classList)content.classList.add('pdfFormActive');
+      const widgetEl=content&&content.closest?content.closest('.widget[data-type=\"pdf\"]'):null;
+      const btn=widgetEl&&widgetEl.querySelector?widgetEl.querySelector('.pdfFormToggle'):null;
+      if(btn){
+        btn.classList.add('pdfFormOn','active');
+        btn.setAttribute('aria-pressed','true');
+      }
+      safe455uH104CollapsePdfControls(w,content||viewer);
+    }catch(_e){
+      try{safe455uH104CollapsePdfControls(w,content||viewer);}catch(__e){}
+    }
+  }
   let annotations=[];
   try{annotations=await page.getAnnotations({intent:'display'});}catch(_e){annotations=[];}
   annotations=Array.isArray(annotations)?annotations:[];
@@ -19193,7 +19229,7 @@ async function safe455uH102RenderPdfFormOverlay(w,page,viewport,viewer,wrap){
           node.setAttribute('title',node.value||node.placeholder||'Spørgsmål');
           node.setAttribute('aria-label','PDF-spørgsmål. Klik for at læse/redigere længere tekst.');
         }
-        node.onfocus=function(){safe455uH104CollapsePdfControls(w,content||viewer);};
+        node.onfocus=function(){safe455uH102MarkPdfFieldEditing();};
         node.oninput=function(){safe455uH102SavePdfFormValue(w,key,node.value); if(safe464LongPdfText)node.setAttribute('title',node.value||node.placeholder||'Spørgsmål');};
       }
       fields++;
@@ -19223,7 +19259,7 @@ async function safe455uH102RenderPdfFormOverlay(w,page,viewport,viewer,wrap){
         node.value=exportVal;
         if(isRadio)node.checked=String(saved[a.fieldName||key]||a.fieldValue||'')===exportVal;
         else node.checked=(saved[key]!=null)?!!saved[key]:(String(a.fieldValue||'Off')!=='Off'&&String(a.fieldValue||'')!=='');
-        node.onfocus=function(){safe455uH104CollapsePdfControls(w,content||viewer);};
+        node.onfocus=function(){safe455uH102MarkPdfFieldEditing();};
         node.onchange=function(){safe455uH102SavePdfFormValue(w,isRadio?(a.fieldName||key):key,isRadio?node.value:!!node.checked);};
       }
       fields++;
@@ -19255,7 +19291,7 @@ async function safe455uH102RenderPdfFormOverlay(w,page,viewport,viewer,wrap){
           node.appendChild(o);
         });
         node.value=(saved[key]!=null)?String(saved[key]):String(a.fieldValue||'');
-        node.onfocus=function(){safe455uH104CollapsePdfControls(w,content||viewer);};
+        node.onfocus=function(){safe455uH102MarkPdfFieldEditing();};
         node.onchange=function(){safe455uH102SavePdfFormValue(w,key,node.value);};
       }
       fields++;
@@ -19362,6 +19398,66 @@ function safe455uH102PdfAnswersToDataset(w){
   try{toast('PDF-svar koblet som DataWidget');}catch(_e){}
   return ds;
 }
+/* l556: Automatisk DataWidget for PDF-svar.  Bruges ved indtastning,
+   men med lille debounce så første tastetryk ikke mister fokus på iPad. */
+function safe556SchedulePdfAnswersAutoDataWidget(w){
+  try{
+    if(!w||!w.data)return null;
+    if(w._safe556PdfAnswerTimer)clearTimeout(w._safe556PdfAnswerTimer);
+    w._safe556PdfAnswerTimer=setTimeout(function(){
+      try{safe556EnsurePdfAnswersAutoDataWidget(w,{silent:true});}catch(err){try{console.warn('l556 PDF auto DataWidget fejl',err);}catch(_e){}}
+    },260);
+  }catch(_e){}
+}
+function safe556EnsurePdfAnswersAutoDataWidget(w,opt){
+  opt=opt||{};
+  if(!w||!w.data)return null;
+  const data=safe455uH102EnsurePdfFormData(w);
+  const keys=Object.keys(data).filter(function(k){return data[k]!=null && String(data[k]).trim()!=='';});
+  if(!keys.length)return null;
+
+  let existingId=String(w.data.pdfFormDatasetId||w.data.sourceDatasetId||'').trim();
+  if(existingId){
+    try{return safe455uH103SyncPdfAnswersDataset(w,{silent:true});}catch(_e){}
+  }
+
+  const ds=safe455uH103BuildPdfAnswersDataset(w);
+  if(!ds)return null;
+  try{updateDatasetInState(ds);}catch(_e){try{addDataset(ds);}catch(__e){}}
+
+  let hit=null,dw=null;
+  try{hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null;}catch(_e){}
+  dw=hit&&hit.w;
+  if(!dw){
+    try{
+      const point={
+        x:Math.max(24,Math.min((Number(w.x)||140)+Math.min(Number(w.w)||520,360)+36,(window.innerWidth||1200)-720)),
+        y:Math.max(78,Math.min((Number(w.y)||130)+38,(window.innerHeight||800)-460))
+      };
+      dw=addDatasetWidget(ds,point);
+      try{if(dw&&dw.data){dw.data.sourceOpen=true;dw.data.sourceOpenedFromWidgetId=w.id;}}catch(_e){}
+    }catch(err){try{console.warn('l556 kunne ikke oprette PDF-svar-DataWidget',err);}catch(_e){}}
+  }else{
+    try{
+      dw.title='📊 '+(ds.name||'PDF-svar');
+      dw.data=dw.data||{};
+      dw.data.text=(typeof formatDatasetAsTextWidgetContent==='function')?formatDatasetAsTextWidgetContent(ds):dw.data.text;
+    }catch(_e){}
+  }
+
+  w.data.pdfFormDatasetId=String(ds.id||'');
+  w.data.pdfFormDatasetName=String(ds.name||'PDF-svar');
+  w.data.sourceDatasetId=String(ds.id||'');
+  w.data.sourceDatasetName=String(ds.name||'PDF-svar');
+  w.data.lastLocalDataWidgetSourceDatasetId=String(ds.id||'');
+  w.data.lastLocalDataWidgetSourceName=String(ds.name||'PDF-svar');
+  try{if(dw&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,{w:dw},'data',ds.name||'PDF-svar');}catch(_e){}
+  try{safe455uH103SyncPdfAnswersDataset(w,{silent:true});}catch(_e){}
+  try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+  if(!opt.silent)try{toast('PDF-svar gemt som DataWidget');}catch(_e){}
+  return ds;
+}
+
 function safe455uH103TogglePdfAnswersDataWidget(w){
   if(!w||!w.data)return null;
   const refId=String(w.data.pdfFormDatasetId||w.data.sourceDatasetId||'').trim();
@@ -61580,5 +61676,443 @@ html[data-tavle-theme="smartboard"] .topbar .safe453BoardZoomControls .safe453Bo
 }
 </style>
 <!-- TAVLE ZOOM PCT CENTERING PATCH v33 END -->
+
+
+
+<!-- l551 PDF toolbar actual final patch: CSS-only. Placeret ved den faktiske dokument-slut, ikke i en indlejret HTML-template. -->
+<style id="l551-pdf-toolbar-actual-higher-narrow-final">
+/* l551: Den tidligere l550-blok blev ved en fejl placeret i en HTML-template inde i JS og havde derfor ingen synlig effekt.
+   Denne blok ligger sidst i dokumentet og vinder over ældre PDF-toolbar-regler.
+   Kun layout/glas-CSS for PDF-værktøjslinjen ændres. Ingen PDF-rendering, formularfelter, sidevalg eller datakobling berøres. */
+html body .widget[data-type="pdf"] .content.pdf > .pdfControls,
+html body .widget[data-type="pdf"] .pdfControls{
+  top:0!important;
+  left:6px!important;
+  right:auto!important;
+  width:auto!important;
+  max-width:min(calc(100% - 12px), 520px)!important;
+  padding:3px 5px!important;
+  gap:3px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.50)!important;
+  border:1px solid rgba(203,213,225,.52)!important;
+  box-shadow:0 6px 16px rgba(15,23,42,.08)!important;
+  opacity:.78!important;
+  backdrop-filter:blur(13px)!important;
+  -webkit-backdrop-filter:blur(13px)!important;
+}
+html body .widget[data-type="pdf"].pdfControlsVisible .pdfControls,
+html body .widget[data-type="pdf"]:hover .pdfControls,
+html body .widget[data-type="pdf"] .pdfControls:focus-within{
+  opacity:.94!important;
+  background:rgba(255,255,255,.68)!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfRowCompact{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  gap:3px!important;
+  width:auto!important;
+  max-width:100%!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scrollbar-width:none!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfRowCompact::-webkit-scrollbar{
+  display:none!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfGroup{
+  flex:0 0 auto!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:3px!important;
+  padding:2px 3px!important;
+  border-radius:999px!important;
+  background:rgba(248,250,252,.46)!important;
+  border:1px solid rgba(226,232,240,.62)!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfCollapseGroup{
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+html body .widget[data-type="pdf"] .pdfControls button,
+html body .widget[data-type="pdf"] .pdfControls .pdfPageLabel,
+html body .widget[data-type="pdf"] .pdfControls .pdfZoomLabel,
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus,
+html body .widget[data-type="pdf"] .pdfControls [data-safe450-linked-status]{
+  min-height:22px!important;
+  height:22px!important;
+  padding:2px 6px!important;
+  border-radius:999px!important;
+  font-size:10.8px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  box-shadow:none!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfPageLabel{
+  min-width:46px!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfZoomLabel{
+  min-width:43px!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfPrev,
+html body .widget[data-type="pdf"] .pdfControls .pdfNext,
+html body .widget[data-type="pdf"] .pdfControls .pdfZoomOut,
+html body .widget[data-type="pdf"] .pdfControls .pdfZoomIn{
+  min-width:24px!important;
+  width:24px!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  font-size:13px!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfOpenModal,
+html body .widget[data-type="pdf"] .pdfControls .pdfDownload,
+html body .widget[data-type="pdf"] .pdfControls .pdfFormToggle,
+html body .widget[data-type="pdf"] .pdfControls .pdfFormDataExport{
+  padding-left:6px!important;
+  padding-right:6px!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfToolbarMiniToggle{
+  min-width:46px!important;
+  width:46px!important;
+  max-width:46px!important;
+  min-height:22px!important;
+  height:22px!important;
+  padding:2px 5px!important;
+  font-size:10.8px!important;
+  overflow:hidden!important;
+}
+html body .widget[data-type="pdf"] .pdfControls.pdfControlsCollapsed{
+  top:0!important;
+  left:6px!important;
+  width:auto!important;
+  max-width:50px!important;
+  padding:1px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.40)!important;
+  border-color:rgba(203,213,225,.44)!important;
+  opacity:.66!important;
+  box-shadow:0 5px 13px rgba(15,23,42,.07)!important;
+}
+html body .widget[data-type="pdf"].pdfControlsVisible .pdfControls.pdfControlsCollapsed,
+html body .widget[data-type="pdf"] .pdfControls.pdfControlsCollapsed:hover,
+html body .widget[data-type="pdf"] .pdfControls.pdfControlsCollapsed:focus-within{
+  opacity:.90!important;
+  background:rgba(255,255,255,.60)!important;
+}
+html body .widget[data-type="pdf"] .pdfControls.pdfControlsCollapsed .pdfRowCompact{
+  width:auto!important;
+  overflow:visible!important;
+}
+@media (max-width:760px){
+  html body .widget[data-type="pdf"] .content.pdf > .pdfControls,
+  html body .widget[data-type="pdf"] .pdfControls{
+    top:0!important;
+    left:5px!important;
+    max-width:min(calc(100% - 10px), 500px)!important;
+    padding:2px 4px!important;
+  }
+  html body .widget[data-type="pdf"] .pdfControls.pdfControlsCollapsed{
+    top:0!important;
+    left:5px!important;
+    max-width:50px!important;
+  }
+}
+
+
+/* l552-pdf-auto-edit-hintfade
+   - PDF-pile-hint flyttes ud af selve PDF-fladen og toner væk efter få sekunder.
+   - Udfyld-knappen holdes skjult: formularfelter aktiveres ved direkte klik i felterne.
+   - Kun visuel/UX-override; PDF-rendering og dataformat ændres ikke. */
+@keyframes l552PdfKeyboardHintFade{
+  0%{opacity:0;transform:translateY(-2px)}
+  10%{opacity:1;transform:translateY(0)}
+  72%{opacity:1;transform:translateY(0)}
+  100%{opacity:0;transform:translateY(8px)}
+}
+html body .widget[data-type="pdf"].pdfKeyboardActive::after{
+  bottom:-34px!important;
+  right:52px!important;
+  z-index:95!important;
+  font-size:11.5px!important;
+  padding:5px 9px!important;
+  opacity:0!important;
+  animation:l552PdfKeyboardHintFade 3.6s ease forwards!important;
+  box-shadow:0 6px 16px rgba(0,0,0,.18)!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfFormToggle{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .pdfFormGroup{
+  gap:0!important;
+}
+</style>
+
+
+<script id="l552-pdf-auto-edit-mode">
+/* l552: PDF-formularfelter redigeres direkte ved klik/tap.
+   Klik/tap uden for et redigerbart PDF-felt slår redigering fra igen.
+   Bevidst lagt som smalt UX-lag oven på eksisterende PDF-formularmotor. */
+(function(){
+  if(window.__l552PdfAutoEditMode)return;
+  window.__l552PdfAutoEditMode=true;
+
+  var lastTouchAt=0;
+  function cssEsc(v){try{return CSS.escape(String(v));}catch(_e){return String(v).replace(/[^a-zA-Z0-9_-]/g,'\\$&');}}
+  function pdfWidgetElFrom(node){try{return node&&node.closest&&node.closest('.widget[data-type="pdf"][data-id]');}catch(_e){return null;}}
+  function pdfContentFrom(node){try{return node&&node.closest&&node.closest('.content.pdf');}catch(_e){return null;}}
+  function widgetFromEl(el){
+    try{
+      if(!el||!el.dataset)return null;
+      if(typeof findWidget==='function')return findWidget(el.dataset.id);
+      if(typeof slide==='function')return (slide().widgets||[]).find(function(w){return String(w.id)===String(el.dataset.id);})||null;
+    }catch(_e){}
+    return null;
+  }
+  function syncVisual(el,on){
+    try{
+      if(!el)return;
+      var c=el.querySelector('.content.pdf');
+      if(c&&c.classList)c.classList.toggle('pdfFormActive',!!on);
+      var b=el.querySelector('.pdfFormToggle');
+      if(b){
+        b.classList.toggle('pdfFormOn',!!on);
+        b.classList.toggle('active',!!on);
+        b.setAttribute('aria-pressed',on?'true':'false');
+      }
+    }catch(_e){}
+  }
+  function focusFieldLater(id,key){
+    if(!id||!key)return;
+    [80,180,320].forEach(function(ms){
+      setTimeout(function(){
+        try{
+          var el=document.querySelector('.widget[data-type="pdf"][data-id="'+cssEsc(id)+'"]');
+          var f=el&&el.querySelector('[data-pdf-form-key="'+cssEsc(key)+'"]');
+          if(f&&f.focus){f.focus({preventScroll:true}); if(f.select)f.select();}
+        }catch(_e){}
+      },ms);
+    });
+  }
+  function activateField(hot,e){
+    try{
+      var el=pdfWidgetElFrom(hot); if(!el)return false;
+      var w=widgetFromEl(el); if(!w)return false;
+      var c=pdfContentFrom(hot)||el.querySelector('.content.pdf');
+      var key=hot&&hot.getAttribute?String(hot.getAttribute('data-pdf-form-key')||''):'';
+      if(e){e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+      if(w.data){
+        w.data.pdfInteractive=true;
+        if(typeof safe455uH102EnsurePdfFormData==='function')safe455uH102EnsurePdfFormData(w);
+      }
+      if(typeof safe455uH104ActivatePdfFormAt==='function'){
+        safe455uH104ActivatePdfFormAt(w,c,key);
+      }else{
+        try{if(typeof safe455uH104CollapsePdfControls==='function')safe455uH104CollapsePdfControls(w,c);}catch(_e){}
+        try{if(typeof save==='function')save();}catch(_e){}
+        try{if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){}
+      }
+      syncVisual(el,true);
+      focusFieldLater(el.dataset.id,key);
+      return true;
+    }catch(_e){return false;}
+  }
+  function deactivatePdf(el){
+    try{
+      var w=widgetFromEl(el); if(!w||!w.data||w.data.pdfInteractive!==true)return false;
+      var c=el.querySelector('.content.pdf');
+      w.data.pdfInteractive=false;
+      try{if(typeof save==='function')save();}catch(_e){}
+      syncVisual(el,false);
+      try{if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){}
+      return true;
+    }catch(_e){return false;}
+  }
+  function deactivateAllExcept(exceptEl){
+    try{
+      document.querySelectorAll('.widget[data-type="pdf"][data-id]').forEach(function(el){
+        if(exceptEl&&String(exceptEl.dataset.id)===String(el.dataset.id))return;
+        deactivatePdf(el);
+      });
+    }catch(_e){}
+  }
+  function isPdfUi(t){
+    try{return !!(t&&t.closest&&t.closest('.pdfControls,.pdfPagePickerPopover,.pdfEdgeNav,.chrome,.mini,.resize,.rotater,button.pdfToolbarMiniToggle,button.pdfOpenModal'))}catch(_e){return false;}
+  }
+  function isEditablePdfTarget(t){
+    try{return !!(t&&t.closest&&t.closest('.pdfFormField,.pdfFormActivator'))}catch(_e){return false;}
+  }
+  function handlePointer(e){
+    try{
+      if(e.type==='touchstart')lastTouchAt=Date.now();
+      if((e.type==='mousedown'||e.type==='pointerdown') && Date.now()-lastTouchAt<650)return;
+      var t=e.target;
+      if(!t||!t.closest)return;
+
+      var hot=t.closest('.pdfFormActivator');
+      if(hot){activateField(hot,e);return false;}
+
+      var field=t.closest('.pdfFormField');
+      if(field){
+        var el=pdfWidgetElFrom(field);
+        if(el){
+          var w=widgetFromEl(el);
+          if(w&&w.data&&w.data.pdfInteractive!==true){
+            w.data.pdfInteractive=true;
+            try{if(typeof save==='function')save();}catch(_e){}
+          }
+          syncVisual(el,true);
+          deactivateAllExcept(el);
+        }
+        return;
+      }
+
+      if(isPdfUi(t))return;
+      if(t.closest('.pdfFormLink'))return;
+
+      var pdfEl=pdfWidgetElFrom(t);
+      if(pdfEl){
+        /* Klik/tap i PDF-fladen, men ikke i et felt: forlad formularredigering. */
+        if(!isEditablePdfTarget(t))deactivatePdf(pdfEl);
+        return;
+      }
+
+      /* Klik/tap uden for PDF-widgetten: forlad formularredigering i alle PDF'er. */
+      deactivateAllExcept(null);
+    }catch(_e){}
+  }
+
+  ['pointerdown','touchstart','mousedown'].forEach(function(ev){
+    window.addEventListener(ev,handlePointer,true);
+  });
+})();
+</script>
+
+
+<!-- l554-pdf-autofields-tabfix: Reparerer PDF-auto-redigering ved at lade formularoverlayet modtage klik også før Udfyld-tilstand. Tab/Shift+Tab cykler mellem synlige PDF-felter. -->
+<!-- l556-pdf-answers-autodata-exit: PDF-svar opretter/synkroniserer automatisk en rigtig DataWidget ved indtastning. Klik uden for PDF-felt slår formularredigering visuelt fra og fjerner fokus. -->
+<!-- l555-pdf-true-fields-tab-input: PDF-formularfelter renderes som rigtige inputfelter i redigeringstilstand, så iPad kan åbne tastatur/indtaste direkte. Visuel redigering slås stadig til/fra ved fokus/klik udenfor. -->
+<style id="l554-pdf-autofields-tabfix-css">
+/* Inaktivt PDF-formularoverlay skal stadig kunne fange klik på felterne.
+   Før var pointer-events kun aktivt efter pdfFormActive, så de synlige feltrammer kunne ikke starte redigering. */
+html body .widget[data-type="pdf"] .content.pdf .pdfFormOverlay{
+  pointer-events:auto!important;
+}
+html body .widget[data-type="pdf"] .content.pdf .pdfFormOverlay .pdfFormActivator,
+html body .widget[data-type="pdf"] .content.pdf .pdfFormOverlay .pdfFormField,
+html body .widget[data-type="pdf"] .content.pdf .pdfFormOverlay .pdfFormLink{
+  pointer-events:auto!important;
+}
+html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator{
+  background:rgba(96,165,250,.035)!important;
+  border-color:rgba(37,99,235,.24)!important;
+}
+html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
+  outline:2px solid rgba(109,93,252,.42)!important;
+  outline-offset:1px!important;
+}
+</style>
+
+<script id="l554-pdf-autofields-tabfix">
+(function(){
+  if(window.__l554PdfAutoFieldsTabFix)return;
+  window.__l554PdfAutoFieldsTabFix=true;
+
+  function isVisible(el){
+    try{
+      if(!el||el.disabled)return false;
+      var r=el.getBoundingClientRect();
+      var cs=getComputedStyle(el);
+      return r.width>0&&r.height>0&&cs.display!=='none'&&cs.visibility!=='hidden'&&cs.pointerEvents!=='none';
+    }catch(_e){return false;}
+  }
+  function fieldListFrom(field){
+    try{
+      var overlay=field&&field.closest&&field.closest('.pdfFormOverlay');
+      if(!overlay)return [];
+      return Array.prototype.slice.call(overlay.querySelectorAll('.pdfFormField'))
+        .filter(isVisible)
+        .sort(function(a,b){
+          var ta=Number(a.tabIndex||0),tb=Number(b.tabIndex||0);
+          if(ta!==tb)return ta-tb;
+          var pa=a.compareDocumentPosition(b);
+          return (pa&Node.DOCUMENT_POSITION_FOLLOWING)?-1:1;
+        });
+    }catch(_e){return [];}
+  }
+  function focusField(field){
+    try{
+      if(!field||!field.focus)return;
+      field.focus({preventScroll:true});
+      var tag=String(field.tagName||'').toLowerCase();
+      if(tag==='input' && String(field.type||'text')==='text' && field.select)field.select();
+    }catch(_e){try{field.focus();}catch(__e){}}
+  }
+
+  /* Tab skal skifte mellem PDF-felter, ikke ramme Tavle-genveje eller browserens næste kontrol. */
+  document.addEventListener('keydown',function(e){
+    try{
+      if(String(e.key||'')!=='Tab')return;
+      var field=e.target&&e.target.closest&&e.target.closest('.widget[data-type="pdf"] .pdfFormField');
+      if(!field)return;
+      var fields=fieldListFrom(field);
+      if(fields.length<2)return;
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      var i=fields.indexOf(field);
+      var dir=e.shiftKey?-1:1;
+      var next=fields[(i+dir+fields.length)%fields.length];
+      focusField(next);
+      return false;
+    }catch(_e){}
+  },true);
+})();
+</script>
+
+
+
+<!-- l556-pdf-edit-exit-visual: Klik uden for PDF-felt forlader formularredigering visuelt og fjerner tekstfokus. -->
+<script id="l556-pdf-edit-exit-visual">
+(function(){
+  if(window.__l556PdfEditExitVisual)return;
+  window.__l556PdfEditExitVisual=true;
+  function pdfWidgetFrom(node){try{return node&&node.closest&&node.closest('.widget[data-type="pdf"][data-id]');}catch(_e){return null;}}
+  function widgetFromEl(el){try{if(!el||!el.dataset)return null;if(typeof findWidget==='function')return findWidget(el.dataset.id);if(typeof slide==='function')return (slide().widgets||[]).find(function(w){return String(w.id)===String(el.dataset.id);})||null;}catch(_e){}return null;}
+  function setPdfEditVisual(el,on){
+    try{
+      if(!el)return;
+      var w=widgetFromEl(el);
+      var c=el.querySelector('.content.pdf');
+      if(w&&w.data)w.data.pdfInteractive=!!on;
+      if(c&&c.classList)c.classList.toggle('pdfFormActive',!!on);
+      el.classList.toggle('pdfFormEditing',!!on);
+      var btn=el.querySelector('.pdfFormToggle');
+      if(btn){btn.classList.toggle('pdfFormOn',!!on);btn.classList.toggle('active',!!on);btn.setAttribute('aria-pressed',on?'true':'false');}
+      if(!on){var active=document.activeElement;if(active&&active.closest&&active.closest('.widget[data-type="pdf"]')===el&&active.blur)active.blur();}
+      try{if(typeof save==='function')save({silent:true});}catch(_e){try{if(typeof save==='function')save();}catch(__e){}}
+    }catch(_e){}
+  }
+  function deactivateOthers(except){try{document.querySelectorAll('.widget[data-type="pdf"][data-id]').forEach(function(el){if(except&&String(except.dataset.id)===String(el.dataset.id))return;setPdfEditVisual(el,false);});}catch(_e){}}
+  function isPdfField(t){try{return !!(t&&t.closest&&t.closest('.pdfFormField,.pdfFormActivator'));}catch(_e){return false;}}
+  function isPdfControl(t){try{return !!(t&&t.closest&&t.closest('.pdfControls,.pdfPagePickerPopover,.pdfEdgeNav,.chrome,.mini,.resize,.rotater,button,a,select'));}catch(_e){return false;}}
+  function handlePointer(e){
+    try{
+      var t=e.target;if(!t||!t.closest)return;
+      var field=t.closest('.pdfFormField,.pdfFormActivator');
+      if(field){var fel=pdfWidgetFrom(field);if(fel){setPdfEditVisual(fel,true);deactivateOthers(fel);}return;}
+      if(isPdfControl(t))return;
+      var pdfEl=pdfWidgetFrom(t);
+      if(pdfEl){if(!isPdfField(t))setPdfEditVisual(pdfEl,false);return;}
+      deactivateOthers(null);
+    }catch(_e){}
+  }
+  ['pointerdown','mousedown','touchstart'].forEach(function(ev){document.addEventListener(ev,handlePointer,true);});
+})();
+</script>
 
 </body></html>
