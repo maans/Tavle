@@ -12620,6 +12620,27 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
 </head>
 <body>
 
+<script id="tavle-arrow-textnode-cleaner-v32">
+/* v32: Fjern kun synlige kommentar-rester som direkte tekstnoder: -> eller -->.
+   Rører ikke appens elementer, widgets, modaler eller scripts. */
+(function(){
+  function cleanArrowTextNodes(){
+    try{
+      var nodes=[];
+      document.body && document.body.childNodes && document.body.childNodes.forEach(function(n){
+        if(n && n.nodeType===3 && /^\s*-{1,2}>\s*$/.test(n.nodeValue||'')) nodes.push(n);
+      });
+      nodes.forEach(function(n){ try{ n.parentNode && n.parentNode.removeChild(n); }catch(_e){} });
+    }catch(_e){}
+  }
+  cleanArrowTextNodes();
+  document.addEventListener('DOMContentLoaded', cleanArrowTextNodes, {once:true});
+  setTimeout(cleanArrowTextNodes, 50);
+  setTimeout(cleanArrowTextNodes, 300);
+})();
+</script>
+
+
 <script id="safe455-early-fullscreen-shift-enter-guard">
 /*
 SAFE455 EARLY FULLSCREEN SHIFT+ENTER GUARD
@@ -61200,5 +61221,289 @@ html[data-tavle-theme="glastavle"] #title{
 }
 </style>
 <!-- TAVLE GLASTAVLE TITLE REAL FLIPOVER SIZE PATCH v28 END -->
+
+
+<!-- TAVLE SMARTBOARD STORAGE/MEDIA REAL CONTRAST PATCH v30 START -->
+<style id="tavle-smartboard-storage-media-real-contrast-v30-css">
+/* v30: SmartBoard læsbarhed i Oprydning/localStorage og IndexedDB-medier.
+   Bygger fra v28, ikke fra den mislykkede v29.
+   Kun CSS + fjernelse af synlig kommentarrest i toppen.
+   Ingen JS, ingen modal-flow, ingen z-index, ingen pointer-events. */
+
+/* Først: meget praktisk regel for SmartBoard-modaler:
+   Lyse paneler inde i en mørk modal skal have mørk tekst, også når de ikke har de forventede klassenavne. */
+html.theme-smartboard .modal :is(
+  table, thead, tbody, tr, th, td,
+  .card, .panel, .box, .row, .item,
+  .grid > div,
+  .stats > div,
+  .summary > div
+),
+html[data-tavle-theme="smartboard"] .modal :is(
+  table, thead, tbody, tr, th, td,
+  .card, .panel, .box, .row, .item,
+  .grid > div,
+  .stats > div,
+  .summary > div
+){
+  color:#111827;
+}
+
+/* Når elementet eller forælderen faktisk er lyst, tvinges tekstfarven mørk.
+   :has() bruges kun som visuel CSS-regel; ingen app-logik ændres. */
+html.theme-smartboard .modal :is(div,section,article,table,thead,tbody,tr,th,td,button,label,span,p,b,strong,small)
+:is([style*="background:white"],[style*="background: white"],[style*="background:#fff"],[style*="background: #fff"],[style*="background:#f"],[style*="background: #f"]),
+html[data-tavle-theme="smartboard"] .modal :is(div,section,article,table,thead,tbody,tr,th,td,button,label,span,p,b,strong,small)
+:is([style*="background:white"],[style*="background: white"],[style*="background:#fff"],[style*="background: #fff"],[style*="background:#f"],[style*="background: #f"]){
+  color:#111827!important;
+  opacity:1!important;
+}
+
+/* Oprydning: modal med teksten “Ryd gamle localStorage-data”.
+   De aktuelle listefelter er genereret med almindelige div/table-lignende rækker,
+   så vi rammer bredt inde i den modal uden at ændre modalens mørke ramme. */
+html.theme-smartboard .modal:has(h2, h3) :is(table, thead, tbody, tr, th, td),
+html[data-tavle-theme="smartboard"] .modal:has(h2, h3) :is(table, thead, tbody, tr, th, td){
+  color:#111827!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal:has(h2, h3) :is(
+  .cleanupList,.cleanupRows,.cleanupRow,
+  .storageList,.storageRows,.storageRow,
+  .localStorageList,.localStorageRows,.localStorageRow,
+  .safe453StorageList,.safe453StorageRows,.safe453StorageRow,
+  .safe453StorageTable,.safe453StorageCard,
+  .backupList,.backupRows,.backupRow
+),
+html[data-tavle-theme="smartboard"] .modal:has(h2, h3) :is(
+  .cleanupList,.cleanupRows,.cleanupRow,
+  .storageList,.storageRows,.storageRow,
+  .localStorageList,.localStorageRows,.localStorageRow,
+  .safe453StorageList,.safe453StorageRows,.safe453StorageRow,
+  .safe453StorageTable,.safe453StorageCard,
+  .backupList,.backupRows,.backupRow
+){
+  background:#f8fafc!important;
+  color:#111827!important;
+  border-color:#dbeafe!important;
+}
+
+html.theme-smartboard .modal:has(h2, h3) :is(
+  .cleanupList,.cleanupRows,.cleanupRow,
+  .storageList,.storageRows,.storageRow,
+  .localStorageList,.localStorageRows,.localStorageRow,
+  .safe453StorageList,.safe453StorageRows,.safe453StorageRow,
+  .safe453StorageTable,.safe453StorageCard,
+  .backupList,.backupRows,.backupRow
+) *,
+html[data-tavle-theme="smartboard"] .modal:has(h2, h3) :is(
+  .cleanupList,.cleanupRows,.cleanupRow,
+  .storageList,.storageRows,.storageRow,
+  .localStorageList,.localStorageRows,.localStorageRow,
+  .safe453StorageList,.safe453StorageRows,.safe453StorageRow,
+  .safe453StorageTable,.safe453StorageCard,
+  .backupList,.backupRows,.backupRow
+) *{
+  color:#111827!important;
+  opacity:1!important;
+}
+
+/* Fallback til Oprydningstabellens hvide listeområde:
+   Hvis en SmartBoard-modal har større lyse beholdere, skal alt tekst derinde være mørk. */
+html.theme-smartboard .modal :is(div,section,article):has(input[type="checkbox"]) ,
+html[data-tavle-theme="smartboard"] .modal :is(div,section,article):has(input[type="checkbox"]){
+  color:#111827!important;
+}
+html.theme-smartboard .modal :is(div,section,article):has(input[type="checkbox"]) *,
+html[data-tavle-theme="smartboard"] .modal :is(div,section,article):has(input[type="checkbox"]) *{
+  color:#111827!important;
+  opacity:1!important;
+}
+
+/* Men selve modalens overskrift og brødtekst udenfor lyse paneler skal stadig være lys. */
+html.theme-smartboard .modal > h2,
+html.theme-smartboard .modal > h3,
+html.theme-smartboard .modal > p,
+html.theme-smartboard .modal > .modalHeader,
+html.theme-smartboard .modal > .modalTitle,
+html[data-tavle-theme="smartboard"] .modal > h2,
+html[data-tavle-theme="smartboard"] .modal > h3,
+html[data-tavle-theme="smartboard"] .modal > p,
+html[data-tavle-theme="smartboard"] .modal > .modalHeader,
+html[data-tavle-theme="smartboard"] .modal > .modalTitle{
+  color:#e0f2fe!important;
+  opacity:1!important;
+}
+
+/* Medier: de hvide mediepaneler/kort/tabeller skal være mørke i tekst. */
+html.theme-smartboard .modal :is(
+  .mediaActions,.mediaStats,.mediaTable,.mediaGrid,.mediaList,.mediaRows,.mediaRow,.mediaCard,
+  .mediaArchive,.mediaArchiveList,.mediaArchiveRows,.mediaArchiveRow,.mediaArchiveCard,
+  .h63Card,.h63Table,.h63Grid,.h63Rows,.h63Row,
+  .l41Card,.l41Table,.l41Grid,.l41Rows,.l41Row,
+  .safe453MediaCard,.safe453MediaTable,.safe453MediaGrid,.safe453MediaRows,.safe453MediaRow
+),
+html[data-tavle-theme="smartboard"] .modal :is(
+  .mediaActions,.mediaStats,.mediaTable,.mediaGrid,.mediaList,.mediaRows,.mediaRow,.mediaCard,
+  .mediaArchive,.mediaArchiveList,.mediaArchiveRows,.mediaArchiveRow,.mediaArchiveCard,
+  .h63Card,.h63Table,.h63Grid,.h63Rows,.h63Row,
+  .l41Card,.l41Table,.l41Grid,.l41Rows,.l41Row,
+  .safe453MediaCard,.safe453MediaTable,.safe453MediaGrid,.safe453MediaRows,.safe453MediaRow
+){
+  background:#f8fafc!important;
+  color:#111827!important;
+  border-color:#dbeafe!important;
+}
+
+html.theme-smartboard .modal :is(
+  .mediaActions,.mediaStats,.mediaTable,.mediaGrid,.mediaList,.mediaRows,.mediaRow,.mediaCard,
+  .mediaArchive,.mediaArchiveList,.mediaArchiveRows,.mediaArchiveRow,.mediaArchiveCard,
+  .h63Card,.h63Table,.h63Grid,.h63Rows,.h63Row,
+  .l41Card,.l41Table,.l41Grid,.l41Rows,.l41Row,
+  .safe453MediaCard,.safe453MediaTable,.safe453MediaGrid,.safe453MediaRows,.safe453MediaRow
+) *,
+html[data-tavle-theme="smartboard"] .modal :is(
+  .mediaActions,.mediaStats,.mediaTable,.mediaGrid,.mediaList,.mediaRows,.mediaRow,.mediaCard,
+  .mediaArchive,.mediaArchiveList,.mediaArchiveRows,.mediaArchiveRow,.mediaArchiveCard,
+  .h63Card,.h63Table,.h63Grid,.h63Rows,.h63Row,
+  .l41Card,.l41Table,.l41Grid,.l41Rows,.l41Row,
+  .safe453MediaCard,.safe453MediaTable,.safe453MediaGrid,.safe453MediaRows,.safe453MediaRow
+) *{
+  color:#111827!important;
+  opacity:1!important;
+}
+
+/* Mediernes knapper i lyse paneler må godt være nedtonede, men skal kunne læses. */
+html.theme-smartboard .modal .mediaActions button,
+html[data-tavle-theme="smartboard"] .modal .mediaActions button{
+  color:#111827!important;
+  opacity:1!important;
+}
+
+/* Rød advarselsboks nederst i oprydning skal også være læsbar. */
+html.theme-smartboard .modal :is(.danger,.warning,.resetBox,.factoryReset,.factoryResetBox),
+html[data-tavle-theme="smartboard"] .modal :is(.danger,.warning,.resetBox,.factoryReset,.factoryResetBox){
+  color:#7f1d1d!important;
+}
+html.theme-smartboard .modal :is(.danger,.warning,.resetBox,.factoryReset,.factoryResetBox) *,
+html[data-tavle-theme="smartboard"] .modal :is(.danger,.warning,.resetBox,.factoryReset,.factoryResetBox) *{
+  color:inherit!important;
+  opacity:1!important;
+}
+</style>
+<!-- TAVLE SMARTBOARD STORAGE/MEDIA REAL CONTRAST PATCH v30 END -->
+
+
+<!-- TAVLE SMARTBOARD MEDIA EXACT CONTRAST PATCH v32 START -->
+<style id="tavle-smartboard-media-exact-contrast-v32-css">
+/* v32: SmartBoard IndexedDB-medier — præcis kontrast på de faktiske elementer.
+   Rammer safe454lActions, safe454lCards og safe454lList.
+   Ingen modal-flow, ingen z-index, ingen pointer-events. */
+
+html.theme-smartboard .modal .safe454lActions,
+html[data-tavle-theme="smartboard"] .modal .safe454lActions{
+  background:#f8fafc!important;
+  color:#111827!important;
+  border-color:#dbeafe!important;
+}
+
+html.theme-smartboard .modal .safe454lActions *,
+html[data-tavle-theme="smartboard"] .modal .safe454lActions *{
+  color:#111827!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lActions button,
+html[data-tavle-theme="smartboard"] .modal .safe454lActions button{
+  background:#eef2ff!important;
+  color:#111827!important;
+  border:1px solid #cbd5e1!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lActions button:disabled,
+html[data-tavle-theme="smartboard"] .modal .safe454lActions button:disabled{
+  background:#f1f5f9!important;
+  color:#475569!important;
+  border-color:#cbd5e1!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lCards,
+html[data-tavle-theme="smartboard"] .modal .safe454lCards{
+  color:#111827!important;
+}
+
+html.theme-smartboard .modal .safe454lCards > div,
+html[data-tavle-theme="smartboard"] .modal .safe454lCards > div{
+  background:#f8fafc!important;
+  color:#111827!important;
+  border:1px solid #dbeafe!important;
+  box-shadow:none!important;
+}
+
+html.theme-smartboard .modal .safe454lCards > div *,
+html[data-tavle-theme="smartboard"] .modal .safe454lCards > div *{
+  color:#111827!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lCards > div b,
+html[data-tavle-theme="smartboard"] .modal .safe454lCards > div b{
+  color:#0f172a!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lCards > div span,
+html[data-tavle-theme="smartboard"] .modal .safe454lCards > div span{
+  color:#2563eb!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lCards > div small,
+html[data-tavle-theme="smartboard"] .modal .safe454lCards > div small{
+  color:#334155!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lList,
+html[data-tavle-theme="smartboard"] .modal .safe454lList,
+html.theme-smartboard .modal .safe454lList details,
+html[data-tavle-theme="smartboard"] .modal .safe454lList details,
+html.theme-smartboard .modal .safe454lList table,
+html[data-tavle-theme="smartboard"] .modal .safe454lList table{
+  background:#ffffff!important;
+  color:#111827!important;
+  border-color:#dbeafe!important;
+}
+
+html.theme-smartboard .modal .safe454lList *,
+html[data-tavle-theme="smartboard"] .modal .safe454lList *{
+  color:#111827!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lList summary,
+html[data-tavle-theme="smartboard"] .modal .safe454lList summary{
+  color:#1d4ed8!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lList th,
+html[data-tavle-theme="smartboard"] .modal .safe454lList th{
+  color:#0f172a!important;
+  background:#ffffff!important;
+  opacity:1!important;
+}
+
+html.theme-smartboard .modal .safe454lList td,
+html[data-tavle-theme="smartboard"] .modal .safe454lList td{
+  color:#111827!important;
+  background:#ffffff!important;
+  opacity:1!important;
+}
+</style>
+<!-- TAVLE SMARTBOARD MEDIA EXACT CONTRAST PATCH v32 END -->
 
 </body></html>
