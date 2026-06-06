@@ -1,6 +1,13 @@
 <!doctype html>
+<!-- l567-note-list-focus-rounding-opslag-glass: Kirurgisk CSS-fix kun for almindelige Tekst-/Listewidgets i OpslagsTavle og GlasTavle: når widgetbjælken skjules i fokus/maksimering, klippes post-it-lærredet og textarea inden for samme afrundede hjørner som i præsentation. Ingen JS/widgetlogik. -->
+
 <html lang="da">
 <head>
+<!-- l568-focus-stripe-clip-all-widgets: Kirurgisk CSS-fix for temaernes venstrestreg i fokus/maksimering: alle widgettyper i GlasTavle/SmartBoard/FlipOver/OpslagsTavle klippes inden for widgettens afrundede hjørner, så farvestregen ikke går for højt eller for langt ned. Ingen JS/widgetlogik. -->
+<!-- l566-left-stripe-focus-canvas-fix: Kirurgisk tema-CSS: FlipOver/SmartBoard venstrestreg starter nu under widgetbjælken i redigering, og Tekst/Liste i fokus får både indhold og underliggende tekst-lærred afrundet som i præsentation. Ingen JS/widgetlogik. -->
+<!-- l565-left-stripe-focus-rounding: Temaets venstre farvestreg starter under widgetbjælken i redigering, så den ikke stikker over rundingen. I fokus/maksimering får Tekst/Liste-indhold igen fuldt afrundede hjørner, når bjælken skjules. Kun tema-CSS. -->
+<!-- l564-help-jump-buttons-single-row: Hjælpens øverste Hop til-knapper holdes på én kompakt linje med vandret scroll-fallback på små skærme. Kun Hjælp-CSS/HTML ændret. -->
+<!-- l562-help-streamline-links: Hjælp er strammet op praksisnært: unødvendige interne kommentarer fjernet, gentagelser samlet, og lokale Se også-links kan hoppe mellem relevante hjælpesektioner. Kun Hjælp-HTML/CSS og intern hjælp-navigation ændret. -->
 <!-- l561-glastavle-timer-circle-fix: Kirurgisk tema-ejer-fix: GlasTavle/theme-presentation må ikke længere gøre Timer-widgettens .timerTwinShell-display gigantisk. Den store præsentationsskrift gælder kun ældre/ikke-twin timerBox, så nedtælling og stopur bliver inde i cirklen. Ingen JS, ingen timerlogik. -->
 <!-- l560-kapardy-theme-readability-ownerfix: Kirurgisk fix i tema-ejerens CSS: FlipOver/SmartBoard generelle .content-regler rammer ikke længere .content.kahoopardy, så KaPardys egen mørke flade og lyse tekst bevares. Ingen JS, ingen KaPardy-logik, ingen PDF-flow. -->
 <!-- l551-pdf-toolbar-actual-higher-narrow: Retter l550-fejl hvor CSS endte i en indlejret HTML-template. PDF-toolbar CSS lægges nu ved faktisk dokument-slut; toolbaren løftes, komprimeres og gøres transparent uden JS/render/dataændringer. -->
@@ -164,7 +171,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.74 l556-pdf-answers-autodata-exit</title>
+<title>Interaktiv tavle v1.2.74 l564-help-jump-buttons-single-row</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -17233,19 +17240,36 @@ function pdfViewerSrc(src){
   return clean + sep + 'toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-fit';
 }
 
+function safe563ReadFileAsDataURL(file){
+  return new Promise(function(resolve,reject){
+    try{
+      if(!file){reject(new Error('Mangler PDF-fil'));return;}
+      const r=new FileReader();
+      r.onload=function(){resolve(String(r.result||''));};
+      r.onerror=function(){reject(new Error('Kunne ikke læse PDF-filen'));};
+      r.readAsDataURL(file);
+    }catch(err){reject(err);}
+  });
+}
 function pickLocalPdf(cb){
+  /* l563: iPad/Safari åbner filvælgeren mest stabilt når inputtet findes i DOM
+     og .click() sker direkte i brugerens klik. Vi læser ikke PDF'en som dataURL
+     på forhånd; normalvejen gemmer File/Blob direkte i IndexedDB, og dataURL
+     bruges kun som fallback hvis mediearkivet ikke kan gemme filen. */
   const input=document.createElement('input');
   input.type='file';
   input.accept='application/pdf,.pdf';
-  input.onchange=()=>{
+  input.style.cssText='position:fixed;left:-10000px;top:auto;width:1px;height:1px;opacity:0;pointer-events:none;';
+  const cleanup=function(){try{input.remove();}catch(_e){}};
+  input.onchange=function(){
     const f=input.files&&input.files[0];
-    if(!f)return;
-    const r=new FileReader();
-    r.onload=()=>cb(String(r.result||''),f);
-    r.onerror=()=>toast('Kunne ikke læse PDF-filen');
-    r.readAsDataURL(f);
+    if(!f){setTimeout(cleanup,250);return;}
+    try{cb('',f);}catch(err){console.warn('PDF-filvalg fejlede',err);try{toast('Kunne ikke åbne PDF-filen');}catch(_e){}}
+    setTimeout(cleanup,1000);
   };
-  input.click();
+  try{document.body.appendChild(input);}catch(_e){}
+  try{input.value='';}catch(_e){}
+  try{input.click();}catch(err){cleanup();try{toast('Kunne ikke åbne filvælger');}catch(_e){}}
 }
 function isEmbeddedPdf(src){
   return typeof src==='string' && src.startsWith('data:application/pdf');
@@ -17649,14 +17673,15 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
     const clickExisting=function(sel,opts){
       opts=opts||{};
       const btn=c&&c.querySelector?c.querySelector(sel):null;
-      /* SAFE471: Filvælger på iPad/Safari/Quine skal åbnes i samme brugerklik.
-         Derfor må vi ikke lukke modal og vente med setTimeout før .pdfLocal.click().
-         Første klik skal ramme den skjulte PDF-knap synkront. */
+      /* l563/SAFE471: Filvælger på iPad/Safari/Quine skal åbnes i samme brugerklik.
+         Luk derfor først modalen EFTER .pdfLocal.click(), ellers mistes user activation
+         og brugeren skal ofte prøve flere gange. */
       try{
         if(!btn||typeof btn.click!=='function'){toast('PDF-knappen blev ikke fundet');return;}
         if(sel==='.pdfLocal'){
-          btn.click();              // bevar user activation til filvælgeren
-          setTimeout(close,60);     // luk først efter at filvælgeren er trigget
+          if(opts.detach!==false)detachForNewPdfSource();
+          btn.click();
+          setTimeout(close,90);
         }else{
           close();
           btn.click();
@@ -18074,7 +18099,23 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
     const setTab=function(name){try{root.querySelectorAll('.safe455uH149Tab[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});root.querySelectorAll('.safe455uH149Panel').forEach(function(p){p.classList.toggle('active',p.dataset.panel===name);});}catch(_e){}};
     root.querySelectorAll('.safe455uH149Tab[data-tab]').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation();setTab(btn.dataset.tab);};});
     const detachForNewPdfSource=function(){try{if(typeof safe455uH150ClearPdfDataLinkForBlankTemplate==='function')safe455uH150ClearPdfDataLinkForBlankTemplate(w);}catch(_e){}};
-    const clickExisting=function(sel,opts){opts=opts||{}; const btn=c&&c.querySelector?c.querySelector(sel):null; if(opts.detach!==false)detachForNewPdfSource(); close(); setTimeout(function(){try{if(btn&&typeof btn.click==='function')btn.click();else toast('PDF-knappen blev ikke fundet');}catch(e){console.warn('SAFE459 PDF open wrapper failed',e);try{toast('Kunne ikke åbne PDF-valg');}catch(_e){}}},0);};
+    const clickExisting=function(sel,opts){
+      opts=opts||{};
+      const btn=c&&c.querySelector?c.querySelector(sel):null;
+      if(opts.detach!==false)detachForNewPdfSource();
+      if(sel==='.pdfLocal'){
+        /* l563: Bevar user activation til lokal filvælger. Må ikke lukkes via modal/setTimeout først. */
+        try{
+          if(btn&&typeof btn.click==='function'){
+            btn.click();
+            setTimeout(close,90);
+          }else toast('PDF-knappen blev ikke fundet');
+        }catch(e){console.warn('SAFE459 PDF open wrapper failed',e);try{toast('Kunne ikke åbne PDF-valg');}catch(_e){}}
+        return;
+      }
+      close();
+      setTimeout(function(){try{if(btn&&typeof btn.click==='function')btn.click();else toast('PDF-knappen blev ikke fundet');}catch(e){console.warn('SAFE459 PDF open wrapper failed',e);try{toast('Kunne ikke åbne PDF-valg');}catch(_e){}}},0);
+    };
     root.querySelectorAll('.safe459BlankKp').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation(); const size=Number(btn.dataset.size||5); const tpl=safe459PdfTemplateForCapacity(size); safe459OpenTemplateIntoPdfWidget(w,el,c,{src:tpl.src,name:tpl.name,template:true,kind:'kapardy',capacity:tpl.cap,toast:'KaPardy '+tpl.cap+'-spørgsmålsformular åbnet'});};});
     root.querySelectorAll('.safe459PickKpData').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation(); if(btn.disabled)return; const ds=kpDataList[Number(btn.dataset.i)]; const size=btn.dataset.size||'auto'; if(ds&&safe459ConfigurePdfWidgetFromDatasetWithCapacity(w,ds,size)){close(); try{if(typeof fillContent==='function')fillContent(el,w); else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){} try{if(typeof save==='function')save();}catch(_e){} try{toast('PDFWidget åbnet med KaPardy-data');}catch(_e){}}};});
     ['safe455uH142Close','safe455uH142CloseX'].forEach(function(id){const b=root.querySelector('#'+id); if(b)b.onclick=close;});
@@ -31673,7 +31714,8 @@ if(w.type==='drawcopy'){
         archived=true;
       }catch(err){
         console.warn('SAFE453i155 PDF IndexedDB fallback til legacy dataURL',err);
-        w.data.src=dataUrl;
+        const fallbackDataUrl=dataUrl||await safe563ReadFileAsDataURL(file);
+        w.data.src=fallbackDataUrl;
         delete w.data.url;
         delete w.data.fileMediaRef;
         w.data.name=file.name||'PDF';
@@ -38077,11 +38119,21 @@ function showQuickHelp(){
     .helpThemeMini span{display:grid;place-items:center;min-height:42px;border-radius:13px;background:#f8fafc;border:1px solid #e5e7eb;font-weight:950;font-size:13px;text-align:center;line-height:1.1}
     .helpThemeMini .themeGlass{background:#eef6ff;color:#175cd3}.helpThemeMini .themeFlip{background:#fff7ed;color:#7c2d12}.helpThemeMini .themeSmart{background:#0f172a;color:#7dd3fc}.helpThemeMini .themeOpslag{background:#f3f4f6;color:#111827}
     .helpNavList li{margin-bottom:6px!important}
+
+    .helpSeeAlso{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;padding:8px 10px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb;font-size:13px;line-height:1.2}
+    .helpSeeAlso b{margin-right:2px}
+    .helpTopJumps{flex-wrap:nowrap!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px 9px;gap:6px}
+    .helpTopJumps::-webkit-scrollbar{display:none}
+    .helpTopJumps b{flex:0 0 auto;margin-right:3px;white-space:nowrap}
+    .helpTopJumps .helpJumpBtn{flex:1 1 0;min-width:0;text-align:center;white-space:nowrap;padding:6px 8px;font-size:13px}
+    .helpJumpBtn{border:0;border-radius:999px;background:#eef2ff;color:#312e81;padding:6px 9px;font-weight:900;cursor:pointer}
+    .helpJumpBtn:hover,.helpJumpBtn:focus-visible{background:#dbeafe;outline:2px solid #93c5fd;outline-offset:1px}
+    .helpCompactList li{margin-bottom:5px!important}
     @media(max-width:760px){.helpQuickStart,.helpKeyGrid,.helpTwoCol{grid-template-columns:1fr}.helpIconGrid{grid-template-columns:1fr!important}}
   </style>
 
   <div class="helpIntro">
-    <p><b>Min undervisningstavle</b> er et arbejdsbord til undervisning: du bygger tavler af små felter, som kan vises, flyttes, fokuseres, gemmes og genbruges. Start simpelt: opret en widget, skriv/læg indhold i den, og brug tavlerne som sider i et forløb.</p>
+    <p><b>Min undervisningstavle</b> er et arbejdsbord til undervisning. Byg en tavle af widgets, vis den for eleverne, og gem det, du vil bruge igen.</p>
     <label class="helpHintToggleRow">
       <input id="helpHintsToggle" type="checkbox" ${hintsEnabled?'checked':''}>
       <span>Vis kontekstuelle hints i redigering</span>
@@ -38089,30 +38141,40 @@ function showQuickHelp(){
   </div>
 
   <div class="helpQuickStart">
-    <div class="helpQuickCard"><b>1. Byg tavlen</b> Brug værktøjslinjen nederst eller <b>Mere</b>. Træk widgets rundt, ændr størrelse og læg dem i lag.</div>
-    <div class="helpQuickCard"><b>2. Brug tavlen live</b> <b>P/R</b> skifter præsentation. <b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer.</div>
-    <div class="helpQuickCard"><b>3. Find hurtigt rundt</b> <b>Q/Å/Shift+T</b> åbner/lukker Tavleoverblik. <b>D</b> åbner Datakilder. <b>Mellemrum</b> åbner Mere. <b>Shift+N</b> viser/skjuler værktøjslinjen.</div>
+    <div class="helpQuickCard"><b>1. Byg tavlen</b> Brug værktøjslinjen eller <b>Mere</b>. Træk widgets rundt, ændr størrelse og læg dem i lag.</div>
+    <div class="helpQuickCard"><b>2. Brug den live</b> <b>P/R</b> skifter præsentation, <b>F</b> fokuserer valgt widget, og <b>Shift+F</b> maksimerer.</div>
+    <div class="helpQuickCard"><b>3. Find rundt</b> <b>Q/Å/Shift+T</b> åbner Tavleoverblik, <b>D</b> åbner Datakilder, og <b>Esc</b> lukker eller går tilbage.</div>
+  </div>
+
+  <div class="helpSeeAlso helpTopJumps" aria-label="Hurtige links i hjælp">
+    <b>Hop til:</b>
+    <button type="button" class="helpJumpBtn" data-help-jump="Prøv værktøjerne">Værktøjer</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="Genvejskort">Genveje</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF/iframe</button>
   </div>
 
   <div class="helpShortcutPrinciples" style="margin:10px 0 14px;padding:10px 12px;border-radius:12px;background:#eef2ff;color:#111827;font-size:14px;line-height:1.35">
-    <b>Logikken bag genvejene:</b> Enkle bogstaver bruges til ting, du gør live. <b>Shift+bogstav</b> opretter/åbner værktøjer. <b>Cmd/Ctrl</b> bruges til tungere handlinger som gem, duplikér, backup og overblik. Genveje ignoreres, når du skriver i et tekstfelt.
+    <b>Genveje:</b> Enkle bogstaver er til live-brug. <b>Shift</b> åbner eller opretter værktøjer. <b>Cmd/Ctrl</b> bruges til gem, backup, duplikering og flytning. Genveje ignoreres, når du skriver i et tekstfelt.
   </div>
 
   <div class="helpFAQ">
     <details open>
       <summary>Navigation på tavlen — det vigtigste at lære først</summary>
       <div class="answer">
-        <ul class="helpNavList">
+        <ul class="helpNavList helpCompactList">
           <li><b>← / →</b> skifter tavle. <b>1–9</b> går direkte til tavle 1–9. <b>0</b> går til tavle 10.</li>
-          <li><b>↑ / ↓</b> vælger widgets på tavlen. Den valgte widget lægges forrest, så du kan arbejde med den.</li>
+          <li><b>↑ / ↓</b> vælger widgets. Den valgte widget lægges forrest.</li>
           <li><b>P</b> eller <b>R</b> skifter mellem redigering og præsentation.</li>
-          <li><b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer valgt/fokuseret widget. <b>Esc</b> går tilbage eller lukker det, du er i.</li>
-          <li><b>Mellemrum</b> åbner <b>Mere</b>, når ingen widget er valgt. I Mere vælger <b>Enter</b> eller <b>Mellemrum</b> det markerede ikon, og <b>Esc</b> lukker.</li>
-          <li><b>Shift+N</b> viser/skjuler værktøjslinjen. Den lille knap nederst til højre gør det samme.</li>
+          <li><b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer valgt eller fokuseret widget.</li>
+          <li><b>Mellemrum</b> åbner <b>Mere</b>, når ingen widget er valgt. I Mere vælger <b>Enter</b> eller <b>Mellemrum</b>, og <b>Esc</b> lukker.</li>
+          <li><b>Højreklik på tom tavlebaggrund</b> åbner også <b>Mere</b>.</li>
+          <li><b>Shift+N</b> viser eller skjuler værktøjslinjen. Den lille knap nederst til højre gør det samme.</li>
           <li><b>Shift+klik</b> på den lille værktøjslinjeknap skifter til næste tema.</li>
-          <li><b>Højreklik på tom tavlebaggrund</b> åbner også <b>Mere</b>. Det skal ikke ske på widgets eller i modaler.</li>
-          <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik. Her kan du hurtigt hoppe, flytte, slette, lave Tavleshot og se gendannelsespunkter.</li>
+          <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Genvejskort">Genvejskort</button><button type="button" class="helpJumpBtn" data-help-jump="Tavleoverblik">Tavleoverblik</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">Fokus og præsentation</button></div>
       </div>
     </details>
 
@@ -38122,272 +38184,256 @@ function showQuickHelp(){
         <div class="helpKeyGrid">
           <div class="helpKeyBox"><b>Live</b><b>P/R</b> præsentation · <b>F</b> fokus · <b>Shift+F</b> maksimer · <b>Mellemrum</b> Mere · <b>Esc</b> tilbage/luk</div>
           <div class="helpKeyBox"><b>Tavler</b><b>N</b> ny tavle · <b>←/→</b> skift tavle · <b>Q/Å/Shift+T</b> Tavleoverblik · <b>Cmd/Ctrl+O</b> widget-overblik</div>
-          <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt til anden tavle · <b>Shift+Ø</b> lås/lås op</div>
+          <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt · <b>Shift+Ø</b> lås</div>
           <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Shift+N</b> værktøjslinje · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
-          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund/tema · <b>B</b> næste tema · <b>Shift+1–4</b> tema · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid · <b>Shift+Enter</b> fuld skærm</div>
-          <div class="helpKeyBox"><b>Opret</b><b>Shift+A/P/I/L/H/V</b> tekst/PDF/billede/link/HTML/video · <b>Shift+W/R/S/X/Q</b> hjul/grupper/ordsky/afstemning/KaPardy</div>
-          <div class="helpKeyBox"><b>KaPardy</b><b>K/J/M/L</b> vælg Kahoot/Jeopardy/Mester/Mix · <b>1–4</b> svar i Kahoot · <b>1/R, 2/H, 3/F</b> bedøm svar</div>
+          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund/tema · <b>B</b> næste tema · <b>Shift+1–4</b> tema · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid</div>
+          <div class="helpKeyBox"><b>I Hjælp</b><b>→/←</b> skift sektion · <b>↑/↓</b> scroll · <b>Enter</b> åbn/luk sektion · <b>Esc</b> luk</div>
         </div>
-        <p class="helpMiniNote">I en modal betyder <b>Enter</b> ofte “vælg/åbn”, piletaster flytter markering, og <b>Esc</b> lukker. Tema vælges automatisk første gang på en enhed, men dine egne temavalg vinder altid.</p>
-      </div>
-    </details>
-
-    <details>
-      <summary>Widget-lås og valgte widgets</summary>
-      <div class="answer">
-        <ul>
-          <li><b>Shift+Ø</b> låser eller låser op for den valgte widget.</li>
-          <li>En låst widget bliver stående, så du ikke så let kommer til at flytte eller ændre den ved et uheld.</li>
-          <li><b>Shift+L</b> er stadig genvejen til Link-widget. Brug derfor <b>Shift+Ø</b> til lås.</li>
-          <li><b>↑/↓</b> vælger widgets på tavlen, og den valgte widget lægges forrest.</li>
-        </ul>
       </div>
     </details>
 
     <details open>
       <summary>Prøv værktøjerne herfra</summary>
       <div class="answer">
-        <p>Klik et ikon for at lukke Hjælp og oprette/åbne værktøjet. Brug det som en hurtig “prøv selv”-indgang.</p>
-        <div class="helpIconGrid">
-          <button class="helpIconItem helpToolBtn" data-help-tool="text"><span class="helpIcon">A</span><span><b>Tekst</b><small>Shift+A · instruktioner, noter, overskrifter</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="dataset"><span class="helpIcon">▦</span><span><b>Datawidget</b><small>tabeller, CSV/Excel, kolonner til lister</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="list"><span class="helpIcon">☰</span><span><b>Listewidget</b><small>navne, stikord og genbrugelige lister</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="wheel"><span class="helpIcon">🎲</span><span><b>Lykkehjulet</b><small>Shift+W · vælg tilfældigt fra en liste</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="groups"><span class="helpIcon">👥</span><span><b>Grupper</b><small>Shift+R · dan grupper fra en liste</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="poll"><span class="helpIcon">😊</span><span><b>Afstemning</b><small>Shift+X · hurtige elevsvar</small></span></button>
+        <p>Tryk på et værktøj for at oprette det direkte fra hjælpen.</p>
+        <div class="helpIconGrid toolGrid" style="display:grid">
+          <button class="helpIconItem helpToolBtn" data-help-tool="text"><span class="helpIcon">✏️</span><span><b>Tekst</b><small>Shift+A · noter og instruktioner</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="list"><span class="helpIcon">📋</span><span><b>Liste</b><small>Shift+J · navne og stikord</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="data"><span class="helpIcon">📊</span><span><b>Data</b><small>CSV/Excel · tabeller</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="calendar"><span class="helpIcon">🗓️</span><span><b>Kalender</b><small>dagsplan, uge og måned</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="wheel"><span class="helpIcon">🎯</span><span><b>Lykkehjulet</b><small>Shift+W · tilfældigt valg</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="groups"><span class="helpIcon">👥</span><span><b>Grupper</b><small>Shift+R · dan grupper</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="poll"><span class="helpIcon">😊</span><span><b>Afstemning</b><small>Shift+X · hurtige svar</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="wordcloud"><span class="helpIcon">☁️</span><span><b>Ordsky</b><small>Shift+S · ord og frekvenser</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="kahoopardy"><span class="helpIcon">🏆</span><span><b>KaPardy</b><small>Shift+Q · spilformer, remix og spilbanker</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="pdf"><span class="helpIcon">📄</span><span><b>PDF</b><small>Shift+P · dokumenter og opgaver</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · 1 enhed · 2 appen · 3 URL · 4 kamera</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="link"><span class="helpIcon">🔗</span><span><b>Link / iframe</b><small>Shift+L · websteder og indlejring</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="html"><span class="helpIcon">&lt;/&gt;</span><span><b>HTML</b><small>Shift+H · lokale HTML-sider og TiddlyWiki</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="timer"><span class="helpIcon">⌛</span><span><b>Timer</b><small>Shift+K · nedtælling</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="clock"><span class="helpIcon">🕒</span><span><b>Ur</b><small>Shift+U · vis ur på tavlen</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="background"><span class="helpIcon">🎨</span><span><b>Baggrund</b><small>Shift+B · billeder, farver og filter</small></span></button>
-          <button class="helpIconItem helpToolBtn" data-help-tool="dataSources"><span class="helpIcon">🗂️</span><span><b>Datakilder</b><small>D · oversigt over lister og datasæt</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="kahoopardy"><span class="helpIcon">🏆</span><span><b>KaPardy</b><small>Shift+Q · quiz og spil</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="pdf"><span class="helpIcon">📄</span><span><b>PDF</b><small>Shift+P · dokumenter</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · foto/skærmbillede</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="link"><span class="helpIcon">🔗</span><span><b>Link / iframe</b><small>Shift+L · websteder</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="html"><span class="helpIcon">&lt;/&gt;</span><span><b>HTML</b><small>Shift+H · HTMLApps</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="timer"><span class="helpIcon">⌛</span><span><b>Timer</b><small>Shift+K · nedtælling/stopur</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="clock"><span class="helpIcon">🕒</span><span><b>Ur</b><small>Shift+U · ur på tavlen</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="background"><span class="helpIcon">🎨</span><span><b>Baggrund</b><small>Shift+B · tema og billede</small></span></button>
+          <button class="helpIconItem helpToolBtn" data-help-tool="dataSources"><span class="helpIcon">🗂️</span><span><b>Datakilder</b><small>D · lister og datasæt</small></span></button>
           <div class="helpHtmlAppsDivider">HTMLApps</div>
           <button class="helpIconItem helpToolBtn" data-help-tool="htmlapp:Skriv"><span class="helpIcon">✍️</span><span><b>Skriv</b><small>udtalelser og vurderinger</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="htmlapp:Tjek"><span class="helpIcon">✅</span><span><b>Tjek</b><small>weekend og tilstedeværelse</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="htmlapp:Tavle"><span class="helpIcon">🧭</span><span><b>Tavle</b><small>Tavle som HTMLApp</small></span></button>
           <button class="helpIconItem helpToolBtn" data-help-tool="htmlapp:TiddlyWiki"><span class="helpIcon">📝</span><span><b>TiddlyWiki</b><small>noter og små wikier</small></span></button>
         </div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button></div>
       </div>
     </details>
 
     <details open>
       <summary>Tavleoverblik, Tavleshot og gendannelsespunkter</summary>
       <div class="answer">
-        <ul>
-          <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik. Brug <b>piletaster</b> til at markere en tavle og <b>Enter</b> til at åbne den.</li>
-          <li><b>S</b> i Tavleoverblik laver Tavleshot af den markerede tavle.</li>
-          <li><b>G</b> i Tavleoverblik åbner Gendannelsespunkter. Marker et punkt og tryk <b>Enter</b> for at gendanne som ny tavle.</li>
+        <ul class="helpCompactList">
+          <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik.</li>
+          <li>Brug <b>piletaster</b> til at markere en tavle og <b>Enter</b> til at åbne den.</li>
+          <li><b>S</b> laver Tavleshot af den markerede tavle.</li>
+          <li><b>G</b> åbner Gendannelsespunkter. Marker et punkt og tryk <b>Enter</b> for at gendanne som ny tavle.</li>
           <li><b>Delete/Backspace</b> sletter en almindelig tavle. <b>Cmd/Ctrl + piletaster</b> flytter tavlen i rækkefølgen.</li>
-          <li>Tavleshots og gendannelsespunkter er tænkt som tryghed: prøv ting af, og gå tilbage uden at ødelægge din oprindelige tavle.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup</button></div>
       </div>
     </details>
 
     <details>
       <summary>Datakilder — lister og datasæt ét sted</summary>
       <div class="answer">
-        <ul>
-          <li><b>D</b> åbner Datakilder. Her kan du se og omdøbe lister/datasæt direkte i oversigten.</li>
-          <li><b>↑/↓</b> vælger datakilde. <b>Enter</b> eller <b>Space</b> åbner den valgte kilde til inspektion. <b>E</b> eller <b>F2</b> redigerer navnet.</li>
-          <li>Datawidgets og Listewidgets åbnes som midlertidige inspektionsvinduer med <b>🔗</b> i stedet for X. Klik <b>🔗</b> eller tryk <b>D/Esc</b> for at komme tilbage til Datakilder.</li>
+        <ul class="helpCompactList">
+          <li><b>D</b> åbner Datakilder. Her kan du se, åbne og omdøbe lister og datasæt.</li>
           <li><b>Datawidget</b> bruges til tabeller, CSV/TSV og Excel. <b>Listewidget</b> bruges til navne, stikord og simple linjelister.</li>
-          <li>Lister kan bruges af Lykkehjulet, Grupper, Ordsky, Afstemning og KaPardy.</li>
+          <li><b>↑/↓</b> vælger datakilde. <b>Enter</b> eller <b>Space</b> åbner den valgte kilde. <b>E</b> eller <b>F2</b> omdøber.</li>
+          <li>Inspektionsvinduer med <b>🔗</b> lukkes tilbage til Datakilder med <b>🔗</b>, <b>D</b> eller <b>Esc</b>.</li>
+          <li>Lister kan bruges af Lykkehjulet, Grupper, Ordsky, Afstemning, Kalender og KaPardy.</li>
+          <li><b>DataRemix</b> bruges til at filtrere og blande data fra en kilde og oprette en ny dataliste til en bestemt widget.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button><button type="button" class="helpJumpBtn" data-help-jump="Kalender">Kalender</button></div>
       </div>
     </details>
 
     <details>
       <summary>Links, hjemmesider og linklister</summary>
       <div class="answer">
-        <ul>
+        <ul class="helpCompactList">
           <li><b>Linkwidgetten</b> bruges til hjemmesider, du vil have med på tavlen.</li>
           <li>Skriv ét link, vælg en gemt linkliste eller start med en demoliste.</li>
-          <li>En linkliste er en lille samling hjemmesider, du kan bladre imellem — fx musikværktøjer, ordbøger, opgavebanker eller faglige ressourcer.</li>
+          <li>En linkliste kan samle fx musikværktøjer, ordbøger, opgavebanker eller faglige ressourcer.</li>
           <li>Når du vælger en linkliste, åbnes første link automatisk. Brug pilene ved titlen til at skifte link.</li>
-          <li>Du kan tilføje nye links direkte fra linkwidgetten og give dem titel og kort beskrivelse.</li>
-          <li>Nogle sider kan vises inde på tavlen. Andre åbner bedst i en ny fane, fordi siden selv bestemmer det.</li>
+          <li>Nogle sider kan vises inde på tavlen. Andre åbner bedst i en ny fane.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">Iframe og fokus</button></div>
       </div>
     </details>
 
     <details>
       <summary>Tavlesessioner — flere tavlerum i samme app</summary>
       <div class="answer">
-        <ul>
-          <li>Du kan lave et nyt tavlerum ved at sætte <b>#Navn</b> efter TavleAppens adresse.</li>
+        <ul class="helpCompactList">
+          <li>Sæt <b>#Navn</b> efter TavleAppens adresse for at lave et separat tavlerum.</li>
           <li>Eksempel: <b>.../Tavle.html#Uge-23</b></li>
-          <li>Appen rydder selv op i navnet: <b>Dansk eksamen 10kl</b> bliver fx til <b>Dansk-eksamen-10kl</b>. Æ/ø/å laves om til <b>ae/oe/aa</b>, så linket bliver stabilt.</li>
-          <li>Hver session husker sine egne tavler, widgets, PDF’er og links — som om du havde flere tavlerum i én app.</li>
-          <li>Brug demolisten <b>TavleSessioner</b> i en linkwidget/datawidget til at samle dine sessionslinks ét sted.</li>
-          <li>Åbner du appen direkte med fx <b>#23</b>, opdager appen selv sessionen og lægger den øverst i <b>TavleSessioner</b> uden dubletter — med dato/tid for <b>Oprettet</b> og <b>Senest åbnet</b>.</li>
-          <li><b>Vigtigt:</b> Sessioner gemmes kun i den browser og på den enhed, hvor de er lavet. Vil du bruge dem i en anden browser eller på en anden computer, skal du tage en backup med.</li>
-          <li>I en datawidget vises linkceller som <b>[⧉] Åbn</b>: <b>⧉</b> kopierer linket, og <b>Åbn</b> åbner det. Hvis Quine/iPad blokerer handlingen, viser appen linket i en lille kopiboks.</li>
+          <li>Hver session husker sine egne tavler, widgets, PDF’er og links.</li>
+          <li>Åbner du appen med et sessionslink, lægges sessionen automatisk i demolisten <b>TavleSessioner</b> med oprettet/senest åbnet.</li>
+          <li>Sessioner gemmes i den browser og på den enhed, hvor de er lavet. Brug backup, hvis de skal flyttes.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button><button type="button" class="helpJumpBtn" data-help-jump="Links">Linklister</button></div>
       </div>
     </details>
-
-
-
 
     <details>
       <summary>HTML-widget, HTMLApps, Skriv, Tjek og TiddlyWiki</summary>
       <div class="answer">
-        <ul>
-          <li><b>HTML-widgetten</b> kan vise, oprette, redigere og gemme lokale HTML-filer direkte i tavlens mediearkiv.</li>
-          <li><b>HTMLApps</b> er hele små apps, der bor inde i Tavle som HTML-widgets. Brug Demoer eller knapperne i Hjælp til at installere Skriv, Tjek, Tavle eller TiddlyWiki.</li>
+        <ul class="helpCompactList">
+          <li><b>HTML-widgetten</b> kan vise og gemme lokale HTML-filer i tavlens mediearkiv.</li>
+          <li><b>HTMLApps</b> er små apps, der bor inde i Tavle som HTML-widgets. Brug Demoer eller knapperne i Hjælp til at installere Skriv, Tjek, Tavle eller TiddlyWiki.</li>
           <li><b>Iframe viser en app. HTMLApp bor i tavlen.</b> Brug HTMLApp, hvis appen og dens data skal med i Backup Plus.</li>
-          <li>Når <b>Skriv</b> kører inde i Tavle, kan Skriv gemme sin backup tilbage til Tavle. Tavle viser filnavn og dato under <b>Hent filer</b>.</li>
-          <li>Skriv kan også sende en <b>PDF direkte til Tavle</b>. PDF’en bliver modtaget som en almindelig PDF-widget, der kan flyttes, fokuseres, maksimeres og gemmes sammen med tavlen.</li>
-          <li>Når <b>Tjek</b> kører inde i Tavle, kan Tjek også gemme via Tavle. Uden for Tavle gemmer Skriv og Tjek som almindelige standalone-apps.</li>
-          <li>Brug knappen i widget-bjælken til at skifte mellem webvisning og tekst/redigering.</li>
-          <li>Klik eller tap i webvisningen for at bruge den indlejrede side. Klik/tap uden for widgetten for at komme tilbage til tavlen. <b>Esc</b> er stadig den generelle tilbage/luk-tast.</li>
-          <li>Zoomknapperne i widget-bjælken ændrer visningen og huskes for den enkelte HTML-widget.</li>
-          <li><b>TiddlyWiki</b> kan installeres direkte fra <b>Demoer</b> eller vælges som HTMLApp/widget via <b>Hjælp</b>. Brug Tavles knapper til at oprette den i stedet for at gemme websiden med browserens “Gem side som…”.</li>
-          <li>Store HTML-/TiddlyWiki-filer indlæses sikkert med manuel start, så appen ikke låser ved opstart.</li>
-          <li>Når du henter en HTML-/TiddlyWiki-fil ud fra TavleAppen, eksporteres den rå gemte fil igen som HTML.</li>
-          <li>Når en HTML-/TiddlyWiki-widget slettes permanent, ryddes dens gemte medie også, hvis det ikke bruges af andre widgets.</li>
+          <li><b>Skriv</b> kan gemme backup tilbage til Tavle og sende PDF direkte til Tavle.</li>
+          <li><b>Tjek</b> kan gemme via Tavle, når den kører inde i Tavle.</li>
+          <li>Klik/tap i webvisningen for at bruge den indlejrede side. Klik/tap uden for widgetten eller brug <b>Esc</b> for at komme tilbage.</li>
+          <li><b>TiddlyWiki</b> kan installeres direkte fra Demoer eller vælges som HTMLApp/widget via Hjælp.</li>
+          <li>Store HTML-/TiddlyWiki-filer indlæses med manuel start, så appen ikke låser ved opstart.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF/iframe</button></div>
       </div>
     </details>
 
     <details>
       <summary>Kalender</summary>
       <div class="answer">
-        <ul>
-          <li><b>Kalenderen</b> er til at få dagens, ugens eller månedens aktiviteter ind på tavlen, så programmet kan bruges direkte i undervisningen eller som fælles overblik.</li>
-          <li>Du kan bruge kalenderen som en enkel dagsplan, et ugeskema, en månedskalender eller en liste over kommende aktiviteter.</li>
-          <li>Kalenderen er især nyttig, når tavlen skal samle det praktiske omkring en time, en dag, en weekend, en rejse, et projekt eller en særlig skoleuge.</li>
-          <li>Du kan oprette aktiviteter direkte i kalenderen, eller du kan hente aktiviteter ind fra en kalenderfil, fx fra Viggo eller en anden kalender.</li>
-          <li>Hvis du gemmer kalenderen som datakilde, kan den bruges mere fleksibelt sammen med resten af tavlen og hentes frem igen senere.</li>
-          <li><b>Øjeblik</b> kan bruges til hurtigt at gemme det, tavlen viser lige nu, som en kalendernote — fx hvis en aktivitet, forklaring eller tavleopsætning skal kunne findes igen.</li>
-          <li>Kalenderen kan dermed både være programoversigt, planlægningsværktøj og hukommelse for det, der sker på tavlen.</li>
+        <ul class="helpCompactList">
+          <li><b>Kalenderen</b> kan vise dagsplan, ugeskema, måned eller kommende aktiviteter.</li>
+          <li>Opret aktiviteter direkte i kalenderen, eller hent aktiviteter fra en kalenderfil.</li>
+          <li><b>Dagbog</b> opretter et indlæg for den valgte dag og kan læses fortløbende i dagbogsoversigten.</li>
+          <li>Gemmes kalenderen som datakilde, kan den hentes frem og bruges sammen med resten af tavlen.</li>
+          <li><b>Øjeblik</b> gemmer det, tavlen viser lige nu, som en kalendernote.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Træk filer">Træk filer ind</button></div>
       </div>
     </details>
 
     <details>
       <summary>Lykkehjulet og Grupper</summary>
       <div class="answer">
-        <ul>
+        <ul class="helpCompactList">
           <li><b>Shift+W</b> opretter Lykkehjulet. Brug det til tilfældige navne, spørgsmål, emner eller aktiviteter.</li>
-          <li><b>Shift+R</b> opretter Grupper. Vælg en liste, angiv personer pr. gruppe og klik/tryk <b>Dan</b>.</li>
+          <li><b>Shift+R</b> opretter Grupper. Vælg en liste, angiv personer pr. gruppe og tryk <b>Dan</b>.</li>
           <li>Begge kan kobles til lister/datakilder, så ændringer i listen kan bruges videre.</li>
-          <li>Når en hjul-/gruppewidget er valgt, bruges <b>Mellemrum</b> til widgettens egen handling i stedet for at åbne Mere.</li>
+          <li>Når en hjul-/gruppewidget er valgt, bruges <b>Mellemrum</b> til widgettens egen handling.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Prøv værktøjerne">Værktøjer</button></div>
       </div>
     </details>
 
     <details>
       <summary>KaPardy — quiz og spil</summary>
       <div class="answer">
-        <ul>
-          <li><b>Shift+Q</b> opretter KaPardy. Brug <b>⚙️</b> til at redigere spørgsmål, hold, skjult stilling, AI-prompt og spørgsmålsbank.</li>
-          <li>Start fra redigering: <b>K</b> = Kahoot, <b>J</b> = Jeopardy, <b>M</b> = Mester og <b>L</b> = Mix. <b>Enter</b> starter den valgte form, og <b>Shift+Mellemrum</b> skifter mellem Kahoot, Jeopardy og Mester.</li>
-          <li><b>Mix</b> bruger samme spørgebank i flere spilformer og slutter med podiumkåring. Brug <b>🏁 Finale</b>, hvis du vil stoppe et spil og fejre den aktuelle stilling.</li>
-          <li>I <b>Kahoot</b> svarer holdene med <b>1–4</b>. Du kan også flytte markeringen med <b>Shift+Mellemrum</b> og vælge med <b>Enter</b>.</li>
-          <li>I <b>Jeopardy</b> kan pointkort vælges med klik. Tastatur: <b>Tab</b> eller <b>Shift+Mellemrum</b> flytter markeringen, og <b>Enter</b> åbner kortet.</li>
-          <li>I <b>Jeopardy</b> og <b>Mester</b> bedømmes svar med <b>1/R</b> for rigtigt, <b>2/H</b> for halvt og <b>3/F</b> for forkert. <b>Shift+Mellemrum</b> flytter mellem bedømmelsesknapperne, og <b>Enter</b> vælger.</li>
-          <li><b>Mellemrum</b> eller <b>Enter</b> går typisk videre: vis svar, vis stilling eller næste spørgsmål. I podiumkåring afslører <b>Mellemrum</b> næste plads, mens <b>Shift+Mellemrum</b> starter kåringen forfra.</li>
-          <li>Spørgsmål kan skrives direkte, hentes fra <b>CSV/Excel/Datawidget</b>, laves via <b>AI-promptgeneratoren</b> eller vælges fra <b>Spilbiblioteket</b>. Når du skriver selv, er <b>mulighed 1</b> altid det rigtige svar.</li>
-          <li><b>Spilbanker</b> er færdige KaPardy-sæt, du kan hente ind som udgangspunkt. De kan bruges direkte eller blandes med dine egne spørgsmål.</li>
-          <li><b>Remix</b> bruges, når du vil samle spørgsmål fra flere spil, spilbanker, datawidgets eller filer. Resultatet oprettes som nye spørgsmålsbanker på tavlen, så du kan tjekke og bruge dem videre i KaPardy.</li>
-          <li>I editoren tilføjer <b>Cmd/Ctrl+Enter</b> en ny spørgsmålsrække. <b>Esc</b> forlader et aktivt tekstfelt, så KaPardy-genvejene virker igen.</li>
+        <ul class="helpCompactList">
+          <li><b>Shift+Q</b> opretter KaPardy. Brug <b>⚙️</b> til spørgsmål, hold, skjult stilling, AI-prompt og spørgsmålsbank.</li>
+          <li>Fra start: <b>K</b> = Kahoot, <b>J</b> = Jeopardy, <b>M</b> = Mester og <b>L</b> = Mix. <b>Enter</b> starter valgt form.</li>
+          <li><b>Mix</b> bruger samme spørgsmålsbank i flere spilformer og slutter med podiumkåring.</li>
+          <li>I <b>Kahoot</b> svarer holdene med <b>1–4</b>.</li>
+          <li>I <b>Jeopardy</b> og <b>Mester</b> bedømmes svar med <b>1/R</b> rigtigt, <b>2/H</b> halvt og <b>3/F</b> forkert.</li>
+          <li><b>Mellemrum</b> eller <b>Enter</b> går videre: vis svar, vis stilling eller næste spørgsmål.</li>
+          <li>Spørgsmål kan skrives, importeres fra CSV/Excel/Datawidget, laves via AI-promptgeneratoren eller vælges fra Spilbiblioteket.</li>
+          <li><b>Spilbanker</b> er færdige KaPardy-sæt. <b>Remix</b> samler spørgsmål fra flere spil eller datakilder til en ny spørgsmålsbank.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Prøv værktøjerne">Værktøjer</button></div>
       </div>
     </details>
 
     <details>
       <summary>Baggrunde, grid og redningsbælte</summary>
       <div class="answer">
-        <ul>
+        <ul class="helpCompactList">
           <li><b>Shift+B</b> åbner baggrundsvælgeren. Her vælger du både baggrundsbillede og tema.</li>
-          <li><b>Tema</b> ændrer appens udseende uden at overskrive den baggrund, du har valgt. Første gang vælger Tavle selv et tema, der passer til lys/mørk visning. Når du selv vælger tema, husker Tavle dit valg.
+          <li><b>Tema</b> ændrer appens udseende uden at overskrive den baggrund, du har valgt.
             <div class="helpThemeMini" aria-label="Tavletemaer">
               <span class="themeOpslag">📌 OpslagsTavle</span><span class="themeGlass">🪟 GlasTavle</span><span class="themeFlip">🗒️ FlipOver</span><span class="themeSmart">💡 SmartBoard</span>
             </div>
           </li>
-          <li><b>B</b> skifter til næste tema. <b>Shift+1–4</b> vælger et tema direkte. <b>Shift+klik</b> på den lille værktøjslinjeknap gør det samme som B.</li>
+          <li><b>B</b> skifter til næste tema. <b>Shift+1–4</b> vælger et tema direkte.</li>
           <li><b>Cmd/Ctrl+B</b> vælger en tilfældig baggrund på den aktive tavle.</li>
           <li><b>Shift+G</b> slår grid til/fra.</li>
           <li><b>Shift+O</b> åbner Redningsbælte, hvis widgets er havnet uden for skærmen, eller tavlen er blevet rodet.</li>
           <li><b>Cmd/Ctrl+Delete/Backspace</b> rydder aktiv tavle til papirkurven efter bekræftelse.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Navigation">Navigation</button><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button></div>
       </div>
     </details>
 
     <details open>
       <summary>Billeder, tegninger og Mine tegninger</summary>
       <div class="answer">
-        <ul>
-          <li><b>Billeder</b> er til fotos, skærmbilleder, kort, opgaveark, illustrationer og andet visuelt materiale på tavlen.</li>
+        <ul class="helpCompactList">
+          <li><b>Billeder</b> er til fotos, skærmbilleder, kort, opgaveark og illustrationer.</li>
           <li>I en tom billedwidget kan du bruge <b>1</b> fra enhed, <b>2</b> fra appen, <b>3</b> URL og <b>4</b> kamera.</li>
-          <li>Appen passer selv på lokale billeder, kameraoptagelser og billeder fra tegninger, så tavlen kan gemmes uden at blive unødigt tung.</li>
-          <li><b>Tegninger</b> er til hurtige markeringer: cirkl noget ind, tegn pile, understreg, lav en skitse eller byg videre på et billede.</li>
-          <li><b>Mine tegninger</b> gemmer de tegninger, du vil bruge igen — fx en forklaring, en elevidé, en gennemgået opgave eller en lille tavleskitse fra en tidligere time.</li>
-          <li>Du kan hente en gemt tegning frem igen, tegne videre på den, sætte den ind som billede eller bruge den som baggrund på en tavle.</li>
+          <li><b>Tegninger</b> er til hurtige markeringer: cirkl noget ind, tegn pile, understreg eller lav en skitse.</li>
+          <li><b>Mine tegninger</b> gemmer tegninger, du vil bruge igen. De kan sættes ind som billede eller bruges som baggrund.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button><button type="button" class="helpJumpBtn" data-help-jump="Baggrunde">Baggrunde</button></div>
       </div>
     </details>
 
     <details>
       <summary>Træk filer direkte ind på tavlen</summary>
       <div class="answer">
-        <ul>
+        <ul class="helpCompactList">
           <li>Slip filer oven på tavlen for hurtigt at oprette indhold: billeder, PDF’er, tekstfiler, regneark, kalenderfiler, HTML-filer eller backups.</li>
           <li>Du kan slippe flere filer på én gang. Hvis en fil ikke kan bruges direkte, ignorerer appen den eller giver besked.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button></div>
       </div>
     </details>
 
     <details>
       <summary>Gem, backup og filer</summary>
       <div class="answer">
-        <ul>
-          <li><b>Gem backup</b> gemmer den åbne tavleopsætning, så du kan åbne den igen senere.</li>
-          <li><b>Backup +</b> er den sikre udgave, når tavlen også bruger lokale billeder, tegninger, kameraoptagelser, HTMLApps, lokale PDF’er eller gendannelsespunkter.</li>
-          <li><b>Backup +</b> kan også importeres ved at indsætte JSON-tekst i Gem/åbn, hvis almindelig filimport driller på iPad eller i en bestemt browser.</li>
-          <li><b>Gem skabelon</b> er til tomme eller genbrugelige tavleopsætninger, som du vil starte fra igen.</li>
-          <li><b>Hent filer fra tavlen</b> bruges, når du vil hente enkelte billeder, PDF’er, HTMLApps eller filer fra fx Skriv ud af tavlen.</li>
-          <li><b>Hvor ligger data?</b> er et kontrolvindue. Det viser, hvad tavlen bruger, uden at flytte eller slette noget.</li>
+        <ul class="helpCompactList">
+          <li><b>Gem backup</b> gemmer tavleopsætningen, så den kan åbnes igen senere.</li>
+          <li><b>Backup +</b> bruges, når tavlen indeholder lokale billeder, tegninger, kameraoptagelser, HTMLApps, lokale PDF’er eller gendannelsespunkter.</li>
+          <li><b>Backup +</b> kan også importeres ved at indsætte JSON-tekst i Gem/åbn.</li>
+          <li><b>Gem skabelon</b> er til tomme eller genbrugelige tavleopsætninger.</li>
+          <li><b>Hent filer fra tavlen</b> henter enkelte billeder, PDF’er, HTMLApps eller filer fra fx Skriv ud af tavlen.</li>
+          <li><b>Hvor ligger data?</b> viser, hvad tavlen bruger, uden at flytte eller slette noget.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Tavlesessioner">Tavlesessioner</button><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button></div>
       </div>
     </details>
 
     <details>
       <summary>Papirkurv, sletning og gendannelse</summary>
       <div class="answer">
-        <ul>
+        <ul class="helpCompactList">
           <li><b>T</b> åbner Papirkurv. I Papirkurv lukker <b>T</b>, <b>Esc</b> eller <b>Mellemrum</b>.</li>
           <li><b>Delete/Backspace</b> flytter valgt widget til papirkurven.</li>
           <li><b>Shift+Delete/Backspace</b> eller <b>Shift+klik på X</b> sletter permanent.</li>
           <li><b>Cmd/Ctrl+Z</b> gendanner senest slettede widget.</li>
-          <li>Når en widget gendannes, forsøger Tavle at lægge den tilbage på den tavle, den kom fra — med samme størrelse, placering og rotation.</li>
-          <li><b>Gendan alle</b> er tænkt som en tryg vej tilbage, hvis du har slettet flere ting fra forskellige tavler.</li>
+          <li>Gendannede widgets forsøges lagt tilbage på samme tavle med samme størrelse, placering og rotation.</li>
+          <li><b>Gendan alle</b> bruges, hvis du har slettet flere ting fra forskellige tavler.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Tavleoverblik">Gendannelsespunkter</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup</button></div>
       </div>
     </details>
 
     <details>
       <summary>PDF, iframe, fokus og præsentation</summary>
       <div class="answer">
-        <ul>
+        <ul class="helpCompactList">
           <li>I præsentation skjules redigeringsværktøjer, så tavlen kan bruges roligt foran elever.</li>
-          <li><b>F</b> bruges til at fremhæve én widget uden at forlade tavlen. <b>Shift+F</b> maksimerer.</li>
-          <li>PDF’er kan bruges som almindelige tavleobjekter: flyt dem, forstør dem, fokuser dem eller brug dem i præsentation.</li>
-          <li>Når Skriv sender en PDF til Tavle, lander den som en PDF-widget og kan bruges på samme måde som andre PDF’er.</li>
-          <li>I en iframe/HTMLApp kan du klikke/tappe i webvisningen for at bruge den indlejrede app. Klik/tap uden for widgetten for at komme tilbage til Tavlen. <b>Esc</b> er generelt din “tilbage/luk”-tast.</li>
-          <li>Hvis noget virker “låst”, prøv først <b>Esc</b>, derefter <b>Redningsbælte</b> med <b>Shift+O</b>.</li>
+          <li><b>F</b> fremhæver én widget. <b>Shift+F</b> maksimerer.</li>
+          <li>PDF’er kan flyttes, forstørres, fokuseres, maksimeres og bruges i præsentation.</li>
+          <li>Når Skriv sender en PDF til Tavle, lander den som en almindelig PDF-widget.</li>
+          <li>I en iframe/HTMLApp kan du klikke/tappe i webvisningen for at bruge den indlejrede app. Klik/tap uden for widgetten eller brug <b>Esc</b> for at komme tilbage.</li>
+          <li>Hvis noget virker låst, så prøv <b>Esc</b> først og derefter <b>Redningsbælte</b> med <b>Shift+O</b>.</li>
         </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button><button type="button" class="helpJumpBtn" data-help-jump="Navigation">Navigation</button></div>
       </div>
     </details>
   </div>
 
   <div class="helpPager">
-    <span>Hurtigst i gang: N · Shift+A · Shift+I · P/R · F · Q/Å/Shift+T · D · Mellemrum=Mere · Shift+N=værktøjslinje · B=tema · I Hjælp: → næste/åbn · ← forrige/luk undervejs · ↑/↓ scroll · Enter skifter · Esc lukker</span>
+    <span>Hurtigst i gang: N ny tavle · Mellemrum Mere · P/R præsentation · F fokus · Q/Å/Shift+T Tavleoverblik · D Datakilder · Esc lukker/går tilbage</span>
     <button id="closeHelp">Luk</button>
   </div>`);
   modal.querySelector('#closeHelp').onclick=closeModal;
@@ -38584,6 +38630,33 @@ function showQuickHelp(){
   safe455bMarkHelp();
   const ht=modal.querySelector('#helpHintsToggle');
   if(ht)ht.onchange=e=>setHintsEnabled(e.target.checked);
+  function safe455bJumpHelp(needle){
+    try{
+      const wanted=String(needle||'').toLowerCase();
+      const idx=safe455bHelpSections.findIndex(sec=>String((sec.querySelector('summary')||sec).textContent||'').toLowerCase().includes(wanted));
+      if(idx<0)return;
+      safe455bHelpSectionIndex=idx;
+      safe455bHelpWidgetIndex=-1;
+      const sec=safe455bHelpSections[idx];
+      if(sec)sec.open=true;
+      safe455bMarkHelp();
+      requestAnimationFrame(function(){
+        try{
+          const title=(sec&&sec.querySelector('summary'))||sec;
+          const max=Math.max(0,(modal.scrollHeight||0)-(modal.clientHeight||0));
+          const target=Math.max(0,Math.min(max,((title&&title.offsetTop)||0)-8));
+          modal.scrollTo({top:target,behavior:'auto'});
+        }catch(_e){try{sec.scrollIntoView({block:'start',behavior:'auto'});}catch(_x){}}
+      });
+    }catch(_e){}
+  }
+  modal.querySelectorAll('[data-help-jump]').forEach(btn=>{
+    btn.onclick=(e)=>{
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_x){}
+      safe455bJumpHelp(btn.dataset.helpJump||btn.textContent||'');
+      return false;
+    };
+  });
   modal.querySelectorAll('[data-help-tool]').forEach(btn=>{
     btn.onclick=()=>{
       const tool=btn.dataset.helpTool;
@@ -59655,7 +59728,7 @@ html[data-tavle-theme="presentation"] .widget:not(.selected){box-shadow:0 12px 3
 html.theme-presentation .widget.selected,
 html[data-tavle-theme="presentation"] .widget.selected{outline:3px solid rgba(37,99,235,.42)!important;outline-offset:3px!important;box-shadow:0 20px 58px rgba(37,99,235,.20),0 10px 30px rgba(15,23,42,.16)!important;}
 html.theme-presentation .widget::before,
-html[data-tavle-theme="presentation"] .widget::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:20px 0 0 20px;background:#2563eb;opacity:.86;pointer-events:none;z-index:4;}
+html[data-tavle-theme="presentation"] .widget::before{content:"";position:absolute;left:0;top:46px;bottom:0;width:5px;border-radius:0 0 0 20px;background:#2563eb;opacity:.86;pointer-events:none;z-index:4;}
 html.theme-presentation .widget[data-type="timer"]::before,
 html[data-tavle-theme="presentation"] .widget[data-type="timer"]::before{background:#16a34a;}
 html.theme-presentation .widget[data-type="wheel"]::before,
@@ -59688,6 +59761,27 @@ html.theme-presentation .mini button,
 html[data-tavle-theme="presentation"] .mini button{min-width:30px!important;min-height:30px!important;padding:4px 7px!important;border-radius:10px!important;background:#f8fafc!important;color:#475467!important;border:1px solid #e5e7eb!important;font-size:12px!important;font-weight:900!important;box-shadow:none!important;}
 html.theme-presentation .content,
 html[data-tavle-theme="presentation"] .content{background:#fff!important;color:#111827!important;border-radius:0 0 20px 20px!important;}
+
+/* l565: Når widgetbjælken er skjult i fokus/maksimering, skal indholdet igen have afrundede top-hjørner som i præsentation. */
+html.theme-presentation body.focus-mode .widget .content,
+html.theme-presentation body.focus-edit .widget .content,
+html.theme-presentation body.focus-presentation .widget .content,
+html.theme-presentation body.focus-maximized .widget .content,
+html[data-tavle-theme="presentation"] body.focus-mode .widget .content,
+html[data-tavle-theme="presentation"] body.focus-edit .widget .content,
+html[data-tavle-theme="presentation"] body.focus-presentation .widget .content,
+html[data-tavle-theme="presentation"] body.focus-maximized .widget .content{height:100%!important;border-radius:20px!important;overflow:auto!important;}
+
+/* l565: I fokus er bjælken væk, så farvestregen må igen gå helt op og følge widgettens runding. */
+html.theme-presentation body.focus-mode .widget::before,
+html.theme-presentation body.focus-edit .widget::before,
+html.theme-presentation body.focus-presentation .widget::before,
+html.theme-presentation body.focus-maximized .widget::before,
+html[data-tavle-theme="presentation"] body.focus-mode .widget::before,
+html[data-tavle-theme="presentation"] body.focus-edit .widget::before,
+html[data-tavle-theme="presentation"] body.focus-presentation .widget::before,
+html[data-tavle-theme="presentation"] body.focus-maximized .widget::before{top:0!important;border-radius:20px 0 0 20px!important;}
+
 html.theme-presentation .present .content,
 html[data-tavle-theme="presentation"] .present .content{border-radius:20px!important;}
 html.theme-presentation .resize,
@@ -59956,7 +60050,7 @@ html[data-tavle-theme="flipover"] #addSlide{background:#f59e0b!important;color:#
 html.theme-flipover .widget,
 html[data-tavle-theme="flipover"] .widget{background:#fffef7!important;border:2px solid rgba(146,64,14,.22)!important;border-radius:8px!important;box-shadow:0 12px 0 rgba(120,53,15,.09),0 22px 42px rgba(120,53,15,.14)!important;}
 html.theme-flipover .widget::before,
-html[data-tavle-theme="flipover"] .widget::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:#f59e0b;opacity:.85;pointer-events:none;z-index:4;border-radius:8px 0 0 8px;}
+html[data-tavle-theme="flipover"] .widget::before{content:"";position:absolute;left:0;top:40px;bottom:0;width:6px;background:#f59e0b;opacity:.85;pointer-events:none;z-index:4;border-radius:0 0 0 8px;}
 html.theme-flipover .chrome,
 html[data-tavle-theme="flipover"] .chrome{background:#fffbeb!important;color:#1f2937!important;border-bottom:2px solid rgba(146,64,14,.16)!important;border-radius:8px 8px 0 0!important;font-weight:900!important;}
 html.theme-flipover .content:not(.kahoopardy),
@@ -59995,7 +60089,7 @@ html[data-tavle-theme="smartboard"] #addSlide{background:#0284c7!important;color
 html.theme-smartboard .widget,
 html[data-tavle-theme="smartboard"] .widget{background:#f8fafc!important;border:1px solid rgba(56,189,248,.32)!important;border-radius:18px!important;box-shadow:0 0 0 1px rgba(56,189,248,.10),0 18px 52px rgba(2,6,23,.34)!important;}
 html.theme-smartboard .widget::before,
-html[data-tavle-theme="smartboard"] .widget::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#38bdf8;opacity:.90;pointer-events:none;z-index:4;border-radius:18px 0 0 18px;}
+html[data-tavle-theme="smartboard"] .widget::before{content:"";position:absolute;left:0;top:40px;bottom:0;width:5px;background:#38bdf8;opacity:.90;pointer-events:none;z-index:4;border-radius:0 0 0 18px;}
 html.theme-smartboard .chrome,
 html[data-tavle-theme="smartboard"] .chrome{background:linear-gradient(135deg,#020617,#0f172a)!important;color:#e0f2fe!important;border-bottom:1px solid rgba(56,189,248,.28)!important;border-radius:18px 18px 0 0!important;}
 html.theme-smartboard .content:not(.kahoopardy),
@@ -60013,6 +60107,307 @@ html[data-tavle-theme="smartboard"] .modal input,
 html[data-tavle-theme="smartboard"] .modal textarea,
 html[data-tavle-theme="smartboard"] .modal select{background:#f8fafc!important;color:#111827!important;}
 
+/* l566: FlipOver/SmartBoard — i fokus er widgetbjælken skjult, så venstrestregen og selve tekst-/listefladen skal følge hele widgettens runding. */
+html.theme-flipover body.focus-mode .widget::before,
+html.theme-flipover body.focus-edit .widget::before,
+html.theme-flipover body.focus-presentation .widget::before,
+html.theme-flipover body.focus-maximized .widget::before,
+html[data-tavle-theme="flipover"] body.focus-mode .widget::before,
+html[data-tavle-theme="flipover"] body.focus-edit .widget::before,
+html[data-tavle-theme="flipover"] body.focus-presentation .widget::before,
+html[data-tavle-theme="flipover"] body.focus-maximized .widget::before{top:0!important;border-radius:8px 0 0 8px!important;}
+
+html.theme-smartboard body.focus-mode .widget::before,
+html.theme-smartboard body.focus-edit .widget::before,
+html.theme-smartboard body.focus-presentation .widget::before,
+html.theme-smartboard body.focus-maximized .widget::before,
+html[data-tavle-theme="smartboard"] body.focus-mode .widget::before,
+html[data-tavle-theme="smartboard"] body.focus-edit .widget::before,
+html[data-tavle-theme="smartboard"] body.focus-presentation .widget::before,
+html[data-tavle-theme="smartboard"] body.focus-maximized .widget::before{top:0!important;border-radius:18px 0 0 18px!important;}
+
+html.theme-flipover body.focus-mode .widget[data-type="text"],
+html.theme-flipover body.focus-edit .widget[data-type="text"],
+html.theme-flipover body.focus-presentation .widget[data-type="text"],
+html.theme-flipover body.focus-maximized .widget[data-type="text"],
+html[data-tavle-theme="flipover"] body.focus-mode .widget[data-type="text"],
+html[data-tavle-theme="flipover"] body.focus-edit .widget[data-type="text"],
+html[data-tavle-theme="flipover"] body.focus-presentation .widget[data-type="text"],
+html[data-tavle-theme="flipover"] body.focus-maximized .widget[data-type="text"]{border-radius:8px!important;overflow:hidden!important;}
+
+html.theme-smartboard body.focus-mode .widget[data-type="text"],
+html.theme-smartboard body.focus-edit .widget[data-type="text"],
+html.theme-smartboard body.focus-presentation .widget[data-type="text"],
+html.theme-smartboard body.focus-maximized .widget[data-type="text"],
+html[data-tavle-theme="smartboard"] body.focus-mode .widget[data-type="text"],
+html[data-tavle-theme="smartboard"] body.focus-edit .widget[data-type="text"],
+html[data-tavle-theme="smartboard"] body.focus-presentation .widget[data-type="text"],
+html[data-tavle-theme="smartboard"] body.focus-maximized .widget[data-type="text"]{border-radius:18px!important;overflow:hidden!important;}
+
+html.theme-flipover body.focus-mode .widget .content:not(.kahoopardy),
+html.theme-flipover body.focus-edit .widget .content:not(.kahoopardy),
+html.theme-flipover body.focus-presentation .widget .content:not(.kahoopardy),
+html.theme-flipover body.focus-maximized .widget .content:not(.kahoopardy),
+html[data-tavle-theme="flipover"] body.focus-mode .widget .content:not(.kahoopardy),
+html[data-tavle-theme="flipover"] body.focus-edit .widget .content:not(.kahoopardy),
+html[data-tavle-theme="flipover"] body.focus-presentation .widget .content:not(.kahoopardy),
+html[data-tavle-theme="flipover"] body.focus-maximized .widget .content:not(.kahoopardy){height:100%!important;border-radius:8px!important;overflow:auto!important;}
+
+html.theme-smartboard body.focus-mode .widget .content:not(.kahoopardy),
+html.theme-smartboard body.focus-edit .widget .content:not(.kahoopardy),
+html.theme-smartboard body.focus-presentation .widget .content:not(.kahoopardy),
+html.theme-smartboard body.focus-maximized .widget .content:not(.kahoopardy),
+html[data-tavle-theme="smartboard"] body.focus-mode .widget .content:not(.kahoopardy),
+html[data-tavle-theme="smartboard"] body.focus-edit .widget .content:not(.kahoopardy),
+html[data-tavle-theme="smartboard"] body.focus-presentation .widget .content:not(.kahoopardy),
+html[data-tavle-theme="smartboard"] body.focus-maximized .widget .content:not(.kahoopardy){height:100%!important;border-radius:18px!important;overflow:auto!important;}
+
+html.theme-flipover body.focus-mode .widget[data-type="text"] .text,
+html.theme-flipover body.focus-edit .widget[data-type="text"] .text,
+html.theme-flipover body.focus-presentation .widget[data-type="text"] .text,
+html.theme-flipover body.focus-maximized .widget[data-type="text"] .text,
+html.theme-flipover body.focus-mode .widget[data-type="text"] .text textarea,
+html.theme-flipover body.focus-edit .widget[data-type="text"] .text textarea,
+html.theme-flipover body.focus-presentation .widget[data-type="text"] .text textarea,
+html.theme-flipover body.focus-maximized .widget[data-type="text"] .text textarea,
+html[data-tavle-theme="flipover"] body.focus-mode .widget[data-type="text"] .text,
+html[data-tavle-theme="flipover"] body.focus-edit .widget[data-type="text"] .text,
+html[data-tavle-theme="flipover"] body.focus-presentation .widget[data-type="text"] .text,
+html[data-tavle-theme="flipover"] body.focus-maximized .widget[data-type="text"] .text,
+html[data-tavle-theme="flipover"] body.focus-mode .widget[data-type="text"] .text textarea,
+html[data-tavle-theme="flipover"] body.focus-edit .widget[data-type="text"] .text textarea,
+html[data-tavle-theme="flipover"] body.focus-presentation .widget[data-type="text"] .text textarea,
+html[data-tavle-theme="flipover"] body.focus-maximized .widget[data-type="text"] .text textarea{height:100%!important;border-radius:8px!important;overflow:hidden!important;}
+
+html.theme-smartboard body.focus-mode .widget[data-type="text"] .text,
+html.theme-smartboard body.focus-edit .widget[data-type="text"] .text,
+html.theme-smartboard body.focus-presentation .widget[data-type="text"] .text,
+html.theme-smartboard body.focus-maximized .widget[data-type="text"] .text,
+html.theme-smartboard body.focus-mode .widget[data-type="text"] .text textarea,
+html.theme-smartboard body.focus-edit .widget[data-type="text"] .text textarea,
+html.theme-smartboard body.focus-presentation .widget[data-type="text"] .text textarea,
+html.theme-smartboard body.focus-maximized .widget[data-type="text"] .text textarea,
+html[data-tavle-theme="smartboard"] body.focus-mode .widget[data-type="text"] .text,
+html[data-tavle-theme="smartboard"] body.focus-edit .widget[data-type="text"] .text,
+html[data-tavle-theme="smartboard"] body.focus-presentation .widget[data-type="text"] .text,
+html[data-tavle-theme="smartboard"] body.focus-maximized .widget[data-type="text"] .text,
+html[data-tavle-theme="smartboard"] body.focus-mode .widget[data-type="text"] .text textarea,
+html[data-tavle-theme="smartboard"] body.focus-edit .widget[data-type="text"] .text textarea,
+html[data-tavle-theme="smartboard"] body.focus-presentation .widget[data-type="text"] .text textarea,
+html[data-tavle-theme="smartboard"] body.focus-maximized .widget[data-type="text"] .text textarea{height:100%!important;border-radius:18px!important;overflow:hidden!important;}
+
+
+/* l567: OpslagsTavle + GlasTavle — kun almindelige Tekst-/Listewidgets i fokus.
+   Når chrome/bjælke skjules, skal post-it-lærredet klippes og afrundes som i præsentation.
+   Datawidgets holdes udenfor. Ingen JS eller widgetlogik. */
+html.theme-classic body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-classic body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-classic body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-classic body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-opslagstavle body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-opslagstavle body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-opslagstavle body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-opslagstavle body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html[data-tavle-theme="opslagstavle"] body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html[data-tavle-theme="opslagstavle"] body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html[data-tavle-theme="opslagstavle"] body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html[data-tavle-theme="opslagstavle"] body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]){
+  border-radius:18px!important;
+  overflow:hidden!important;
+}
+
+html.theme-classic body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-classic body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-classic body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-classic body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-opslagstavle body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-opslagstavle body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-opslagstavle body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-opslagstavle body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html[data-tavle-theme="opslagstavle"] body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html[data-tavle-theme="opslagstavle"] body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html[data-tavle-theme="opslagstavle"] body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html[data-tavle-theme="opslagstavle"] body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-classic body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-classic body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-classic body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-classic body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-opslagstavle body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-opslagstavle body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-opslagstavle body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-opslagstavle body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html[data-tavle-theme="opslagstavle"] body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html[data-tavle-theme="opslagstavle"] body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html[data-tavle-theme="opslagstavle"] body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html[data-tavle-theme="opslagstavle"] body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-classic body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-classic body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-classic body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-classic body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-opslagstavle body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-opslagstavle body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-opslagstavle body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-opslagstavle body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html[data-tavle-theme="opslagstavle"] body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html[data-tavle-theme="opslagstavle"] body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html[data-tavle-theme="opslagstavle"] body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html[data-tavle-theme="opslagstavle"] body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea{
+  height:100%!important;
+  border-radius:18px!important;
+  overflow:hidden!important;
+  background:#fff4a8!important;
+}
+
+html.theme-presentation body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-presentation body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-presentation body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-presentation body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-glastavle body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-glastavle body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-glastavle body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html.theme-glastavle body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html[data-tavle-theme="glastavle"] body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html[data-tavle-theme="glastavle"] body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html[data-tavle-theme="glastavle"] body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]),
+html[data-tavle-theme="glastavle"] body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]){
+  border-radius:20px!important;
+  overflow:hidden!important;
+}
+
+html.theme-presentation body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-presentation body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-presentation body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-presentation body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-glastavle body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-glastavle body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-glastavle body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-glastavle body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html[data-tavle-theme="glastavle"] body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html[data-tavle-theme="glastavle"] body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html[data-tavle-theme="glastavle"] body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html[data-tavle-theme="glastavle"] body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .content,
+html.theme-presentation body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-presentation body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-presentation body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-presentation body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-glastavle body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-glastavle body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-glastavle body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-glastavle body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html[data-tavle-theme="glastavle"] body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html[data-tavle-theme="glastavle"] body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html[data-tavle-theme="glastavle"] body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html[data-tavle-theme="glastavle"] body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text,
+html.theme-presentation body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-presentation body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-presentation body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-presentation body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-glastavle body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-glastavle body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-glastavle body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html.theme-glastavle body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html[data-tavle-theme="glastavle"] body.focus-mode .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html[data-tavle-theme="glastavle"] body.focus-edit .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html[data-tavle-theme="glastavle"] body.focus-presentation .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea,
+html[data-tavle-theme="glastavle"] body.focus-maximized .widget[data-type="text"]:not(.datasetTextWidget):not(.linkedDataSourceOpen):not([data-dataset-view="true"]) .text textarea{
+  height:100%!important;
+  border-radius:20px!important;
+  overflow:hidden!important;
+  background:#fff4a8!important;
+}
+
+
+/* l568: I fokus/maksimering er widgetbjælken skjult.
+   Derfor skal hele widgetten selv klippe temaets venstrestreg og underliggende lærred,
+   ikke kun Note/Liste. Det retter billed-/PDF-/HTML-/øvrige widgets i GlasTavle og SmartBoard
+   og holder samme adfærd stabil i OpslagsTavle og FlipOver. */
+html.theme-presentation body.focus-mode .widget,
+html.theme-presentation body.focus-edit .widget,
+html.theme-presentation body.focus-presentation .widget,
+html.theme-presentation body.focus-maximized .widget,
+html.theme-glastavle body.focus-mode .widget,
+html.theme-glastavle body.focus-edit .widget,
+html.theme-glastavle body.focus-presentation .widget,
+html.theme-glastavle body.focus-maximized .widget,
+html[data-tavle-theme="glastavle"] body.focus-mode .widget,
+html[data-tavle-theme="glastavle"] body.focus-edit .widget,
+html[data-tavle-theme="glastavle"] body.focus-presentation .widget,
+html[data-tavle-theme="glastavle"] body.focus-maximized .widget,
+html.theme-smartboard body.focus-mode .widget,
+html.theme-smartboard body.focus-edit .widget,
+html.theme-smartboard body.focus-presentation .widget,
+html.theme-smartboard body.focus-maximized .widget,
+html[data-tavle-theme="smartboard"] body.focus-mode .widget,
+html[data-tavle-theme="smartboard"] body.focus-edit .widget,
+html[data-tavle-theme="smartboard"] body.focus-presentation .widget,
+html[data-tavle-theme="smartboard"] body.focus-maximized .widget,
+html.theme-flipover body.focus-mode .widget,
+html.theme-flipover body.focus-edit .widget,
+html.theme-flipover body.focus-presentation .widget,
+html.theme-flipover body.focus-maximized .widget,
+html[data-tavle-theme="flipover"] body.focus-mode .widget,
+html[data-tavle-theme="flipover"] body.focus-edit .widget,
+html[data-tavle-theme="flipover"] body.focus-presentation .widget,
+html[data-tavle-theme="flipover"] body.focus-maximized .widget,
+html.theme-classic body.focus-mode .widget,
+html.theme-classic body.focus-edit .widget,
+html.theme-classic body.focus-presentation .widget,
+html.theme-classic body.focus-maximized .widget,
+html.theme-opslagstavle body.focus-mode .widget,
+html.theme-opslagstavle body.focus-edit .widget,
+html.theme-opslagstavle body.focus-presentation .widget,
+html.theme-opslagstavle body.focus-maximized .widget,
+html[data-tavle-theme="opslagstavle"] body.focus-mode .widget,
+html[data-tavle-theme="opslagstavle"] body.focus-edit .widget,
+html[data-tavle-theme="opslagstavle"] body.focus-presentation .widget,
+html[data-tavle-theme="opslagstavle"] body.focus-maximized .widget{
+  overflow:hidden!important;
+}
+
+html.theme-presentation body.focus-mode .widget .content,
+html.theme-presentation body.focus-edit .widget .content,
+html.theme-presentation body.focus-presentation .widget .content,
+html.theme-presentation body.focus-maximized .widget .content,
+html.theme-glastavle body.focus-mode .widget .content,
+html.theme-glastavle body.focus-edit .widget .content,
+html.theme-glastavle body.focus-presentation .widget .content,
+html.theme-glastavle body.focus-maximized .widget .content,
+html[data-tavle-theme="glastavle"] body.focus-mode .widget .content,
+html[data-tavle-theme="glastavle"] body.focus-edit .widget .content,
+html[data-tavle-theme="glastavle"] body.focus-presentation .widget .content,
+html[data-tavle-theme="glastavle"] body.focus-maximized .widget .content,
+html.theme-smartboard body.focus-mode .widget .content:not(.kahoopardy),
+html.theme-smartboard body.focus-edit .widget .content:not(.kahoopardy),
+html.theme-smartboard body.focus-presentation .widget .content:not(.kahoopardy),
+html.theme-smartboard body.focus-maximized .widget .content:not(.kahoopardy),
+html[data-tavle-theme="smartboard"] body.focus-mode .widget .content:not(.kahoopardy),
+html[data-tavle-theme="smartboard"] body.focus-edit .widget .content:not(.kahoopardy),
+html[data-tavle-theme="smartboard"] body.focus-presentation .widget .content:not(.kahoopardy),
+html[data-tavle-theme="smartboard"] body.focus-maximized .widget .content:not(.kahoopardy),
+html.theme-flipover body.focus-mode .widget .content:not(.kahoopardy),
+html.theme-flipover body.focus-edit .widget .content:not(.kahoopardy),
+html.theme-flipover body.focus-presentation .widget .content:not(.kahoopardy),
+html.theme-flipover body.focus-maximized .widget .content:not(.kahoopardy),
+html[data-tavle-theme="flipover"] body.focus-mode .widget .content:not(.kahoopardy),
+html[data-tavle-theme="flipover"] body.focus-edit .widget .content:not(.kahoopardy),
+html[data-tavle-theme="flipover"] body.focus-presentation .widget .content:not(.kahoopardy),
+html[data-tavle-theme="flipover"] body.focus-maximized .widget .content:not(.kahoopardy),
+html.theme-classic body.focus-mode .widget .content:not(.kahoopardy),
+html.theme-classic body.focus-edit .widget .content:not(.kahoopardy),
+html.theme-classic body.focus-presentation .widget .content:not(.kahoopardy),
+html.theme-classic body.focus-maximized .widget .content:not(.kahoopardy),
+html.theme-opslagstavle body.focus-mode .widget .content:not(.kahoopardy),
+html.theme-opslagstavle body.focus-edit .widget .content:not(.kahoopardy),
+html.theme-opslagstavle body.focus-presentation .widget .content:not(.kahoopardy),
+html.theme-opslagstavle body.focus-maximized .widget .content:not(.kahoopardy),
+html[data-tavle-theme="opslagstavle"] body.focus-mode .widget .content:not(.kahoopardy),
+html[data-tavle-theme="opslagstavle"] body.focus-edit .widget .content:not(.kahoopardy),
+html[data-tavle-theme="opslagstavle"] body.focus-presentation .widget .content:not(.kahoopardy),
+html[data-tavle-theme="opslagstavle"] body.focus-maximized .widget .content:not(.kahoopardy){
+  height:100%!important;
+  border-radius:inherit!important;
+  overflow:hidden!important;
+}
 
 /* l548-theme-modal-contrast-safe: Kun kontrast for data-/filmodaler i temaer.
    Ingen JS, ingen modal-flow, ingen z-index eller pointer-events. */
