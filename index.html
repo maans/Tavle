@@ -1,4 +1,10 @@
+<!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!doctype html>
+<!-- l596-moremenu-mode-toggle-ninja: Bygger på l595. Kirurgisk shortcut-ejer-fix: plain R/P må skifte redigering/præsentation mens Mere-menu eller almindelig modal er åben, men kun når fokus ikke står i input/textarea/select/contenteditable. Ingen ændring af Mere-navigation, PDF, spejlwidgets eller modal-flow. -->
+<!-- l595-pdf-toolbar-layer-ninja: Bygger på l593. Kasserer l594-event-owner. Kun kirurgisk CSS + passiv PDF-toolbar guard: PDF-værktøjslinjen ligger altid over PDF-piletastlaget, og pointer/touch på toolbaren slipper PDF-piletaster uden at stoppe knappernes egne handlers. -->
+<!-- l592-mirror-widget-arrow-cycle: Bygger på l591. Kirurgisk fix: pil op/ned bruger nu alle synlige widgetter på tavlen inkl. spejlede, og select()/PDF-keyboard finder widgetter via sharedVisibility-modellen. -->
+<!-- l591-shared-widget-mirror-overview: Bygger på l590. Begrebet "Vis samme widget" skiftes til "Spejl widget", og Tavleoversigt tæller både fysiske og spejlede widgetter. -->
+<!-- l590-shared-widget-selected-tools: Bygger på l589. Widgetplacering-modalens Udvalgte-område får mere plads samt Alle til / Alle fra / Kun nu. Ingen ændring af sharedVisibility-model eller øvrige widgetlogik. -->
 <!-- l584-pdf-focus-arrow-owner: Bygger på l583. Fokuseret PDFWidget ejer nu piletasterne på samme måde som maksimeret PDF: venstre/højre bladrer, op/ned scroller, og tasten stoppes før tavle-/focus-cleanup kan lukke fokustilstand. Ingen Quine/shortcut-forsøg. -->
 <!-- l583-pdf-exit-refit-width: Bygger på l582. Når en PDFWidget forlader maksimeret visning, sættes PDF-zoom igen til bredde-tilpasning/100% og re-renderes efter layoutet har sat sig. Ingen Quine/shortcut-forsøg. -->
 <!-- l567-note-list-focus-rounding-opslag-glass: Kirurgisk CSS-fix kun for almindelige Tekst-/Listewidgets i OpslagsTavle og GlasTavle: når widgetbjælken skjules i fokus/maksimering, klippes post-it-lærredet og textarea inden for samme afrundede hjørner som i præsentation. Ingen JS/widgetlogik. -->
@@ -329,7 +335,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.78 l578-help-startup-seen-key-default-on</title>
+<title>Interaktiv tavle v1.2.96 l596-moremenu-mode-toggle-ninja</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -8534,6 +8540,38 @@ body.focus-presentation .content.pdf .pdfFormOverlay{
 @media(max-width:760px){.safe526GameLib{width:min(96vw,860px)!important}.safe526Grid{grid-template-columns:1fr!important}}
 @media(max-width:620px){.safe526Title h2{font-size:19px!important}.safe526Title p{font-size:13px!important}.safe526Name{font-size:17px!important}.safe526Select{width:128px!important;min-width:128px!important;max-width:128px!important}}
 
+
+
+/* l591: Tavleoversigt viser spejlede widgetter særskilt fra widgetter, der fysisk bor på tavlen. */
+.boardOverviewMeta{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.boardOverviewMirrorBadge{display:inline-flex;align-items:center;border-radius:999px;background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;padding:2px 7px;font-weight:950;white-space:nowrap;}
+.boardOverviewMirrorBadge::before{content:"↔";font-weight:950;margin-right:4px;}
+
+
+/* l595: PDF-toolbar må aldrig ligge under PDF-piletast-/viewer-lag.
+   Kun z-index/pointer-events for PDF-widgettens egen toolbar og hint. */
+.widget[data-type="pdf"] .content.pdf .pdfControls,
+.widget[data-type="pdf"].pdfKeyboardActive .content.pdf .pdfControls{
+  position:absolute!important;
+  z-index:2140!important;
+  pointer-events:auto!important;
+  isolation:isolate!important;
+}
+.widget[data-type="pdf"] .content.pdf .pdfControls *,
+.widget[data-type="pdf"].pdfKeyboardActive .content.pdf .pdfControls *{
+  pointer-events:auto!important;
+}
+.widget[data-type="pdf"] .content.pdf .pdfJsViewer{
+  z-index:1!important;
+}
+.widget[data-type="pdf"] .content.pdf .pdfEdgeNav{
+  z-index:5!important;
+}
+.widget[data-type="pdf"].pdfKeyboardActive::after{
+  z-index:6!important;
+  pointer-events:none!important;
+}
+
 </style>
 <!-- Added theme support: define classic and modern themes and editing/presentation title colours -->
 <style id="custom-themes">
@@ -13168,6 +13206,15 @@ Aktuelle centrale genveje i denne fil:
           }
         }
       }catch(_e){}
+      /* l596: Plain R/P må skifte redigering/præsentation, selv om Mere-menuen
+         eller en almindelig modal er åben. Alt andet modal-/Mere-keyboardflow
+         bevares: inputfelter, pile, Enter, Space og Esc går stadig til ejeren. */
+      const keyBeforeModal=normalizeShortcutKey(e);
+      const plainModeToggleBeforeModal=!e.shiftKey&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&(keyBeforeModal==='p'||keyBeforeModal==='r');
+      if(!isTyping(e) && plainModeToggleBeforeModal && (modalOpen() || document.querySelector('.moreMenu'))){
+        runShortcut(e,TAVLE_SHORTCUTS.plain[keyBeforeModal],window.tavleShortcutAPI||{});
+        return;
+      }
       if(isTyping(e) || modalOpen()) return;
       // SAFE454a: Når Mere-menuen allerede er åben, skal dens egen tastaturnavigation eje pil/Enter/Space/Esc.
       if(document.querySelector('.moreMenu')) return;
@@ -14798,13 +14845,400 @@ window.fitWidgetToViewport=fitWidgetToViewport;
 window.rescueWidgetsToViewport=rescueWidgetsToViewport;
 window.rescueSelectedWidgetToViewport=rescueSelectedWidgetToViewport;
 
+
+/* l589-shared-widget-compact-modal
+   Ejer-model for “samme widget på flere tavler”. Widgetten ligger fysisk ét sted
+   i slide.widgets. sharedVisibility afgør, hvor samme objekt vises. */
+function safe588IsTrashSlide(s){
+  try{
+    if(typeof isTrashBoard==='function' && isTrashBoard(s))return true;
+    if(typeof safe134IsTrashSlideForNav==='function' && safe134IsTrashSlideForNav(s))return true;
+    return !!(s && (s.isTrashBoard===true || s.title==='🗑 Papirkurv' || s.title==='Papirkurv'));
+  }catch(_e){return false;}
+}
+function safe588EnsureSlideIds(){
+  try{
+    const arr=(state&&Array.isArray(state.slides))?state.slides:[];
+    arr.forEach(function(s,i){
+      if(!s)return;
+      if(!s.id)s.id='slide_'+Date.now().toString(36)+'_'+i+'_'+Math.random().toString(36).slice(2,8);
+      if(!Array.isArray(s.widgets))s.widgets=[];
+    });
+  }catch(_e){}
+}
+function safe588SlideId(index){
+  try{safe588EnsureSlideIds();const s=state.slides[index];return s?String(s.id||''):'';}catch(_e){return '';}
+}
+function safe588SlideIndexFromId(id){
+  try{safe588EnsureSlideIds();id=String(id||'');return (state.slides||[]).findIndex(s=>String((s&&s.id)||'')===id);}catch(_e){return -1;}
+}
+function safe588NormalSlideIndices(){
+  const out=[];
+  try{safe588EnsureSlideIds();(state.slides||[]).forEach(function(s,i){if(!safe588IsTrashSlide(s))out.push(i);});}catch(_e){}
+  return out;
+}
+function safe588FindWidgetRecord(id){
+  try{
+    id=String(id||'');
+    safe588EnsureSlideIds();
+    for(let si=0;si<(state.slides||[]).length;si++){
+      const s=state.slides[si];
+      const ws=(s&&Array.isArray(s.widgets))?s.widgets:[];
+      const wi=ws.findIndex(w=>String((w&&w.id)||'')===id);
+      if(wi>=0)return {slide:s,slideIndex:si,index:wi,w:ws[wi]};
+    }
+  }catch(_e){}
+  return null;
+}
+function safe588ClonePlain(obj,fallback){try{return JSON.parse(JSON.stringify(obj));}catch(_e){return fallback;}}
+function safe588NormalizeVisibility(w,homeIndex){
+  try{
+    if(!w||typeof w!=='object')return {mode:'single',slideIds:[]};
+    safe588EnsureSlideIds();
+    if(!Number.isInteger(homeIndex)){
+      const rec=safe588FindWidgetRecord(w.id);
+      homeIndex=rec?rec.slideIndex:state.active;
+    }
+    const homeId=safe588SlideId(homeIndex)||safe588SlideId(state.active);
+    let v=w.sharedVisibility;
+    if(!v||typeof v!=='object')v={mode:'single',slideIds:homeId?[homeId]:[]};
+    let mode=String(v.mode||'single');
+    if(!['single','all','selected','archived'].includes(mode))mode='single';
+    let ids=Array.isArray(v.slideIds)?v.slideIds.map(x=>String(x)).filter(Boolean):[];
+    ids=Array.from(new Set(ids.filter(id=>safe588SlideIndexFromId(id)>=0)));
+    if(mode==='single'&&!ids.length&&homeId)ids=[homeId];
+    if(mode==='selected'&&!ids.length){mode='single';ids=homeId?[homeId]:[];}
+    if(mode==='archived')ids=[];
+    w.sharedVisibility={mode:mode,slideIds:ids};
+    return w.sharedVisibility;
+  }catch(_e){return {mode:'single',slideIds:[]};}
+}
+function safe588SetVisibility(w,mode,slideIds){
+  if(!w)return null;
+  safe588EnsureSlideIds();
+  mode=String(mode||'single');
+  if(!['single','all','selected','archived'].includes(mode))mode='single';
+  let ids=Array.isArray(slideIds)?slideIds.map(x=>String(x)).filter(Boolean):[];
+  ids=Array.from(new Set(ids.filter(function(id){
+    const idx=safe588SlideIndexFromId(id);
+    return idx>=0 && !safe588IsTrashSlide(state.slides[idx]);
+  })));
+  if(mode==='single')ids=ids.length?[ids[0]]:[safe588SlideId(state.active)].filter(Boolean);
+  if(mode==='selected'&&!ids.length){mode='single';ids=[safe588SlideId(state.active)].filter(Boolean);}
+  if(mode==='archived')ids=[];
+  w.sharedVisibility={mode:mode,slideIds:ids};
+  return w.sharedVisibility;
+}
+function safe588WidgetVisibleOnSlide(w,currentIndex,homeIndex){
+  try{
+    if(!w)return false;
+    if(safe588IsTrashSlide(state.slides[homeIndex]))return currentIndex===homeIndex;
+    if(safe588IsTrashSlide(state.slides[currentIndex]))return currentIndex===homeIndex;
+    const v=safe588NormalizeVisibility(w,homeIndex);
+    if(v.mode==='archived')return false;
+    if(v.mode==='all')return true;
+    const sid=safe588SlideId(currentIndex);
+    return (v.slideIds||[]).map(String).includes(String(sid));
+  }catch(_e){return false;}
+}
+function safe588CurrentWidgetRecords(){
+  const out=[];
+  try{
+    safe588EnsureSlideIds();
+    const cur=state.active;
+    if(safe588IsTrashSlide(state.slides[cur])){
+      ((state.slides[cur]&&state.slides[cur].widgets)||[]).forEach(function(w,wi){out.push({slide:state.slides[cur],slideIndex:cur,index:wi,w:w});});
+      return out;
+    }
+    (state.slides||[]).forEach(function(s,si){
+      ((s&&s.widgets)||[]).forEach(function(w,wi){
+        if(safe588WidgetVisibleOnSlide(w,cur,si))out.push({slide:s,slideIndex:si,index:wi,w:w});
+      });
+    });
+  }catch(_e){}
+  return out;
+}
+function safe588WidgetsForCurrentSlide(){return safe588CurrentWidgetRecords().map(r=>r.w);}
+function safe588EnsureVisibleOnSlide(w){
+  try{
+    if(typeof ensureVisibleOnSlide==='function')ensureVisibleOnSlide(w);
+    else if(typeof fitWidgetToViewport==='function')fitWidgetToViewport(w,{resetRotation:false});
+  }catch(_e){}
+}
+function safe588MovePhysicalWidget(widgetId,targetIndex,sourceIndex){
+  try{
+    targetIndex=Number(targetIndex);
+    if(!Number.isInteger(targetIndex)||targetIndex<0||targetIndex>=state.slides.length||safe588IsTrashSlide(state.slides[targetIndex]))return null;
+    const rec=safe588FindWidgetRecord(widgetId);
+    if(!rec||!rec.w)return null;
+    if(rec.slideIndex!==targetIndex){
+      rec.slide.widgets.splice(rec.index,1);
+      state.slides[targetIndex].widgets=state.slides[targetIndex].widgets||[];
+      state.slides[targetIndex].widgets.push(rec.w);
+    }
+    safe588EnsureVisibleOnSlide(rec.w);
+    safe588SetVisibility(rec.w,'single',[safe588SlideId(targetIndex)]);
+    return rec.w;
+  }catch(_e){return null;}
+}
+function safe588CopyWidget(widgetId,targetIndex){
+  try{
+    targetIndex=Number(targetIndex);
+    if(!Number.isInteger(targetIndex)||targetIndex<0||targetIndex>=state.slides.length||safe588IsTrashSlide(state.slides[targetIndex]))return null;
+    const rec=safe588FindWidgetRecord(widgetId);
+    if(!rec||!rec.w)return null;
+    const copy=safe588ClonePlain(rec.w,null);
+    if(!copy)return null;
+    copy.id=(typeof uid==='function')?uid():('w'+Date.now()+Math.random());
+    copy.x=Number(copy.x||0)+30; copy.y=Number(copy.y||0)+30; copy.z=++z;
+    delete copy.sharedVisibility;
+    Object.keys(copy).forEach(function(k){if(/^_trash/.test(k))delete copy[k];});
+    safe588EnsureVisibleOnSlide(copy);
+    safe588SetVisibility(copy,'single',[safe588SlideId(targetIndex)]);
+    state.slides[targetIndex].widgets=state.slides[targetIndex].widgets||[];
+    state.slides[targetIndex].widgets.push(copy);
+    return copy;
+  }catch(_e){return null;}
+}
+function safe588InsertNormalSlide(){
+  try{
+    const old=state.active;
+    if(typeof safe297InsertNewBoardBeforeTrash==='function'){
+      const idx=safe297InsertNewBoardBeforeTrash();
+      state.active=old;
+      safe588EnsureSlideIds();
+      return idx;
+    }
+    const ns=(typeof createThemedSlide==='function')?createThemedSlide():{title:'Ny tavle',widgets:[]};
+    const arr=state.slides;
+    const ti=arr.findIndex(safe588IsTrashSlide);
+    if(ti>=0){arr.splice(ti,0,ns);safe588EnsureSlideIds();return ti;}
+    arr.push(ns);safe588EnsureSlideIds();return arr.length-1;
+  }catch(_e){return -1;}
+}
+function safe588BoardLabel(realIndex){
+  try{
+    const normals=safe588NormalSlideIndices();
+    const n=normals.indexOf(realIndex);
+    const title=(typeof safeSlideTitle==='function')?safeSlideTitle(state.slides[realIndex],realIndex):((state.slides[realIndex]&&state.slides[realIndex].title)||('Tavle '+(realIndex+1)));
+    return (n>=0?n+1:realIndex+1)+'. '+title;
+  }catch(_e){return 'Tavle '+(Number(realIndex)+1);}
+}
+function safe588Toast(s){try{toast(s);}catch(_e){};}
+function safe588SelectAfterRender(id){setTimeout(function(){try{select(id,{editText:false});}catch(_e){}},20);}
+function safe588MoveToTarget(widgetId,targetIndex){
+  const w=safe588MovePhysicalWidget(widgetId,targetIndex,state.active);
+  if(!w){safe588Toast('Vælg først en tavle');return false;}
+  state.active=Number(targetIndex); selected=w.id; if(window.UIState)UIState.selectedWidgetId=w.id;
+  render(); safe588SelectAfterRender(w.id); save(); safe588Toast('Flyttet til '+safe588BoardLabel(targetIndex)); return true;
+}
+function safe588CopyToTarget(widgetId,targetIndex){
+  const copy=safe588CopyWidget(widgetId,targetIndex);
+  if(!copy){safe588Toast('Vælg først en tavle');return false;}
+  state.active=Number(targetIndex); selected=copy.id; if(window.UIState)UIState.selectedWidgetId=copy.id;
+  render(); safe588SelectAfterRender(copy.id); save(); safe588Toast('Kopieret til '+safe588BoardLabel(targetIndex)); return true;
+}
+function safe588ArchiveWidgetToTrash(id,opts){
+  try{
+    if(!id||safe588IsTrashSlide(slide()))return false;
+    const rec=safe588FindWidgetRecord(id);
+    if(!rec||!rec.w||safe588IsTrashSlide(rec.slide)) {safe588Toast('Vælg en widget først');return false;}
+    const sourceVisibleIndex=(!safe588IsTrashSlide(state.slides[state.active]))?state.active:rec.slideIndex;
+    const trashIdx=(typeof ensureTrashBoard==='function')?ensureTrashBoard():-1;
+    if(trashIdx<0)return false;
+    const trash=state.slides[trashIdx];
+    const w=rec.w;
+    rec.slide.widgets.splice(rec.index,1);
+    w._trashOriginSlideIndex=rec.slideIndex;
+    w._trashOriginTitle=(rec.slide&&rec.slide.title)||'Tavle';
+    w._trashOriginalX=w.x; w._trashOriginalY=w.y; w._trashOriginalW=w.w; w._trashOriginalH=w.h;
+    w._trashOriginalZ=w.z; w._trashOriginalRotation=w.rotation||0;
+    w._trashOriginalSharedVisibility=safe588ClonePlain(w.sharedVisibility||null,null);
+    w._trashArchivedNoBoards=!!(opts&&opts.visibilityArchive);
+    w._trashDeletedAt=Date.now();
+    w.sharedVisibility={mode:'archived',slideIds:[]};
+    trash.widgets=trash.widgets||[];
+    trash.widgets.push(w);
+    try{trashOverviewLayout(trash);}catch(_e){}
+    try{updateTrashTopIconState();}catch(_e){}
+    try{if(window.safe455L37SyncTrashBadge)window.safe455L37SyncTrashBadge();}catch(_e){}
+    if(String(selected)===String(id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
+    if(!safe588IsTrashSlide(state.slides[sourceVisibleIndex]))state.active=sourceVisibleIndex;
+    render(); save({silent:true}); safe588Toast('Widget flyttet til papirkurv'); return true;
+  }catch(_e){return false;}
+}
+function safe588RestoreVisibilityAfterTrash(w,targetIdx){
+  try{
+    const original=w._trashOriginalSharedVisibility?safe588ClonePlain(w._trashOriginalSharedVisibility,null):null;
+    const noBoards=!!w._trashArchivedNoBoards;
+    if(original && !noBoards)w.sharedVisibility=original;
+    else safe588SetVisibility(w,'single',[safe588SlideId(targetIdx)]);
+    delete w._trashOriginalSharedVisibility;
+    delete w._trashArchivedNoBoards;
+  }catch(_e){try{safe588SetVisibility(w,'single',[safe588SlideId(targetIdx)]);}catch(__e){}}
+}
+function safe588VisibilityStatus(w,homeIndex){
+  const v=safe588NormalizeVisibility(w,homeIndex);
+  if(v.mode==='all')return 'Spejlet på alle tavler';
+  if(v.mode==='selected')return 'Spejlet på '+v.slideIds.length+' tavle'+(v.slideIds.length===1?'':'r');
+  if(v.mode==='archived')return 'Arkiveret';
+  return 'Kun her';
+}
+function safe588TargetOptions(currentIndex,allowCurrent){
+  const opts=safe588NormalSlideIndices().filter(i=>allowCurrent||i!==currentIndex);
+  if(!opts.length)return '<option value="">Ingen anden tavle endnu</option>';
+  return opts.map(i=>'<option value="'+i+'">'+esc(safe588BoardLabel(i))+(i===currentIndex?' (nu)':'')+'</option>').join('');
+}
+function safe589EnsureMoveModalCss(){
+  try{
+    if(document.getElementById('l589-shared-widget-compact-modal-css'))return;
+    const st=document.createElement('style');
+    st.id='l589-shared-widget-compact-modal-css';
+    st.textContent=`
+      .modal.moveWidgetModal.l589MoveModal{
+        width:min(700px, calc(100vw - 32px))!important;
+        max-height:calc(100vh - 32px)!important;
+        padding:16px 18px!important;
+        overflow:auto!important;
+        box-sizing:border-box!important;
+      }
+      .l589MoveWidgetDialog{display:grid;gap:10px;max-width:100%;color:#111827;}
+      .l589Head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid #e5e7eb;padding-bottom:8px;}
+      .l589Head h2{margin:0!important;font-size:22px!important;line-height:1.08!important;letter-spacing:-.02em;}
+      .l589Meta{margin-top:4px;font-weight:850;font-size:13px;line-height:1.2;color:#475569;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+      .l589Pill{display:inline-flex;align-items:center;border-radius:999px;background:#eef2ff;color:#3730a3;padding:3px 8px;font-size:12px;font-weight:950;}
+      .l589CloseTop{flex:0 0 auto;border:0!important;border-radius:999px!important;width:34px!important;height:34px!important;padding:0!important;margin:0!important;background:#e5e7eb!important;color:#111827!important;font-size:20px!important;font-weight:950!important;}
+      .l589Card{display:grid;gap:7px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:14px;padding:10px 11px;}
+      .l589CardTop{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+      .l589CardTitle{font-size:16px;font-weight:950;line-height:1.1;}
+      .l589Tiny{font-size:12px;font-weight:850;color:#64748b;line-height:1.15;}
+      .l589Row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+      .l589Row select{width:min(310px,100%)!important;max-width:100%!important;flex:0 1 310px!important;margin:0!important;padding:8px 10px!important;border-radius:10px!important;font-weight:800!important;}
+      .l589Row button,.l589Footer button,.l589CloseTop{box-shadow:0 1px 4px rgba(15,23,42,.12)!important;}
+      .l589Row button{margin:0!important;padding:8px 11px!important;border-radius:10px!important;white-space:nowrap!important;}
+      .l589Row button.secondary{background:#e5e7eb!important;color:#111827!important;}
+      .l589Chips{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+      .l589Chip{display:inline-flex!important;align-items:center!important;gap:6px!important;background:#fff;border:1px solid #dbe3ef;border-radius:999px;padding:7px 10px;margin:0!important;font-weight:950;cursor:pointer;line-height:1;}
+      .l589Chip input{width:auto!important;margin:0!important;accent-color:#6d5dfc;}
+      .l589Chip:has(input:checked){background:#eef2ff;border-color:#c7d2fe;color:#312e81;box-shadow:0 0 0 3px rgba(109,93,252,.12);}
+      .l589CheckWrap{display:none;margin-top:2px;}
+      .l589CheckWrap.show{display:grid;gap:6px;}
+      .l590CheckTools{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap;}
+      .l590CheckTools button{margin:0!important;padding:6px 9px!important;border-radius:999px!important;background:#eef2ff!important;color:#312e81!important;font-size:12px!important;font-weight:950!important;}
+      .l589CheckGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;max-height:240px;overflow:auto;padding:6px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;}
+      .l589Check{display:flex!important;align-items:center!important;gap:7px!important;margin:0!important;padding:7px 8px!important;border-radius:10px!important;background:#f8fafc;font-weight:850;font-size:13px;min-width:0;}
+      .l589Check input{width:auto!important;margin:0!important;accent-color:#6d5dfc;flex:0 0 auto;}
+      .l589Check span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .l589Footer{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #e5e7eb;padding-top:8px;}
+      .l589Footer button{margin:0!important;padding:8px 12px!important;border-radius:10px!important;}
+      .l589Footer .secondary{background:#e5e7eb!important;color:#111827!important;}
+      @media(max-width:620px){
+        .modal.moveWidgetModal.l589MoveModal{width:calc(100vw - 18px)!important;padding:14px!important;}
+        .l589Row select{flex:1 1 100%!important;width:100%!important;}
+        .l589CheckGrid{grid-template-columns:1fr;max-height:250px;}
+        .l590CheckTools{justify-content:flex-start;}
+        .l589Head h2{font-size:20px!important;}
+      }
+    `;
+    document.head.appendChild(st);
+  }catch(_e){}
+}
+function safe588WidgetMoveModal(w){
+  try{
+    safe588EnsureSlideIds();
+    safe589EnsureMoveModalCss();
+    const rec=safe588FindWidgetRecord(w&&w.id);
+    if(rec&&rec.w)w=rec.w;
+    if(!w)return safe588Toast('Vælg en widget først');
+    const currentIndex=state.active;
+    const homeIndex=(rec&&Number.isInteger(rec.slideIndex))?rec.slideIndex:currentIndex;
+    const widgetTitle=esc((w&&w.title)||((typeof titles!=='undefined'&&titles[w.type])||'Widget'));
+    const currentTitle=esc((typeof safeSlideTitle==='function')?safeSlideTitle(state.slides[currentIndex],currentIndex):safe588BoardLabel(currentIndex));
+    const vis=safe588NormalizeVisibility(w,homeIndex);
+    const checkedMode=(['all','selected','archived'].includes(vis.mode))?vis.mode:'single';
+    const checks=safe588NormalSlideIndices().map(function(real){
+      const sid=safe588SlideId(real);
+      const checked=(vis.mode==='all')||(['single','selected'].includes(vis.mode)&&(vis.slideIds||[]).map(String).includes(String(sid)));
+      return '<label class="l589Check"><input type="checkbox" class="l589VisSlide" value="'+esc(sid)+'" '+(checked?'checked':'')+'><span>'+esc(safe588BoardLabel(real))+(real===currentIndex?' (nu)':'')+'</span></label>';
+    }).join('');
+    showModal(`<div class="moveWidgetDialog l589MoveWidgetDialog">
+      <div class="l589Head"><div><h2>Widgetplacering</h2><div class="l589Meta"><b>${widgetTitle}</b><span>·</span><span>${currentTitle}</span><span class="l589Pill">${esc(safe588VisibilityStatus(w,homeIndex))}</span></div></div><button id="l589CloseTop" class="l589CloseTop" title="Luk">×</button></div>
+      <section class="l589Card"><div class="l589CardTop"><div class="l589CardTitle">Flyt</div><div class="l589Tiny">samme widget, nyt hjem</div></div><div class="l589Row"><select id="l589MoveTarget">${safe588TargetOptions(currentIndex,false)}</select><button id="l589MoveApply">Flyt</button><button id="l589MoveNew" class="secondary">Ny tavle</button></div></section>
+      <section class="l589Card"><div class="l589CardTop"><div class="l589CardTitle">Kopiér</div><div class="l589Tiny">ny uafhængig kopi</div></div><div class="l589Row"><select id="l589CopyTarget">${safe588TargetOptions(currentIndex,true)}</select><button id="l589CopyApply">Kopiér</button><button id="l589CopyNew" class="secondary">Ny tavle</button></div></section>
+      <section class="l589Card"><div class="l589CardTop"><div class="l589CardTitle">Spejl widget</div><div class="l589Tiny">samme widget</div></div><div class="l589Chips"><label class="l589Chip"><input type="radio" name="l589VisMode" value="single" ${checkedMode==='single'?'checked':''}><span>Kun her</span></label><label class="l589Chip"><input type="radio" name="l589VisMode" value="all" ${checkedMode==='all'?'checked':''}><span>Alle</span></label><label class="l589Chip"><input type="radio" name="l589VisMode" value="selected" ${checkedMode==='selected'?'checked':''}><span>Udvalgte</span></label><label class="l589Chip"><input type="radio" name="l589VisMode" value="archived" ${checkedMode==='archived'?'checked':''}><span>Arkivér</span></label></div><div id="l589CheckWrap" class="l589CheckWrap ${checkedMode==='selected'?'show':''}"><div class="l590CheckTools"><button id="l590ChecksAll" type="button">Alle til</button><button id="l590ChecksNone" type="button">Alle fra</button><button id="l590ChecksCurrent" type="button">Kun nu</button></div><div class="l589CheckGrid">${checks}</div></div></section>
+      <div class="l589Footer"><button id="l589ApplyVisibility">Anvend</button><button id="l589Close" class="secondary">Luk</button></div>
+      </div>`);
+    const m=document.getElementById('modal')||modal;
+    if(m)m.classList.add('moveWidgetModal','l589MoveModal');
+    const moveTarget=modal.querySelector('#l589MoveTarget');
+    const copyTarget=modal.querySelector('#l589CopyTarget');
+    const checkWrap=modal.querySelector('#l589CheckWrap');
+    const modeInputs=Array.from(modal.querySelectorAll('input[name="l589VisMode"]'));
+    const syncModeUI=function(){
+      const modeEl=modal.querySelector('input[name="l589VisMode"]:checked');
+      if(checkWrap)checkWrap.classList.toggle('show',!!modeEl&&modeEl.value==='selected');
+    };
+    modeInputs.forEach(function(inp){inp.onchange=syncModeUI;});
+    modal.querySelectorAll('.l589VisSlide').forEach(function(ch){ch.onchange=function(){const r=modal.querySelector('input[name="l589VisMode"][value="selected"]');if(r){r.checked=true;syncModeUI();}};});
+    const setSelectedChecks=function(which){
+      const boxes=Array.from(modal.querySelectorAll('.l589VisSlide'));
+      const curSid=String(safe588SlideId(currentIndex));
+      boxes.forEach(function(b){
+        if(which==='all')b.checked=true;
+        else if(which==='none')b.checked=false;
+        else if(which==='current')b.checked=String(b.value||'')===curSid;
+      });
+      const r=modal.querySelector('input[name="l589VisMode"][value="selected"]');
+      if(r){r.checked=true;syncModeUI();}
+    };
+    const allBtn=modal.querySelector('#l590ChecksAll'); if(allBtn)allBtn.onclick=function(){setSelectedChecks('all');};
+    const noneBtn=modal.querySelector('#l590ChecksNone'); if(noneBtn)noneBtn.onclick=function(){setSelectedChecks('none');};
+    const curBtn=modal.querySelector('#l590ChecksCurrent'); if(curBtn)curBtn.onclick=function(){setSelectedChecks('current');};
+    syncModeUI();
+    const applyVisibility=function(){
+      const live=safe588FindWidgetRecord(w.id);
+      if(!live||!live.w){safe588Toast('Widget blev ikke fundet');return false;}
+      const modeEl=modal.querySelector('input[name="l589VisMode"]:checked');
+      const mode=modeEl?modeEl.value:'single';
+      const selectedIds=Array.from(modal.querySelectorAll('.l589VisSlide:checked')).map(x=>String(x.value||'')).filter(Boolean);
+      if(mode==='archived'){closeModal();return safe588ArchiveWidgetToTrash(w.id,{visibilityArchive:true});}
+      if(mode==='single'){
+        const sid=safe588SlideId(currentIndex);
+        safe588MovePhysicalWidget(w.id,currentIndex,live.slideIndex);
+        const after=safe588FindWidgetRecord(w.id);
+        safe588SetVisibility((after&&after.w)||live.w,'single',[sid]);
+        closeModal();render();safe588SelectAfterRender(w.id);save();safe588Toast('Widget vises kun her');return true;
+      }
+      if(mode==='all'){
+        safe588SetVisibility(live.w,'all',[]);
+        closeModal();render();safe588SelectAfterRender(w.id);save();safe588Toast('Widget spejles på alle tavler');return true;
+      }
+      if(mode==='selected'){
+        if(!selectedIds.length){safe588Toast('Vælg mindst én tavle, eller brug Arkivér');return false;}
+        safe588SetVisibility(live.w,'selected',selectedIds);
+        const currentSid=safe588SlideId(currentIndex);
+        if(!selectedIds.map(String).includes(String(currentSid))){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
+        closeModal();render();if(selectedIds.map(String).includes(String(currentSid)))safe588SelectAfterRender(w.id);save();safe588Toast('Spejling opdateret');return true;
+      }
+    };
+    const bind=function(id,fn){const b=modal.querySelector(id);if(b)b.onclick=fn;};
+    bind('#l589MoveApply',function(){const v=moveTarget&&moveTarget.value;if(v==='')return safe588Toast('Vælg først en tavle');closeModal();safe588MoveToTarget(w.id,Number(v));});
+    bind('#l589CopyApply',function(){const v=copyTarget&&copyTarget.value;if(v==='')return safe588Toast('Vælg først en tavle');closeModal();safe588CopyToTarget(w.id,Number(v));});
+    bind('#l589MoveNew',function(){const idx=safe588InsertNormalSlide();closeModal();safe588MoveToTarget(w.id,idx);});
+    bind('#l589CopyNew',function(){const idx=safe588InsertNormalSlide();closeModal();safe588CopyToTarget(w.id,idx);});
+    bind('#l589ApplyVisibility',applyVisibility);
+    bind('#l589Close',closeModal);
+    bind('#l589CloseTop',closeModal);
+  }catch(e){try{console.error('l589 widgetMoveModal',e);}catch(_e){};safe588Toast('Kunne ikke åbne flyt/kopiér-dialogen');}
+}
+
 ////////////////////////////////////////////////////////////
 // WIDGET CORE
 ////////////////////////////////////////////////////////////
 /* render-flow: rydder DOM-widgets, anvender baggrund/grid, bygger widgets og opdaterer papirkurv. Rør ikke uden fuld regressionstest. */
-function render(){document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=safe134SlideInfoText();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');slide().widgets.forEach(w=>{if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w))return;makeWidget(w)});updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
+function render(){safe588EnsureSlideIds();document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=safe134SlideInfoText();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');safe588CurrentWidgetRecords().forEach(rec=>{const w=rec.w;if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w))return;makeWidget(w)});updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0)}
 /* addWidget(): opretter widget-objekt, fitter til viewport, kalder makeWidget(), select() og save(). Bevar rækkefølgen. */
-function addWidget(type,data={}){const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:type==='timer'?860:((type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll'||type==='kahoopardy'||type==='calendar')?860:(type==='dataset'?390:(type==='text'?420:520))),h:type==='timer'?520:(type==='wheel'?560:(type==='calendar'?560:(type==='kahoopardy'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='link'?230:320)))))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
+function addWidget(type,data={}){safe588EnsureSlideIds();const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:type==='timer'?860:((type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll'||type==='kahoopardy'||type==='calendar')?860:(type==='dataset'?390:(type==='text'?420:520))),h:type==='timer'?520:(type==='wheel'?560:(type==='calendar'?560:(type==='kahoopardy'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='link'?230:320)))))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};safe588SetVisibility(w,'single',[safe588SlideId(state.active)]);fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',kahoopardy:'KaPardy',timer:'Timer',calendar:'Kalender',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
 
 /* v1.2.37: Universal drop på tavlen - JS */
@@ -16917,7 +17351,7 @@ function resetWidgetRotation(w,el){
   save();
   if(typeof toast==='function')toast('Rotation nulstillet');
 }
-function findWidget(id){return (slide().widgets||[]).find(w=>String(w.id)===String(id));}
+function findWidget(id){const rec=safe588FindWidgetRecord(id);return rec?rec.w:null;}
 ////////////////////////////////////////////////////////////
 // WIDGET CORE
 ////////////////////////////////////////////////////////////
@@ -31877,7 +32311,6 @@ if(w.type==='drawcopy'){
         </div>
         <div class="pdfGroup pdfFormGroup" aria-label="PDF-formular">
           <button class="pdfFormToggle ${w.data&&w.data.pdfInteractive?'pdfFormOn':''}" title="Aktivér formularfelter og links i redigeringstilstand">✍️ Udfyld</button>
-          <button class="pdfFormDataExport" title="Vis/skjul koblet DataWidget med PDF-svar">🔗 Svar</button>
         </div>
       </div>
     </div>
@@ -31902,7 +32335,29 @@ if(w.type==='drawcopy'){
     }
   }catch(_e){}
   const pdfOpenModalBtn=c.querySelector('.pdfOpenModal');
-  if(pdfOpenModalBtn)pdfOpenModalBtn.onclick=(e)=>{e.preventDefault();e.stopPropagation();safe455uH142OpenPdfOpenModal(w,el,c);};
+  if(pdfOpenModalBtn){
+    let safe593LastPdfOpenAt=0;
+    const stopPdfOpenPointer=(e)=>{
+      if(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      }
+      return false;
+    };
+    const openPdfModal=(e)=>{
+      stopPdfOpenPointer(e);
+      const now=Date.now();
+      if(now-safe593LastPdfOpenAt<350)return false;
+      safe593LastPdfOpenAt=now;
+      try{ if(typeof clearPdfKeyboardControl==='function')clearPdfKeyboardControl(); }catch(_e){}
+      safe455uH142OpenPdfOpenModal(w,el,c);
+      return false;
+    };
+    try{pdfOpenModalBtn.addEventListener('pointerdown',stopPdfOpenPointer,{passive:false});}catch(_e){}
+    try{pdfOpenModalBtn.addEventListener('pointerup',openPdfModal,{passive:false});}catch(_e){}
+    pdfOpenModalBtn.onclick=openPdfModal;
+  }
   const pdfLinkedDataBtn=c.querySelector('[data-safe450-role="data"]');
   if(pdfLinkedDataBtn)pdfLinkedDataBtn.onclick=(e)=>{
     e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
@@ -32530,29 +32985,7 @@ function trashOverviewLayout(sl){
   });
 }
 function trashWidgetToBoard(id){
-  if(!id || isTrashBoard(slide()))return false;
-  const src=slide();
-  if(!src||!Array.isArray(src.widgets))return false;
-  const i=src.widgets.findIndex(w=>String(w.id)===String(id));
-  if(i<0){try{toast('Vælg en widget først')}catch(_e){};return false;}
-  const trashIdx=ensureTrashBoard();
-  const trash=state.slides[trashIdx];
-  const w=src.widgets.splice(i,1)[0];
-  w._trashOriginSlideIndex=state.active;
-  w._trashOriginTitle=src.title||'Tavle';
-  w._trashOriginalX=w.x; w._trashOriginalY=w.y; w._trashOriginalW=w.w; w._trashOriginalH=w.h;
-  w._trashOriginalZ=w.z; w._trashOriginalRotation=w.rotation||0;
-  w._trashDeletedAt=Date.now();
-  trash.widgets=trash.widgets||[];
-  trash.widgets.push(w);
-  trashOverviewLayout(trash);
-  updateTrashTopIconState();
-  try{ if(window.safe455L37SyncTrashBadge) window.safe455L37SyncTrashBadge(); }catch(_e){}
-  if(String(selected)===String(id)){selected=null; if(window.UIState)UIState.selectedWidgetId=null;}
-  render();
-  save({silent:true});
-  try{toast('Widget flyttet til papirkurv')}catch(_e){}
-  return true;
+  return safe588ArchiveWidgetToTrash(id,{fromDelete:true});
 }
 function selectedTrashWidgetIndex(){
   const s=slide();
@@ -32576,6 +33009,7 @@ function restoreTrashWidgetAt(idx){
   w.x=Number(w._trashOriginalX)||140; w.y=Number(w._trashOriginalY)||130;
   w.w=Number(w._trashOriginalW)||w.w||360; w.h=Number(w._trashOriginalH)||w.h||240;
   w.rotation=Number(w._trashOriginalRotation)||0; w.z=++z;
+  safe588RestoreVisibilityAfterTrash(w,target);
   delete w._trashOriginSlideIndex; delete w._trashOriginTitle; delete w._trashOriginalX; delete w._trashOriginalY; delete w._trashOriginalW; delete w._trashOriginalH; delete w._trashOriginalZ; delete w._trashOriginalRotation; delete w._trashDeletedAt;
   state.slides[target].widgets=state.slides[target].widgets||[];
   state.slides[target].widgets.push(w);
@@ -32622,6 +33056,7 @@ function restoreAllTrashWidgetsToOriginalBoards(){
     w.rotation=Number.isFinite(Number(w._trashOriginalRotation)) ? Number(w._trashOriginalRotation) : (Number(w.rotation)||0);
     w.z=Number.isFinite(Number(w._trashOriginalZ)) ? Number(w._trashOriginalZ) : (++z);
 
+    safe588RestoreVisibilityAfterTrash(w,targetIdx);
     delete w._trashOriginSlideIndex;
     delete w._trashOriginTitle;
     delete w._trashOriginalX;
@@ -32951,83 +33386,21 @@ function findWidgetOnSlide(slideIndex,widgetId){
   return {slide:s,index,widget:index>=0?s.widgets[index]:null};
 }
 function moveWidgetToSlide(widgetId,targetIndex,sourceIndex=state.active){
-  if(targetIndex<0||targetIndex>=state.slides.length)return false;
-  const found=findWidgetOnSlide(sourceIndex,widgetId);
-  if(!found.widget)return false;
-  if(targetIndex===sourceIndex){
-    state.active=sourceIndex;
-    render();
-    select(widgetId);
-    toast('Widget er allerede på denne tavle');
-    return true;
-  }
-  const [widget]=found.slide.widgets.splice(found.index,1);
-  ensureVisibleOnSlide(widget);
-  state.slides[targetIndex].widgets.push(widget);
-  state.active=targetIndex;
-  render();
-  select(widget.id);
-  toast('Flyttet til tavle '+(targetIndex+1));
-  save();
-  return true;
+  return safe588MoveToTarget(widgetId,Number(targetIndex));
 }
 function copyWidgetToSlide(widgetId,targetIndex,sourceIndex=state.active){
-  if(targetIndex<0||targetIndex>=state.slides.length)return false;
-  const found=findWidgetOnSlide(sourceIndex,widgetId);
-  if(!found.widget)return false;
-  const copy=cloneWidgetForSlide(found.widget);
-  state.slides[targetIndex].widgets.push(copy);
-  state.active=targetIndex;
-  render();
-  select(copy.id);
-  toast('Kopieret til tavle '+(targetIndex+1));
-  save();
-  return true;
+  return safe588CopyToTarget(widgetId,Number(targetIndex));
 }
 function newSlideForWidget(widgetId,action='move',sourceIndex=state.active){
-  state.slides.push(createThemedSlide());
-  const idx=state.slides.length-1;
-  return action==='copy' ? copyWidgetToSlide(widgetId,idx,sourceIndex) : moveWidgetToSlide(widgetId,idx,sourceIndex);
+  const idx=safe588InsertNormalSlide();
+  return action==='copy' ? safe588CopyToTarget(widgetId,idx) : safe588MoveToTarget(widgetId,idx);
 }
-function widgetMoveModal(w){
-  const sourceIndex=state.active;
-  const sourceTitle=safeSlideTitle(state.slides[sourceIndex],sourceIndex);
-  const widgetTitle=esc(w.title||titles[w.type]||'Widget');
-  let rows=state.slides.map((s,i)=>{
-    const isCurrent=i===sourceIndex;
-    return `<div class="slideMoveRow">
-      <b>${i+1}. ${esc(safeSlideTitle(s,i))}${isCurrent?' (nu)':''}</b>
-      <div class="actions">
-        <button data-action="move" data-target="${i}" ${isCurrent?'disabled title="Widgetten er allerede på denne tavle"':''}>Flyt</button>
-        <button data-action="copy" data-target="${i}">Kopiér</button>
-      </div>
-    </div>`;
-  }).join('');
-  showModal(`<div class="moveWidgetDialog"><h2>Flyt eller kopiér widget</h2>
-    <p class="moveWidgetTitle"><b>${widgetTitle}</b><br><span style="opacity:.72;font-weight:800">Fra: ${esc(sourceTitle)}</span></p>
-    <p style="margin-top:0;opacity:.8;font-weight:800">Vælg om widgetten skal flyttes eller kopieres. Kopiér bevarer originalen på denne tavle.</p>
-    <div class="slideList">${rows}</div>
-    <div class="moveWidgetActions">
-      <button id="moveNew">Flyt til ny tavle</button>
-      <button id="copyNew">Kopiér til ny tavle</button>
-      <button id="close">Luk</button>
-    </div></div>`);
-  modal.querySelectorAll('[data-action][data-target]').forEach(b=>b.onclick=()=>{
-    const i=Number(b.dataset.target);
-    const action=b.dataset.action;
-    closeModal();
-    if(action==='copy')copyWidgetToSlide(w.id,i,sourceIndex);
-    else moveWidgetToSlide(w.id,i,sourceIndex);
-  });
-  modal.querySelector('#moveNew').onclick=()=>{closeModal();newSlideForWidget(w.id,'move',sourceIndex)};
-  modal.querySelector('#copyNew').onclick=()=>{closeModal();newSlideForWidget(w.id,'copy',sourceIndex)};
-  modal.querySelector('#close').onclick=()=>{document.removeEventListener('keydown',window.__bgKeyHandler,true);window.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
-}
+function widgetMoveModal(w){return safe588WidgetMoveModal(w);}
 
 
 /* v119 TEST: tap brings widget to front, drag keeps current layer */
 function normalizeWidgetLayers(){
-  const ws=slide().widgets||[];
+  const ws=(typeof safe588WidgetsForCurrentSlide==='function'?safe588WidgetsForCurrentSlide():(slide().widgets||[]));
   ws.forEach(w=>{
     if(typeof w.z!=='number' || !isFinite(w.z))w.z=1;
   });
@@ -33035,7 +33408,8 @@ function normalizeWidgetLayers(){
 function bringWidgetToFront(w,el){
   if(!w || app.classList.contains('present') || document.body.classList.contains('focus-mode'))return;
   normalizeWidgetLayers();
-  const maxZ=Math.max(1,...(slide().widgets||[]).map(x=>Number(x.z)||1));
+  const ws=(typeof safe588WidgetsForCurrentSlide==='function'?safe588WidgetsForCurrentSlide():(slide().widgets||[]));
+  const maxZ=Math.max(1,...ws.map(x=>Number(x.z)||1));
   w.z=maxZ+1;
   z=Math.max(z,w.z);
   if(el){
@@ -33788,22 +34162,31 @@ function select(id,options={}){
   selected=id;
   UIState.selectedWidgetId=id;
   let selectedWidget=null;
+  let selectedEl=null;
   document.querySelectorAll('.widget').forEach(e=>{
     let on=id&&e.dataset.id===id;
     e.classList.toggle('selected',!!on);
-    let w=slide().widgets.find(x=>x.id===e.dataset.id);
+    /* l592: en spejlet widget ligger ikke fysisk i slide().widgets.
+       Brug derfor findWidget()/sharedVisibility-opslag i stedet for kun den lokale tavle. */
+    let w=(typeof findWidget==='function')
+      ? findWidget(e.dataset.id)
+      : ((slide().widgets||[]).find(x=>x.id===e.dataset.id));
     if(w){
       e.classList.toggle('locked',!!w.locked);
-      if(on)selectedWidget=w;
+      if(on){selectedWidget=w;selectedEl=e;}
     }
   });
 
   // Valgt widget lægges forrest, så den ikke skjules bag andre widgets.
+  // l592: brug max-z blandt alle synlige widgets, så faste og spejlede kan bladres begge veje.
   if(selectedWidget && !selectedWidget.locked){
-    selectedWidget.z=++z;
-    const selectedEl=document.querySelector('.widget[data-id="'+CSS.escape(String(id))+'"]');
+    const visible=(typeof safe588WidgetsForCurrentSlide==='function')?safe588WidgetsForCurrentSlide():(slide().widgets||[]);
+    const maxZ=Math.max(z,1,...visible.map(x=>Number(x&&x.z)||1));
+    selectedWidget.z=maxZ+1;
+    z=Math.max(z,selectedWidget.z);
     if(selectedEl){
-      selectedEl.style.zIndex=selectedWidget.z;
+      selectedEl.style.zIndex=String(selectedWidget.z);
+      try{ if(selectedEl.parentElement)selectedEl.parentElement.appendChild(selectedEl); }catch(_e){}
     }
   }
   // Textwidgets must not automatically steal cursor focus just because the
@@ -41888,11 +42271,41 @@ function safe269BoardOverviewModal(preferredBoard=null){
       if(t==='image'||t==='img')return '🖼️';
       return '◻️';
     };
-    const boardIconHtml=(s)=>{
-      const widgets=Array.isArray(s.widgets)?s.widgets:[];
+    const boardOverviewVisibleRecords=(slideIndex)=>{
+      const out=[];
+      try{
+        if(typeof safe588EnsureSlideIds==='function')safe588EnsureSlideIds();
+        const target=state.slides&&state.slides[slideIndex];
+        if(!target)return out;
+        if(isTrashBoard(target)){
+          (Array.isArray(target.widgets)?target.widgets:[]).forEach((w,wi)=>out.push({w,homeIndex:slideIndex,index:wi,physical:true,mirror:false}));
+          return out;
+        }
+        (Array.isArray(state.slides)?state.slides:[]).forEach((s,si)=>{
+          (Array.isArray(s&&s.widgets)?s.widgets:[]).forEach((w,wi)=>{
+            let visible=false;
+            try{
+              visible=(typeof safe588WidgetVisibleOnSlide==='function')?safe588WidgetVisibleOnSlide(w,slideIndex,si):(si===slideIndex);
+            }catch(_e){visible=(si===slideIndex);}
+            if(!visible)return;
+            try{if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w))return;}catch(_e){}
+            out.push({w,homeIndex:si,index:wi,physical:si===slideIndex,mirror:si!==slideIndex});
+          });
+        });
+      }catch(_e){}
+      return out;
+    };
+    const boardOverviewCounts=(slideIndex)=>{
+      const recs=boardOverviewVisibleRecords(slideIndex);
+      const physical=recs.filter(r=>r.physical).length;
+      const mirror=recs.filter(r=>r.mirror).length;
+      return {visible:recs.length,physical,mirror,recs};
+    };
+    const boardIconHtml=(s,slideIndex)=>{
+      const recs=boardOverviewVisibleRecords(slideIndex);
       const counts={};
-      widgets.forEach(w=>{
-        const icon=boardIconForType(w&&w.type);
+      recs.forEach(r=>{
+        const icon=boardIconForType(r.w&&r.w.type);
         counts[icon]=(counts[icon]||0)+1;
       });
       const entries=Object.entries(counts).slice(0,8);
@@ -41998,7 +42411,10 @@ function safe269BoardOverviewModal(preferredBoard=null){
     };
     const itemHtml=({s,i},extraClass='')=>{
       const title=esc(s.title||('Tavle '+(i+1)));
-      const count=Array.isArray(s.widgets)?s.widgets.length:0;
+      const overviewCount=boardOverviewCounts(i);
+      const count=overviewCount.visible;
+      const physicalCount=overviewCount.physical;
+      const mirrorCount=overviewCount.mirror;
       const active=i===state.active;
       const cls='boardOverviewItem '+(active?'active ':'')+extraClass;
       const normalIndexes=state.slides.map((sl,n)=>({sl,n})).filter(x=>!isTrashBoard(x.sl)).map(x=>x.n);
@@ -42016,8 +42432,8 @@ function safe269BoardOverviewModal(preferredBoard=null){
       </span>`:'';
       return `<div role="button" tabindex="0" class="${cls}" data-slide-index="${i}">
         <span class="boardOverviewSelectedMark">${active?'▶':' '}</span>
-        <span>${i+1} ${title}${active?' <em class="boardOverviewActiveText">aktiv</em>':''}${boardIconHtml(s)}</span>
-        <span class="boardOverviewMeta"><small>${count} widget${count===1?'':'s'}</small>${actions}</span>
+        <span>${i+1} ${title}${active?' <em class="boardOverviewActiveText">aktiv</em>':''}${boardIconHtml(s,i)}</span>
+        <span class="boardOverviewMeta"><small>${mirrorCount?`${count} synlige`:`${count} widget${count===1?'':'s'}`}</small>${mirrorCount?`<small class="boardOverviewMirrorBadge">${physicalCount?physicalCount+' fast · ':''}${mirrorCount} spejl</small>`:''}${actions}</span>
       </div>`;
     };
     const normalHtml=normal.length?normal.map(x=>itemHtml(x)).join(''):'<p>Ingen normale tavler.</p>';
@@ -42973,7 +43389,10 @@ function activePdfKeyboardTarget(){
     el=document.querySelector('.widget[data-type="pdf"][data-id="'+CSS.escape(String(pdfKeyboardWidgetId))+'"]');
   }
   if(!el) return null;
-  const w=slide().widgets.find(x=>String(x.id)===String(el.dataset.id) && x.type==='pdf');
+  /* l592: spejlede PDF-widgets ligger ikke nødvendigvis fysisk i den aktuelle slide.widgets. */
+  const w=(typeof findWidget==='function'
+    ? findWidget(el.dataset.id)
+    : (slide().widgets||[]).find(x=>String(x.id)===String(el.dataset.id) && x.type==='pdf'));
   const content=el.querySelector('.content.pdf');
   const viewer=el.querySelector('.pdfJsViewer');
   if(!w || !content || !viewer) return null;
@@ -43003,6 +43422,9 @@ function handlePdfArrowKey(e){
 // PDF-widget: piletaster aktiveres kun efter eksplicit klik i selve PDF-indholdet.
 // ESC slipper PDF-kontrollen igen.
 document.addEventListener('pointerdown',function(e){
+  /* l593: PDF-toolbaren ligger inde i .content.pdf, men klik på toolbaren
+     skal åbne knapper/modaler - ikke aktivere PDF-piletast-tilstand. */
+  if(e.target && e.target.closest && e.target.closest('.pdfControls,.pdfPagePickerPopover,.chrome,.mini,.resize,.rotater,button,input,textarea,select,a'))return;
   const pdfContent=e.target && e.target.closest ? e.target.closest('.widget[data-type="pdf"] .content.pdf, .widget[data-type="pdf"] .pdfJsViewer') : null;
   if(pdfContent){
     const widget=pdfContent.closest('.widget[data-type="pdf"]');
@@ -43013,10 +43435,14 @@ document.addEventListener('pointerdown',function(e){
 },true);
 
 function widgetNavigationOrder(){
-  // Pil op/ned skal vælge widgets på den aktive tavle i en forudsigelig visuel rækkefølge.
+  // Pil op/ned skal vælge alle synlige widgets på den aktive tavle i en forudsigelig visuel rækkefølge.
+  // l592: brug sharedVisibility-modellens synlige widgetliste, så spejlede widgets indgår symmetrisk.
   // Først fra øverst til nederst, derefter fra venstre mod højre.
-  return (slide().widgets||[])
-    .filter(w=>w && w.id)
+  const visible=(typeof safe588WidgetsForCurrentSlide==='function')
+    ? safe588WidgetsForCurrentSlide()
+    : (slide().widgets||[]);
+  return visible
+    .filter(w=>w && w.id && !(typeof safe381IsHiddenLinkedDataWidget==='function' && safe381IsHiddenLinkedDataWidget(w)))
     .slice()
     .sort((a,b)=>{
       const ay=Number(a.y)||0, by=Number(b.y)||0;
@@ -47779,38 +48205,7 @@ document.addEventListener('click',function(e){
     };
   }catch(_e){}
   try{
-    widgetMoveModal=function(w){
-      const sourceIndex=state.active;
-      const sourceTitle=(typeof safeSlideTitle==='function')?safeSlideTitle(slides()[sourceIndex],sourceIndex):'Aktuel tavle';
-      const widgetTitle=(typeof esc==='function'?esc(w.title||titles[w.type]||'Widget'):(w.title||'Widget'));
-      let rows=normalIndices().map((realIndex,visibleIndex)=>{
-        const s=slides()[realIndex];
-        const isCurrent=realIndex===sourceIndex;
-        const title=(typeof esc==='function'?esc(safeSlideTitle(s,realIndex)):(s.title||('Tavle '+(visibleIndex+1))));
-        return `<div class="slideMoveRow">
-          <b>${visibleIndex+1}. ${title}${isCurrent?' (nu)':''}</b>
-          <div class="actions">
-            <button data-action="move" data-target-visible="${visibleIndex}" ${isCurrent?'disabled title="Widgetten er allerede på denne tavle"':''}>Flyt</button>
-            <button data-action="copy" data-target-visible="${visibleIndex}">Kopiér</button>
-          </div>
-        </div>`;
-      }).join('');
-      showModal(`<div class="moveWidgetDialog"><h2>Flyt eller kopiér widget</h2>
-        <p class="moveWidgetTitle"><b>${widgetTitle}</b></p>
-        <p>Fra: ${typeof esc==='function'?esc(sourceTitle):sourceTitle}</p>
-        <div class="slideList">${rows}</div>
-        <button id="newSlideMove">Ny tavle + flyt</button>
-        <button id="newSlideCopy">Ny tavle + kopiér</button>
-        <button id="close">Luk</button></div>`);
-      modal.querySelectorAll('[data-target-visible]').forEach(btn=>btn.onclick=()=>{
-        const real=normalIndices()[+btn.dataset.targetVisible];
-        if(btn.dataset.action==='copy') copyWidgetToSlide(w.id,real,sourceIndex); else moveWidgetToSlide(w.id,real,sourceIndex);
-        closeModal();
-      });
-      modal.querySelector('#newSlideMove').onclick=()=>{newSlideForWidget(w.id,'move',sourceIndex);closeModal();};
-      modal.querySelector('#newSlideCopy').onclick=()=>{newSlideForWidget(w.id,'copy',sourceIndex);closeModal();};
-      modal.querySelector('#close').onclick=closeModal;
-    };
+    widgetMoveModal=function(w){return safe588WidgetMoveModal(w);};
   }catch(_e){}
   // Når papirkurven er aktiv, må normal forrige/næste ikke bruge den som almindelig tavle.
   document.addEventListener('click',function(e){
@@ -48600,45 +48995,7 @@ body.focus-presentation:not(.focus-maximized) .widget.focusTarget{
     const idx=insertNormalSlide();
     return action==='copy'?copyReal(widgetId,idx,sourceIndex):moveReal(widgetId,idx,sourceIndex);
   };
-  widgetMoveModal=function(w){
-    const sourceIndex=state.active;
-    const sourceTitle=slideTitle(slides()[sourceIndex],sourceIndex);
-    const widgetTitle=escLocal((w&&w.title)||(typeof titles!=='undefined'&&titles[w&&w.type])||'Widget');
-    const normals=normalSlideIndices();
-    const rows=normals.map((realIndex,visibleIndex)=>{
-      const s=slides()[realIndex];
-      const isCurrent=realIndex===sourceIndex;
-      return `<div class="slideMoveRow">
-        <b>${visibleIndex+1}. ${escLocal(slideTitle(s,realIndex))}${isCurrent?' (nu)':''}</b>
-        <div class="actions">
-          <button data-action="move" data-real="${realIndex}" ${isCurrent?'disabled title="Widgetten er allerede på denne tavle"':''}>Flyt</button>
-          <button data-action="copy" data-real="${realIndex}">Kopiér</button>
-        </div>
-      </div>`;
-    }).join('');
-    showModal(`<div class="moveWidgetDialog"><h2>Flyt eller kopiér widget</h2>
-      <p class="moveWidgetTitle"><b>${widgetTitle}</b><br><span style="opacity:.72;font-weight:800">Fra: ${escLocal(sourceTitle)}</span></p>
-      <p style="margin-top:0;opacity:.8;font-weight:800">Vælg en almindelig tavle. Papirkurven bruges kun ved sletning.</p>
-      <div class="slideList">${rows}</div>
-      <div class="moveWidgetActions">
-        <button id="moveNew">Flyt til ny tavle</button>
-        <button id="copyNew">Kopiér til ny tavle</button>
-        <button id="close">Luk</button>
-      </div></div>`);
-    modal.querySelectorAll('[data-action][data-real]').forEach(btn=>btn.onclick=()=>{
-      const real=Number(btn.dataset.real);
-      const action=btn.dataset.action;
-      closeModal();
-      if(action==='copy')copyReal(w.id,real,sourceIndex);
-      else moveReal(w.id,real,sourceIndex);
-    });
-    const moveNew=modal.querySelector('#moveNew');
-    const copyNew=modal.querySelector('#copyNew');
-    const close=modal.querySelector('#close');
-    if(moveNew)moveNew.onclick=()=>{closeModal();newSlideForWidget(w.id,'move',sourceIndex)};
-    if(copyNew)copyNew.onclick=()=>{closeModal();newSlideForWidget(w.id,'copy',sourceIndex)};
-    if(close)close.onclick=closeModal;
-  };
+  widgetMoveModal=function(w){return safe588WidgetMoveModal(w);};
 })();
 </script>
 
@@ -48714,42 +49071,8 @@ body.focus-presentation:not(.focus-maximized) .widget.focusTarget{
     return true;
   }
   function patchedMoveModal(w){
-    const sourceIndex=state.active;
-    const sourceTitle=slideTitle(slides()[sourceIndex],sourceIndex);
-    const titleMap=(typeof titles!=='undefined')?titles:{};
-    const widgetTitle=escLocal((w&&w.title)||titleMap[w&&w.type]||'Widget');
-    const normals=normalIndices();
-    const rows=normals.map((real,visible)=>{
-      const isCurrent=real===sourceIndex;
-      return `<div class="slideMoveRow">
-        <b>${visible+1}. ${escLocal(slideTitle(slides()[real],real))}${isCurrent?' (nu)':''}</b>
-        <div class="actions">
-          <button data-safe384-action="move" data-safe384-real="${real}" ${isCurrent?'disabled title="Widgetten er allerede på denne tavle"':''}>Flyt</button>
-          <button data-safe384-action="copy" data-safe384-real="${real}">Kopiér</button>
-        </div>
-      </div>`;
-    }).join('');
-    showModal(`<div class="moveWidgetDialog safe384MoveWidgetDialog"><h2>Flyt eller kopiér widget</h2>
-      <p class="moveWidgetTitle"><b>${widgetTitle}</b><br><span style="opacity:.72;font-weight:800">Fra: ${escLocal(sourceTitle)}</span></p>
-      <p style="margin-top:0;opacity:.8;font-weight:800">Vælg en almindelig tavle. Papirkurven bruges kun ved sletning.</p>
-      <div class="slideList">${rows}</div>
-      <div class="moveWidgetActions">
-        <button id="safe384MoveNew">Flyt til ny tavle</button>
-        <button id="safe384CopyNew">Kopiér til ny tavle</button>
-        <button id="safe384Close">Luk</button>
-      </div></div>`);
-    modal.querySelectorAll('[data-safe384-action][data-safe384-real]').forEach(btn=>btn.onclick=()=>{
-      const real=Number(btn.dataset.safe384Real);
-      const act=btn.dataset.safe384Action;
-      closeModal();
-      if(act==='copy')doCopy(w.id,real,sourceIndex); else doMove(w.id,real,sourceIndex);
-    });
-    const mn=modal.querySelector('#safe384MoveNew');
-    const cn=modal.querySelector('#safe384CopyNew');
-    const cl=modal.querySelector('#safe384Close');
-    if(mn)mn.onclick=()=>{closeModal();doMove(w.id,ensureNormalNewSlide(),sourceIndex)};
-    if(cn)cn.onclick=()=>{closeModal();doCopy(w.id,ensureNormalNewSlide(),sourceIndex)};
-    if(cl)cl.onclick=closeModal;
+    try{return safe588WidgetMoveModal(w);}
+    catch(_e){try{console.error('l590 compact modal via safe384',_e)}catch(__e){};return false;}
   }
   function install(){
     try{
@@ -54089,23 +54412,37 @@ body.focus-presentation .toolbar,
     catch(_e){return false;}
   }
 
-  function isInsideApp(t){
-    try{return !!(t && (t===app || app.contains(t)));}catch(_e){return false;}
+  function isInsideApp(t,e){
+    try{
+      if(t && (t===app || app.contains(t)))return true;
+      /* l593: i native fullscreen/Safari kan contextmenu komme fra body/html,
+         selv om højreklikket visuelt ligger på selve tavlefladen. Brug derfor
+         punkt-opslag som supplement - ikke som global override. */
+      if(e && typeof e.clientX==='number' && typeof e.clientY==='number'){
+        const p=document.elementFromPoint(e.clientX,e.clientY);
+        if(p && (p===app || app.contains(p)))return true;
+        const r=app.getBoundingClientRect();
+        return e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom;
+      }
+      return false;
+    }catch(_e){return false;}
   }
 
-  function isBoardBackground(t){
+  function isBoardBackground(t,e){
     try{
-      if(!isInsideApp(t))return false;
-      if(t===app)return true;
-      if(t.id==='draw')return true;
+      if(!isInsideApp(t,e))return false;
+      const point=(e && typeof e.clientX==='number' && typeof e.clientY==='number') ? document.elementFromPoint(e.clientX,e.clientY) : null;
+      const probe=(point && (point===app || app.contains(point))) ? point : t;
+      if(probe===app)return true;
+      if(probe && probe.id==='draw')return true;
       /* Baggrunds- og overlaylag uden widget/toolbar/topbar skal accepteres. */
-      if(t.classList && (
-        t.classList.contains('drawLayer') ||
-        t.classList.contains('stage') ||
-        t.classList.contains('safe453BoardBackground') ||
-        t.classList.contains('bgLayer')
+      if(probe && probe.classList && (
+        probe.classList.contains('drawLayer') ||
+        probe.classList.contains('stage') ||
+        probe.classList.contains('safe453BoardBackground') ||
+        probe.classList.contains('bgLayer')
       ))return true;
-      if(t.closest && t.closest('.widget,.topbar,.toolbar,#title,.moreMenu,.modal,#modal,#modalBack,button,input,textarea,select,a,iframe,embed,object,[contenteditable="true"]'))return false;
+      if(probe && probe.closest && probe.closest('.widget,.topbar,.toolbar,#title,.moreMenu,.modal,#modal,#modalBack,button,input,textarea,select,a,iframe,embed,object,[contenteditable="true"]'))return false;
       return true;
     }catch(_e){return false;}
   }
@@ -54146,7 +54483,7 @@ body.focus-presentation .toolbar,
       if(typingTarget(e.target))return;
       if(iframeHasKeyboard())return;
       if(!appAllowsMore())return;
-      if(!isInsideApp(e.target))return;
+      if(!isInsideApp(e.target,e))return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -54162,7 +54499,7 @@ body.focus-presentation .toolbar,
   function openMoreFromPointer(e){
     try{
       if(!appAllowsMore())return;
-      if(!isBoardBackground(e.target))return;
+      if(!isBoardBackground(e.target,e))return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -54175,16 +54512,16 @@ body.focus-presentation .toolbar,
 
   /* Normal højreklik/contextmenu. */
   document.addEventListener('contextmenu',function(e){
-    if(isBoardBackground(e.target))return openMoreFromPointer(e);
+    if(isBoardBackground(e.target,e))return openMoreFromPointer(e);
   },true);
 
   /* Fallback: nogle iPad/Safari/fullscreen-situationer sender ikke stabil contextmenu,
      men mousedown/pointerdown med button=2 kommer stadig fra trackpad/mus. */
   document.addEventListener('mousedown',function(e){
-    if(e && e.button===2 && isBoardBackground(e.target))return openMoreFromPointer(e);
+    if(e && e.button===2 && isBoardBackground(e.target,e))return openMoreFromPointer(e);
   },true);
   document.addEventListener('pointerdown',function(e){
-    if(e && e.button===2 && isBoardBackground(e.target))return openMoreFromPointer(e);
+    if(e && e.button===2 && isBoardBackground(e.target,e))return openMoreFromPointer(e);
   },true);
 })();
 </script>
