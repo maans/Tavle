@@ -6,6 +6,7 @@
 <!-- l568-focus-stripe-clip-all-widgets: Kirurgisk CSS-fix for temaernes venstrestreg i fokus/maksimering: alle widgettyper i GlasTavle/SmartBoard/FlipOver/OpslagsTavle klippes inden for widgettens afrundede hjørner, så farvestregen ikke går for højt eller for langt ned. Ingen JS/widgetlogik. -->
 <!-- l566-left-stripe-focus-canvas-fix: Kirurgisk tema-CSS: FlipOver/SmartBoard venstrestreg starter nu under widgetbjælken i redigering, og Tekst/Liste i fokus får både indhold og underliggende tekst-lærred afrundet som i præsentation. Ingen JS/widgetlogik. -->
 <!-- l565-left-stripe-focus-rounding: Temaets venstre farvestreg starter under widgetbjælken i redigering, så den ikke stikker over rundingen. I fokus/maksimering får Tekst/Liste-indhold igen fuldt afrundede hjørner, når bjælken skjules. Kun tema-CSS. -->
+<!-- l573-help-pdf-links: Hjælp får brugerrettede PDF-guidekort, der åbner /pdf/hjaelp-PDFer på ny tavle i maksimeret PDF-visning. Bygger på l568; ingen ændring af Quine/shortcut-forsøg. -->
 <!-- l564-help-jump-buttons-single-row: Hjælpens øverste Hop til-knapper holdes på én kompakt linje med vandret scroll-fallback på små skærme. Kun Hjælp-CSS/HTML ændret. -->
 <!-- l562-help-streamline-links: Hjælp er strammet op praksisnært: unødvendige interne kommentarer fjernet, gentagelser samlet, og lokale Se også-links kan hoppe mellem relevante hjælpesektioner. Kun Hjælp-HTML/CSS og intern hjælp-navigation ændret. -->
 <!-- l561-glastavle-timer-circle-fix: Kirurgisk tema-ejer-fix: GlasTavle/theme-presentation må ikke længere gøre Timer-widgettens .timerTwinShell-display gigantisk. Den store præsentationsskrift gælder kun ældre/ikke-twin timerBox, så nedtælling og stopur bliver inde i cirklen. Ingen JS, ingen timerlogik. -->
@@ -171,7 +172,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.74 l564-help-jump-buttons-single-row</title>
+<title>Interaktiv tavle v1.2.74 l573-help-pdf-links</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -38086,6 +38087,106 @@ function wireQuickPinButton(){
   setToolbarKeepVisible(getToolbarKeepVisible());
 }
 
+
+const TAVLE_HELP_PDF_GUIDES=[
+  {
+    key:'manifest',
+    title:'Hvorfor Tavle?',
+    file:'TavleApp_manifest_levende_undervisningsbord.pdf',
+    boardName:'Hvorfor Tavle?',
+    desc:'Kort manifest om TavleAppens idé og værdi som levende undervisningsbord.',
+    accent:'#6d5dfc'
+  },
+  {
+    key:'tese',
+    title:'Pædagogisk tese',
+    file:'TavleApp_paedagogisk_tese.pdf',
+    boardName:'Pædagogisk tese',
+    desc:'Uddybende forklaring af TavleAppen som lærerens arbejdsværktøj.',
+    accent:'#10b981'
+  },
+  {
+    key:'scenarier',
+    title:'Praktiske scenarier',
+    file:'TavleApp_praktiske_scenarier.pdf',
+    boardName:'Praktiske scenarier',
+    desc:'Konkrete eksempler på brug før, under og efter undervisningen.',
+    accent:'#0ea5e9'
+  }
+];
+function tavleHelpPdfLocalPath(item){return 'pdf/hjaelp/'+String((item&&item.file)||'');}
+function tavleHelpPdfGithubPagesUrl(item){return 'https://maans.github.io/Tavle/pdf/hjaelp/'+String((item&&item.file)||'');}
+function tavleHelpPdfGithubFolderUrl(){return 'https://github.com/maans/Tavle/tree/main/pdf/hjaelp';}
+function tavleHelpFindPdfGuide(key){
+  key=String(key||'').trim();
+  return TAVLE_HELP_PDF_GUIDES.find(x=>String(x.key)===key)||null;
+}
+function tavleHelpOpenPdfGuide(key){
+  const item=tavleHelpFindPdfGuide(key);
+  if(!item){try{toast('PDF-guide ikke fundet');}catch(_e){} return false;}
+  try{closeModal();}catch(_e){}
+  setTimeout(function(){
+    try{
+      if(!state||!Array.isArray(state.slides))return false;
+      let idx=-1;
+      try{
+        if(typeof safe297InsertNewBoardBeforeTrash==='function')idx=safe297InsertNewBoardBeforeTrash();
+      }catch(_e){idx=-1;}
+      if(!Number.isInteger(idx)||idx<0||idx>=state.slides.length){
+        state.slides.push(typeof createThemedSlide==='function'?createThemedSlide():{title:'Ny tavle',bg:'linear-gradient(135deg,#eef7ff,#d6ecff)',bgImage:'',bgFit:'cover',grid:false,draw:'',widgets:[]});
+        state.active=state.slides.length-1;
+        idx=state.active;
+        try{render();}catch(_e){}
+      }
+      const s=state.slides[state.active]||slide();
+      if(s){
+        s.title=item.boardName||item.title||'PDF-guide';
+        s.widgets=[];
+      }
+      try{if(typeof clearFocusTarget==='function')clearFocusTarget();}catch(_e){}
+      try{if(typeof setFocusMode==='function')setFocusMode(null);}catch(_e){}
+      try{if(typeof setFocusMaximized==='function')setFocusMaximized(false);}catch(_e){}
+      selected=null;
+      if(window.UIState){UIState.selectedWidgetId=null;UIState.focusedWidgetId=null;UIState.maximizedWidgetId=null;UIState.focusMaximized=false;}
+      const localPath=tavleHelpPdfLocalPath(item);
+      const src=(typeof resolveAssetPath==='function')?resolveAssetPath(localPath):localPath;
+      const w=addWidget('pdf',{
+        src:src,
+        url:tavleHelpPdfGithubPagesUrl(item),
+        helpLocalPath:localPath,
+        helpGithubUrl:tavleHelpPdfGithubPagesUrl(item),
+        name:item.file,
+        source:'tavle-help-pdf',
+        page:1,
+        pdfControlsCollapsed:true
+      });
+      if(w){
+        w.title=item.title||item.boardName||'PDF';
+        w.x=Math.round(Math.max(20,innerWidth*0.055));
+        w.y=Math.round(Math.max(70,innerHeight*0.075));
+        w.w=Math.round(Math.min(innerWidth-40,innerWidth*0.89));
+        w.h=Math.round(Math.min(innerHeight-90,innerHeight*0.84));
+        w.rotation=0;
+        try{fitWidgetToViewport(w);}catch(_e){}
+      }
+      try{render();}catch(_e){}
+      setTimeout(function(){
+        try{
+          if(w)select(w.id);
+          const el=w?document.querySelector('.widget[data-id="'+CSS.escape(String(w.id))+'"]'):null;
+          if(el&&typeof setFocusTarget==='function')setFocusTarget(el);
+          if(typeof setFocusMaximized==='function')setFocusMaximized(true);
+          try{if(typeof pdfJsSetZoom==='function')pdfJsSetZoom(w,el&&el.querySelector('.content.pdf'),'fit');}catch(_z){}
+          save({silent:true});
+        }catch(_e){}
+      },80);
+      try{toast('PDF-guide åbnet');}catch(_e){}
+      return true;
+    }catch(err){console.warn('Kunne ikke åbne Tavle-hjælpe-PDF',err);try{toast('Kunne ikke åbne PDF-guide');}catch(_e){} return false;}
+  },50);
+  return true;
+}
+
 function showQuickHelp(){
   showModal(`<h2>Hjælp</h2>
 
@@ -38127,6 +38228,17 @@ function showQuickHelp(){
     .helpTopJumps b{flex:0 0 auto;margin-right:3px;white-space:nowrap}
     .helpTopJumps .helpJumpBtn{flex:1 1 0;min-width:0;text-align:center;white-space:nowrap;padding:6px 8px;font-size:13px}
     .helpJumpBtn{border:0;border-radius:999px;background:#eef2ff;color:#312e81;padding:6px 9px;font-weight:900;cursor:pointer}
+    .helpPdfGuides{margin:10px 0 12px;padding:10px;border-radius:16px;background:linear-gradient(135deg,#f8fafc,#eef6ff);border:1px solid #dbe7f3}
+    .helpPdfGuidesHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .helpPdfGuidesHead h3{margin:0;font-size:16px;line-height:1.15;color:#0f172a}
+    .helpPdfGuidesHead p{margin:3px 0 0;color:#475569;font-size:13px;line-height:1.25}
+    .helpPdfGithubBtn{border:0;border-radius:999px;background:#111827;color:#fff;padding:7px 10px;font-weight:950;white-space:nowrap;cursor:pointer}
+    .helpPdfGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .helpPdfCard{border:1px solid #dbe3ef;border-left:6px solid var(--pdf-accent,#6d5dfc);background:#fff;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:7px;min-height:118px;text-align:left}
+    .helpPdfCard b{font-size:14px;color:#111827;line-height:1.1}
+    .helpPdfCard span{font-size:12.5px;color:#526070;line-height:1.25}
+    .helpPdfCard button{align-self:flex-start;margin-top:auto;border:0;border-radius:999px;background:#eef2ff;color:#312e81;font-weight:950;padding:7px 10px;cursor:pointer}
+    .helpPdfCard button:hover,.helpPdfCard button:focus-visible{background:#dbeafe;outline:2px solid #93c5fd;outline-offset:1px}
     .helpJumpBtn:hover,.helpJumpBtn:focus-visible{background:#dbeafe;outline:2px solid #93c5fd;outline-offset:1px}
     .helpCompactList li{margin-bottom:5px!important}
     @media(max-width:760px){.helpQuickStart,.helpKeyGrid,.helpTwoCol{grid-template-columns:1fr}.helpIconGrid{grid-template-columns:1fr!important}}
@@ -38144,6 +38256,18 @@ function showQuickHelp(){
     <div class="helpQuickCard"><b>1. Byg tavlen</b> Brug værktøjslinjen eller <b>Mere</b>. Træk widgets rundt, ændr størrelse og læg dem i lag.</div>
     <div class="helpQuickCard"><b>2. Brug den live</b> <b>P/R</b> skifter præsentation, <b>F</b> fokuserer valgt widget, og <b>Shift+F</b> maksimerer.</div>
     <div class="helpQuickCard"><b>3. Find rundt</b> <b>Q/Å/Shift+T</b> åbner Tavleoverblik, <b>D</b> åbner Datakilder, og <b>Esc</b> lukker eller går tilbage.</div>
+  </div>
+
+  <div class="helpPdfGuides" aria-label="PDF-guides til TavleAppen">
+    <div class="helpPdfGuidesHead">
+      <div><h3>PDF-guides</h3><p>Åbn en guide på en ny tavle som maksimeret PDF.</p></div>
+      <button type="button" class="helpPdfGithubBtn" data-help-pdf-github-folder>GitHub-mappe</button>
+    </div>
+    <div class="helpPdfGrid">
+      <div class="helpPdfCard" style="--pdf-accent:#6d5dfc"><b>Hvorfor Tavle?</b><span>Kort manifest om TavleAppens idé og værdi.</span><button type="button" data-help-pdf="manifest">Åbn PDF</button></div>
+      <div class="helpPdfCard" style="--pdf-accent:#10b981"><b>Pædagogisk tese</b><span>Uddybende tekst om TavleAppen som lærerens arbejdsværktøj.</span><button type="button" data-help-pdf="tese">Åbn PDF</button></div>
+      <div class="helpPdfCard" style="--pdf-accent:#0ea5e9"><b>Praktiske scenarier</b><span>Konkrete eksempler på brug før, under og efter undervisning.</span><button type="button" data-help-pdf="scenarier">Åbn PDF</button></div>
+    </div>
   </div>
 
   <div class="helpSeeAlso helpTopJumps" aria-label="Hurtige links i hjælp">
@@ -38417,6 +38541,19 @@ function showQuickHelp(){
     </details>
 
     <details>
+      <summary>PDF-guides til TavleAppen</summary>
+      <div class="answer">
+        <p>Disse tre PDF'er er tænkt som korte, læsbare introduktioner til TavleAppens værdi og praktiske brug. De åbnes på en ny tavle i maksimeret PDF-visning.</p>
+        <div class="helpPdfGrid" style="margin-top:10px">
+          <div class="helpPdfCard" style="--pdf-accent:#6d5dfc"><b>Hvorfor Tavle?</b><span>Manifest og kort introduktion.</span><button type="button" data-help-pdf="manifest">Åbn PDF</button></div>
+          <div class="helpPdfCard" style="--pdf-accent:#10b981"><b>Pædagogisk tese</b><span>Argumentation for TavleAppen som lærerens arbejdsværktøj.</span><button type="button" data-help-pdf="tese">Åbn PDF</button></div>
+          <div class="helpPdfCard" style="--pdf-accent:#0ea5e9"><b>Praktiske scenarier</b><span>Eksempler på forberedelse, live-brug og genbrug.</span><button type="button" data-help-pdf="scenarier">Åbn PDF</button></div>
+        </div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button></div>
+      </div>
+    </details>
+
+    <details>
       <summary>PDF, iframe, fokus og præsentation</summary>
       <div class="answer">
         <ul class="helpCompactList">
@@ -38654,6 +38791,19 @@ function showQuickHelp(){
     btn.onclick=(e)=>{
       try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_x){}
       safe455bJumpHelp(btn.dataset.helpJump||btn.textContent||'');
+      return false;
+    };
+  });
+  modal.querySelectorAll('[data-help-pdf]').forEach(btn=>{
+    btn.onclick=(e)=>{
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_x){}
+      return tavleHelpOpenPdfGuide(btn.getAttribute('data-help-pdf'));
+    };
+  });
+  modal.querySelectorAll('[data-help-pdf-github-folder]').forEach(btn=>{
+    btn.onclick=(e)=>{
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_x){}
+      try{window.open(tavleHelpPdfGithubFolderUrl(),'_blank','noopener');}catch(_e){try{toast('GitHub-mappe: '+tavleHelpPdfGithubFolderUrl());}catch(__e){}}
       return false;
     };
   });
