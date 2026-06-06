@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- l582-pdf-max-arrow-nav-owner: Dybere PDF-keyboard fix: maksimeret PDF bruger den eksisterende handlePdfArrowKey når muligt og har robust fallback til sideknapper/manual render, så piletaster både bevarer maksimering og navigerer PDF'en. Ingen Quine/shortcut-forsøg. -->
 <!-- l567-note-list-focus-rounding-opslag-glass: Kirurgisk CSS-fix kun for almindelige Tekst-/Listewidgets i OpslagsTavle og GlasTavle: når widgetbjælken skjules i fokus/maksimering, klippes post-it-lærredet og textarea inden for samme afrundede hjørner som i præsentation. Ingen JS/widgetlogik. -->
 
 <html lang="da">
@@ -103,6 +104,133 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 - Papirkurv-patches ligger sidst som interne tavle-guards. De må ikke erstattes af gammel modal/localStorage-papirkurv.
 - KaPardy, wheel, lyd-unlock, shortcuts og iframe/link-patches er følsomme: lav kun små ændringer og test direkte funktion efter hver ændring.
 -->
+
+
+<script id="l582-pdf-max-arrow-nav-owner-early-guard">
+(function(){
+  if(window.__l582PdfMaxArrowNavOwnerEarlyGuard)return;
+  window.__l582PdfMaxArrowNavOwnerEarlyGuard=true;
+
+  function isTypingTarget(t){
+    try{
+      if(!t)return false;
+      return !!(t.isContentEditable || (t.matches&&t.matches('input,textarea,select,[contenteditable="true"]')));
+    }catch(_e){return false;}
+  }
+  function isArrow(k){return k==='ArrowLeft'||k==='ArrowRight'||k==='ArrowUp'||k==='ArrowDown';}
+  function stopHard(e){
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+  }
+  function maxIsOn(){
+    try{
+      return !!(
+        document.body.classList.contains('focus-maximized') ||
+        (typeof focusMaximized!=='undefined' && focusMaximized) ||
+        (window.UIState&&UIState.focusMaximized)
+      );
+    }catch(_e){return false;}
+  }
+  function cssEscape(v){
+    try{return CSS.escape(String(v));}catch(_e){return String(v).replace(/[^a-zA-Z0-9_-]/g,'\$&');}
+  }
+  function pdfTarget(){
+    try{
+      if(!maxIsOn())return null;
+      var el=document.querySelector('.widget[data-type="pdf"].focusTarget') ||
+             document.querySelector('.widget[data-type="pdf"].selected') ||
+             document.querySelector('.widget[data-type="pdf"].maximized') ||
+             document.querySelector('body.focus-maximized .widget[data-type="pdf"]');
+      if(!el)return null;
+      var content=el.querySelector('.content.pdf') || el.querySelector('.content');
+      var viewer=el.querySelector('.pdfJsViewer');
+      if(!content || !viewer)return null;
+      var id=String(el.dataset.id||'');
+      var w=null;
+      try{if(typeof findWidget==='function')w=findWidget(id);}catch(_e){}
+      try{if(!w && typeof slide==='function')w=(slide().widgets||[]).find(function(x){return x&&String(x.id)===id&&x.type==='pdf';});}catch(_e){}
+      try{
+        if(!w && window.state && Array.isArray(state.slides)){
+          for(var si=0;si<state.slides.length && !w;si++){
+            var ws=(state.slides[si]&&state.slides[si].widgets)||[];
+            for(var wi=0;wi<ws.length;wi++){
+              if(ws[wi]&&String(ws[wi].id)===id&&ws[wi].type==='pdf'){w=ws[wi];break;}
+            }
+          }
+        }
+      }catch(_e){}
+      if(!w)return null;
+      return {el:el,content:content,viewer:viewer,w:w};
+    }catch(_e){return null;}
+  }
+  function renderPdf(t){
+    try{if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(t.w,t.content);}catch(_e){}
+  }
+  function manualGoPage(t,delta){
+    try{
+      var w=t.w; w.data=w.data||{};
+      var cur=Math.max(1,Number(w.data.page||1));
+      var max=Number(w.data.pages||0);
+      try{if(!max && w._pdfDoc && w._pdfDoc.numPages)max=Number(w._pdfDoc.numPages)||0;}catch(_e){}
+      var next=max?Math.min(max,Math.max(1,cur+delta)):Math.max(1,cur+delta);
+      if(next===cur)return true; // stadig håndteret: pilen må ikke skifte tavle eller afbryde max
+      w.data.page=next;
+      try{save();}catch(_e){}
+      var label=t.content.querySelector&&t.content.querySelector('.pdfPageLabel');
+      if(label)label.textContent=String(next)+(max?('/'+max):'');
+      renderPdf(t);
+      return true;
+    }catch(_e){return false;}
+  }
+  function fallbackHandle(e,t,k){
+    try{
+      if(k==='ArrowUp'){
+        t.viewer.scrollTop-=Math.max(80,t.viewer.clientHeight*0.25);
+        return true;
+      }
+      if(k==='ArrowDown'){
+        t.viewer.scrollTop+=Math.max(80,t.viewer.clientHeight*0.25);
+        return true;
+      }
+      var delta=k==='ArrowLeft'?-1:1;
+      var btn=t.content.querySelector(k==='ArrowLeft'?'.pdfPrev':'.pdfNext');
+      if(btn && !btn.disabled){
+        try{btn.click();return true;}catch(_e){}
+      }
+      if(typeof pdfJsGoPage==='function'){
+        try{pdfJsGoPage(t.w,t.content,delta);return true;}catch(_e){}
+      }
+      return manualGoPage(t,delta);
+    }catch(_e){return false;}
+  }
+  function handle(e){
+    try{
+      if(!e || isTypingTarget(e.target) || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey)return;
+      var k=e.key;
+      if(!isArrow(k))return;
+      var t=pdfTarget();
+      if(!t)return;
+
+      // Maksimeret PDF ejer piletasterne helt. Først forsøg appens egen PDF-handler;
+      // hvis den ikke flytter siden, bruges fallback direkte på PDF-widgettens DOM/state.
+      stopHard(e);
+      var handled=false;
+      try{
+        if(typeof activatePdfKeyboardControl==='function')activatePdfKeyboardControl(t.el);
+      }catch(_e){}
+      try{
+        if(typeof handlePdfArrowKey==='function')handled=!!handlePdfArrowKey(e);
+      }catch(_e){}
+      if(!handled)handled=fallbackHandle(e,t,k);
+      // Uanset resultat må piletasten ikke slippe videre til tavleskift/fokus-oprydning.
+      return false;
+    }catch(_e){
+      try{stopHard(e);}catch(__e){}
+      return false;
+    }
+  }
+  window.addEventListener('keydown',handle,true);
+})();
+</script>
 
 <script id="safe453i198-iframe-keyboard-reserve-early">
 /* SAFE453i198: Når en link/iframe-widget er interaktiv, ejer iframen tastaturet.
@@ -22312,6 +22440,29 @@ function updateFocusExitLabel(){
     btn.setAttribute('aria-label','Afslut fokus');
   }
 }
+function safe581FitPdfWhenMaximized(target){
+  try{
+    if(!target || !target.matches || !target.matches('.widget[data-type="pdf"]'))return;
+    const id=String(target.dataset.id||'');
+    const w=(slide().widgets||[]).find(x=>x&&String(x.id)===id&&x.type==='pdf');
+    if(!w)return;
+    w.data=w.data||{};
+    w.data.pdfZoom='fit';
+    activatePdfKeyboardControl(target);
+    try{save();}catch(_e){}
+    const rerender=function(){
+      try{
+        const c=target.querySelector('.content.pdf');
+        if(c && typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);
+      }catch(_e){}
+    };
+    // layoutet ændrer størrelse når maksimering/fokus-klasser er sat; giv PDF.js tid til at måle korrekt bredde.
+    setTimeout(rerender,0);
+    setTimeout(rerender,90);
+    setTimeout(rerender,260);
+  }catch(_e){}
+}
+
 function setFocusMaximized(on){
   if(on){
     let target=document.querySelector('.widget.focusTarget');
@@ -22341,6 +22492,7 @@ function setFocusMaximized(on){
     updateFocusExitLabel();
     syncEmergencyExit();
     try{setToolbarHidden(true)}catch(e){}
+    try{safe581FitPdfWhenMaximized(target);}catch(_e){}
     try{updateContextHints('maximized')}catch(_e){}
     try{toast('Max')}catch(e){}
     return;
@@ -42723,13 +42875,22 @@ function activatePdfKeyboardControl(el){
 }
 function activePdfKeyboardTarget(){
   let el=null;
-  // Kun eksplicit aktiveret PDF må fange piletaster.
+  /* l581: En maksimeret PDF skal selv eje piletasterne.
+     Den må ikke kræve ekstra klik i PDF-indholdet, for Hjælp-PDF'er åbnes
+     direkte på ny tavle i maksimeret præsentationsvisning. */
+  try{
+    const isMax=!!(focusMaximized || (window.UIState&&UIState.focusMaximized) || document.body.classList.contains('focus-maximized'));
+    if(isMax){
+      el=document.querySelector('.widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].maximized, .widget[data-type="pdf"].selected');
+    }
+  }catch(_e){}
+  // Ellers må kun eksplicit aktiveret PDF fange piletaster.
   // Man aktiverer ved at klikke i PDF-indholdet. ESC slipper igen.
-  if(pdfKeyboardWidgetId){
+  if(!el && pdfKeyboardWidgetId){
     el=document.querySelector('.widget[data-type="pdf"][data-id="'+CSS.escape(String(pdfKeyboardWidgetId))+'"]');
   }
   if(!el) return null;
-  const w=slide().widgets.find(x=>x.id===el.dataset.id && x.type==='pdf');
+  const w=slide().widgets.find(x=>String(x.id)===String(el.dataset.id) && x.type==='pdf');
   const content=el.querySelector('.content.pdf');
   const viewer=el.querySelector('.pdfJsViewer');
   if(!w || !content || !viewer) return null;
@@ -42752,6 +42913,7 @@ function handlePdfArrowKey(e){
   }
   e.preventDefault();
   e.stopPropagation();
+  if(e.stopImmediatePropagation)e.stopImmediatePropagation();
   return true;
 }
 
@@ -46670,6 +46832,12 @@ document.addEventListener('click',function(e){
         return false;
       }
       if(!overviewOn() && (key==='ArrowLeft' || key==='ArrowRight') && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey){
+        /* l581: Tavleskift-cleanup må ikke rydde maksimering, når piletasten tilhører en maksimeret PDFWidget. */
+        var pdfOwnsArrow=false;
+        try{
+          pdfOwnsArrow=!!(document.body.classList.contains('focus-maximized') && document.querySelector('.widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].maximized'));
+        }catch(_e){}
+        if(pdfOwnsArrow)return;
         setTimeout(clearFocusAndMax,0);
         setTimeout(clearFocusAndMax,80);
       }
