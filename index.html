@@ -6,6 +6,7 @@
 <!-- l568-focus-stripe-clip-all-widgets: Kirurgisk CSS-fix for temaernes venstrestreg i fokus/maksimering: alle widgettyper i GlasTavle/SmartBoard/FlipOver/OpslagsTavle klippes inden for widgettens afrundede hjørner, så farvestregen ikke går for højt eller for langt ned. Ingen JS/widgetlogik. -->
 <!-- l566-left-stripe-focus-canvas-fix: Kirurgisk tema-CSS: FlipOver/SmartBoard venstrestreg starter nu under widgetbjælken i redigering, og Tekst/Liste i fokus får både indhold og underliggende tekst-lærred afrundet som i præsentation. Ingen JS/widgetlogik. -->
 <!-- l565-left-stripe-focus-rounding: Temaets venstre farvestreg starter under widgetbjælken i redigering, så den ikke stikker over rundingen. I fokus/maksimering får Tekst/Liste-indhold igen fuldt afrundede hjørner, når bjælken skjules. Kun tema-CSS. -->
+<!-- l578-help-startup-seen-key-default-on: Hjælp ved opstart bruger den eksisterende førstegangs-/factory-reset mekanisme (maans_tavle_seen_quick_help_v162_test), men standard er nu TIL hver opstart indtil brugeren fravælger. -->
 <!-- l574-help-pdf-presentation-max: Hjælpe-PDFer åbnes på ny tavle, som PDF-widget, i præsentationsfokus og maksimeret visning. Kirurgisk ændring oven på l573/l568; ingen Quine/shortcut-forsøg. -->
 <!-- l564-help-jump-buttons-single-row: Hjælpens øverste Hop til-knapper holdes på én kompakt linje med vandret scroll-fallback på små skærme. Kun Hjælp-CSS/HTML ændret. -->
 <!-- l562-help-streamline-links: Hjælp er strammet op praksisnært: unødvendige interne kommentarer fjernet, gentagelser samlet, og lokale Se også-links kan hoppe mellem relevante hjælpesektioner. Kun Hjælp-HTML/CSS og intern hjælp-navigation ændret. -->
@@ -172,7 +173,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.74 l573-help-pdf-links</title>
+<title>Interaktiv tavle v1.2.78 l578-help-startup-seen-key-default-on</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -33427,7 +33428,11 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
   }));}
 
 let hintTimer=null;
-let hintsEnabled=localStorage.getItem('maans_tavle_hints_enabled')==='1';
+let hintsEnabled=false;
+try{
+  localStorage.removeItem('maans_tavle_hints_enabled');
+  localStorage.removeItem('maans_tavle_hints_default_off_l33_applied');
+}catch(_e){}
 function widgetById(id){
   try{return slide().widgets.find(w=>String(w.id)===String(id))||null}catch(_e){return null}
 }
@@ -38200,6 +38205,47 @@ function tavleHelpOpenPdfGuide(key){
   return true;
 }
 
+const TAVLE_HELP_STARTUP_KEY='maans_tavle_help_open_on_startup';
+let tavleHelpStartupAlreadyOpened=false;
+let tavleHelpStartupTimer=null;
+function tavleHelpStartupEnabled(){
+  try{
+    const v=localStorage.getItem(TAVLE_HELP_STARTUP_KEY);
+    // l576: Hjælp åbner som udgangspunkt ved opstart. Kun et eksplicit fravalg ('0') slår det fra.
+    return v!=='0';
+  }catch(_e){return true}
+}
+function tavleSetHelpStartupEnabled(on){
+  try{localStorage.setItem(TAVLE_HELP_STARTUP_KEY,on?'1':'0')}catch(_e){}
+  try{toast(on?'Hjælp åbner ved opstart':'Hjælp åbner ikke automatisk')}catch(_e){}
+}
+function tavleMaybeOpenStartupHelp(){
+  try{
+    if(tavleHelpStartupAlreadyOpened || !tavleHelpStartupEnabled())return;
+    if(tavleHelpStartupTimer)clearTimeout(tavleHelpStartupTimer);
+    let tries=0;
+    const tryOpen=function(){
+      try{
+        if(tavleHelpStartupAlreadyOpened || !tavleHelpStartupEnabled())return;
+        tries++;
+        if(typeof showQuickHelp!=='function'){
+          if(tries<10)tavleHelpStartupTimer=setTimeout(tryOpen,300);
+          return;
+        }
+        if(modalBack && modalBack.style && modalBack.style.display==='flex'){
+          if(tries<10)tavleHelpStartupTimer=setTimeout(tryOpen,300);
+          return;
+        }
+        tavleHelpStartupAlreadyOpened=true;
+        showQuickHelp();
+      }catch(_e){
+        if(tries<10)tavleHelpStartupTimer=setTimeout(tryOpen,300);
+      }
+    };
+    tavleHelpStartupTimer=setTimeout(tryOpen,650);
+  }catch(_e){}
+}
+
 function showQuickHelp(){
   showModal(`<h2>Hjælp</h2>
 
@@ -38260,8 +38306,8 @@ function showQuickHelp(){
   <div class="helpIntro">
     <p><b>Min undervisningstavle</b> er et arbejdsbord til undervisning. Byg en tavle af widgets, vis den for eleverne, og gem det, du vil bruge igen.</p>
     <label class="helpHintToggleRow">
-      <input id="helpHintsToggle" type="checkbox" ${hintsEnabled?'checked':''}>
-      <span>Vis kontekstuelle hints i redigering</span>
+      <input id="helpStartupToggle" type="checkbox" ${tavleHelpStartupEnabled()?'checked':''}>
+      <span>Vis Hjælp ved opstart</span>
     </label>
   </div>
 
@@ -38661,8 +38707,8 @@ function showQuickHelp(){
     const tag=(e.target&&e.target.tagName||'').toLowerCase();
     const typing=tag==='input'||tag==='textarea'||tag==='select'||(e.target&&e.target.isContentEditable);
     const helpArrowKey=(e.key==='ArrowRight'||e.key==='ArrowLeft'||e.key==='ArrowUp'||e.key==='ArrowDown');
-    // SAFE455n12d: I Hjælp skal piletasterne stadig styre Hjælp, selv hvis checkboxen
-    // "Vis kontekstuelle hints" har fokus. Almindelige tekstfelter bevarer andre taster.
+    // I Hjælp skal piletasterne stadig styre Hjælp, selv hvis opstarts-checkboxen har fokus.
+    // Almindelige tekstfelter bevarer andre taster.
     if(typing && !helpArrowKey)return;
     function safe455bSyncHelpIndex(){
       try{
@@ -38778,8 +38824,8 @@ function showQuickHelp(){
   try{window.addEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
   try{modal.addEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
   safe455bMarkHelp();
-  const ht=modal.querySelector('#helpHintsToggle');
-  if(ht)ht.onchange=e=>setHintsEnabled(e.target.checked);
+  const ht=modal.querySelector('#helpStartupToggle');
+  if(ht)ht.onchange=e=>tavleSetHelpStartupEnabled(e.target.checked);
   function safe455bJumpHelp(needle){
     try{
       const wanted=String(needle||'').toLowerCase();
@@ -38835,11 +38881,19 @@ function showQuickHelp(){
 }
 function maybeShowQuickHelp(){
   try{
-    const k='maans_tavle_seen_quick_help_v162_test';
-    if(!localStorage.getItem(k)){
-      localStorage.setItem(k,'1');
-      setTimeout(showQuickHelp,700);
+    const seenKey='maans_tavle_seen_quick_help_v162_test';
+    const startupKey='maans_tavle_help_open_on_startup';
+    const enabled=(localStorage.getItem(startupKey)!=='0');
+    // l578: Genbrug den eksisterende førstegangs-/factory-reset åbner.
+    // Tidligere åbnede Hjælp kun, når seenKey manglede. Nu åbner Hjælp ved
+    // hver opstart som standard, indtil brugeren aktivt slår valget fra.
+    if(enabled){
+      localStorage.setItem(seenKey,'1');
+      setTimeout(function(){try{showQuickHelp();}catch(_e){}},700);
+      return;
     }
+    // Brugerens fravalg skal også forhindre den gamle førstegangslogik i at åbne Hjælp.
+    localStorage.setItem(seenKey,'1');
   }catch(e){}
 }
 
@@ -57704,18 +57758,14 @@ body.safe455PresentToolsOpen .moreMenu{position:fixed!important;}
 </script>
 
 
-<!-- SAFE455uH45g10l33: Kontekstuelle hints starter slukket; modaltekster siger nu at Esc lukker, mens pil tilbage navigerer tilbage. -->
-<script id="safe455uH45g10l33-hints-off-esc-copy">
+<!-- l578: Ryd gamle kontekstuelle hint-nøgler. Selve opstarts-Hjælp styres nu kirurgisk i maybeShowQuickHelp(), som allerede kaldes i appens init-flow. -->
+<script id="safe455uH45g10l78-help-startup-seen-key-default-on">
 (function(){
   try{
-    var mig='maans_tavle_hints_default_off_l33_applied';
-    var key='maans_tavle_hints_enabled';
-    if(localStorage.getItem(mig)!=='1'){
-      localStorage.setItem(key,'0');
-      localStorage.setItem(mig,'1');
-      if(typeof window.hintsEnabled!=='undefined') window.hintsEnabled=false;
-      try{ if(typeof setHintsEnabled==='function') setHintsEnabled(false); }catch(_e){}
-    }
+    localStorage.removeItem('maans_tavle_hints_enabled');
+    localStorage.removeItem('maans_tavle_hints_default_off_l33_applied');
+    if(typeof window.hintsEnabled!=='undefined') window.hintsEnabled=false;
+    try{ if(typeof setHintChips==='function') setHintChips([]); }catch(_x){}
   }catch(_e){}
   function fixEscCopy(root){
     try{
@@ -57728,6 +57778,8 @@ body.safe455PresentToolsOpen .moreMenu{position:fixed!important;}
     }catch(_e){}
   }
   document.addEventListener('DOMContentLoaded',function(){fixEscCopy(document);},false);
+  window.addEventListener('load',function(){fixEscCopy(document);},false);
+  if(document.readyState!=='loading'){setTimeout(function(){fixEscCopy(document);},0);}
   try{
     new MutationObserver(function(muts){
       muts.forEach(function(m){
