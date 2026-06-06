@@ -6,7 +6,7 @@
 <!-- l568-focus-stripe-clip-all-widgets: Kirurgisk CSS-fix for temaernes venstrestreg i fokus/maksimering: alle widgettyper i GlasTavle/SmartBoard/FlipOver/OpslagsTavle klippes inden for widgettens afrundede hjørner, så farvestregen ikke går for højt eller for langt ned. Ingen JS/widgetlogik. -->
 <!-- l566-left-stripe-focus-canvas-fix: Kirurgisk tema-CSS: FlipOver/SmartBoard venstrestreg starter nu under widgetbjælken i redigering, og Tekst/Liste i fokus får både indhold og underliggende tekst-lærred afrundet som i præsentation. Ingen JS/widgetlogik. -->
 <!-- l565-left-stripe-focus-rounding: Temaets venstre farvestreg starter under widgetbjælken i redigering, så den ikke stikker over rundingen. I fokus/maksimering får Tekst/Liste-indhold igen fuldt afrundede hjørner, når bjælken skjules. Kun tema-CSS. -->
-<!-- l573-help-pdf-links: Hjælp får brugerrettede PDF-guidekort, der åbner /pdf/hjaelp-PDFer på ny tavle i maksimeret PDF-visning. Bygger på l568; ingen ændring af Quine/shortcut-forsøg. -->
+<!-- l574-help-pdf-presentation-max: Hjælpe-PDFer åbnes på ny tavle, som PDF-widget, i præsentationsfokus og maksimeret visning. Kirurgisk ændring oven på l573/l568; ingen Quine/shortcut-forsøg. -->
 <!-- l564-help-jump-buttons-single-row: Hjælpens øverste Hop til-knapper holdes på én kompakt linje med vandret scroll-fallback på små skærme. Kun Hjælp-CSS/HTML ændret. -->
 <!-- l562-help-streamline-links: Hjælp er strammet op praksisnært: unødvendige interne kommentarer fjernet, gentagelser samlet, og lokale Se også-links kan hoppe mellem relevante hjælpesektioner. Kun Hjælp-HTML/CSS og intern hjælp-navigation ændret. -->
 <!-- l561-glastavle-timer-circle-fix: Kirurgisk tema-ejer-fix: GlasTavle/theme-presentation må ikke længere gøre Timer-widgettens .timerTwinShell-display gigantisk. Den store præsentationsskrift gælder kun ældre/ikke-twin timerBox, så nedtælling og stopur bliver inde i cirklen. Ingen JS, ingen timerlogik. -->
@@ -38175,7 +38175,20 @@ function tavleHelpOpenPdfGuide(key){
           if(w)select(w.id);
           const el=w?document.querySelector('.widget[data-id="'+CSS.escape(String(w.id))+'"]'):null;
           if(el&&typeof setFocusTarget==='function')setFocusTarget(el);
+          // l574: hjælpe-PDFer skal åbne rent til læsning/visning:
+          // ny tavle + valgt PDF-widget + præsentationsfokus + maksimeret.
+          // Dette gælder kun disse Hjælp-links og ændrer ikke almindelig PDF-åbning.
+          try{
+            if(typeof setFocusMode==='function'){
+              setFocusMode('presentation');
+            }else if(app&&app.classList){
+              app.classList.add('present');
+              if(window.UIState)UIState.mode='presentation';
+              try{applyUIState&&applyUIState();}catch(_ui){}
+            }
+          }catch(_pm){}
           if(typeof setFocusMaximized==='function')setFocusMaximized(true);
+          try{if(typeof setToolbarHidden==='function')setToolbarHidden(true);}catch(_tb){}
           try{if(typeof pdfJsSetZoom==='function')pdfJsSetZoom(w,el&&el.querySelector('.content.pdf'),'fit');}catch(_z){}
           save({silent:true});
         }catch(_e){}
@@ -38260,7 +38273,7 @@ function showQuickHelp(){
 
   <div class="helpPdfGuides" aria-label="PDF-guides til TavleAppen">
     <div class="helpPdfGuidesHead">
-      <div><h3>PDF-guides</h3><p>Åbn en guide på en ny tavle som maksimeret PDF.</p></div>
+      <div><h3>PDF-guides</h3><p>Åbn en guide på en ny tavle som maksimeret PDF i præsentationstilstand.</p></div>
       <button type="button" class="helpPdfGithubBtn" data-help-pdf-github-folder>GitHub-mappe</button>
     </div>
     <div class="helpPdfGrid">
