@@ -1,5 +1,6 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!doctype html>
+<!-- l597-pdf-toolbar-tap-owner-ninja: Bygger på l596. Kirurgisk fix i PDF-widgettens egen toolbar-binding: Data, Hent, sidepile og zoom får samme pointerup/click-sikring som Åbn PDF, så widgetdrag/PDF-piletastlag ikke sluger knapperne. Ingen bred event-owner. -->
 <!-- l596-moremenu-mode-toggle-ninja: Bygger på l595. Kirurgisk shortcut-ejer-fix: plain R/P må skifte redigering/præsentation mens Mere-menu eller almindelig modal er åben, men kun når fokus ikke står i input/textarea/select/contenteditable. Ingen ændring af Mere-navigation, PDF, spejlwidgets eller modal-flow. -->
 <!-- l595-pdf-toolbar-layer-ninja: Bygger på l593. Kasserer l594-event-owner. Kun kirurgisk CSS + passiv PDF-toolbar guard: PDF-værktøjslinjen ligger altid over PDF-piletastlaget, og pointer/touch på toolbaren slipper PDF-piletaster uden at stoppe knappernes egne handlers. -->
 <!-- l592-mirror-widget-arrow-cycle: Bygger på l591. Kirurgisk fix: pil op/ned bruger nu alle synlige widgetter på tavlen inkl. spejlede, og select()/PDF-keyboard finder widgetter via sharedVisibility-modellen. -->
@@ -32358,9 +32359,36 @@ if(w.type==='drawcopy'){
     try{pdfOpenModalBtn.addEventListener('pointerup',openPdfModal,{passive:false});}catch(_e){}
     pdfOpenModalBtn.onclick=openPdfModal;
   }
+  /* l597: PDF-toolbar-knapper skal have samme tap-sikring som Åbn PDF.
+     Pointerdown stopper kun widgetdrag/PDF-pilelag; pointerup/click kører knappens egen handling.
+     Lokal i PDF-widget-ejeren, ikke globalt. */
+  const safe597PdfToolbarTap=(node,action)=>{
+    if(!node || !action)return;
+    let lastRun=0;
+    const stopTap=(e)=>{
+      if(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      }
+      try{if(typeof clearPdfKeyboardControl==='function')clearPdfKeyboardControl();}catch(_e){}
+      return false;
+    };
+    const runTap=(e)=>{
+      stopTap(e);
+      const now=Date.now();
+      if(now-lastRun<260)return false;
+      lastRun=now;
+      try{if(typeof window.safe453qShowPdfControls==='function')window.safe453qShowPdfControls(el,1200);}catch(_e){}
+      try{return action(e)===false?false:false;}catch(err){try{console.warn('l597 PDF toolbar action failed',err);}catch(_e){} return false;}
+    };
+    try{node.addEventListener('pointerdown',stopTap,{passive:false});}catch(_e){}
+    try{node.addEventListener('touchstart',stopTap,{passive:false});}catch(_e){}
+    try{node.addEventListener('pointerup',runTap,{passive:false});}catch(_e){}
+    node.onclick=runTap;
+  };
   const pdfLinkedDataBtn=c.querySelector('[data-safe450-role="data"]');
-  if(pdfLinkedDataBtn)pdfLinkedDataBtn.onclick=(e)=>{
-    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+  safe597PdfToolbarTap(pdfLinkedDataBtn,(e)=>{
     try{
       const ref=(typeof safe450GetLinkedDataRef==='function')?safe450GetLinkedDataRef(w,'data'):null;
       if(ref&&ref.datasetId){
@@ -32373,7 +32401,7 @@ if(w.type==='drawcopy'){
     }
     catch(_e){try{toast('Kunne ikke vise/vælge datakilde');}catch(__e){}}
     return false;
-  };
+  });
   const local=c.querySelector('.pdfLocal');
   if(local)local.onclick=(e)=>{
     e.preventDefault();
@@ -32408,18 +32436,17 @@ if(w.type==='drawcopy'){
     });
   };
   const pdfDownload=c.querySelector('.pdfDownload');
-  if(pdfDownload)pdfDownload.onclick=(e)=>{e.stopPropagation();if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else safe453i157DownloadPdfWidget(w)};
+  safe597PdfToolbarTap(pdfDownload,(e)=>{if(typeof downloadAllEmbeddedMedia==='function')downloadAllEmbeddedMedia();else safe453i157DownloadPdfWidget(w);return false;});
   const pdfToolbarMiniToggle=c.querySelector('.pdfToolbarMiniToggle');
-  if(pdfToolbarMiniToggle)pdfToolbarMiniToggle.onclick=(e)=>{
-    e.preventDefault();e.stopPropagation();
+  safe597PdfToolbarTap(pdfToolbarMiniToggle,(e)=>{
     safe455uH115TogglePdfControls(w,c);
-    try{if(typeof window.safe453qShowPdfControls==='function')window.safe453qShowPdfControls(el,1200);}catch(_e){}
-  };
+    return false;
+  });
   const zoomOut=c.querySelector('.pdfZoomOut');
   const zoomIn=c.querySelector('.pdfZoomIn');
   const zoomLabelBtn=c.querySelector('.pdfZoomLabel');
-  if(zoomOut)zoomOut.onclick=(e)=>{e.stopPropagation();pdfJsZoomStep(w,c,-1)};
-  if(zoomIn)zoomIn.onclick=(e)=>{e.stopPropagation();pdfJsZoomStep(w,c,1)};
+  safe597PdfToolbarTap(zoomOut,(e)=>{pdfJsZoomStep(w,c,-1);return false;});
+  safe597PdfToolbarTap(zoomIn,(e)=>{pdfJsZoomStep(w,c,1);return false;});
   if(zoomLabelBtn){
     zoomLabelBtn.setAttribute('role','button');
     zoomLabelBtn.setAttribute('tabindex','0');
@@ -32430,15 +32457,13 @@ if(w.type==='drawcopy'){
       pdfJsSetZoom(w,c,'fit');
       return false;
     };
-    zoomLabelBtn.onclick=pdfFitFromZoomLabel;
-    zoomLabelBtn.onpointerdown=pdfFitFromZoomLabel;
-    zoomLabelBtn.ontouchstart=pdfFitFromZoomLabel;
+    safe597PdfToolbarTap(zoomLabelBtn,pdfFitFromZoomLabel);
     zoomLabelBtn.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){pdfFitFromZoomLabel(e)}};
   }
   const formToggle=c.querySelector('.pdfFormToggle');
   const formDataExport=c.querySelector('.pdfFormDataExport');
-  if(formToggle)formToggle.onclick=(e)=>{e.preventDefault();e.stopPropagation();safe455uH102TogglePdfForm(w,c,!(w.data&&w.data.pdfInteractive));};
-  if(formDataExport)formDataExport.onclick=(e)=>{e.preventDefault();e.stopPropagation();safe455uH103TogglePdfAnswersDataWidget(w);};
+  safe597PdfToolbarTap(formToggle,(e)=>{safe455uH102TogglePdfForm(w,c,!(w.data&&w.data.pdfInteractive));return false;});
+  safe597PdfToolbarTap(formDataExport,(e)=>{safe455uH103TogglePdfAnswersDataWidget(w);return false;});
   const urlBtn=c.querySelector('.pdfUrl');
   if(urlBtn)urlBtn.onclick=(e)=>{
     e.preventDefault();
@@ -32465,8 +32490,8 @@ if(w.type==='drawcopy'){
     pageLabel.ontouchstart=openPagePicker;
     pageLabel.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '||e.key==='ArrowDown'){openPagePicker(e);}};
   }
-  if(prev)prev.onclick=(e)=>{e.stopPropagation();pdfJsGoPage(w,c,-1)};
-  if(next)next.onclick=(e)=>{e.stopPropagation();pdfJsGoPage(w,c,1)};
+  safe597PdfToolbarTap(prev,(e)=>{pdfJsGoPage(w,c,-1);return false;});
+  safe597PdfToolbarTap(next,(e)=>{pdfJsGoPage(w,c,1);return false;});
   if(edgePrev)edgePrev.onclick=(e)=>{e.preventDefault();e.stopPropagation();pdfJsGoPage(w,c,-1)};
   if(edgeNext)edgeNext.onclick=(e)=>{e.preventDefault();e.stopPropagation();pdfJsGoPage(w,c,1)};
   renderPdfJsWidget(w,c);
