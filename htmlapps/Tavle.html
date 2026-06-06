@@ -6,6 +6,8 @@
 <!-- l592-mirror-widget-arrow-cycle: Bygger på l591. Kirurgisk fix: pil op/ned bruger nu alle synlige widgetter på tavlen inkl. spejlede, og select()/PDF-keyboard finder widgetter via sharedVisibility-modellen. -->
 <!-- l591-shared-widget-mirror-overview: Bygger på l590. Begrebet "Vis samme widget" skiftes til "Spejl widget", og Tavleoversigt tæller både fysiske og spejlede widgetter. -->
 <!-- l590-shared-widget-selected-tools: Bygger på l589. Widgetplacering-modalens Udvalgte-område får mere plads samt Alle til / Alle fra / Kun nu. Ingen ændring af sharedVisibility-model eller øvrige widgetlogik. -->
+<!-- l601-pdf-autodata-original-owner-ninja: Bygger på l597. Retter kun den oprindelige safe556 PDF-formular-autoData-ejer: automatisk DataWidget oprettes/skjules i state uden addDatasetWidget/render/select; Data-knappen åbner manuelt med 🔗. -->
+<!-- l602-pdf-data-button-linked-state: Bygger på l601. PDF Data-knappen opdateres visuelt til koblet/grøn direkte efter skjult autoData-oprettelse uden render/select og uden at åbne DataWidgetten. -->
 <!-- l584-pdf-focus-arrow-owner: Bygger på l583. Fokuseret PDFWidget ejer nu piletasterne på samme måde som maksimeret PDF: venstre/højre bladrer, op/ned scroller, og tasten stoppes før tavle-/focus-cleanup kan lukke fokustilstand. Ingen Quine/shortcut-forsøg. -->
 <!-- l583-pdf-exit-refit-width: Bygger på l582. Når en PDFWidget forlader maksimeret visning, sættes PDF-zoom igen til bredde-tilpasning/100% og re-renderes efter layoutet har sat sig. Ingen Quine/shortcut-forsøg. -->
 <!-- l567-note-list-focus-rounding-opslag-glass: Kirurgisk CSS-fix kun for almindelige Tekst-/Listewidgets i OpslagsTavle og GlasTavle: når widgetbjælken skjules i fokus/maksimering, klippes post-it-lærredet og textarea inden for samme afrundede hjørner som i præsentation. Ingen JS/widgetlogik. -->
@@ -20002,6 +20004,39 @@ function safe455uH103SyncPdfAnswersDataset(w,opt){
   if(!opt.silent)try{save({silent:true});}catch(_e){}
   return ds;
 }
+
+/* l602: Opdatér kun PDF Data-knappens synlige koblingsstatus uden render/select.
+   Bruges efter skjult auto-oprettelse af PDF-svar-data, så knappen kan blive grøn
+   uden at DataWidgetten springer frem eller feltfokus mistes. */
+function safe602RefreshPdfDataButtonForWidget(w){
+  try{
+    if(!w||!w.id||!w.data)return false;
+    var wid=String(w.id);
+    var escId=(window.CSS&&CSS.escape)?CSS.escape(wid):wid.replace(/[^a-zA-Z0-9_-]/g,'\\$&');
+    var el=document.querySelector('.widget[data-type="pdf"][data-id="'+escId+'"]')||document.querySelector('.widget[data-id="'+escId+'"]');
+    if(!el)return false;
+    var btn=el.querySelector('.pdfControls .safe450LinkedDataStatus[data-safe450-role="data"]');
+    if(!btn)return false;
+    var ref=null;
+    try{ref=(typeof safe450GetLinkedDataRef==='function')?safe450GetLinkedDataRef(w,'data'):null;}catch(_e){ref=null;}
+    var datasetId=String((ref&&ref.datasetId)||w.data.pdfFormDatasetId||w.data.sourceDatasetId||w.data.linkedDataDatasetId||'').trim();
+    var name=String((ref&&ref.name)||w.data.pdfFormDatasetName||w.data.sourceDatasetName||w.data.linkedDataName||'PDF-svar').trim();
+    var hit=null,isOpen=false;
+    try{hit=datasetId&&typeof safe450FindDataWidgetByDatasetId==='function'?safe450FindDataWidgetByDatasetId(datasetId):null;}catch(_e){hit=null;}
+    try{isOpen=!!(hit&&hit.w&&hit.w.data&&hit.w.data.sourceOpen);}catch(_e){isOpen=false;}
+    btn.classList.toggle('empty',!datasetId);
+    btn.classList.toggle('open',!!isOpen);
+    btn.classList.toggle('linked',!!datasetId);
+    btn.setAttribute('aria-pressed',isOpen?'true':'false');
+    btn.title=datasetId?(isOpen?'Skjul koblet DataWidget':'Vis koblet DataWidget'):'Vælg eller opret datakilde';
+    var label=btn.querySelector('.label');
+    if(label)label.textContent='Data';
+    var nameEl=btn.querySelector('.name');
+    if(nameEl)nameEl.textContent=datasetId?name:'Ingen datakilde';
+    return true;
+  }catch(_e){return false;}
+}
+
 function safe455uH102PdfAnswersToDataset(w){
   if(!w||!w.data)return null;
   const data=safe455uH102EnsurePdfFormData(w);
@@ -20031,6 +20066,7 @@ function safe455uH102PdfAnswersToDataset(w){
     try{if(typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,{w:dw},'data',ds.name);}catch(_e){}
     try{safe381OpenDatasetSourceNearWidget(ds.id,w);}catch(_e){}
   }
+  try{safe602RefreshPdfDataButtonForWidget(w);}catch(_e){}
   try{toast('PDF-svar koblet som DataWidget');}catch(_e){}
   return ds;
 }
@@ -20052,33 +20088,64 @@ function safe556EnsurePdfAnswersAutoDataWidget(w,opt){
   const keys=Object.keys(data).filter(function(k){return data[k]!=null && String(data[k]).trim()!=='';});
   if(!keys.length)return null;
 
-  let existingId=String(w.data.pdfFormDatasetId||w.data.sourceDatasetId||'').trim();
-  if(existingId){
-    try{return safe455uH103SyncPdfAnswersDataset(w,{silent:true});}catch(_e){}
-  }
-
   const ds=safe455uH103BuildPdfAnswersDataset(w);
   if(!ds)return null;
   try{updateDatasetInState(ds);}catch(_e){try{addDataset(ds);}catch(__e){}}
 
   let hit=null,dw=null;
   try{hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null;}catch(_e){}
+  try{if(!hit&&typeof safe376DatasetWidgetInfo==='function')hit=safe376DatasetWidgetInfo(ds.id);}catch(_e){}
   dw=hit&&hit.w;
+
   if(!dw){
     try{
-      const point={
-        x:Math.max(24,Math.min((Number(w.x)||140)+Math.min(Number(w.w)||520,360)+36,(window.innerWidth||1200)-720)),
-        y:Math.max(78,Math.min((Number(w.y)||130)+38,(window.innerHeight||800)-460))
+      const keepW=Math.min(680,Math.max(460,(window.innerWidth||1200)*.46));
+      const keepH=Math.min(440,Math.max(300,(window.innerHeight||800)*.38));
+      dw={
+        id:uid(),
+        type:'text',
+        x:Math.max(24,Math.min((Number(w.x)||140)+40,(window.innerWidth||1200)-keepW-30)),
+        y:Math.max(78,Math.min((Number(w.y)||130)+40,(window.innerHeight||800)-keepH-40)),
+        w:keepW,
+        h:keepH,
+        z:++z,
+        rotation:0,
+        locked:false,
+        title:'📊 '+(ds.name||'PDF-svar'),
+        data:{
+          text:(typeof formatDatasetAsTextWidgetContent==='function')?formatDatasetAsTextWidgetContent(ds):'',
+          datasetId:ds.id,
+          datasetView:true,
+          sourceType:'dataset',
+          sourceOpen:false,
+          sourceOpenedByAutoPdfAnswers:true
+        }
       };
-      dw=addDatasetWidget(ds,point);
-      try{if(dw&&dw.data){dw.data.sourceOpen=true;dw.data.sourceOpenedFromWidgetId=w.id;}}catch(_e){}
-    }catch(err){try{console.warn('l556 kunne ikke oprette PDF-svar-DataWidget',err);}catch(_e){}}
-  }else{
-    try{
-      dw.title='📊 '+(ds.name||'PDF-svar');
-      dw.data=dw.data||{};
-      dw.data.text=(typeof formatDatasetAsTextWidgetContent==='function')?formatDatasetAsTextWidgetContent(ds):dw.data.text;
-    }catch(_e){}
+      try{
+        if(typeof safe588SetVisibility==='function')safe588SetVisibility(dw,'single',[safe588SlideId(state.active)]);
+      }catch(_e){}
+      const sl=slide();
+      sl.widgets=sl.widgets||[];
+      sl.widgets.push(dw);
+    }catch(err){
+      try{console.warn('l601 kunne ikke oprette skjult PDF-svar-DataWidget',err);}catch(_e){}
+      dw=null;
+    }
+  }
+
+  if(dw){
+    dw.title='📊 '+(ds.name||'PDF-svar');
+    dw.data=dw.data||{};
+    dw.data.text=(typeof formatDatasetAsTextWidgetContent==='function')?formatDatasetAsTextWidgetContent(ds):dw.data.text;
+    dw.data.datasetId=ds.id;
+    dw.data.datasetView=true;
+    dw.data.sourceType='dataset';
+    const manuallyOpen=dw.data.sourceOpenedManuallyFromPdf===true;
+    if(!manuallyOpen){
+      dw.data.sourceOpen=false;
+      delete dw.data.sourceOpenedFromWidgetId;
+      dw.data.sourceOpenedByAutoPdfAnswers=true;
+    }
   }
 
   w.data.pdfFormDatasetId=String(ds.id||'');
@@ -20089,25 +20156,42 @@ function safe556EnsurePdfAnswersAutoDataWidget(w,opt){
   w.data.lastLocalDataWidgetSourceName=String(ds.name||'PDF-svar');
   try{if(dw&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,{w:dw},'data',ds.name||'PDF-svar');}catch(_e){}
   try{safe455uH103SyncPdfAnswersDataset(w,{silent:true});}catch(_e){}
+  try{safe602RefreshPdfDataButtonForWidget(w);}catch(_e){}
   try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
-  if(!opt.silent)try{toast('PDF-svar gemt som DataWidget');}catch(_e){}
+  if(!opt.silent)try{toast('PDF-svar koblet som skjult DataWidget');}catch(_e){}
   return ds;
 }
 
 function safe455uH103TogglePdfAnswersDataWidget(w){
   if(!w||!w.data)return null;
-  const refId=String(w.data.pdfFormDatasetId||w.data.sourceDatasetId||'').trim();
-  if(!refId)return safe455uH102PdfAnswersToDataset(w);
-  safe455uH103SyncPdfAnswersDataset(w,{silent:true});
+  let refId=String(w.data.pdfFormDatasetId||w.data.sourceDatasetId||'').trim();
+  if(!refId){
+    const ds=safe556EnsurePdfAnswersAutoDataWidget(w,{silent:true});
+    refId=String((ds&&ds.id)||w.data.pdfFormDatasetId||w.data.sourceDatasetId||'').trim();
+    if(!refId)return safe455uH102PdfAnswersToDataset(w);
+  }else{
+    try{safe556EnsurePdfAnswersAutoDataWidget(w,{silent:true});}catch(_e){try{safe455uH103SyncPdfAnswersDataset(w,{silent:true});}catch(__e){}}
+  }
   try{
-    const hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(refId):null;
+    let hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(refId):null;
+    try{if(!hit&&typeof safe376DatasetWidgetInfo==='function')hit=safe376DatasetWidgetInfo(refId);}catch(_e){}
     const isOpen=!!(hit&&hit.w&&hit.w.data&&hit.w.data.sourceOpen);
-    if(isOpen){safe381HideDataSourceWidgetByDataset(refId);}
-    else{safe381OpenDatasetSourceNearWidget(refId,w);}
+    if(isOpen){
+      try{if(hit&&hit.w&&hit.w.data){hit.w.data.sourceOpenedManuallyFromPdf=false;hit.w.data.sourceOpenedByAutoPdfAnswers=true;}}catch(_e){}
+      safe381HideDataSourceWidgetByDataset(refId);
+    }else{
+      try{if(hit&&hit.w&&hit.w.data){hit.w.data.sourceOpenedManuallyFromPdf=true;delete hit.w.data.sourceOpenedByAutoPdfAnswers;}}catch(_e){}
+      safe381OpenDatasetSourceNearWidget(refId,w);
+      try{
+        hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(refId):hit;
+        if(hit&&hit.w&&hit.w.data){hit.w.data.sourceOpenedManuallyFromPdf=true;delete hit.w.data.sourceOpenedByAutoPdfAnswers;}
+      }catch(_e){}
+    }
   }catch(_e){safe455uH102PdfAnswersToDataset(w);}
+  try{safe602RefreshPdfDataButtonForWidget(w);}catch(_e){}
+  try{setTimeout(function(){try{safe602RefreshPdfDataButtonForWidget(w);}catch(_e){}},40);}catch(_e){}
   return true;
 }
-
 
 function wordCloudTextToNames(txt){
   // Accepter både linjer og kompakt liste adskilt med komma/semikolon.
@@ -22741,6 +22825,49 @@ body:not(.safe455ToolbarPresentPeek) .app.present .toolbar{
   .moreMenu.safe455PresentMoreMenu{max-width:96vw!important;gap:7px!important;padding:10px!important;}
   .moreMenu.safe455PresentMoreMenu button{min-height:50px!important;padding:6px 4px!important;}
   .moreMenu.safe455PresentMoreMenu button .txt{font-size:9.5px!important;}
+}
+</style>
+
+
+<style id="l602-pdf-data-button-linked-state-css">
+/* l602: PDF Data-knappen er grøn, så snart der findes en koblet DataWidget/dataset - også når den er skjult. */
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].linked,
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"]:not(.empty){
+  background:#16a34a!important;
+  color:#fff!important;
+  border-color:#15803d!important;
+  box-shadow:0 0 0 2px rgba(22,163,74,.18)!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].linked .linkIcon,
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"]:not(.empty) .linkIcon,
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].linked .label,
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"]:not(.empty) .label{
+  display:none!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].linked::before,
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"]:not(.empty)::before{
+  content:"🟢";
+  font-size:12px;
+  line-height:1;
+}
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].linked::after,
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"]:not(.empty)::after{
+  content:"Data";
+  font-size:13px;
+  line-height:1;
+}
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].empty{
+  background:#fff!important;
+  color:#1f2937!important;
+  border-color:#cbd5e1!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].empty::before,
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].empty::after{
+  content:none!important;
+}
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].empty .linkIcon,
+html body .widget[data-type="pdf"] .pdfControls .safe450LinkedDataStatus[data-safe450-role="data"].empty .label{
+  display:inline!important;
 }
 </style>
 
