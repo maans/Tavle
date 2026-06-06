@@ -1,5 +1,6 @@
 <!doctype html>
-<!-- l582-pdf-max-arrow-nav-owner: Dybere PDF-keyboard fix: maksimeret PDF bruger den eksisterende handlePdfArrowKey når muligt og har robust fallback til sideknapper/manual render, så piletaster både bevarer maksimering og navigerer PDF'en. Ingen Quine/shortcut-forsøg. -->
+<!-- l584-pdf-focus-arrow-owner: Bygger på l583. Fokuseret PDFWidget ejer nu piletasterne på samme måde som maksimeret PDF: venstre/højre bladrer, op/ned scroller, og tasten stoppes før tavle-/focus-cleanup kan lukke fokustilstand. Ingen Quine/shortcut-forsøg. -->
+<!-- l583-pdf-exit-refit-width: Bygger på l582. Når en PDFWidget forlader maksimeret visning, sættes PDF-zoom igen til bredde-tilpasning/100% og re-renderes efter layoutet har sat sig. Ingen Quine/shortcut-forsøg. -->
 <!-- l567-note-list-focus-rounding-opslag-glass: Kirurgisk CSS-fix kun for almindelige Tekst-/Listewidgets i OpslagsTavle og GlasTavle: når widgetbjælken skjules i fokus/maksimering, klippes post-it-lærredet og textarea inden for samme afrundede hjørner som i præsentation. Ingen JS/widgetlogik. -->
 
 <html lang="da">
@@ -106,10 +107,10 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 -->
 
 
-<script id="l582-pdf-max-arrow-nav-owner-early-guard">
+<script id="l584-pdf-focus-and-max-arrow-nav-owner-early-guard">
 (function(){
-  if(window.__l582PdfMaxArrowNavOwnerEarlyGuard)return;
-  window.__l582PdfMaxArrowNavOwnerEarlyGuard=true;
+  if(window.__l584PdfFocusAndMaxArrowNavOwnerEarlyGuard)return;
+  window.__l584PdfFocusAndMaxArrowNavOwnerEarlyGuard=true;
 
   function isTypingTarget(t){
     try{
@@ -130,16 +131,42 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
       );
     }catch(_e){return false;}
   }
+  function focusPdfModeIsOn(){
+    try{
+      // Almindelig fokus/fokus-præsentation er ikke max, men her er widgetbjælken
+      // skjult og PDF'en skal stadig eje sine egne piletaster.
+      return !!(
+        document.body.classList.contains('focus-mode') ||
+        document.body.classList.contains('focus-edit') ||
+        document.body.classList.contains('focus-presentation') ||
+        (document.getElementById('app') && (
+          document.getElementById('app').classList.contains('focusMode') ||
+          document.getElementById('app').classList.contains('focus-mode') ||
+          document.getElementById('app').classList.contains('focus-edit') ||
+          document.getElementById('app').classList.contains('focus-presentation')
+        ))
+      );
+    }catch(_e){return false;}
+  }
   function cssEscape(v){
     try{return CSS.escape(String(v));}catch(_e){return String(v).replace(/[^a-zA-Z0-9_-]/g,'\$&');}
   }
   function pdfTarget(){
     try{
-      if(!maxIsOn())return null;
-      var el=document.querySelector('.widget[data-type="pdf"].focusTarget') ||
-             document.querySelector('.widget[data-type="pdf"].selected') ||
-             document.querySelector('.widget[data-type="pdf"].maximized') ||
-             document.querySelector('body.focus-maximized .widget[data-type="pdf"]');
+      var isMax=maxIsOn();
+      var isFocus=focusPdfModeIsOn();
+      if(!isMax && !isFocus)return null;
+      var el=null;
+      if(isFocus){
+        // I almindelig fokustilstand må kun den faktiske fokus-widget eje piletasterne.
+        el=document.querySelector('body.focus-mode .widget[data-type="pdf"].focusTarget, body.focus-edit .widget[data-type="pdf"].focusTarget, body.focus-presentation .widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].focusTarget');
+      }
+      if(!el && isMax){
+        el=document.querySelector('.widget[data-type="pdf"].focusTarget') ||
+           document.querySelector('.widget[data-type="pdf"].selected') ||
+           document.querySelector('.widget[data-type="pdf"].maximized') ||
+           document.querySelector('body.focus-maximized .widget[data-type="pdf"]');
+      }
       if(!el)return null;
       var content=el.querySelector('.content.pdf') || el.querySelector('.content');
       var viewer=el.querySelector('.pdfJsViewer');
@@ -210,7 +237,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
       var t=pdfTarget();
       if(!t)return;
 
-      // Maksimeret PDF ejer piletasterne helt. Først forsøg appens egen PDF-handler;
+      // Fokuseret/maksimeret PDF ejer piletasterne helt. Først forsøg appens egen PDF-handler;
       // hvis den ikke flytter siden, bruges fallback direkte på PDF-widgettens DOM/state.
       stopHard(e);
       var handled=false;
@@ -229,6 +256,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
     }
   }
   window.addEventListener('keydown',handle,true);
+  document.addEventListener('keydown',handle,true);
 })();
 </script>
 
@@ -22462,8 +22490,46 @@ function safe581FitPdfWhenMaximized(target){
     setTimeout(rerender,260);
   }catch(_e){}
 }
+function safe583FitPdfAfterMaxExit(targetOrId){
+  try{
+    let id='';
+    if(targetOrId && targetOrId.dataset) id=String(targetOrId.dataset.id||'');
+    else if(targetOrId!=null) id=String(targetOrId||'');
+    if(!id){
+      const el=document.querySelector('.widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].selected, .widget[data-type="pdf"].pdfKeyboardActive');
+      if(el) id=String(el.dataset.id||'');
+    }
+    if(!id)return;
+    const rerender=function(){
+      try{
+        const sel='.widget[data-type="pdf"][data-id="'+CSS.escape(String(id))+'"]';
+        const el=document.querySelector(sel);
+        if(!el)return;
+        const w=(slide().widgets||[]).find(x=>x&&String(x.id)===String(id)&&x.type==='pdf');
+        if(!w)return;
+        w.data=w.data||{};
+        w.data.pdfZoom='fit';
+        const c=el.querySelector('.content.pdf');
+        const zl=el.querySelector('.pdfZoomLabel');
+        if(zl)zl.textContent='100%';
+        if(c && typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);
+      }catch(_e){}
+    };
+    try{save();}catch(_e){}
+    // Når maksimeringsklassen fjernes, ændrer widgetten først størrelse i næste layoutpass.
+    // Re-render derfor flere gange, så PDF.js måler den normale widgetbredde og ikke max-bredden.
+    setTimeout(rerender,0);
+    setTimeout(rerender,90);
+    setTimeout(rerender,260);
+    setTimeout(rerender,520);
+  }catch(_e){}
+}
 
 function setFocusMaximized(on){
+  let __safe583PdfExitTarget=null;
+  if(!on){
+    try{__safe583PdfExitTarget=document.querySelector('.widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].selected, .widget[data-type="pdf"].pdfKeyboardActive');}catch(_e){}
+  }
   if(on){
     let target=document.querySelector('.widget.focusTarget');
     if(!target && selected){
@@ -22516,6 +22582,7 @@ function setFocusMaximized(on){
     try{toast('Fokus')}catch(e){}
   }
   focusMaxReturnMode=null;
+  try{safe583FitPdfAfterMaxExit(__safe583PdfExitTarget);}catch(_e){}
 }
 function toggleFocusMaximized(){
   if(focusMaximized || document.body.classList.contains('focus-maximized')){
@@ -22547,6 +22614,8 @@ function syncEmergencyExit(){
   }
 }
 function hardExitMaximized(){
+  let __safe583PdfExitTarget=null;
+  try{__safe583PdfExitTarget=document.querySelector('.widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].selected, .widget[data-type="pdf"].pdfKeyboardActive');}catch(_e){}
   setTimeout(()=>{try{syncFocusBodyClasses();}catch(_e){}},0);
   // Robust nødudgang: virker også hvis appen har været i baggrunden og
   // JS-state/CSS-klasser ikke længere er helt synkroniserede.
@@ -22567,6 +22636,7 @@ function hardExitMaximized(){
   try{applyUIState();}catch(_e){}
   try{setToolbarHidden(false)}catch(_e){}
   try{updateContextHints('exit-max')}catch(_e){}
+  try{safe583FitPdfAfterMaxExit(__safe583PdfExitTarget);}catch(_e){}
 }
 
 /* v1.0.40-fix: sync focus body classes for global background dim */
@@ -42880,7 +42950,11 @@ function activePdfKeyboardTarget(){
      direkte på ny tavle i maksimeret præsentationsvisning. */
   try{
     const isMax=!!(focusMaximized || (window.UIState&&UIState.focusMaximized) || document.body.classList.contains('focus-maximized'));
-    if(isMax){
+    const isFocus=!!(document.body.classList.contains('focus-mode') || document.body.classList.contains('focus-edit') || document.body.classList.contains('focus-presentation'));
+    if(isFocus){
+      el=document.querySelector('.widget[data-type="pdf"].focusTarget');
+    }
+    if(!el && isMax){
       el=document.querySelector('.widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].maximized, .widget[data-type="pdf"].selected');
     }
   }catch(_e){}
@@ -46832,10 +46906,12 @@ document.addEventListener('click',function(e){
         return false;
       }
       if(!overviewOn() && (key==='ArrowLeft' || key==='ArrowRight') && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey){
-        /* l581: Tavleskift-cleanup må ikke rydde maksimering, når piletasten tilhører en maksimeret PDFWidget. */
+        /* l584: Tavleskift-cleanup må ikke rydde fokus/maksimering, når piletasten tilhører en fokuseret eller maksimeret PDFWidget. */
         var pdfOwnsArrow=false;
         try{
-          pdfOwnsArrow=!!(document.body.classList.contains('focus-maximized') && document.querySelector('.widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].maximized'));
+          var pdfInMax=!!(document.body.classList.contains('focus-maximized') && document.querySelector('.widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].maximized'));
+          var pdfInFocus=!!((document.body.classList.contains('focus-mode')||document.body.classList.contains('focus-edit')||document.body.classList.contains('focus-presentation')) && document.querySelector('.widget[data-type="pdf"].focusTarget'));
+          pdfOwnsArrow=pdfInMax || pdfInFocus;
         }catch(_e){}
         if(pdfOwnsArrow)return;
         setTimeout(clearFocusAndMax,0);
@@ -52278,13 +52354,19 @@ body.focus-presentation .widget:not(.focusTarget){
     if(id){
       try{el=document.querySelector('.widget[data-type="pdf"][data-id="'+CSS.escape(id)+'"]');}catch(_e){}
     }
-    if(!el){
+    let isMax=false, isFocus=false;
+    try{
+      isMax=!!(document.body.classList.contains('focus-maximized') || (window.UIState && UIState.focusMaximized));
+      isFocus=!!(document.body.classList.contains('focus-mode') || document.body.classList.contains('focus-edit') || document.body.classList.contains('focus-presentation'));
+    }catch(_e){}
+    if(!el && isFocus){
+      try{el=document.querySelector('.widget[data-type="pdf"].focusTarget');}catch(_e){}
+    }
+    if(!el && isMax){
       try{el=document.querySelector('body.focus-maximized .widget[data-type="pdf"].focusTarget, body.focus-maximized .widget[data-type="pdf"].focused, .app.focusMaximized .widget[data-type="pdf"].focusTarget, .widget[data-type="pdf"].focusTarget');}catch(_e){}
     }
     if(!el) return null;
-    let isMax=false;
-    try{isMax=!!(document.body.classList.contains('focus-maximized') || (window.UIState && UIState.focusMaximized));}catch(_e){}
-    if(!isMax) return null;
+    if(!isMax && !isFocus) return null;
     const wid=String(el.dataset.id||id||'');
     const w=currentSlideWidgets().find(x=>x && String(x.id)===wid && x.type==='pdf');
     if(!w) return null;
