@@ -1,5 +1,13 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!doctype html>
+<!-- l646-help-anonymous-poll-flow: Bygger på l645. Kun Hjælp og TavleTips-tekst opdateres: anonym afstemning via PDF-formularer beskrives praktisk trin for trin. Ingen widgetlogik, PDF-rendering, DataRemix-motor, KaPardy eller drag-ændringer. -->
+<!-- l645-widget-drag-pointer-capture-stabilize: Bygger på l644. Kirurgisk fix i widget-interaktionslaget: bjælke-drag/resize bevarer den oprindelige ejer, men får aktiv per-gesture document pointermove som reserve, så hurtige bevægelser ikke mister widgetten; rotationsnulstil bevares. -->
+<!-- l642-poll-open-from-datawidget: Bygger på l641. Kirurgisk tilføjelse i Åbn PDF-modalens Afstemning-fane: eksisterende afstemnings-DataWidgets kan åbnes som Resultat-PDF i den aktuelle PDFWidget og samtidig kobles til en AfstemningsWidget. -->
+<!-- l637-poll-pdf-results-datawidget-owner: Bygger på l636. Kirurgisk fix: Afstemnings-PDF-resultater må ikke ligne KaPardy/PDF-data i DataWidget, DataWidget-preview henter fallback fra widgetens dataset hvis state ikke er opdateret, og DataRemix-refresh tvinger synlige rækker uden at åbne KaPardy/PDFWidget. -->
+<!-- l636-poll-owner-tap-bindings: Bygger på l635. Kirurgisk fix i AfstemningsWidget-ejeren: poll-knapper, titel, valg og checkbox får robuste pointerup/click-bindinger i widgettens egen wirePoll, så widgetdrag/selection ikke sluger iPad-taps. Ingen DataRemix/PDF/KaPardy/spejlwidgets ændret. -->
+<!-- l635-dataremix-poll-handoff-visible: Bygger på l634. Kirurgisk fix: DataRemix PDF-import lukker DataRemix-ejerens overlay før DataWidget/Afstemning vises, sikrer straksopdatering af DataWidget-preview, og tvinger koblet AfstemningsWidget ulåst/klikbar efter handoff. Ingen PDF-render/KaPardy/spejlwidgets ændret. -->
+<!-- l634-poll-data-status-opens-datakilder: Bygger på l633. Kirurgisk ejerfix: Klik på AfstemningsWidgettens Data · Ingen koblet datakilde åbner den eksisterende Datakilder-modal i vælg-til-Afstemning-tilstand. Datakilder kan koble egnet afstemningsdata til widgetten. Ingen PDF/DataRemix-motor/KaPardy/spejlwidgets ændret. -->
+<!-- l633-poll-pdf-import-handoff-owner: Bygger på l631. Kirurgisk fix: DataRemix PDF-import bevarer den fungerende DataWidget-oprettelse, lukker først efter succes og anvender/kobler resultatet til AfstemningsWidget. Afstemning får data-knap med vælg/kobl, og widget låses op. Ingen PDF-rendering/KaPardy/spejlwidgets ændret. -->
 <!-- l631-pdf-student-export-other-owner: Bygger på l629/l630. Kirurgisk PDFWidget-ejer-fix: Elev-PDF-eksport springer elevsvarfelter over, skjuler tomme svarmuligheder, og bruger lærerens markering ved Andet som "medtag Andet" i stedet for et elevsvar. PDF-rendering/DataRemix/KaPardy/spejlwidgets uændret. -->
 <!-- l628-help-arrow-owner-cleanup-l622: Bygger direkte på l622 med l627-rettelsen. Kirurgisk fix i Hjælp-ejeren: Hjælps keydown-handler fjernes nu fra document, window og modal før genåbning/lukning, så gamle Hjælp-handlere ikke kan sluge ←/→ efter åbning fra DataRemix-?. Ingen PDF-, KaPardy-, DataRemix-motor- eller spejl-widget-ændringer. -->
 <!-- l622-pdf-forms-owned-by-open-modal: Bygger på l621. Flytter Afstemning/Lykkehjul/Grupper-formularkort ind i den eksisterende Åbn PDF-ejerfunktion, så de bruger samme lokale/eksterne PDF-åbning som KaPardy. De gamle l605/l611 modal-wrappers springes over; DataRemix-import bevares. Ingen indlejrede PDFer. -->
@@ -347,7 +355,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.131 l631-pdf-student-export-other-owner</title>
+<title>Interaktiv tavle v1.2.146 l646-help-anonymous-poll-flow</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -16321,7 +16329,10 @@ function safe457KpQuestionsFromDataset(ds){
   return safe457KpQuestionsFromPdfSvarDataset(ds);
 }
 function safe457DatasetIsKapardy(ds){
-  try{return safe457KpQuestionsFromDataset(ds).length>0;}catch(_e){return false;}
+  try{
+    if(ds && (String(ds.type||'')==='poll-results' || ds.safe637PollPdfResults===true || /^Afstemningsresultater/i.test(String(ds.name||''))))return false;
+    return safe457KpQuestionsFromDataset(ds).length>0;
+  }catch(_e){return false;}
 }
 function safe457FindDataWidgetByDatasetId(dsId){
   dsId=String(dsId||''); if(!dsId)return null;
@@ -16503,7 +16514,327 @@ function safe458OpenDatasetInPdfWidget(dsId){
     return false;
   }
 }
+
 try{window.safe458OpenDatasetInPdfWidget=safe458OpenDatasetInPdfWidget;}catch(_e){}
+
+/* l638: Åbn afstemningsresultater som resultat-PDF - kun PDF, ikke KaPardy.
+   Bruger en besvaret elev-PDF som visuel skabelon, rydder elevens valg og skriver
+   stemmetal ud for svarmulighederne. Andet-svar vises som tekst + antal. */
+function safe638PollResultDataset(ds){
+  if(!ds)return false;
+  return !!(String(ds.type||'')==='poll-results' || ds.safe637PollPdfResults===true || ds.safe638PollResultsPdf===true || /PDF-formularer/i.test(String(ds.sourceType||'')) || /^Afstemningsresultater/i.test(String(ds.name||'')));
+}
+function safe638Norm(v){
+  try{return String(v==null?'':v).trim().replace(/^Andet\s*:?\s*/i,'').replace(/\s+/g,' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+  catch(_e){return String(v==null?'':v).trim().toLowerCase();}
+}
+function safe638Trunc(v,n){
+  var s=String(v==null?'':v).replace(/\s+/g,' ').trim();
+  n=n||80;
+  return s.length>n?s.slice(0,Math.max(0,n-1))+'…':s;
+}
+function safe638DatasetRows(ds){
+  var cols=Array.isArray(ds&&ds.columns)?ds.columns:[];
+  var rows=Array.isArray(ds&&ds.rows)?ds.rows:[];
+  function idx(re,fb){for(var i=0;i<cols.length;i++){if(re.test(String(cols[i]||'')))return i;}return fb;}
+  var iSvar=idx(/^(svar|answer)$/i,0), iStem=idx(/^(stemmer|valg|votes|count)$/i,1), iPct=idx(/^(procent|pct|percent)$/i,2), iQ=idx(/^(spørgsmål|spoergsmaal|sporgsmaal|question)$/i,3);
+  return rows.map(function(r){r=Array.isArray(r)?r:[];return {
+    svar:String(r[iSvar]||'').trim(),
+    stemmer:Number(String(r[iStem]||'0').replace(',','.'))||0,
+    procent:String(r[iPct]||'').trim(),
+    question:String(r[iQ]||ds.question||ds.sourceName||'Afstemning').trim()
+  };}).filter(function(x){return x.svar;});
+}
+function safe638GetPdfSourceRef(ds){return String((ds&&(ds.safe638SourcePdfMediaRef||ds.sourcePdfMediaRef||ds.resultPdfSourceMediaRef||ds.pdfSourceMediaRef))||'');}
+async function safe638GetArchivedPdfBytes(ref){
+  if(!ref)throw new Error('Resultat-PDF mangler kilde-PDF. Importér PDF-svar igen med denne version.');
+  if(!(window.TavleMediaArchive&&typeof window.TavleMediaArchive.getBlob==='function'))throw new Error('Mediearkivet er ikke klar');
+  var blob=await window.TavleMediaArchive.getBlob(ref);
+  if(!blob)throw new Error('Kilde-PDF blev ikke fundet i mediearkivet');
+  return new Uint8Array(await blob.arrayBuffer());
+}
+function safe638FieldValue(field){
+  try{if(typeof safe630GetFormFieldValue==='function')return safe630GetFormFieldValue(field,{});}catch(_e){}
+  try{if(field&&field.getText)return String(field.getText()||'').trim();}catch(_e){}
+  try{if(field&&field.getSelected)return String((field.getSelected()||[]).join(', ')).trim();}catch(_e){}
+  return '';
+}
+function safe638FieldRects(field){
+  try{if(typeof safe630GetFieldRects==='function')return safe630GetFieldRects(field)||[];}catch(_e){}
+  var rects=[];
+  try{(field.acroField.getWidgets()||[]).forEach(function(w){var r=w.getRectangle&&w.getRectangle(); if(r)rects.push({x:r.x,y:r.y,width:r.width,height:r.height,widget:w});});}catch(_e){}
+  return rects;
+}
+function safe638OptionIndex(name){
+  try{if(typeof safe630PollOptionIndexFromFieldName==='function')return safe630PollOptionIndexFromFieldName(name);}catch(_e){}
+  var n=String(name||'').toLowerCase(); var m=n.match(/(?:option|answer|svar)_?(\d{1,2})/); return m?parseInt(m[1],10):0;
+}
+function safe638IsStudentFieldName(name){
+  try{if(typeof safe629FieldLooksLikeStudentAnswer==='function')return safe629FieldLooksLikeStudentAnswer(name);}catch(_e){}
+  var n=String(name||'').toLowerCase();
+  return /(student|elev|choice|selected|check|poll_choice|poll_selected|poll_check|other|andet)/.test(n) && !/(option|answer|svar|question|sporgsmaal|spoergsmaal)/.test(n);
+}
+function safe638ClearStudentField(field){
+  try{if(typeof safe631ClearStudentAnswerField==='function')return safe631ClearStudentAnswerField(field);}catch(_e){}
+  try{if(field&&field.uncheck){field.uncheck();return true;}}catch(_e){}
+  try{if(field&&field.setText){field.setText('');return true;}}catch(_e){}
+  return false;
+}
+function safe638DrawBadge(page,PDFLib,font,text,x,y){
+  try{
+    var rgb=PDFLib.rgb;
+    var label=safe638Trunc(text,34);
+    var width=Math.min(118,Math.max(52,label.length*4.9+12));
+    var h=16;
+    var maxX=(page.getWidth?page.getWidth():595)-width-12;
+    x=Math.max(10,Math.min(Number(x)||10,maxX));
+    y=Math.max(10,Number(y)||10);
+    page.drawRectangle({x:x,y:y,width:width,height:h,color:rgb(0.92,0.97,1),borderColor:rgb(0.45,0.62,0.90),borderWidth:0.6});
+    page.drawText(label,{x:x+5,y:y+4,size:8.2,font:font,color:rgb(0.05,0.12,0.25),maxWidth:width-10});
+  }catch(_e){}
+}
+function safe638CountLabel(n,pct){
+  n=Number(n)||0;
+  var p=String(pct||'').trim();
+  return n+' valg'+(p?' · '+p:'');
+}
+function safe638DrawWrapped(page,PDFLib,font,text,x,y,maxWidth,size,lineGap){
+  try{
+    size=size||8.6; lineGap=lineGap||11;
+    var rgb=PDFLib.rgb;
+    var words=String(text||'').replace(/\s+/g,' ').trim().split(' '), line='', lines=[];
+    words.forEach(function(w){var test=line?(line+' '+w):w; if(test.length*size*0.48>maxWidth && line){lines.push(line); line=w;}else line=test;});
+    if(line)lines.push(line);
+    lines.slice(0,3).forEach(function(ln,i){page.drawText(safe638Trunc(ln,95),{x:x,y:y-i*lineGap,size:size,font:font,color:rgb(0.08,0.11,0.18),maxWidth:maxWidth});});
+    return lines.length*lineGap;
+  }catch(_e){return 0;}
+}
+function safe638IndexOptionFields(form){
+  var out=[];
+  try{
+    form.getFields().forEach(function(field){
+      var name=String(field&&field.getName&&field.getName()||'');
+      var idx=safe638OptionIndex(name);
+      if(!idx)return;
+      var label=safe638FieldValue(field);
+      if(!label)return;
+      var rects=safe638FieldRects(field);
+      rects.forEach(function(r){out.push({idx:idx,label:label,field:field,rect:r});});
+    });
+  }catch(_e){}
+  out.sort(function(a,b){return a.idx-b.idx;});
+  return out;
+}
+function safe638OtherAnchor(form){
+  var best=null;
+  try{
+    form.getFields().forEach(function(field){
+      var name=String(field&&field.getName&&field.getName()||'').toLowerCase();
+      if(!/(other|andet|fri_svar|frisvar)/.test(name))return;
+      var rs=safe638FieldRects(field);
+      if(rs&&rs[0])best=best||rs[0];
+    });
+  }catch(_e){}
+  return best;
+}
+async function safe638CreatePollResultPdfBlob(ds){
+  var rows=safe638DatasetRows(ds);
+  if(!rows.length)throw new Error('Datasættet har ingen afstemningsrækker');
+  var PDFLib=(typeof safe629EnsurePdfLib==='function')?await safe629EnsurePdfLib():window.PDFLib;
+  if(!PDFLib||!PDFLib.PDFDocument)throw new Error('PDF-motoren er ikke klar');
+  var pdfDoc=await PDFLib.PDFDocument.create();
+  var font=await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+  var fontBold=await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+  var rgb=PDFLib.rgb;
+  var pageW=595.28, pageH=841.89, margin=42;
+  var total=rows.reduce(function(a,r){return a+(Number(r.stemmer)||0);},0);
+  var question=(rows[0]&&rows[0].question)||ds.question||ds.sourceName||String(ds.name||'Afstemning').replace(/^Afstemningsresultater\s*-\s*/i,'').trim()||'Afstemning';
+
+  function isOther(r){ return /^Andet\s*:?/i.test(String(r&&r.svar||'')); }
+  function plainOtherText(r){ return String(r&&r.svar||'').replace(/^Andet\s*:?\s*/i,'').trim()||'Andet'; }
+  function trunc(s,n){ s=String(s||'').replace(/\s+/g,' ').trim(); n=n||120; return s.length>n?s.slice(0,Math.max(0,n-1))+'…':s; }
+  function pctNum(r){ var m=String(r&&r.procent||'').replace(',','.').match(/(\d+(?:\.\d+)?)/); if(m)return Number(m[1])||0; return total?((Number(r&&r.stemmer||0)||0)*100/total):0; }
+  function pctText(r){ return (Math.round(pctNum(r)*10)/10).toFixed(1).replace('.',',')+'%'; }
+  function countText(r){ return String(Number(r&&r.stemmer||0)||0)+' valg'; }
+  function sortRows(arr){ return arr.slice().sort(function(a,b){ var d=(Number(b.stemmer)||0)-(Number(a.stemmer)||0); if(d)return d; return String(a.svar||'').localeCompare(String(b.svar||''),'da');}); }
+  var regularRows=sortRows(rows.filter(function(r){return !isOther(r) && (Number(r.stemmer)||0)>0;}));
+  var otherRows=sortRows(rows.filter(function(r){return isOther(r) && (Number(r.stemmer)||0)>0;}));
+  var maxVotes=Math.max(1,...regularRows.map(function(r){return Number(r.stemmer)||0;}),...otherRows.map(function(r){return Number(r.stemmer)||0;}));
+
+  function newPage(title,continued){
+    var page=pdfDoc.addPage([pageW,pageH]);
+    page.drawRectangle({x:0,y:0,width:pageW,height:pageH,color:rgb(1,1,1)});
+    page.drawRectangle({x:0,y:pageH-74,width:pageW,height:74,color:rgb(0.18,0.37,0.86)});
+    page.drawText('Afstemningsresultat',{x:margin,y:pageH-42,size:22,font:fontBold,color:rgb(1,1,1)});
+    if(title){ page.drawText(trunc(title,78)+(continued?' – fortsat':''),{x:margin,y:pageH-62,size:10.5,font:font,color:rgb(0.92,0.96,1),maxWidth:pageW-margin*2}); }
+    page.drawText('Anonym opsamling af elevsvar',{x:pageW-210,y:pageH-42,size:9.5,font:font,color:rgb(0.92,0.96,1),maxWidth:160});
+    return {page:page,y:pageH-98};
+  }
+  function drawMeta(ctx){
+    var page=ctx.page, y=ctx.y;
+    page.drawText('Spørgsmål',{x:margin,y:y,size:11,font:fontBold,color:rgb(0.25,0.30,0.40)});
+    y-=24;
+    page.drawRectangle({x:margin,y:y-10,width:pageW-margin*2,height:42,color:rgb(0.95,0.97,1),borderColor:rgb(0.83,0.88,0.96),borderWidth:0.8});
+    page.drawText(trunc(question,160),{x:margin+14,y:y+6,size:20,font:fontBold,color:rgb(0.08,0.12,0.20),maxWidth:pageW-margin*2-28});
+    y-=34;
+    page.drawRectangle({x:margin,y:y-36,width:160,height:44,color:rgb(0.93,0.97,1),borderColor:rgb(0.73,0.84,0.98),borderWidth:0.8});
+    page.drawText('Samlet antal svar',{x:margin+14,y:y-10,size:10,font:font,color:rgb(0.30,0.38,0.52)});
+    page.drawText(String(total),{x:margin+14,y:y-28,size:22,font:fontBold,color:rgb(0.10,0.20,0.46)});
+    page.drawText(total===1?'besvarelse':'besvarelser',{x:margin+50,y:y-24,size:10.5,font:font,color:rgb(0.30,0.38,0.52)});
+    ctx.y=y-54;
+  }
+  function drawSectionTitle(ctx,title){
+    if(ctx.y<120) ctx = Object.assign(ctx,newPage(question,true));
+    ctx.page.drawText(title,{x:margin,y:ctx.y,size:14.5,font:fontBold,color:rgb(0.07,0.12,0.22)});
+    ctx.y-=18;
+    ctx.page.drawLine({start:{x:margin,y:ctx.y},end:{x:pageW-margin,y:ctx.y},thickness:1,color:rgb(0.84,0.88,0.95)});
+    ctx.y-=18;
+    return ctx;
+  }
+  function drawOptionRow(ctx,label,r){
+    var h=56;
+    if(ctx.y-h<58) ctx = Object.assign(ctx,newPage(question,true));
+    var page=ctx.page, y=ctx.y-h;
+    page.drawRectangle({x:margin,y:y,width:pageW-margin*2,height:h,color:rgb(0.97,0.98,1),borderColor:rgb(0.85,0.89,0.96),borderWidth:0.8});
+    page.drawText(trunc(label,48),{x:margin+14,y:y+h-22,size:16,font:fontBold,color:rgb(0.16,0.42,0.86),maxWidth:300});
+    var votes=Number(r&&r.stemmer||0)||0;
+    var pct=pctNum(r);
+    var barX=margin+14, barY=y+12, barW=pageW-margin*2-160, barH=12;
+    page.drawRectangle({x:barX,y:barY,width:barW,height:barH,color:rgb(0.91,0.93,0.97),borderColor:rgb(0.86,0.89,0.94),borderWidth:0.3});
+    page.drawRectangle({x:barX,y:barY,width:Math.max(0,Math.min(barW,barW*(votes/maxVotes))),height:barH,color:rgb(0.36,0.42,0.95)});
+    page.drawText(countText(r),{x:pageW-margin-126,y:y+h-22,size:13,font:fontBold,color:rgb(0.07,0.12,0.22),maxWidth:60});
+    page.drawText(pctText(r),{x:pageW-margin-64,y:y+h-22,size:13,font:fontBold,color:rgb(0.16,0.42,0.86),maxWidth:54});
+    ctx.y=y-10;
+    return ctx;
+  }
+  function drawOtherRow(ctx,label,r){
+    var h=36;
+    if(ctx.y-h<58) ctx = Object.assign(ctx,newPage(question,true));
+    var page=ctx.page, y=ctx.y-h;
+    page.drawRectangle({x:margin,y:y,width:pageW-margin*2,height:h,color:rgb(0.99,0.99,1),borderColor:rgb(0.88,0.90,0.95),borderWidth:0.6});
+    page.drawText(trunc(label,72),{x:margin+10,y:y+14,size:11.8,font:fontBold,color:rgb(0.10,0.15,0.26),maxWidth:pageW-margin*2-170});
+    page.drawText(countText(r)+' · '+pctText(r),{x:pageW-margin-130,y:y+14,size:10.8,font:font,color:rgb(0.24,0.30,0.42),maxWidth:120});
+    ctx.y=y-8;
+    return ctx;
+  }
+  function footerAllPages(){
+    var totalPages=pdfDoc.getPageCount();
+    for(var i=0;i<totalPages;i++){
+      var p=pdfDoc.getPage(i);
+      p.drawText('Kun svar med mindst 1 valg vises i rapporten.',{x:margin,y:22,size:8.5,font:font,color:rgb(0.45,0.50,0.60)});
+      p.drawText((i+1)+'/'+totalPages,{x:pageW-margin-24,y:22,size:8.5,font:font,color:rgb(0.45,0.50,0.60)});
+    }
+  }
+
+  var ctx=newPage(question,false);
+  drawMeta(ctx);
+  ctx=drawSectionTitle(ctx,'Svarmuligheder');
+  if(!regularRows.length){
+    ctx.page.drawText('Ingen registrerede svarmuligheder med stemmer.',{x:margin,y:ctx.y,size:11,font:font,color:rgb(0.35,0.40,0.50)});
+    ctx.y-=24;
+  }else{
+    regularRows.forEach(function(r){ ctx=drawOptionRow(ctx,String(r.svar||''),r); });
+  }
+  if(otherRows.length){
+    ctx.y-=6;
+    ctx=drawSectionTitle(ctx,'Andet-svar');
+    otherRows.forEach(function(r){ ctx=drawOtherRow(ctx,plainOtherText(r),r); });
+  }
+
+  footerAllPages();
+  var out=await pdfDoc.save({useObjectStreams:false});
+  return safe629BytesToBlob(out,'application/pdf');
+}
+async function safe638OpenPollResultsPdfWidget(dsId){
+  try{
+    var ds=(typeof findDatasetById==='function')?findDatasetById(dsId):null;
+    if(!safe638PollResultDataset(ds)){try{toast('Datasættet er ikke et afstemningsresultat');}catch(_e){} return false;}
+    try{if(typeof safe641SyncDatasetFromLinkedPoll==='function')ds=safe641SyncDatasetFromLinkedPoll(ds)||ds;}catch(_e){}
+    try{toast('Bygger resultat-PDF…');}catch(_e){}
+    var blob=await safe638CreatePollResultPdfBlob(ds);
+    var base=String(ds.name||'Afstemningsresultat').replace(/\.pdf$/i,'').trim()||'Afstemningsresultat';
+    var filename=(typeof safeFileName==='function')?safeFileName(base+' - resultat','pdf'):(base.replace(/[^\w\-æøåÆØÅ ]+/g,'_')+' - resultat.pdf');
+    if(!(window.TavleMediaArchive&&typeof window.TavleMediaArchive.putMedia==='function'))throw new Error('Mediearkivet er ikke klar');
+    var rec=await window.TavleMediaArchive.putMedia({kind:'pdf',name:filename,mimeType:'application/pdf',size:blob.size||0,blob:blob,source:'poll-results-pdf',meta:{datasetId:String(ds.id||''),createdAt:new Date().toISOString(),flow:'poll-results-to-pdf'}});
+    if(!rec||!rec.id)throw new Error('PDF kunne ikke gemmes i mediearkivet');
+    var w=(typeof addWidget==='function')?addWidget('pdf',{}):null;
+    if(!w)throw new Error('PDFWidget kunne ikke oprettes');
+    w.title='📄 Resultat-PDF';
+    w.w=Math.max(Number(w.w)||720,720); w.h=Math.max(Number(w.h)||520,520);
+    w.data=w.data||{};
+    w.data.fileMediaRef=String(rec.id); w.data.name=filename; w.data.mimeType='application/pdf'; w.data.size=blob.size||0; w.data.source='poll-results-pdf'; w.data.page=1; w.data.pdfZoom='fit'; w.data.pdfInteractive=false; w.data.sourceDatasetId=String(ds.id||''); w.data.sourceDatasetName=String(ds.name||'Afstemningsresultater');
+    delete w.data.src; delete w.data.url; delete w.data.pdfFormData;
+    try{var dw=(typeof safe457FindDataWidgetByDatasetId==='function')?safe457FindDataWidgetByDatasetId(ds.id):null; if(dw&&dw.w){w.x=Math.max(24,Math.min((Number(dw.w.x)||80)+(Number(dw.w.w)||420)+28,(window.innerWidth||1200)-760)); w.y=Math.max(80,Math.min((Number(dw.w.y)||100)+20,(window.innerHeight||800)-560)); if(typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,dw,'data',ds.name||'Afstemningsresultater');}}catch(_e){}
+    try{if(typeof fitWidgetToViewport==='function')fitWidgetToViewport(w); if(typeof render==='function')render(); if(typeof select==='function')select(w.id,{editText:false}); if(typeof save==='function')save();}catch(_e){}
+    try{toast('Resultat-PDF åbnet');}catch(_e){}
+    return true;
+  }catch(err){try{console.warn('l640 resultat-PDF fejlede',err);}catch(_e){} try{toast('Kunne ikke lave resultat-PDF: '+(err&&err.message?err.message:err));}catch(_e){} return false;}
+}
+try{window.safe638OpenPollResultsPdfWidget=safe638OpenPollResultsPdfWidget;}catch(_e){}
+
+/* l642: Åbn eksisterende afstemnings-DataWidget som både Resultat-PDF og AfstemningsWidget.
+   Ejes af PDF Åbn-modalens Afstemning-fane. Genbruger ikke KaPardy/PDF-svar-sporet. */
+async function safe642OpenPollDatasetAsPdfAndPoll(dsId,targetPdfW,targetPdfEl,targetPdfContent){
+  try{
+    var ds=(typeof safe633FindDatasetByIdLocal==='function')?safe633FindDatasetByIdLocal(dsId):((typeof findDatasetById==='function')?findDatasetById(dsId):null);
+    if(!ds||!(typeof safe633PollResultFromDataset==='function')||!safe633PollResultFromDataset(ds)){
+      try{toast('DataWidgetten ligner ikke et afstemningsresultat');}catch(_e){}
+      return false;
+    }
+    try{toast('Åbner afstemningsdata…');}catch(_e){}
+
+    var handoff=null;
+    try{if(typeof safe633ApplyPdfResultsDatasetToPoll==='function')handoff=safe633ApplyPdfResultsDatasetToPoll(ds,null);}catch(err){try{console.warn('l642 afstemningshandoff fejlede',err);}catch(_e){}}
+    try{if(typeof safe641SyncDatasetFromLinkedPoll==='function')ds=safe641SyncDatasetFromLinkedPoll(ds)||ds;}catch(_e){}
+
+    var PDFLib=(typeof safe629EnsurePdfLib==='function')?await safe629EnsurePdfLib():window.PDFLib;
+    if(!PDFLib||!PDFLib.PDFDocument)throw new Error('PDF-motoren er ikke klar');
+    if(typeof safe638CreatePollResultPdfBlob!=='function')throw new Error('Resultat-PDF-funktionen mangler');
+    var blob=await safe638CreatePollResultPdfBlob(ds);
+    var base=String(ds.name||'Afstemningsresultat').replace(/\.pdf$/i,'').trim()||'Afstemningsresultat';
+    var filename=(typeof safeFileName==='function')?safeFileName(base+' - resultat','pdf'):(base.replace(/[^\w\-æøåÆØÅ ]+/g,'_')+' - resultat.pdf');
+    if(!(window.TavleMediaArchive&&typeof window.TavleMediaArchive.putMedia==='function'))throw new Error('Mediearkivet er ikke klar');
+    var rec=await window.TavleMediaArchive.putMedia({kind:'pdf',name:filename,mimeType:'application/pdf',size:blob.size||0,blob:blob,source:'poll-results-pdf',meta:{datasetId:String(ds.id||''),createdAt:new Date().toISOString(),flow:'poll-datawidget-to-pdf-and-poll'}});
+    if(!rec||!rec.id)throw new Error('PDF kunne ikke gemmes i mediearkivet');
+
+    var pdfW=(targetPdfW&&targetPdfW.type==='pdf')?targetPdfW:null;
+    if(!pdfW&&typeof addWidget==='function')pdfW=addWidget('pdf',{});
+    if(!pdfW)throw new Error('PDFWidget kunne ikke oprettes');
+    pdfW.title='📄 Resultat-PDF';
+    pdfW.w=Math.max(Number(pdfW.w)||720,720);
+    pdfW.h=Math.max(Number(pdfW.h)||520,520);
+    pdfW.data=pdfW.data||{};
+    pdfW.data.fileMediaRef=String(rec.id);
+    pdfW.data.name=filename;
+    pdfW.data.mimeType='application/pdf';
+    pdfW.data.size=blob.size||0;
+    pdfW.data.source='poll-results-pdf';
+    pdfW.data.page=1;
+    pdfW.data.pdfZoom='fit';
+    pdfW.data.pdfInteractive=false;
+    pdfW.data.sourceDatasetId=String(ds.id||'');
+    pdfW.data.sourceDatasetName=String(ds.name||'Afstemningsresultater');
+    delete pdfW.data.src; delete pdfW.data.url; delete pdfW.data.pdfFormData; delete pdfW.data.pages;
+
+    try{
+      var dw=(handoff&&handoff.dw)?handoff.dw:((typeof safe457FindDataWidgetByDatasetId==='function')?safe457FindDataWidgetByDatasetId(ds.id):null);
+      if(dw&&dw.w)dw=dw.w;
+      if(dw&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(pdfW,{w:dw,slide:slide()},'data',ds.name||'Afstemningsresultater');
+    }catch(_e){}
+
+    try{if(typeof fitWidgetToViewport==='function')fitWidgetToViewport(pdfW);}catch(_e){}
+    try{if(typeof render==='function')render();}catch(_e){}
+    try{if(typeof select==='function')select(pdfW.id,{editText:false});}catch(_e){}
+    try{if(typeof save==='function')save();}catch(_e){}
+    try{toast('Afstemningsdata åbnet som PDF og widget');}catch(_e){}
+    return true;
+  }catch(err){
+    try{console.warn('l642 kunne ikke åbne afstemningsdata som PDF/widget',err);}catch(_e){}
+    try{toast('Kunne ikke åbne afstemningsdata: '+(err&&err.message?err.message:err));}catch(_e){}
+    return false;
+  }
+}
+try{window.safe642OpenPollDatasetAsPdfAndPoll=safe642OpenPollDatasetAsPdfAndPoll;}catch(_e){}
 
 function datasetPreviewHtml(ds){
   if(!ds)return '<div class="datasetCard"><div class="datasetTitle">📊 Datasæt</div><div class="datasetMeta"><span>Ingen data</span></div></div>';
@@ -16536,10 +16867,15 @@ function datasetPreviewHtml(ds){
   // SAFE426: Når datakilden er midlertidigt åbnet, håndteres luk/skjul kun af topbjælkens 🔗.
   // Den interne dataset-linkknap fjernes her, så brugeren ikke møder to linkknapper med samme funktion.
   const linkBtn=(!isTempOpen&&usedBy.length)?`<button type="button" class="safe376DataLinkBtn" data-safe376-users="${esc(ds.id)}" title="Vis widgets der bruger denne datawidget">🔗 ${esc(linkLabel)}</button>`:'';
-  const isKp=(typeof safe457DatasetIsKapardy==='function'&&safe457DatasetIsKapardy(ds));
+  /* l637: Afstemningsresultater fra PDF-formularer må ikke behandles som KaPardy/PDF-svar.
+     Ellers dukker KaPardy/PDFWidget-knapper op på en DataWidget, der kun skal være
+     anonymt afstemningsresultat til AfstemningsWidgetten. */
+  const safe637IsPollPdfResults=!!(ds && (String(ds.type||'')==='poll-results' || /PDF-formularer/i.test(String(ds.sourceType||'')) || /^Afstemningsresultater/i.test(String(ds.name||''))));
+  const isKp=!safe637IsPollPdfResults && (typeof safe457DatasetIsKapardy==='function'&&safe457DatasetIsKapardy(ds));
   const kpBtn=isKp?`<button type="button" class="safe457OpenKapardyBtn" data-safe457-open-kapardy="${esc(ds.id)}" title="Åbn denne DataWidget i KaPardy">🏆 Åbn i KaPardy</button>`:'';
   const pdfBtn=isKp?`<button type="button" class="safe458OpenPdfBtn" data-safe458-open-pdf="${esc(ds.id)}" title="Åbn PDF for KaPardy-data">📄 PDFWidget</button>`:'';
-  return `<div class="datasetCard"><div class="datasetTitle"><span class="datasetTitleMain"><span>📊</span><span class="datasetTitleName">${esc(ds.name||'Datasæt')}</span></span><span class="datasetTitleTools widget-control">${kpBtn}${pdfBtn}${linkBtn}<button type="button" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">📥</button></span></div><div class="datasetMeta"><span>${rows.length} rækker</span><span>${cols.length} kolonner</span><span>${esc((ds.type||'csv').toUpperCase())}</span></div><div class="datasetPreview"><table><thead><tr>${head}</tr></thead><tbody>${body||'<tr><td>Ingen rækker</td></tr>'}</tbody></table></div><div class="datasetActions"><button type="button" class="secondary" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">⬇️ Indsæt CSV</button><button type="button" class="secondary" data-act="datasetDownloadCsv">CSV</button></div></div>`;
+  const pollPdfBtn=safe637IsPollPdfResults?`<button type="button" class="safe638OpenPollPdfBtn" data-safe638-open-poll-pdf="${esc(ds.id)}" title="Åbn resultatet i en PDF med stemmetal på den besvarede formular">📄 Resultat-PDF</button>`:'';
+  return `<div class="datasetCard"><div class="datasetTitle"><span class="datasetTitleMain"><span>📊</span><span class="datasetTitleName">${esc(ds.name||'Datasæt')}</span></span><span class="datasetTitleTools widget-control">${kpBtn}${pdfBtn}${pollPdfBtn}${linkBtn}<button type="button" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">📥</button></span></div><div class="datasetMeta"><span>${rows.length} rækker</span><span>${cols.length} kolonner</span><span>${esc((ds.type||'csv').toUpperCase())}</span></div><div class="datasetPreview"><table><thead><tr>${head}</tr></thead><tbody>${body||'<tr><td>Ingen rækker</td></tr>'}</tbody></table></div><div class="datasetActions"><button type="button" class="secondary" data-act="datasetPasteCsv" title="Indsæt CSV og overskriv datawidget">⬇️ Indsæt CSV</button><button type="button" class="secondary" data-act="datasetDownloadCsv">CSV</button></div></div>`;
 }
 /* SAFE455uH34: Robust kopiér/åbn for DataWidget URL-celler.
    Quine, iPad og file:// kan blokere navigator.clipboard eller window.open.
@@ -18652,6 +18988,20 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
         }).join('')+
         '</div></div>';
     }).join(''):'<div class="safe455uH149Muted">Ingen lokale KaPardy-DataWidgets blev fundet. Åbn eller importér først en DataWidget med kolonnerne Kategori, Spørgsmål, Point, Rigtigt svar og Forkert svar 1–3.</div>';
+    let pollDataList=[];
+    try{
+      pollDataList=(state&&Array.isArray(state.datasets)?state.datasets:[]).filter(function(ds){
+        try{return !!(ds&&typeof safe633PollResultFromDataset==='function'&&safe633PollResultFromDataset(ds));}catch(_e){return false;}
+      });
+    }catch(_e){pollDataList=[];}
+    const pollDataHtml=pollDataList.length?pollDataList.map(function(ds,i){
+      const r=(typeof safe633PollResultFromDataset==='function')?safe633PollResultFromDataset(ds):null;
+      const rows=Array.isArray(ds.rows)?ds.rows.length:0;
+      const q=escHtml((r&&r.question)||ds.question||ds.name||('Afstemning '+(i+1)));
+      const name=escHtml(ds.name||('Afstemningsdata '+(i+1)));
+      const votes=(r&&Array.isArray(r.votes))?r.votes.reduce(function(a,b){return a+(Number(b)||0);},0):0;
+      return '<div class="safe459DataChoice safe642PollDataChoice"><div class="safe459DataChoiceHeader"><b>📊 '+name+'</b><small>'+rows+' rækker · '+votes+' stemmer · '+q+'</small></div><div class="safe459SizeRow"><button type="button" class="safe642PickPollData" data-i="'+i+'">📄 Resultat-PDF + Afstemning</button></div></div>';
+    }).join(''):'<div class="safe455uH149Muted">Ingen afstemnings-DataWidgets blev fundet. Importér først PDF-svar via DataRemix, eller opret/kobl et afstemningsdatasæt.</div>';
     showModal(`<div class="safe455uH142PdfOpenModal safe459PdfOpenModal">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
         <h2 style="margin:0">Åbn PDF</h2>
@@ -18686,6 +19036,11 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
         </div>
       </div>
       <div class="safe455uH149Panel" data-panel="poll">
+        <div class="safe455uH149Section">
+          <div class="safe455uH149SectionTitle"><b>Start fra DataWidget</b><small>Åbn resultat-PDF og AfstemningsWidget</small></div>
+          <p class="l611PollChoiceNote">Vælg et eksisterende afstemningsdatasæt. Tavle åbner resultatet som PDF og kobler samtidig data til en AfstemningsWidget.</p>
+          <div class="safe455uH149DataList safe642PollDataList">${pollDataHtml}</div>
+        </div>
         <div class="safe455uH149Section">
           <div class="safe455uH149SectionTitle"><b>Afstemningsformular</b><small>Del og saml svar via DataRemix</small></div>
           <p class="l611PollChoiceNote">Brug enkeltvalg, når hver elev kun må vælge ét svar. Brug flervalg, når flere svar må markeres. Markér Andet i PDF’en, hvis eleverne skal have en fri svarmulighed.</p>
@@ -18754,6 +19109,12 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
     };
     root.querySelectorAll('.safe459BlankKp').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation(); const size=Number(btn.dataset.size||5); const tpl=safe459PdfTemplateForCapacity(size); safe459OpenTemplateIntoPdfWidget(w,el,c,{src:tpl.src,name:tpl.name,template:true,kind:'kapardy',capacity:tpl.cap,toast:'KaPardy '+tpl.cap+'-spørgsmålsformular åbnet'});};});
     root.querySelectorAll('.safe459PickKpData').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation(); if(btn.disabled)return; const ds=kpDataList[Number(btn.dataset.i)]; const size=btn.dataset.size||'auto'; if(ds&&safe459ConfigurePdfWidgetFromDatasetWithCapacity(w,ds,size)){close(); try{if(typeof fillContent==='function')fillContent(el,w); else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){} try{if(typeof save==='function')save();}catch(_e){} try{toast('PDFWidget åbnet med KaPardy-data');}catch(_e){}}};});
+    root.querySelectorAll('.safe642PickPollData').forEach(function(btn){btn.onclick=async function(e){
+      e.preventDefault();e.stopPropagation();
+      const ds=pollDataList[Number(btn.dataset.i)];
+      close();
+      if(ds&&typeof safe642OpenPollDatasetAsPdfAndPoll==='function')await safe642OpenPollDatasetAsPdfAndPoll(ds.id,w,el,c);
+    };});
     const resolveOwnerPdfPath=function(path){try{return (typeof safe458bResolveAssetPath==='function')?safe458bResolveAssetPath(path):String(path||'');}catch(_e){return String(path||'');}};
     root.querySelectorAll('.safe622PdfFormCard').forEach(function(btn){btn.onclick=function(e){
       e.preventDefault();e.stopPropagation();
@@ -21512,6 +21873,10 @@ function safe453fCloseDataSourcesInspectionWidget(w){
 
 function showDataSourcesModal(){
   const rows=safe453CollectDataSources();
+  const safe634PollPickId=String(window.__safe634PollDataPickOwnerId||'');
+  try{delete window.__safe634PollDataPickOwnerId;}catch(_e){window.__safe634PollDataPickOwnerId='';}
+  const safe634PollPickWidget=safe634PollPickId?(safe453bFindWidgetById(safe634PollPickId)||null):null;
+  const safe634PickForPoll=!!(safe634PollPickWidget&&safe634PollPickWidget.type==='poll');
   const style=`<style id="safe453c-data-sources-modal-style">
     .safe453DataSources{display:grid;gap:10px;max-height:min(58vh,520px);overflow:auto;padding-right:4px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
     .safe453DataSources::-webkit-scrollbar{width:8px}
@@ -21522,6 +21887,8 @@ function showDataSourcesModal(){
     .safe453Icon{font-size:23px;text-align:center;line-height:1}
     .safe453InspectBtn{width:30px;height:30px;border:0!important;border-radius:999px;background:transparent!important;color:#334155!important;font-size:21px;font-weight:950;display:inline-flex;align-items:center;justify-content:center;box-shadow:none!important;cursor:pointer;padding:0;justify-self:center}
     .safe453InspectBtn:hover{background:rgba(99,102,241,.16)!important;color:#4338ca!important}
+    .safe453PickBtn{background:#ede9fe!important;color:#4338ca!important;font-size:16px!important}
+    .safe453PickBtn:hover{background:#ddd6fe!important;color:#312e81!important}
     .safe453InspectBtn[disabled]{opacity:.24;cursor:default;background:transparent!important;color:#94a3b8!important}
     .safe453NameInput{width:100%;box-sizing:border-box;border:1px solid transparent;background:rgba(255,255,255,.72);border-radius:10px;padding:7px 9px;font:inherit;font-weight:950;color:#111827;min-width:0}
     .safe453NameInput:hover{border-color:#cbd5e1;background:#fff}
@@ -21533,10 +21900,16 @@ function showDataSourcesModal(){
   </style>`;
   const body=rows.length?rows.map((r,i)=>{
     const canInspect=(r.kind==='dataset'||r.kind==='listWidget');
-    const inspect=canInspect?`<button type="button" class="safe453InspectBtn" title="Åbn datakilde til inspektion" aria-label="Åbn datakilde" data-safe453-inspect="1" data-kind="${esc(r.kind||'')}" data-id="${esc(r.id||'')}" data-name="${esc(r.name||'')}">🔗</button>`:`<button type="button" class="safe453InspectBtn" title="Gemt liste har endnu ingen widget at åbne" aria-label="Ingen widget at åbne" disabled>🔗</button>`;
+    let pollCompatible=false;
+    try{pollCompatible=!!(safe634PickForPoll && r.kind==='dataset' && typeof safe633FindDatasetByIdLocal==='function' && typeof safe633PollResultFromDataset==='function' && safe633PollResultFromDataset(safe633FindDatasetByIdLocal(r.id)));}catch(_e){pollCompatible=false;}
+    const inspect=safe634PickForPoll
+      ? (pollCompatible?`<button type="button" class="safe453InspectBtn safe453PickBtn" title="Kobl denne datakilde til Afstemning" aria-label="Kobl datakilde til Afstemning" data-safe634-pick-poll="1" data-kind="${esc(r.kind||'')}" data-id="${esc(r.id||'')}" data-name="${esc(r.name||'')}">✓</button>`:`<button type="button" class="safe453InspectBtn" title="Denne datakilde ligner ikke afstemningsresultater" aria-label="Ikke egnet til Afstemning" disabled>—</button>`)
+      : (canInspect?`<button type="button" class="safe453InspectBtn" title="Åbn datakilde til inspektion" aria-label="Åbn datakilde" data-safe453-inspect="1" data-kind="${esc(r.kind||'')}" data-id="${esc(r.id||'')}" data-name="${esc(r.name||'')}">🔗</button>`:`<button type="button" class="safe453InspectBtn" title="Gemt liste har endnu ingen widget at åbne" aria-label="Ingen widget at åbne" disabled>🔗</button>`);
     return `<div class="safe453DataRow" data-safe453-row="${i}"><div class="safe453Icon">${r.icon}</div><input class="safe453NameInput" value="${esc(r.name)}" title="Redigér titel direkte" data-safe453-title="1" data-kind="${esc(r.kind||'')}" data-id="${esc(r.id||'')}" data-name="${esc(r.name||'')}"><div class="safe453Type">${esc(r.type)}</div><div class="safe453Meta">${esc(r.count)}</div><div class="safe453Usage" title="${esc(r.usage)}">${esc(r.usage)}</div>${inspect}</div>`;
   }).join(''):`<p class="safe453Note">Der er endnu ingen datakilder at vise.</p>`;
-  showModal(style+`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">🗂️ Datakilder</h2><button id="dataSourcesHelp" type="button" title="Åbn hjælp til datakilder" aria-label="Åbn hjælp til datakilder" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div><p class="safe453Note">Oversigt over appens fælles lister og datasets. Redigér titlen direkte i navnefeltet. Genvej: D åbner Datakilder · ↑/↓ vælger · Enter/Space åbner link · E/F2 redigerer titel · Esc lukker.</p><div class="safe453DataSources"><div class="safe453DataRow safe453DataHead"><div></div><div>Navn</div><div>Type</div><div>Indhold</div><div>Bruges af</div><div></div></div>${body}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button id="close">Luk</button></div>`);
+  const safe634HeaderTitle=safe634PickForPoll?'🗂️ Vælg datakilde til Afstemning':'🗂️ Datakilder';
+  const safe634Note=safe634PickForPoll?'Vælg en datakilde med afstemningsresultater. Klik ✓ ved den datakilde, der skal kobles til AfstemningsWidgetten. Rækker uden ✓ ligner ikke afstemningsresultater.':'Oversigt over appens fælles lister og datasets. Redigér titlen direkte i navnefeltet. Genvej: D åbner Datakilder · ↑/↓ vælger · Enter/Space åbner link · E/F2 redigerer titel · Esc lukker.';
+  showModal(style+`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">${safe634HeaderTitle}</h2><button id="dataSourcesHelp" type="button" title="Åbn hjælp til datakilder" aria-label="Åbn hjælp til datakilder" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div><p class="safe453Note">${esc(safe634Note)}</p><div class="safe453DataSources"><div class="safe453DataRow safe453DataHead"><div></div><div>Navn</div><div>Type</div><div>Indhold</div><div>Bruges af</div><div></div></div>${body}</div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button id="close">Luk</button></div>`);
   safe455uH22WireModalHelp('dataSourcesHelp','Datakilder');
   const close=modal&&modal.querySelector('#close');
   if(close)close.onclick=closeModal;
@@ -21554,6 +21927,17 @@ function showDataSourcesModal(){
       }
     });
     input.addEventListener('blur',()=>safe453cCommitTitleInput(input));
+  });
+  (modal&&modal.querySelectorAll('[data-safe634-pick-poll]')||[]).forEach(btn=>{
+    btn.addEventListener('click',ev=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      const ds=(typeof safe633FindDatasetByIdLocal==='function')?safe633FindDatasetByIdLocal(btn.dataset.id||''):null;
+      let res=null;
+      try{if(ds&&safe634PollPickWidget&&typeof safe633ApplyPdfResultsDatasetToPoll==='function')res=safe633ApplyPdfResultsDatasetToPoll(ds,safe634PollPickWidget);}catch(err){console.warn(err);}
+      try{closeModal();}catch(_e){}
+      try{if(res)toast('Datakilde koblet til Afstemning');else toast('Kunne ikke koble datakilden til Afstemning');}catch(_e){}
+    });
   });
   (modal&&modal.querySelectorAll('[data-safe453-inspect]')||[]).forEach(btn=>{
     btn.addEventListener('click',ev=>{
@@ -25299,27 +25683,271 @@ function renderPollResults(w){
     return `<div class="pollRow"><div>${esc(o)}</div><div class="pollBar"><div class="pollFill" style="width:${pct}%"></div></div><div>${n} (${pct}%)</div></div>`;
   }).join('');
 }
+
+/* l633: AfstemningsWidget kan bruge en DataWidget med PDF-afstemningsresultater direkte.
+   Placeret ved AfstemningsWidget-ejeren: ingen globale klikfangere. */
+function safe633FindDatasetByIdLocal(id){
+  const sid=String(id||'');
+  if(!sid)return null;
+  try{if(typeof findDatasetById==='function'){const d=findDatasetById(sid); if(d)return d;}}catch(_e){}
+  try{return (state.datasets||[]).find(d=>d&&String(d.id)===sid)||null;}catch(_e){return null;}
+}
+function safe633PollResultFromDataset(ds){
+  try{if(typeof safe147PollResultFromDataset==='function'){const r=safe147PollResultFromDataset(ds); if(r&&Array.isArray(r.options)&&r.options.length)return r;}}catch(_e){}
+  try{
+    const cols=(ds&&ds.columns||[]).map(c=>String(c||'').trim().toLowerCase());
+    const answerIdx=cols.findIndex(c=>c==='svar'||c==='answer'||c==='valgmulighed'||c==='option'||c==='valg');
+    const voteIdx=cols.findIndex(c=>c==='stemmer'||c==='votes'||c==='antal'||c==='count');
+    const qIdx=cols.findIndex(c=>c==='spørgsmål'||c==='spoergsmaal'||c==='sporgsmaal'||c==='question');
+    if(answerIdx<0||voteIdx<0)return null;
+    const options=[],votes=[];
+    let question=String((ds&&ds.question)||'').trim();
+    (ds.rows||[]).forEach(r=>{
+      const opt=String((r||[])[answerIdx]||'').trim();
+      if(!opt)return;
+      const raw=String((r||[])[voteIdx]||'0').replace(',','.').replace(/[^0-9.\-]/g,'');
+      options.push(opt);
+      votes.push(Math.max(0,Math.round(Number(raw)||0)));
+      if(!question && qIdx>=0)question=String((r||[])[qIdx]||'').trim();
+    });
+    if(!options.length)return null;
+    question=question||String(ds.name||'Afstemning').replace(/^Afstemningsresultater\s*-\s*/i,'').trim()||'Afstemning';
+    return {question,options,votes};
+  }catch(_e){return null;}
+}
+function safe633FindDataWidgetForDataset(ds){
+  try{if(!ds)return null; if(typeof safe450FindDataWidgetByDatasetId==='function'){const hit=safe450FindDataWidgetByDatasetId(ds.id); if(hit&&hit.w)return hit.w;}}catch(_e){}
+  try{if(typeof safe376DatasetWidgetInfo==='function'){const hit=safe376DatasetWidgetInfo(ds.id); if(hit&&hit.w)return hit.w;}}catch(_e){}
+  try{
+    for(const sl of (state.slides||[]))for(const w of (sl.widgets||[]))if(w&&w.type==='text'&&w.data&&String(w.data.datasetId)===String(ds.id))return w;
+  }catch(_e){}
+  return null;
+}
+function safe633CreateOrShowDataWidgetForDataset(ds,nearW){
+  try{if(ds&&typeof updateDatasetInState==='function')updateDatasetInState(ds);}catch(_e){}
+  let dw=safe633FindDataWidgetForDataset(ds);
+  if(!dw){
+    try{if(typeof addDatasetWidget==='function')dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((nearW&&nearW.x||140)+28,innerWidth-620)),y:Math.max(74,Math.min((nearW&&nearW.y||120)-230,innerHeight-330))});}catch(_e){}
+  }
+  if(dw){
+    try{
+      dw.title='📊 '+(ds.name||'Afstemningsresultater');
+      dw.locked=false;
+      dw.data=dw.data||{};
+      dw.data.datasetId=ds.id;
+      dw.data.dataset=ds;
+      dw.data.datasetView=true;
+      dw.data.sourceType=dw.data.sourceType||'PDF-formularer';
+      dw.data.sourceOpen=true;
+      dw.data.sourceOpenedFromDataRemix=true;
+      if(typeof formatDatasetAsTextWidgetContent==='function')dw.data.text=formatDatasetAsTextWidgetContent(ds);
+      if(nearW){dw.x=Math.max(24,Math.min((Number(nearW.x)||140)+28,(innerWidth||1100)-620));dw.y=Math.max(74,Math.min((Number(nearW.y)||120)-230,(innerHeight||760)-320));}
+      const max=(state.slides||[]).reduce((m,sl)=>Math.max(m,...((sl.widgets||[]).map(x=>Number(x.z)||1))),1); dw.z=max+1;
+    }catch(_e){}
+  }
+  return dw;
+}
+function safe633ApplyDatasetToPollWidget(w,ds,dw){
+  const r=safe633PollResultFromDataset(ds);
+  if(!w||!r||!r.options||!r.options.length)return false;
+  w.data=w.data||{};
+  w.locked=false;
+  w.title=w.title||'Afstemning';
+  try{delete w.data.locked; delete w.data.readOnly; delete w.data.disabled;}catch(_e){}
+  w.data.question=r.question||'Afstemning';
+  w.data.options=(r.options||[]).map(x=>String(x||'').trim()).filter(Boolean);
+  w.data.votes=(r.votes||[]).map(x=>Math.max(0,Math.round(Number(x)||0)));
+  while(w.data.votes.length<w.data.options.length)w.data.votes.push(0);
+  if(w.data.votes.length>w.data.options.length)w.data.votes=w.data.votes.slice(0,w.data.options.length);
+  w.data.showResults=true;
+  w.data.allowCloudInPresent=true;
+  w.data.cloudView=false;
+  w.data.sourceDatasetId=ds.id;
+  w.data.sourceDatasetName=ds.name||'Afstemningsresultater';
+  try{if(dw&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,{w:dw,slide:slide()},'data',ds.name||'Afstemningsresultater');}catch(_e){}
+  try{const max=(state.slides||[]).reduce((m,sl)=>Math.max(m,...((sl.widgets||[]).map(x=>Number(x.z)||1))),1); w.z=max+2;}catch(_e){}
+  return true;
+}
+function safe633CurrentOrCreatePollWidget(){
+  try{if(selected&&typeof findWidget==='function'){const sw=findWidget(selected); if(sw&&sw.type==='poll')return sw;}}catch(_e){}
+  try{const sl=slide(); const hit=(sl.widgets||[]).find(w=>w&&w.type==='poll'); if(hit)return hit;}catch(_e){}
+  try{if(typeof addWidget==='function')return addWidget('poll',{});}catch(_e){}
+  return null;
+}
+function safe633ApplyPdfResultsDatasetToPoll(ds,preferredPoll){
+  try{
+    const poll=preferredPoll||safe633CurrentOrCreatePollWidget();
+    if(!poll)return null;
+    const dw=safe633CreateOrShowDataWidgetForDataset(ds,poll);
+    if(!safe633ApplyDatasetToPollWidget(poll,ds,dw))return null;
+    try{if(typeof render==='function')render();}catch(_e){}
+    try{if(typeof save==='function')save();}catch(_e){}
+    setTimeout(()=>{try{if(typeof select==='function')select(poll.id,{editText:false});}catch(_e){}},30);
+    return {poll,dw};
+  }catch(err){try{console.warn('l633 kunne ikke koble afstemningsdata',err);}catch(_e){} return null;}
+}
+try{window.safe633ApplyPdfResultsDatasetToPoll=safe633ApplyPdfResultsDatasetToPoll;}catch(_e){}
+
+/* l641: AfstemningsWidgetten og den koblede DataWidget skal blive ved med at være samme resultat.
+   Når der stemmes videre direkte i Afstemning, skrives stemmetal tilbage til datasættet,
+   så DataWidgetten og Resultat-PDF altid bruger de nyeste tal. */
+function safe641PollLinkedDatasetId(w){
+  try{
+    const ref=(typeof safe450GetLinkedDataRef==='function')?safe450GetLinkedDataRef(w,'data'):null;
+    if(ref&&ref.datasetId)return String(ref.datasetId);
+  }catch(_e){}
+  try{return String((w&&w.data&&(w.data.sourceDatasetId||w.data.linkedDataDatasetId||w.data.datasetId))||'').trim();}catch(_e){return '';}
+}
+function safe641IsPollResultDataset(ds){
+  try{return !!(ds&&(String(ds.type||'')==='poll-results'||ds.safe637PollPdfResults===true||ds.safe638PollResultsPdf===true||/^Afstemningsresultater/i.test(String(ds.name||''))));}catch(_e){return false;}
+}
+function safe641Percent(n,total){
+  n=Number(n)||0; total=Number(total)||0;
+  if(!total)return '0%';
+  const p=Math.round((n/total*100)*10)/10;
+  return (Number.isInteger(p)?String(p):String(p).replace('.',','))+'%';
+}
+function safe641RowsFromPoll(w){
+  const opts=(w&&w.data&&Array.isArray(w.data.options))?w.data.options:[];
+  const votes=(w&&w.data&&Array.isArray(w.data.votes))?w.data.votes:[];
+  const q=String((w&&w.data&&w.data.question)||'Afstemning').trim()||'Afstemning';
+  const total=votes.reduce((a,b)=>a+(Number(b)||0),0);
+  return opts.map((o,i)=>{
+    const label=String(o||'').trim();
+    const n=Math.max(0,Math.round(Number(votes[i]||0)));
+    return label?[label,String(n),safe641Percent(n,total),q]:null;
+  }).filter(Boolean);
+}
+function safe641FindDataWidgetByDatasetId(dsId){
+  try{if(typeof safe633FindDataWidgetForDataset==='function'){const ds=safe633FindDatasetByIdLocal(dsId); const w=safe633FindDataWidgetForDataset(ds); if(w)return w;}}catch(_e){}
+  try{if(typeof safe450FindDataWidgetByDatasetId==='function'){const hit=safe450FindDataWidgetByDatasetId(dsId); if(hit&&hit.w)return hit.w;}}catch(_e){}
+  try{if(typeof safe376DatasetWidgetInfo==='function'){const hit=safe376DatasetWidgetInfo(dsId); if(hit&&hit.w)return hit.w;}}catch(_e){}
+  try{for(const sl of (state.slides||[]))for(const w of (sl.widgets||[]))if(w&&w.type==='text'&&w.data&&String(w.data.datasetId||'')===String(dsId))return w;}catch(_e){}
+  return null;
+}
+function safe641RefreshDataWidget(dw,ds){
+  if(!dw||!ds)return;
+  try{
+    dw.data=dw.data||{};
+    dw.data.datasetId=ds.id;
+    dw.data.dataset=ds;
+    dw.data.datasetView=true;
+    dw.data.sourceType=dw.data.sourceType||'poll-results';
+    dw.data.sourcePollQuestion=ds.question||ds.sourceName||'';
+    if(typeof formatDatasetAsTextWidgetContent==='function')dw.data.text=formatDatasetAsTextWidgetContent(ds);
+    const node=document.querySelector('.widget[data-id="'+CSS.escape(String(dw.id))+'"] .content');
+    if(node&&typeof fillContent==='function')fillContent(node,dw);
+  }catch(_e){}
+}
+function safe641SyncPollWidgetToDataset(w){
+  try{
+    if(!w||w.type!=='poll')return null;
+    const dsId=safe641PollLinkedDatasetId(w);
+    if(!dsId)return null;
+    const ds=(typeof safe633FindDatasetByIdLocal==='function')?safe633FindDatasetByIdLocal(dsId):((typeof findDatasetById==='function')?findDatasetById(dsId):null);
+    if(!safe641IsPollResultDataset(ds))return null;
+    const rows=safe641RowsFromPoll(w);
+    ds.columns=['Svar','Stemmer','Procent','Spørgsmål'];
+    ds.rows=rows;
+    ds.type='poll-results';
+    ds.question=String((w.data&&w.data.question)||ds.question||ds.sourceName||'Afstemning').trim()||'Afstemning';
+    ds.sourceName=ds.question;
+    ds.sourceType=ds.sourceType||'AfstemningsWidget';
+    ds.anonymous=true;
+    ds.safe637PollPdfResults=true;
+    ds.safe638PollResultsPdf=true;
+    ds.updatedAt=Date.now();
+    try{if(typeof updateDatasetInState==='function')updateDatasetInState(ds);}catch(_e){
+      try{const idx=(state.datasets||[]).findIndex(x=>x&&String(x.id)===String(ds.id)); if(idx>=0)state.datasets[idx]=ds;}catch(__e){}
+    }
+    safe641RefreshDataWidget(safe641FindDataWidgetByDatasetId(ds.id),ds);
+    return ds;
+  }catch(err){try{console.warn('l641 kunne ikke synkronisere afstemning til data',err);}catch(_e){} return null;}
+}
+function safe641FindPollWidgetForDataset(dsId){
+  dsId=String(dsId||'').trim(); if(!dsId)return null;
+  try{
+    for(const sl of (state.slides||[])){
+      for(const w of (sl.widgets||[])){
+        if(!w||w.type!=='poll')continue;
+        if(String((w.data&&w.data.sourceDatasetId)||'')===dsId||String((w.data&&w.data.linkedDataDatasetId)||'')===dsId)return w;
+        try{const ref=(typeof safe450GetLinkedDataRef==='function')?safe450GetLinkedDataRef(w,'data'):null; if(ref&&String(ref.datasetId)===dsId)return w;}catch(_e){}
+      }
+    }
+  }catch(_e){}
+  return null;
+}
+function safe641SyncDatasetFromLinkedPoll(ds){
+  try{
+    if(!safe641IsPollResultDataset(ds))return ds;
+    const poll=safe641FindPollWidgetForDataset(ds.id);
+    if(!poll)return ds;
+    return safe641SyncPollWidgetToDataset(poll)||ds;
+  }catch(_e){return ds;}
+}
+try{window.safe641SyncPollWidgetToDataset=safe641SyncPollWidgetToDataset;window.safe641SyncDatasetFromLinkedPoll=safe641SyncDatasetFromLinkedPoll;}catch(_e){}
+function safe633OpenPollDataPicker(w){
+  try{
+    /* l634: Brug den eksisterende Datakilder-modal som vælger, når Afstemning mangler data.
+       Den globale variabel læses og nulstilles inde i showDataSourcesModal, så tilstanden ikke hænger ved efter Esc. */
+    if(w&&w.id&&typeof showDataSourcesModal==='function'){
+      window.__safe634PollDataPickOwnerId=String(w.id);
+      showDataSourcesModal();
+      return;
+    }
+    const datasets=(state.datasets||[]).filter(ds=>ds&&safe633PollResultFromDataset(ds));
+    if(!datasets.length){toast('Ingen afstemningsdata fundet endnu');return;}
+    const rows=datasets.map(ds=>`<button type="button" class="safe633PollDataPick" data-ds="${esc(ds.id)}"><b>${esc(ds.name||'Afstemningsdata')}</b><small>${esc((ds.rows||[]).length+' rækker · '+(ds.columns||[]).join(', '))}</small></button>`).join('');
+    showModal(`<h2>Kobl data til Afstemning</h2><p class="note">Vælg en DataWidget med afstemningsresultater. Spørgsmål, svarmuligheder og stemmetal overføres til AfstemningsWidgetten.</p><div class="safe633PollDataList">${rows}</div><button id="close">Luk</button>`);
+    modal.querySelectorAll('.safe633PollDataPick').forEach(btn=>btn.onclick=(ev)=>{ev.preventDefault();ev.stopPropagation();const ds=safe633FindDatasetByIdLocal(btn.dataset.ds);if(!ds)return;const res=safe633ApplyPdfResultsDatasetToPoll(ds,w);closeModal();if(res)toast('Afstemningsdata koblet');else toast('Kunne ikke koble data');});
+    modal.querySelector('#close').onclick=closeModal;
+  }catch(err){console.warn(err);toast('Kunne ikke åbne datavælger');}
+}
 function wirePoll(c,w,el){
-  c.querySelectorAll('.pollChoice').forEach(btn=>btn.onclick=()=>{
+  /* l636: AfstemningsWidget-ejer. iPad/widgetdrag kan sluge almindelige onclicks på
+     poll-indholdet. Derfor bindes de konkrete poll-kontroller med pointerup+click
+     direkte i wirePoll. Ingen global fallback og ingen ændring af DataRemix/PDF. */
+  function safe636Stop(e){
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+  }
+  function safe636Tap(node,fn){
+    if(!node||node.__safe636TapBound)return;
+    node.__safe636TapBound=true;
+    let last=0;
+    const run=(e)=>{
+      const now=Date.now();
+      if(now-last<220){safe636Stop(e);return false;}
+      last=now;
+      safe636Stop(e);
+      try{fn(e);}catch(err){try{console.warn('l636 poll tap failed',err);}catch(_e){}}
+      return false;
+    };
+    try{node.addEventListener('pointerup',run,{passive:false,capture:true});}catch(_e){}
+    try{node.addEventListener('click',run,{capture:true});}catch(_e){}
+  }
+  const voteChoice=(btn)=>{
     const i=Number(btn.dataset.i);
+    if(!Number.isFinite(i))return;
     w.data.votes=w.data.votes||[];
     w.data.votes[i]=(Number(w.data.votes[i]||0)+1);
+    try{safe641SyncPollWidgetToDataset(w);}catch(_e){}
     fillContent(el,w);save();
-  });
+  };
+  c.querySelectorAll('.pollChoice').forEach(btn=>safe636Tap(btn,()=>voteChoice(btn)));
+
   const resetBtn=c.querySelector('.pollReset');
-  if(resetBtn)resetBtn.onclick=()=>{if(confirm('Nulstil stemmer?')){w.data.votes=(w.data.options||[]).map(()=>0);fillContent(el,w);save()}};
+  if(resetBtn)safe636Tap(resetBtn,()=>{if(confirm('Nulstil stemmer?')){w.data.votes=(w.data.options||[]).map(()=>0);try{safe641SyncPollWidgetToDataset(w);}catch(_e){}fillContent(el,w);save()}});
+
   const q=c.querySelector('.pollQuestion');
-  if(q)q.onclick=(e)=>{
-    e.preventDefault();
-    e.stopPropagation();
+  if(q)safe636Tap(q,()=>{
     q.classList.remove('pollTitlePop');
     void q.offsetWidth;
     q.classList.add('pollTitlePop');
     togglePollCloudView(w,el);
-  };
+  });
+
   const presentCb=c.querySelector('.pollPresentResults');
-  if(presentCb)presentCb.onchange=()=>{
-    const on=!!presentCb.checked;
+  const applyPresentSetting=(on)=>{
     w.data.showResults=on;
     w.data.allowCloudInPresent=on;
     if(!on && w.data.cloudView && ((document.getElementById('app')||document.body).classList.contains('present')||document.body.classList.contains('present'))){
@@ -25328,12 +25956,34 @@ function wirePoll(c,w,el){
     fillContent(el,w);
     save();
   };
-  c.querySelectorAll('.pollModeToggle,.pollCloud').forEach(btn=>{
-    btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();togglePollCloudView(w,el)};
-  });
-  c.querySelectorAll('.pollCloudView span').forEach(sp=>sp.onclick=()=>cloudInfo(sp.dataset.label,sp.dataset.count+' stemmer'));
+  if(presentCb){
+    presentCb.onchange=()=>applyPresentSetting(!!presentCb.checked);
+    safe636Tap(presentCb,()=>{applyPresentSetting(!presentCb.checked);});
+    const lab=presentCb.closest&&presentCb.closest('label');
+    if(lab)safe636Tap(lab,()=>{applyPresentSetting(!presentCb.checked);});
+  }
+
+  c.querySelectorAll('.pollModeToggle,.pollCloud').forEach(btn=>safe636Tap(btn,()=>togglePollCloudView(w,el)));
+  c.querySelectorAll('.pollCloudView span').forEach(sp=>safe636Tap(sp,()=>cloudInfo(sp.dataset.label,sp.dataset.count+' stemmer')));
+
+  const pollDataBtn=c.querySelector('.pollLinkedDataBar .safe450LinkedDataStatus');
+  if(pollDataBtn){
+    let busy=false;
+    const openOrPick=(e)=>{
+      safe636Stop(e);
+      if(busy)return; busy=true;
+      try{
+        const ref=(typeof safe450GetLinkedDataRef==='function')?safe450GetLinkedDataRef(w,'data'):null;
+        if(ref&&ref.datasetId&&typeof safe450ToggleLinkedData==='function')safe450ToggleLinkedData(w,'data');
+        else safe633OpenPollDataPicker(w);
+      }catch(err){try{console.warn(err);toast('Kunne ikke åbne/koble data');}catch(_e){}}
+      setTimeout(()=>{busy=false;},250);
+    };
+    try{pollDataBtn.addEventListener('pointerup',openOrPick,{passive:false,capture:true});}catch(_e){}
+    pollDataBtn.addEventListener('click',openOrPick,true);
+  }
   const editBtn=c.querySelector('.pollEdit');
-  if(editBtn)editBtn.onclick=()=>{
+  if(editBtn)safe636Tap(editBtn,()=>{
     showModal(`<h2>Rediger afstemning</h2>
       <label>Spørgsmål<br><input id="pollQ" value="${esc(w.data.question||'Hvordan går det?')}" style="width:100%"></label>
       <label>Svarmuligheder<br><textarea id="pollOpts" style="width:100%;min-height:120px;resize:vertical">${esc((w.data.options||['😀','🙂','😐','🙁','😡']).join('\n'))}</textarea></label>
@@ -25347,6 +25997,7 @@ function wirePoll(c,w,el){
           w.data.question=restored.question||w.data.question||'Afstemning';
           w.data.options=restored.options;
           w.data.votes=restored.votes||restored.options.map(()=>0);
+          try{safe641SyncPollWidgetToDataset(w);}catch(_e){}
           fillContent(el,w);
           save();
           toast('Afstemning gendannet fra '+((meta&&meta.type==='dataset')?'datawidget':'liste')+': '+restored.options.length);
@@ -25359,6 +26010,7 @@ function wirePoll(c,w,el){
         }
         w.data.options=opts;
         w.data.votes=opts.map(()=>0);
+        try{safe641SyncPollWidgetToDataset(w);}catch(_e){}
         fillContent(el,w);
         save();
         toast((meta&&meta.type==='dataset'?'Datawidget hentet som svarliste: ':'Svarliste hentet: ')+opts.length);
@@ -25424,6 +26076,7 @@ function wirePoll(c,w,el){
       const opts=parsePollOptionsText(optsInput.value);
       w.data.options=opts.length?opts:['😀','🙂','😐','🙁','😡'];
       w.data.votes=w.data.options.map((_,i)=>Number(oldVotes[i]||0));
+      try{safe641SyncPollWidgetToDataset(w);}catch(_e){}
       fillContent(el,w);
       save();
     };
@@ -25432,9 +26085,8 @@ function wirePoll(c,w,el){
     if(pollQInput)pollQInput.oninput=applyPollEditLive;
     if(pollOptsInput)pollOptsInput.oninput=applyPollEditLive;
     modal.querySelector('#close').onclick=()=>{applyPollEditLive();document.removeEventListener('keydown',window.__bgKeyHandler,true);modalBack.classList.remove('bgModalKeyboard','bgPreviewing');closeModal()};
-  };
+  });
 }
-
 
 function kahoopardyDefaults(){return {mode:'kahoot',blindScore:false,currentQuestion:0,currentTeam:0,teams:[{name:'Hold 1',score:0,correct:0},{name:'Hold 2',score:0,correct:0}],questions:[{category:'Demo',question:'Hvad hedder hovedpersonen?',answer:'Måns',correctIndex:0,points:100,options:['Måns','Mette','Marie','Mads']}],selections:{},awarded:{},autoAwarded:{},optionOrders:{},usedQuestions:{},reveal:false,stage:'question',editing:true};}
 function normalizeKahoopardy(w){
@@ -31466,7 +32118,14 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
  if(w.type==='text'){
   w.data=w.data||{};
   const isDatasetText=!!w.data.datasetId;
-  const ds=isDatasetText?findDatasetById(w.data.datasetId):null;
+  let ds=isDatasetText?findDatasetById(w.data.datasetId):null;
+  /* l637: Hvis en DataWidget netop er oprettet fra DataRemix/PDF, kan widgetten
+     allerede bære det rigtige dataset, mens state/preview endnu ikke har fanget det.
+     Brug kun denne fallback for rigtige dataset-objekter, og skriv dem tilbage til state. */
+  if(isDatasetText && (!ds || !Array.isArray(ds.rows) || (!ds.rows.length && w.data.dataset && Array.isArray(w.data.dataset.rows) && w.data.dataset.rows.length)) && w.data.dataset && Array.isArray(w.data.dataset.rows)){
+    ds=w.data.dataset;
+    try{if(typeof updateDatasetInState==='function')updateDatasetInState(ds);}catch(_e){}
+  }
   if(isDatasetText && w.data.datasetView!==false){
     c.innerHTML=datasetPreviewHtml(ds);
     /* SAFE427: Fjern defensivt den interne koblingsknap for netop denne midlertidigt åbne datakilde. */
@@ -31513,6 +32172,19 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
       };
       try{pdfOpenBtn.addEventListener('pointerup',openPdf,{passive:false});}catch(_e){}
       pdfOpenBtn.addEventListener('click',openPdf);
+    }
+    const pollPdfOpenBtn=c.querySelector('[data-safe638-open-poll-pdf]');
+    if(pollPdfOpenBtn){
+      let pollPdfBusy=false;
+      const openPollPdf=e=>{
+        try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+        if(pollPdfBusy)return; pollPdfBusy=true;
+        try{if(typeof safe638OpenPollResultsPdfWidget==='function')safe638OpenPollResultsPdfWidget(pollPdfOpenBtn.getAttribute('data-safe638-open-poll-pdf')||'');}
+        catch(err){console.warn(err);toast('Kunne ikke åbne resultat-PDF');}
+        setTimeout(()=>{pollPdfBusy=false;},700);
+      };
+      try{pollPdfOpenBtn.addEventListener('pointerup',openPollPdf,{passive:false});}catch(_e){}
+      pollPdfOpenBtn.addEventListener('click',openPollPdf);
     }
     const copyBtn=c.querySelector('[data-act="datasetCopyList"]');
     if(copyBtn)copyBtn.onclick=e=>{e.preventDefault();e.stopPropagation();openDatasetToListDialog(ds,w)};
@@ -31717,6 +32389,7 @@ if(w.type==='poll'){
   w.data.showResults??=true;
   w.data.allowCloudInPresent??=true;
   const presentResultsEnabled=!!(w.data.showResults && w.data.allowCloudInPresent);
+  const linkedDataHtml=(typeof safe450LinkedDataStatusHtml==='function')?`<div class="pollLinkedDataBar widget-control">${safe450LinkedDataStatusHtml(w,'data','Data')}</div>`:'';
   const settingsHtml=`<div class="pollSettings">
       <label class="pollPresentResultsLabel"><input class="pollPresentResults" type="checkbox" ${presentResultsEnabled?'checked':''}> <span class="pollPresentResultsText">Vis resultater i præsentation (søjler/ordsky)</span></label>
     </div>`;
@@ -31727,6 +32400,7 @@ if(w.type==='poll'){
     c.innerHTML=`<div class="pollBox pollCloudMode">
       <div class="pollHeader"><button type="button" class="pollQuestion pollTitleToggle active" title="Klik for at skifte mellem ordsky og afstemning">${esc(w.data.question)}</button><div class="pollVoteCount" title="Antal afgivne stemmer">${esc(pollTotalLabel(w))}</div></div>
       ${settingsHtml}
+      ${linkedDataHtml}
       <div class="pollCloudView">${items.length?items.map(it=>`<span class="${safe186PollCloudClass(it.label)}" data-label="${esc(it.label)}" data-count="${esc(it.count)}" title="${esc(it.count+' stemmer')}" style="--x:${it.x||50}%;--y:${it.y||50}%;font-size:${it.size}px;opacity:${it.opacity};--rot:${it.rot||0}deg;--lift:${it.lift||0}px">${esc(it.label)}</span>`).join(''):`<div style="opacity:.65;font-weight:800">Ingen stemmer endnu</div>`}</div>
       <div class="pollModeBadge"><span class="pollModeLabel">Ordskyvisning</span></div>
       <div class="pollTools"><button class="pollEdit">Rediger</button><button class="pollReset">Nulstil stemmer</button><button class="pollCloud"><span class="pollModeLabel">Afstemningsvisning</span></button></div>
@@ -31735,6 +32409,7 @@ if(w.type==='poll'){
     c.innerHTML=`<div class="pollBox pollVoteMode">
       <div class="pollHeader"><button type="button" class="pollQuestion pollTitleToggle" title="Klik for at skifte mellem afstemning og ordsky">${esc(w.data.question)}</button><div class="pollVoteCount" title="Antal afgivne stemmer">${esc(pollTotalLabel(w))}</div></div>
       ${settingsHtml}
+      ${linkedDataHtml}
       <div class="pollChoices ${safe188PollChoicesGridClass(w.data.options||[])} ${w.data.showResults?'':'resultsHidden'}">${(w.data.options||[]).map((o,i)=>`<button class="pollChoice ${safe186PollChoiceClass(o)}" data-i="${i}">${esc(o)}</button>`).join('')}</div>
       ${w.data.showResults?`<div class="pollResults">${renderPollResults(w)}</div>`:`<div class="pollNoResultsNote">Resultater skjult</div>`}
       <div class="pollTools"><button class="pollEdit">Rediger</button><button class="pollReset">Nulstil stemmer</button><button class="pollCloud"><span class="pollModeLabel">Ordskyvisning</span></button></div>
@@ -34424,6 +35099,57 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
       }
       safe455l72RotateFrame=0;
  }
+
+ let safe644EndPointerId=null;
+ let safe644DocEndInstalled=false;
+ function safe645DocMoveDragResize(ev){
+    try{
+      if(safe644EndPointerId!=null && ev && ev.pointerId!=null && ev.pointerId!==safe644EndPointerId)return;
+      if(!(drag||res))return;
+      safe455l72ScheduleMove(ev);
+      // Stop ikke propagation: widgettens oprindelige pointermove må stadig være ejer,
+      // men document-move holder fast ved hurtige bevægelser, hvis capture glipper.
+    }catch(_e){}
+ }
+ function safe644RemoveDocEnd(){
+    if(!safe644DocEndInstalled)return;
+    safe644DocEndInstalled=false;
+    document.removeEventListener('pointermove',safe645DocMoveDragResize,true);
+    document.removeEventListener('pointerup',safe644EndDragResize,true);
+    document.removeEventListener('pointercancel',safe644EndDragResize,true);
+ }
+ function safe644EndDragResize(ev){
+    try{
+      if(safe644EndPointerId!=null && ev && ev.pointerId!=null && ev.pointerId!==safe644EndPointerId)return;
+      const wasResize=!!res;
+      safe455l72FlushMove();
+      clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
+      if(wasResize && w && w.type==='pdf' && w.data){
+        try{w.data.pdfZoom='fit';}catch(_e){}
+        try{
+          const pc=el.querySelector&&el.querySelector('.content.pdf');
+          const zl=el.querySelector&&el.querySelector('.pdfZoomLabel');
+          if(zl)zl.textContent='100%';
+          setTimeout(()=>{try{if(typeof renderPdfJsWidget==='function'&&pc)renderPdfJsWidget(w,pc);}catch(_e){}},40);
+        }catch(_e){}
+      }
+      if(drag||res){try{save();}catch(_e){}}
+      drag=false; res=false;
+      document.body.classList.remove('widget-transform-active');
+      el.classList.remove('widgetTransforming');
+    }finally{
+      safe644RemoveDocEnd();
+      safe644EndPointerId=null;
+    }
+ }
+ function safe644InstallDocEnd(pid){
+    safe644EndPointerId=pid;
+    if(safe644DocEndInstalled)return;
+    safe644DocEndInstalled=true;
+    document.addEventListener('pointermove',safe645DocMoveDragResize,{capture:true,passive:true});
+    document.addEventListener('pointerup',safe644EndDragResize,{capture:true,passive:true});
+    document.addEventListener('pointercancel',safe644EndDragResize,{capture:true,passive:true});
+ }
  const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
  if(rh){
    rh.title='Dobbeltklik / hold inde for at nulstille rotation';
@@ -34442,11 +35168,27 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
    setToolbarHidden(true);
    drag=true;
    start={x:e.clientX,y:e.clientY,wx:w.x,wy:w.y};
-   chrome.setPointerCapture(e.pointerId);
+   try{chrome.setPointerCapture(e.pointerId);}catch(_e){}
+   safe644InstallDocEnd(e.pointerId);
  });
  
- rez.addEventListener('pointerdown',e=>{if(w.locked)return;e.stopPropagation();setToolbarHidden(true);res=true;start={x:e.clientX,y:e.clientY,ww:w.w,wh:w.h};rez.setPointerCapture(e.pointerId)});
+ rez.addEventListener('pointerdown',e=>{if(w.locked)return;e.stopPropagation();setToolbarHidden(true);res=true;start={x:e.clientX,y:e.clientY,ww:w.w,wh:w.h};try{rez.setPointerCapture(e.pointerId);}catch(_e){};safe644InstallDocEnd(e.pointerId)});
  rh.addEventListener('pointerdown',e=>{
+    try{
+      const now=Date.now();
+      const last=Number(rh.__safe644LastTap||0);
+      const pt=rh.__safe644LastPoint||null;
+      const close=pt && Math.abs((e.clientX||0)-pt.x)<12 && Math.abs((e.clientY||0)-pt.y)<12;
+      rh.__safe644LastTap=now;
+      rh.__safe644LastPoint={x:e.clientX||0,y:e.clientY||0};
+      if(last && now-last<420 && close){
+        e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        rot=false; rotHoldDidReset=true; clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
+        resetWidgetRotation(w,el);
+        try{rh.__safe644LastTap=0;}catch(_e){}
+        return;
+      }
+    }catch(_e){}
     if(w.locked)return;
     e.preventDefault();
     e.stopPropagation();
@@ -34500,26 +35242,12 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
  el.addEventListener('pointermove',e=>{
     if(drag||res||rot)safe455l72ScheduleMove(e);
   });
- ['pointerup','pointercancel'].forEach(ev=>el.addEventListener(ev,()=>{
-    const wasResize=!!res;
-    safe455l72FlushMove();
+ ['pointerup','pointercancel'].forEach(ev=>el.addEventListener(ev,(evt)=>{
+    if(drag||res){ safe644EndDragResize(evt); if(!rot)return; }
     safe455l72FlushRotate();
     clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
-    /* SAFE455uH45g10l141: PDFWidget går tilbage til fit-width efter resize.
-       Når brugeren slipper resize-håndtaget, skal PDF-siden igen udnytte widgettens
-       aktuelle bredde — også hvis widgetten er gjort smallere. Vi ændrer kun PDF-widgets
-       og bevarer side, formularfelter, links, bogmærker og gemt PDF-kilde. */
-    if(wasResize && w && w.type==='pdf' && w.data){
-      try{w.data.pdfZoom='fit';}catch(_e){}
-      try{
-        const pc=el.querySelector&&el.querySelector('.content.pdf');
-        const zl=el.querySelector&&el.querySelector('.pdfZoomLabel');
-        if(zl)zl.textContent='100%';
-        setTimeout(()=>{try{if(typeof renderPdfJsWidget==='function'&&pc)renderPdfJsWidget(w,pc);}catch(_e){}},40);
-      }catch(_e){}
-    }
-    if(drag||res||rot)save();
-    drag=res=rot=false; rotHoldDidReset=false;
+    if(rot)save();
+    rot=false; rotHoldDidReset=false;
     document.body.classList.remove('widget-transform-active');
     el.classList.remove('widgetTransforming');
   }));}
@@ -39229,7 +39957,7 @@ const TAVLE_HELP_PDF_GUIDES=[
     title:'TavleTips',
     file:'TavleApp_staerkeste_tips.pdf',
     boardName:'TavleTips',
-    desc:'Stærke greb til forberedelse, undervisning og evaluering.',
+    desc:'Stærke greb - nu med trin-for-trin til anonyme afstemninger.',
     accent:'#f59e0b'
   }
 ];
@@ -39454,7 +40182,7 @@ function showQuickHelp(){
       <div class="helpPdfCard" style="--pdf-accent:#6d5dfc"><b>Hvorfor Tavle?</b><span>Kort manifest om TavleAppens idé og værdi.</span><button type="button" data-help-pdf="manifest">Åbn PDF</button></div>
       <div class="helpPdfCard" style="--pdf-accent:#10b981"><b>Pædagogisk tese</b><span>Hvorfor Tavle fungerer som lærerens arbejdsværktøj.</span><button type="button" data-help-pdf="tese">Åbn PDF</button></div>
       <div class="helpPdfCard" style="--pdf-accent:#0ea5e9"><b>Praktiske scenarier</b><span>Eksempler på brug før, under og efter undervisning.</span><button type="button" data-help-pdf="scenarier">Åbn PDF</button></div>
-      <div class="helpPdfCard" style="--pdf-accent:#f59e0b"><b>TavleTips</b><span>Stærke greb til forberedelse, undervisning og evaluering.</span><button type="button" data-help-pdf="tips">Åbn PDF</button></div>
+      <div class="helpPdfCard" style="--pdf-accent:#f59e0b"><b>TavleTips</b><span>Stærke greb - bl.a. anonym afstemning med PDF og DataRemix.</span><button type="button" data-help-pdf="tips">Åbn PDF</button></div>
     </div>
   </div>
 
@@ -39589,9 +40317,10 @@ function showQuickHelp(){
           <li><b>↑/↓</b> vælger datakilde. <b>Enter</b> eller <b>Space</b> åbner den valgte kilde. <b>E</b> eller <b>F2</b> omdøber.</li>
           <li>Inspektionsvinduer med <b>🔗</b> lukkes tilbage til Datakilder med <b>🔗</b>, <b>D</b> eller <b>Esc</b>.</li>
           <li>Lister kan bruges af Lykkehjulet, Grupper, Ordsky, Afstemning, Kalender og KaPardy.</li>
+          <li>Afstemningsdata fra PDF-svar ligger også som DataWidget. Herfra kan du åbne en pæn <b>Resultat-PDF</b> eller koble data til en AfstemningsWidget.</li>
           <li>Hvis en liste skal sorteres, filtreres eller bruges på en ny måde, kan du sende den videre til <b>DataRemix</b>.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button><button type="button" class="helpJumpBtn" data-help-jump="Kalender">Kalender</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button></div>
       </div>
     </details>
 
@@ -39600,13 +40329,16 @@ function showQuickHelp(){
       <div class="answer">
         <p>DataRemix er stedet, hvor en eksisterende liste eller flere besvarede PDF-formularer bliver til en ny dataliste, der passer til en bestemt widget.</p>
         <ul class="helpCompactList">
-          <li><b>Afstemning med PDF:</b> Åbn en afstemningsformular, del den med eleverne, og saml de besvarede PDF’er igen i DataRemix med <b>Vælg besvarede PDF’er</b>. Tavle laver én anonym datawidget med de samlede svar.</li>
+          <li><b>Anonym afstemning trin for trin:</b> Åbn en tom afstemningsformular i en PDFWidget. Skriv spørgsmålet og de svarmuligheder, eleverne må vælge imellem. Markér <b>Andet</b>, hvis eleverne også må skrive deres eget svar.</li>
+          <li>Når formularen er klar, henter læreren den udfyldte <b>Elev-PDF</b> og deler den med eleverne, fx i Google Classroom som en kopi til hver elev.</li>
+          <li>Eleverne udfylder PDF’en og afleverer den igen. Læreren samler alle afleverede PDF’er og vælger dem i DataRemix med <b>Vælg besvarede PDF’er</b>.</li>
+          <li>Tavle laver en anonym DataWidget med de samlede svar og en AfstemningsWidget, hvor resultatet kan vises som procentsøjler eller TagSky.</li>
+          <li>Fra DataWidgetten kan du åbne en pæn <b>Resultat-PDF</b>. Den kan blive på tavlen eller hentes som fil, hvis resultatet skal deles eller gemmes andre steder.</li>
           <li><b>KaPardy Remix:</b> Åbn Remix fra DataRemix eller Spilbiblioteket, vælg spil og spørgsmålsbanker, og opret et nyt spil uden at ændre originalerne.</li>
           <li><b>Lykkehjulet og Grupper:</b> Vælg en navne- eller stikordsliste, filtrér det du skal bruge, vælg destination, og lad Tavle oprette en ny koblet widget.</li>
-          <li><b>Kalender, linklister og andre data:</b> Start med en DataWidget, vælg de relevante felter, og opret en ren ny liste til næste arbejdsgang.</li>
           <li><b>Tryg arbejdsgang:</b> Kilden bliver stående. DataRemix laver en ny datawidget, så du kan fortryde ved bare at slette den nye.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button></div>
       </div>
     </details>
 
@@ -39776,11 +40508,12 @@ function showQuickHelp(){
     <details>
       <summary>PDF-guides til TavleAppen</summary>
       <div class="answer">
-        <p>Disse tre PDF'er er tænkt som korte, læsbare introduktioner til TavleAppens værdi og praktiske brug. De åbnes på en ny tavle i maksimeret PDF-visning.</p>
+        <p>PDF-guides er korte, læsbare introduktioner til TavleAppens værdi og praktiske brug. TavleTips er opdateret med den fulde arbejdsgang for anonyme afstemninger med PDF og DataRemix.</p>
         <div class="helpPdfGrid" style="margin-top:10px">
           <div class="helpPdfCard" style="--pdf-accent:#6d5dfc"><b>Hvorfor Tavle?</b><span>Manifest og kort introduktion.</span><button type="button" data-help-pdf="manifest">Åbn PDF</button></div>
           <div class="helpPdfCard" style="--pdf-accent:#10b981"><b>Pædagogisk tese</b><span>Argumentation for TavleAppen som lærerens arbejdsværktøj.</span><button type="button" data-help-pdf="tese">Åbn PDF</button></div>
           <div class="helpPdfCard" style="--pdf-accent:#0ea5e9"><b>Praktiske scenarier</b><span>Eksempler på forberedelse, live-brug og genbrug.</span><button type="button" data-help-pdf="scenarier">Åbn PDF</button></div>
+          <div class="helpPdfCard" style="--pdf-accent:#f59e0b"><b>TavleTips</b><span>Stærke greb - bl.a. anonym afstemning med PDF og DataRemix.</span><button type="button" data-help-pdf="tips">Åbn PDF</button></div>
         </div>
         <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button></div>
       </div>
@@ -39793,11 +40526,13 @@ function showQuickHelp(){
           <li>I præsentation skjules redigeringsværktøjer, så tavlen kan bruges roligt foran elever.</li>
           <li><b>F</b> fremhæver én widget. <b>Shift+F</b> maksimerer.</li>
           <li>PDF’er kan flyttes, forstørres, fokuseres, maksimeres og bruges i præsentation.</li>
+          <li><b>Afstemningsformularer:</b> Åbn PDF, vælg Afstemning, udfyld spørgsmål og svar, og hent derefter <b>Elev-PDF</b>. Det er den fil, eleverne skal udfylde.</li>
+          <li>Besvarede elev-PDF’er samles igen i DataRemix. Resultatet kan vises i AfstemningsWidgetten eller som en pæn Resultat-PDF.</li>
           <li>Når Skriv sender en PDF til Tavle, lander den som en almindelig PDF-widget.</li>
           <li>I en iframe/HTMLApp kan du klikke/tappe i webvisningen for at bruge den indlejrede app. Klik/tap uden for widgetten eller brug <b>Esc</b> for at komme tilbage.</li>
           <li>Hvis noget virker låst, så prøv <b>Esc</b> først og derefter <b>Redningsbælte</b> med <b>Shift+O</b>.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button><button type="button" class="helpJumpBtn" data-help-jump="Navigation">Navigation</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button></div>
       </div>
     </details>
   </div>
@@ -56527,6 +57262,7 @@ function safe531BindDataRemixEsc(){
   document.addEventListener('keydown',safe531DataRemixEscHandler,true);
 }
 function close(){safe531UnbindDataRemixEsc(); var b=document.getElementById('dr258Back'); if(b)b.remove();}
+try{window.safe635CloseDataRemix=close;}catch(_e){}
 function closeMore(){try{document.querySelectorAll('.moreMenu,.morePanel,.morePopover,.moreModal').forEach(function(x){x.classList.add('hidden'); x.style.display='none';});}catch(_e){} try{if(typeof closeModal==='function' && document.getElementById('modalBack') && document.getElementById('modalBack').style.display!=='none')closeModal();}catch(_e){} }
 function open(preferred){closeMore(); close(); safe531BindDataRemixEsc(); var all=datasets(); var src=preferred&&all.find(function(d){return String(d.id)===String(preferred);})?String(preferred):String((all[0]||{}).id||''); var model={step:1,sourceId:src,dest:'wheel',cfg:{}}; function ds(){return all.find(function(d){return String(d.id)===String(model.sourceId);})||all[0]||DEMOS[0];} function saveFields(){var box=document.getElementById('dr258Box'); if(!box)return; var c=model.cfg; var q=box.querySelector('#drQ'); if(q)c.q=q.value; var mode=box.querySelector('#drMode'); if(mode)c.mode=mode.value; var sort=box.querySelector('#drSort'); if(sort)c.sortCol=sort.value; var name=box.querySelector('#drName'); if(name)c.name=name.value; var tmpl=box.querySelector('#drTpl'); if(tmpl)c.template=tmpl.value; var checks=[].slice.call(box.querySelectorAll('.drSearchCol:checked')).map(function(x){return Number(x.value);}); if(box.querySelector('.drSearchCol'))c.searchCols=checks; ['titleCol','urlCol','noteCol','catCol','qCol','aCol','w1Col','w2Col','pointsCol','dateCol','startCol','endCol','typeCol','holdCol','placeCol'].forEach(function(k){var e=box.querySelector('#dr_'+k); if(e)c[k]=e.value;}); var copy=[].slice.call(box.querySelectorAll('.drCopyCol:checked')).map(function(x){return Number(x.value);}); if(box.querySelector('.drCopyCol'))c.copyCols=copy; }
  function filterHtml(d,c){return '<div class="dr258Panel"><h3>Filtrér kilden</h3><div class="dr258Row"><label>Søg efter</label><input id="drQ" value="'+esc(c.q||'')+'" placeholder="fx kursus, dansk eller grammatik"></div><div class="dr258Row"><label>Søgemåde</label><select id="drMode"><option value="contains" '+((c.mode||'contains')==='contains'?'selected':'')+'>indeholder</option><option value="exact" '+(c.mode==='exact'?'selected':'')+'>er præcis</option><option value="not" '+(c.mode==='not'?'selected':'')+'>indeholder ikke</option></select></div><div class="dr258Row"><label>Sortér efter</label><select id="drSort"><option value="">— ingen —</option>'+opt(d,c.sortCol,false)+'</select></div><p class="dr258Mini">Søg i kildens felter:</p><div class="dr258CheckGrid">'+(d.columns||[]).map(function(col,i){var on=(c.searchCols||[]).indexOf(i)>=0; return '<label><input class="drSearchCol" type="checkbox" value="'+i+'" '+(on?'checked':'')+'> '+esc(col)+'</label>';}).join('')+'</div></div>';}
@@ -63956,6 +64692,18 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
 })();
 </script>
 
+
+<style id="l633-poll-linked-data-css">
+.widget[data-type="poll"] .pollLinkedDataBar{display:flex;justify-content:center;align-items:center;margin:0 0 8px;min-height:28px}
+.widget[data-type="poll"] .pollLinkedDataBar .safe450LinkedDataStatus{display:flex!important;align-items:center;gap:7px;max-width:min(92%,560px);min-width:0;border:1px solid #dbe3ee!important;background:#f8fafc!important;color:#111827!important;border-radius:999px!important;padding:6px 10px!important;margin:0!important;font-size:12px!important;font-weight:900!important;box-shadow:0 1px 3px rgba(15,23,42,.08)!important;cursor:pointer!important}
+.widget[data-type="poll"] .pollLinkedDataBar .safe450LinkedDataStatus.empty{opacity:.78;background:#f1f5f9!important;color:#64748b!important}
+.widget[data-type="poll"] .pollLinkedDataBar .safe450LinkedDataStatus.open{background:#eef2ff!important;border-color:#a5b4fc!important;box-shadow:0 0 0 3px rgba(99,102,241,.14),0 1px 4px rgba(15,23,42,.08)!important}
+.widget[data-type="poll"] .pollLinkedDataBar .safe450LinkedDataStatus .name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.safe633PollDataList{display:grid;gap:8px;max-height:52vh;overflow:auto;margin:10px 0}
+.safe633PollDataPick{display:grid!important;gap:3px;text-align:left!important;background:#f8fafc!important;color:#111827!important;border:1px solid #dbe3ee!important;border-radius:12px!important;padding:10px 12px!important}
+.safe633PollDataPick small{color:#64748b;font-weight:750}
+.app.present .widget[data-type="poll"] .pollLinkedDataBar,body.focus-mode:not(.focus-maximized) .widget[data-type="poll"] .pollLinkedDataBar,body.focus-edit:not(.focus-maximized) .widget[data-type="poll"] .pollLinkedDataBar,body.focus-presentation:not(.focus-maximized) .widget[data-type="poll"] .pollLinkedDataBar{display:none!important}
+</style>
 <!-- l611-dataremix-pdf-form-import-ninja: Bygger på l605. Flytter indsamling af besvarede afstemnings-PDF'er til DataRemix: PDF'er vælges fra disk, læses midlertidigt med PDF.js og samles anonymt til én DataWidget. Opdaterer kun Afstemning-PDF-skabeloner til enkeltvalg/flervalg og tilføjer DataRemix-importpanel. Ingen PDF-render/autodata/spejl/KaPardy ændret. -->
 <style id="l611-dataremix-pdf-form-import-css">
 #dr258Box .l611PdfImportPanel{border:1px solid #dbeafe;background:#eff6ff;border-radius:16px;padding:12px;margin:10px 0;display:grid;gap:9px;}
@@ -63987,6 +64735,37 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
     try{if(typeof updateDatasetInState==='function'){updateDatasetInState(ds);return;}}catch(_e){}
     try{var st=liveState(); if(!st)return; st.datasets=Array.isArray(st.datasets)?st.datasets:[]; var id=String(ds.id||''); var ix=st.datasets.findIndex(function(d){return d&&String(d.id)===id;}); if(ix>=0)st.datasets[ix]=ds; else st.datasets.push(ds); if(typeof save==='function')save();}catch(_e){}
   }
+  function l635CloseDataRemixOverlay(){
+    try{if(window.safe635CloseDataRemix){window.safe635CloseDataRemix();return;}}catch(_e){}
+    try{var b=document.getElementById('dr258Back'); if(b)b.remove();}catch(_e){}
+  }
+  function l635RefreshDatasetWidget(w,ds){
+    try{updateDs(ds);}catch(_e){}
+    if(!w||!ds)return;
+    try{
+      w.locked=false;
+      w.title='📊 '+(ds.name||'Afstemningssvar');
+      w.data=w.data||{};
+      w.data.datasetId=ds.id;
+      w.data.dataset=ds;
+      w.data.datasetView=true;
+      w.data.sourceType=w.data.sourceType||'PDF-formularer';
+      w.data.sourceOpen=true;
+      w.data.sourceOpenedFromDataRemix=true;
+      /* l637: Afstemnings-PDF-resultater er ikke KaPardy/PDF-svar. */
+      if(ds && String(ds.type||'')==='poll-results'){
+        w.data.sourceType='PDF-formularer';
+        delete w.data.kapardy;
+        delete w.data.pdfAnswers;
+      }
+      if(typeof formatDatasetAsTextWidgetContent==='function')w.data.text=formatDatasetAsTextWidgetContent(ds);
+    }catch(_e){}
+    try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}
+    try{
+      var el=document.querySelector('.widget[data-id="'+(CSS&&CSS.escape?CSS.escape(String(w.id)):String(w.id).replace(/[^a-zA-Z0-9_-]/g,'\\$&'))+'"]');
+      if(el&&typeof fillContent==='function')fillContent(el,w);
+    }catch(_e){}
+  }
   function addDataWidget(ds){
     updateDs(ds);
     var w=null;
@@ -63997,7 +64776,19 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
         if(typeof addWidget==='function')w=addWidget('text',{text:csv,datasetId:ds.id,dataset:ds,kind:'dataset'});
       }catch(_e){}
     }
-    if(w){try{w.title='📊 '+(ds.name||'Afstemningssvar'); w.data=w.data||{}; w.data.datasetId=ds.id; w.data.dataset=ds; w.data.sourceType='PDF-formularer'; w.data.sourceOpen=false;}catch(_e){}}
+    if(w){try{
+      w.title='📊 '+(ds.name||'Afstemningssvar');
+      w.locked=false;
+      w.data=w.data||{};
+      w.data.datasetId=ds.id;
+      w.data.dataset=ds;
+      w.data.datasetView=true;
+      w.data.sourceType='PDF-formularer';
+      w.data.sourceOpen=false;
+      w.data.sourceOpenedFromDataRemix=true;
+      if(typeof formatDatasetAsTextWidgetContent==='function')w.data.text=formatDatasetAsTextWidgetContent(ds);
+    }catch(_e){}}
+    try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}
     try{if(typeof render==='function')render();}catch(_e){}
     setTimeout(function(){try{if(w&&typeof select==='function')select(w.id,{editText:false});}catch(_e){}},40);
     return w;
@@ -64082,13 +64873,14 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
     if(!files.length){toast2('Vælg en eller flere PDF-filer');return;}
     if(statusEl)statusEl.textContent='Læser '+files.length+' PDF-filer...';
     var pdfjs=await getPdfJs();
-    var counts={}, totals={}, found=0, ignored=0;
+    var counts={}, totals={}, found=0, ignored=0, firstAnsweredFile=null;
     for(var i=0;i<files.length;i++){
       try{
         if(statusEl)statusEl.textContent='Læser '+(i+1)+'/'+files.length+'...';
         var obj=await fieldsFromPdfFile(files[i],pdfjs);
         var parsed=answersFromFields(obj);
         if(!parsed.answers.length){ignored++; continue;}
+        if(!firstAnsweredFile)firstAnsweredFile=files[i];
         parsed.answers.forEach(function(ans){
           var q=parsed.question||'Afstemning';
           var key=q+'\u0001'+ans;
@@ -64099,10 +64891,29 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
     if(!found){if(statusEl)statusEl.textContent='Ingen valgte afstemningssvar fundet. Tjek at PDFerne er udfyldt og gemt.'; toast2('Ingen afstemningssvar fundet'); return;}
     var rows=Object.keys(counts).sort().map(function(key){var parts=key.split('\u0001'); var q=parts[0]||'Afstemning'; var a=parts.slice(1).join('\u0001'); var n=counts[key]||0; var pct=totals[q]?((n*100/totals[q]).toFixed(1).replace('.',','))+'%':'0%'; return [a,String(n),pct,q];});
     var firstQ=rows[0]&&rows[0][3]||'Afstemning';
-    var ds={id:uid2(),name:'Afstemningsresultater - '+firstQ,type:'poll-results',columns:['Svar','Stemmer','Procent','Spørgsmål'],rows:rows,sourceType:'PDF-formularer',question:firstQ,anonymous:true,createdAt:Date.now()};
-    addDataWidget(ds);
-    if(statusEl)statusEl.textContent='Oprettet DataWidget med '+rows.length+' svarmuligheder fra '+files.length+' PDF-filer. '+(ignored?ignored+' fil(er) uden svar blev sprunget over.':'');
-    toast2('Samlet '+found+' PDF-svar i én DataWidget');
+    var ds={id:uid2(),name:'Afstemningsresultater - '+firstQ,type:'poll-results',columns:['Svar','Stemmer','Procent','Spørgsmål'],rows:rows,sourceType:'PDF-formularer',question:firstQ,anonymous:true,createdAt:Date.now(),safe637PollPdfResults:true,safe638PollResultsPdf:true};
+    // l638: Gem én besvaret elev-PDF som visuel kilde til senere Resultat-PDF.
+    try{
+      if(firstAnsweredFile && window.TavleMediaArchive && typeof window.TavleMediaArchive.putMedia==='function'){
+        var srcBlob=(firstAnsweredFile.slice?firstAnsweredFile.slice(0,firstAnsweredFile.size||undefined,'application/pdf'):new Blob([await firstAnsweredFile.arrayBuffer()],{type:'application/pdf'}));
+        var srcName=String(firstAnsweredFile.name||'besvaret_afstemning.pdf');
+        var rec=await window.TavleMediaArchive.putMedia({kind:'pdf',name:'Kilde til resultat - '+srcName,mimeType:'application/pdf',size:srcBlob.size||0,blob:srcBlob,source:'poll-result-source',meta:{flow:'poll-answers-source-pdf',datasetName:ds.name,createdAt:new Date().toISOString()}});
+        if(rec&&rec.id){ds.safe638SourcePdfMediaRef=String(rec.id);ds.sourcePdfMediaRef=String(rec.id);ds.sourcePdfFileName=srcName;}
+      }
+    }catch(srcErr){try{console.warn('l638 kunne ikke gemme kilde-PDF til resultatvisning',srcErr);}catch(_e){}}
+    // l635: Luk DataRemix-ejerens overlay før vi viser/opdaterer widgets, så de ikke oprettes bag modalen.
+    l635CloseDataRemixOverlay();
+    var dataWidget=addDataWidget(ds);
+    l635RefreshDatasetWidget(dataWidget,ds);
+    var handoff=null;
+    try{if(window.safe633ApplyPdfResultsDatasetToPoll)handoff=window.safe633ApplyPdfResultsDatasetToPoll(ds,null);}catch(err){try{console.warn('l633 DataRemix handoff fejlede',err);}catch(_e){}}
+    if(handoff&&handoff.dw)l635RefreshDatasetWidget(handoff.dw,ds);
+    if(handoff&&handoff.poll){try{handoff.poll.locked=false; handoff.poll.data=handoff.poll.data||{}; handoff.poll.data.cloudView=false; delete handoff.poll.data.readOnly; delete handoff.poll.data.locked;}catch(_e){}}
+    if(statusEl)statusEl.textContent='Oprettet DataWidget med '+rows.length+' svarmuligheder fra '+files.length+' PDF-filer. '+(handoff?'AfstemningsWidget er opdateret og låst op. ':'')+(ignored?ignored+' fil(er) uden svar blev sprunget over.':'');
+    try{if(typeof render==='function')render();}catch(_e){}
+    setTimeout(function(){try{if(handoff&&handoff.dw)l635RefreshDatasetWidget(handoff.dw,ds); else l635RefreshDatasetWidget(dataWidget,ds); if(typeof render==='function')render(); if(handoff&&handoff.poll&&typeof select==='function')select(handoff.poll.id,{editText:false}); else if(dataWidget&&typeof select==='function')select(dataWidget.id,{editText:false});}catch(_e){}},80);
+    try{if(typeof save==='function')save();}catch(_e){}
+    toast2(handoff?'Samlet '+found+' PDF-svar og vist resultatet i Afstemning':'Samlet '+found+' PDF-svar i én DataWidget');
   }
   function installDataRemixPdfImportPanel(){
     var box=document.getElementById('dr258Box');
@@ -64110,7 +64921,7 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
     var panel=document.createElement('div');
     panel.id='l611PdfImportPanel';
     panel.className='l611PdfImportPanel';
-    panel.innerHTML='<div class="l611PdfImportHead"><h3>Fra PDF-formularer</h3><small>Afstemning</small></div><p>Vælg flere besvarede PDF-formularer fra disk. PDFerne gemmes ikke i Tavle - kun svarene samles i en ny anonym DataWidget.</p><div class="l611PdfImportActions"><button type="button" id="l611PickPollPdfs" class="primary">Vælg besvarede PDFer</button><input id="l611PollPdfFiles" type="file" accept="application/pdf,.pdf" multiple style="display:none"></div><div id="l611PdfImportStatus" class="l611PdfImportStatus"></div>';
+    panel.innerHTML='<div class="l611PdfImportHead"><h3>Fra PDF-formularer</h3><small>Afstemning</small></div><p>Vælg elevernes besvarede PDF-formularer fra disk. Tavle læser dem midlertidigt, samler svarene i en anonym DataWidget og kan vise resultatet direkte i AfstemningsWidgetten.</p><div class="l611PdfImportActions"><button type="button" id="l611PickPollPdfs" class="primary">Vælg besvarede PDFer</button><input id="l611PollPdfFiles" type="file" accept="application/pdf,.pdf" multiple style="display:none"></div><div id="l611PdfImportStatus" class="l611PdfImportStatus"></div>';
     var after=box.querySelector('.dr258Steps');
     if(after && after.parentNode)after.parentNode.insertBefore(panel,after.nextSibling); else box.insertBefore(panel,box.firstChild);
     var input=panel.querySelector('#l611PollPdfFiles');
