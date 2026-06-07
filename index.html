@@ -15909,37 +15909,97 @@ function safe381MoveWidgetToSlide(widgetId,targetSlideIndex){
   return {w,slide:state.slides[targetSlideIndex],slideIndex:targetSlideIndex};
 }
 function safe381OpenDatasetSourceNearWidget(dsId,ownerW){
-  const hit=safe376DatasetWidgetInfo(dsId);
-  if(!hit){toast('Datawidget blev ikke fundet');return false;}
-  const ownerHit=safe376AllWidgetsWithSlide().find(x=>String(x.w&&x.w.id)===String(ownerW&&ownerW.id));
-  const targetSlideIndex=ownerHit?ownerHit.slideIndex:hit.slideIndex;
-  const moved=safe381MoveWidgetToSlide(hit.w.id,targetSlideIndex)||hit;
-  const dw=moved.w;
+  dsId=String(dsId||'').trim();
+  if(!dsId){toast('Ingen koblet datawidget');return false;}
+
+  /* l649: Denne funktion er den egentlige ejer for “vis koblet datakilde”.
+     Fejlen var, at den samme DataWidget kunne være låst/åben/koblet ved en anden
+     widget, og så blev den ikke konsekvent vist ved den widget, brugeren faktisk
+     klikkede på. Derfor bestemmes konteksten altid ud fra ownerW her. */
+  const all=safe376AllWidgetsWithSlide();
+  const ownerHit=all.find(x=>String(x.w&&x.w.id)===String(ownerW&&ownerW.id));
+  const activeIndex=(Number.isInteger(state&&state.active)?state.active:0);
+  let targetSlideIndex=ownerHit?ownerHit.slideIndex:activeIndex;
+
+  /* l650: Hvis ownerW er en spejlet/shared widget, ligger den fysisk på én tavle,
+     men brugeren kan klikke DATA på en anden tavle. Konteksten skal derfor være
+     den aktuelle tavle, når ownerW faktisk er synlig dér. */
+  try{
+    if(ownerHit && typeof safe588WidgetVisibleOnSlide==='function' && safe588WidgetVisibleOnSlide(ownerHit.w,activeIndex,ownerHit.slideIndex)){
+      targetSlideIndex=activeIndex;
+    }
+  }catch(_e){}
+
+  let hit=safe376DatasetWidgetInfo(dsId);
+  let dw=hit&&hit.w;
+
+  // Hvis den konkrete DataWidget er væk, men datasættet findes, genskab den stille.
+  if(!dw){
+    const ds=(typeof findDatasetById==='function')?findDatasetById(dsId):null;
+    if(ds&&typeof addDatasetWidget==='function'){
+      const prevActive=state.active;
+      try{state.active=targetSlideIndex;}catch(_e){}
+      try{dw=addDatasetWidget(ds,{x:160,y:130});}catch(_e){dw=null;}
+      try{state.active=prevActive;}catch(_e){}
+      if(dw){
+        dw.title='📊 '+String(ds.name||'DataWidget').replace(/^📊\s*/,'').trim();
+        dw.data=dw.data||{};
+        dw.data.datasetId=ds.id;
+        dw.data.dataset=ds;
+        dw.data.datasetView=true;
+      }
+    }
+  }
+  if(!dw){toast('Datawidget blev ikke fundet');return false;}
+
+  // Flyt den samme DataWidget til den tavle, hvor den aktuelle ejer-widget ligger.
+  let moved=safe381MoveWidgetToSlide(dw.id,targetSlideIndex);
+  if(moved&&moved.w)dw=moved.w;
+
+  /* l651: At flytte den fysiske DataWidget er ikke nok, hvis den har
+     sharedVisibility/spejl-status fra en tidligere tavle. Så kan toasten sige,
+     at datakilden vises, mens render() skjuler den igen. Når en koblet
+     DataWidget åbnes fra en bestemt widget, skal den være synlig netop på
+     den aktuelle/valgte tavle. */
+  try{
+    if(typeof safe588SetVisibility==='function'){
+      var targetSlideId=(typeof safe588SlideId==='function')?safe588SlideId(targetSlideIndex):'';
+      safe588SetVisibility(dw,'single',targetSlideId?[targetSlideId]:[]);
+    }else{
+      delete dw.sharedVisibility;
+    }
+  }catch(_e){try{delete dw.sharedVisibility;}catch(__e){}}
+
   dw.data=dw.data||{};
   dw.data.sourceOpen=true;
   dw.data.sourceOpenedFromWidgetId=ownerW&&ownerW.id;
-  const ow=ownerW||{};
-  // SAFE382: Datakilden er den samme widget hver gang. Bevar størrelse og rotation.
-  // Kun ulåste datakilder flyttes kontekstuelt hen til den widget, der åbner dem.
-  const keepW=Number(dw.w)||560;
-  const keepH=Number(dw.h)||360;
-  dw.w=keepW;
-  dw.h=keepH;
-  if(!dw.locked){
-    dw.x=Math.max(24,Math.min(Number(ow.x||120)+40,innerWidth-keepW-30));
-    dw.y=Math.max(78,Math.min(Number(ow.y||120)+40,innerHeight-keepH-40));
-  }else{
-    dw.x=Number(dw.x)||140;
-    dw.y=Number(dw.y)||130;
-  }
+  dw.data.sourceOpenedFromSlideIndex=targetSlideIndex;
+  try{dw.data.sourceOpenedFromSlideId=(typeof safe588SlideId==='function')?safe588SlideId(targetSlideIndex):'';}catch(_e){}
+  delete dw.data.sourceOpenedFromDataSourcesModal;
+
+  // Når DataWidgetten åbnes som koblet datakilde, skal den ses ved den widget,
+  // der blev klikket på. Derfor flyttes den kontekstuelt også selv om den er låst.
+  const ow=ownerHit&&ownerHit.w?ownerHit.w:(ownerW||{});
+  const keepW=Math.max(320,Number(dw.w)||560);
+  const keepH=Math.max(220,Number(dw.h)||360);
+  dw.w=keepW; dw.h=keepH;
+  const vw=window.innerWidth||innerWidth||1200;
+  const vh=window.innerHeight||innerHeight||800;
+  const ox=Number(ow.x); const oy=Number(ow.y); const owW=Number(ow.w)||520;
+  let nx=(Number.isFinite(ox)?ox:120)+Math.min(52,Math.max(24,owW*.08));
+  let ny=(Number.isFinite(oy)?oy:120)+44;
+  nx=Math.max(24,Math.min(nx,Math.max(24,vw-keepW-30)));
+  ny=Math.max(78,Math.min(ny,Math.max(78,vh-keepH-40)));
+  dw.x=nx; dw.y=ny;
   dw.z=++z;
+
   state.active=targetSlideIndex;
   selected=dw.id;
   if(window.UIState)UIState.selectedWidgetId=dw.id;
-  render();
-  setTimeout(()=>select(dw.id,{editText:false}),30);
-  save({silent:true});
-  toast('Datakilde vist');
+  try{render();}catch(_e){}
+  setTimeout(()=>{try{select(dw.id,{editText:false});}catch(_e){}},30);
+  try{save({silent:true});}catch(_e){}
+  try{toast('Datakilde vist ved '+String((ow&&ow.title)||safe376WidgetLabel(ow)||'widget').replace(/^📊\s*/,'').slice(0,34));}catch(_e){toast('Datakilde vist');}
   return true;
 }
 function safe381HideDataSourceWidgetByDataset(dsId){
@@ -15948,6 +16008,8 @@ function safe381HideDataSourceWidgetByDataset(dsId){
   hit.w.data=hit.w.data||{};
   hit.w.data.sourceOpen=false;
   delete hit.w.data.sourceOpenedFromWidgetId;
+  delete hit.w.data.sourceOpenedFromSlideIndex;
+  delete hit.w.data.sourceOpenedFromSlideId;
   if(String(selected)===String(hit.w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
   render();
   save({silent:true});
@@ -16128,7 +16190,26 @@ function safe450ToggleLinkedData(ownerW,role){
   if(!ref.datasetId){toast(ref.empty);return false;}
   const hit=safe450FindDataWidgetByDatasetId(ref.datasetId);
   const isOpen=!!(hit&&hit.w&&hit.w.data&&hit.w.data.sourceOpen);
-  return isOpen?safe450HideLinkedData(ownerW,role):safe450OpenLinkedData(ownerW,role);
+  if(isOpen){
+    const openedFrom=String((hit.w.data&&hit.w.data.sourceOpenedFromWidgetId)||'');
+    const ownerId=String(ownerW&&ownerW.id||'');
+    let currentContextSlide=(Number.isInteger(state&&state.active)?state.active:0);
+    let openedContextSlide=Number(hit.w.data&&hit.w.data.sourceOpenedFromSlideIndex);
+    if(!Number.isInteger(openedContextSlide)){
+      try{
+        const sid=String((hit.w.data&&hit.w.data.sourceOpenedFromSlideId)||'');
+        if(sid&&typeof safe588SlideIndexFromId==='function')openedContextSlide=safe588SlideIndexFromId(sid);
+      }catch(_e){}
+    }
+    // l650: Samme widget kan være spejlet på flere tavler. Samme ownerId er derfor
+    // ikke nok til at afgøre, om klik skal skjule eller flytte datavisningen.
+    // Der skjules kun, hvis DATA allerede er åben ved samme widget på samme tavle.
+    if(ownerId && openedFrom && openedFrom===ownerId && Number.isInteger(openedContextSlide) && openedContextSlide===currentContextSlide){
+      return safe450HideLinkedData(ownerW,role);
+    }
+    return safe450OpenLinkedData(ownerW,role);
+  }
+  return safe450OpenLinkedData(ownerW,role);
 }
 function safe450LinkedDataStatusHtml(ownerW,role,labelOverride){
   const ref=safe450GetLinkedDataRef(ownerW,role);
@@ -40976,7 +41057,7 @@ function collectEmbeddedMedia(){
             const csv=datasetToDelimitedText(ds,',');
             const baseName=String((ds&&ds.name)||w.data.name||w.title||`tavle-${si+1}-datasæt-${wi+1}`).replace(/\.(txt|csv)$/i,'');
             const src='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-            items.push({type:'Datawidget CSV',slide:slideName,name:baseName,src});
+            items.push({type:'Datawidget CSV',slide:slideName,name:baseName,src,datasetId:ds.id,widgetId:w.id,widgetType:w.type});
           }else if(hasDatasetRef){
             // Tom dataliste: vis ikke som downloadvalg og fald ikke tilbage til previewtekst.
             return;
@@ -41941,25 +42022,122 @@ async function downloadAllEmbeddedMedia(){
     }
     return null;
   }
+  function h63WidgetHitById(widgetId){
+    const id=String(widgetId||''); if(!id||!state||!Array.isArray(state.slides))return null;
+    for(let si=0;si<state.slides.length;si++){
+      const sl=state.slides[si]||{}; const widgets=Array.isArray(sl.widgets)?sl.widgets:[];
+      for(let wi=0;wi<widgets.length;wi++){
+        const w=widgets[wi]||{};
+        if(String(w.id||'')===id)return {slideIndex:si,widget:w,path:'state.slides['+si+'].widgets['+wi+']',slide:sl};
+      }
+    }
+    return null;
+  }
+  function h63DatasetIdFromItem(it){
+    if(!it)return '';
+    let id=String(it.datasetId||(it.meta&&it.meta.datasetId)||'').trim();
+    if(id)return id;
+    const name=String(it.name||it.filename||'').replace(/\.(csv|txt|pdf|json)$/i,'').trim().toLowerCase();
+    if(!name)return '';
+    try{
+      const ds=(state.datasets||[]).find(d=>String(d&&d.name||'').trim().toLowerCase()===name || String(d&&d.name||'').trim().toLowerCase()===name.replace(/\s*-\s*resultat$/i,''));
+      if(ds&&ds.id)return String(ds.id);
+    }catch(_e){}
+    return '';
+  }
   function h63Normalize(items){
     return (items||[]).map(function(it){
       const ref=it.mediaRef||it.srcMediaRef||it.fileMediaRef||it.udtBackupRef||it.tjekBackupRef||'';
-      const owner=h63FindWidgetForMediaRef(ref);
+      let owner=ref?h63FindWidgetForMediaRef(ref):null;
+      if(!owner&&it.widgetId)owner=h63WidgetHitById(it.widgetId);
       const recName=String(it.filename||it.name||'fil');
       const fn=safeFileName? safeFileName(recName,h63Ext(it)) : recName;
-      return Object.assign({},it,{filename:fn,owner:owner,ownerPath:owner?owner.path:(it.slide||'')});
+      return Object.assign({},it,{filename:fn,owner:owner,ownerPath:owner?owner.path:(it.slide||''),datasetId:h63DatasetIdFromItem(it)});
     });
   }
-  function h63OpenWidget(it){
-    const owner=it&&it.owner;
-    if(!owner||!owner.widget){toast('Kunne ikke finde widgetten på tavlen');return;}
-    try{state.active=owner.slideIndex;}catch(_e){}
+  function h63GoToHit(hit,label){
+    if(!hit||!hit.widget){toast('Kunne ikke finde widgetten på tavlen');return false;}
+    try{state.active=hit.slideIndex;}catch(_e){}
     try{closeModal();}catch(_e){}
     try{render();}catch(_e){}
     setTimeout(function(){
-      try{select(String(owner.widget.id));}catch(_e){try{selected=owner.widget.id;if(window.UIState)UIState.selectedWidgetId=owner.widget.id;render();}catch(__e){}}
-      try{toast('Åbnede widget: '+String(owner.widget.title||owner.widget.type||'widget').slice(0,40));}catch(_e){}
+      try{select(String(hit.widget.id));}catch(_e){try{selected=hit.widget.id;if(window.UIState)UIState.selectedWidgetId=hit.widget.id;render();}catch(__e){}}
+      try{toast('Åbnede '+String(label||hit.widget.title||hit.widget.type||'widget').slice(0,44));}catch(_e){}
     },40);
+    return true;
+  }
+  function h63DatasetUsers(dsId){
+    try{if(typeof safe376UsersOfDataset==='function')return safe376UsersOfDataset(dsId)||[];}catch(_e){}
+    const target=String(dsId||'');
+    if(!target)return [];
+    const out=[];
+    try{
+      (state.slides||[]).forEach(function(sl,si){(sl.widgets||[]).forEach(function(w){
+        const d=(w&&w.data)||{}; if(w.type==='text'&&String(d.datasetId||'')===target)return;
+        let uses=String(d.sourceDatasetId||'')===target || String(d.linkedDataDatasetId||'')===target;
+        try{const m=d.linkedDataSources||{}; uses=uses||Object.keys(m).some(k=>String((m[k]&&m[k].datasetId)||'')===target);}catch(_e){}
+        if(uses)out.push({w:w,widget:w,slide:sl,slideIndex:si});
+      });});
+    }catch(_e){}
+    return out;
+  }
+  function h63WidgetLabel(w){
+    try{if(typeof safe376WidgetLabel==='function')return safe376WidgetLabel(w);}catch(_e){}
+    const typeNames={poll:'Afstemning',pdf:'PDF',kahoopardy:'KaPardy',wheel:'Lykkehjulet',groups:'Grupper',calendar:'Kalender',wordcloud:'Ordsky',text:'DataWidget'};
+    return String((w&&w.title)||typeNames[w&&w.type]||'Widget');
+  }
+  function h63SlideLabel(hit){
+    try{if(typeof safe376SlideLabel==='function')return safe376SlideLabel(hit.slide,hit.slideIndex);}catch(_e){}
+    return 'Tavle '+(Number(hit&&hit.slideIndex||0)+1);
+  }
+  function h63OpenDatasetChoice(dsId,it){
+    const ds=(typeof findDatasetById==='function')?findDatasetById(dsId):null;
+    const dw=(typeof safe376DatasetWidgetInfo==='function')?safe376DatasetWidgetInfo(dsId):null;
+    const users=h63DatasetUsers(dsId);
+    function ensureDataWidget(){
+      const existing=(typeof safe376DatasetWidgetInfo==='function')?safe376DatasetWidgetInfo(dsId):null;
+      if(existing&&existing.w)return existing.w;
+      if(ds&&typeof addDatasetWidget==='function'){
+        try{const w=addDatasetWidget(ds,{x:160,y:130}); if(w&&w.id){try{render();save({silent:true});}catch(_e){} return w;}}catch(_e){}
+      }
+      return null;
+    }
+    function openDataNearUser(u){
+      const w=u&&(u.w||u.widget);
+      if(!w){toast('Kunne ikke finde den koblede widget');return false;}
+      const dataW=ensureDataWidget();
+      if(!dataW){toast('Kunne ikke finde eller genskabe DataWidgetten');return false;}
+      try{closeModal();}catch(_e){}
+      if(typeof safe381OpenDatasetSourceNearWidget==='function'){
+        return safe381OpenDatasetSourceNearWidget(dsId,w);
+      }
+      return h63GoToHit({widget:dataW,slideIndex:u.slideIndex,slide:u.slide,path:'DataWidget'},'DataWidget');
+    }
+    if(users.length===1)return openDataNearUser(users[0]);
+    if(users.length>1){
+      showModal('<h2>Åbn data ved…</h2><p>Den samme DataWidget bruges flere steder. Vælg hvor den skal vises for <b>'+esc(ds&&ds.name||it&&it.name||'datakilden')+'</b>.</p><div class="safe376LinkList">'+users.map(function(u,i){const w=u.w||u.widget;return '<button class="safe376LinkRow" data-h63-user="'+i+'"><span>📊</span><span><b>Vis data ved '+esc(h63WidgetLabel(w))+'</b><small>'+esc(h63SlideLabel(u))+'</small></span><span>›</span></button>';}).join('')+'</div><div class="calendarModalBtns"><button id="h63OpenDataWidgetOnly">Åbn kun DataWidget</button><button id="h63BackDownloads">Tilbage til Hent filer</button><button id="close">Luk</button></div>');
+      const close=modal.querySelector('#close'); if(close)close.onclick=closeModal;
+      const back=modal.querySelector('#h63BackDownloads'); if(back)back.onclick=function(){downloadAllEmbeddedMedia();};
+      const only=modal.querySelector('#h63OpenDataWidgetOnly'); if(only)only.onclick=function(){const dataW=ensureDataWidget(); if(dataW){const hit=(typeof safe376DatasetWidgetInfo==='function')?safe376DatasetWidgetInfo(dsId):null; h63GoToHit(hit||{widget:dataW,slideIndex:state.active,slide:state.slides&&state.slides[state.active],path:'DataWidget'},'DataWidget');}else toast('Kunne ikke finde eller genskabe DataWidgetten');};
+      modal.querySelectorAll('[data-h63-user]').forEach(function(btn){btn.onclick=function(){const u=users[Number(btn.getAttribute('data-h63-user'))];openDataNearUser(u);};});
+      return true;
+    }
+    if(dw&&dw.w)return h63GoToHit({widget:dw.w,slideIndex:dw.slideIndex,slide:dw.slide,path:'DataWidget'},'DataWidget');
+    if(!users.length&&ds&&typeof addDatasetWidget==='function'){
+      try{
+        const w=addDatasetWidget(ds,{x:160,y:130});
+        if(w&&w.id){try{render();save({silent:true});}catch(_e){} return h63GoToHit({widget:w,slideIndex:state.active,slide:state.slides&&state.slides[state.active],path:'Genskabt DataWidget'},'DataWidget');}
+      }catch(_e){}
+    }
+    toast('Kunne ikke finde datawidgetten eller en koblet widget');
+    return false;
+  }
+  function h63OpenWidget(it){
+    const owner=it&&it.owner;
+    if(owner&&owner.widget)return h63GoToHit(owner,owner.widget.title||owner.widget.type||'widget');
+    const dsId=h63DatasetIdFromItem(it);
+    if(dsId)return h63OpenDatasetChoice(dsId,it);
+    toast('Kunne ikke finde widgetten på tavlen');
   }
   function h63Download(it){
     if(!it){return;}
