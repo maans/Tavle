@@ -1,6 +1,9 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!doctype html>
-<!-- l620-pdf-form-card-tap-delegate-surgical: Bygger direkte på l617. Kun et slutplaceret script ved faktisk dokument-slut: robust tap/click på eksterne PDF-formularkort i Åbn PDF. Ingen indsættelse i HTML-template-strenge, ingen DataRemix/PDF-render/KaPardy-ændringer. -->
+<!-- l629-pdf-filled-student-download: Bygger på l628. Kirurgisk PDFWidget-ejer-fix: ny Hent udfyldt PDF-knap skriver Tavles gemte PDF-formularfelter tilbage i en ny PDF-fil, så lærerens udfyldte afstemningsskabelon kan deles med eleverne. PDF-rendering/DataRemix/KaPardy/spejlwidgets uændret. -->
+<!-- l628-help-arrow-owner-cleanup-l622: Bygger direkte på l622 med l627-rettelsen. Kirurgisk fix i Hjælp-ejeren: Hjælps keydown-handler fjernes nu fra document, window og modal før genåbning/lukning, så gamle Hjælp-handlere ikke kan sluge ←/→ efter åbning fra DataRemix-?. Ingen PDF-, KaPardy-, DataRemix-motor- eller spejl-widget-ændringer. -->
+<!-- l622-pdf-forms-owned-by-open-modal: Bygger på l621. Flytter Afstemning/Lykkehjul/Grupper-formularkort ind i den eksisterende Åbn PDF-ejerfunktion, så de bruger samme lokale/eksterne PDF-åbning som KaPardy. De gamle l605/l611 modal-wrappers springes over; DataRemix-import bevares. Ingen indlejrede PDFer. -->
+<!-- l621-local-external-pdf-paths: Bygger på l617. Kirurgisk rettelse: alle eksterne PDF-formularstier og demo-PDF-stier løses med safe458bResolveAssetPath, så lokal HTML bruger GitHub Pages-base uden at indlejre PDFer. Ingen ny modal-template, ingen DataRemix/PDF-render/KaPardy-ændringer. -->
 <!-- l617-external-pdf-tabs-owner-call: Bygger på l615. Kirurgisk fix: PDF Åbn-knappen kalder window.safe455uH142OpenPdfOpenModal, så eksisterende l605/l611 modal-wrappers kan aktivere eksterne Afstemning/Lykkehjul/Grupper-faner. Ingen ny template/string-patch. -->
 
 <!-- l615-external-pdf-test-only: Bygger direkte på fungerende l611. Kun PDF-data-url’er er erstattet med eksterne pdf/-stier; DataRemix/PDF-render/Mere-menu røres ikke. Test-HTML før repo-pakke. -->
@@ -344,7 +347,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.96 l615-external-pdf-test-only</title>
+<title>Interaktiv tavle v1.2.127 l627-dataremix-help-bridge-l622</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -17964,9 +17967,9 @@ async function safe453i157DownloadPdfWidget(w){
    Formål: Når man opretter en ny/tom PDF-widget, får man straks en lille
    øve-PDF med flere sider, bogmærker, interne links og udfyldelige formularfelter.
    Dette ændrer ikke lokale PDF'er, URL-PDF'er eller PDF'er fra IndexedDB. */
-const SAFE455uH45g10l132_PDF_DEMO_DATA_URL='pdf/hjaelp/Tavle_PDFWidget_demo_generisk_laerer_v5.pdf';
+const SAFE455uH45g10l132_PDF_DEMO_DATA_URL=(typeof safe458bResolveAssetPath==='function'?safe458bResolveAssetPath('pdf/hjaelp/Tavle_PDFWidget_demo_generisk_laerer_v5.pdf'):'pdf/hjaelp/Tavle_PDFWidget_demo_generisk_laerer_v5.pdf');
 
-const SAFE455uH45g10l145_KAPARDY_TEMPLATE_DATA_URL='pdf/kapardy/Tavle_KaPardy_PDF_skabelon_5_spoergsmaal.pdf';
+const SAFE455uH45g10l145_KAPARDY_TEMPLATE_DATA_URL=(typeof safe458bResolveAssetPath==='function'?safe458bResolveAssetPath('pdf/kapardy/Tavle_KaPardy_PDF_skabelon_5_spoergsmaal.pdf'):'pdf/kapardy/Tavle_KaPardy_PDF_skabelon_5_spoergsmaal.pdf');
 function safe455uH131EnsurePdfWidgetDemo(w){
   try{
     if(!w||w.type!=='pdf')return;
@@ -17987,7 +17990,7 @@ function safe455uH131EnsurePdfWidgetDemo(w){
 
 /* SAFE455uH45g10l147: Direkte og lokal hentning af PDF-formularsvar fra DataWidget.
    Lagt direkte i den fungerende v47e-modal i stedet for som wrapper, så knappen faktisk vises. */
-const SAFE455uH45g10l149_KAPARDY_TEMPLATE_10_DATA_URL='pdf/kapardy/Tavle_KaPardy_PDF_skabelon_10_spoergsmaal.pdf';
+const SAFE455uH45g10l149_KAPARDY_TEMPLATE_10_DATA_URL=(typeof safe458bResolveAssetPath==='function'?safe458bResolveAssetPath('pdf/kapardy/Tavle_KaPardy_PDF_skabelon_10_spoergsmaal.pdf'):'pdf/kapardy/Tavle_KaPardy_PDF_skabelon_10_spoergsmaal.pdf');
 function safe455uH147ColumnIndex(cols,names){
   cols=(cols||[]).map(c=>String(c||'').trim().toLowerCase());
   for(const n of names){const i=cols.indexOf(String(n||'').trim().toLowerCase()); if(i>=0)return i;}
@@ -18665,9 +18668,9 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
       </div>
       <div class="safe455uH149Tabs" role="tablist" aria-label="PDF-arbejdsgange">
         <button type="button" class="safe455uH149Tab active" data-tab="kapardy">🏆 KaPardy</button>
-        <button type="button" class="safe455uH149Tab disabled" disabled>📊 Afstemning</button>
-        <button type="button" class="safe455uH149Tab disabled" disabled>🎡 Lykkehjulet</button>
-        <button type="button" class="safe455uH149Tab disabled" disabled>👥 Grupper</button>
+        <button type="button" class="safe455uH149Tab" data-tab="poll">📊 Afstemning</button>
+        <button type="button" class="safe455uH149Tab" data-tab="wheel">🎲 Lykkehjulet</button>
+        <button type="button" class="safe455uH149Tab" data-tab="groups">👥 Grupper</button>
         <button type="button" class="safe455uH149Tab" data-tab="general">📄 Generel PDF</button>
       </div>
       <div class="safe455uH149Panel active" data-panel="kapardy">
@@ -18680,6 +18683,38 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
         <div class="safe455uH149Section">
           <div class="safe455uH149SectionTitle"><b>Start fra DataWidget</b><small>Vælg DataWidget og formularstørrelse</small></div>
           <div class="safe455uH149DataList safe459DataList">${kpDataHtml}</div>
+        </div>
+      </div>
+      <div class="safe455uH149Panel" data-panel="poll">
+        <div class="safe455uH149Section">
+          <div class="safe455uH149SectionTitle"><b>Afstemningsformular</b><small>Del og saml svar via DataRemix</small></div>
+          <p class="l611PollChoiceNote">Brug enkeltvalg, når hver elev kun må vælge ét svar. Brug flervalg, når flere svar må markeres. Andet er en fri svarmulighed.</p>
+          <div class="safe455uH149CardGrid">
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="poll" data-mode="single" data-src="pdf/afstemning/afstemning_single_tom.pdf" data-name="afstemning_single_tom.pdf" data-toast="Afstemningsformular med enkeltvalg åbnet"><b>Enkeltvalg · tom</b><small>Tom PDF med ét valg pr. elev.</small></button>
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="poll" data-mode="single" data-src="pdf/afstemning/afstemning_single_demo.pdf" data-name="afstemning_single_demo.pdf" data-toast="Afstemningsdemo med enkeltvalg åbnet"><b>Enkeltvalg · demo</b><small>Spørgsmål og svar udfyldt som eksempel.</small></button>
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="poll" data-mode="multi" data-src="pdf/afstemning/afstemning_multi_tom.pdf" data-name="afstemning_multi_tom.pdf" data-toast="Afstemningsformular med flervalg åbnet"><b>Flervalg · tom</b><small>Tom PDF med flere mulige valg.</small></button>
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="poll" data-mode="multi" data-src="pdf/afstemning/afstemning_multi_demo.pdf" data-name="afstemning_multi_demo.pdf" data-toast="Afstemningsdemo med flervalg åbnet"><b>Flervalg · demo</b><small>Spørgsmål og svar udfyldt som eksempel.</small></button>
+          </div>
+        </div>
+      </div>
+      <div class="safe455uH149Panel" data-panel="wheel">
+        <div class="safe455uH149Section">
+          <div class="safe455uH149SectionTitle"><b>Lykkehjulet-formular</b><small>Valgmuligheder til hjulet</small></div>
+          <div class="safe455uH149CardGrid">
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="wheel" data-src="pdf/lykkehjul/lykkehjul_10_felter.pdf" data-name="lykkehjul_10_felter.pdf" data-toast="Lykkehjulet-formular med 10 felter åbnet"><b>10 felter</b><small>Formular til et lille lykkehjul.</small></button>
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="wheel" data-src="pdf/lykkehjul/lykkehjul_20_felter.pdf" data-name="lykkehjul_20_felter.pdf" data-toast="Lykkehjulet-formular med 20 felter åbnet"><b>20 felter</b><small>Formular til almindeligt lykkehjul.</small></button>
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="wheel" data-src="pdf/lykkehjul/lykkehjul_30_felter.pdf" data-name="lykkehjul_30_felter.pdf" data-toast="Lykkehjulet-formular med 30 felter åbnet"><b>30 felter</b><small>Formular til stort lykkehjul.</small></button>
+          </div>
+        </div>
+      </div>
+      <div class="safe455uH149Panel" data-panel="groups">
+        <div class="safe455uH149Section">
+          <div class="safe455uH149SectionTitle"><b>Gruppeformular</b><small>Navnelister til grupper</small></div>
+          <div class="safe455uH149CardGrid">
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="groups" data-src="pdf/grupper/grupper_navneliste_20.pdf" data-name="grupper_navneliste_20.pdf" data-toast="Gruppeformular med 20 navne åbnet"><b>Navneliste · 20</b><small>Formular til mindre hold.</small></button>
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="groups" data-src="pdf/grupper/grupper_navneliste_40.pdf" data-name="grupper_navneliste_40.pdf" data-toast="Gruppeformular med 40 navne åbnet"><b>Navneliste · 40</b><small>Formular til almindeligt hold.</small></button>
+            <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="groups" data-src="pdf/grupper/grupper_navneliste_80.pdf" data-name="grupper_navneliste_80.pdf" data-toast="Gruppeformular med 80 navne åbnet"><b>Navneliste · 80</b><small>Formular til stort hold.</small></button>
+          </div>
         </div>
       </div>
       <div class="safe455uH149Panel" data-panel="general">
@@ -18719,6 +18754,18 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
     };
     root.querySelectorAll('.safe459BlankKp').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation(); const size=Number(btn.dataset.size||5); const tpl=safe459PdfTemplateForCapacity(size); safe459OpenTemplateIntoPdfWidget(w,el,c,{src:tpl.src,name:tpl.name,template:true,kind:'kapardy',capacity:tpl.cap,toast:'KaPardy '+tpl.cap+'-spørgsmålsformular åbnet'});};});
     root.querySelectorAll('.safe459PickKpData').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation(); if(btn.disabled)return; const ds=kpDataList[Number(btn.dataset.i)]; const size=btn.dataset.size||'auto'; if(ds&&safe459ConfigurePdfWidgetFromDatasetWithCapacity(w,ds,size)){close(); try{if(typeof fillContent==='function')fillContent(el,w); else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){} try{if(typeof save==='function')save();}catch(_e){} try{toast('PDFWidget åbnet med KaPardy-data');}catch(_e){}}};});
+    const resolveOwnerPdfPath=function(path){try{return (typeof safe458bResolveAssetPath==='function')?safe458bResolveAssetPath(path):String(path||'');}catch(_e){return String(path||'');}};
+    root.querySelectorAll('.safe622PdfFormCard').forEach(function(btn){btn.onclick=function(e){
+      e.preventDefault();e.stopPropagation();
+      try{
+        const src=resolveOwnerPdfPath(btn.getAttribute('data-src')||'');
+        const name=btn.getAttribute('data-name')||'formular.pdf';
+        const kind=btn.getAttribute('data-kind')||'pdf-form';
+        const mode=btn.getAttribute('data-mode')||'';
+        const msg=btn.getAttribute('data-toast')||'PDF-formular åbnet';
+        safe459OpenTemplateIntoPdfWidget(w,el,c,{src:src,name:name,source:'ekstern-pdf-formular',template:true,kind:kind,capacity:mode,toast:msg});
+      }catch(err){console.warn('l622 PDF-formular kunne ikke åbnes',err);try{toast('Kunne ikke åbne PDF-formular');}catch(_e){}}
+    };});
     ['safe455uH142Close','safe455uH142CloseX'].forEach(function(id){const b=root.querySelector('#'+id); if(b)b.onclick=close;});
     ['safe455uH142UseDisk','safe455uH152UseDisk'].forEach(function(id){const b=root.querySelector('#'+id); if(b)b.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfLocal');};});
     ['safe455uH142UseUrl','safe455uH152UseUrl'].forEach(function(id){const b=root.querySelector('#'+id); if(b)b.onclick=function(e){e.preventDefault();e.stopPropagation();clickExisting('.pdfUrl');};});
@@ -19266,9 +19313,110 @@ function pdfJsGoPage(w,c,delta){
 }
 
 
+/* l629: Hent udfyldt PDF fra PDFWidget.
+   Kirurgisk placeret ved PDF-formular-ejeren: bruger samme PDF-kilde som renderingen,
+   men ændrer ikke PDF-rendering, DataRemix, KaPardy eller eksisterende Hent-knap. */
+let __safe629PdfLibLoadPromise=null;
+function safe629EnsurePdfLib(){
+  if(window.PDFLib&&window.PDFLib.PDFDocument)return Promise.resolve(window.PDFLib);
+  if(__safe629PdfLibLoadPromise)return __safe629PdfLibLoadPromise;
+  __safe629PdfLibLoadPromise=new Promise(function(resolve,reject){
+    try{
+      const old=document.querySelector('script[data-safe629-pdflib="1"]');
+      if(old){old.addEventListener('load',function(){window.PDFLib?resolve(window.PDFLib):reject(new Error('PDF-lib blev ikke indlæst'));});old.addEventListener('error',reject);return;}
+      const sc=document.createElement('script');
+      sc.src='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+      sc.dataset.safe629Pdflib='1';
+      sc.onload=function(){window.PDFLib?resolve(window.PDFLib):reject(new Error('PDF-lib blev ikke indlæst'));};
+      sc.onerror=function(){reject(new Error('PDF-lib kunne ikke hentes'));};
+      document.head.appendChild(sc);
+    }catch(err){reject(err);}
+  });
+  return __safe629PdfLibLoadPromise;
+}
+function safe629BytesToBlob(bytes,mime){
+  try{return new Blob([bytes],{type:mime||'application/pdf'});}catch(_e){return new Blob([new Uint8Array(bytes)],{type:mime||'application/pdf'});}
+}
+function safe629DataUrlToBytes(dataUrl){
+  try{return dataUrlToUint8Array(dataUrl);}catch(_e){
+    const comma=String(dataUrl||'').indexOf(',');
+    const b64=comma>=0?String(dataUrl).slice(comma+1):String(dataUrl||'');
+    const bin=atob(b64); const bytes=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    return bytes;
+  }
+}
+async function safe629GetOriginalPdfBytes(w){
+  const d=(w&&w.data)||{};
+  const ref=String(d.fileMediaRef||'');
+  if(ref&&safe453i155PdfArchiveReady()){
+    const blob=await window.TavleMediaArchive.getBlob(ref);
+    if(blob)return new Uint8Array(await blob.arrayBuffer());
+  }
+  const src=String(d.src||d.url||'');
+  if(!src)throw new Error('PDF-kilde mangler');
+  if(isEmbeddedPdf(src))return safe629DataUrlToBytes(src);
+  const res=await fetch(src,{cache:'no-store',credentials:'same-origin'});
+  if(!res.ok)throw new Error('PDF kunne ikke hentes ('+res.status+')');
+  return new Uint8Array(await res.arrayBuffer());
+}
+function safe629FieldLooksLikeStudentAnswer(name){
+  const n=String(name||'').toLowerCase();
+  return /(^|_)(choice|selected|check|other_selected|student|elev|answer_choice)(_|$)/.test(n) || /poll_other_text|poll_other$|andet$/.test(n);
+}
+function safe629SetPdfLibFieldValue(field,value){
+  if(!field)return false;
+  const str=String(value==null?'':value);
+  const bool=(value===true)||(/^(true|1|yes|ja|on|x|checked)$/i.test(str));
+  try{if(typeof field.setText==='function'){field.setText(str);return true;}}catch(_e){}
+  try{if(typeof field.select==='function'){field.select(str);return true;}}catch(_e){}
+  try{if(typeof field.check==='function'){bool?field.check():field.uncheck();return true;}}catch(_e){}
+  return false;
+}
+async function safe629DownloadFilledPdfWidget(w){
+  try{
+    if(!w||!w.data){try{toast('Ingen PDF valgt');}catch(_e){} return false;}
+    const data=(typeof safe455uH102EnsurePdfFormData==='function')?safe455uH102EnsurePdfFormData(w):(w.data.pdfFormData||{});
+    const keys=Object.keys(data||{}).filter(function(k){return data[k]!=null && String(data[k]).trim()!=='';});
+    if(!keys.length){try{toast('Udfyld først mindst ét felt i PDF’en');}catch(_e){} return false;}
+    try{toast('Bygger udfyldt PDF…');}catch(_e){}
+    const PDFLib=await safe629EnsurePdfLib();
+    const bytes=await safe629GetOriginalPdfBytes(w);
+    const pdfDoc=await PDFLib.PDFDocument.load(bytes,{ignoreEncryption:true});
+    const form=pdfDoc.getForm();
+    let setCount=0,readOnlyCount=0;
+    keys.forEach(function(key){
+      try{
+        const field=form.getField(String(key));
+        if(safe629SetPdfLibFieldValue(field,data[key]))setCount++;
+        // I elev-PDF'en låses lærerens udfyldte spørgsmål/svarmuligheder, men elevens svarfelter bevares udfyldbare.
+        if(field && !safe629FieldLooksLikeStudentAnswer(key) && typeof field.enableReadOnly==='function'){
+          try{field.enableReadOnly();readOnlyCount++;}catch(_e){}
+        }
+      }catch(_e){}
+    });
+    if(!setCount){try{toast('Ingen PDF-felter matchede de udfyldte felter');}catch(_e){} return false;}
+    try{form.updateFieldAppearances();}catch(_e){}
+    const outBytes=await pdfDoc.save({useObjectStreams:false,updateFieldAppearances:true});
+    const base=String(w.data.name||w.title||'Afstemning').replace(/\.pdf$/i,'').trim()||'Afstemning';
+    const filename=(typeof safeFileName==='function')?safeFileName(base+' - udfyldt til elever','pdf'):(base.replace(/[^\w\-æøåÆØÅ ]+/g,'_')+' - udfyldt til elever.pdf');
+    const blob=safe629BytesToBlob(outBytes,'application/pdf');
+    if(typeof safeDownload==='function')safeDownload(filename,blob,'application/pdf');
+    else{
+      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);
+    }
+    try{toast('Udfyldt PDF hentet'+(readOnlyCount?' · lærerfelter låst':''));}catch(_e){}
+    return true;
+  }catch(err){
+    try{console.warn('l629 udfyldt PDF kunne ikke hentes',err);}catch(_e){}
+    try{toast('Kunne ikke lave udfyldt PDF: '+(err&&err.message?err.message:err));}catch(_e){}
+    return false;
+  }
+}
+
 /* SAFE455uH45g10l103: PDF-formularoverlay i redigeringstilstand.
    Formularsvar gemmes i w.data.pdfFormData og kan kobles som rigtig DataWidget.
-   Original PDF ændres ikke; Hent henter original-PDF/medier, ikke en udfyldt PDF. */
+   l629: PDFWidgetten kan nu hente en ny PDF-kopi med de udfyldte felter. */
 function safe455uH102PdfFormKey(a,i){
   return String((a&&(a.fieldName||a.id||a.ref&&a.ref.num||a.annotationType))||('felt_'+(i+1))).trim()||('felt_'+(i+1));
 }
@@ -32445,6 +32593,7 @@ if(w.type==='drawcopy'){
         </div>
         <div class="pdfGroup pdfFormGroup" aria-label="PDF-formular">
           <button class="pdfFormToggle ${w.data&&w.data.pdfInteractive?'pdfFormOn':''}" title="Aktivér formularfelter og links i redigeringstilstand">✍️ Udfyld</button>
+          ${(src||hasPdfFileRef)?'<button class="pdfFilledDownload" title="Hent en ny PDF med de udfyldte formularfelter – klar til at dele med eleverne">⬇ Udfyldt</button>':''}
         </div>
       </div>
     </div>
@@ -32594,8 +32743,10 @@ if(w.type==='drawcopy'){
     zoomLabelBtn.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){pdfFitFromZoomLabel(e)}};
   }
   const formToggle=c.querySelector('.pdfFormToggle');
+  const filledDownload=c.querySelector('.pdfFilledDownload');
   const formDataExport=c.querySelector('.pdfFormDataExport');
   safe597PdfToolbarTap(formToggle,(e)=>{safe455uH102TogglePdfForm(w,c,!(w.data&&w.data.pdfInteractive));return false;});
+  safe597PdfToolbarTap(filledDownload,(e)=>{safe629DownloadFilledPdfWidget(w);return false;});
   safe597PdfToolbarTap(formDataExport,(e)=>{safe455uH103TogglePdfAnswersDataWidget(w);return false;});
   const urlBtn=c.querySelector('.pdfUrl');
   if(urlBtn)urlBtn.onclick=(e)=>{
@@ -39120,6 +39271,7 @@ function showQuickHelp(){
     <button type="button" class="helpJumpBtn" data-help-jump="Prøv værktøjerne">Værktøjer</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Genvejskort">Genveje</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button>
     <button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF/iframe</button>
   </div>
@@ -39245,9 +39397,24 @@ function showQuickHelp(){
           <li><b>↑/↓</b> vælger datakilde. <b>Enter</b> eller <b>Space</b> åbner den valgte kilde. <b>E</b> eller <b>F2</b> omdøber.</li>
           <li>Inspektionsvinduer med <b>🔗</b> lukkes tilbage til Datakilder med <b>🔗</b>, <b>D</b> eller <b>Esc</b>.</li>
           <li>Lister kan bruges af Lykkehjulet, Grupper, Ordsky, Afstemning, Kalender og KaPardy.</li>
-          <li><b>DataRemix</b> bruges til at filtrere og blande data fra en kilde og oprette en ny dataliste til en bestemt widget.</li>
+          <li>Hvis en liste skal sorteres, filtreres eller bruges på en ny måde, kan du sende den videre til <b>DataRemix</b>.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button><button type="button" class="helpJumpBtn" data-help-jump="Kalender">Kalender</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button><button type="button" class="helpJumpBtn" data-help-jump="Kalender">Kalender</button></div>
+      </div>
+    </details>
+
+    <details>
+      <summary>DataRemix — gør data klar til ny brug</summary>
+      <div class="answer">
+        <p>DataRemix er stedet, hvor en eksisterende liste eller flere besvarede PDF-formularer bliver til en ny dataliste, der passer til en bestemt widget.</p>
+        <ul class="helpCompactList">
+          <li><b>Afstemning med PDF:</b> Åbn en afstemningsformular, del den med eleverne, og saml de besvarede PDF’er igen i DataRemix med <b>Vælg besvarede PDF’er</b>. Tavle laver én anonym datawidget med de samlede svar.</li>
+          <li><b>KaPardy Remix:</b> Åbn Remix fra DataRemix eller Spilbiblioteket, vælg spil og spørgsmålsbanker, og opret et nyt spil uden at ændre originalerne.</li>
+          <li><b>Lykkehjulet og Grupper:</b> Vælg en navne- eller stikordsliste, filtrér det du skal bruge, vælg destination, og lad Tavle oprette en ny koblet widget.</li>
+          <li><b>Kalender, linklister og andre data:</b> Start med en DataWidget, vælg de relevante felter, og opret en ren ny liste til næste arbejdsgang.</li>
+          <li><b>Tryg arbejdsgang:</b> Kilden bliver stående. DataRemix laver en ny datawidget, så du kan fortryde ved bare at slette den nye.</li>
+        </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button></div>
       </div>
     </details>
 
@@ -39447,10 +39614,25 @@ function showQuickHelp(){
     <span>Hurtigst i gang: N ny tavle · Mellemrum Mere · P/R præsentation · F fokus · Q/Å/Shift+T Tavleoverblik · D Datakilder · Esc lukker/går tilbage</span>
     <button id="closeHelp">Luk</button>
   </div>`);
-  modal.querySelector('#closeHelp').onclick=closeModal;
-  try{
-    if(window.__safe455bHelpKeyHandler) document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);
-  }catch(_e){}
+  function safe455bRemoveExistingHelpKeyHandler(){
+    try{
+      const h=window.__safe455bHelpKeyHandler;
+      if(h){
+        try{document.removeEventListener('keydown', h, true);}catch(_e){}
+        try{window.removeEventListener('keydown', h, true);}catch(_e){}
+        try{modal.removeEventListener('keydown', h, true);}catch(_e){}
+      }
+      window.__safe455bHelpKeyHandler=null;
+    }catch(_e){}
+  }
+  safe455bRemoveExistingHelpKeyHandler();
+  const safe455bCloseHelpBtn=modal.querySelector('#closeHelp');
+  if(safe455bCloseHelpBtn)safe455bCloseHelpBtn.onclick=function(e){
+    try{if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}}catch(_x){}
+    safe455bRemoveExistingHelpKeyHandler();
+    closeModal();
+    return false;
+  };
   let safe455bHelpSectionIndex=0;
   let safe455bHelpWidgetIndex=-1;
   const safe455bHelpSections=Array.from(modal.querySelectorAll('.helpFAQ > details'));
@@ -39515,8 +39697,7 @@ function showQuickHelp(){
   }
   window.__safe455bHelpKeyHandler=function(e){
     if(!safe455bHelpIsOpen()){
-      try{document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);window.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);modal.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
-      window.__safe455bHelpKeyHandler=null;
+      safe455bRemoveExistingHelpKeyHandler();
       return;
     }
     const tag=(e.target&&e.target.tagName||'').toLowerCase();
@@ -39613,8 +39794,7 @@ function showQuickHelp(){
     }
     if(e.key===' '||e.code==='Space'){
       e.preventDefault();e.stopPropagation();
-      try{document.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);window.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);modal.removeEventListener('keydown', window.__safe455bHelpKeyHandler, true);}catch(_e){}
-      window.__safe455bHelpKeyHandler=null;
+      safe455bRemoveExistingHelpKeyHandler();
       closeModal();
       setTimeout(()=>{try{ if(typeof showMoreTools==='function') showMoreTools(); }catch(_e){}},40);
       return;
@@ -39630,7 +39810,8 @@ function showQuickHelp(){
       return;
     }
     if(e.key==='Escape'){
-      e.preventDefault();e.stopPropagation();
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      safe455bRemoveExistingHelpKeyHandler();
       closeModal();
       return;
     }
@@ -41752,6 +41933,12 @@ function safe455uH19OpenHelpAtSummary(summaryNeedle){
 
 /* SAFE455uH22: Kontekst-hjælp i 5 udvalgte modaler.
    Genbruger H20's safe455uH19OpenHelpAtSummary og tilføjer kun små ?-knapper i modalheaders. */
+try{
+  window.safe627OpenHelpAtSummary=function(summaryNeedle){
+    return safe455uH19OpenHelpAtSummary(summaryNeedle);
+  };
+}catch(_e){}
+
 function safe455uH22WireModalHelp(buttonId, summaryNeedle){
   try{
     const b=(typeof modal!=='undefined'&&modal)?modal.querySelector('#'+buttonId):null;
@@ -56154,7 +56341,7 @@ function open(preferred){closeMore(); close(); safe531BindDataRemixEsc(); var al
  function fieldHtml(d,c){var h='<div class="dr258Panel"><h3>Output til '+esc((DESTS.find(function(x){return x.id===model.dest;})||{}).title||'')+'</h3>'; if(['wheel','groups','poll','wordcloud','text'].indexOf(model.dest)>=0){h+='<div class="dr258Row"><label>Linje/skabelon</label><input id="drTpl" value="'+esc(c.template||'')+'"></div><p class="dr258Hint">Brug fx {Navn}, {Spørgsmål} eller {Dato}: {Titel}. Destinationen bestemmer kolonnenavnet i den nye dataliste.</p>';} else if(model.dest==='link'){h+='<div class="dr258Row"><label>Titel</label><select id="dr_titleCol">'+opt(d,c.titleCol,false)+'</select></div><div class="dr258Row"><label>URL</label><select id="dr_urlCol">'+opt(d,c.urlCol,false)+'</select></div><div class="dr258Row"><label>Note</label><select id="dr_noteCol">'+opt(d,c.noteCol,true)+'</select></div>';} else if(model.dest==='kahoopardy'){[['catCol','Kategori'],['qCol','Spørgsmål'],['aCol','Rigtigt svar'],['w1Col','Forkert 1'],['w2Col','Forkert 2'],['pointsCol','Point']].forEach(function(p){h+='<div class="dr258Row"><label>'+p[1]+'</label><select id="dr_'+p[0]+'">'+opt(d,c[p[0]],p[0]!=='catCol'&&p[0]!=='qCol'&&p[0]!=='aCol'?true:false)+'</select></div>';});} else if(model.dest==='calendar'){[['dateCol','Dato'],['startCol','Start'],['endCol','Slut'],['titleCol','Titel'],['typeCol','Type'],['holdCol','Hold'],['placeCol','Sted'],['noteCol','Note']].forEach(function(p){h+='<div class="dr258Row"><label>'+p[1]+'</label><select id="dr_'+p[0]+'">'+opt(d,c[p[0]],p[0]!=='dateCol'&&p[0]!=='titleCol')+'</select></div>';});} else {h+='<p class="dr258Hint">Vælg kolonner til den nye datawidget.</p><div class="dr258CheckGrid">'+(d.columns||[]).map(function(col,i){var on=(c.copyCols||[]).indexOf(i)>=0; return '<label><input class="drCopyCol" type="checkbox" value="'+i+'" '+(on?'checked':'')+'> '+esc(col)+'</label>';}).join('')+'</div>';} h+='<div class="dr258Row"><label>Navn</label><input id="drName" value="'+esc(c.name||'')+'"></div></div>'; return h;}
  function previewHtml(data){var rows=data.rows||[], cols=data.columns||[]; return '<div class="dr258Preview"><table><thead><tr>'+cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.slice(0,30).map(function(r){return '<tr>'+cols.map(function(_,i){return '<td>'+esc((r||[])[i]||'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>'+(rows.length>30?'<p class="dr258Mini">… '+(rows.length-30)+' flere rækker</p>':'')+'</div>';}
  function render(){var d=ds(); model.cfg=defaults(d,model.dest,model.cfg); var body=''; if(model.step===1)body='<div class="dr258Panel"><h3>1. Kilde</h3><p class="dr258Hint">Vælg den datawidget/dataliste, der skal remixes. Demoerne er med, så DataRemix altid kan testes.</p><div class="dr258Row"><label>Kilde</label><select id="drSource">'+all.map(function(x){return '<option value="'+esc(x.id)+'" '+(String(x.id)===String(model.sourceId)?'selected':'')+'>'+esc(label(x))+'</option>';}).join('')+'</select></div></div>'+filterHtml(d,model.cfg); else if(model.step===2)body='<div class="dr258Panel"><h3>2. Destination</h3><p class="dr258Hint">Vælg hvilken almindelig widget den nye dataliste skal kunne bruges i.</p><div class="dr258DestGrid">'+DESTS.map(function(x){return '<button class="dr258Dest '+(model.dest===x.id?'active':'')+'" data-dest="'+x.id+'"><span class="ico">'+x.ico+'</span><strong>'+esc(x.title)+'</strong><small>'+esc(x.desc)+'</small></button>';}).join('')+'</div></div>'; else if(model.step===3)body=filterHtml(d,model.cfg)+fieldHtml(d,model.cfg); else {var data=build(d,model.dest,model.cfg); body='<div class="dr258Panel"><h3>4. Preview og opret</h3><p class="dr258Hint">Opret laver altid en ny datawidget. Hvis du har valgt en destinationswidget, åbnes en ny instans og kobles automatisk.</p>'+previewHtml(data)+'</div>';}
- var back=document.getElementById('dr258Back'); if(!back){back=document.createElement('div'); back.id='dr258Back'; back.innerHTML='<div id="dr258Box"></div>'; document.body.appendChild(back); back.addEventListener('click',function(e){if(e.target===back)close();});} var box=document.getElementById('dr258Box'); box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 4px"><h2 style="margin:0">DataRemix</h2><button id="dr258Help" type="button" title="Åbn hjælp til DataRemix" aria-label="Åbn hjælp til DataRemix" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div><p class="dr258Hint">Kilde → filtrér → vælg destinationswidget → byg ny dataliste → åbn koblet widget.</p><div class="dr258Steps">'+[1,2,3,4].map(function(n){return '<button class="dr258Step '+(model.step===n?'active':'')+'" data-step="'+n+'">'+n+'</button>';}).join('')+'</div>'+body+'<div class="dr258Footer"><button id="drClose">Luk</button><div class="right"><button id="drBack" '+(model.step===1?'disabled':'')+'>Tilbage</button>'+(model.step<4?'<button id="drNext" class="primary">Næste</button>':'<button id="drCreate" class="primary">Opret</button>')+'</div></div>'; var drHelp=box.querySelector('#dr258Help'); if(drHelp)drHelp.onclick=function(ev){ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();try{close();}catch(_x){} try{safe455uH19OpenHelpAtSummary('Datakilder — lister og datasæt ét sted');}catch(_e){try{safe455uH19OpenHelpAtSummary('DataRemix');}catch(__e){}}return false;};
+ var back=document.getElementById('dr258Back'); if(!back){back=document.createElement('div'); back.id='dr258Back'; back.innerHTML='<div id="dr258Box"></div>'; document.body.appendChild(back); back.addEventListener('click',function(e){if(e.target===back)close();});} var box=document.getElementById('dr258Box'); box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 4px"><h2 style="margin:0">DataRemix</h2><button id="dr258Help" type="button" title="Åbn hjælp til DataRemix" aria-label="Åbn hjælp til DataRemix" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div><p class="dr258Hint">Kilde → filtrér → vælg destinationswidget → byg ny dataliste → åbn koblet widget.</p><div class="dr258Steps">'+[1,2,3,4].map(function(n){return '<button class="dr258Step '+(model.step===n?'active':'')+'" data-step="'+n+'">'+n+'</button>';}).join('')+'</div>'+body+'<div class="dr258Footer"><button id="drClose">Luk</button><div class="right"><button id="drBack" '+(model.step===1?'disabled':'')+'>Tilbage</button>'+(model.step<4?'<button id="drNext" class="primary">Næste</button>':'<button id="drCreate" class="primary">Opret</button>')+'</div></div>'; var drHelp=box.querySelector('#dr258Help'); if(drHelp)drHelp.onclick=function(ev){ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();try{close();}catch(_x){} try{if(window.safe627OpenHelpAtSummary)window.safe627OpenHelpAtSummary('DataRemix — gør data klar til ny brug');}catch(_e){}return false;};
  box.querySelector('#drClose').onclick=close; box.querySelector('#drBack').onclick=function(){saveFields(); model.step=Math.max(1,model.step-1); render();}; var nx=box.querySelector('#drNext'); if(nx)nx.onclick=function(){saveFields(); model.step=Math.min(4,model.step+1); render();}; var cr=box.querySelector('#drCreate'); if(cr)cr.onclick=function(){saveFields(); var d=ds(), built=build(d,model.dest,model.cfg); var out={id:'ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:(model.cfg.name||((d.name||'Datasæt')+' → DataRemix')).trim(),type:'dataremix-'+model.dest,columns:built.columns,rows:built.rows,sourceType:'DataRemix',sourceDatasetId:d.id,sourceName:d.name,createdAt:Date.now()}; try{var dw=addDataWidget(out); var owner=addOwner(model.dest,out,dw); try{if(typeof render==='function')render();}catch(_e){} setTimeout(function(){try{if(owner&&typeof select==='function')select(owner.id,{editText:false}); else if(dw&&typeof select==='function')select(dw.id,{editText:false});}catch(_e){}},50); toast2(owner?'DataRemix oprettede ny datawidget og ny koblet widget.':'DataRemix oprettede ny datawidget.'); close();}catch(err){toast2('DataRemix kunne ikke oprette output: '+(err&&err.message?err.message:err));}}; [].slice.call(box.querySelectorAll('.dr258Step')).forEach(function(b){b.onclick=function(){saveFields(); model.step=Number(b.dataset.step)||1; render();};}); var srcel=box.querySelector('#drSource'); if(srcel)srcel.onchange=function(){saveFields(); model.sourceId=srcel.value; model.cfg={}; render();}; [].slice.call(box.querySelectorAll('.dr258Dest')).forEach(function(b){b.onclick=function(){saveFields(); model.dest=b.dataset.dest; model.cfg=defaults(ds(),model.dest,model.cfg||{}); model.step=3; render();};}); [].slice.call(box.querySelectorAll('input,select')).forEach(function(e){e.oninput=saveFields; e.onchange=saveFields;}); }
  render();}
 function sourceFromClick(btn){try{var wel=btn.closest&&btn.closest('.widget'); if(wel){var id=wel.dataset&&wel.dataset.id; var sl=liveSlide(); var w=(sl&&sl.widgets||[]).find(function(x){return String(x.id)===String(id);}); if(w&&w.data&&w.data.datasetId)return w.data.datasetId;}}catch(_e){} return '';}
@@ -63547,7 +63734,11 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
 (function(){
   if(window.__l605PdfFormsPollWheelGroups)return;
   window.__l605PdfFormsPollWheelGroups=true;
-  var PDF_FORMS={"poll_empty":"pdf/afstemning/Tavle_Afstemning_PDF_formular_tom.pdf","poll_demo":"pdf/afstemning/Tavle_Afstemning_PDF_formular_demo.pdf","wheel_empty":"pdf/lykkehjul/Tavle_Lykkehjulet_PDF_formular_tom.pdf","wheel_demo":"pdf/lykkehjul/Tavle_Lykkehjulet_PDF_formular_demo.pdf","groups_empty":"pdf/grupper/Tavle_Grupper_PDF_formular_tom.pdf","groups_demo":"pdf/grupper/Tavle_Grupper_PDF_formular_demo.pdf"}
+  // l622: Åbn PDF-ejeren har nu Afstemning/Lykkehjulet/Grupper-panelerne direkte.
+  // Den gamle wrapper springes over for at undgå dobbelte paneler og døde knapper.
+  return;
+  function l621PdfPath(p){try{return (typeof safe458bResolveAssetPath==='function')?safe458bResolveAssetPath(p):p;}catch(_e){return String(p||'');}}
+  var PDF_FORMS={"poll_empty":l621PdfPath("pdf/afstemning/Tavle_Afstemning_PDF_formular_tom.pdf"),"poll_demo":l621PdfPath("pdf/afstemning/Tavle_Afstemning_PDF_formular_demo.pdf"),"wheel_empty":l621PdfPath("pdf/lykkehjul/Tavle_Lykkehjulet_PDF_formular_tom.pdf"),"wheel_demo":l621PdfPath("pdf/lykkehjul/Tavle_Lykkehjulet_PDF_formular_demo.pdf"),"groups_empty":l621PdfPath("pdf/grupper/Tavle_Grupper_PDF_formular_tom.pdf"),"groups_demo":l621PdfPath("pdf/grupper/Tavle_Grupper_PDF_formular_demo.pdf")}
   function qs(root,sel){try{return root&&root.querySelector?root.querySelector(sel):null;}catch(_e){return null;}}
   function qsa(root,sel){try{return Array.prototype.slice.call(root&&root.querySelectorAll?root.querySelectorAll(sel):[]);}catch(_e){return [];}}
   function setTab(root,name){try{qsa(root,'.safe455uH149Tab[data-tab]').forEach(function(b){b.classList.toggle('active',String(b.dataset.tab)===String(name));});qsa(root,'.safe455uH149Panel').forEach(function(p){p.classList.toggle('active',String(p.dataset.panel)===String(name));});}catch(_e){}}
@@ -63565,7 +63756,7 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
       addPanel('wheel','<div class="safe455uH149Section"><div class="safe455uH149SectionTitle"><b>Lykkehjulet-formular</b><small>Valgmuligheder til hjulet</small></div><div class="safe455uH149CardGrid">'+makeCard('wheel','empty','Lykkehjulet · tom','Tom PDF-formular til valgmuligheder.')+makeCard('wheel','demo','Lykkehjulet · demo','Bygger på Lykkehjulet-demoen fra Demoer.')+'</div></div>');
       addPanel('groups','<div class="safe455uH149Section"><div class="safe455uH149SectionTitle"><b>Gruppeformular</b><small>Navne og gruppestørrelse</small></div><div class="safe455uH149CardGrid">'+makeCard('groups','empty','Grupper · tom','Tom PDF-formular til navne og størrelse.')+makeCard('groups','demo','Grupper · demo','Bygger på Grupper-demoen fra Demoer.')+'</div></div>');
       var defs={poll_empty:{src:PDF_FORMS.poll_empty,name:'Tavle_Afstemning_PDF_formular_tom.pdf',kind:'poll',toast:'Afstemningsformular åbnet'},poll_demo:{src:PDF_FORMS.poll_demo,name:'Tavle_Afstemning_PDF_formular_demo.pdf',kind:'poll',toast:'Afstemning-demo åbnet som PDF-formular'},wheel_empty:{src:PDF_FORMS.wheel_empty,name:'Tavle_Lykkehjulet_PDF_formular_tom.pdf',kind:'wheel',toast:'Lykkehjulet-formular åbnet'},wheel_demo:{src:PDF_FORMS.wheel_demo,name:'Tavle_Lykkehjulet_PDF_formular_demo.pdf',kind:'wheel',toast:'Lykkehjulet-demo åbnet som PDF-formular'},groups_empty:{src:PDF_FORMS.groups_empty,name:'Tavle_Grupper_PDF_formular_tom.pdf',kind:'groups',toast:'Gruppeformular åbnet'},groups_demo:{src:PDF_FORMS.groups_demo,name:'Tavle_Grupper_PDF_formular_demo.pdf',kind:'groups',toast:'Grupper-demo åbnet som PDF-formular'}};
-      qsa(root,'.l605PdfFormCard').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation();var key=String(btn.dataset.kind||'')+'_'+String(btn.dataset.variant||'empty');var def=defs[key];if(!def)return;try{if(typeof safe459OpenTemplateIntoPdfWidget==='function'){safe459OpenTemplateIntoPdfWidget(w,el,c,{src:def.src,name:def.name,source:'indbygget-pdf-formular',template:true,kind:def.kind,capacity:'',toast:def.toast});}else{w.data=w.data||{};w.data.src=def.src;w.data.name=def.name;w.data.mimeType='application/pdf';w.data.source='indbygget-pdf-formular';w.data.page=1;w.data.pdfZoom='fit';w.data.pdfInteractive=true;w.data.isPdfTemplate=true;w.data.templateKind=def.kind;try{closeModal();}catch(_e){}try{if(typeof fillContent==='function')fillContent(el,w);else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){}try{if(typeof save==='function')save();}catch(_e){}try{if(typeof toast==='function')toast(def.toast);}catch(_e){}}}catch(err){try{console.warn('l605 PDF-formular kunne ikke åbnes',err);}catch(_e){}try{if(typeof toast==='function')toast('Kunne ikke åbne PDF-formular');}catch(_e){}}};});
+      qsa(root,'.l605PdfFormCard').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation();var key=String(btn.dataset.kind||'')+'_'+String(btn.dataset.variant||'empty');var def=defs[key];if(!def)return;try{if(typeof safe459OpenTemplateIntoPdfWidget==='function'){safe459OpenTemplateIntoPdfWidget(w,el,c,{src:def.src,name:def.name,source:'ekstern-pdf-formular',template:true,kind:def.kind,capacity:'',toast:def.toast});}else{w.data=w.data||{};w.data.src=def.src;w.data.name=def.name;w.data.mimeType='application/pdf';w.data.source='ekstern-pdf-formular';w.data.page=1;w.data.pdfZoom='fit';w.data.pdfInteractive=true;w.data.isPdfTemplate=true;w.data.templateKind=def.kind;try{closeModal();}catch(_e){}try{if(typeof fillContent==='function')fillContent(el,w);else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){}try{if(typeof save==='function')save();}catch(_e){}try{if(typeof toast==='function')toast(def.toast);}catch(_e){}}}catch(err){try{console.warn('l605 PDF-formular kunne ikke åbnes',err);}catch(_e){}try{if(typeof toast==='function')toast('Kunne ikke åbne PDF-formular');}catch(_e){}}};});
     }catch(err){try{console.warn('l605 installPanels failed',err);}catch(_e){}}
   }
   function wrapOpenModal(){try{if(typeof window.safe455uH142OpenPdfOpenModal!=='function')return false;if(window.safe455uH142OpenPdfOpenModal.__l605Wrapped)return true;var prev=window.safe455uH142OpenPdfOpenModal;var wrapped=function(w,el,c){var ret=prev.apply(this,arguments);try{installPanels(document.getElementById('modal'),w,el,c);}catch(_e){}return ret;};wrapped.__l605Wrapped=true;wrapped.__l605Prev=prev;window.safe455uH142OpenPdfOpenModal=wrapped;return true;}catch(_e){return false;}}
@@ -63590,7 +63781,8 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
   'use strict';
   if(window.__l611DataRemixPdfFormImportNinja)return;
   window.__l611DataRemixPdfFormImportNinja=true;
-  var POLL_FORMS={"poll_multi_demo":"pdf/afstemning/afstemning_multi_demo.pdf","poll_multi_tom":"pdf/afstemning/afstemning_multi_tom.pdf","poll_single_demo":"pdf/afstemning/afstemning_single_demo.pdf","poll_single_tom":"pdf/afstemning/afstemning_single_tom.pdf"}
+  var POLL_FORMS={"poll_multi_demo":"pdf/afstemning/afstemning_multi_demo.pdf","poll_multi_tom":"pdf/afstemning/afstemning_multi_tom.pdf","poll_single_demo":"pdf/afstemning/afstemning_single_demo.pdf","poll_single_tom":"pdf/afstemning/afstemning_single_tom.pdf"};
+  try{Object.keys(POLL_FORMS).forEach(function(k){POLL_FORMS[k]=(typeof safe458bResolveAssetPath==='function')?safe458bResolveAssetPath(POLL_FORMS[k]):POLL_FORMS[k];});}catch(_e){}
 
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
   function qs(root,sel){try{return root&&root.querySelector?root.querySelector(sel):null;}catch(_e){return null;}}
@@ -63745,9 +63937,9 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
     if(!def)return;
     try{
       if(typeof safe459OpenTemplateIntoPdfWidget==='function'){
-        safe459OpenTemplateIntoPdfWidget(w,el,c,{src:def.src,name:def.name,source:'indbygget-pdf-formular',template:true,kind:'poll',capacity:def.mode,toast:def.toast});
+        safe459OpenTemplateIntoPdfWidget(w,el,c,{src:def.src,name:def.name,source:'ekstern-pdf-formular',template:true,kind:'poll',capacity:def.mode,toast:def.toast});
       }else{
-        w.data=w.data||{}; w.data.src=def.src; w.data.name=def.name; w.data.mimeType='application/pdf'; w.data.source='indbygget-pdf-formular'; w.data.page=1; w.data.pdfZoom='fit'; w.data.pdfInteractive=true; w.data.isPdfTemplate=true; w.data.templateKind='poll'; w.data.templateMode=def.mode;
+        w.data=w.data||{}; w.data.src=def.src; w.data.name=def.name; w.data.mimeType='application/pdf'; w.data.source='ekstern-pdf-formular'; w.data.page=1; w.data.pdfZoom='fit'; w.data.pdfInteractive=true; w.data.isPdfTemplate=true; w.data.templateKind='poll'; w.data.templateMode=def.mode;
         try{closeModal();}catch(_e){}
         try{if(typeof fillContent==='function')fillContent(el,w);else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){}
         try{if(typeof save==='function')save();}catch(_e){}
@@ -63780,135 +63972,10 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
       wrapped.__l611Wrapped=true; wrapped.__l611Prev=prev; window.safe455uH142OpenPdfOpenModal=wrapped; return true;
     }catch(_e){return false;}
   }
-  if(!wrapPdfOpenModal())setTimeout(wrapPdfOpenModal,0);
+  // l622: PDF-formularpaneler ejes af safe455uH142OpenPdfOpenModal.
+  // Bevar DataRemix-importen, men lad ikke l611 overskrive Afstemning-panelet.
   watchDataRemix();
 })();
 </script>
 
-
-
-<!-- l620-pdf-form-card-tap-delegate-surgical: Slutplaceret ved faktisk </body>. Fixer kun pointer/touch/click på PDF-formularkort. -->
-<script id="l620-pdf-form-card-tap-delegate-surgical">
-(function(){
-  'use strict';
-  if(window.__l620PdfFormCardTapDelegateSurgical)return;
-  window.__l620PdfFormCardTapDelegateSurgical=true;
-
-  var lastBtn=null,lastAt=0;
-
-  function q(sel,root){try{return (root||document).querySelector(sel);}catch(_e){return null;}}
-  function isCardTarget(t){
-    try{
-      return t&&t.closest&&t.closest('#modal .l611PdfPollChoiceCard,#modal .l605PdfFormCard');
-    }catch(_e){return null;}
-  }
-  function stop(e){
-    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
-  }
-  function toast2(msg){try{if(typeof toast==='function')toast(msg);}catch(_e){}}
-  function ctx(){try{return window.__l620PdfOpenCtx||{};}catch(_e){return {};}}
-  function getPdfContext(){
-    var c0=ctx();
-    if(c0&&c0.w&&c0.el)return c0;
-    try{
-      var el=q('.widget[data-type="pdf"].selected')||q('.widget[data-type="pdf"]');
-      if(!el)return c0||{};
-      var w=null;
-      try{if(typeof findWidget==='function')w=findWidget(el.dataset.id);}catch(_e){}
-      try{if(!w&&typeof slide==='function')w=(slide().widgets||[]).find(function(x){return x&&String(x.id)===String(el.dataset.id);});}catch(_e){}
-      var c=q('.content.pdf',el)||q('.content',el);
-      return {w:w,el:el,c:c};
-    }catch(_e){return c0||{};}
-  }
-  function readDef(btn){
-    try{
-      if(!btn)return null;
-      if(btn.classList.contains('l611PdfPollChoiceCard')){
-        var k=String(btn.dataset.key||'');
-        var poll={
-          single_empty:{src:'pdf/afstemning/afstemning_single_tom.pdf',name:'Tavle_Afstemning_enkeltvalg_tom.pdf',kind:'poll',capacity:'single',toast:'Afstemningsformular med enkeltvalg åbnet'},
-          single_demo:{src:'pdf/afstemning/afstemning_single_demo.pdf',name:'Tavle_Afstemning_enkeltvalg_demo.pdf',kind:'poll',capacity:'single',toast:'Afstemningsdemo med enkeltvalg åbnet'},
-          multi_empty:{src:'pdf/afstemning/afstemning_multi_tom.pdf',name:'Tavle_Afstemning_flervalg_tom.pdf',kind:'poll',capacity:'multi',toast:'Afstemningsformular med flervalg åbnet'},
-          multi_demo:{src:'pdf/afstemning/afstemning_multi_demo.pdf',name:'Tavle_Afstemning_flervalg_demo.pdf',kind:'poll',capacity:'multi',toast:'Afstemningsdemo med flervalg åbnet'}
-        };
-        return poll[k]||null;
-      }
-      if(btn.classList.contains('l605PdfFormCard')){
-        var key=String(btn.dataset.kind||'')+'_'+String(btn.dataset.variant||'empty');
-        var defs={
-          poll_empty:{src:'pdf/afstemning/Tavle_Afstemning_PDF_formular_tom.pdf',name:'Tavle_Afstemning_PDF_formular_tom.pdf',kind:'poll',capacity:'',toast:'Afstemningsformular åbnet'},
-          poll_demo:{src:'pdf/afstemning/Tavle_Afstemning_PDF_formular_demo.pdf',name:'Tavle_Afstemning_PDF_formular_demo.pdf',kind:'poll',capacity:'',toast:'Afstemning-demo åbnet som PDF-formular'},
-          wheel_empty:{src:'pdf/lykkehjul/Tavle_Lykkehjulet_PDF_formular_tom.pdf',name:'Tavle_Lykkehjulet_PDF_formular_tom.pdf',kind:'wheel',capacity:'',toast:'Lykkehjulet-formular åbnet'},
-          wheel_demo:{src:'pdf/lykkehjul/Tavle_Lykkehjulet_PDF_formular_demo.pdf',name:'Tavle_Lykkehjulet_PDF_formular_demo.pdf',kind:'wheel',capacity:'',toast:'Lykkehjulet-demo åbnet som PDF-formular'},
-          groups_empty:{src:'pdf/grupper/Tavle_Grupper_PDF_formular_tom.pdf',name:'Tavle_Grupper_PDF_formular_tom.pdf',kind:'groups',capacity:'',toast:'Gruppeformular åbnet'},
-          groups_demo:{src:'pdf/grupper/Tavle_Grupper_PDF_formular_demo.pdf',name:'Tavle_Grupper_PDF_formular_demo.pdf',kind:'groups',capacity:'',toast:'Grupper-demo åbnet som PDF-formular'}
-        };
-        return defs[key]||null;
-      }
-    }catch(_e){}
-    return null;
-  }
-  function openDef(def){
-    if(!def)return false;
-    var cc=getPdfContext();
-    var w=cc&&cc.w, el=cc&&cc.el, c=cc&&cc.c;
-    if(!w){toast2('Kunne ikke finde PDF-widgetten');return false;}
-    try{
-      if(typeof safe459OpenTemplateIntoPdfWidget==='function'){
-        safe459OpenTemplateIntoPdfWidget(w,el,c,{src:def.src,name:def.name,source:'ekstern-pdf-formular',template:true,kind:def.kind,capacity:def.capacity||'',toast:def.toast});
-      }else{
-        w.data=w.data||{};
-        w.data.src=def.src; w.data.name=def.name; w.data.mimeType='application/pdf';
-        w.data.source='ekstern-pdf-formular'; w.data.page=1; w.data.pdfZoom='fit';
-        w.data.pdfInteractive=true; w.data.isPdfTemplate=true; w.data.templateKind=def.kind||''; w.data.templateCapacity=def.capacity||'';
-        delete w.data.url; delete w.data.fileMediaRef; delete w.data.pages;
-        try{closeModal();}catch(_e){}
-        try{if(typeof fillContent==='function')fillContent(el,w);else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){}
-        try{if(typeof save==='function')save();}catch(_e){}
-        toast2(def.toast||'PDF-formular åbnet');
-      }
-      return true;
-    }catch(err){
-      try{console.warn('l620 kunne ikke åbne PDF-formular',err);}catch(_e){}
-      toast2('Kunne ikke åbne PDF-formular');
-      return false;
-    }
-  }
-  function handle(e){
-    try{
-      var btn=isCardTarget(e.target);
-      if(!btn)return;
-      var now=Date.now();
-      if(btn===lastBtn && now-lastAt<650){stop(e);return false;}
-      lastBtn=btn; lastAt=now;
-      stop(e);
-
-      // Først brug den eksisterende ejer-handler, hvis den findes.
-      if(typeof btn.onclick==='function'){
-        try{btn.onclick.call(btn,e);return false;}catch(err){try{console.warn('l620 eksisterende korthandler fejlede; bruger fallback',err);}catch(_e){}}
-      }
-      openDef(readDef(btn));
-      return false;
-    }catch(_e){return false;}
-  }
-  function wrapOpenModal(){
-    try{
-      if(typeof window.safe455uH142OpenPdfOpenModal!=='function')return false;
-      if(window.safe455uH142OpenPdfOpenModal.__l620CtxWrapped)return true;
-      var prev=window.safe455uH142OpenPdfOpenModal;
-      var wrapped=function(w,el,c){
-        window.__l620PdfOpenCtx={w:w,el:el,c:c};
-        return prev.apply(this,arguments);
-      };
-      try{Object.keys(prev).forEach(function(k){wrapped[k]=prev[k];});}catch(_e){}
-      wrapped.__l620CtxWrapped=true;
-      wrapped.__l620Prev=prev;
-      window.safe455uH142OpenPdfOpenModal=wrapped;
-      return true;
-    }catch(_e){return false;}
-  }
-  if(!wrapOpenModal())setTimeout(wrapOpenModal,0);
-  ['pointerup','touchend','click'].forEach(function(ev){document.addEventListener(ev,handle,true);});
-})();
-</script>
 </body></html>
