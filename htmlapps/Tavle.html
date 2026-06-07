@@ -1,6 +1,6 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!doctype html>
-<!-- l629-pdf-filled-student-download: Bygger på l628. Kirurgisk PDFWidget-ejer-fix: ny Hent udfyldt PDF-knap skriver Tavles gemte PDF-formularfelter tilbage i en ny PDF-fil, så lærerens udfyldte afstemningsskabelon kan deles med eleverne. PDF-rendering/DataRemix/KaPardy/spejlwidgets uændret. -->
+<!-- l631-pdf-student-export-other-owner: Bygger på l629/l630. Kirurgisk PDFWidget-ejer-fix: Elev-PDF-eksport springer elevsvarfelter over, skjuler tomme svarmuligheder, og bruger lærerens markering ved Andet som "medtag Andet" i stedet for et elevsvar. PDF-rendering/DataRemix/KaPardy/spejlwidgets uændret. -->
 <!-- l628-help-arrow-owner-cleanup-l622: Bygger direkte på l622 med l627-rettelsen. Kirurgisk fix i Hjælp-ejeren: Hjælps keydown-handler fjernes nu fra document, window og modal før genåbning/lukning, så gamle Hjælp-handlere ikke kan sluge ←/→ efter åbning fra DataRemix-?. Ingen PDF-, KaPardy-, DataRemix-motor- eller spejl-widget-ændringer. -->
 <!-- l622-pdf-forms-owned-by-open-modal: Bygger på l621. Flytter Afstemning/Lykkehjul/Grupper-formularkort ind i den eksisterende Åbn PDF-ejerfunktion, så de bruger samme lokale/eksterne PDF-åbning som KaPardy. De gamle l605/l611 modal-wrappers springes over; DataRemix-import bevares. Ingen indlejrede PDFer. -->
 <!-- l621-local-external-pdf-paths: Bygger på l617. Kirurgisk rettelse: alle eksterne PDF-formularstier og demo-PDF-stier løses med safe458bResolveAssetPath, så lokal HTML bruger GitHub Pages-base uden at indlejre PDFer. Ingen ny modal-template, ingen DataRemix/PDF-render/KaPardy-ændringer. -->
@@ -347,7 +347,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.127 l627-dataremix-help-bridge-l622</title>
+<title>Interaktiv tavle v1.2.131 l631-pdf-student-export-other-owner</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -18688,7 +18688,7 @@ function safe455uH142OpenPdfOpenModal(w,el,c){
       <div class="safe455uH149Panel" data-panel="poll">
         <div class="safe455uH149Section">
           <div class="safe455uH149SectionTitle"><b>Afstemningsformular</b><small>Del og saml svar via DataRemix</small></div>
-          <p class="l611PollChoiceNote">Brug enkeltvalg, når hver elev kun må vælge ét svar. Brug flervalg, når flere svar må markeres. Andet er en fri svarmulighed.</p>
+          <p class="l611PollChoiceNote">Brug enkeltvalg, når hver elev kun må vælge ét svar. Brug flervalg, når flere svar må markeres. Markér Andet i PDF’en, hvis eleverne skal have en fri svarmulighed.</p>
           <div class="safe455uH149CardGrid">
             <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="poll" data-mode="single" data-src="pdf/afstemning/afstemning_single_tom.pdf" data-name="afstemning_single_tom.pdf" data-toast="Afstemningsformular med enkeltvalg åbnet"><b>Enkeltvalg · tom</b><small>Tom PDF med ét valg pr. elev.</small></button>
             <button type="button" class="safe455uH144TemplateCard active safe622PdfFormCard" data-kind="poll" data-mode="single" data-src="pdf/afstemning/afstemning_single_demo.pdf" data-name="afstemning_single_demo.pdf" data-toast="Afstemningsdemo med enkeltvalg åbnet"><b>Enkeltvalg · demo</b><small>Spørgsmål og svar udfyldt som eksempel.</small></button>
@@ -19313,9 +19313,11 @@ function pdfJsGoPage(w,c,delta){
 }
 
 
-/* l629: Hent udfyldt PDF fra PDFWidget.
+/* l629/l631: Hent elev-PDF fra PDFWidget.
    Kirurgisk placeret ved PDF-formular-ejeren: bruger samme PDF-kilde som renderingen,
-   men ændrer ikke PDF-rendering, DataRemix, KaPardy eller eksisterende Hent-knap. */
+   men ændrer ikke PDF-rendering, DataRemix, KaPardy eller eksisterende Hent-knap.
+   l631: Elevsvarfelter skrives ikke ind i den genererede elev-PDF. En lærermarkering ved Andet
+   betyder kun, at Andet-rækken skal med til eleven. */
 let __safe629PdfLibLoadPromise=null;
 function safe629EnsurePdfLib(){
   if(window.PDFLib&&window.PDFLib.PDFDocument)return Promise.resolve(window.PDFLib);
@@ -19361,8 +19363,187 @@ async function safe629GetOriginalPdfBytes(w){
   return new Uint8Array(await res.arrayBuffer());
 }
 function safe629FieldLooksLikeStudentAnswer(name){
-  const n=String(name||'').toLowerCase();
-  return /(^|_)(choice|selected|check|other_selected|student|elev|answer_choice)(_|$)/.test(n) || /poll_other_text|poll_other$|andet$/.test(n);
+  const n=String(name||'').toLowerCase().replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g,'aa');
+  // Elevfelter må ikke låses i den PDF, læreren deler med eleverne.
+  // Særligt vigtigt: Andet-feltet skal stadig kunne skrives i, når eleven vælger Andet.
+  if(/(student|elev|choice|selected|check|poll_choice|poll_selected|poll_check)/.test(n))return true;
+  if(/(other|andet|kommentar|comment|note|fri_svar|frisvar)/.test(n) && !/(question|sporgsmaal|spoergsmaal)/.test(n))return true;
+  return false;
+}
+function safe630PollOptionIndexFromFieldName(name){
+  const n=String(name||'').toLowerCase().replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g,'aa');
+  const m=n.match(/(?:^|_)(?:poll_)?(?:option|answer|svar)_?(\d{1,2})(?:_|$)?/) || n.match(/(?:^|_)svar\s*(\d{1,2})(?:_|$)?/);
+  const idx=m?parseInt(m[1],10):0;
+  return idx>0&&idx<=20?idx:0;
+}
+function safe630CleanFieldValue(v){return String(v==null?'':v).replace(/^\//,'').trim();}
+
+function safe631IsTruthyPdfChoiceValue(v){
+  const s=String(v==null?'':v).trim().replace(/^\//,'').toLowerCase();
+  if(!s)return false;
+  return !(/^(false|0|off|nej|no|unchecked|none|null|undefined)$/i.test(s));
+}
+function safe631ValueSaysOther(v){
+  const s=String(v==null?'':v).trim().replace(/^\//,'').toLowerCase().replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g,'aa');
+  return /^(other|andet|fri|frisvar|free|custom)$/.test(s) || /(^|[_\s-])(other|andet)([_\s-]|$)/.test(s);
+}
+function safe631IsOtherFieldName(name){
+  const n=String(name||'').toLowerCase().replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g,'aa');
+  return /(other|andet|fri_svar|frisvar)/.test(n) && !/(question|sporgsmaal|spoergsmaal)/.test(n);
+}
+function safe631OtherIncludeRequested(data){
+  try{
+    data=data||{};
+    const keys=Object.keys(data);
+    for(let i=0;i<keys.length;i++){
+      const k=String(keys[i]||'');
+      const n=k.toLowerCase().replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g,'aa');
+      const v=data[k];
+      // Lærerens markering ved Andet bruges som "Andet skal med til eleven".
+      if(/(poll_)?(other|andet).*(selected|choice|check|include|medtag|valgt)/.test(n) && safe631IsTruthyPdfChoiceValue(v))return true;
+      if(/(choice|selected|check)$/.test(n) && safe631ValueSaysOther(v))return true;
+      if(/poll_choice$|poll_selected$|student_choice$/.test(n) && safe631ValueSaysOther(v))return true;
+    }
+  }catch(_e){}
+  return false;
+}
+function safe631ClearStudentAnswerField(field){
+  try{if(field&&typeof field.uncheck==='function'){field.uncheck();return true;}}catch(_e){}
+  try{if(field&&typeof field.setText==='function'){field.setText('');return true;}}catch(_e){}
+  try{if(field&&typeof field.select==='function'&&typeof field.getOptions==='function'){
+    // Radio/dropdownfelter har ikke altid en egentlig "tom" værdi i pdf-lib. Her undgår vi først og fremmest
+    // at skrive lærerens midlertidige markering ind i elev-PDF'en.
+    return false;
+  }}catch(_e){}
+  return false;
+}
+function safe631HideOtherRowIfNotIncluded(pdfDoc,form,data,PDFLib){
+  try{
+    if(!safe630IsPollTemplateLike(form))return 0;
+    if(safe631OtherIncludeRequested(data))return 0;
+    const firstPage=pdfDoc.getPages()[0];
+    if(!firstPage)return 0;
+    const fields=form.getFields();
+    const otherRows=[];
+    fields.forEach(function(field){
+      const name=String(field&&field.getName&&field.getName()||'');
+      if(!safe631IsOtherFieldName(name))return;
+      const rects=safe630GetFieldRects(field);
+      rects.forEach(function(r){otherRows.push({rect:r,field:field});});
+      safe630HideWholeField(field,PDFLib);
+    });
+    if(!otherRows.length)return 0;
+    fields.forEach(function(field){
+      const rects=safe630GetFieldRects(field);
+      rects.forEach(function(r){
+        if(otherRows.some(function(row){return safe630SameRow(row.rect,r);}))safe630HidePdfWidgetAnnotation(r.widget,PDFLib);
+      });
+    });
+    otherRows.forEach(function(row){safe630DrawWhiteRow(firstPage,row.rect);});
+    return otherRows.length;
+  }catch(err){try{console.warn('l631 Andet-række kunne ikke skjules',err);}catch(_e){} return 0;}
+}
+function safe630IsPollTemplateLike(form){
+  try{return form.getFields().some(function(f){return /poll_|afstem|svar|sporgsmaal|spoergsmaal|question/i.test(String(f.getName&&f.getName()||''));});}catch(_e){return false;}
+}
+function safe630GetFieldRects(field){
+  const rects=[];
+  try{
+    const ws=field&&field.acroField&&field.acroField.getWidgets?field.acroField.getWidgets():[];
+    (ws||[]).forEach(function(w){
+      try{
+        const r=w.getRectangle?w.getRectangle():null;
+        if(r&&isFinite(r.x)&&isFinite(r.y)&&isFinite(r.width)&&isFinite(r.height))rects.push({x:r.x,y:r.y,width:r.width,height:r.height,widget:w});
+      }catch(_e){}
+    });
+  }catch(_e){}
+  return rects;
+}
+function safe630HidePdfWidgetAnnotation(widget,PDFLib){
+  try{if(widget&&widget.setFlagTo&&PDFLib&&PDFLib.AnnotationFlags){widget.setFlagTo(PDFLib.AnnotationFlags.Hidden,true);return true;}}catch(_e){}
+  try{
+    if(widget&&widget.dict&&PDFLib&&PDFLib.PDFName&&PDFLib.PDFNumber){
+      // PDF annotation flag Hidden = 2. Bruges kun på den konkrete widget-annotation.
+      widget.dict.set(PDFLib.PDFName.of('F'),PDFLib.PDFNumber.of(2));
+      return true;
+    }
+  }catch(_e){}
+  return false;
+}
+function safe630HideWholeField(field,PDFLib){
+  try{
+    const ws=field&&field.acroField&&field.acroField.getWidgets?field.acroField.getWidgets():[];
+    (ws||[]).forEach(function(w){safe630HidePdfWidgetAnnotation(w,PDFLib);});
+    try{if(field&&field.enableReadOnly)field.enableReadOnly();}catch(_e){}
+    return true;
+  }catch(_e){return false;}
+}
+function safe630RectCenterY(r){return Number(r&&r.y||0)+Number(r&&r.height||0)/2;}
+function safe630SameRow(a,b){
+  const ay=safe630RectCenterY(a), by=safe630RectCenterY(b);
+  const tol=Math.max(10,Number(a&&a.height||0),Number(b&&b.height||0))*0.9;
+  return Math.abs(ay-by)<=tol;
+}
+function safe630DrawWhiteRow(page,r){
+  try{
+    if(!page||!r)return;
+    const x=Math.max(0,Number(r.x||0)-72);
+    const y=Math.max(0,Number(r.y||0)-7);
+    const width=Math.min(Number(page.getWidth?page.getWidth():595)-x,Number(r.width||0)+125);
+    const height=Math.max(16,Number(r.height||0)+14);
+    page.drawRectangle({x:x,y:y,width:Math.max(12,width),height:height,color:window.PDFLib.rgb(1,1,1),borderColor:window.PDFLib.rgb(1,1,1),borderWidth:0});
+  }catch(_e){}
+}
+function safe630GetFormFieldValue(field,data){
+  try{const name=String(field.getName&&field.getName()||''); if(data&&data[name]!=null)return safe630CleanFieldValue(data[name]);}catch(_e){}
+  try{if(field&&field.getText)return safe630CleanFieldValue(field.getText());}catch(_e){}
+  try{if(field&&field.getSelected)return safe630CleanFieldValue((field.getSelected()||[]).join(', '));}catch(_e){}
+  return '';
+}
+function safe630HideEmptyPollOptions(pdfDoc,form,data,PDFLib){
+  try{
+    if(!safe630IsPollTemplateLike(form))return 0;
+    const firstPage=pdfDoc.getPages()[0];
+    if(!firstPage)return 0;
+    const fields=form.getFields();
+    const optionRows=[];
+    fields.forEach(function(field){
+      const name=String(field&&field.getName&&field.getName()||'');
+      const idx=safe630PollOptionIndexFromFieldName(name);
+      if(!idx)return;
+      const val=safe630GetFormFieldValue(field,data);
+      // Kun tomme nummererede svarmuligheder skjules. Andet-feltet er elevens fritekstfelt og bevares.
+      if(val)return;
+      const rects=safe630GetFieldRects(field);
+      rects.forEach(function(r){optionRows.push({idx:idx,rect:r,field:field});});
+      safe630HideWholeField(field,PDFLib);
+    });
+    if(!optionRows.length)return 0;
+    // Skjul radio-/checkbox-knapper på samme række som tomme svarmuligheder.
+    fields.forEach(function(field){
+      const name=String(field&&field.getName&&field.getName()||'').toLowerCase();
+      const looksChoice=/(choice|selected|check)/.test(name) || (field&&field.constructor&&/button|radio|check/i.test(String(field.constructor.name||'')));
+      if(!looksChoice)return;
+      const rects=safe630GetFieldRects(field);
+      rects.forEach(function(r){
+        if(optionRows.some(function(row){return safe630SameRow(row.rect,r);}))safe630HidePdfWidgetAnnotation(r.widget,PDFLib);
+      });
+    });
+    optionRows.forEach(function(row){safe630DrawWhiteRow(firstPage,row.rect);});
+    return optionRows.length;
+  }catch(err){try{console.warn('l630 tomme afstemningssvar kunne ikke skjules',err);}catch(_e){} return 0;}
+}
+async function safe630AddStudentPdfNote(pdfDoc,PDFLib){
+  try{
+    const page=pdfDoc.getPages()[0];
+    if(!page||!PDFLib||!PDFLib.StandardFonts)return;
+    const font=await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+    const w=page.getWidth?page.getWidth():595;
+    const text="Elev: Vælg dit svar. Hvis Andet er med, kan du skrive i feltet. På iPad: brug Del/download og aflever eller Gem i Arkiver.";
+    const y=18;
+    page.drawRectangle({x:28,y:y-5,width:Math.max(120,w-56),height:24,color:PDFLib.rgb(0.92,0.97,1),borderColor:PDFLib.rgb(0.78,0.90,1),borderWidth:0.5});
+    page.drawText(text,{x:38,y:y+3,size:8.8,font:font,color:PDFLib.rgb(0.10,0.18,0.30),maxWidth:w-76});
+  }catch(_e){}
 }
 function safe629SetPdfLibFieldValue(field,value){
   if(!field)return false;
@@ -19385,17 +19566,27 @@ async function safe629DownloadFilledPdfWidget(w){
     const pdfDoc=await PDFLib.PDFDocument.load(bytes,{ignoreEncryption:true});
     const form=pdfDoc.getForm();
     let setCount=0,readOnlyCount=0;
+    const includeOther=safe631OtherIncludeRequested(data);
     keys.forEach(function(key){
       try{
         const field=form.getField(String(key));
+        // Elevsvarfelter skal være tomme og udfyldbare i den PDF, læreren deler med eleverne.
+        // Hvis læreren har markeret Andet, bruges markeringen kun som "medtag Andet" – ikke som elevens svar.
+        if(field && safe629FieldLooksLikeStudentAnswer(key)){
+          safe631ClearStudentAnswerField(field);
+          return;
+        }
         if(safe629SetPdfLibFieldValue(field,data[key]))setCount++;
         // I elev-PDF'en låses lærerens udfyldte spørgsmål/svarmuligheder, men elevens svarfelter bevares udfyldbare.
-        if(field && !safe629FieldLooksLikeStudentAnswer(key) && typeof field.enableReadOnly==='function'){
+        if(field && typeof field.enableReadOnly==='function'){
           try{field.enableReadOnly();readOnlyCount++;}catch(_e){}
         }
       }catch(_e){}
     });
     if(!setCount){try{toast('Ingen PDF-felter matchede de udfyldte felter');}catch(_e){} return false;}
+    const hiddenEmptyOptions=safe630HideEmptyPollOptions(pdfDoc,form,data,PDFLib);
+    const hiddenOther=safe631HideOtherRowIfNotIncluded(pdfDoc,form,data,PDFLib);
+    if(safe630IsPollTemplateLike(form))await safe630AddStudentPdfNote(pdfDoc,PDFLib);
     try{form.updateFieldAppearances();}catch(_e){}
     const outBytes=await pdfDoc.save({useObjectStreams:false,updateFieldAppearances:true});
     const base=String(w.data.name||w.title||'Afstemning').replace(/\.pdf$/i,'').trim()||'Afstemning';
@@ -19405,7 +19596,8 @@ async function safe629DownloadFilledPdfWidget(w){
     else{
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);
     }
-    try{toast('Udfyldt PDF hentet'+(readOnlyCount?' · lærerfelter låst':''));}catch(_e){}
+    try{toast('Elev-PDF hentet'+(readOnlyCount?' · lærerfelter låst':'')+(hiddenEmptyOptions?' · tomme svar skjult':'')+(hiddenOther?' · Andet skjult':'')+(includeOther?' · Andet medtaget':''));}catch(_e){}
+    try{setTimeout(function(){toast('På iPad: brug Del → Gem i Arkiver eller aflever i Classroom');},900);}catch(_e){}
     return true;
   }catch(err){
     try{console.warn('l629 udfyldt PDF kunne ikke hentes',err);}catch(_e){}
@@ -19416,7 +19608,7 @@ async function safe629DownloadFilledPdfWidget(w){
 
 /* SAFE455uH45g10l103: PDF-formularoverlay i redigeringstilstand.
    Formularsvar gemmes i w.data.pdfFormData og kan kobles som rigtig DataWidget.
-   l629: PDFWidgetten kan nu hente en ny PDF-kopi med de udfyldte felter. */
+   l629/l631: PDFWidgetten kan nu hente en elev-PDF med lærerfelter udfyldt/låst og elevfelter åbne. */
 function safe455uH102PdfFormKey(a,i){
   return String((a&&(a.fieldName||a.id||a.ref&&a.ref.num||a.annotationType))||('felt_'+(i+1))).trim()||('felt_'+(i+1));
 }
@@ -32593,7 +32785,7 @@ if(w.type==='drawcopy'){
         </div>
         <div class="pdfGroup pdfFormGroup" aria-label="PDF-formular">
           <button class="pdfFormToggle ${w.data&&w.data.pdfInteractive?'pdfFormOn':''}" title="Aktivér formularfelter og links i redigeringstilstand">✍️ Udfyld</button>
-          ${(src||hasPdfFileRef)?'<button class="pdfFilledDownload" title="Hent en ny PDF med de udfyldte formularfelter – klar til at dele med eleverne">⬇ Udfyldt</button>':''}
+          ${(src||hasPdfFileRef)?'<button class="pdfFilledDownload" title="Hent elev-PDF med lærerens spørgsmål og svar. Elevfelter er stadig udfyldbare.">⬇ Elev-PDF</button>':''}
         </div>
       </div>
     </div>
@@ -63953,7 +64145,7 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
       var panel=qs(root,'.safe455uH149Panel[data-panel="poll"]');
       if(!panel)return;
       root.dataset.l611PollChoiceFormsReady='1';
-      panel.innerHTML='<div class="safe455uH149Section"><div class="safe455uH149SectionTitle"><b>Afstemningsformular</b><small>Del og saml svar via DataRemix</small></div><p class="l611PollChoiceNote">Brug enkeltvalg, når hver elev kun må vælge ét svar. Brug flervalg, når flere svar må markeres. Andet er en fri svarmulighed.</p><div class="safe455uH149CardGrid">'+card('single_empty','Enkeltvalg · tom','Tom PDF med ét valg pr. elev.')+card('single_demo','Enkeltvalg · demo','Spørgsmål og svar udfyldt som eksempel.')+card('multi_empty','Flervalg · tom','Tom PDF med flere mulige valg.')+card('multi_demo','Flervalg · demo','Spørgsmål og svar udfyldt som eksempel.')+'</div></div>';
+      panel.innerHTML='<div class="safe455uH149Section"><div class="safe455uH149SectionTitle"><b>Afstemningsformular</b><small>Del og saml svar via DataRemix</small></div><p class="l611PollChoiceNote">Brug enkeltvalg, når hver elev kun må vælge ét svar. Brug flervalg, når flere svar må markeres. Markér Andet i PDF’en, hvis eleverne skal have en fri svarmulighed.</p><div class="safe455uH149CardGrid">'+card('single_empty','Enkeltvalg · tom','Tom PDF med ét valg pr. elev.')+card('single_demo','Enkeltvalg · demo','Spørgsmål og svar udfyldt som eksempel.')+card('multi_empty','Flervalg · tom','Tom PDF med flere mulige valg.')+card('multi_demo','Flervalg · demo','Spørgsmål og svar udfyldt som eksempel.')+'</div></div>';
       var defs={
         single_empty:{src:POLL_FORMS.poll_single_tom,name:'Tavle_Afstemning_enkeltvalg_tom.pdf',mode:'single',toast:'Afstemningsformular med enkeltvalg åbnet'},
         single_demo:{src:POLL_FORMS.poll_single_demo,name:'Tavle_Afstemning_enkeltvalg_demo.pdf',mode:'single',toast:'Afstemningsdemo med enkeltvalg åbnet'},
