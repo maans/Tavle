@@ -1,5 +1,6 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!doctype html>
+<!-- l620-pdf-form-card-tap-delegate-surgical: Bygger direkte på l617. Kun et slutplaceret script ved faktisk dokument-slut: robust tap/click på eksterne PDF-formularkort i Åbn PDF. Ingen indsættelse i HTML-template-strenge, ingen DataRemix/PDF-render/KaPardy-ændringer. -->
 <!-- l617-external-pdf-tabs-owner-call: Bygger på l615. Kirurgisk fix: PDF Åbn-knappen kalder window.safe455uH142OpenPdfOpenModal, så eksisterende l605/l611 modal-wrappers kan aktivere eksterne Afstemning/Lykkehjul/Grupper-faner. Ingen ny template/string-patch. -->
 
 <!-- l615-external-pdf-test-only: Bygger direkte på fungerende l611. Kun PDF-data-url’er er erstattet med eksterne pdf/-stier; DataRemix/PDF-render/Mere-menu røres ikke. Test-HTML før repo-pakke. -->
@@ -63784,4 +63785,130 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
 })();
 </script>
 
+
+
+<!-- l620-pdf-form-card-tap-delegate-surgical: Slutplaceret ved faktisk </body>. Fixer kun pointer/touch/click på PDF-formularkort. -->
+<script id="l620-pdf-form-card-tap-delegate-surgical">
+(function(){
+  'use strict';
+  if(window.__l620PdfFormCardTapDelegateSurgical)return;
+  window.__l620PdfFormCardTapDelegateSurgical=true;
+
+  var lastBtn=null,lastAt=0;
+
+  function q(sel,root){try{return (root||document).querySelector(sel);}catch(_e){return null;}}
+  function isCardTarget(t){
+    try{
+      return t&&t.closest&&t.closest('#modal .l611PdfPollChoiceCard,#modal .l605PdfFormCard');
+    }catch(_e){return null;}
+  }
+  function stop(e){
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+  }
+  function toast2(msg){try{if(typeof toast==='function')toast(msg);}catch(_e){}}
+  function ctx(){try{return window.__l620PdfOpenCtx||{};}catch(_e){return {};}}
+  function getPdfContext(){
+    var c0=ctx();
+    if(c0&&c0.w&&c0.el)return c0;
+    try{
+      var el=q('.widget[data-type="pdf"].selected')||q('.widget[data-type="pdf"]');
+      if(!el)return c0||{};
+      var w=null;
+      try{if(typeof findWidget==='function')w=findWidget(el.dataset.id);}catch(_e){}
+      try{if(!w&&typeof slide==='function')w=(slide().widgets||[]).find(function(x){return x&&String(x.id)===String(el.dataset.id);});}catch(_e){}
+      var c=q('.content.pdf',el)||q('.content',el);
+      return {w:w,el:el,c:c};
+    }catch(_e){return c0||{};}
+  }
+  function readDef(btn){
+    try{
+      if(!btn)return null;
+      if(btn.classList.contains('l611PdfPollChoiceCard')){
+        var k=String(btn.dataset.key||'');
+        var poll={
+          single_empty:{src:'pdf/afstemning/afstemning_single_tom.pdf',name:'Tavle_Afstemning_enkeltvalg_tom.pdf',kind:'poll',capacity:'single',toast:'Afstemningsformular med enkeltvalg åbnet'},
+          single_demo:{src:'pdf/afstemning/afstemning_single_demo.pdf',name:'Tavle_Afstemning_enkeltvalg_demo.pdf',kind:'poll',capacity:'single',toast:'Afstemningsdemo med enkeltvalg åbnet'},
+          multi_empty:{src:'pdf/afstemning/afstemning_multi_tom.pdf',name:'Tavle_Afstemning_flervalg_tom.pdf',kind:'poll',capacity:'multi',toast:'Afstemningsformular med flervalg åbnet'},
+          multi_demo:{src:'pdf/afstemning/afstemning_multi_demo.pdf',name:'Tavle_Afstemning_flervalg_demo.pdf',kind:'poll',capacity:'multi',toast:'Afstemningsdemo med flervalg åbnet'}
+        };
+        return poll[k]||null;
+      }
+      if(btn.classList.contains('l605PdfFormCard')){
+        var key=String(btn.dataset.kind||'')+'_'+String(btn.dataset.variant||'empty');
+        var defs={
+          poll_empty:{src:'pdf/afstemning/Tavle_Afstemning_PDF_formular_tom.pdf',name:'Tavle_Afstemning_PDF_formular_tom.pdf',kind:'poll',capacity:'',toast:'Afstemningsformular åbnet'},
+          poll_demo:{src:'pdf/afstemning/Tavle_Afstemning_PDF_formular_demo.pdf',name:'Tavle_Afstemning_PDF_formular_demo.pdf',kind:'poll',capacity:'',toast:'Afstemning-demo åbnet som PDF-formular'},
+          wheel_empty:{src:'pdf/lykkehjul/Tavle_Lykkehjulet_PDF_formular_tom.pdf',name:'Tavle_Lykkehjulet_PDF_formular_tom.pdf',kind:'wheel',capacity:'',toast:'Lykkehjulet-formular åbnet'},
+          wheel_demo:{src:'pdf/lykkehjul/Tavle_Lykkehjulet_PDF_formular_demo.pdf',name:'Tavle_Lykkehjulet_PDF_formular_demo.pdf',kind:'wheel',capacity:'',toast:'Lykkehjulet-demo åbnet som PDF-formular'},
+          groups_empty:{src:'pdf/grupper/Tavle_Grupper_PDF_formular_tom.pdf',name:'Tavle_Grupper_PDF_formular_tom.pdf',kind:'groups',capacity:'',toast:'Gruppeformular åbnet'},
+          groups_demo:{src:'pdf/grupper/Tavle_Grupper_PDF_formular_demo.pdf',name:'Tavle_Grupper_PDF_formular_demo.pdf',kind:'groups',capacity:'',toast:'Grupper-demo åbnet som PDF-formular'}
+        };
+        return defs[key]||null;
+      }
+    }catch(_e){}
+    return null;
+  }
+  function openDef(def){
+    if(!def)return false;
+    var cc=getPdfContext();
+    var w=cc&&cc.w, el=cc&&cc.el, c=cc&&cc.c;
+    if(!w){toast2('Kunne ikke finde PDF-widgetten');return false;}
+    try{
+      if(typeof safe459OpenTemplateIntoPdfWidget==='function'){
+        safe459OpenTemplateIntoPdfWidget(w,el,c,{src:def.src,name:def.name,source:'ekstern-pdf-formular',template:true,kind:def.kind,capacity:def.capacity||'',toast:def.toast});
+      }else{
+        w.data=w.data||{};
+        w.data.src=def.src; w.data.name=def.name; w.data.mimeType='application/pdf';
+        w.data.source='ekstern-pdf-formular'; w.data.page=1; w.data.pdfZoom='fit';
+        w.data.pdfInteractive=true; w.data.isPdfTemplate=true; w.data.templateKind=def.kind||''; w.data.templateCapacity=def.capacity||'';
+        delete w.data.url; delete w.data.fileMediaRef; delete w.data.pages;
+        try{closeModal();}catch(_e){}
+        try{if(typeof fillContent==='function')fillContent(el,w);else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);}catch(_e){}
+        try{if(typeof save==='function')save();}catch(_e){}
+        toast2(def.toast||'PDF-formular åbnet');
+      }
+      return true;
+    }catch(err){
+      try{console.warn('l620 kunne ikke åbne PDF-formular',err);}catch(_e){}
+      toast2('Kunne ikke åbne PDF-formular');
+      return false;
+    }
+  }
+  function handle(e){
+    try{
+      var btn=isCardTarget(e.target);
+      if(!btn)return;
+      var now=Date.now();
+      if(btn===lastBtn && now-lastAt<650){stop(e);return false;}
+      lastBtn=btn; lastAt=now;
+      stop(e);
+
+      // Først brug den eksisterende ejer-handler, hvis den findes.
+      if(typeof btn.onclick==='function'){
+        try{btn.onclick.call(btn,e);return false;}catch(err){try{console.warn('l620 eksisterende korthandler fejlede; bruger fallback',err);}catch(_e){}}
+      }
+      openDef(readDef(btn));
+      return false;
+    }catch(_e){return false;}
+  }
+  function wrapOpenModal(){
+    try{
+      if(typeof window.safe455uH142OpenPdfOpenModal!=='function')return false;
+      if(window.safe455uH142OpenPdfOpenModal.__l620CtxWrapped)return true;
+      var prev=window.safe455uH142OpenPdfOpenModal;
+      var wrapped=function(w,el,c){
+        window.__l620PdfOpenCtx={w:w,el:el,c:c};
+        return prev.apply(this,arguments);
+      };
+      try{Object.keys(prev).forEach(function(k){wrapped[k]=prev[k];});}catch(_e){}
+      wrapped.__l620CtxWrapped=true;
+      wrapped.__l620Prev=prev;
+      window.safe455uH142OpenPdfOpenModal=wrapped;
+      return true;
+    }catch(_e){return false;}
+  }
+  if(!wrapOpenModal())setTimeout(wrapOpenModal,0);
+  ['pointerup','touchend','click'].forEach(function(ev){document.addEventListener(ev,handle,true);});
+})();
+</script>
 </body></html>
