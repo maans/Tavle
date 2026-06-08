@@ -1,6 +1,10 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!doctype html>
-<!-- l660-linkcard-size-safe: Bygger på l657. Kun faktisk CSS i sidste styleblok: Link/iFrame-linkkort får mindre titeltekst og afdæmpede pile. Ingen JS/template-ændringer. -->
+<!-- l661-linkcard-buttons-touch: Bygger på l660. Kirurgisk Link/iFrame-rettelse: linkkortets pile og kopiér-knap får robust pointerup+click uden at ændre bjælke-drag, data-kobling eller øvrige widgets. -->
+<!-- l665-timer-space-lapscroll-owner: Bygger på l664. Kirurgisk TimerWidget-ejerfix: Space/Mellemrum får TimerWidgetten før Tavlens Mere-menu, stopurets mellemtidskort viser alle mellemtider i scrollbart felt, og scroll/tap i mellemtidslisten opretter ikke nye mellemtider. Timer-log/datakobling urørt. -->
+<!-- l666-timer-space-scroll-passive-panel: Bygger på l665. Kirurgisk TimerWidget-ejerfix: TimerWidgetten ejer Space/Mellemrum før Mere-menuen, mellemtidslisten får egen scroll-ejer, og stopurets højre panel holdes synligt også når widgetten er passiv. Timer-log/datakobling urørt. -->
+<!-- l664-stopwatch-lap-enter-visible: Bygger på l663. Kirurgisk TimerWidget-ejerfix: stopurets flag/mellemtid gør effekten synlig ved at skifte til visningskort, Enter starter stopur når det står stille og sætter mellemtid når det kører, og timer-genveje finder også fokuseret TimerWidget uden at røre Timer-log/datakobling. -->
+<!-- l663-timer-owner-touch-input-fix: Bygger på l662/l661. Kirurgisk TimerWidget-ejerfix: timerens egne input/select/knapper får lokal touch/pointer-beskyttelse, sekvensrække-klik ignorerer felter, combopopup åbner kun på levende felter, og start/stop/mode/panel/+/- bindes robust uden at røre Timer-log-datakoblingen. -->
 <!-- l657-linkwidget-chrome-touch-guard: Bygger på l655. Kirurgisk fix: Link/iFrame-widgettens bjælkeknapper starter ikke drag på touch; ingen template-strings eller global eventlogik ændret. -->
 <!-- l655-linkwidget-liststatus-open-dataset: Bygger på l654. Kirurgisk fix i Link/iFrame-widgettens egen liste-chip: robust pointerup/click åbner nu den koblede linkliste som DataWidget via linkList-rollen, uden at gå gennem generel data-rolle. -->
 <!-- l653-session-aware-backup-filenames: Bygger på l652. Kirurgisk fix: Gem backup og især Backup+ får sessionsnavn i filnavnet, fx Uge23 - tavle-backup-plus.json, når appen er åbnet med URL#Session. -->
@@ -360,7 +364,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.152 l652-help-pdf-guides-practical-wording</title>
+<title>Interaktiv tavle v1.2.156 l666-timer-space-scroll-passive-panel</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -12853,6 +12857,100 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
   max-width:100%!important;
 }
 
+</style>
+
+
+<style id="l665-timer-stopwatch-lap-scroll-css">
+/* l665: Kun TimerWidgettens stopurkort. Mellemtider skal kunne scrolle på iPad uden at oprette nye mellemtider. */
+.timerTwinShell.timerMode-stopwatch .timerSwGroupCard{
+  cursor:pointer!important;
+  touch-action:manipulation!important;
+}
+.timerTwinShell.timerMode-stopwatch .timerSwGroupLapList,
+.timerTwinShell.timerMode-stopwatch .timerSwGroupLapList *{
+  touch-action:pan-y!important;
+}
+.timerTwinShell.timerMode-stopwatch .timerSwGroupLapList{
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  max-height:clamp(56px,24vh,240px)!important;
+  scrollbar-gutter:stable;
+}
+.timerTwinShell.timerMode-stopwatch .timerSwGroupCard:focus{
+  outline:3px solid rgba(147,197,253,.75)!important;
+  outline-offset:2px!important;
+}
+</style>
+
+<style id="l666-timer-passive-stopwatch-panel-css">
+/* l666: Kun TimerWidgetten. Højre stopurpanel skal ikke forsvinde, når widgetten ikke længere er valgt.
+   Samtidig får mellemtidslisten en ægte pan-y/scroll-flade på iPad. */
+.widget[data-type="timer"] .content{
+  overflow:hidden!important;
+}
+.widget[data-type="timer"] .timerBox.timerV2{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+@media (min-width:760px){
+  .widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-stopwatch{
+    display:grid!important;
+    grid-template-columns:minmax(170px,.45fr) minmax(0,1.55fr)!important;
+    grid-template-areas:
+      "leftMode rightContext"
+      "leftFace rightContext"
+      "leftAlarm rightContext"
+      "leftRun rightContext"
+      "leftLog rightContext"!important;
+    grid-template-rows:auto auto auto auto minmax(0,1fr)!important;
+    column-gap:10px!important;
+    align-items:stretch!important;
+    justify-items:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:100%!important;
+    min-height:0!important;
+    box-sizing:border-box!important;
+  }
+  .widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-stopwatch .timerFace{
+    width:min(210px,100%)!important;
+    max-width:100%!important;
+  }
+  .widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-stopwatch .timerStopwatchPanel{
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    grid-area:rightContext!important;
+    align-self:stretch!important;
+    justify-self:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:100%!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    transform:none!important;
+  }
+}
+.widget[data-type="timer"] .timerSwGroupLapList{
+  touch-action:pan-y!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  scrollbar-gutter:stable!important;
+}
+.widget[data-type="timer"] .timerSwGroupLapList .timerSwGroupLap{
+  touch-action:pan-y!important;
+}
+.widget[data-type="timer"] .timerSwGroupCard{
+  touch-action:pan-y manipulation!important;
+}
 </style>
 
 </head>
@@ -35093,18 +35191,24 @@ function wireWidget(el,w){
     select(w.id,{editText:false});
     safe453i80OpenAddLinkModal(w,{current:false});
   };
+  /* l661: Linkkortets pile skal virke både med mus og touch på iPad.
+     Bindingen ligger i LinkWidget-ejeren og bruger den eksisterende navigation. */
+  function safe661BindLinkTap(btn,fn){
+    if(!btn||btn.__safe661TapBound)return;
+    btn.__safe661TapBound=true;
+    let lastPointer=0;
+    const run=e=>{
+      if(e){e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+      select(w.id,{editText:false});
+      fn(e);
+    };
+    btn.addEventListener('pointerup',e=>{lastPointer=Date.now();run(e);},{passive:false});
+    btn.addEventListener('click',e=>{if(Date.now()-lastPointer<650){e.preventDefault();e.stopPropagation();return;}run(e);},{passive:false});
+  }
   const safe453i79Prev=el.querySelector('.safe453i79Prev');
-  if(safe453i79Prev)safe453i79Prev.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
-    select(w.id,{editText:false});
-    safe453i79NavigateLinkList(w,-1);
-  };
+  safe661BindLinkTap(safe453i79Prev,()=>safe453i79NavigateLinkList(w,-1));
   const safe453i79Next=el.querySelector('.safe453i79Next');
-  if(safe453i79Next)safe453i79Next.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
-    select(w.id,{editText:false});
-    safe453i79NavigateLinkList(w,1);
-  };
+  safe661BindLinkTap(safe453i79Next,()=>safe453i79NavigateLinkList(w,1));
 const renameMediaBtn=el.querySelector('[data-act=renameMedia]');
   if(renameMediaBtn)renameMediaBtn.onclick=e=>{
     e.preventDefault();
@@ -36061,7 +36165,9 @@ function safe453i185aaCloseCombo(){
 }
 function safe453i185aaOpenCombo(inp,c,w){
   try{
-    if(!inp||inp.disabled||inp.readOnly)return;
+    // l663: Åbn kun den lille talmenu for et felt, der stadig findes i den aktuelle TimerWidget.
+    // Hvis rækken er blevet re-renderet efter et tap, kan et gammelt timeout ellers placere menuen i tavlens øverste venstre hjørne.
+    if(!inp||!inp.isConnected||(c&&!c.contains(inp))||inp.disabled||inp.readOnly)return;
     safe453i185aaCloseCombo();
     const kind=inp.classList.contains('timerSeqSec')?'sec':'min';
     const pop=document.createElement('div');
@@ -36089,6 +36195,7 @@ function safe453i185aaOpenCombo(inp,c,w){
     });
     document.body.appendChild(pop);
     const r=inp.getBoundingClientRect();
+    if(!r || (r.width<=0 && r.height<=0))return;
     const pw=Math.max(132,Math.round(r.width*1.9));
     pop.style.width=pw+'px';
     const left=Math.max(8,Math.min(window.innerWidth-pw-8,Math.round(r.left)));
@@ -36556,13 +36663,14 @@ function safe453i185cStopwatchViewHtml(w,running){
         const idx=Math.max(0,Math.min(list.length-1,Math.floor(Number(g.swIndex)||0)));
         const laps=Array.isArray(g.laps)?g.laps:[];
         const latest=laps.length?laps[laps.length-1]:null;
-        const recent=laps.slice(-5).reverse().map(l=>`<div class="timerSwGroupLap"><b>${esc(String(l.nr||''))}</b><span>${esc(l.time||fmt(l.seconds||0))}</span></div>`).join('');
-        return `<button type="button" class="timerSwGroupCard ${idx===active?'active':''}" data-sw-index="${esc(String(idx))}" role="listitem" title="${running?'Klik for mellemtid':'Klik for at vælge gruppe'}">
+        // l665: Vis alle mellemtider. Listen scroller inde i kortet med de nyeste øverst.
+        const recent=laps.slice().reverse().map(l=>`<div class="timerSwGroupLap"><b>${esc(String(l.nr||''))}</b><span>${esc(l.time||fmt(l.seconds||0))}</span></div>`).join('');
+        return `<div class="timerSwGroupCard ${idx===active?'active':''}" data-sw-index="${esc(String(idx))}" role="button" tabindex="0" title="${running?'Klik for mellemtid':'Klik for at vælge gruppe'}">
           <div class="timerSwGroupCardHead"><span class="timerSwGroupName">${esc(g.title)}</span><span class="timerSwGroupCount">${esc(String(laps.length))}</span></div>
           <div class="timerSwGroupLatest">${latest?esc(latest.time||fmt(latest.seconds||0)):'—'}</div>
           <div class="timerSwGroupHint">${running?'Klik = mellemtid':'Valg · fælles tid '}<span class="timerSwLiveElapsed">${esc(elapsed)}</span></div>
           ${recent?`<div class="timerSwGroupLapList">${recent}</div>`:`<div class="timerSwGroupEmpty">Ingen mellemtider endnu</div>`}
-        </button>`;
+        </div>`;
       }).join('')}
     </div>`;
   }catch(err){try{console.warn('SAFE453i185j stopurvisning fejl',err)}catch(_e){};return '';}
@@ -36586,19 +36694,26 @@ function safe453i185cAddStopwatchLap(c,w,idx){
   try{
     safe453i174TimerDefaults(w);
     if((w.data.timerMode||'countdown')!=='stopwatch')return false;
-    if(!w.data.running){return safe453i184SelectStopwatch(c,w,idx);}
     const list=safe453i184StopwatchSyncDefaults(w);
     idx=Math.max(0,Math.min(list.length-1,Math.floor(Number(idx)||0)));
     w.data.activeStopwatchIndex=idx;
+    if(!w.data.running){
+      try{toast('Start stopuret før mellemtid')}catch(_e){}
+      return safe453i184SelectStopwatch(c,w,idx);
+    }
     safe453i175TimerSyncFromClock(w);
     const sec=Math.max(0,Math.floor(Number(w.data.elapsed)||0));
     w.data.laps=w.data.laps||[];
     const swTitle=safe453i184CurrentStopwatchTitle(w);
     const lap={nr:w.data.laps.length+1,seconds:sec,time:fmt(sec),at:new Date().toLocaleTimeString('da-DK'),swTitle,swIndex:idx};
     w.data.laps.push(lap);
+    // l664: Flag/mellemtid var usynlig i redigeringspanelet. Skift kun Timerens eget stopurpanel
+    // til visningskort, så mellemtiden straks kan ses. Timer-log/datakobling røres ikke.
+    w.data.stopwatchPanelMode='view';
     safe453i176AppendTimerLogRow(w,'mellemtid',{ensure:true,lapNr:lap.nr,time:lap.time,totalTime:lap.time,note:swTitle});
     save();
     safe453i174RerenderTimer(c,w);
+    try{toast('Mellemtid: '+lap.time+' · '+swTitle)}catch(_e){}
     return true;
   }catch(err){try{console.warn('SAFE453i185c mellemtid på gruppe fejl',err)}catch(_e){};return false;}
 }
@@ -36690,7 +36805,7 @@ function safe453i174RenderTimer(w){
     ${!isStop?safe453i177AlarmSelectHtml(w):''}
     <div class="timerRunControls">
       ${!isStop?safe453i183gRunSequenceButtonHtml(w,-1):''}
-      ${safe453i174TimerIcon(running?'&#9632;':'&#9654;',running?'Stop / pause':'Start',running?'start running':'start')}
+      ${safe453i174TimerIcon(running?'&#9632;':'&#9654;',running?'Stop / pause (mellemrum)':'Start (mellemrum / Enter i stopur)',running?'start running':'start')}
       ${!isStop?safe453i183gRunSequenceButtonHtml(w,1):''}
       ${safe453i174TimerIcon('&#9208;','Pause','pause')}
       ${safe453i174TimerIcon('&#8634;','Nulstil','reset')}
@@ -36704,6 +36819,45 @@ function wireTimer(c,w){
   safe453i174TimerDefaults(w);
   safe453i175TimerSyncFromClock(w);
   const redraw=()=>safe453i174RerenderTimer(c,w);
+
+  // l663: TimerWidgetten skal eje sine egne felter og knapper.
+  // Dette er bevidst lokalt i wireTimer, så tavlens generelle drag/selection-lag ikke ændres.
+  const safe663StopTimerOwnerEvent=e=>{
+    try{e.stopPropagation();}catch(_e){}
+  };
+  const safe663GuardTimerControls=()=>{
+    try{
+      c.querySelectorAll('button,input,select,label,.timerSwGroupCard,.timerCountdownSeqCard,.safe450LinkedDataStatus').forEach(node=>{
+        if(node.__safe663TimerOwnerGuard)return;
+        node.__safe663TimerOwnerGuard=true;
+        ['pointerdown','mousedown','touchstart'].forEach(type=>{
+          try{node.addEventListener(type,safe663StopTimerOwnerEvent,{capture:true,passive:true});}catch(_e){}
+        });
+      });
+    }catch(_e){}
+  };
+  const safe663TimerTap=(node,fn)=>{
+    if(!node)return;
+    let last=0;
+    const run=e=>{
+      try{
+        if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+      }catch(_e){}
+      const now=Date.now();
+      if(last && now-last<260)return;
+      last=now;
+      try{if(selected!==w.id)select(w.id,{editText:false});}catch(_e){}
+      try{fn(e);}catch(err){try{console.warn('l663 Timer-tap fejl',err)}catch(_e){}}
+    };
+    node.onpointerup=run;
+    node.ontouchend=run;
+    node.onclick=e=>{
+      if(Date.now()-last<650){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){};return;}
+      run(e);
+    };
+  };
+  safe663GuardTimerControls();
+
   const updateLive=()=>{
     const ended=safe453i175TimerSyncFromClock(w);
     const box=c.querySelector('.timerBox');
@@ -36714,7 +36868,7 @@ function wireTimer(c,w){
     const sub=c.querySelector('.timerSubline');
     if(sub&&(w.data.timerMode||'countdown')==='countdown'){sub.textContent=safe453i183iSequenceFaceLabel(w);try{safe453i185aeUpdateCountdownSequenceViewLive(c,w);}catch(_e){}}
     if((w.data.timerMode||'countdown')==='stopwatch'){c.querySelectorAll('.timerSwTime').forEach(el=>{el.textContent=fmt(w.data.elapsed||0);});c.querySelectorAll('.timerSwLiveElapsed').forEach(el=>{el.textContent=fmt(w.data.elapsed||0);});}
-    if(start){start.innerHTML=w.data.running?'&#9632;':'&#9654;';start.title=w.data.running?'Stop / pause':'Start';start.setAttribute('aria-label',start.title);start.classList.toggle('running',!!w.data.running)}
+    if(start){start.innerHTML=w.data.running?'&#9632;':'&#9654;';start.title=w.data.running?'Stop / pause (mellemrum)':'Start (mellemrum / Enter i stopur)';start.setAttribute('aria-label',start.title);start.classList.toggle('running',!!w.data.running)}
     if(ended){save();redraw();return true;}
     return false;
   };
@@ -36746,8 +36900,7 @@ function wireTimer(c,w){
   const alarmSelect=c.querySelector('.timerAlarmSelect');
   if(alarmSelect)alarmSelect.onchange=e=>{e.stopPropagation();safe453nUnlockAudio(false);safe453i185adSetCurrentSequenceAlarmSound(w,alarmSelect.value||'chime');save();redraw();};
   const alarmTest=c.querySelector('.alarmTest');
-  if(alarmTest)alarmTest.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  if(alarmTest)safe663TimerTap(alarmTest,e=>{
     alarmTest.classList.remove('audioReady','audioBlocked');
     alarmTest.classList.add('audioTrying');
     alarmTest.title='Tester lyd…';
@@ -36769,14 +36922,13 @@ function wireTimer(c,w){
       try{toast('Timerlyd blokeret – tjek lydløs/volumen')}catch(_e){}
       safe453nTimerAlarmFallback(sound);
     });
-  };
+  });
 
-  c.querySelectorAll('[data-timer-mode]').forEach(btn=>btn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  c.querySelectorAll('[data-timer-mode]').forEach(btn=>safe663TimerTap(btn,e=>{
     const mode=btn.getAttribute('data-timer-mode')||'countdown';
     safe453i175TimerStopClock(w); w.data.timerMode=mode;
     save(); redraw();
-  });
+  }));
   // SAFE453i183c: Nedtællingens min/sek-felter auto-anvendes kun, når timeren står stille.
   const minInput=c.querySelector('.min');
   const secInput=c.querySelector('.sec');
@@ -36857,7 +37009,8 @@ function wireTimer(c,w){
     const chooseRow=ev=>{
       try{
         const t=ev&&ev.target;
-        if(t&&t.closest&&t.closest('.timerSeqAddAfter,.timerSeqRemove,.timerComboPopup,.timerComboOption'))return;
+        // l663: Et tryk i et rigtigt felt skal redigere feltet - ikke vælge rækken og re-rendere widgetten.
+        if(t&&t.closest&&t.closest('input,select,button,label,textarea,.timerSeqAddAfter,.timerSeqRemove,.timerComboPopup,.timerComboOption'))return;
         const idx=Math.floor(Number(row.getAttribute('data-seq-index'))||0);
         if(w.data&&w.data.running){
           ev.preventDefault();ev.stopPropagation();
@@ -36892,16 +37045,14 @@ function wireTimer(c,w){
     card.addEventListener('touchend',chooseCard,{passive:false});
   });
 
-  c.querySelectorAll('.timerSeqAddAfter').forEach(btn=>btn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  c.querySelectorAll('.timerSeqAddAfter').forEach(btn=>safe663TimerTap(btn,e=>{
     if(w.data.running)return;
     const row=btn.closest('.timerSequenceRow');
     const idx=Math.max(0,Math.floor(Number(row&&row.getAttribute('data-seq-index'))||0));
     w.data.timerSequenceIndex=idx;
     safe453i183mInsertSequenceNear(c,w,true);
-  });
-  c.querySelectorAll('.timerSeqRemove').forEach(btn=>btn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  }));
+  c.querySelectorAll('.timerSeqRemove').forEach(btn=>safe663TimerTap(btn,e=>{
     if(w.data.running)return;
     const row=btn.closest('.timerSequenceRow');
     const idx=Math.max(0,Math.floor(Number(row&&row.getAttribute('data-seq-index'))||0));
@@ -36913,7 +37064,7 @@ function wireTimer(c,w){
     const cur=seq[w.data.timerSequenceIndex]||seq[0];
     w.data.seconds=Math.max(0,Math.floor(Number(cur.seconds)||0));w.data.left=w.data.seconds;
     save();redraw();
-  });
+  }));
   const setupSeqInsertButton=(sel,after)=>{
     const btn=c.querySelector(sel);
     if(!btn)return;
@@ -36921,17 +37072,15 @@ function wireTimer(c,w){
       // Bevar fokus i den markerede række, så knappen indsætter ved den række, brugeren redigerer.
       if(!w.data.running)e.preventDefault();
     },{passive:false});
-    btn.onclick=e=>{
-      e.preventDefault();e.stopPropagation();
+    safe663TimerTap(btn,e=>{
       if(w.data.running)return;
       safe453i183mInsertSequenceNear(c,w,after);
-    };
+    });
   };
   setupSeqInsertButton('.timerSeqInsertBefore',false);
   setupSeqInsertButton('.timerSeqInsertAfter',true);
   const seqAdd=c.querySelector('.timerSeqAdd');
-  if(seqAdd)seqAdd.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  if(seqAdd)safe663TimerTap(seqAdd,e=>{
     if(w.data.running)return;
     safe453i183eCommitSequenceFromDom(c,w,{noSave:true});
     const seq=safe453i183eNormaliseSequence(w);
@@ -36941,13 +37090,12 @@ function wireTimer(c,w){
     safe453i174RerenderTimer(c,w);
     const rows=c.querySelectorAll('.timerSequenceRow');
     focusSeqRow(rows[rows.length-1]);
-  };
+  });
   const seqPrev=c.querySelector('.timerSeqPrev');
-  if(seqPrev){ if(seqPrev.classList.contains('disabled'))seqPrev.disabled=true; seqPrev.onclick=e=>{e.preventDefault();e.stopPropagation();if(seqPrev.disabled)return;safe453i183fSwitchSequence(c,w,-1);}; }
+  if(seqPrev){ if(seqPrev.classList.contains('disabled'))seqPrev.disabled=true; safe663TimerTap(seqPrev,e=>{if(seqPrev.disabled)return;safe453i183fSwitchSequence(c,w,-1);}); }
   const seqNext=c.querySelector('.timerSeqNext');
-  if(seqNext){ if(seqNext.classList.contains('disabled'))seqNext.disabled=true; seqNext.onclick=e=>{e.preventDefault();e.stopPropagation();if(seqNext.disabled)return;safe453i183fSwitchSequence(c,w,1);}; }
-  c.querySelectorAll('.timerCountdownPanelTab').forEach(btn=>btn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  if(seqNext){ if(seqNext.classList.contains('disabled'))seqNext.disabled=true; safe663TimerTap(seqNext,e=>{if(seqNext.disabled)return;safe453i183fSwitchSequence(c,w,1);}); }
+  c.querySelectorAll('.timerCountdownPanelTab').forEach(btn=>safe663TimerTap(btn,e=>{
     if(safe453i185vIsPresentation()){
       w.data.countdownPanelMode='view';
       save();redraw();
@@ -36957,9 +37105,8 @@ function wireTimer(c,w){
     if(mode==='view'&&!w.data.running)try{safe453i183eCommitSequenceFromDom(c,w,{noSave:true});}catch(_e){}
     w.data.countdownPanelMode=mode;
     save();redraw();
-  });
-  c.querySelectorAll('.timerStopwatchPanelTab').forEach(btn=>btn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  }));
+  c.querySelectorAll('.timerStopwatchPanelTab').forEach(btn=>safe663TimerTap(btn,e=>{
     const isPresentation=!!(document.querySelector('.app.present')||document.querySelector('.present')||document.body.classList.contains('focus-presentation'));
     if(isPresentation){
       w.data.stopwatchPanelMode='view';
@@ -36970,10 +37117,30 @@ function wireTimer(c,w){
     if(mode==='edit'&&!w.data.running)try{safe453i184CommitStopwatchSyncFromDom(c,w,{noSave:true});}catch(_e){}
     w.data.stopwatchPanelMode=mode;
     save();redraw();
-  });
+  }));
   c.querySelectorAll('.timerSwGroupCard').forEach(card=>{
+    const pointFromEvent=e=>{
+      try{
+        const p=(e&&e.changedTouches&&e.changedTouches[0])||(e&&e.touches&&e.touches[0])||e;
+        if(!p)return null;
+        return {x:Number(p.clientX),y:Number(p.clientY)};
+      }catch(_e){return null;}
+    };
+    card.onpointerdown=e=>{try{const p=pointFromEvent(e);card.__safe665TimerPoint=p&&Number.isFinite(p.x)&&Number.isFinite(p.y)?p:null;}catch(_e){}};
+    card.ontouchstart=e=>{try{const p=pointFromEvent(e);card.__safe665TimerPoint=p&&Number.isFinite(p.x)&&Number.isFinite(p.y)?p:null;}catch(_e){}};
     const handleGroupCard=e=>{
       try{
+        const target=e&&e.target;
+        // l665: Mellemtidslisten er et scrollfelt. Tap/scroll inde i listen må ikke oprette ny mellemtid.
+        if(target&&target.closest&&target.closest('.timerSwGroupLapList,.timerSwGroupLap')){
+          try{e.stopPropagation();}catch(_e){}
+          return;
+        }
+        const start=card.__safe665TimerPoint;
+        const end=pointFromEvent(e);
+        if(start&&end&&Number.isFinite(end.x)&&Number.isFinite(end.y)){
+          if(Math.abs(end.x-start.x)>10 || Math.abs(end.y-start.y)>10)return;
+        }
         e.preventDefault();e.stopPropagation();
         const now=Date.now();
         const last=Number(card.getAttribute('data-safe453-lasttap')||0);
@@ -36986,7 +37153,26 @@ function wireTimer(c,w){
     card.onclick=handleGroupCard;
     card.onpointerup=handleGroupCard;
     card.ontouchend=handleGroupCard;
+    card.onkeydown=e=>{
+      try{
+        const isAct=(e.key==='Enter'||e.key===' '||e.key==='Spacebar'||e.code==='Space');
+        if(!isAct)return;
+        handleGroupCard(e);
+      }catch(_e){}
+    };
   });
+  // l666: Mellemtidslisten er sin egen scroll-ejer.
+  // Scroll/touch inde i listen må ikke boble op til gruppekortet og blive til en ny mellemtid.
+  c.querySelectorAll('.timerSwGroupLapList').forEach(list=>{
+    ['pointerdown','pointermove','pointerup','touchstart','touchmove','touchend','wheel'].forEach(type=>{
+      try{
+        list.addEventListener(type,function(e){
+          try{e.stopPropagation();}catch(_e){}
+        },{capture:true,passive:true});
+      }catch(_e){}
+    });
+  });
+
   c.querySelectorAll('.timerSwTitle').forEach(inp=>{
     inp.disabled=!!w.data.running;
     inp.addEventListener('input',e=>{e.stopPropagation();safe453i184CommitStopwatchSyncFromDom(c,w,{silent:true});});
@@ -37011,13 +37197,11 @@ function wireTimer(c,w){
       }
     });
   });
-  c.querySelectorAll('.timerSwSelect').forEach(btn=>btn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  c.querySelectorAll('.timerSwSelect').forEach(btn=>safe663TimerTap(btn,e=>{
     const row=btn.closest('.timerStopwatchRow');
     safe453i184SelectStopwatch(c,w,Math.floor(Number(row&&row.getAttribute('data-sw-index'))||0));
-  });
-  c.querySelectorAll('.timerSwRowAdd').forEach(btn=>btn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  }));
+  c.querySelectorAll('.timerSwRowAdd').forEach(btn=>safe663TimerTap(btn,e=>{
     if(w.data.running)return;
     const row=btn.closest('.timerStopwatchRow');
     const idx=Math.max(0,Math.floor(Number(row&&row.getAttribute('data-sw-index'))||0));
@@ -37028,9 +37212,8 @@ function wireTimer(c,w){
     w.data.syncedStopwatches=list;w.data.activeStopwatchIndex=at;
     save();safe453i174RerenderTimer(c,w);
     setTimeout(()=>{try{const row2=c.querySelector('.timerStopwatchRow[data-sw-index="'+at+'"]');const input=row2&&row2.querySelector('.timerSwTitle');if(input){input.focus();input.select();}}catch(_e){}},0);
-  });
-  c.querySelectorAll('.timerSwRemove').forEach(btn=>btn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  }));
+  c.querySelectorAll('.timerSwRemove').forEach(btn=>safe663TimerTap(btn,e=>{
     if(w.data.running)return;
     const row=btn.closest('.timerStopwatchRow');
     const idx=Math.max(0,Math.floor(Number(row&&row.getAttribute('data-sw-index'))||0));
@@ -37040,10 +37223,9 @@ function wireTimer(c,w){
     w.data.syncedStopwatches=list;
     w.data.activeStopwatchIndex=Math.max(0,Math.min(list.length-1,Math.floor(Number(w.data.activeStopwatchIndex)||0)));
     save();redraw();
-  });
+  }));
   const swAdd=c.querySelector('.timerSwAdd');
-  if(swAdd)swAdd.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  if(swAdd)safe663TimerTap(swAdd,e=>{
     if(w.data.running)return;
     safe453i184CommitStopwatchSyncFromDom(c,w,{noSave:true});
     const list=safe453i184StopwatchSyncDefaults(w);
@@ -37051,20 +37233,19 @@ function wireTimer(c,w){
     w.data.syncedStopwatches=list;w.data.activeStopwatchIndex=list.length-1;
     save();safe453i174RerenderTimer(c,w);
     setTimeout(()=>{try{const rows=c.querySelectorAll('.timerStopwatchRow');const input=rows[rows.length-1]&&rows[rows.length-1].querySelector('.timerSwTitle');if(input){input.focus();input.select();}}catch(_e){}},0);
-  };
+  });
   const setupSwInsertButton=(sel,after)=>{
     const btn=c.querySelector(sel);
     if(!btn)return;
     btn.addEventListener('pointerdown',e=>{if(!w.data.running)e.preventDefault();},{passive:false});
-    btn.onclick=e=>{e.preventDefault();e.stopPropagation();if(w.data.running)return;safe453i184bInsertStopwatchNear(c,w,after);};
+    safe663TimerTap(btn,e=>{if(w.data.running)return;safe453i184bInsertStopwatchNear(c,w,after);});
   };
   setupSwInsertButton('.timerSwInsertBefore',false);
   setupSwInsertButton('.timerSwInsertAfter',true);
   const lapsModalBtn=c.querySelector('.lapsModal');
-  if(lapsModalBtn)lapsModalBtn.onclick=e=>{e.preventDefault();e.stopPropagation();safe453i184bOpenStopwatchLapsModal(w);};
+  if(lapsModalBtn)safe663TimerTap(lapsModalBtn,e=>{safe453i184bOpenStopwatchLapsModal(w);});
   const startBtn=c.querySelector('.start');
-  if(startBtn)startBtn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  if(startBtn)safe663TimerTap(startBtn,e=>{
     if(w.data.running){
       const wasStopwatch=(w.data.timerMode||'countdown')==='stopwatch';
       safe453i175TimerStopClock(w);
@@ -37085,21 +37266,20 @@ function wireTimer(c,w){
     updateLive();
     save();
     if(isCountdownStart)redraw();
-  };
+  });
   const pauseBtn=c.querySelector('.pause');
-  if(pauseBtn)pauseBtn.onclick=e=>{e.preventDefault();e.stopPropagation();const wasStopwatch=(w.data.timerMode||'countdown')==='stopwatch';safe453i175TimerStopClock(w);if(wasStopwatch)safe453i176AppendTimerLogRow(w,'slut',{ensure:false,totalTime:fmt(w.data.elapsed||0)});save();redraw()};
+  if(pauseBtn)safe663TimerTap(pauseBtn,e=>{const wasStopwatch=(w.data.timerMode||'countdown')==='stopwatch';safe453i175TimerStopClock(w);if(wasStopwatch)safe453i176AppendTimerLogRow(w,'slut',{ensure:false,totalTime:fmt(w.data.elapsed||0)});save();redraw()});
   const resetBtn=c.querySelector('.reset');
-  if(resetBtn)resetBtn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();safe453i175TimerStopClock(w);
+  if(resetBtn)safe663TimerTap(resetBtn,e=>{
+    safe453i175TimerStopClock(w);
     w.data.running=false;
     if((w.data.timerMode||'countdown')==='stopwatch'){w.data.elapsed=0;w.data.laps=[];safe453i184StopwatchSyncDefaults(w);}else{try{w.data.timerSequenceIndex=0;const cur=safe453i183eCurrentSequence(w);w.data.seconds=Math.max(0,Math.floor(Number(cur.seconds)||0));w.data.alarmSound=String((cur&&cur.alarmSound)||w.data.alarmSound||'chime');}catch(_e){}w.data.left=w.data.seconds;}
     save(); redraw();
-  };
+  });
   const lapBtn=c.querySelector('.lap');
-  if(lapBtn)lapBtn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  if(lapBtn)safe663TimerTap(lapBtn,e=>{
     safe453i185cAddStopwatchLap(c,w,Math.floor(Number(w.data.activeStopwatchIndex)||0));
-  };
+  });
 }
 
 
@@ -37125,6 +37305,17 @@ function wireTimer(c,w){
     if(idx<0||idx>=list.length)return false;
     return safe453i185cAddStopwatchLap(ctx.c,ctx.w,idx);
   }
+  function startStopwatchIfIdle(ctx){
+    try{
+      if(!ctx||!ctx.w||!ctx.w.data||ctx.w.data.running)return false;
+      const btn=ctx.el&&ctx.el.querySelector&&ctx.el.querySelector('.timerRunControls .start');
+      if(btn){btn.click();return true;}
+      safe453i175TimerStartClock(ctx.w);
+      save();
+      safe453i174RerenderTimer(ctx.c,ctx.w);
+      return true;
+    }catch(_e){return false;}
+  }
   document.addEventListener('keydown',function(e){
     try{
       if(e.defaultPrevented||e.metaKey||e.ctrlKey||e.altKey)return;
@@ -37141,7 +37332,8 @@ function wireTimer(c,w){
       }
       if(isEnter){
         const active=Math.max(0,Math.floor(Number(ctx.w.data.activeStopwatchIndex)||0));
-        if(handleDirectIndex(ctx,active)){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+        const handled=ctx.w.data.running ? handleDirectIndex(ctx,active) : startStopwatchIfIdle(ctx);
+        if(handled){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
       }
     }catch(err){try{console.warn('SAFE453i185j stopur tastatur fejl',err)}catch(_e){}}
   },true);
@@ -45290,11 +45482,18 @@ function activateEmptyImageChoiceByNumber(n){
 
 function safe453i179SelectedTimer(){
   try{
-    if(!selected)return null;
-    const w=findWidget(selected);
-    if(!w || w.type!=='timer')return null;
-    const el=document.querySelector('.widget[data-id="'+CSS.escape(String(selected))+'"]');
-    if(!el)return null;
+    let id=selected||'';
+    let el=id?document.querySelector('.widget[data-id="'+CSS.escape(String(id))+'"][data-type="timer"]'):null;
+    let w=id?findWidget(id):null;
+    // l664: I fokus/præsentation kan TimerWidgetten være fokusmål uden at selected er sat.
+    // Genveje må derfor finde den aktive TimerWidget i DOM, men kun TimerWidgetten - ingen global catch-all.
+    if(!el || !w || w.type!=='timer'){
+      el=document.querySelector('.widget.selected[data-type="timer"], .widget.focusTarget[data-type="timer"]');
+      id=el&&el.dataset?String(el.dataset.id||''):'';
+      w=id?findWidget(id):null;
+    }
+    if(!el||!w||w.type!=='timer')return null;
+    try{selected=w.id||id;}catch(_e){}
     return {w,el,content:el.querySelector('.content')||el};
   }catch(_e){return null;}
 }
@@ -45352,7 +45551,14 @@ function safe453i179TimerTabCountdownInput(e){
 }
 
 function activateSelectedWidgetWithSpace(){
-  if(!selected) return false;
+  // l665: En fokuseret TimerWidget skal også kunne eje Space, selv om selected ikke er sat.
+  if(!selected){
+    try{
+      const t=safe453i179SelectedTimer();
+      if(t)return activateSelectedWidgetWithSpace.shiftLap ? safe453i179TimerLap() : safe453i179TimerStartStop();
+    }catch(_e){}
+    return false;
+  }
   const el=document.querySelector('.widget[data-id="'+CSS.escape(String(selected))+'"]');
   const w=findWidget(selected);
   if(!el || !w) return false;
@@ -56065,6 +56271,83 @@ body.focus-presentation .toolbar,
 }
 </style>
 
+<script id="l666-timer-space-owner-before-more">
+/* l666: TimerWidgetten ejer Space/Mellemrum før Tavlens Mere-menu.
+   Scope: kun når target er inde i TimerWidgetten, eller en TimerWidget er valgt/fokus-widget. */
+(function(){
+  if(window.__l666TimerSpaceOwnerBeforeMore)return;
+  window.__l666TimerSpaceOwnerBeforeMore=true;
+
+  function typingTarget(t){
+    try{
+      if(!t)return false;
+      var tag=String(t.tagName||'').toLowerCase();
+      return !!(t.isContentEditable || tag==='input' || tag==='textarea' || tag==='select' || (t.closest&&t.closest('[contenteditable="true"]')));
+    }catch(_e){return false;}
+  }
+  function timerElFromEvent(e){
+    try{
+      var t=e&&e.target;
+      if(t&&t.closest){
+        var inside=t.closest('.widget[data-type="timer"]');
+        if(inside)return inside;
+      }
+    }catch(_e){}
+    try{
+      var el=document.querySelector('.widget.selected[data-type="timer"], .widget.focusTarget[data-type="timer"]');
+      if(el)return el;
+    }catch(_e){}
+    try{
+      if(typeof selected!=='undefined' && selected){
+        var byId=document.querySelector('.widget[data-id="'+CSS.escape(String(selected))+'"][data-type="timer"]');
+        if(byId)return byId;
+      }
+    }catch(_e){}
+    return null;
+  }
+  function hardStop(e){
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+  }
+  function clickTimerButton(el,shiftLap){
+    try{
+      var btn=shiftLap ? el.querySelector('.timerRunControls .lap') : el.querySelector('.timerRunControls .start');
+      if(btn && !btn.disabled){
+        btn.click();
+        return true;
+      }
+    }catch(_e){}
+    try{
+      if(!shiftLap && typeof safe453i179TimerStartStop==='function')return !!safe453i179TimerStartStop();
+      if(shiftLap && typeof safe453i179TimerLap==='function')return !!safe453i179TimerLap();
+    }catch(_e){}
+    return false;
+  }
+  window.safe666TimerOwnsSpace=function(e){
+    try{
+      var key=String((e&&e.key)||'');
+      if(!(key===' ' || key==='Spacebar' || (e&&e.code==='Space')))return false;
+      if(e&&(e.ctrlKey||e.metaKey||e.altKey))return false;
+      if(typingTarget(e&&e.target))return false;
+      try{if(window.isIframeControlActive&&window.isIframeControlActive())return false;}catch(_e){}
+      var el=timerElFromEvent(e);
+      if(!el)return false;
+      try{
+        var id=el.dataset&&el.dataset.id;
+        if(id && typeof selected!=='undefined')selected=id;
+      }catch(_e){}
+      var ok=clickTimerButton(el,!!(e&&e.shiftKey));
+      if(ok)hardStop(e);
+      return ok;
+    }catch(_e){return false;}
+  };
+  function onKey(e){
+    if(window.safe666TimerOwnsSpace(e))return false;
+  }
+  window.addEventListener('keydown',onKey,true);
+  document.addEventListener('keydown',onKey,true);
+})();
+</script>
+
 <script id="safe453i232-more-shortcuts-contextmenu">
 (function(){
   'use strict';
@@ -56166,6 +56449,9 @@ body.focus-presentation .toolbar,
       if(e.shiftKey||e.ctrlKey||e.metaKey||e.altKey)return;
       if(typingTarget(e.target))return;
       if(iframeHasKeyboard())return;
+      // l666: Hvis en TimerWidget er valgt/fokuseret, skal Space/Mellemrum håndteres af Timeren, ikke åbne Mere.
+      try{if(typeof window.safe666TimerOwnsSpace==='function' && window.safe666TimerOwnsSpace(e))return false;}catch(_timerSpaceErr){}
+      try{if(typeof safe453i179SelectedTimer==='function' && safe453i179SelectedTimer())return;}catch(_timerSpaceErr2){}
       if(!appAllowsMore())return;
       if(!isInsideApp(e.target,e))return;
 
@@ -56301,6 +56587,9 @@ body.focus-presentation .toolbar,
       if(e.shiftKey || e.ctrlKey || e.metaKey || e.altKey)return;
       if(typingTarget(e.target))return;
       if(iframeHasKeyboard())return;
+      // l666: Hvis en TimerWidget er valgt/fokuseret, skal Space/Mellemrum håndteres af Timeren, ikke åbne Mere.
+      try{if(typeof window.safe666TimerOwnsSpace==='function' && window.safe666TimerOwnsSpace(e))return false;}catch(_timerSpaceErr){}
+      try{if(typeof safe453i179SelectedTimer==='function' && safe453i179SelectedTimer())return;}catch(_timerSpaceErr2){}
       if(!appAllowsMore())return;
       if(!boardLikeTarget(e.target))return;
 
@@ -59377,20 +59666,46 @@ body.focus-maximized .widget[data-type="link"].linkIframeActive .linkIframeShiel
 
 
 <script id="safe455uH3-link-url-copy">
-/* SAFE455uH3: Kopiér URL fra LinkMode-kortet. Delegeret event, ingen render-manipulation. */
+/* SAFE455uH3/l661: Kopiér URL fra LinkMode-kortet. Målrettet pointerup+click, så iPad-touch også giver toast. */
 (function(){
   if(window.__safe455uH3LinkCopyInstalled)return;
   window.__safe455uH3LinkCopyInstalled=true;
-  document.addEventListener('click',function(e){
+  var lastPointerCopy=0;
+  function copyFromEvent(e){
     var btn=e.target&&e.target.closest&&e.target.closest('.safe455hCopyUrl');
-    if(!btn)return;
+    if(!btn)return false;
     e.preventDefault();
     e.stopPropagation();
     if(e.stopImmediatePropagation)e.stopImmediatePropagation();
     var url=btn.getAttribute('data-copy-url')||'';
-    function done(ok){try{toast(ok?'Adresse kopieret':'Kunne ikke kopiere adressen');}catch(_e){}}
+    function done(ok){
+      var msg=ok?'Adresse kopieret':'Kunne ikke kopiere adressen';
+      try{ if(typeof toast==='function'){ toast(msg); return; } }catch(_e){}
+      try{ if(typeof window.toast==='function'){ window.toast(msg); return; } }catch(_e){}
+      try{ if(typeof window.showToast==='function'){ window.showToast(msg,1800); return; } }catch(_e){}
+      try{
+        var t=document.getElementById('toast');
+        if(!t){
+          t=document.createElement('div');
+          t.id='toast';
+          t.className='toast';
+          (document.getElementById('app')||document.body).appendChild(t);
+        }
+        t.textContent=msg;
+        t.classList.add('show');
+        t.setAttribute('aria-live','polite');
+        t.style.position='fixed';
+        t.style.left='50%';
+        t.style.top='70px';
+        t.style.transform='translateX(-50%)';
+        t.style.zIndex='2147483647';
+        t.style.opacity='1';
+        clearTimeout(t.__safe662Timer);
+        t.__safe662Timer=setTimeout(function(){try{t.classList.remove('show');t.style.opacity='0';}catch(_e){}},1700);
+      }catch(_e){try{console.log(msg);}catch(__e){}}
+    }
     try{
-      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){done(true)},function(){done(false)});return;}
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){done(true)},function(){done(false)});return true;}
     }catch(_e){}
     try{
       var ta=document.createElement('textarea');
@@ -59398,6 +59713,12 @@ body.focus-maximized .widget[data-type="link"].linkIframeActive .linkIframeShiel
       document.body.appendChild(ta); ta.select();
       var ok=document.execCommand('copy'); document.body.removeChild(ta); done(ok);
     }catch(_e){done(false)}
+    return true;
+  }
+  document.addEventListener('pointerup',function(e){if(copyFromEvent(e))lastPointerCopy=Date.now();},true);
+  document.addEventListener('click',function(e){
+    if(e.target&&e.target.closest&&e.target.closest('.safe455hCopyUrl')&&Date.now()-lastPointerCopy<650){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();return;}
+    copyFromEvent(e);
   },true);
 })();
 </script>
@@ -65148,6 +65469,20 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
   }
 }
 
+
+/* l661-linkcard-buttons-touch: målrettet touch på linkkortets egne knapper. */
+.widget[data-type="link"] .safe453i79Arrow,
+.widget[data-type="link"] .safe455hCopyUrl{
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+.widget[data-type="link"] .safe455hCopyUrl{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  min-height:34px!important;
+  font-size:15px!important;
+}
 </style>
 <script id="l611-dataremix-pdf-form-import-ninja">
 (function(){
