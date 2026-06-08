@@ -1,5 +1,8 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!doctype html>
+<!-- l657-linkwidget-chrome-touch-guard: Bygger på l655. Kirurgisk fix: Link/iFrame-widgettens bjælkeknapper starter ikke drag på touch; ingen template-strings eller global eventlogik ændret. -->
+<!-- l655-linkwidget-liststatus-open-dataset: Bygger på l654. Kirurgisk fix i Link/iFrame-widgettens egen liste-chip: robust pointerup/click åbner nu den koblede linkliste som DataWidget via linkList-rollen, uden at gå gennem generel data-rolle. -->
+<!-- l653-session-aware-backup-filenames: Bygger på l652. Kirurgisk fix: Gem backup og især Backup+ får sessionsnavn i filnavnet, fx Uge23 - tavle-backup-plus.json, når appen er åbnet med URL#Session. -->
 <!-- l652-help-pdf-guides-practical-wording: Bygger på l651. Kun Hjælp-teksten under PDF-guides er gjort mere praktisk og brugervendt; TavleTips beskrives som trin-for-trin hjælp til anonym afstemning. Ingen widgetlogik ændret. -->
 <!-- l646-help-anonymous-poll-flow: Bygger på l645. Kun Hjælp og TavleTips-tekst opdateres: anonym afstemning via PDF-formularer beskrives praktisk trin for trin. Ingen widgetlogik, PDF-rendering, DataRemix-motor, KaPardy eller drag-ændringer. -->
 <!-- l645-widget-drag-pointer-capture-stabilize: Bygger på l644. Kirurgisk fix i widget-interaktionslaget: bjælke-drag/resize bevarer den oprindelige ejer, men får aktiv per-gesture document pointermove som reserve, så hurtige bevægelser ikke mister widgetten; rotationsnulstil bevares. -->
@@ -979,6 +982,12 @@ body.focus-presentation .modalBackdrop.wheelConfirmBackdrop,
 }
 .app.toolbarBlocked .toolbar{
   opacity:.88;
+}
+
+/* l657: Mini-/bjælkeknapper skal kunne trykkes med touch uden at starte widget-drag. */
+.widget .chrome .mini,
+.widget .chrome .mini button{
+  touch-action:manipulation;
 }
 
 
@@ -35033,14 +35042,26 @@ function wireWidget(el,w){
     else safe453i71OpenLinkPicker(w);
   };
   const linkListStatus=el.querySelector('.linkListStatus');
-  if(linkListStatus)linkListStatus.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
-    if(!canEditWidgets())return;
-    select(w.id,{editText:false});
-    const ref=safe453i71LinkListRef(w);
-    if(ref.datasetId && typeof safe538ToggleLinkListDataWidget==='function')safe538ToggleLinkListDataWidget(w);
-    else if(ref.datasetId && typeof safe450ToggleLinkedData==='function')safe450ToggleLinkedData(w,'linkList');
-    else safe453i71OpenLinkListChooser(w);
+  if(linkListStatus){
+    const openLinkListStatus=e=>{
+      try{if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}}catch(_e){}
+      if(!canEditWidgets())return;
+      select(w.id,{editText:false});
+      const liveW=(typeof safe654ResolveLiveLinkWidget==='function'?safe654ResolveLiveLinkWidget(w):null)||w;
+      const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(liveW):null;
+      if(ref&&ref.datasetId){
+        if(typeof safe538ToggleLinkListDataWidget==='function')safe538ToggleLinkListDataWidget(liveW);
+        else if(typeof safe381OpenDatasetSourceNearWidget==='function')safe381OpenDatasetSourceNearWidget(ref.datasetId,liveW);
+      }else if(typeof safe453i71OpenLinkListChooser==='function')safe453i71OpenLinkListChooser(liveW);
+    };
+    const robustOpen=e=>{
+      const now=Date.now();
+      if(linkListStatus.__safe655LastOpen && now-linkListStatus.__safe655LastOpen<280){try{if(e){e.preventDefault();e.stopPropagation();}}catch(_e){} return;}
+      linkListStatus.__safe655LastOpen=now;
+      openLinkListStatus(e);
+    };
+    linkListStatus.addEventListener('pointerup',robustOpen,{passive:false});
+    linkListStatus.addEventListener('click',robustOpen);
   };
   const linkListPick=el.querySelector('.linkListPick');
   if(linkListPick)linkListPick.onclick=e=>{
@@ -35239,6 +35260,12 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
    rh.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation()});
  }
  chrome.addEventListener('pointerdown',e=>{
+   // l657: Bjælkens egne knapper/controls må ikke starte drag.
+   // Det løser Link/iFrame-værktøjslinjen på iPad uden at ændre selve drag-ejeren.
+   if(e.target && e.target.closest && e.target.closest('.mini, .mini button, button[data-act], input, select, textarea, label, a, [contenteditable="true"]')){
+     try{select(w.id,{editText:false});}catch(_e){}
+     return;
+   }
    if(w.locked)return;
    // Klik på bjælken betyder vælg/flyt widget - ikke skriv i tekstfeltet.
    try{
@@ -37902,25 +37929,117 @@ function safe453i75FinalizeOrDeletePreviousLinkList(ownerW,newDsId){
     safe453i75RemoveDatasetAndWidget(oldId);
   }catch(err){console.warn('safe453i75 previous linklist cleanup failed',err);}
 }
+
+/* l654: Link/iFrame-widgettens linkliste-ejer.
+   Tidligere kunne demovalg/eksisterende linkliste ramme en stale widget-reference
+   eller lande i den generelle data-rolle i stedet for linkList. Denne helper skriver
+   koblingen eksplicit på den levende LinkWidget og bevarer den gamle visning/logik. */
+function safe654ResolveLiveLinkWidget(w){
+  try{
+    if(w&&w.id&&typeof safe450FindWidgetById==='function'){
+      var hit=safe450FindWidgetById(w.id);
+      if(hit&&hit.w&&hit.w.type==='link')return hit.w;
+    }
+  }catch(_e){}
+  try{
+    if(w&&w.type==='link')return w;
+  }catch(_e){}
+  try{
+    var el=document.querySelector('.widget.selected[data-type="link"], .widget[data-type="link"].selected');
+    var id=el&&el.dataset&&el.dataset.id;
+    if(id&&typeof safe450FindWidgetById==='function'){
+      var hit2=safe450FindWidgetById(id);
+      if(hit2&&hit2.w&&hit2.w.type==='link')return hit2.w;
+    }
+  }catch(_e){}
+  try{
+    if(typeof selected!=='undefined'&&selected&&typeof safe450FindWidgetById==='function'){
+      var hit3=safe450FindWidgetById(selected);
+      if(hit3&&hit3.w&&hit3.w.type==='link')return hit3.w;
+    }
+  }catch(_e){}
+  return null;
+}
+function safe654EnsureDataWidgetForLinkList(owner,ds,existingHit){
+  try{
+    if(existingHit&&existingHit.w)return existingHit.w;
+    var hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds&&ds.id):null;
+    if(hit&&hit.w)return hit.w;
+  }catch(_e){}
+  if(!ds||!ds.id)return null;
+  var dw=null;
+  try{
+    if(typeof addDatasetWidget==='function'){
+      var ox=Number(owner&&owner.x)||140, oy=Number(owner&&owner.y)||130;
+      dw=addDatasetWidget(ds,{x:Math.max(24,Math.min(ox+44,(innerWidth||1200)-720)),y:Math.max(80,Math.min(oy+44,(innerHeight||800)-460))});
+    }
+  }catch(_e){dw=null;}
+  try{
+    if(dw){
+      dw.title='📊 '+String(ds.name||'Linkliste').replace(/^📊\s*/,'').trim();
+      dw.data=dw.data||{};
+      dw.data.datasetId=ds.id;
+      dw.data.dataset=ds;
+      dw.data.datasetView=true;
+      dw.data.sourceType=String(ds.sourceType||ds.type||'link-list');
+      dw.data.sourceOpen=false;
+      if(typeof formatDatasetAsTextWidgetContent==='function')dw.data.text=formatDatasetAsTextWidgetContent(ds);
+    }
+  }catch(_e){}
+  return dw;
+}
+function safe654ConnectLinkList(ownerW,ds,dataWidgetOrHit,opts){
+  opts=opts||{};
+  if(typeof safe453i71EnsureLinkListRole==='function')safe453i71EnsureLinkListRole();
+  if(typeof safe453i80MarkAsLinkList==='function')safe453i80MarkAsLinkList(ds);
+  var owner=safe654ResolveLiveLinkWidget(ownerW)||ownerW;
+  if(!owner||owner.type!=='link'||!ds){try{toast('Linklisten blev ikke fundet');}catch(_e){} return null;}
+  owner.data=owner.data||{};
+  var dw=null;
+  if(dataWidgetOrHit&&dataWidgetOrHit.w)dw=dataWidgetOrHit.w;
+  else if(dataWidgetOrHit&&dataWidgetOrHit.type==='text')dw=dataWidgetOrHit;
+  dw=safe654EnsureDataWidgetForLinkList(owner,ds,dw?{w:dw}:null);
+  var name=String(ds.name||'Linkliste');
+  owner.data.linkedDataSources=owner.data.linkedDataSources||{};
+  owner.data.linkedDataSources.linkList={
+    widgetId:dw&&dw.id?String(dw.id):'',
+    datasetId:String(ds.id||''),
+    name:name,
+    role:'linkList'
+  };
+  owner.data.linkListDatasetId=ds.id;
+  owner.data.linkListDatasetName=name;
+  if(dw&&dw.id)owner.data.linkListWidgetId=dw.id;
+  /* Fjern kun den fejlplacerede generelle data-rolle, hvis den peger på samme linkliste.
+     Det forhindrer, at LinkWidgetten bliver behandlet som en almindelig data-widget. */
+  try{
+    var dataRef=owner.data.linkedDataSources&&owner.data.linkedDataSources.data;
+    if(dataRef&&String(dataRef.datasetId||'')===String(ds.id))delete owner.data.linkedDataSources.data;
+    if(String(owner.data.linkedDataRole||'')==='data' && String(owner.data.linkedDataDatasetId||'')===String(ds.id)){
+      delete owner.data.linkedDataWidgetId; delete owner.data.linkedDataDatasetId; delete owner.data.linkedDataRole; delete owner.data.linkedDataName;
+    }
+  }catch(_e){}
+  try{
+    if(dw&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(owner,{w:dw},'linkList',name);
+  }catch(_e){}
+  /* safe450Set kan skrive standardfelter; skriv linkList igen bagefter som sandhed. */
+  owner.data.linkedDataSources=owner.data.linkedDataSources||{};
+  owner.data.linkedDataSources.linkList={widgetId:dw&&dw.id?String(dw.id):'',datasetId:String(ds.id||''),name:name,role:'linkList'};
+  owner.data.linkListDatasetId=ds.id; owner.data.linkListDatasetName=name; if(dw&&dw.id)owner.data.linkListWidgetId=dw.id;
+  if(!opts.noAutoload){try{safe453i78LoadFirstLinkFromDataset(owner,ds);}catch(_e){}}
+  return {owner:owner,dw:dw,ds:ds,name:name};
+}
+
 function safe453i71SetLinkList(w,dsId){
   safe453i71EnsureLinkListRole();
   const ds=(typeof findDatasetById==='function')?findDatasetById(dsId):null;
   if(!w||!ds){toast('Linklisten blev ikke fundet');return false;}
-  w.data=w.data||{};
-  try{safe453i75FinalizeOrDeletePreviousLinkList(w,ds.id);}catch(_e){}
-  const name=String(ds.name||'Linkliste');
+  try{safe453i75FinalizeOrDeletePreviousLinkList(safe654ResolveLiveLinkWidget(w)||w,ds.id);}catch(_e){}
   const hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null;
-  if(hit&&hit.w&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,hit,'linkList',name);
-  else{
-    w.data.linkedDataSources=w.data.linkedDataSources||{};
-    w.data.linkedDataSources.linkList={datasetId:ds.id,widgetId:(hit&&hit.w&&hit.w.id)||'',name,role:'linkList'};
-  }
-  w.data.linkListDatasetId=ds.id;
-  w.data.linkListDatasetName=name;
-  if(hit&&hit.w)w.data.linkListWidgetId=hit.w.id;
-  try{safe453i78LoadFirstLinkFromDataset(w,ds);}catch(_e){}
-  save();
-  toast('Linkliste koblet');
+  const linked=(typeof safe654ConnectLinkList==='function')?safe654ConnectLinkList(w,ds,hit,{noAutoload:false}):null;
+  if(!linked){toast('Linklisten blev ikke koblet');return false;}
+  try{save();}catch(_e){}
+  try{toast('Linkliste koblet');}catch(_e){}
   return true;
 }
 function safe453i71DatasetLinkColumns(ds){
@@ -38330,25 +38449,24 @@ function safe453i72CreateDemoDataset(w,demo,openForEdit){
       dw.data.sourceOpen=false;
     }
   }catch(_e){}
-  const live=(typeof safe450FindWidgetById==='function'&&w&&w.id)?(safe450FindWidgetById(w.id)||{}).w:null;
-  const owner=live||w;
+  const owner=(typeof safe654ResolveLiveLinkWidget==='function'?safe654ResolveLiveLinkWidget(w):null)||w;
 
-  /* SAFE453i220: Demoliste må kun kobles og derefter tilbage til Ny linkliste-modalen.
-     Den må ikke automatisk loade/åbne første link fra listen. */
+  /* SAFE453i220/l654: Demoliste kobles som rigtig linkList på den levende LinkWidget,
+     men første link åbnes ikke automatisk. Brugeren vælger link i linkmodalen bagefter. */
   try{safe453i75FinalizeOrDeletePreviousLinkList(owner,ds.id);}catch(_e){}
-  owner.data=owner.data||{};
-  const name=String(ds.name||'Linkliste');
   const hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null;
-  if(hit&&hit.w&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(owner,hit,'linkList',name);
-  else{
+  if(typeof safe654ConnectLinkList==='function')safe654ConnectLinkList(owner,ds,hit,{noAutoload:true});
+  else if(owner){
+    owner.data=owner.data||{};
     owner.data.linkedDataSources=owner.data.linkedDataSources||{};
-    owner.data.linkedDataSources.linkList={datasetId:ds.id,widgetId:(hit&&hit.w&&hit.w.id)||'',name,role:'linkList'};
+    owner.data.linkedDataSources.linkList={datasetId:ds.id,widgetId:(hit&&hit.w&&hit.w.id)||'',name:String(ds.name||'Linkliste'),role:'linkList'};
+    owner.data.linkListDatasetId=ds.id;
+    owner.data.linkListDatasetName=String(ds.name||'Linkliste');
+    if(hit&&hit.w)owner.data.linkListWidgetId=hit.w.id;
   }
-  owner.data.linkListDatasetId=ds.id;
-  owner.data.linkListDatasetName=name;
-  if(hit&&hit.w)owner.data.linkListWidgetId=hit.w.id;
 
   /* Ryd eventuel automatisk/forrige visning, så brugeren vælger link i modalen. */
+  owner.data=owner.data||{};
   owner.data.linkListRowIndex=null;
   owner.data.text='Link';
   owner.data.url='';
@@ -38396,6 +38514,8 @@ function safe537CloseLinkDropdown(){
 function safe537Clamp(n,min,max){return Math.max(min,Math.min(max,n));}
 function safe538EnsureLinkListDataWidget(w){
   try{
+    if(typeof safe453i71EnsureLinkListRole==='function')safe453i71EnsureLinkListRole();
+    w=(typeof safe654ResolveLiveLinkWidget==='function'?safe654ResolveLiveLinkWidget(w):null)||w;
     if(!w||w.type!=='link')return null;
     const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
     const dsId=String((ref&&ref.datasetId)||'').trim();
@@ -38450,6 +38570,8 @@ function safe538EnsureLinkListDataWidget(w){
 }
 function safe538ToggleLinkListDataWidget(w){
   try{
+    if(typeof safe453i71EnsureLinkListRole==='function')safe453i71EnsureLinkListRole();
+    w=(typeof safe654ResolveLiveLinkWidget==='function'?safe654ResolveLiveLinkWidget(w):null)||w;
     const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
     if(!(ref&&ref.datasetId)){
       if(typeof safe453i71OpenLinkListChooser==='function')safe453i71OpenLinkListChooser(w);
@@ -38457,7 +38579,33 @@ function safe538ToggleLinkListDataWidget(w){
     }
     const hit=safe538EnsureLinkListDataWidget(w);
     if(!hit||!hit.w){try{toast('Datawidget kunne ikke genskabes fra linklisten')}catch(_e){};return false;}
-    if(typeof safe450ToggleLinkedData==='function')return safe450ToggleLinkedData(w,'linkList');
+
+    // l655: reparér eksplicit linkList-koblingen på den levende LinkWidget.
+    // Brug ikke den generelle data-rolle her, for den kan pege på andre datasæt.
+    try{
+      const ds=(typeof findDatasetById==='function')?findDatasetById(ref.datasetId):null;
+      const name=String((ds&&ds.name)||ref.name||'Linkliste');
+      w.data=w.data||{};
+      w.data.linkedDataSources=w.data.linkedDataSources||{};
+      w.data.linkedDataSources.linkList={datasetId:String(ref.datasetId),widgetId:String(hit.w.id||''),name:name,role:'linkList'};
+      w.data.linkListDatasetId=String(ref.datasetId);
+      w.data.linkListDatasetName=name;
+      w.data.linkListWidgetId=String(hit.w.id||'');
+      const dataRef=w.data.linkedDataSources.data;
+      if(dataRef&&String(dataRef.datasetId||'')===String(ref.datasetId))delete w.data.linkedDataSources.data;
+    }catch(_e){}
+
+    const dw=hit.w;
+    const isOpen=!!(dw&&dw.data&&dw.data.sourceOpen);
+    if(isOpen){
+      const openedFrom=String((dw.data&&dw.data.sourceOpenedFromWidgetId)||'');
+      const ownerId=String(w&&w.id||'');
+      let currentSlide=(Number.isInteger(state&&state.active)?state.active:0);
+      let openedSlide=Number(dw.data&&dw.data.sourceOpenedFromSlideIndex);
+      if(openedFrom&&openedFrom===ownerId&&Number.isInteger(openedSlide)&&openedSlide===currentSlide){
+        if(typeof safe381HideDataSourceWidgetByDataset==='function')return safe381HideDataSourceWidgetByDataset(ref.datasetId);
+      }
+    }
     if(typeof safe381OpenDatasetSourceNearWidget==='function')return safe381OpenDatasetSourceNearWidget(ref.datasetId,w);
     return false;
   }catch(err){console.warn('safe538ToggleLinkListDataWidget failed',err);try{toast('Linklistens datawidget kunne ikke åbnes')}catch(_e){};return false;}
@@ -40937,6 +41085,30 @@ function tavlePickTextFile(accept,cb){
   };
   input.click();
 }
+/* l653: Backupfilnavne skal afspejle Tavle-sessionen.
+   Hvis appen fx er åbnet som ...#Uge23, bliver Backup+ til
+   "Uge23 - tavle-backup-plus.json". Standard-sessionen beholder de gamle navne. */
+function safe653CurrentSessionNameForBackupFile(){
+  try{
+    const id=String((typeof window!=='undefined'&&window.__TAVLE_SESSION_ID__)||((typeof TAVLE_SESSION_ID!=='undefined')?TAVLE_SESSION_ID:'')||'').trim();
+    if(!id || id==='standard')return '';
+    let raw='';
+    try{raw=decodeURIComponent(String(location.hash||'').replace(/^#/,''));}catch(_e){raw=String(location.hash||'').replace(/^#/,'');}
+    let name=String(raw||id||'').trim();
+    if(!name || /^standard$/i.test(name))return '';
+    try{name=(typeof tavleSlugifySessionName==='function'?tavleSlugifySessionName(name):name.replace(/\s+/g,'-'));}catch(_e){name=name.replace(/\s+/g,'-');}
+    name=String(name||'').replace(/^#+/,'').replace(/[\/:*?"<>|]+/g,'-').replace(/\s+/g,'-').replace(/-+/g,'-').trim();
+    return name||'';
+  }catch(_e){return '';}
+}
+function safe653SessionBackupFileName(base,ext){
+  try{
+    const session=safe653CurrentSessionNameForBackupFile();
+    const plain=String(base||'tavle-backup').replace(/\.json$/i,'').trim()||'tavle-backup';
+    const name=(session?session+' - ':'')+plain;
+    return (typeof safeFileName==='function')?safeFileName(name,ext||'json'):(name+'.'+(ext||'json'));
+  }catch(_e){return String(base||'tavle-backup.json');}
+}
 function tavleHarvestLists(st){
   const bank=wheelListBank();
   try{
@@ -40963,7 +41135,7 @@ function tavleRestoreLists(data){
 }
 function exportJson(){
   const data={app:'maans-interaktiv-tavle',version:'v83',state:state,wheelLists:wheelListBank(),lists:wheelListBank()};
-  tavleDownloadTextFile('tavle-backup.json',safe453i161Stringify(data,2),'application/json;charset=utf-8');
+  tavleDownloadTextFile((typeof safe653SessionBackupFileName==='function'?safe653SessionBackupFileName('tavle-backup','json'):'tavle-backup.json'),safe453i161Stringify(data,2),'application/json;charset=utf-8');
   toast('JSON-backup gemt');
 }
 function importJson(){
@@ -42643,7 +42815,7 @@ function safe453i160BuildBackupPlusSaveData(drawings,mediaArchive,notes){
   return saveData;
 }
 function safe453i160OfferBackupPlusDownload(json,summary){
-  const filename='tavle-backup-plus.json';
+  const filename=(typeof safe653SessionBackupFileName==='function'?safe653SessionBackupFileName('tavle-backup-plus','json'):'tavle-backup-plus.json');
   let url='';
   try{
     const blob=new Blob([json],{type:'application/json;charset=utf-8'});
@@ -42771,7 +42943,7 @@ function downloadTavleSaveFile(options={}){
     saveData.options.includeMediaArchive=true;
     saveData.options.backupPlus=true;
   }
-  const name = options.templateOnly ? 'tavle-skabelon.json' : (options.includeDrawings||options.includeMediaArchive ? 'tavle-backup-plus.json' : 'tavle-gemmefil.json');
+  const name = options.templateOnly ? 'tavle-skabelon.json' : (typeof safe653SessionBackupFileName==='function'?safe653SessionBackupFileName((options.includeDrawings||options.includeMediaArchive ? 'tavle-backup-plus' : 'tavle-gemmefil'),'json'):(options.includeDrawings||options.includeMediaArchive ? 'tavle-backup-plus.json' : 'tavle-gemmefil.json'));
   tavleDownloadTextFile(name,safe453i161Stringify(saveData,2),'application/json;charset=utf-8');
   toast(options.templateOnly?'Skabelon gemt':((options.includeDrawings||options.includeMediaArchive)?'Backup + gemt':'Gemmefil gemt'));
 }
