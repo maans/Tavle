@@ -4,6 +4,7 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
 <!doctype html>
+<!-- l717-groups-view-runtime-inline: Bygger på l714 og erstatter l715/l716-sporet. Grupper i fokus/præsentation styres nu runtime med inline !important, fordi gamle CSS-regler vandt over rene CSS-forsøg: værktøjer skjules hårdt, hjul til venstre, gruppekort i bredt grid til højre. -->
 <!-- l714-pdf-focus-no-extra-toolbar: Bygger på l713. Fjerner ekstra tavle-pile/nødbar og skjuler PDF-toolbar i fokus/præsentation, så kun sidefelterne bruges til bladring. PDF-toolbaren bevares kun i almindelig redigeringstilstand. -->
 <!-- l713-pdf-focus-toolbar-visible: Bygger på l712. Da PDF-kantbladring stadig ikke virker i fokus, vises fokuseret PDF's egen navigationskontrol/nødbar i fokustilstand, så brugeren ikke er låst uden værktøjslinje. -->
 <!-- l712-pdf-focus-edge-nav-no-button-ignore: Bygger på l711. PDF-kantbladring i fokus afgøres nu rent geometrisk og ignorerer ikke længere eventen, bare fordi target er en usynlig hit-zone button. -->
@@ -69236,6 +69237,270 @@ body.focus-presentation .widget[data-type="pdf"].focusTarget .content.pdf .pdfEd
   cleanup();
   document.addEventListener('DOMContentLoaded',cleanup,{once:true});
   setTimeout(cleanup,100);
+})();
+</script>
+
+
+
+<style id="l717-groups-view-runtime-css">
+/* l717: CSS-baseline. Den egentlige rettelse kører også som JS med inline !important,
+   fordi ældre Grupper-regler åbenbart vinder over rene CSS-forsøg på iPad. */
+.app.present .widget[data-type="groups"] .groupsIconTopBar,
+.app.present .widget[data-type="groups"] .groupsIconBtn,
+.app.present .widget[data-type="groups"] .groupsLinkedListBar,
+.app.present .widget[data-type="groups"] .groupsSizeRow,
+.app.present .widget[data-type="groups"] .groupsNameEditor,
+.app.present .widget[data-type="groups"] .groupsControls textarea,
+.app.present .widget[data-type="groups"] .groupLock,
+body.focus-mode .widget[data-type="groups"] .groupsIconTopBar,
+body.focus-mode .widget[data-type="groups"] .groupsIconBtn,
+body.focus-mode .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-mode .widget[data-type="groups"] .groupsSizeRow,
+body.focus-mode .widget[data-type="groups"] .groupsNameEditor,
+body.focus-mode .widget[data-type="groups"] .groupsControls textarea,
+body.focus-mode .widget[data-type="groups"] .groupLock,
+body.focus-edit .widget[data-type="groups"] .groupsIconTopBar,
+body.focus-edit .widget[data-type="groups"] .groupsIconBtn,
+body.focus-edit .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-edit .widget[data-type="groups"] .groupsSizeRow,
+body.focus-edit .widget[data-type="groups"] .groupsNameEditor,
+body.focus-edit .widget[data-type="groups"] .groupsControls textarea,
+body.focus-edit .widget[data-type="groups"] .groupLock,
+body.focus-presentation .widget[data-type="groups"] .groupsIconTopBar,
+body.focus-presentation .widget[data-type="groups"] .groupsIconBtn,
+body.focus-presentation .widget[data-type="groups"] .groupsLinkedListBar,
+body.focus-presentation .widget[data-type="groups"] .groupsSizeRow,
+body.focus-presentation .widget[data-type="groups"] .groupsNameEditor,
+body.focus-presentation .widget[data-type="groups"] .groupsControls textarea,
+body.focus-presentation .widget[data-type="groups"] .groupLock{
+  display:none!important;
+}
+</style>
+
+
+<script id="l717-groups-view-runtime-owner">
+/*
+l717: Grupper view-layout med runtime inline !important.
+De rene CSS-forsøg (l715/l716) blev overtrumfet af gamle Grupper-regler på iPad.
+Derfor sætter denne patch kun i fokus/præsentation de nødvendige layoutværdier direkte
+på Grupper-widgettens egne DOM-elementer med style.setProperty(...,'important').
+Redigeringstilstand nulstilles, så den gode editor-visning bevares.
+*/
+(function(){
+  if(window.__l717GroupsViewRuntimeOwner)return;
+  window.__l717GroupsViewRuntimeOwner=true;
+
+  const HIDE_SEL=[
+    '.groupsIconTopBar',
+    '.groupsIconBtn',
+    '.groupsLinkedListBar',
+    '.groupsSizeRow',
+    '.groupsNameEditor',
+    '.groupsControls textarea',
+    '.groupsControls .editOnly',
+    '.showGroupList',
+    '.groupLock'
+  ].join(',');
+
+  const VIEW_MARK='data-l717-groups-view-inline';
+
+  function imp(el,prop,val){
+    try{ if(el)el.style.setProperty(prop,val,'important'); }catch(_e){}
+  }
+  function clearProps(el,props){
+    if(!el)return;
+    props.forEach(p=>{try{el.style.removeProperty(p);}catch(_e){}});
+  }
+  function appEl(){return document.getElementById('app')||document.querySelector('.app');}
+  function isPresent(){
+    try{
+      const a=appEl();
+      return !!(a&&(a.classList.contains('present')||a.classList.contains('presentation')));
+    }catch(_e){return false;}
+  }
+  function isFocus(){
+    try{
+      return !!(
+        document.body.classList.contains('focus-mode') ||
+        document.body.classList.contains('focus-edit') ||
+        document.body.classList.contains('focus-presentation') ||
+        document.body.classList.contains('focus-maximized') ||
+        (window.UIState && (!!UIState.focusMode || !!UIState.focusMaximized))
+      );
+    }catch(_e){return false;}
+  }
+  function viewOn(){return isPresent()||isFocus();}
+
+  function applyViewToWidget(wel){
+    if(!wel)return;
+    const content=wel.querySelector('.content.groups');
+    const box=wel.querySelector('.groupsBox');
+    const spin=wel.querySelector('.groupSpin');
+    const wrap=wel.querySelector('.groupWheelWrap');
+    const wheel=wel.querySelector('.groupWheel');
+    const controls=wel.querySelector('.groupsControls');
+    const result=wel.querySelector('.groupsResult');
+
+    wel.setAttribute(VIEW_MARK,'1');
+
+    // Skjul værktøj HÅRDT, så det ikke bare bliver usynligt men stadig optager layoutplads.
+    wel.querySelectorAll(HIDE_SEL).forEach(el=>{
+      imp(el,'display','none');
+      imp(el,'visibility','hidden');
+      imp(el,'opacity','0');
+      imp(el,'pointer-events','none');
+      imp(el,'height','0');
+      imp(el,'min-height','0');
+      imp(el,'max-height','0');
+      imp(el,'width','0');
+      imp(el,'min-width','0');
+      imp(el,'max-width','0');
+      imp(el,'margin','0');
+      imp(el,'padding','0');
+      imp(el,'overflow','hidden');
+      imp(el,'position','static');
+    });
+
+    // Tving gruppens aktuelle resultattilstand til at vise resultatfladen.
+    if(box){
+      box.classList.add('groupsShowResult');
+      imp(box,'display','grid');
+      imp(box,'grid-template-columns','minmax(260px,.85fr) minmax(0,1.55fr)');
+      imp(box,'grid-template-rows','minmax(0,1fr)');
+      imp(box,'gap','12px');
+      imp(box,'padding','12px');
+      imp(box,'height','100%');
+      imp(box,'min-height','0');
+      imp(box,'width','100%');
+      imp(box,'max-width','none');
+      imp(box,'box-sizing','border-box');
+      imp(box,'overflow','hidden');
+      imp(box,'align-items','stretch');
+      imp(box,'background','#fff');
+      imp(box,'border-radius','12px');
+    }
+    if(content){
+      imp(content,'height','100%');
+      imp(content,'min-height','0');
+      imp(content,'width','100%');
+      imp(content,'box-sizing','border-box');
+      imp(content,'overflow','hidden');
+      imp(content,'background','#fff');
+      imp(content,'border-radius','12px');
+    }
+    if(spin){
+      imp(spin,'display','grid');
+      imp(spin,'place-items','center');
+      imp(spin,'min-width','0');
+      imp(spin,'min-height','0');
+      imp(spin,'width','100%');
+      imp(spin,'height','100%');
+      imp(spin,'overflow','hidden');
+      imp(spin,'grid-column','1');
+      imp(spin,'grid-row','1');
+    }
+    if(wrap){
+      imp(wrap,'position','relative');
+      imp(wrap,'display','grid');
+      imp(wrap,'place-items','center');
+      imp(wrap,'width','min(100%,52vh,360px)');
+      imp(wrap,'max-width','100%');
+      imp(wrap,'height','auto');
+      imp(wrap,'margin','auto');
+    }
+    if(wheel){
+      imp(wheel,'display','block');
+      imp(wheel,'width','100%');
+      imp(wheel,'max-width','100%');
+      imp(wheel,'height','auto');
+    }
+    if(controls){
+      imp(controls,'display','grid');
+      imp(controls,'grid-template-columns','minmax(0,1fr)');
+      imp(controls,'grid-template-rows','minmax(0,1fr)');
+      imp(controls,'gap','0');
+      imp(controls,'min-width','0');
+      imp(controls,'min-height','0');
+      imp(controls,'width','100%');
+      imp(controls,'max-width','none');
+      imp(controls,'height','100%');
+      imp(controls,'box-sizing','border-box');
+      imp(controls,'overflow','hidden');
+      imp(controls,'grid-column','2');
+      imp(controls,'grid-row','1');
+      imp(controls,'align-content','stretch');
+      imp(controls,'justify-content','stretch');
+    }
+    if(result){
+      imp(result,'display','grid');
+      imp(result,'grid-template-columns','repeat(auto-fit,minmax(165px,1fr))');
+      imp(result,'grid-column','1');
+      imp(result,'grid-row','1');
+      imp(result,'align-self','stretch');
+      imp(result,'justify-self','stretch');
+      imp(result,'align-content','start');
+      imp(result,'align-items','start');
+      imp(result,'gap','10px');
+      imp(result,'min-width','0');
+      imp(result,'min-height','0');
+      imp(result,'width','100%');
+      imp(result,'max-width','none');
+      imp(result,'height','100%');
+      imp(result,'box-sizing','border-box');
+      imp(result,'padding','10px');
+      imp(result,'overflow','auto');
+      imp(result,'background','#f8fafc');
+      imp(result,'border','1px solid #e2e8f0');
+      imp(result,'border-radius','14px');
+      imp(result,'font-size','clamp(15px,1.45vw,22px)');
+      imp(result,'line-height','1.18');
+      imp(result,'-webkit-overflow-scrolling','touch');
+    }
+    wel.querySelectorAll('.groupCard').forEach(card=>{
+      imp(card,'min-width','0');
+      imp(card,'width','auto');
+      imp(card,'max-width','none');
+      imp(card,'margin','0');
+      imp(card,'padding','10px 12px');
+      imp(card,'border-radius','12px');
+      imp(card,'box-sizing','border-box');
+    });
+    wel.querySelectorAll('.groupCard b').forEach(b=>{
+      imp(b,'display','block');
+      imp(b,'font-size','clamp(17px,1.65vw,25px)');
+      imp(b,'line-height','1.05');
+      imp(b,'margin','0 0 4px');
+    });
+  }
+
+  function clearWidget(wel){
+    if(!wel || !wel.hasAttribute(VIEW_MARK))return;
+    wel.removeAttribute(VIEW_MARK);
+    const props=['display','visibility','opacity','pointer-events','height','min-height','max-height','width','min-width','max-width','margin','padding','overflow','position','grid-template-columns','grid-template-rows','gap','box-sizing','align-items','background','border-radius','grid-column','grid-row','place-items','max-width','align-content','justify-content','align-self','justify-self','border','font-size','line-height','-webkit-overflow-scrolling'];
+    wel.querySelectorAll('.content.groups,.groupsBox,.groupSpin,.groupWheelWrap,.groupWheel,.groupsControls,.groupsResult,.groupCard,.groupCard b,'+HIDE_SEL).forEach(el=>clearProps(el,props));
+  }
+
+  let raf=0;
+  function sync(){
+    if(raf)return;
+    raf=requestAnimationFrame(()=>{
+      raf=0;
+      const on=viewOn();
+      document.querySelectorAll('.widget[data-type="groups"]').forEach(wel=>{
+        if(on)applyViewToWidget(wel);
+        else clearWidget(wel);
+      });
+    });
+  }
+
+  ['resize','orientationchange'].forEach(ev=>window.addEventListener(ev,sync,{passive:true}));
+  ['click','pointerup','pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,sync,true));
+  const mo=new MutationObserver(sync);
+  try{mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style','data-type']});}catch(_e){}
+  setInterval(sync,650);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync,{once:true});
+  else sync();
+  setTimeout(sync,100);
 })();
 </script>
 
