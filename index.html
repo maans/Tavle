@@ -1,6 +1,13 @@
+<!-- l673-wheel-teacher-pick-target: Bygger på l672. Kirurgisk Lykkehjul-fix: Klik/tap direkte på et hjulstykke starter et troværdigt spin, der lander på den valgte mulighed og bruger den samme vinder-/puljelogik som almindeligt spin. Samtidig målrettes spin efter faktisk rotation, så stop/ny spin stadig lander korrekt. Ingen Timer/DataWidget/øvrige widgets ændret. -->
+<!-- l672-wheel-stop-before-choice: Bygger på l671. Kirurgisk Lykkehjul-fix: Space/Enter eller Stop mens hjulet kører stopper altid den aktuelle spin-animation uden at vælge noget; Auto stoppes også straks. Ingen ændring af Timer, DataWidget eller øvrige widgets. -->
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!doctype html>
+<!-- l671-wheel-space-more-owner-guard: Bygger på l670. Kirurgisk Lykkehjul-ejerfix: Aktivt Lykkehjul stopper altid Space før Mere-menuen, også når spin-knappen midlertidigt er disabled/skjult; Mere-menuens egne Space-handlere spørger nu Lykkehjulet på samme måde som Timeren. -->
+<!-- l670-wheel-natural-keyboard-touch: Bygger på l669. Kirurgisk Lykkehjulet-ejerfix: Resultatmodal får tidlig Esc/Space-ejer før Mere-menu/modal-guard, aktivt/senest berørt Lykkehjul ejer Space/Enter, Behold/Auto toggles på pointerdown/touch, og Ny pulje starter nu en tom redigerbar pulje uden skjult datawidget-oprettelse. -->
+<!-- l669-wheel-toggle-esc-owner-fix: Bygger på l668. Kirurgisk Lykkehjulet-ejerfix: Behold i puljen/Auto kan toggles robust via label/checkbox på touch, og Lykkehjulets resultatmodal ejer Esc/Space/knapper via wheelInternalConfirm uden globale Tavle-events eller øvrige widgets. -->
+<!-- l668-wheel-owner-buttons-touch-fix: Bygger på l667. Kirurgisk Lykkehjulet-ejerfix: Lykkehjulets egne knapper får lokal pointerup/touch/click-bro i wireWheel, så widgetvalg/drag ikke sluger iPad-tryk. Kilde/Pulje/Nulstil/Ny pulje/Drej og redigeringsknapper berøres kun i Lykkehjulets egen ejer. Timer-log/datakobling og øvrige widgets urørt. -->
 <!-- l661-linkcard-buttons-touch: Bygger på l660. Kirurgisk Link/iFrame-rettelse: linkkortets pile og kopiér-knap får robust pointerup+click uden at ændre bjælke-drag, data-kobling eller øvrige widgets. -->
+<!-- l667-timer-passive-countdown-panel: Bygger på l666. Kirurgisk TimerWidget-CSS: nedtællingens sekvens-editor i højre panel skjules ikke længere af den generelle widget-control-regel, når TimerWidgetten er passiv. Timer-log/datakobling urørt. -->
 <!-- l665-timer-space-lapscroll-owner: Bygger på l664. Kirurgisk TimerWidget-ejerfix: Space/Mellemrum får TimerWidgetten før Tavlens Mere-menu, stopurets mellemtidskort viser alle mellemtider i scrollbart felt, og scroll/tap i mellemtidslisten opretter ikke nye mellemtider. Timer-log/datakobling urørt. -->
 <!-- l666-timer-space-scroll-passive-panel: Bygger på l665. Kirurgisk TimerWidget-ejerfix: TimerWidgetten ejer Space/Mellemrum før Mere-menuen, mellemtidslisten får egen scroll-ejer, og stopurets højre panel holdes synligt også når widgetten er passiv. Timer-log/datakobling urørt. -->
 <!-- l664-stopwatch-lap-enter-visible: Bygger på l663. Kirurgisk TimerWidget-ejerfix: stopurets flag/mellemtid gør effekten synlig ved at skifte til visningskort, Enter starter stopur når det står stille og sætter mellemtid når det kører, og timer-genveje finder også fokuseret TimerWidget uden at røre Timer-log/datakobling. -->
@@ -347,6 +354,181 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 })();
 </script>
 
+<script id="l671-wheel-keyboard-owner-early">
+(function(){
+  if(window.__l671WheelKeyboardOwnerEarly)return;
+  window.__l671WheelKeyboardOwnerEarly=true;
+  var lastWheelId=null,lastWheelAt=0;
+
+  function stopHard(e){
+    try{
+      if(!e)return;
+      e.preventDefault&&e.preventDefault();
+      e.stopPropagation&&e.stopPropagation();
+      e.stopImmediatePropagation&&e.stopImmediatePropagation();
+      e.__l671WheelHandled=true;
+      e.__l670WheelHandled=true; // ældre hjulpatches skal også forstå, at tasten er ejet.
+    }catch(_e){}
+  }
+  function isTypingTarget(t){
+    try{
+      if(!t)return false;
+      var tag=String(t.tagName||'').toLowerCase();
+      return !!(t.isContentEditable||tag==='input'||tag==='textarea'||tag==='select'||(t.closest&&t.closest('input,textarea,select,[contenteditable="true"]')));
+    }catch(_e){return false;}
+  }
+  function visible(el){
+    try{
+      if(!el||!el.isConnected)return false;
+      var cs=getComputedStyle(el);
+      if(cs.display==='none'||cs.visibility==='hidden'||cs.opacity==='0')return false;
+      var r=el.getBoundingClientRect();
+      return r.width>8&&r.height>8&&r.bottom>0&&r.right>0&&r.top<innerHeight&&r.left<innerWidth;
+    }catch(_e){return false;}
+  }
+  function cssEscape(v){try{return CSS.escape(String(v));}catch(_e){return String(v||'').replace(/[^a-zA-Z0-9_-]/g,'\\$&');}}
+  function isWheel(el){try{return !!(el&&el.matches&&el.matches('.widget[data-type="wheel"][data-id]'));}catch(_e){return false;}}
+  function widgetById(id){
+    try{if(!id)return null;var el=document.querySelector('.widget[data-id="'+cssEscape(id)+'"]');return visible(el)?el:null;}catch(_e){return null;}
+  }
+  function stateIds(){
+    var ids=[];
+    try{if(window.UIState){['selectedWidgetId','focusedWidgetId','maximizedWidgetId'].forEach(function(k){if(UIState[k]!=null)ids.push(String(UIState[k]));});}}catch(_e){}
+    try{if(typeof selected!=='undefined'&&selected!=null)ids.push(String(selected));}catch(_e){}
+    return ids.filter(function(x,i,a){return x&&a.indexOf(x)===i;});
+  }
+  function selectedNonWheelExists(){
+    try{
+      var ids=stateIds();
+      for(var i=0;i<ids.length;i++){
+        var el=widgetById(ids[i]);
+        if(el&&!isWheel(el))return true;
+      }
+      var sel=document.querySelector('.widget.selected[data-id],.widget.focusTarget[data-id]');
+      return !!(visible(sel)&&!isWheel(sel));
+    }catch(_e){return false;}
+  }
+  function activeWheel(e){
+    try{
+      var t=e&&e.target;
+      var inside=t&&t.closest&&t.closest('.widget[data-type="wheel"][data-id]');
+      if(visible(inside))return inside;
+
+      var ae=document.activeElement;
+      inside=ae&&ae.closest&&ae.closest('.widget[data-type="wheel"][data-id]');
+      if(visible(inside))return inside;
+
+      var el=document.querySelector('.widget.selected[data-type="wheel"][data-id],.widget.focusTarget[data-type="wheel"][data-id]');
+      if(visible(el))return el;
+
+      var ids=stateIds();
+      for(var i=0;i<ids.length;i++){
+        el=widgetById(ids[i]);
+        if(isWheel(el))return el;
+      }
+
+      // Sidste berørte hjul må kun bruges, hvis ingen anden widget tydeligt er valgt.
+      // Det forhindrer, at Lykkehjulet stjæler Space efter at brugeren har valgt fx Tekst.
+      if(lastWheelId && Date.now()-lastWheelAt<120000 && !selectedNonWheelExists()){
+        el=widgetById(lastWheelId);
+        if(isWheel(el))return el;
+      }
+    }catch(_e){}
+    return null;
+  }
+  function modalBackVisible(){
+    try{var mb=document.getElementById('modalBack');return !!(mb&&getComputedStyle(mb).display!=='none');}catch(_e){return false;}
+  }
+  function wheelConfirmOpen(){
+    try{
+      var mb=document.getElementById('modalBack'),m=document.getElementById('modal');
+      if(!mb||getComputedStyle(mb).display==='none')return false;
+      return !!(mb.classList.contains('wheelConfirmBackdrop')||(m&&m.querySelector&&m.querySelector('.wheelConfirmModal')));
+    }catch(_e){return false;}
+  }
+  function keyMatchesList(e,keys){
+    try{
+      keys=keys&&keys.length?keys:['Enter'];
+      for(var i=0;i<keys.length;i++){
+        var k=keys[i];
+        if(k===' '&&(e.key===' '||e.key==='Spacebar'||e.code==='Space'))return true;
+        if(k==='Enter'&&(e.key==='Enter'||e.key==='Return'||e.code==='Enter'||e.code==='NumpadEnter'))return true;
+        if(e.key===k||e.code===k)return true;
+      }
+    }catch(_e){}
+    return false;
+  }
+  function handleWheelConfirm(e){
+    if(!wheelConfirmOpen())return false;
+    var cancel=(e.key==='Escape'||e.key==='Esc'||e.code==='Escape'||e.keyCode===27||e.which===27);
+    var ok=keyMatchesList(e,window.__activeWheelConfirmKeys||['Enter']);
+    if(!cancel&&!ok)return false;
+    stopHard(e);
+    try{
+      if(typeof window.__activeWheelConfirm==='function'){
+        window.__activeWheelConfirm(!!ok);
+        return true;
+      }
+    }catch(_e){}
+    try{
+      var btn=document.getElementById(ok?'wheelOkConfirm':'wheelCancelConfirm');
+      if(btn)btn.click();
+    }catch(_e){}
+    return true;
+  }
+  function clickSpin(el){
+    try{
+      // l672: Hvis hjulet allerede kører, skal Space/Enter stoppe spin-animationen
+      // uden at vælge en vinder. Det skal ske før vi forsøger at klikke på Drej/Stop-knappen,
+      // for knappen kan være midlertidigt disabled under animationen.
+      if(window.safe672StopWheelSpin && window.safe672StopWheelSpin(el,{fromKey:true}))return true;
+      var btn=el&&el.querySelector&&el.querySelector('button.spinCenter,.spinCenter,button.spin');
+      if(btn&&!btn.disabled){btn.click();return true;}
+    }catch(_e){}
+    return false;
+  }
+  window.safe671WheelOwnsSpace=function(e){
+    try{
+      if(!e||e.__l671WheelHandled)return true;
+      if(handleWheelConfirm(e))return true;
+      var key=String(e.key||'');
+      var isSpace=(key===' '||key==='Spacebar'||e.code==='Space');
+      var isEnter=(key==='Enter'||key==='Return'||e.code==='Enter'||e.code==='NumpadEnter');
+      if(!isSpace&&!isEnter)return false;
+      if(e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return false;
+      if(isTypingTarget(e.target))return false;
+      if(modalBackVisible())return false;
+      var w=activeWheel(e);
+      if(!w)return false;
+
+      // Det afgørende l671-fix: Når et hjul er aktivt, ejer hjulet tasten uanset
+      // om spin-knappen netop nu er disabled, midlertidigt skjult eller ved at re-rendere.
+      // Ellers kan Space slippe videre til Tavlens Mere-menu.
+      stopHard(e);
+      try{lastWheelId=w.dataset.id;lastWheelAt=Date.now();}catch(_e){}
+      clickSpin(w);
+      return true;
+    }catch(_e){return false;}
+  };
+  function handleKey(e){
+    try{if(window.safe671WheelOwnsSpace(e))return false;}catch(_e){}
+  }
+  function rememberPointer(e){
+    try{
+      var w=e.target&&e.target.closest&&e.target.closest('.widget[data-type="wheel"][data-id]');
+      if(w&&visible(w)){lastWheelId=w.dataset.id;lastWheelAt=Date.now();}
+      else if(!(e.target&&e.target.closest&&e.target.closest('.wheelConfirmModal')) && selectedNonWheelExists()){
+        lastWheelId=null;lastWheelAt=0;
+      }
+    }catch(_e){}
+  }
+  document.addEventListener('pointerdown',rememberPointer,true);
+  document.addEventListener('touchstart',rememberPointer,true);
+  window.addEventListener('keydown',handleKey,true);
+  document.addEventListener('keydown',handleKey,true);
+})();
+</script>
+
 <script id="widget-overview-early-cmdo-guard">
 (function(){
   function isCmdO(e){return (e.metaKey||e.ctrlKey) && !e.altKey && !e.shiftKey && String(e.key||'').toLowerCase()==='o';}
@@ -364,7 +546,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.156 l666-timer-space-scroll-passive-panel</title>
+<title>Interaktiv tavle v1.2.160 l673-wheel-teacher-pick-target</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -12950,6 +13132,79 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
 }
 .widget[data-type="timer"] .timerSwGroupCard{
   touch-action:pan-y manipulation!important;
+}
+</style>
+
+
+
+<style id="l667-timer-passive-countdown-panel-css">
+/* l667: Kirurgisk TimerWidget-fix oven på l666.
+   Problemet var ikke stopurdata eller Timer-log, men den generelle widget-control-regel:
+   .widget:not(.selected) .widget-control skjulte nedtællingens sekvens-editor i højre panel,
+   så TimerWidgetten blev visuelt tom, når en anden widget blev valgt.
+   Kun Timerens højre nedtællingspanel gøres synligt i passiv tilstand.
+   Timer-log/datakobling røres ikke. */
+.widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-countdown .timerCountdownPanel .timerSequenceEditor.widget-control{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex-direction:column!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-countdown .timerCountdownPanel .timerSequenceRows{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+}
+.widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-countdown .timerCountdownPanel .timerSequenceHead,
+.widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-countdown .timerCountdownPanel .timerSequenceRow,
+.widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-countdown .timerCountdownPanel .timerSeqNow{
+  visibility:visible!important;
+  opacity:1!important;
+}
+@media (min-width:760px){
+  .widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-countdown{
+    display:grid!important;
+    grid-template-columns:minmax(180px,.46fr) minmax(0,1.54fr)!important;
+    grid-template-areas:
+      "leftMode rightContext"
+      "leftFace rightContext"
+      "leftAlarm rightContext"
+      "leftRun rightContext"
+      "leftLog rightContext"!important;
+    grid-template-rows:auto auto auto auto minmax(0,1fr)!important;
+    column-gap:12px!important;
+    align-items:stretch!important;
+    justify-items:stretch!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:100%!important;
+    min-height:0!important;
+    box-sizing:border-box!important;
+  }
+  .widget[data-type="timer"]:not(.selected) .timerTwinShell.timerMode-countdown .timerCountdownPanel{
+    grid-area:rightContext!important;
+    align-self:stretch!important;
+    justify-self:stretch!important;
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
 }
 </style>
 
@@ -32501,7 +32756,7 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
         <button class="loadList wheelIconBtn" title="Vælg kilde" aria-label="Vælg kilde"><span class="wheelBtnIcon">🗂️</span><span class="wheelBtnText">Kilde</span></button>
         <button class="editNames wheelIconBtn" title="${w.data.editing?'Luk redigering':'Rediger pulje'}" aria-label="${w.data.editing?'Luk redigering':'Rediger pulje'}"><span class="wheelBtnIcon">${w.data.editing?'✓':'✎'}</span><span class="wheelBtnText">${w.data.editing?'Luk':'Pulje'}</span></button>
         <button class="resetPool wheelIconBtn" title="Nulstil" aria-label="Nulstil"><span class="wheelBtnIcon">↺</span><span class="wheelBtnText">Nulstil</span></button>
-        ${w.data.editing?'':`<button class="saveChosenList wheelIconBtn" title="Gem resultat som ny pulje" aria-label="Gem resultat som ny pulje"><span class="wheelBtnIcon">💾</span><span class="wheelBtnText">Ny pulje</span></button>`}
+        ${w.data.editing?'':`<button class="saveChosenList wheelIconBtn" title="Start ny tom pulje" aria-label="Start ny tom pulje"><span class="wheelBtnIcon">＋</span><span class="wheelBtnText">Ny pulje</span></button>`}
       </div>
       ${w.data.editing?`
         <div class="editArea safe159EditArea safe163OptionEditor"><div class="editHint"><span>Aktuel pulje</span><span>${(w.data.names||[]).length} valg · gemmes automatisk</span></div><div class="safe163OptionRows">${safe163EditorRows}</div><div class="editTools safe164EditTools"><button type="button" class="safe163AddOption">+ Tilføj</button><span class="safe164LiveHint">Ændringer opdaterer hjulet og den koblede pulje</span></div></div>
@@ -37437,6 +37692,19 @@ function targetRotationForIndex(index,count,extraTurns=6){
   // Pointer is fixed at 0 radians (right side). We want the CENTER of the chosen slice at the pointer.
   return extraTurns*Math.PI*2 - (index+.5)*step;
 }
+function targetRotationFromStartForIndex(index,count,startRot=0,extraTurns=6){
+  const two=Math.PI*2;
+  if(!count)return Number(startRot)||0;
+  const step=two/count;
+  // Final rotation modulo 2π must place the center of the chosen slice at the fixed pointer.
+  // This version keeps the current visual rotation as the starting point, so a wheel that was
+  // stopped midway still lands on the chosen slice on the next spin.
+  const targetMod=((-(index+.5)*step)%two+two)%two;
+  const start=Number(startRot)||0;
+  const startMod=((start%two)+two)%two;
+  const delta=(targetMod-startMod+two)%two;
+  return start + Math.max(0,Number(extraTurns)||0)*two + delta;
+}
 
 
 function wheelListBank(){
@@ -37506,54 +37774,97 @@ function wheelIndexFromCanvasEvent(canvas,e,w){
 }
 
 function wheelInternalConfirm(message,{okText='OK',cancelText='Annuller',okKeys=['Enter']}={},onOk,onCancel){
-  showModal(`<div class="wheelConfirmModal">
+  showModal(`<div class="wheelConfirmModal" role="dialog" aria-modal="true">
     <p class="wheelConfirmMessage">${esc(message)}</p>
     <div class="wheelConfirmButtons">
-      <button id="wheelCancelConfirm" class="wheelConfirmSecondary">${esc(cancelText)}</button>
-      <button id="wheelOkConfirm" class="wheelConfirmPrimary">${esc(okText)}</button>
+      <button id="wheelCancelConfirm" class="wheelConfirmSecondary" type="button">${esc(cancelText)}</button>
+      <button id="wheelOkConfirm" class="wheelConfirmPrimary" type="button">${esc(okText)}</button>
     </div>
     <p class="note wheelConfirmHelp">${esc((okKeys||['Enter']).map(k=>k===' '?'Mellemrum':k).join(' / '))} = ${esc(okText)} · Esc = ${esc(cancelText)}</p>
   </div>`);
   modalBack.classList.add('wheelConfirmBackdrop');
-  let keyHandler=null, backdropHandler=null;
+
+  // l669: Resultatmodalen er Lykkehjulets egen special-modal.
+  // Den skal selv eje Esc/Space/Enter og egne knapper, så generelle modal-/Mere-menu-handlere ikke lukker den uden valg.
+  let keyHandler=null, backdropHandler=null, doneLock=false;
+  const stopWheelConfirmEvent=(e)=>{
+    try{
+      if(!e)return;
+      if(e.preventDefault)e.preventDefault();
+      if(e.stopPropagation)e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    }catch(_e){}
+  };
   const cleanup=()=>{
-    if(keyHandler)document.removeEventListener('keydown',keyHandler,true);
-    if(backdropHandler)modalBack.removeEventListener('click',backdropHandler,true);
-    modalBack.classList.remove('wheelConfirmBackdrop');
+    try{if(keyHandler)document.removeEventListener('keydown',keyHandler,true);}catch(_e){}
+    try{if(keyHandler)window.removeEventListener('keydown',keyHandler,true);}catch(_e){}
+    try{if(keyHandler)modalBack.removeEventListener('keydown',keyHandler,true);}catch(_e){}
+    try{if(keyHandler&&modal)modal.removeEventListener('keydown',keyHandler,true);}catch(_e){}
+    try{if(backdropHandler)modalBack.removeEventListener('click',backdropHandler,true);}catch(_e){}
+    try{if(backdropHandler)modalBack.removeEventListener('pointerup',backdropHandler,true);}catch(_e){}
+    try{modalBack.classList.remove('wheelConfirmBackdrop');}catch(_e){}
+    try{if(window.__activeWheelConfirm===done)delete window.__activeWheelConfirm;}catch(_e){}
+    try{delete window.__activeWheelConfirmKeys;}catch(_e){}
   };
   const done=(ok)=>{
+    if(doneLock)return;
+    doneLock=true;
     cleanup();
     closeModal();
     if(ok){if(onOk)onOk();}
     else {if(onCancel)onCancel();}
   };
-  keyHandler=(e)=>{
+  const isOkKey=(e)=>{
     const oks=okKeys||['Enter'];
-    if(oks.includes(e.key) || (oks.includes(' ') && (e.code==='Space'||e.key===' '||e.key==='Spacebar'))){
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-      done(true);
-    }else if(e.key==='Escape'||e.key==='Esc'||e.code==='Escape'){
-      e.preventDefault();
-      e.stopPropagation();
-      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-      done(false);
-    }
+    return !!(
+      oks.includes(e.key) ||
+      (oks.includes(' ') && (e.code==='Space'||e.key===' '||e.key==='Spacebar')) ||
+      (oks.includes('Enter') && (e.key==='Enter'||e.key==='Return'||e.code==='Enter'||e.code==='NumpadEnter'))
+    );
+  };
+  const isCancelKey=(e)=>!!(e.key==='Escape'||e.key==='Esc'||e.code==='Escape'||e.keyCode===27||e.which===27);
+  keyHandler=(e)=>{
+    try{
+      if(!modalBack.classList.contains('wheelConfirmBackdrop'))return;
+      if(isOkKey(e)){stopWheelConfirmEvent(e);done(true);return false;}
+      if(isCancelKey(e)){stopWheelConfirmEvent(e);done(false);return false;}
+    }catch(_e){}
   };
   backdropHandler=(e)=>{
     if(e.target===modalBack){
-      cleanup();
-      if(onCancel)onCancel();
+      stopWheelConfirmEvent(e);
+      done(false);
     }
   };
+  try{window.__activeWheelConfirm=done;window.__activeWheelConfirmKeys=okKeys||['Enter'];}catch(_e){}
   document.addEventListener('keydown',keyHandler,true);
+  window.addEventListener('keydown',keyHandler,true);
+  modalBack.addEventListener('keydown',keyHandler,true);
+  if(modal)modal.addEventListener('keydown',keyHandler,true);
   modalBack.addEventListener('click',backdropHandler,true);
+  try{modalBack.addEventListener('pointerup',backdropHandler,{capture:true,passive:false});}catch(_e){}
+
   const okBtn=modal.querySelector('#wheelOkConfirm');
   const cancelBtn=modal.querySelector('#wheelCancelConfirm');
-  if(okBtn)okBtn.onclick=()=>done(true);
-  if(cancelBtn)cancelBtn.onclick=()=>done(false);
-  setTimeout(()=>{try{okBtn&&okBtn.focus()}catch(_e){}},0);
+  const bindConfirmButton=(btn,ok)=>{
+    if(!btn)return;
+    let last=0;
+    const run=(e)=>{
+      stopWheelConfirmEvent(e);
+      const now=Date.now();
+      if(now-last<260)return;
+      last=now;
+      done(ok);
+    };
+    btn.onclick=run;
+    try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+    try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+    try{btn.addEventListener('pointerdown',e=>{try{e.stopPropagation();}catch(_e){}},{capture:true,passive:true});}catch(_e){}
+    try{btn.addEventListener('touchstart',e=>{try{e.stopPropagation();}catch(_e){}},{capture:true,passive:true});}catch(_e){}
+  };
+  bindConfirmButton(okBtn,true);
+  bindConfirmButton(cancelBtn,false);
+  setTimeout(()=>{try{cancelBtn&&cancelBtn.focus({preventScroll:true})}catch(_e){}},0);
 }
 
 function moveWheelItemToChosen(c,w,index){
@@ -37581,20 +37892,78 @@ function moveWheelItemToChosen(c,w,index){
 
 function flashWheel(c){const box=c.querySelector('.wheelBox');if(!box)return;box.classList.remove('flashWheel');void box.offsetWidth;box.classList.add('flashWheel');setTimeout(()=>box.classList.remove('flashWheel'),650)}
 function parseWheelNames(text){return String(text||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean)}
-function runWheelSpin(c,w,{auto=false,onDone=null}={}){
+function safe672WheelSpinKey(w){
+ try{return String((w&&w.id)||'');}catch(_e){return '';}
+}
+function safe672WheelControllerMap(){
+ try{
+   if(!window.__safe672WheelSpinControllers)window.__safe672WheelSpinControllers=Object.create(null);
+   return window.__safe672WheelSpinControllers;
+ }catch(_e){return {}; }
+}
+window.safe672StopWheelSpin=function(wheelEl,opts){
+ opts=opts||{};
+ try{
+   if(!wheelEl)return false;
+   var widgetEl=wheelEl.matches&&wheelEl.matches('.widget[data-type="wheel"]')?wheelEl:(wheelEl.closest&&wheelEl.closest('.widget[data-type="wheel"]'));
+   if(!widgetEl||!widgetEl.dataset)return false;
+   var id=String(widgetEl.dataset.id||'');
+   if(!id)return false;
+   var map=safe672WheelControllerMap();
+   var ctrl=map[id];
+   if(ctrl&&typeof ctrl.stop==='function'){
+     ctrl.stop(opts);
+     return true;
+   }
+   var live=null;
+   try{if(typeof findWidget==='function')live=findWidget(id);}
+   catch(_e){live=null;}
+   if(live&&live.data&&live.data.autoRunning){
+     live.data.autoRunning=false;
+     try{fillContent(widgetEl,live);}catch(_e){}
+     try{save();}catch(_e){}
+     try{toast('Auto stoppet');}catch(_e){}
+     return true;
+   }
+ }catch(err){try{console.warn('l672 stop af Lykkehjul fejlede',err);}catch(_e){}}
+ return false;
+};
+
+function runWheelSpin(c,w,{auto=false,onDone=null,forcedIndex=null,teacherPick=false}={}){
  primeAudio();
  const el=c.closest('.widget');
  const canv=c.querySelector('canvas');
  const btn=c.querySelector('.spinCenter')||c.querySelector('.spin');
  let names=[...(w.data.names||[])];
  if(!names.length){toast('Puljen er tom'); if(onDone)onDone(false); return;}
- if(btn)btn.disabled=true;
- const idx=Math.floor(Math.random()*names.length),winner=names[idx];
+ if(btn){btn.disabled=false;btn.dataset.spinning='1';btn.textContent='Stop';}
+ const forced=Math.floor(Number(forcedIndex));
+ const idx=(Number.isFinite(forced)&&forced>=0&&forced<names.length)?forced:Math.floor(Math.random()*names.length),winner=names[idx];
  const duration=auto?1050+Math.random()*350:2600+Math.random()*700;
  const startRot=w.data.rot||0;
- const endRot=startRot+targetRotationForIndex(idx,names.length,auto?3+Math.floor(Math.random()*2):6+Math.floor(Math.random()*3));
+ const turns=auto?3+Math.floor(Math.random()*2):6+Math.floor(Math.random()*3);
+ const endRot=targetRotationFromStartForIndex(idx,names.length,startRot,turns);
  const startTime=performance.now();
  let lastTick=0;
+ let currentRot=startRot;
+ const spinId=safe672WheelSpinKey(w);
+ const spinMap=safe672WheelControllerMap();
+ const spinCtrl={cancelled:false,finished:false,stop:function(opts){
+   if(spinCtrl.finished||spinCtrl.cancelled)return;
+   spinCtrl.cancelled=true;
+   w.data.autoRunning=false;
+   w.data.rot=currentRot;
+   try{if(btn){btn.disabled=false;delete btn.dataset.spinning;btn.textContent='Drej';}}catch(_e){}
+   try{if(canv)drawWheel(canv,w,currentRot);}catch(_e){}
+   try{save();}catch(_e){}
+   try{toast(auto?'Auto stoppet':'Hjulet stoppet');}catch(_e){}
+   try{if(onDone)onDone(false,null);}catch(_e){}
+ }};
+ if(spinId)spinMap[spinId]=spinCtrl;
+ function cleanupSpinCtrl(){
+   spinCtrl.finished=true;
+   try{if(spinId&&spinMap[spinId]===spinCtrl)delete spinMap[spinId];}catch(_e){}
+ }
  function maybeSpinAgain(){
    if(auto)return;
    if(!(w.data.names||[]).length){toast('Puljen er tom');return;}
@@ -37604,6 +37973,7 @@ function runWheelSpin(c,w,{auto=false,onDone=null}={}){
    },160);
  }
  function finish(removeFromPool,{spinAgain=false}={}){
+     cleanupSpinCtrl();
      if(!w.data.keepPool && removeFromPool){w.data.names.splice(idx,1)}
      w.data.winner='';
      w.data.rot=0;
@@ -37613,12 +37983,16 @@ function runWheelSpin(c,w,{auto=false,onDone=null}={}){
      if(spinAgain)maybeSpinAgain();
  }
  function frame(now){
+   if(spinCtrl.cancelled){cleanupSpinCtrl();return;}
    const p=Math.min(1,(now-startTime)/duration),rot=startRot+(endRot-startRot)*easeOutCubic(p);
+   currentRot=rot;
    drawWheel(canv,w,rot);
    if(now-lastTick>(auto?120:95) && p<.94){wheelTick();lastTick=now}
    if(p<1){requestAnimationFrame(frame)}else{
+     if(spinCtrl.cancelled){cleanupSpinCtrl();return;}
      drawWheel(canv,w,endRot);
-     if(btn)btn.disabled=false;
+     currentRot=endRot;
+     if(btn){btn.disabled=false;delete btn.dataset.spinning;btn.textContent=w.data.autoRunning?'Stop':'Drej';}
      wheelLand(); if(!auto)setTimeout(wheelLand,80);
      animateWinner(c,winner);
      w.data.chosen=w.data.chosen||[];
@@ -37643,7 +38017,10 @@ function runWheelSpin(c,w,{auto=false,onDone=null}={}){
 }
 function startWheelAuto(c,w){
  const el=c.closest('.widget');
- if(w.data.autoRunning){w.data.autoRunning=false;fillContent(el,w);save();return;}
+ if(w.data.autoRunning){
+   if(window.safe672StopWheelSpin && window.safe672StopWheelSpin(el,{fromButton:true}))return;
+   w.data.autoRunning=false;fillContent(el,w);save();return;
+ }
  w.data.autoRunning=true;w.data.statsView=true;fillContent(el,w);save();
  let remaining=w.data.keepPool?Math.max(1,parseInt(w.data.autoCount||1,10)):Math.min(Math.max(1,parseInt(w.data.autoCount||1,10)),(w.data.names||[]).length);
  const step=()=>{
@@ -37743,13 +38120,56 @@ function safe451cScrollWheelStatsToLatest(c,w){
   }catch(_e){}
 }
 
+function safe673WheelPickVisibleSlice(c,w,index,srcEvent){
+  try{
+    const el=c&&c.closest&&c.closest('.widget');
+    const names=(w&&w.data&&Array.isArray(w.data.names))?w.data.names:[];
+    index=Math.floor(Number(index));
+    if(!el||!w||!w.data||!names.length||index<0||index>=names.length)return false;
+    try{if(srcEvent){srcEvent.preventDefault&&srcEvent.preventDefault();srcEvent.stopPropagation&&srcEvent.stopPropagation();if(srcEvent.stopImmediatePropagation)srcEvent.stopImmediatePropagation();}}catch(_e){}
+    try{select(w.id,{editText:false});}catch(_e){}
+    // Et lærerklik skal være et manuelt, troværdigt valg. Hvis Auto eller et spin kører, standses det først,
+    // og derefter får hjulet et almindeligt synligt spin, der lander på den klikkede mulighed.
+    try{if(window.safe672StopWheelSpin)window.safe672StopWheelSpin(el,{fromTeacherPick:true});}catch(_e){}
+    w.data.autoRunning=false;
+    const content=el.querySelector('.content')||c||el;
+    setTimeout(()=>{
+      try{
+        runWheelSpin(content,w,{auto:false,forcedIndex:index,teacherPick:true});
+      }catch(err){console.warn('l673 lærer-valg på Lykkehjulet fejlede',err);}
+    },70);
+    return true;
+  }catch(err){try{console.warn('l673 lærer-valg på Lykkehjulet fejlede',err);}catch(_e){};return false;}
+}
+
 function wireWheel(c,w){
  const el=c.closest('.widget');
  const keep=c.querySelector('.keepPool'); if(keep)keep.onchange=()=>{w.data.keepPool=keep.checked;save()};
  const autoToggle=c.querySelector('.autoToggle'); if(autoToggle)autoToggle.onchange=()=>{w.data.auto=autoToggle.checked;fillContent(el,w);save()};
  const autoCount=c.querySelector('.autoCount'); if(autoCount){autoCount.addEventListener('pointerdown',e=>e.stopPropagation(),true);autoCount.oninput=()=>{w.data.autoCount=Math.max(1,parseInt(autoCount.value||'1',10));save()}};
  const canv=c.querySelector('canvas');
- if(canv)canv.onclick=e=>{const idx=wheelIndexFromCanvasEvent(canv,e,w);if(idx>=0)moveWheelItemToChosen(c,w,idx)};
+ if(canv){
+   let safe673LastCanvasPick=0;
+   const safe673CanvasPick=(e)=>{
+     try{
+       const now=Date.now();
+       if(now-safe673LastCanvasPick<650){
+         if(e){e.preventDefault&&e.preventDefault();e.stopPropagation&&e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+         return;
+       }
+       const idx=wheelIndexFromCanvasEvent(canv,e,w);
+       if(idx<0)return;
+       safe673LastCanvasPick=now;
+       safe673WheelPickVisibleSlice(c,w,idx,e);
+     }catch(err){console.warn('l673 canvas-valg på Lykkehjulet fejlede',err);}
+   };
+   canv.onclick=null;
+   try{canv.addEventListener('pointerdown',function(e){try{select(w.id,{editText:false});}catch(_e){};try{e.stopPropagation();}catch(_e){};},{capture:true,passive:true});}catch(_e){}
+   try{canv.addEventListener('touchstart',function(e){try{select(w.id,{editText:false});}catch(_e){};try{e.stopPropagation();}catch(_e){};},{capture:true,passive:true});}catch(_e){}
+   try{canv.addEventListener('pointerup',safe673CanvasPick,{capture:true,passive:false});}catch(_e){}
+   try{canv.addEventListener('touchend',safe673CanvasPick,{capture:true,passive:false});}catch(_e){}
+   try{canv.addEventListener('click',safe673CanvasPick,{capture:true,passive:false});}catch(_e){}
+ }
  const edit=c.querySelector('.editNames'); if(edit)edit.onclick=()=>{
    const wasEditing=!!w.data.editing;
    if(wasEditing){
@@ -37860,46 +38280,23 @@ function wireWheel(c,w){
  const resetBtn=c.querySelector('.resetPool'); if(resetBtn)resetBtn.onclick=()=>{w.data.names=[...(w.data.original||w.data.names||[])];w.data.chosen=[];w.data.winner='';w.data.rot=0;w.data.statsView=false;fillContent(el,w);save()};
  const saveListBtns=c.querySelectorAll('.saveList'); saveListBtns.forEach(btn=>btn.onclick=()=>openSaveListModal({title:w.title||'Lykkehjulet',data:{names:[...(w.data.names||[])],chosen:[],safe450cDefaultListName:('Lykkehjul-pulje - '+(w.title||'Lykkehjulet')).slice(0,70)}}));
  const saveChosenList=c.querySelector('.saveChosenList'); if(saveChosenList)saveChosenList.onclick=()=>{
-   // SAFE450l: Gem betyder nu “Gem resultatlisten som en ny pulje” – ikke statistikrapport.
-   // Det matcher PULJE-koblingen: den nyoprettede datawidget bliver straks den koblede pulje.
-   const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);
-   if(!selected.length){toast('Ingen resultater at gemme som ny pulje endnu');return}
-   const baseTitle=String(w.title||'Lykkehjulet').replace(/^🎡\s*/,'').trim()||'Lykkehjulet';
-   const name=('Lykkehjul-pulje - valgte fra '+baseTitle).slice(0,70);
-   const rows=selected.map(name=>[String(name)]);
-   const ds={
-     id:uid(),
-     name:name,
-     type:'wheel-pool',
-     columns:['Pulje'],
-     rows:rows,
-     sourceName:w.title||'Lykkehjulet',
-     sourceType:'wheel-results-as-pool',
-     importedAt:Date.now()
-   };
-   try{
-     updateDatasetInState(ds);
-     const dw=addDatasetWidget(ds,{x:Math.max(24,Math.min((w.x||140)+40,innerWidth-700)),y:Math.max(80,Math.min((w.y||130)+40,innerHeight-440))});
-     if(dw){
-       dw.title='🎡 '+name;
-       dw.data=dw.data||{};
-       dw.data.sourceType='wheel-pool';
-       dw.data.sourceWheelTitle=w.title||'Lykkehjulet';
-       // Indlæs og koble den nye pulje præcis som hvis brugeren bagefter havde valgt den via Kilde.
-       w.data.names=[...selected];
-       w.data.original=[...selected];
-       w.data.chosen=[];
-       w.data.winner='';
-       w.data.rot=0;
-       w.data.editing=false;
-       w.data.statsView=false;
-       if(typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,{w:dw,slide:slide()},'pool',name);
-       render();
-       select(w.id,{editText:false});
-       save();
-     }
-     toast('Ny pulje gemt og koblet');
-   }catch(err){console.error(err);toast('Kunne ikke oprette ny pulje')}
+   // l670: Ny pulje betyder nu en ny tom, redigerbar pulje.
+   // Den må ikke skjult oprette eller koble en DataWidget og må ikke ligne Nulstil.
+   w.data.names=[];
+   w.data.original=[];
+   w.data.chosen=[];
+   w.data.winner='';
+   w.data.rot=0;
+   w.data.editing=true;
+   w.data.statsView=false;
+   w.data.autoRunning=false;
+   w.data.auto=false;
+   w.data.autoCount=1;
+   try{if(typeof safe450ClearLinkedData==='function')safe450ClearLinkedData(w,'pool');}catch(_e){}
+   fillContent(el,w);
+   setTimeout(()=>{try{const first=el.querySelector('.safe163OptionInput');if(first){first.focus({preventScroll:true});first.select&&first.select();}}catch(_e){}},60);
+   try{toast('Ny tom pulje – skriv første valg')}catch(_e){}
+   save();
  };
   const loadBtns=c.querySelectorAll('.loadList');
   loadBtns.forEach(loadList=>loadList.onclick=()=>{
@@ -37950,7 +38347,10 @@ function wireWheel(c,w){
     modal.querySelector('#close').onclick=closeModal;
   });
  const chosenToWheel=c.querySelector('.chosenToWheel'); if(chosenToWheel)chosenToWheel.onclick=()=>{const selected=(w.data.chosen||[]).map(x=>String(x||'').trim()).filter(Boolean);if(!selected.length){toast('Ingen valgte endnu');return}w.data.names=[...selected];w.data.original=[...selected];w.data.chosen=[];w.data.statsView=false;w.data.rot=0;fillContent(el,w);save()};
- const spin=c.querySelector('.spinCenter'); if(spin)spin.onclick=()=>{if(w.data.auto){startWheelAuto(c,w)}else{runWheelSpin(c,w,{auto:false})}};
+ const spin=c.querySelector('.spinCenter'); if(spin)spin.onclick=()=>{
+   if(window.safe672StopWheelSpin && window.safe672StopWheelSpin(el,{fromButton:true}))return;
+   if(w.data.auto){startWheelAuto(c,w)}else{runWheelSpin(c,w,{auto:false})}
+ };
   /* SAFE-WHEEL-ENTER-ESC-01: Lokal Enter=Drej på Lykkehjulet. Space røres ikke. */
   try{
     c.setAttribute('tabindex','0');
@@ -37984,6 +38384,109 @@ function wireWheel(c,w){
    try{poolStatus.addEventListener('pointerup',togglePool,{passive:false});}catch(_e){}
    poolStatus.addEventListener('click',togglePool);
  }
+
+
+ /* l668: Lykkehjulets egne kontroller skal eje iPad/touch-tryk lokalt.
+    Denne bro ligger i wireWheel-ejeren og kalder de eksisterende onclick-handlere,
+    så pulje-/kilde-/statistiklogik ikke kopieres eller ændres. */
+ function safe668WheelStop(ev,hard){
+   try{
+     if(!ev)return;
+     if(ev.preventDefault)ev.preventDefault();
+     if(ev.stopPropagation)ev.stopPropagation();
+     if(hard&&ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+   }catch(_e){}
+ }
+ function safe668WheelFakeEvent(btn,src){
+   return {
+     type:'safe668-wheel-tap',
+     target:btn,
+     currentTarget:btn,
+     originalEvent:src||null,
+     preventDefault:function(){},
+     stopPropagation:function(){},
+     stopImmediatePropagation:function(){}
+   };
+ }
+ function safe668WheelButtonTap(btn){
+   if(!btn||btn.__safe668WheelButtonTap)return;
+   btn.__safe668WheelButtonTap=true;
+   var lastRun=0;
+   var run=function(ev){
+     if(btn.disabled||btn.getAttribute('aria-disabled')==='true')return;
+     safe668WheelStop(ev,true);
+     var now=Date.now();
+     if(now-lastRun<260)return;
+     lastRun=now;
+     try{select(w.id,{editText:false});}catch(_e){}
+     try{
+       var fn=btn.onclick;
+       if(typeof fn==='function')fn.call(btn,safe668WheelFakeEvent(btn,ev));
+       else btn.dispatchEvent(new MouseEvent('click',{bubbles:false,cancelable:true,view:window}));
+     }catch(err){console.warn('l668 Lykkehjulet-knap fejlede',err);}
+   };
+   try{btn.addEventListener('pointerdown',function(ev){try{select(w.id,{editText:false});}catch(_e){}; try{ev.stopPropagation();}catch(_e){};}, {capture:true,passive:true});}catch(_e){}
+   try{btn.addEventListener('touchstart',function(ev){try{select(w.id,{editText:false});}catch(_e){}; try{ev.stopPropagation();}catch(_e){};}, {capture:true,passive:true});}catch(_e){}
+   try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+   try{btn.addEventListener('touchend',function(ev){run(ev);},{capture:true,passive:false});}catch(_e){}
+   try{btn.addEventListener('click',function(ev){
+     if(Date.now()-lastRun<650)safe668WheelStop(ev,true);
+   },{capture:true,passive:false});}catch(_e){}
+ }
+ c.querySelectorAll('button.spinCenter,button.loadList,button.editNames,button.resetPool,button.saveChosenList,button.names,button.modeToggle,button.saveList,button.chosenToWheel,button.safe163AddOption,button.safe163RemoveOption').forEach(safe668WheelButtonTap);
+ c.querySelectorAll('.wheelSettings input,.autoCount,.safe163OptionInput,.nameEditor').forEach(function(inp){
+   if(!inp||inp.__safe668WheelInputGuard)return;
+   inp.__safe668WheelInputGuard=true;
+   try{inp.addEventListener('pointerdown',function(ev){try{select(w.id,{editText:false});}catch(_e){}; try{ev.stopPropagation();}catch(_e){};},{capture:true,passive:true});}catch(_e){}
+   try{inp.addEventListener('touchstart',function(ev){try{select(w.id,{editText:false});}catch(_e){}; try{ev.stopPropagation();}catch(_e){};},{capture:true,passive:true});}catch(_e){}
+   try{inp.addEventListener('click',function(ev){try{ev.stopPropagation();}catch(_e){};},{capture:true,passive:true});}catch(_e){}
+ });
+
+ /* l669: Behold i puljen / Auto skal kunne toggles på hele label-pillen på iPad.
+    Vi toggler checkboxen lokalt og kalder den eksisterende dataopdatering; ingen globale Tavle-events røres. */
+ function safe669WheelBindToggle(input,apply){
+   if(!input||input.__safe669WheelToggleOwner)return;
+   input.__safe669WheelToggleOwner=true;
+   var hit=input.closest('label')||input;
+   var lastRun=0;
+   var stop=function(ev){
+     try{
+       if(ev&&ev.preventDefault)ev.preventDefault();
+       if(ev&&ev.stopPropagation)ev.stopPropagation();
+       if(ev&&ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+     }catch(_e){}
+   };
+   var run=function(ev){
+     stop(ev);
+     var now=Date.now();
+     if(now-lastRun<260)return;
+     lastRun=now;
+     try{select(w.id,{editText:false});}catch(_e){}
+     input.checked=!input.checked;
+     try{apply();}catch(err){console.warn('l669/l670 Lykkehjulet-toggle fejlede',err);}
+   };
+   try{hit.style.touchAction='manipulation';hit.style.cursor='pointer';}catch(_e){}
+   try{hit.setAttribute('tabindex','0');}catch(_e){}
+   ['pointerdown','touchstart'].forEach(function(type){
+     try{hit.addEventListener(type,run,{capture:true,passive:false});}catch(_e){}
+   });
+   try{hit.addEventListener('click',function(ev){run(ev);},{capture:true,passive:false});}catch(_e){}
+   try{hit.addEventListener('keydown',function(ev){
+     var k=String(ev.key||'');
+     if(k==='Enter'||k===' '||k==='Spacebar'||ev.code==='Space')run(ev);
+   },true);}catch(_e){}
+   try{input.addEventListener('change',function(ev){stop(ev);},{capture:true,passive:false});}catch(_e){}
+   input.onchange=function(ev){try{if(ev){ev.preventDefault&&ev.preventDefault();ev.stopPropagation&&ev.stopPropagation();}}catch(_e){};};
+ }
+ safe669WheelBindToggle(keep,function(){w.data.keepPool=!!keep.checked;save();});
+ safe669WheelBindToggle(autoToggle,function(){w.data.auto=!!autoToggle.checked;fillContent(el,w);save();});
+ const safe668PoolStatus=c.querySelector('.wheelLinkedPoolBar .safe450LinkedDataStatus');
+ if(safe668PoolStatus&&!safe668PoolStatus.__safe668WheelPoolDownGuard){
+   safe668PoolStatus.__safe668WheelPoolDownGuard=true;
+   try{safe668PoolStatus.addEventListener('pointerdown',function(ev){try{select(w.id,{editText:false});}catch(_e){}; try{ev.stopPropagation();}catch(_e){};},{capture:true,passive:true});}catch(_e){}
+   try{safe668PoolStatus.addEventListener('touchstart',function(ev){try{select(w.id,{editText:false});}catch(_e){}; try{ev.stopPropagation();}catch(_e){};},{capture:true,passive:true});}catch(_e){}
+ }
+
 }
 function pickFile(accept,cb){fileInput.accept=accept;fileInput.onchange=()=>{const f=fileInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result,f);r.readAsDataURL(f);fileInput.value=''};fileInput.click()}
 let safe530ModalEscHandler=null;
@@ -56449,7 +56952,8 @@ body.focus-presentation .toolbar,
       if(e.shiftKey||e.ctrlKey||e.metaKey||e.altKey)return;
       if(typingTarget(e.target))return;
       if(iframeHasKeyboard())return;
-      // l666: Hvis en TimerWidget er valgt/fokuseret, skal Space/Mellemrum håndteres af Timeren, ikke åbne Mere.
+      // l671/l666: Hvis et Lykkehjul eller en TimerWidget er valgt/fokuseret, skal Space/Mellemrum håndteres af widgetten, ikke åbne Mere.
+      try{if(typeof window.safe671WheelOwnsSpace==='function' && window.safe671WheelOwnsSpace(e))return false;}catch(_wheelSpaceErr){}
       try{if(typeof window.safe666TimerOwnsSpace==='function' && window.safe666TimerOwnsSpace(e))return false;}catch(_timerSpaceErr){}
       try{if(typeof safe453i179SelectedTimer==='function' && safe453i179SelectedTimer())return;}catch(_timerSpaceErr2){}
       if(!appAllowsMore())return;
@@ -56587,7 +57091,8 @@ body.focus-presentation .toolbar,
       if(e.shiftKey || e.ctrlKey || e.metaKey || e.altKey)return;
       if(typingTarget(e.target))return;
       if(iframeHasKeyboard())return;
-      // l666: Hvis en TimerWidget er valgt/fokuseret, skal Space/Mellemrum håndteres af Timeren, ikke åbne Mere.
+      // l671/l666: Hvis et Lykkehjul eller en TimerWidget er valgt/fokuseret, skal Space/Mellemrum håndteres af widgetten, ikke åbne Mere.
+      try{if(typeof window.safe671WheelOwnsSpace==='function' && window.safe671WheelOwnsSpace(e))return false;}catch(_wheelSpaceErr){}
       try{if(typeof window.safe666TimerOwnsSpace==='function' && window.safe666TimerOwnsSpace(e))return false;}catch(_timerSpaceErr){}
       try{if(typeof safe453i179SelectedTimer==='function' && safe453i179SelectedTimer())return;}catch(_timerSpaceErr2){}
       if(!appAllowsMore())return;
