@@ -4,6 +4,8 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
 <!doctype html>
+<!-- l738-board-pinch-over-pdf-stable: Bygger direkte på l737. Retter global tavle-pinch over PDF: l729s gamle PDF-specifikke pinch slippes helt, så to fingre zoomer tavlen også over PDF i redigering/fokus/præsentation. Én-finger-/musehjul-scroll i PDF fra l735 bevares; PDF-links/formularfelter er fortsat kun redigering-interaktive som ønsket. -->
+
 <!-- l737-board-zoom-not-pdf-zoom: Bygger direkte på l735. Fastholder den naturlige løsning: to-finger pinch zoomer tavle/visning frem for en særskilt PDF-zoom. PDF-scroll med én finger/musehjul, kantbladring, links, formularfelter og Shift+Z bevares. Ingen l736 PDF-specifik pinch-regel. -->
 <!-- l735-pdf-scroll-own-start: Bygger direkte på l734. Flytter én-finger-/musehjul-scroll af PDF til en tidligere lokal ejer, så scroll-positionen ikke nulstilles ved næste greb/tap. L729 bevares til pinch/global zoom, men slipper én-finger-pan til l735. PDF-links/formularfelter/kantbladring bevares. -->
 
@@ -185,6 +187,29 @@ iframe{
   touch-action:manipulation!important;
 }
 /* PDF-kantfelter og formularlag bevarer l721/l730-balancen. */
+.widget[data-type="pdf"] .content.pdf .pdfEdgeNav,
+.widget[data-type="pdf"] .content.pdf .pdfFormField,
+.widget[data-type="pdf"] .content.pdf .pdfFormLink,
+.widget[data-type="pdf"] .content.pdf .pdfFormActivator{
+  touch-action:manipulation!important;
+}
+</style>
+<style id="l738-board-pinch-over-pdf-stable-css">
+/* l738: to-finger pinch skal altid kunne blive tavle-/browserzoom over PDF, også i fokus/præsentation.
+   Én-finger-scroll i PDF styres stadig af l735. Rigtige PDF-formularfelter/links er fortsat redigering-only. */
+.widget[data-type="pdf"],
+.widget[data-type="pdf"] .content.pdf,
+.widget[data-type="pdf"] .pdfJsViewer,
+.widget[data-type="pdf"] .pdfJsPageWrap,
+body.focus-mode .widget[data-type="pdf"],
+body.focus-edit .widget[data-type="pdf"],
+body.focus-presentation .widget[data-type="pdf"],
+.app.present .widget[data-type="pdf"]{
+  touch-action:pan-x pan-y pinch-zoom!important;
+}
+#l705FocusHitZones.safe707Active .l705FocusHitZone{
+  touch-action:pan-x pan-y pinch-zoom!important;
+}
 .widget[data-type="pdf"] .content.pdf .pdfEdgeNav,
 .widget[data-type="pdf"] .content.pdf .pdfFormField,
 .widget[data-type="pdf"] .content.pdf .pdfFormLink,
@@ -379,6 +404,7 @@ iframe{
   var TOL=1.5;
 
   function stop(e){try{if(e&&e.cancelable)e.preventDefault();if(e&&e.stopPropagation)e.stopPropagation();if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}return false;}
+  function stopBubble(e){try{if(e&&e.stopPropagation)e.stopPropagation();if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}return false;}
   function visible(el){try{if(!el||!el.isConnected)return false;var r=el.getBoundingClientRect();return r.width>8&&r.height>8&&r.bottom>0&&r.right>0&&r.top<innerHeight&&r.left<innerWidth;}catch(_e){return false;}}
   function isInteractive(el){
     try{
@@ -455,10 +481,12 @@ iframe{
   }
   function onTouchStart(e){
     try{
-      // To fingre skal gå til l729/l732 pinch. Hvis vi allerede var i én-finger-scroll, slipper vi den.
+      // l738: To fingre skal være tavle-/browserpinch, ikke PDF-specifik zoom.
+      // Første finger må gerne stoppe Tavlens JS-ejere, men må ikke kalde preventDefault,
+      // for så kan iPad ikke konvertere grebet til pinch, når finger nr. 2 lander.
       if(e&&e.touches&&e.touches.length!==1){touchState=null;return;}
       touchState=startForTouch(e);
-      if(touchState)return stop(e);
+      if(touchState)return stopBubble(e);
     }catch(_e){touchState=null;}
   }
   function onTouchMove(e){
@@ -688,6 +716,10 @@ iframe{
       if(!e||!e.touches||!e.touches.length)return;
       var two=touches2(e);
       if(two){
+        // l738: to fingre over PDF tilhører tavle-/browserzoom.
+        // Ingen preventDefault her, ellers bliver pinch over PDF ustabilt i fokus/præsentation.
+        touchState=null;
+        return;
         if(anyTouchInteractive(e))return;
         var m=middle(two[0],two[1]);
         // l729: pinch vælges ud fra midtpunktet mellem fingrene, så en finger i kantzonen ikke dræber zoom.
@@ -717,6 +749,10 @@ iframe{
       if(!touchState||!touchState.target)return;
       var target=touchState.target,two=touches2(e);
       if(two){
+        // l738: Hvis en én-finger-scroll var på vej, slippes den straks, så browseren kan pinche tavlen.
+        try{if(touchState&&touchState.target&&touchState.target.viewer)touchState.target.viewer.classList.remove('l729PdfPanning');}catch(_e){}
+        touchState=null;
+        return;
         if(touchState.kind!=='pinch'){
           var m=middle(two[0],two[1]);
           var t=pdfAtPoint(m.x,m.y,{allowEdge:true,allowInteractive:false})||touchState.target||recentTarget();
@@ -758,6 +794,8 @@ iframe{
   function onMouseUp(e){try{if(!mouseState)return;var moved=!!mouseState.moved;try{mouseState.target.viewer.classList.remove('l729PdfPanning');}catch(_e){}mouseState=null;if(moved){suppressClickUntil=Date.now()+900;return stop(e);}}catch(_e){mouseState=null;}}
 
   function onGestureStart(e){
+    // l738: Safari/iPad gesture-events skal blive til tavle-/browserzoom, ikke PDF-zoom.
+    return;
     try{
       if(isRealInteractive(e.target))return;
       var x=(typeof e.clientX==='number'&&e.clientX)?e.clientX:null, y=(typeof e.clientY==='number'&&e.clientY)?e.clientY:null;
@@ -776,6 +814,8 @@ iframe{
     }catch(_e){}
   }
   function onGestureChange(e){
+    // l738: Safari/iPad gesture-events slippes til tavle-/browserzoom.
+    return;
     try{
       if(!nativeGesture)return;
       var g=nativeGesture,t=g.target,scale=clamp(e.scale||1,0.2,6),live=clamp(g.startZoom*scale,40,400),ratio=live/g.startZoom;
@@ -788,7 +828,7 @@ iframe{
       return stop(e);
     }catch(_e){}
   }
-  function onGestureEnd(e){try{if(!nativeGesture)return;var g=nativeGesture;nativeGesture=null;suppressClickUntil=Date.now()+1200;commitPinch(g);return stop(e);}catch(_e){nativeGesture=null;}}
+  function onGestureEnd(e){return;try{if(!nativeGesture)return;var g=nativeGesture;nativeGesture=null;suppressClickUntil=Date.now()+1200;commitPinch(g);return stop(e);}catch(_e){nativeGesture=null;}}
   function suppressClick(e){try{if(Date.now()>suppressClickUntil)return;if(isRealInteractive(e.target))return;var x=(typeof e.clientX==='number')?e.clientX:null,y=(typeof e.clientY==='number')?e.clientY:null;if(x!=null&&y!=null&&pdfAtPoint(x,y,{allowEdge:true,allowInteractive:false}))return stop(e);}catch(_e){}}
 
   window.addEventListener('touchstart',onTouchStart,{capture:true,passive:false});
@@ -820,6 +860,13 @@ iframe{
   function stop(e){
     try{
       if(e&&e.cancelable)e.preventDefault();
+      if(e&&e.stopPropagation)e.stopPropagation();
+      if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();
+    }catch(_e){}
+    return false;
+  }
+  function stopBubble(e){
+    try{
       if(e&&e.stopPropagation)e.stopPropagation();
       if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();
     }catch(_e){}
@@ -878,9 +925,9 @@ iframe{
       var viewer=viewerFromPoint(p.x,p.y,raw);
       if(!viewer||!canScroll(viewer))return;
       start={viewer:viewer,id:p.id,x:p.x,y:p.y,scrollLeft:viewer.scrollLeft,scrollTop:viewer.scrollTop,moved:false};
-      // Vigtigt: stop allerede her, så Tavlens widget-drag/fokuslag ikke når at eje bevægelsen.
-      // Det sker kun på neutral PDF-flade; links/formularer/kantfelter slipper udenom.
-      return stop(e);
+      // l738: stop Tavlens JS-ejere, men kald ikke preventDefault på touchstart.
+      // Ellers kan første finger blokere for, at anden finger bliver til tavle-pinch.
+      return stopBubble(e);
     }catch(_e){start=null;}
   }
   function onTouchMove(e){
