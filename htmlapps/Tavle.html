@@ -4,6 +4,8 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
 <!doctype html>
+<!-- l735-pdf-scroll-own-start: Bygger direkte på l734. Flytter én-finger-/musehjul-scroll af PDF til en tidligere lokal ejer, så scroll-positionen ikke nulstilles ved næste greb/tap. L729 bevares til pinch/global zoom, men slipper én-finger-pan til l735. PDF-links/formularfelter/kantbladring bevares. -->
+
 <!-- l734-pdf-scroll-position-preserve: Bygger direkte på l733. Bevarer PDF-viewerens scroll-position i widgetdata, så én-finger-scroll og musehjul ikke hopper tilbage til sidens top ved næste greb eller efter en intern re-render. PDF-kantbladring, links, formularfelter, flueben, global pinch og Shift+Z bevares. Ingen overlay. -->
 <!-- l733-pdf-one-finger-scroll-priority: Bygger direkte på l732. Giver PDF'ens neutrale midterflade førsteprioritet ved én-finger-scroll og musehjul, så nederste del af en PDF-side kan nås uden piletaster; PDF-kantbladring, links, formularfelter, flueben, global pinch og Shift+Z bevares. Ingen overlay. -->
 <!-- l732-global-board-native-pinch: Bygger direkte på l731. Udvider den naturlige browser-pinch/pan-tilladelse fra PDF-fladen til hele tavlefladen med CSS-only: to-finger pinch kan zoome tavlen fra neutral tavle/widget/tegning, mens én finger/mus stadig kan vælge/skifte widgets og interaktive felter/knapper/HTML/PDF-formularer bevarer egne events. Ingen ny overlay- eller zoommotor. -->
@@ -358,6 +360,200 @@ iframe{
   try{document.addEventListener('DOMContentLoaded',bindAll,{once:true});}catch(_e){}
   try{setTimeout(bindAll,0);setTimeout(bindAll,400);setTimeout(bindAll,1200);}catch(_e){}
 })();
+
+</script>
+<script id="l735-pdf-scroll-own-start">
+/* l735: PDF-scroll skal eje én finger/musehjul før l729/l733.
+   Det tidligere hop tilbage lignede en "tap/toggle"-feature eller konflikt mellem flere scroll-ejere.
+   Denne ejer stopper kun neutral PDF-scroll og gemmer/gendanner scroll pr. widget+side i en lille runtime-cache.
+   Den rører ikke links, formularfelter, PDF-kantfelter, toolbar eller to-finger pinch. */
+(function(){
+  if(window.__l735PdfScrollOwnStart)return;
+  window.__l735PdfScrollOwnStart=true;
+  window.__l735PdfScrollOwnsOneFinger=true;
+
+  var cache=Object.create(null);
+  var touchState=null, mouseState=null;
+  var recentScrollUntil=0;
+  var TOL=1.5;
+
+  function stop(e){try{if(e&&e.cancelable)e.preventDefault();if(e&&e.stopPropagation)e.stopPropagation();if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}return false;}
+  function visible(el){try{if(!el||!el.isConnected)return false;var r=el.getBoundingClientRect();return r.width>8&&r.height>8&&r.bottom>0&&r.right>0&&r.top<innerHeight&&r.left<innerWidth;}catch(_e){return false;}}
+  function isInteractive(el){
+    try{
+      if(!el||!el.closest)return false;
+      if(el.closest('.l705FocusHitZone,#l705FocusHitZones'))return false;
+      return !!el.closest('.pdfControls,.pdfPagePickerPopover,.chrome,.mini,.resize,.rotater,.pdfEdgeNav,.pdfFormField,.pdfFormLink,.pdfFormActivator,input,textarea,select,button,a,[contenteditable="true"],iframe,.htmlBox,.linkIframeBox');
+    }catch(_e){return false;}
+  }
+  function widgetFromViewer(v){try{return v&&v.closest&&v.closest('.widget[data-type="pdf"][data-id]');}catch(_e){return null;}}
+  function getWidget(id){
+    try{if(typeof findWidget==='function'){var fw=findWidget(String(id));if(fw)return fw;}}catch(_e){}
+    try{if(typeof slide==='function'){var ws=(slide().widgets||[]);for(var i=0;i<ws.length;i++){if(ws[i]&&String(ws[i].id)===String(id))return ws[i];}}}catch(_e){}
+    try{if(window.state&&Array.isArray(state.slides)){for(var si=0;si<state.slides.length;si++){var a=(state.slides[si]&&state.slides[si].widgets)||[];for(var wi=0;wi<a.length;wi++){if(a[wi]&&String(a[wi].id)===String(id))return a[wi];}}}}catch(_e){}
+    return null;
+  }
+  function keyFor(v){
+    try{var el=widgetFromViewer(v);if(!el)return '';var w=getWidget(el.dataset.id);var page=Number(w&&w.data&&w.data.page||1)||1;return String(el.dataset.id)+'@'+page;}catch(_e){return '';}
+  }
+  function remember(v){
+    try{
+      if(!v)return;
+      var key=keyFor(v);if(!key)return;
+      var rec={left:Math.max(0,Math.round(Number(v.scrollLeft)||0)),top:Math.max(0,Math.round(Number(v.scrollTop)||0)),at:Date.now()};
+      cache[key]=rec;
+      var el=widgetFromViewer(v),w=el&&getWidget(el.dataset.id);
+      if(w&&w.data){w.data.pdfScrollPage=Number(w.data.page||1)||1;w.data.pdfScrollLeft=rec.left;w.data.pdfScrollTop=rec.top;}
+      try{if(window.l734RememberPdfScrollFromViewer)window.l734RememberPdfScrollFromViewer(v,{save:false});}catch(_e){}
+    }catch(_e){}
+  }
+  function restore(v){
+    try{
+      if(!v)return;
+      var key=keyFor(v),rec=key&&cache[key];
+      if(!rec){
+        var el=widgetFromViewer(v),w=el&&getWidget(el.dataset.id);
+        if(w&&w.data&&Number(w.data.pdfScrollPage||0)===Number(w.data.page||1))rec={left:Number(w.data.pdfScrollLeft)||0,top:Number(w.data.pdfScrollTop)||0,at:0};
+      }
+      if(!rec)return;
+      var maxTop=Math.max(0,v.scrollHeight-v.clientHeight),maxLeft=Math.max(0,v.scrollWidth-v.clientWidth);
+      var top=Math.max(0,Math.min(maxTop,Number(rec.top)||0));
+      var left=Math.max(0,Math.min(maxLeft,Number(rec.left)||0));
+      if(Math.abs((Number(v.scrollTop)||0)-top)>1)v.scrollTop=top;
+      if(Math.abs((Number(v.scrollLeft)||0)-left)>1)v.scrollLeft=left;
+    }catch(_e){}
+  }
+  function canScroll(v){try{return !!(v&&(v.scrollHeight>v.clientHeight+2||v.scrollWidth>v.clientWidth+2));}catch(_e){return false;}}
+  function viewerFromPoint(x,y,raw){
+    try{
+      if(raw&&isInteractive(raw))return null;
+      var v=raw&&raw.closest&&raw.closest('.widget[data-type="pdf"] .pdfJsViewer');
+      if(!v&&document.elementsFromPoint){
+        var stack=document.elementsFromPoint(x,y)||[];
+        for(var i=0;i<stack.length;i++){
+          var el=stack[i]; if(!el)continue;
+          if(isInteractive(el))return null;
+          v=el.closest&&el.closest('.widget[data-type="pdf"] .pdfJsViewer');
+          if(!v){var w=el.closest&&el.closest('.widget[data-type="pdf"]'); if(w&&w.querySelector)v=w.querySelector('.pdfJsViewer');}
+          if(v)break;
+        }
+      }
+      if(!v||!visible(v)||!canScroll(v))return null;
+      return v;
+    }catch(_e){return null;}
+  }
+  function pFromTouch(t){return {x:Number(t.clientX)||0,y:Number(t.clientY)||0,id:t.identifier};}
+  function startForTouch(e){
+    try{
+      if(!e||!e.touches||e.touches.length!==1)return null;
+      var t=e.touches[0],p=pFromTouch(t),raw=t.target||e.target;
+      var v=viewerFromPoint(p.x,p.y,raw); if(!v)return null;
+      restore(v);
+      return {viewer:v,id:p.id,x:p.x,y:p.y,left:v.scrollLeft,top:v.scrollTop,moved:false};
+    }catch(_e){return null;}
+  }
+  function onTouchStart(e){
+    try{
+      // To fingre skal gå til l729/l732 pinch. Hvis vi allerede var i én-finger-scroll, slipper vi den.
+      if(e&&e.touches&&e.touches.length!==1){touchState=null;return;}
+      touchState=startForTouch(e);
+      if(touchState)return stop(e);
+    }catch(_e){touchState=null;}
+  }
+  function onTouchMove(e){
+    try{
+      if(!touchState||!e||!e.touches)return;
+      if(e.touches.length!==1){touchState=null;return;}
+      var t=e.touches[0]; if(touchState.id!=null&&t.identifier!=null&&t.identifier!==touchState.id)return;
+      var p=pFromTouch(t),dx=p.x-touchState.x,dy=p.y-touchState.y;
+      if(!touchState.moved&&Math.sqrt(dx*dx+dy*dy)<TOL)return stop(e);
+      touchState.moved=true;
+      touchState.viewer.scrollLeft=touchState.left-dx;
+      touchState.viewer.scrollTop=touchState.top-dy;
+      remember(touchState.viewer);
+      recentScrollUntil=Date.now()+900;
+      try{touchState.viewer.classList.add('l729PdfPanning');}catch(_e){}
+      return stop(e);
+    }catch(_e){touchState=null;}
+  }
+  function onTouchEnd(e){
+    try{
+      if(!touchState)return;
+      var moved=!!touchState.moved,v=touchState.viewer;
+      remember(v); try{v.classList.remove('l729PdfPanning');}catch(_e){}
+      touchState=null;
+      if(moved){recentScrollUntil=Date.now()+900;return stop(e);}
+    }catch(_e){touchState=null;}
+  }
+  function onMouseDown(e){
+    try{
+      if(!e||e.button!==0||isInteractive(e.target))return;
+      var v=viewerFromPoint(Number(e.clientX)||0,Number(e.clientY)||0,e.target); if(!v)return;
+      restore(v);
+      mouseState={viewer:v,x:e.clientX,y:e.clientY,left:v.scrollLeft,top:v.scrollTop,moved:false};
+      try{v.classList.add('l729PdfPanning');}catch(_e){}
+      return stop(e);
+    }catch(_e){mouseState=null;}
+  }
+  function onMouseMove(e){
+    try{
+      if(!mouseState)return;
+      var dx=e.clientX-mouseState.x,dy=e.clientY-mouseState.y;
+      if(!mouseState.moved&&Math.sqrt(dx*dx+dy*dy)<TOL)return stop(e);
+      mouseState.moved=true;
+      mouseState.viewer.scrollLeft=mouseState.left-dx;
+      mouseState.viewer.scrollTop=mouseState.top-dy;
+      remember(mouseState.viewer); recentScrollUntil=Date.now()+900;
+      return stop(e);
+    }catch(_e){mouseState=null;}
+  }
+  function onMouseUp(e){
+    try{
+      if(!mouseState)return;
+      var moved=!!mouseState.moved,v=mouseState.viewer; remember(v); try{v.classList.remove('l729PdfPanning');}catch(_e){}
+      mouseState=null;
+      if(moved){recentScrollUntil=Date.now()+900;return stop(e);}
+    }catch(_e){mouseState=null;}
+  }
+  function onWheel(e){
+    try{
+      if(!e||isInteractive(e.target))return;
+      var v=viewerFromPoint(Number(e.clientX)||0,Number(e.clientY)||0,e.target); if(!v)return;
+      restore(v);
+      var dx=Number(e.deltaX)||0,dy=Number(e.deltaY)||0; if(!dx&&!dy)return;
+      v.scrollLeft+=dx; v.scrollTop+=dy;
+      remember(v); recentScrollUntil=Date.now()+700;
+      return stop(e);
+    }catch(_e){}
+  }
+  function suppressAfterScroll(e){
+    try{
+      if(Date.now()>recentScrollUntil)return;
+      var x=0,y=0;
+      if(e&&e.changedTouches&&e.changedTouches[0]){x=Number(e.changedTouches[0].clientX)||0;y=Number(e.changedTouches[0].clientY)||0;}
+      else {x=Number(e.clientX)||0;y=Number(e.clientY)||0;}
+      var v=viewerFromPoint(x,y,e.target);
+      if(v&&!isInteractive(e.target)){remember(v);return stop(e);}
+    }catch(_e){}
+  }
+  function bindAll(){try{Array.prototype.forEach.call(document.querySelectorAll('.widget[data-type="pdf"] .pdfJsViewer'),function(v){if(v.__l735ScrollBound)return;v.__l735ScrollBound=true;v.addEventListener('scroll',function(){remember(v);},{passive:true});restore(v);});}catch(_e){}}
+
+  window.l735PdfRestoreScroll=restore;
+  window.l735PdfRememberScroll=remember;
+  try{new MutationObserver(bindAll).observe(document.documentElement,{childList:true,subtree:true});}catch(_e){}
+  try{document.addEventListener('DOMContentLoaded',bindAll,{once:true});setTimeout(bindAll,0);setTimeout(bindAll,400);setTimeout(bindAll,1200);}catch(_e){}
+
+  window.addEventListener('touchstart',onTouchStart,{capture:true,passive:false});
+  window.addEventListener('touchmove',onTouchMove,{capture:true,passive:false});
+  window.addEventListener('touchend',onTouchEnd,{capture:true,passive:false});
+  window.addEventListener('touchcancel',onTouchEnd,{capture:true,passive:false});
+  window.addEventListener('mousedown',onMouseDown,{capture:true,passive:false});
+  window.addEventListener('mousemove',onMouseMove,{capture:true,passive:false});
+  window.addEventListener('mouseup',onMouseUp,{capture:true,passive:false});
+  window.addEventListener('wheel',onWheel,{capture:true,passive:false});
+  window.addEventListener('pointerup',suppressAfterScroll,{capture:true,passive:false});
+  window.addEventListener('click',suppressAfterScroll,{capture:true,passive:false});
+})();
 </script>
 
 <script id="l729-pdf-touch-midpoint-gesture">
@@ -505,6 +701,12 @@ iframe{
       if(isRealInteractive(raw))return;
       var target=targetFromRawOrPoint(raw,p.x,p.y);
       if(!target)return;
+      if(window.__l735PdfScrollOwnStart || window.__l735PdfScrollOwnsOneFinger){
+        // l735 ejer neutral én-finger-scroll tidligere i capture-rækkefølgen.
+        // l729 bevares til to-finger pinch og PDF-zoom-commit.
+        lastTarget=target;lastTargetAt=Date.now();
+        return;
+      }
       touchState={kind:'pan',target:target,id:p.id,startX:p.x,startY:p.y,scrollLeft:target.viewer.scrollLeft,scrollTop:target.viewer.scrollTop,moved:false};
       // Første tryk stoppes ikke: almindelige klik i PDF'en skal stadig kunne passere, hvis der ikke trækkes.
     }catch(_e){}
@@ -549,7 +751,7 @@ iframe{
     }catch(_e){touchState=null;}
   }
   function onMouseDown(e){
-    try{if(!e||e.button!==0||isRealInteractive(e.target))return;var t=targetFromRawOrPoint(e.target,e.clientX,e.clientY);if(!t)return;mouseState={target:t,startX:e.clientX,startY:e.clientY,scrollLeft:t.viewer.scrollLeft,scrollTop:t.viewer.scrollTop,moved:false};t.viewer.classList.add('l729PdfPanning');return stop(e);}catch(_e){}
+    try{if(!e||e.button!==0||isRealInteractive(e.target))return;var t=targetFromRawOrPoint(e.target,e.clientX,e.clientY);if(!t)return;if(window.__l735PdfScrollOwnStart || window.__l735PdfScrollOwnsOneFinger){lastTarget=t;lastTargetAt=Date.now();return;}mouseState={target:t,startX:e.clientX,startY:e.clientY,scrollLeft:t.viewer.scrollLeft,scrollTop:t.viewer.scrollTop,moved:false};t.viewer.classList.add('l729PdfPanning');return stop(e);}catch(_e){}
   }
   function onMouseMove(e){try{if(!mouseState)return;var dx=e.clientX-mouseState.startX,dy=e.clientY-mouseState.startY;if(!mouseState.moved&&Math.sqrt(dx*dx+dy*dy)<MOUSE_PAN_START_PX)return stop(e);mouseState.moved=true;mouseState.target.viewer.scrollLeft=mouseState.scrollLeft-dx;mouseState.target.viewer.scrollTop=mouseState.scrollTop-dy;try{if(window.l734RememberPdfScrollFromViewer)window.l734RememberPdfScrollFromViewer(mouseState.target.viewer);}catch(_e){}suppressClickUntil=Date.now()+900;return stop(e);}catch(_e){}}
   function onMouseUp(e){try{if(!mouseState)return;var moved=!!mouseState.moved;try{mouseState.target.viewer.classList.remove('l729PdfPanning');}catch(_e){}mouseState=null;if(moved){suppressClickUntil=Date.now()+900;return stop(e);}}catch(_e){mouseState=null;}}
@@ -1206,7 +1408,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.160 l734-pdf-scroll-position-preserve</title>
+<title>Interaktiv tavle v1.2.160 l735-pdf-scroll-own-start</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -21622,7 +21824,7 @@ async function renderPdfJsWidget(w,c){
         viewer.scrollLeft=Math.max(0,Math.min(Math.max(0,viewer.scrollWidth-viewer.clientWidth),isFinite(savedScrollLeft)?savedScrollLeft:defaultScrollLeft));
       }catch(_e){}
     }
-    try{if(window.l734BindPdfScrollViewer)window.l734BindPdfScrollViewer(viewer);if(window.l734RememberPdfScrollFromViewer)window.l734RememberPdfScrollFromViewer(viewer);}catch(_e){}
+    try{if(window.l734BindPdfScrollViewer)window.l734BindPdfScrollViewer(viewer);if(window.l735PdfRestoreScroll)window.l735PdfRestoreScroll(viewer);if(window.l734RememberPdfScrollFromViewer)window.l734RememberPdfScrollFromViewer(viewer);if(window.l735PdfRememberScroll)window.l735PdfRememberScroll(viewer);}catch(_e){}
     if(label)label.textContent=w.data.page+'/'+pdf.numPages;
     if(zoomLabel){
       const zv=(w.data&&w.data.pdfZoom!=null)?w.data.pdfZoom:'fit';
