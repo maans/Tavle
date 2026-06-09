@@ -4,6 +4,8 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
 <!doctype html>
+<!-- l732-global-board-native-pinch: Bygger direkte på l731. Udvider den naturlige browser-pinch/pan-tilladelse fra PDF-fladen til hele tavlefladen med CSS-only: to-finger pinch kan zoome tavlen fra neutral tavle/widget/tegning, mens én finger/mus stadig kan vælge/skifte widgets og interaktive felter/knapper/HTML/PDF-formularer bevarer egne events. Ingen ny overlay- eller zoommotor. -->
+<!-- l731-zoom-rescue-shift-z: Bygger direkte på l730. Tilføjer kun Shift+Z som tidlig zoom-redningsgenvej: nulstiller tavlezoom/viewport-forsøg og synlige PDF-zoom/scroll uden at ændre den fungerende PDF-pan/pinch/kantbladring eller øvrige widgets. -->
 <!-- l730-pdf-pan-delay-polish: Bygger direkte på l729. Kirurgisk finjustering: én-finger-pan i neutral PDF-flade starter efter minimal reel bevægelse i stedet for tydelig forsinkelse; PDF-links/formularfelter/checkboxe og kantbladring bevares. Ingen overlay og ingen ændring af øvrige widgets. -->
 <!-- l729-pdf-touch-midpoint-gesture: Bygger direkte på l726/l721. Forsigtig PDF-gesture-ejer uden overlay: to-finger pinch finder PDF'en via midtpunktet mellem fingrene (ikke første finger/edgeNav), énfinger/musetræk panorerer kun efter reel bevægelse, og formularfelter/links bevares. -->
 
@@ -127,6 +129,180 @@
 }
 .widget[data-type="pdf"] .content.pdf .pdfEdgeNav{touch-action:manipulation!important;}
 </style>
+<style id="l732-global-board-native-pinch-css">
+/* l732: Tavlezoom som naturlig browsergesture.
+   CSS-only og uden overlay: vi tillader pinch/pan på tavlefladen,
+   men lader rigtige kontroller, inputfelter, PDF-formularer og HTML/iframe beholde egne events. */
+html,
+body,
+#app,
+#safe453BoardZoomLayer{
+  touch-action:pan-x pan-y pinch-zoom!important;
+}
+#safe453BoardZoomLayer > .widget,
+#safe453BoardZoomLayer > #draw,
+.widget,
+.widget .content{
+  touch-action:pan-x pan-y pinch-zoom!important;
+}
+/* Tegning: én finger/pen skal stadig tegne. To fingre må bruges til tavlezoom. */
+#draw.active,
+.drawLayer.active{
+  touch-action:pinch-zoom!important;
+}
+/* Rigtige kontroller og indlejrede apps må ikke blive til tavle-pan ved almindeligt tap/klik. */
+.topbar,
+.toolbar,
+.toolbarPeek,
+.toolbarPinFloat,
+.moreMenu,
+.moreMenuBackdrop,
+.modalBackdrop,
+.modal,
+.chrome,
+.mini,
+.resize,
+.rotater,
+button,
+input,
+textarea,
+select,
+a,
+[contenteditable="true"],
+.pdfControls,
+.pdfPagePickerPopover,
+.pdfFormField,
+.pdfFormLink,
+.pdfFormActivator,
+.linkIframeBox,
+.htmlBox,
+iframe{
+  touch-action:manipulation!important;
+}
+/* PDF-kantfelter og formularlag bevarer l721/l730-balancen. */
+.widget[data-type="pdf"] .content.pdf .pdfEdgeNav,
+.widget[data-type="pdf"] .content.pdf .pdfFormField,
+.widget[data-type="pdf"] .content.pdf .pdfFormLink,
+.widget[data-type="pdf"] .content.pdf .pdfFormActivator{
+  touch-action:manipulation!important;
+}
+</style>
+<script id="l731-zoom-rescue-shift-z">
+/* l731: Shift+Z redder brugeren ud af en indzoomet tavle/PDF-visning.
+   Kirurgisk: ingen ændring af l729/l730 gesture-logik, PDF-kantbladring eller formularlag. */
+(function(){
+  if(window.__l731ZoomRescueShiftZ)return;
+  window.__l731ZoomRescueShiftZ=true;
+
+  var STORE_KEY='safe453_board_zoom_visual_v1';
+
+  function stopHard(e){
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();e.__l731ZoomResetHandled=true;}catch(_e){}
+  }
+  function isTypingTarget(t){
+    try{
+      if(!t)return false;
+      return !!(t.isContentEditable || (t.closest&&t.closest('input,textarea,select,[contenteditable="true"],.pdfFormField input,.pdfFormField textarea,.pdfFormField select')));
+    }catch(_e){return false;}
+  }
+  function toastMsg(msg){try{if(typeof toast==='function')toast(msg);}catch(_e){}}
+
+  function resetBoardZoom(){
+    try{if(typeof window.safe453SetBoardZoom==='function'){window.safe453SetBoardZoom(1);return;}}catch(_e){}
+    try{localStorage.setItem(STORE_KEY,'1');}catch(_e){}
+    try{document.documentElement.style.setProperty('--safe453-board-zoom','1');}catch(_e){}
+    try{
+      var layer=document.getElementById('safe453BoardZoomLayer');
+      if(layer){layer.style.setProperty('--safe453-board-zoom','1');layer.style.transform='scale(1)';}
+      var pct=document.getElementById('safe453BoardZoomPct');
+      if(pct)pct.textContent='100%';
+    }catch(_e){}
+  }
+
+  function pulseViewportReset(){
+    /* På iPad kan en del af zoomoplevelsen være browserens visuelle viewport.
+       Den kan ikke styres perfekt fra JS, men et kort viewport-puls kan ofte få Safari tilbage til 1:1.
+       Originalindstillingen gendannes straks, så pinch ikke deaktiveres permanent. */
+    try{
+      var meta=document.querySelector('meta[name="viewport"]');
+      if(!meta)return;
+      var original=meta.getAttribute('content')||'width=device-width, initial-scale=1, viewport-fit=cover';
+      if(meta.__l731ViewportPulse)return;
+      meta.__l731ViewportPulse=true;
+      meta.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover');
+      try{window.scrollTo(0,0);}catch(_e){}
+      setTimeout(function(){
+        try{meta.setAttribute('content',original);}catch(_e){}
+        try{meta.__l731ViewportPulse=false;}catch(_e){}
+      },140);
+    }catch(_e){}
+  }
+
+  function visible(el){
+    try{
+      if(!el||!el.isConnected)return false;
+      var r=el.getBoundingClientRect();
+      return r.width>8&&r.height>8&&r.bottom>0&&r.right>0&&r.top<innerHeight&&r.left<innerWidth;
+    }catch(_e){return false;}
+  }
+  function widgetDataFromEl(el){
+    try{
+      var wEl=el&&el.closest&&el.closest('.widget[data-type="pdf"][data-id]');
+      var id=wEl&&wEl.dataset&&wEl.dataset.id;
+      if(!id)return null;
+      if(typeof findWidget==='function')return findWidget(String(id));
+      if(typeof slide==='function'){
+        var ws=(slide().widgets||[]);
+        for(var i=0;i<ws.length;i++){if(ws[i]&&String(ws[i].id)===String(id))return ws[i];}
+      }
+    }catch(_e){}
+    return null;
+  }
+  function resetVisiblePdfs(){
+    try{
+      var contents=Array.prototype.slice.call(document.querySelectorAll('.widget[data-type="pdf"] .content.pdf'));
+      contents.forEach(function(content){
+        if(!visible(content))return;
+        var viewer=content.querySelector('.pdfJsViewer');
+        if(viewer){viewer.scrollLeft=0;viewer.scrollTop=0;}
+        var wrap=content.querySelector('.pdfJsPageWrap');
+        if(wrap){wrap.style.transform='';wrap.style.transformOrigin='';wrap.style.willChange='';wrap.classList.remove('l729PdfLiveZoom');}
+        var w=widgetDataFromEl(content);
+        if(w){
+          w.data=w.data||{};
+          w.data.pdfZoom='fit';
+          try{if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,content);}catch(_e){}
+        }
+      });
+      try{if(typeof save==='function')save();}catch(_e){}
+    }catch(_e){}
+  }
+
+  function resetZoomRescue(){
+    resetBoardZoom();
+    resetVisiblePdfs();
+    pulseViewportReset();
+    setTimeout(function(){try{resetBoardZoom();}catch(_e){}},180);
+    toastMsg('Zoom nulstillet');
+  }
+
+  window.safe731ZoomRescue=function(){resetZoomRescue();};
+
+  function keyHandler(e){
+    try{
+      if(!e||e.__l731ZoomResetHandled)return;
+      var key=String(e.key||'').toLowerCase();
+      if(key!=='z' || !e.shiftKey || e.metaKey || e.ctrlKey || e.altKey)return;
+      if(isTypingTarget(e.target))return;
+      stopHard(e);
+      resetZoomRescue();
+      return false;
+    }catch(_e){}
+  }
+  window.addEventListener('keydown',keyHandler,true);
+  document.addEventListener('keydown',keyHandler,true);
+})();
+</script>
 <script id="l729-pdf-touch-midpoint-gesture">
 (function(){
   if(window.__l729PdfTouchMidpointGesture)return;
@@ -841,7 +1017,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.160 l730-pdf-pan-delay-polish</title>
+<title>Interaktiv tavle v1.2.160 l732-global-board-native-pinch</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -43090,7 +43266,7 @@ function showQuickHelp(){
           <div class="helpKeyBox"><b>Tavler</b><b>N</b> ny tavle · <b>←/→</b> skift tavle · <b>Q/Å/Shift+T</b> Tavleoverblik · <b>Cmd/Ctrl+O</b> widget-overblik</div>
           <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt · <b>Shift+Ø</b> lås</div>
           <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Shift+N</b> værktøjslinje · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
-          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund/tema · <b>B</b> næste tema · <b>Shift+1–4</b> tema · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid</div>
+          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund/tema · <b>B</b> næste tema · <b>Shift+1–4</b> tema · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid · <b>Shift+Z</b> nulstil zoom · <b>Pinch</b> zoom/flyt tavlevisning</div>
           <div class="helpKeyBox"><b>I Hjælp</b><b>→/←</b> skift sektion · <b>↑/↓</b> scroll · <b>Enter</b> åbn/luk sektion · <b>Esc</b> luk</div>
         </div>
       </div>
