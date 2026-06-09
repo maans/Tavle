@@ -4,6 +4,8 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
 <!doctype html>
+<!-- l740-help-zoom-pdf-practical: Bygger direkte på l739. Kun Hjælp-tekst opdateres brugervendt med tavlezoom, to-finger-hold som zoom-redning, Shift+Z og naturlig PDF-scroll/kantbladring. Ingen app-logik, PDF-gesture, widgets eller dataflow ændret. -->
+<!-- l739-touch-zoom-rescue-chip: Bygger direkte på l738. Tilføjer kun touch-redning: to fingre holdt stille i ca. 0,8 sek. nulstiller zoom, og en lille Zoom · Nulstil-chip vises ved indzoomet visning. PDF-scroll/kantbladring/formularer/links og øvrige widgets uændret. -->
 <!-- l738-board-pinch-over-pdf-stable: Bygger direkte på l737. Retter global tavle-pinch over PDF: l729s gamle PDF-specifikke pinch slippes helt, så to fingre zoomer tavlen også over PDF i redigering/fokus/præsentation. Én-finger-/musehjul-scroll i PDF fra l735 bevares; PDF-links/formularfelter er fortsat kun redigering-interaktive som ønsket. -->
 
 <!-- l737-board-zoom-not-pdf-zoom: Bygger direkte på l735. Fastholder den naturlige løsning: to-finger pinch zoomer tavle/visning frem for en særskilt PDF-zoom. PDF-scroll med én finger/musehjul, kantbladring, links, formularfelter og Shift+Z bevares. Ingen l736 PDF-specifik pinch-regel. -->
@@ -217,6 +219,58 @@ body.focus-presentation .widget[data-type="pdf"],
   touch-action:manipulation!important;
 }
 </style>
+
+<style id="l739-touch-zoom-rescue-chip-css">
+/* l739: synlig redning når tavlen/browseren er zoomet. Lille fast chip uden overlay. */
+#l739ZoomRescueChip{
+  position:fixed;
+  right:calc(12px + env(safe-area-inset-right,0px));
+  bottom:calc(12px + env(safe-area-inset-bottom,0px));
+  z-index:2147483500;
+  display:none;
+  align-items:center;
+  gap:8px;
+  max-width:min(70vw,260px);
+  padding:8px 11px;
+  border:1px solid rgba(255,255,255,.34);
+  border-radius:999px;
+  background:rgba(17,24,39,.88);
+  color:#fff;
+  box-shadow:0 10px 28px rgba(0,0,0,.24);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  font-size:13px;
+  font-weight:950;
+  line-height:1;
+  pointer-events:auto;
+  touch-action:manipulation;
+  user-select:none;
+  -webkit-user-select:none;
+}
+#l739ZoomRescueChip.show{display:inline-flex;}
+#l739ZoomRescueChip .l739ZoomRescueText{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#l739ZoomRescueChip button{
+  appearance:none;
+  -webkit-appearance:none;
+  border:0;
+  border-radius:999px;
+  margin:0;
+  padding:6px 9px;
+  min-height:30px;
+  background:#fff;
+  color:#111827;
+  font:inherit;
+  font-size:12px;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+#l739ZoomRescueChip.l739Pulse{animation:l739ZoomRescuePulse .38s ease;}
+@keyframes l739ZoomRescuePulse{0%{transform:scale(1)}45%{transform:scale(1.045)}100%{transform:scale(1)}}
+@media(max-width:700px){
+  #l739ZoomRescueChip{font-size:12px;padding:7px 9px;}
+  #l739ZoomRescueChip button{min-height:28px;padding:5px 8px;font-size:11px;}
+}
+</style>
 <script id="l731-zoom-rescue-shift-z">
 /* l731: Shift+Z redder brugeren ud af en indzoomet tavle/PDF-visning.
    Kirurgisk: ingen ændring af l729/l730 gesture-logik, PDF-kantbladring eller formularlag. */
@@ -333,6 +387,162 @@ body.focus-presentation .widget[data-type="pdf"],
   document.addEventListener('keydown',keyHandler,true);
 })();
 </script>
+<script id="l739-touch-zoom-rescue-chip">
+/* l739: touch-redning uden tastatur.
+   - To fingre holdt stille ca. 0,8 sek. kalder samme reset som Shift+Z.
+   - En lille Zoom · Nulstil-chip vises kun, når browser-/tavlezoom ser aktiv ud.
+   - Ingen preventDefault i touch-holdet: pinch, PDF-scroll, links og formularer får stadig lov at virke. */
+(function(){
+  if(window.__l739TouchZoomRescueChip)return;
+  window.__l739TouchZoomRescueChip=true;
+
+  var HOLD_MS=780;
+  var MOVE_LIMIT=11;
+  var DIST_LIMIT=14;
+  var state=null;
+  var chip=null;
+  var chipText=null;
+  var lastResetAt=0;
+
+  function now(){return Date.now?Date.now():(new Date()).getTime();}
+  function vv(){try{return window.visualViewport||null;}catch(_e){return null;}}
+  function vScale(){try{var v=vv();return v&&v.scale?Number(v.scale)||1:1;}catch(_e){return 1;}}
+  function boardZoom(){try{if(typeof window.safe453GetBoardZoom==='function')return Number(window.safe453GetBoardZoom())||1;}catch(_e){}return 1;}
+  function totalZoom(){var z=Math.max(vScale(),boardZoom());return (isFinite(z)&&z>0)?z:1;}
+  function isZoomed(){return totalZoom()>1.035 || boardZoom()<0.965 || boardZoom()>1.035;}
+  function pct(z){return Math.round((Number(z)||1)*100)+'%';}
+
+  function callReset(source){
+    try{lastResetAt=now();}catch(_e){}
+    try{if(typeof window.safe731ZoomRescue==='function'){window.safe731ZoomRescue();}}
+    catch(_e){
+      try{if(typeof window.safe453SetBoardZoom==='function')window.safe453SetBoardZoom(1);}
+      catch(__e){}
+    }
+    try{pulseChip();}catch(_e){}
+    setTimeout(updateChip,80);
+    setTimeout(updateChip,260);
+    setTimeout(updateChip,650);
+  }
+
+  function ensureChip(){
+    if(chip&&chip.isConnected)return chip;
+    try{
+      chip=document.createElement('div');
+      chip.id='l739ZoomRescueChip';
+      chip.setAttribute('role','button');
+      chip.setAttribute('aria-label','Nulstil zoom');
+      chip.innerHTML='<span class="l739ZoomRescueText">Zoom 100%</span><button type="button">Nulstil</button>';
+      chipText=chip.querySelector('.l739ZoomRescueText');
+      var btn=chip.querySelector('button');
+      function onActivate(e){
+        try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+        callReset('chip');
+        return false;
+      }
+      chip.addEventListener('click',onActivate,true);
+      if(btn)btn.addEventListener('click',onActivate,true);
+      chip.addEventListener('touchstart',function(e){try{e.stopPropagation();}catch(_e){}},{capture:true,passive:true});
+      document.body.appendChild(chip);
+    }catch(_e){}
+    return chip;
+  }
+
+  function pulseChip(){
+    try{
+      var c=ensureChip();
+      if(!c)return;
+      c.classList.remove('l739Pulse');
+      void c.offsetWidth;
+      c.classList.add('l739Pulse');
+    }catch(_e){}
+  }
+
+  function updateChip(){
+    try{
+      var c=ensureChip();
+      if(!c)return;
+      var z=totalZoom();
+      var show=isZoomed();
+      if(chipText)chipText.textContent='Zoom '+pct(z);
+      c.classList.toggle('show',!!show);
+      if(!show && now()-lastResetAt<900){c.classList.add('show'); if(chipText)chipText.textContent='Zoom nulstillet';}
+    }catch(_e){}
+  }
+
+  function touchPoint(t){return {x:Number(t.clientX)||0,y:Number(t.clientY)||0};}
+  function pairInfo(touches){
+    try{
+      if(!touches||touches.length<2)return null;
+      var a=touchPoint(touches[0]), b=touchPoint(touches[1]);
+      var dx=b.x-a.x, dy=b.y-a.y;
+      return {cx:(a.x+b.x)/2,cy:(a.y+b.y)/2,dist:Math.sqrt(dx*dx+dy*dy)};
+    }catch(_e){return null;}
+  }
+  function cancelHold(){
+    try{if(state&&state.timer)clearTimeout(state.timer);}catch(_e){}
+    state=null;
+  }
+  function beginHold(e){
+    try{
+      var p=pairInfo(e&&e.touches);
+      if(!p)return;
+      cancelHold();
+      state={start:p,last:p,startedAt:now(),timer:null,fired:false};
+      state.timer=setTimeout(function(){
+        try{
+          if(!state||state.fired)return;
+          state.fired=true;
+          callReset('two-finger-hold');
+          cancelHold();
+        }catch(_e){cancelHold();}
+      },HOLD_MS);
+    }catch(_e){cancelHold();}
+  }
+  function moveHold(e){
+    try{
+      if(!state)return;
+      var p=pairInfo(e&&e.touches);
+      if(!p){cancelHold();return;}
+      var s=state.start;
+      var dcx=p.cx-s.cx, dcy=p.cy-s.cy;
+      var move=Math.sqrt(dcx*dcx+dcy*dcy);
+      var dd=Math.abs(p.dist-s.dist);
+      state.last=p;
+      if(move>MOVE_LIMIT || dd>DIST_LIMIT){cancelHold();return;}
+    }catch(_e){cancelHold();}
+  }
+
+  function onTouchStart(e){try{if(e&&e.touches&&e.touches.length>=2)beginHold(e);else cancelHold();}catch(_e){}}
+  function onTouchMove(e){try{if(e&&e.touches&&e.touches.length>=2)moveHold(e);else cancelHold();}catch(_e){}}
+  function onTouchEnd(e){try{if(!e||!e.touches||e.touches.length<2)cancelHold();}catch(_e){cancelHold();}}
+
+  function add(target,type,fn,opts){try{target.addEventListener(type,fn,opts);}catch(_e){try{target.addEventListener(type,fn,!!(opts&&opts.capture));}catch(__e){}}}
+  add(window,'touchstart',onTouchStart,{capture:true,passive:true});
+  add(window,'touchmove',onTouchMove,{capture:true,passive:true});
+  add(window,'touchend',onTouchEnd,{capture:true,passive:true});
+  add(window,'touchcancel',onTouchEnd,{capture:true,passive:true});
+
+  try{
+    var v=vv();
+    if(v){
+      add(v,'resize',updateChip,{passive:true});
+      add(v,'scroll',updateChip,{passive:true});
+    }
+  }catch(_e){}
+  add(window,'resize',updateChip,{passive:true});
+  add(window,'orientationchange',function(){setTimeout(updateChip,120);setTimeout(updateChip,450);},{passive:true});
+  add(document,'DOMContentLoaded',function(){setTimeout(updateChip,80);},{passive:true});
+  document.addEventListener('click',function(e){
+    try{if(e&&e.target&&e.target.closest&&e.target.closest('#safe453BoardZoomOut,#safe453BoardZoomIn,#safe453BoardZoomPct'))setTimeout(updateChip,40);}
+    catch(_e){}
+  },true);
+  setInterval(updateChip,700);
+  setTimeout(updateChip,120);
+  setTimeout(updateChip,900);
+})();
+</script>
+
 <script id="l734-pdf-scroll-position-preserve">
 /* l734: PDF-scroll må ikke hoppe tilbage efter slip/næste greb.
    Kirurgisk: husker kun scrollLeft/scrollTop for den viste PDF-side og bruger samme PDF-viewer.
@@ -1456,7 +1666,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.160 l737-board-zoom-not-pdf-zoom</title>
+<title>Interaktiv tavle v1.2.160 l740-help-zoom-pdf-practical</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -43686,6 +43896,7 @@ function showQuickHelp(){
     <button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button>
     <button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="Zoom og bevæg">Zoom</button>
     <button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF/iframe</button>
   </div>
 
@@ -43708,7 +43919,22 @@ function showQuickHelp(){
           <li><b>Shift+klik</b> på den lille værktøjslinjeknap skifter til næste tema.</li>
           <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Genvejskort">Genvejskort</button><button type="button" class="helpJumpBtn" data-help-jump="Tavleoverblik">Tavleoverblik</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">Fokus og præsentation</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Zoom og bevæg">Zoom</button><button type="button" class="helpJumpBtn" data-help-jump="Genvejskort">Genvejskort</button><button type="button" class="helpJumpBtn" data-help-jump="Tavleoverblik">Tavleoverblik</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">Fokus og præsentation</button></div>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Zoom og bevæg dig rundt</summary>
+      <div class="answer">
+        <ul class="helpCompactList">
+          <li><b>Knib med to fingre</b> for at zoome ind og ud på tavlevisningen. Det virker også, når fingrene starter over en PDF.</li>
+          <li><b>Hold to fingre stille et øjeblik</b> for at nulstille zoom uden tastatur.</li>
+          <li>Har du tastatur, kan <b>Shift+Z</b> også nulstille zoom.</li>
+          <li>På en PDF kan du <b>scrolle med én finger</b> eller bruge <b>musehjul</b> for at se resten af siden.</li>
+          <li>På en PDF skifter venstre og højre kant side. I redigeringstilstand kan du også bruge PDF-links, formularfelter og flueben.</li>
+          <li>Én finger eller mus bruges stadig til at vælge widgets, flytte dem og bruge knapper som normalt.</li>
+        </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button><button type="button" class="helpJumpBtn" data-help-jump="Genvejskort">Genvejskort</button><button type="button" class="helpJumpBtn" data-help-jump="Baggrunde">Baggrunde</button></div>
       </div>
     </details>
 
@@ -43720,7 +43946,7 @@ function showQuickHelp(){
           <div class="helpKeyBox"><b>Tavler</b><b>N</b> ny tavle · <b>←/→</b> skift tavle · <b>Q/Å/Shift+T</b> Tavleoverblik · <b>Cmd/Ctrl+O</b> widget-overblik</div>
           <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt · <b>Shift+Ø</b> lås</div>
           <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Shift+N</b> værktøjslinje · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
-          <div class="helpKeyBox"><b>Udseende</b><b>Shift+B</b> baggrund/tema · <b>B</b> næste tema · <b>Shift+1–4</b> tema · <b>Cmd/Ctrl+B</b> tilfældig baggrund · <b>Shift+G</b> grid · <b>Shift+Z</b> nulstil zoom · <b>Pinch</b> zoom/flyt tavlevisning</div>
+          <div class="helpKeyBox"><b>Udseende og zoom</b><b>Knib med to fingre</b> zoom tavle · <b>Hold to fingre stille</b> nulstil · <b>Shift+Z</b> nulstil · <b>Shift+B</b> baggrund/tema · <b>Shift+G</b> grid</div>
           <div class="helpKeyBox"><b>I Hjælp</b><b>→/←</b> skift sektion · <b>↑/↓</b> scroll · <b>Enter</b> åbn/luk sektion · <b>Esc</b> luk</div>
         </div>
       </div>
@@ -43937,6 +44163,7 @@ function showQuickHelp(){
           <li><b>B</b> skifter til næste tema. <b>Shift+1–4</b> vælger et tema direkte.</li>
           <li><b>Cmd/Ctrl+B</b> vælger en tilfældig baggrund på den aktive tavle.</li>
           <li><b>Shift+G</b> slår grid til/fra.</li>
+          <li><b>Zoom-redning:</b> Hold to fingre stille et øjeblik, eller brug <b>Shift+Z</b>, hvis tavlevisningen er zoomet for langt ind.</li>
           <li><b>Shift+O</b> åbner Redningsbælte, hvis widgets er havnet uden for skærmen, eller tavlen er blevet rodet.</li>
           <li><b>Cmd/Ctrl+Delete/Backspace</b> rydder aktiv tavle til papirkurven efter bekræftelse.</li>
         </ul>
@@ -44038,6 +44265,8 @@ function showQuickHelp(){
           <li>I præsentation skjules redigeringsværktøjer, så tavlen kan bruges roligt foran elever.</li>
           <li><b>F</b> fremhæver én widget. <b>Shift+F</b> maksimerer.</li>
           <li>PDF’er kan flyttes, forstørres, fokuseres, maksimeres og bruges i præsentation.</li>
+          <li><b>Læs en PDF:</b> Scroll med én finger eller musehjul for at se hele siden. Venstre og højre kant skifter PDF-side.</li>
+          <li><b>Zoom tavlen:</b> Knib med to fingre for at zoome visningen. Hold to fingre stille et øjeblik, eller brug <b>Shift+Z</b>, for at nulstille zoom.</li>
           <li><b>Afstemningsformularer:</b> Åbn PDF, vælg Afstemning, udfyld spørgsmål og svar, og hent derefter <b>Elev-PDF</b>. Det er den fil, eleverne skal udfylde.</li>
           <li>Besvarede elev-PDF’er samles igen i DataRemix. Resultatet kan vises i AfstemningsWidgetten eller som en pæn Resultat-PDF.</li>
           <li>Når Skriv sender en PDF til Tavle, lander den som en almindelig PDF-widget.</li>
@@ -44050,7 +44279,7 @@ function showQuickHelp(){
   </div>
 
   <div class="helpPager">
-    <span>Hurtigst i gang: N ny tavle · Mellemrum Mere · P/R præsentation · F fokus · Q/Å/Shift+T Tavleoverblik · D Datakilder · Esc lukker/går tilbage</span>
+    <span>Hurtigst i gang: N ny tavle · Mellemrum Mere · P/R præsentation · F fokus · Knib med to fingre zoom · Hold to fingre stille eller Shift+Z nulstiller · Esc lukker/går tilbage</span>
     <button id="closeHelp">Luk</button>
   </div>`);
   function safe455bRemoveExistingHelpKeyHandler(){
