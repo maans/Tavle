@@ -4,6 +4,8 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
 <!doctype html>
+<!-- l743-help-smartboard-muted-dark: Bygger direkte på l741. Erstatter l742-sporet med en mørkere/dæmpet og læsbar Hjælp-visning i SmartBoard-temaet, inklusive tydeligere markering af valgt Hjælp-kort. Tema-knap og B-genvej bevares. Ingen PDF-, widget-, gesture- eller dataflow ændret. -->
+<!-- l741-help-theme-cycle: Bygger direkte på l740. Hjælp får Tema-knap i headeren, og B kan skifte tema mens Hjælp er åben. Ændringen ligger i Hjælp-ejeren og rører ikke baggrundsvælger, widgets eller PDF-gesture. -->
 <!-- l740-help-zoom-pdf-practical: Bygger direkte på l739. Kun Hjælp-tekst opdateres brugervendt med tavlezoom, to-finger-hold som zoom-redning, Shift+Z og naturlig PDF-scroll/kantbladring. Ingen app-logik, PDF-gesture, widgets eller dataflow ændret. -->
 <!-- l739-touch-zoom-rescue-chip: Bygger direkte på l738. Tilføjer kun touch-redning: to fingre holdt stille i ca. 0,8 sek. nulstiller zoom, og en lille Zoom · Nulstil-chip vises ved indzoomet visning. PDF-scroll/kantbladring/formularer/links og øvrige widgets uændret. -->
 <!-- l738-board-pinch-over-pdf-stable: Bygger direkte på l737. Retter global tavle-pinch over PDF: l729s gamle PDF-specifikke pinch slippes helt, så to fingre zoomer tavlen også over PDF i redigering/fokus/præsentation. Én-finger-/musehjul-scroll i PDF fra l735 bevares; PDF-links/formularfelter er fortsat kun redigering-interaktive som ønsket. -->
@@ -1666,7 +1668,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.160 l740-help-zoom-pdf-practical</title>
+<title>Interaktiv tavle v1.2.163 l743-help-smartboard-muted-dark</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -43792,7 +43794,7 @@ function tavleMaybeOpenStartupHelp(){
 }
 
 function showQuickHelp(){
-  showModal(`<h2>Hjælp</h2>
+  showModal(`<div class="helpHeader"><h2>Hjælp</h2><button id="helpCycleTheme" class="helpThemeCycleBtn" type="button" title="Skift tema (B)" aria-label="Skift tema">🎨 Tema</button></div>
 
   <style id="safe455uH12-help-scroll-guard-css">
     #modal:has(#closeHelp){
@@ -43802,6 +43804,13 @@ function showQuickHelp(){
     }
   </style>
   <style id="safe455a-help-manual-css">
+    .helpHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
+    .helpHeader h2{margin:0!important;line-height:1.05}
+    .helpThemeCycleBtn{margin:0!important;white-space:nowrap!important;border-radius:999px!important;padding:8px 12px!important;font-size:14px!important;font-weight:950!important;background:#f8fafc!important;color:#111827!important;border:1px solid #dbe3ef!important;box-shadow:0 2px 8px rgba(15,23,42,.10)!important}
+    .helpThemeCycleBtn:hover,.helpThemeCycleBtn:focus-visible{background:#eef2ff!important;outline:2px solid #818cf8!important;outline-offset:2px!important}
+    html.theme-smartboard .helpThemeCycleBtn,html[data-tavle-theme="smartboard"] .helpThemeCycleBtn{background:rgba(56,189,248,.18)!important;color:#e0f2fe!important;border-color:rgba(125,211,252,.32)!important}
+    html.theme-flipover .helpThemeCycleBtn,html[data-tavle-theme="flipover"] .helpThemeCycleBtn{background:#fff7ed!important;color:#7c2d12!important;border-color:rgba(120,53,15,.18)!important}
+    @media(max-width:560px){.helpHeader{align-items:flex-start}.helpThemeCycleBtn{padding:7px 10px!important;font-size:13px!important}}
     .helpQuickStart{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 12px}
     .helpQuickCard{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:10px 12px;line-height:1.3}
     .helpQuickCard>b:first-child{display:block;margin-bottom:4px}
@@ -43947,7 +43956,7 @@ function showQuickHelp(){
           <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt · <b>Shift+Ø</b> lås</div>
           <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Shift+N</b> værktøjslinje · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
           <div class="helpKeyBox"><b>Udseende og zoom</b><b>Knib med to fingre</b> zoom tavle · <b>Hold to fingre stille</b> nulstil · <b>Shift+Z</b> nulstil · <b>Shift+B</b> baggrund/tema · <b>Shift+G</b> grid</div>
-          <div class="helpKeyBox"><b>I Hjælp</b><b>→/←</b> skift sektion · <b>↑/↓</b> scroll · <b>Enter</b> åbn/luk sektion · <b>Esc</b> luk</div>
+          <div class="helpKeyBox"><b>I Hjælp</b><b>→/←</b> skift sektion · <b>↑/↓</b> scroll · <b>B</b> tema · <b>Enter</b> åbn/luk sektion · <b>Esc</b> luk</div>
         </div>
       </div>
     </details>
@@ -44160,7 +44169,7 @@ function showQuickHelp(){
               <span class="themeOpslag">📌 OpslagsTavle</span><span class="themeGlass">🪟 GlasTavle</span><span class="themeFlip">🗒️ FlipOver</span><span class="themeSmart">💡 SmartBoard</span>
             </div>
           </li>
-          <li><b>B</b> skifter til næste tema. <b>Shift+1–4</b> vælger et tema direkte.</li>
+          <li><b>B</b> skifter til næste tema. Det virker også, mens Hjælp er åben. <b>Shift+1–4</b> vælger et tema direkte.</li>
           <li><b>Cmd/Ctrl+B</b> vælger en tilfældig baggrund på den aktive tavle.</li>
           <li><b>Shift+G</b> slår grid til/fra.</li>
           <li><b>Zoom-redning:</b> Hold to fingre stille et øjeblik, eller brug <b>Shift+Z</b>, hvis tavlevisningen er zoomet for langt ind.</li>
@@ -44301,6 +44310,24 @@ function showQuickHelp(){
     closeModal();
     return false;
   };
+  function safe455bCycleThemeFromHelp(e){
+    try{if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}}catch(_x){}
+    try{
+      if(typeof window.cycleTavleTheme==='function'){
+        window.cycleTavleTheme();
+        return false;
+      }
+      const order=['opslagstavle','glastavle','flipover','smartboard'];
+      const cur=String((typeof window.getTavleTheme==='function'?window.getTavleTheme():document.documentElement.getAttribute('data-tavle-theme'))||'opslagstavle').toLowerCase();
+      const idx=order.indexOf(cur);
+      const next=order[(idx+1+order.length)%order.length];
+      if(typeof window.setTavleTheme==='function')window.setTavleTheme(next);
+      else try{toast('Tema: '+next);}catch(_t){}
+    }catch(_e){try{toast('Tema kunne ikke skiftes herfra');}catch(_t){}}
+    return false;
+  }
+  const safe455bCycleThemeBtn=modal.querySelector('#helpCycleTheme');
+  if(safe455bCycleThemeBtn)safe455bCycleThemeBtn.onclick=safe455bCycleThemeFromHelp;
   let safe455bHelpSectionIndex=0;
   let safe455bHelpWidgetIndex=-1;
   const safe455bHelpSections=Array.from(modal.querySelectorAll('.helpFAQ > details'));
@@ -44374,6 +44401,10 @@ function showQuickHelp(){
     // I Hjælp skal piletasterne stadig styre Hjælp, selv hvis opstarts-checkboxen har fokus.
     // Almindelige tekstfelter bevarer andre taster.
     if(typing && !helpArrowKey)return;
+    if(!typing && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && String(e.key||'').toLowerCase()==='b'){
+      safe455bCycleThemeFromHelp(e);
+      return false;
+    }
     function safe455bSyncHelpIndex(){
       try{
         const cur=modal.querySelector('.safe455bHelpSectionCurrent');
@@ -70301,5 +70332,201 @@ Redigeringstilstand nulstilles, så den gode editor-visning bevares.
   setTimeout(sync,100);
 })();
 </script>
+
+
+<style id="l743-help-smartboard-muted-dark-css">
+/* l743: SmartBoard-Hjælp skal være mørkere, dæmpet og læsbar.
+   Kun Hjælp-modalen rammes. Tema-knap og B-genvej fra l741 bevares. */
+html.theme-smartboard #modal:has(#closeHelp),
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp){
+  background:linear-gradient(180deg,#111827 0%,#0f172a 100%)!important;
+  color:#e5edf6!important;
+  border:1px solid rgba(125,211,252,.22)!important;
+  border-radius:22px!important;
+  box-shadow:0 0 0 1px rgba(15,23,42,.85),0 24px 78px rgba(0,0,0,.58)!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpHeader,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpHeader{
+  color:#f8fafc!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpHeader h2,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpHeader h2{
+  color:#f8fafc!important;
+  text-shadow:0 1px 0 rgba(0,0,0,.25)!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpThemeCycleBtn,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpThemeCycleBtn{
+  background:#1f2937!important;
+  color:#e0f2fe!important;
+  border:1px solid rgba(125,211,252,.32)!important;
+  box-shadow:0 4px 14px rgba(0,0,0,.22)!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpThemeCycleBtn:hover,
+html.theme-smartboard #modal:has(#closeHelp) .helpThemeCycleBtn:focus-visible,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpThemeCycleBtn:hover,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpThemeCycleBtn:focus-visible{
+  background:#273549!important;
+  outline:2px solid #67e8f9!important;
+  outline-offset:2px!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpIntro,
+html.theme-smartboard #modal:has(#closeHelp) .helpQuickCard,
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfGuides,
+html.theme-smartboard #modal:has(#closeHelp) .helpTopJumps,
+html.theme-smartboard #modal:has(#closeHelp) .helpSeeAlso,
+html.theme-smartboard #modal:has(#closeHelp) .helpShortcutPrinciples,
+html.theme-smartboard #modal:has(#closeHelp) .helpKeyBox,
+html.theme-smartboard #modal:has(#closeHelp) .helpToolGroup,
+html.theme-smartboard #modal:has(#closeHelp) .helpFAQ details,
+html.theme-smartboard #modal:has(#closeHelp) .helpFAQ .answer,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpIntro,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpQuickCard,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfGuides,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpTopJumps,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpSeeAlso,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpShortcutPrinciples,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpKeyBox,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolGroup,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpFAQ details,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpFAQ .answer{
+  background:rgba(15,23,42,.76)!important;
+  color:#dbeafe!important;
+  border-color:rgba(148,163,184,.22)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpQuickCard,
+html.theme-smartboard #modal:has(#closeHelp) .helpKeyBox,
+html.theme-smartboard #modal:has(#closeHelp) .helpToolGroup,
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfCard,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpQuickCard,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpKeyBox,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolGroup,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfCard{
+  border-color:rgba(148,163,184,.24)!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfCard,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfCard{
+  background:#182235!important;
+  color:#e5edf6!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpToolGroup .helpIconItem,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolGroup .helpIconItem{
+  background:linear-gradient(180deg,#243044,#1a2433)!important;
+  color:#f8fafc!important;
+  border:1px solid rgba(148,163,184,.22)!important;
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 5px 16px rgba(0,0,0,.18)!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpToolGroup .helpIcon,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolGroup .helpIcon{
+  background:#e5e7eb!important;
+  color:#111827!important;
+  box-shadow:0 2px 8px rgba(0,0,0,.20)!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) h2,
+html.theme-smartboard #modal:has(#closeHelp) h3,
+html.theme-smartboard #modal:has(#closeHelp) summary,
+html.theme-smartboard #modal:has(#closeHelp) b,
+html.theme-smartboard #modal:has(#closeHelp) .helpToolGroupHead,
+html.theme-smartboard #modal:has(#closeHelp) .helpToolGroupHead b,
+html.theme-smartboard #modal:has(#closeHelp) .helpQuickCard b,
+html.theme-smartboard #modal:has(#closeHelp) .helpKeyBox b,
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfCard b,
+html.theme-smartboard #modal:has(#closeHelp) .helpToolGroup .helpIconItem b,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) h2,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) h3,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) summary,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) b,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolGroupHead,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolGroupHead b,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpQuickCard b,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpKeyBox b,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfCard b,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolGroup .helpIconItem b{
+  color:#f8fafc!important;
+  opacity:1!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) p,
+html.theme-smartboard #modal:has(#closeHelp) li,
+html.theme-smartboard #modal:has(#closeHelp) .answer,
+html.theme-smartboard #modal:has(#closeHelp) .helpMiniNote,
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfGuidesHead p,
+html.theme-smartboard #modal:has(#closeHelp) .helpToolGroupHead small,
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfCard span,
+html.theme-smartboard #modal:has(#closeHelp) .helpIconItem small,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) p,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) li,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .answer,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpMiniNote,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfGuidesHead p,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolGroupHead small,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfCard span,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpIconItem small{
+  color:#cbd5e1!important;
+  opacity:1!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpToolGroup .helpIconItem small,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolGroup .helpIconItem small{
+  color:#bfdbfe!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpHintToggleRow,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpHintToggleRow{
+  color:#f8fafc!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpJumpBtn,
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfCard button,
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfGithubBtn,
+html.theme-smartboard #modal:has(#closeHelp) #closeHelp,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpJumpBtn,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfCard button,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfGithubBtn,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) #closeHelp{
+  background:#273549!important;
+  color:#f8fafc!important;
+  border:1px solid rgba(125,211,252,.24)!important;
+  box-shadow:0 2px 10px rgba(0,0,0,.20)!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpJumpBtn:hover,
+html.theme-smartboard #modal:has(#closeHelp) .helpJumpBtn:focus-visible,
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfCard button:hover,
+html.theme-smartboard #modal:has(#closeHelp) .helpPdfCard button:focus-visible,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpJumpBtn:hover,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpJumpBtn:focus-visible,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfCard button:hover,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpPdfCard button:focus-visible{
+  background:#334155!important;
+  outline:2px solid #67e8f9!important;
+  outline-offset:2px!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpToolBtn:hover,
+html.theme-smartboard #modal:has(#closeHelp) .helpToolBtn:focus-visible,
+html.theme-smartboard #modal:has(#closeHelp) .safe455bHelpWidgetCurrent,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolBtn:hover,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpToolBtn:focus-visible,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .safe455bHelpWidgetCurrent{
+  background:linear-gradient(180deg,#334155,#1e3a5f)!important;
+  color:#f8fafc!important;
+  outline:3px solid #f59e0b!important;
+  outline-offset:2px!important;
+  box-shadow:inset 5px 0 0 #f59e0b,0 0 0 5px rgba(245,158,11,.16),0 10px 26px rgba(0,0,0,.24)!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .safe455bHelpSectionCurrent>summary,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .safe455bHelpSectionCurrent>summary{
+  background:#1e293b!important;
+  color:#f8fafc!important;
+  outline:3px solid #f59e0b!important;
+  outline-offset:2px!important;
+  box-shadow:inset 5px 0 0 #f59e0b!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpFAQ summary,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpFAQ summary{
+  background:rgba(30,41,59,.92)!important;
+  color:#f8fafc!important;
+  border-radius:12px!important;
+}
+html.theme-smartboard #modal:has(#closeHelp) .helpFAQ details[open] summary,
+html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpFAQ details[open] summary{
+  background:#243044!important;
+}
+</style>
 
 </body></html>
