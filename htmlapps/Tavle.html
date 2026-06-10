@@ -3,6 +3,7 @@
 <!-- l672-wheel-stop-before-choice: Bygger på l671. Kirurgisk Lykkehjul-fix: Space/Enter eller Stop mens hjulet kører stopper altid den aktuelle spin-animation uden at vælge noget; Auto stoppes også straks. Ingen ændring af Timer, DataWidget eller øvrige widgets. -->
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
+<!-- l746-tiddlywiki-load-touchfix: Bygger på l745. Kirurgisk HTML/TiddlyWiki-fix: den tunge arkiv-placeholder får robust pointer/touch/click-binding, og Indlæs åbner som preview/htmlapp i stedet for at falde tilbage til editor. Ingen ændring af arkiv, backup, PDF eller øvrige widgets. -->
 <!doctype html>
 <!-- l744-pdf-form-values-visible-focus-present: Bygger på l743. Kirurgisk PDF-formular-fix: gemte/indtastede PDF-formularværdier vises nu også i præsentations- og fokustilstand som passiv/læsbar overlay, mens redigering stadig kun sker i almindelig redigeringstilstand. Ingen PDF-gesture, Hjælp, widgets eller dataflow ændret. -->
 <!-- l743-help-smartboard-muted-dark: Bygger direkte på l741. Erstatter l742-sporet med en mørkere/dæmpet og læsbar Hjælp-visning i SmartBoard-temaet, inklusive tydeligere markering af valgt Hjælp-kort. Tema-knap og B-genvej bevares. Ingen PDF-, widget-, gesture- eller dataflow ændret. -->
@@ -1669,7 +1670,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.164 l745-save-open-smartboard-muted</title>
+<title>Interaktiv tavle v1.2.165 l746-tiddlywiki-load-touchfix</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -35704,13 +35705,42 @@ if(w.type==='poll'){
     }
     safe455h17DownloadBlob(new Blob([String(w.data.html||'')],{type:'text/html;charset=utf-8'}),name);
   }
-  if(heavyLoadBtn)heavyLoadBtn.onclick=e=>{
-    e.preventDefault();e.stopPropagation();
+  function safe746StopHeavyButtonEvent(e){
+    try{
+      if(e&&e.preventDefault)e.preventDefault();
+      if(e&&e.stopPropagation)e.stopPropagation();
+      if(e&&e.stopImmediatePropagation)e.stopImmediatePropagation();
+    }catch(_e){}
+  }
+  function safe746BindHtmlHeavyButton(btn,action){
+    if(!btn)return;
+    let busy=false;
+    const run=e=>{
+      safe746StopHeavyButtonEvent(e);
+      if(busy)return false;
+      busy=true;
+      try{action(e);}catch(err){console.warn('l746 HTML/TW heavy action failed',err);}
+      setTimeout(()=>{busy=false;},450);
+      return false;
+    };
+    try{btn.style.touchAction='manipulation';}catch(_e){}
+    try{btn.addEventListener('pointerdown',safe746StopHeavyButtonEvent,{capture:true,passive:false});}catch(_e){}
+    try{btn.addEventListener('touchstart',safe746StopHeavyButtonEvent,{capture:true,passive:false});}catch(_e){}
+    try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+    try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+    btn.addEventListener('click',run,true);
+    btn.onclick=run;
+  }
+  safe746BindHtmlHeavyButton(heavyLoadBtn,()=>{
     if(safe455h17Ref)window.__safe455h17HtmlLoadedRefs[safe455h17Ref]=true;
+    // TiddlyWiki skal starte som HTMLApp/iframe. Hvis widgetten står i edit,
+    // lander brugeren ellers i kildekoden, hvilket opleves som om den ikke indlæses.
+    try{w.data.mode='preview';}catch(_e){}
     try{toast('Indlæser HTML/TiddlyWiki…');}catch(_e){}
     setTimeout(()=>fillContent(el,w),20);
-  };
-  if(heavyDownloadBtn)heavyDownloadBtn.onclick=e=>{e.preventDefault();e.stopPropagation();safe455aDownloadActiveHtml();};
+    try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+  });
+  safe746BindHtmlHeavyButton(heavyDownloadBtn,()=>{safe455aDownloadActiveHtml();});
   if(prev)prev.onclick=e=>{e.stopPropagation();setMode('preview')};
   if(edit)edit.onclick=e=>{e.stopPropagation();setMode('edit')};
   if(dl)dl.onclick=e=>{e.stopPropagation();safe455aDownloadActiveHtml()};
