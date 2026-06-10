@@ -4,6 +4,7 @@
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
 <!doctype html>
+<!-- l744-pdf-form-values-visible-focus-present: Bygger på l743. Kirurgisk PDF-formular-fix: gemte/indtastede PDF-formularværdier vises nu også i præsentations- og fokustilstand som passiv/læsbar overlay, mens redigering stadig kun sker i almindelig redigeringstilstand. Ingen PDF-gesture, Hjælp, widgets eller dataflow ændret. -->
 <!-- l743-help-smartboard-muted-dark: Bygger direkte på l741. Erstatter l742-sporet med en mørkere/dæmpet og læsbar Hjælp-visning i SmartBoard-temaet, inklusive tydeligere markering af valgt Hjælp-kort. Tema-knap og B-genvej bevares. Ingen PDF-, widget-, gesture- eller dataflow ændret. -->
 <!-- l741-help-theme-cycle: Bygger direkte på l740. Hjælp får Tema-knap i headeren, og B kan skifte tema mens Hjælp er åben. Ændringen ligger i Hjælp-ejeren og rører ikke baggrundsvælger, widgets eller PDF-gesture. -->
 <!-- l740-help-zoom-pdf-practical: Bygger direkte på l739. Kun Hjælp-tekst opdateres brugervendt med tavlezoom, to-finger-hold som zoom-redning, Shift+Z og naturlig PDF-scroll/kantbladring. Ingen app-logik, PDF-gesture, widgets eller dataflow ændret. -->
@@ -1668,7 +1669,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.163 l743-help-smartboard-muted-dark</title>
+<title>Interaktiv tavle v1.2.164 l745-save-open-smartboard-muted</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -5394,9 +5395,14 @@ body.focus-presentation #toolbarFallback{
   background:#eef2ff!important;
 }
 .app.present .content.pdf .pdfFormOverlay,
+body.focus-mode .content.pdf .pdfFormOverlay,
 body.focus-edit .content.pdf .pdfFormOverlay,
-body.focus-presentation .content.pdf .pdfFormOverlay{
-  display:none!important;
+body.focus-presentation .content.pdf .pdfFormOverlay,
+body.focus-maximized .content.pdf .pdfFormOverlay{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:none!important;
 }
 .content.pdf .pdfJsEmpty,
 .content.pdf .pdfJsStatus{
@@ -14917,6 +14923,60 @@ body.focus-maximized .widget[data-type="text"] .listPreview{
 }
 </style>
 
+
+<style id="l744-pdf-form-visible-focus-present-css">
+/* l744: Vis PDF-formularværdier i præsentation/fokus som passiv læsbar overlay. */
+.app.present .widget[data-type="pdf"] .content.pdf .pdfFormOverlay,
+body.focus-mode .widget[data-type="pdf"] .content.pdf .pdfFormOverlay,
+body.focus-edit .widget[data-type="pdf"] .content.pdf .pdfFormOverlay,
+body.focus-presentation .widget[data-type="pdf"] .content.pdf .pdfFormOverlay,
+body.focus-maximized .widget[data-type="pdf"] .content.pdf .pdfFormOverlay{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:none!important;
+}
+.app.present .widget[data-type="pdf"] .content.pdf .pdfFormField,
+body.focus-mode .widget[data-type="pdf"] .content.pdf .pdfFormField,
+body.focus-edit .widget[data-type="pdf"] .content.pdf .pdfFormField,
+body.focus-presentation .widget[data-type="pdf"] .content.pdf .pdfFormField,
+body.focus-maximized .widget[data-type="pdf"] .content.pdf .pdfFormField{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:none!important;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+  caret-color:transparent!important;
+}
+.app.present .widget[data-type="pdf"] .content.pdf textarea.pdfFormField,
+body.focus-mode .widget[data-type="pdf"] .content.pdf textarea.pdfFormField,
+body.focus-edit .widget[data-type="pdf"] .content.pdf textarea.pdfFormField,
+body.focus-presentation .widget[data-type="pdf"] .content.pdf textarea.pdfFormField,
+body.focus-maximized .widget[data-type="pdf"] .content.pdf textarea.pdfFormField{
+  display:block!important;
+}
+.app.present .widget[data-type="pdf"] .content.pdf input[type="checkbox"].pdfFormField,
+.app.present .widget[data-type="pdf"] .content.pdf input[type="radio"].pdfFormField,
+body.focus-mode .widget[data-type="pdf"] .content.pdf input[type="checkbox"].pdfFormField,
+body.focus-mode .widget[data-type="pdf"] .content.pdf input[type="radio"].pdfFormField,
+body.focus-edit .widget[data-type="pdf"] .content.pdf input[type="checkbox"].pdfFormField,
+body.focus-edit .widget[data-type="pdf"] .content.pdf input[type="radio"].pdfFormField,
+body.focus-presentation .widget[data-type="pdf"] .content.pdf input[type="checkbox"].pdfFormField,
+body.focus-presentation .widget[data-type="pdf"] .content.pdf input[type="radio"].pdfFormField,
+body.focus-maximized .widget[data-type="pdf"] .content.pdf input[type="checkbox"].pdfFormField,
+body.focus-maximized .widget[data-type="pdf"] .content.pdf input[type="radio"].pdfFormField{
+  display:block!important;
+}
+.app.present .widget[data-type="pdf"] .content.pdf .pdfFormActivator,
+body.focus-mode .widget[data-type="pdf"] .content.pdf .pdfFormActivator,
+body.focus-edit .widget[data-type="pdf"] .content.pdf .pdfFormActivator,
+body.focus-presentation .widget[data-type="pdf"] .content.pdf .pdfFormActivator,
+body.focus-maximized .widget[data-type="pdf"] .content.pdf .pdfFormActivator{
+  display:none!important;
+}
+</style>
+
 </head>
 <body>
 
@@ -22451,11 +22511,9 @@ function safe455uH102IsPdfFormEditAllowed(w){
    På iPad åbner tastaturet kun stabilt, når brugeren tapper et faktisk inputfelt
    direkte – ikke når et senere async re-render forsøger at fokusere feltet. */
 function safe455uH102CanRenderPdfFormFields(w){
-  try{
-    const appEl=document.getElementById('app');
-    if(appEl&&appEl.classList&&appEl.classList.contains('present'))return false;
-    if(document.body&&document.body.classList&&(document.body.classList.contains('focus-edit')||document.body.classList.contains('focus-presentation')))return false;
-  }catch(_e){}
+  /* l744: Formularfelter skal også renderes i præsentations- og fokustilstand,
+     så indtastede/gemte værdier kan ses. Redigering styres fortsat af
+     safe455uH102IsPdfFormEditAllowed + CSS pointer-events, ikke af om felterne findes. */
   return !!(w&&w.data);
 }
 function safe455uH102PdfRectStyle(viewport,rect){
@@ -66679,6 +66737,66 @@ html.theme-smartboard .modal .l41FileTitle,
 html[data-tavle-theme="smartboard"] .modal .l41FileTitle{
   background:#f4f7fb!important;
   border-color:#d5dde8!important;
+}
+
+/* l745-save-open-smartboard-muted: Kun ejer-CSS for Gem/åbn i SmartBoard.
+   Gør intro, dropzone og knapper læsbare og mere dæmpede uden at ændre flow/JS. */
+html.theme-smartboard .modal .saveDropIntro,
+html[data-tavle-theme="smartboard"] .modal .saveDropIntro{
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.04))!important;
+  border:1px solid rgba(125,211,252,.18)!important;
+  color:#dbeafe!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)!important;
+}
+html.theme-smartboard .modal .saveDropIntro b,
+html[data-tavle-theme="smartboard"] .modal .saveDropIntro b{
+  color:#e0f2fe!important;
+}
+html.theme-smartboard .modal .saveDropZone,
+html[data-tavle-theme="smartboard"] .modal .saveDropZone{
+  background:linear-gradient(180deg,rgba(2,6,23,.50),rgba(15,23,42,.68))!important;
+  border-color:rgba(56,189,248,.42)!important;
+  color:#e2e8f0!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 16px 38px rgba(2,6,23,.26)!important;
+}
+html.theme-smartboard .modal .saveDropZone.dragOver,
+html[data-tavle-theme="smartboard"] .modal .saveDropZone.dragOver{
+  background:linear-gradient(180deg,rgba(8,47,73,.76),rgba(15,23,42,.86))!important;
+  transform:scale(1.01)!important;
+  box-shadow:0 0 0 5px rgba(56,189,248,.12),0 18px 42px rgba(2,6,23,.30)!important;
+}
+html.theme-smartboard .modal .saveDropIcon,
+html[data-tavle-theme="smartboard"] .modal .saveDropIcon{
+  opacity:.92!important;
+}
+html.theme-smartboard .modal .saveDropZone b,
+html[data-tavle-theme="smartboard"] .modal .saveDropZone b{
+  color:#f8fafc!important;
+}
+html.theme-smartboard .modal .saveDropZone span,
+html[data-tavle-theme="smartboard"] .modal .saveDropZone span,
+html.theme-smartboard .modal .saveDropHint,
+html[data-tavle-theme="smartboard"] .modal .saveDropHint{
+  color:#cbd5e1!important;
+}
+html.theme-smartboard .modal .saveDropChoose,
+html[data-tavle-theme="smartboard"] .modal .saveDropChoose{
+  color:#7dd3fc!important;
+}
+html.theme-smartboard .modal .saveActions.v39 button,
+html[data-tavle-theme="smartboard"] .modal .saveActions.v39 button,
+html.theme-smartboard .modal .saveActions.v40 button,
+html[data-tavle-theme="smartboard"] .modal .saveActions.v40 button{
+  background:linear-gradient(180deg,#f8fafc,#e9eef5)!important;
+  color:#0f172a!important;
+  border:1px solid rgba(148,163,184,.34)!important;
+  box-shadow:0 6px 18px rgba(2,6,23,.14)!important;
+}
+html.theme-smartboard .modal #saveOpenHelp,
+html[data-tavle-theme="smartboard"] .modal #saveOpenHelp{
+  background:#f8fafc!important;
+  color:#0f172a!important;
+  border:1px solid rgba(148,163,184,.34)!important;
 }
 
 html.theme-smartboard .modal .h63State,
