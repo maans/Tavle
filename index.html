@@ -5,6 +5,8 @@
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
 <!-- l746-tiddlywiki-load-touchfix: Bygger på l745. Kirurgisk HTML/TiddlyWiki-fix: den tunge arkiv-placeholder får robust pointer/touch/click-binding, og Indlæs åbner som preview/htmlapp i stedet for at falde tilbage til editor. Ingen ændring af arkiv, backup, PDF eller øvrige widgets. -->
 <!doctype html>
+<!-- l748-tiddlywiki-native-external-drop-restore: Bygger på l746. Genskaber den gamle native drop-vej til TiddlyWiki: ved ekstern drag/drop over valgt/aktiv TiddlyWiki/HTML-widget slippes htmlShield uden syntetisk drop, så iframe/TiddlyWiki selv modtager tiddler-JSON. Ingen arkiv/backup/PDF/tema/dataflow ændret. -->
+<!-- l751-tiddlywiki-import-syntaxfix: Kun syntaxfix af l750. Retter escape-linje i TiddlyWiki-savebridge, som låste appen. Ingen ny importlogik. -->
 <!-- l744-pdf-form-values-visible-focus-present: Bygger på l743. Kirurgisk PDF-formular-fix: gemte/indtastede PDF-formularværdier vises nu også i præsentations- og fokustilstand som passiv/læsbar overlay, mens redigering stadig kun sker i almindelig redigeringstilstand. Ingen PDF-gesture, Hjælp, widgets eller dataflow ændret. -->
 <!-- l743-help-smartboard-muted-dark: Bygger direkte på l741. Erstatter l742-sporet med en mørkere/dæmpet og læsbar Hjælp-visning i SmartBoard-temaet, inklusive tydeligere markering af valgt Hjælp-kort. Tema-knap og B-genvej bevares. Ingen PDF-, widget-, gesture- eller dataflow ændret. -->
 <!-- l741-help-theme-cycle: Bygger direkte på l740. Hjælp får Tema-knap i headeren, og B kan skifte tema mens Hjælp er åben. Ændringen ligger i Hjælp-ejeren og rører ikke baggrundsvælger, widgets eller PDF-gesture. -->
@@ -1670,7 +1672,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.165 l746-tiddlywiki-load-touchfix</title>
+<title>Interaktiv tavle v1.2.169 l751-tiddlywiki-import-syntaxfix</title>
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -14978,6 +14980,28 @@ body.focus-maximized .widget[data-type="pdf"] .content.pdf .pdfFormActivator{
 }
 </style>
 
+
+<style id="l748-tiddlywiki-native-external-drop-restore-css">
+/* l748: Under ekstern tiddler-drag skal TiddlyWiki-iframe'en være den native dropflade.
+   Skjoldet fjernes kun for valgt/aktiv/focus HTML-widget eller når JS markerer drop-klar. */
+.widget[data-type="html"].htmlInteractive .htmlShield,
+.widget[data-type="html"].tiddlyExternalDropReady .htmlShield,
+.widget[data-type="html"].selected.tiddlyExternalDropCandidate .htmlShield,
+.widget[data-type="html"].focusTarget.tiddlyExternalDropCandidate .htmlShield{
+  display:none!important;
+  pointer-events:none!important;
+}
+.widget[data-type="html"].htmlInteractive iframe,
+.widget[data-type="html"].tiddlyExternalDropReady iframe,
+.widget[data-type="html"].selected.tiddlyExternalDropCandidate iframe,
+.widget[data-type="html"].focusTarget.tiddlyExternalDropCandidate iframe{
+  pointer-events:auto!important;
+}
+.widget[data-type="html"].tiddlyExternalDropReady{
+  outline:3px solid rgba(125,211,252,.72)!important;
+  box-shadow:0 0 0 5px rgba(125,211,252,.14),0 18px 52px rgba(2,6,23,.34)!important;
+}
+</style>
 </head>
 <body>
 
@@ -35652,20 +35676,32 @@ if(w.type==='poll'){
   function safe455aTwBridgeScript(widgetId){
     const wid=String(widgetId||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return `<script>(function(){\n`+
+      `if(window.__tavleTwSaveBridgeManual750)return; window.__tavleTwSaveBridgeManual750=true;\n`+
       `var WIDGET_ID='${wid}';\n`+
-      `function send(html){try{parent.postMessage({tavle_tw_save:{widgetId:WIDGET_ID,html:String(html||''),title:document.title||''}},'*');return true;}catch(e){return false;}}\n`+
+      `function send(html){try{parent.postMessage({tavle_tw_save:{widgetId:WIDGET_ID,html:String(html||''),title:document.title||'',reason:'manual',auto:false}},'*');return true;}catch(e){return false;}}\n`+
       `function renderAll(){try{if(window.$tw&&$tw.wiki&&typeof $tw.wiki.renderTiddler==='function'){return $tw.wiki.renderTiddler('text/plain','$:/core/save/all');}}catch(e){}return ''; }\n`+
       `function markClean(){try{if(window.$tw&&$tw.saverHandler){var sh=$tw.saverHandler;if(typeof sh.numChanges==='number')sh.numChanges=0;if(typeof sh.updateDirtyStatus==='function')sh.updateDirtyStatus();}}catch(e){}try{if(window.$tw&&$tw.rootWidget&&typeof $tw.rootWidget.refresh==='function')$tw.rootWidget.refresh({});}catch(e){}}\n`+
-      `function install(){try{if(!window.$tw||!$tw.wiki||!$tw.saverHandler)return false;var sh=$tw.saverHandler;if(sh.__tavleTwSaveBridge)return true;sh.__tavleTwSaveBridge=true;var old=sh.saveWiki;sh.saveWiki=function(options){try{var html=renderAll();if(html){var ok=send(html);if(ok)markClean();return ok;}}catch(e){}if(typeof old==='function')return old.apply(this,arguments);return false;};try{if(Array.isArray(sh.savers)){sh.savers.unshift({info:{name:'TavleApp HTMLWidget',priority:9999,capabilities:['save']},save:function(text,method,callback){var html=renderAll()||text||'';var ok=send(html);if(ok)markClean();if(callback)callback(null);return ok;},canSave:function(){return true;}});}}catch(e){}return true;}catch(e){return false;}}\n`+
+      `function saveCurrent(){try{var html=renderAll();if(!html||html.length<100)return false;var ok=send(html);if(ok)markClean();return ok;}catch(e){return false;}}\n`+
+      `function install(){try{if(!window.$tw||!$tw.wiki||!$tw.saverHandler)return false;var sh=$tw.saverHandler;if(sh.__tavleTwSaveBridgeManual750)return true;sh.__tavleTwSaveBridgeManual750=true;var old=sh.saveWiki;sh.saveWiki=function(options){try{var ok=saveCurrent();if(ok)return ok;}catch(e){}if(typeof old==='function')return old.apply(this,arguments);return false;};try{if(Array.isArray(sh.savers)){sh.savers.unshift({info:{name:'TavleApp HTMLWidget',priority:9999,capabilities:['save']},save:function(text,method,callback){var ok=false;try{var html=renderAll()||text||'';ok=send(html);if(ok)markClean();}catch(e){}if(callback)callback(null);return ok;},canSave:function(){return true;}});}}catch(e){}return true;}catch(e){return false;}}\n`+
       `if(!install()){var n=0,t=setInterval(function(){n++;if(install()||n>80)clearInterval(t);},250);}\n`+
       `})();<\/script>`;
   }
-  function safe455aInjectTwBridge(html){
+  function safe455aStripL749AutoBridge(html){
     html=String(html||'');
+    if(!html)return html;
+    try{
+      html=html.replace(/<script\b[^>]*>[\s\S]*?__tavleTwSaveBridgeAuto749[\s\S]*?<\/script>/gi,'');
+      html=html.replace(/<script\b[^>]*>[\s\S]*?__tavleTwAutoSave749[\s\S]*?<\/script>/gi,'');
+    }catch(_e){}
+    return html;
+  }
+  function safe455aInjectTwBridge(html){
+    html=safe455aStripL749AutoBridge(String(html||''));
     if(!html)return html;
     if(!(w.data&&w.data.twMode==='tiddlywiki') && !safe455aIsLikelyTiddlyWiki(html))return html;
     w.data.twMode='tiddlywiki';
-    if(html.indexOf('__tavleTwSaveBridge')>=0)return html;
+    // l750: l749-autosave må ikke være aktiv under TW-import. Brug kun TiddlyWikis normale gem/save.
+    if(html.indexOf('__tavleTwSaveBridgeManual750')>=0 || html.indexOf('__tavleTwSaveBridge')>=0)return html;
     const script=safe455aTwBridgeScript(w.id);
     if(/<\/body\s*>/i.test(html))return html.replace(/<\/body\s*>/i,script+'</body>');
     return html+script;
@@ -70677,4 +70713,295 @@ html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpFAQ details[open
 }
 </style>
 
+
+<script id="l748-tiddlywiki-native-external-drop-restore">
+/* l748: TiddlyWiki ekstern drop — restore af den gamle native vej.
+   Vi forsøger ikke at syntetisere et drop ind i iframe'en, fordi DataTransfer ofte bliver
+   begrænset af browseren. I stedet gør vi Tavlens HTML-skjold gennemsigtigt for drop,
+   så den indlejrede TiddlyWiki selv får den rigtige browser-event med tiddler-JSON. */
+(function(){
+  'use strict';
+  if(window.__l748TiddlyWikiNativeExternalDropRestore)return;
+  window.__l748TiddlyWikiNativeExternalDropRestore=true;
+
+  function hasPayload(e){
+    try{
+      var dt=e&&e.dataTransfer;
+      if(!dt)return false;
+      if(dt.files&&dt.files.length)return true;
+      return Array.from(dt.types||[]).length>0;
+    }catch(_e){return false;}
+  }
+  function widgetData(wEl){
+    try{
+      var id=wEl&&wEl.dataset&&wEl.dataset.id;
+      if(!id)return null;
+      if(typeof window.findWidget==='function')return window.findWidget(String(id));
+      if(typeof slide==='function'){
+        var ws=(slide().widgets||[]);
+        for(var i=0;i<ws.length;i++){if(ws[i]&&String(ws[i].id)===String(id))return ws[i];}
+      }
+    }catch(_e){}
+    return null;
+  }
+  function isTwLike(wEl){
+    try{
+      var w=widgetData(wEl),d=w&&w.data;
+      var title=String((w&&w.title)||wEl.getAttribute('aria-label')||wEl.textContent||'').toLowerCase();
+      return !!(wEl&&wEl.matches&&wEl.matches('.widget[data-type="html"]') && (
+        title.indexOf('tiddlywiki')>=0 ||
+        (d&&(d.twMode==='tiddlywiki'||d.twMode==='tiddlywiki-loading'||d.isTiddlyWiki||/tiddlywiki/i.test(String(d.name||''))))
+      ));
+    }catch(_e){return false;}
+  }
+  function htmlWidgetAtPoint(e){
+    try{
+      var t=e&&e.target;
+      if(t&&t.closest){
+        var direct=t.closest('.widget[data-type="html"]');
+        if(direct)return direct;
+      }
+      var x=Number(e&&e.clientX), y=Number(e&&e.clientY);
+      if(Number.isFinite(x)&&Number.isFinite(y)&&document.elementsFromPoint){
+        var els=document.elementsFromPoint(x,y)||[];
+        for(var i=0;i<els.length;i++){
+          var w=els[i]&&els[i].closest&&els[i].closest('.widget[data-type="html"]');
+          if(w)return w;
+        }
+      }
+    }catch(_e){}
+    return null;
+  }
+  function isCandidate(wEl){
+    try{
+      if(!wEl)return false;
+      // TiddlyWiki er hovedsagen. Almindelige HTMLApps får kun denne adfærd, hvis de allerede er tydeligt aktive.
+      if(isTwLike(wEl))return true;
+      return !!(wEl.classList.contains('htmlInteractive')||wEl.classList.contains('selected')||wEl.classList.contains('focusTarget'));
+    }catch(_e){return false;}
+  }
+  function markCandidate(wEl,on){
+    try{
+      if(!wEl)return;
+      wEl.classList.toggle('tiddlyExternalDropCandidate',!!on);
+      wEl.classList.toggle('tiddlyExternalDropReady',!!on);
+      if(on){
+        var shield=wEl.querySelector('.htmlShield');
+        if(shield){
+          shield.style.pointerEvents='none';
+          shield.style.display='none';
+        }
+        // Brug eksisterende HTML/iframe-aktivering hvis den findes, men uden at tvinge render/save.
+        wEl.classList.add('htmlInteractive');
+        try{if(typeof setIframeControl==='function'&&wEl.dataset&&wEl.dataset.id)setIframeControl(wEl.dataset.id,true); }catch(_e){}
+        // l750: Vælg ikke widgetten midt i drag/drop; brugeren aktiverer den selv. Select kan genopbygge iframe og afbryde TiddlyWiki-import.
+      }
+    }catch(_e){}
+  }
+  function clearMarks(){
+    try{
+      document.querySelectorAll('.widget[data-type="html"].tiddlyExternalDropReady,.widget[data-type="html"].tiddlyExternalDropCandidate').forEach(function(wEl){
+        wEl.classList.remove('tiddlyExternalDropReady','tiddlyExternalDropCandidate');
+        // Bevar htmlInteractive hvis brugeren havde aktiveret den; fjern kun inline shield-stil, hvis widgetten ikke længere er aktiv.
+        if(!wEl.classList.contains('htmlInteractive')){
+          var shield=wEl.querySelector('.htmlShield');
+          if(shield){shield.style.pointerEvents='';shield.style.display='';}
+        }
+      });
+    }catch(_e){}
+  }
+  function prepareNativeDrop(e){
+    try{
+      if(!hasPayload(e))return;
+      var wEl=htmlWidgetAtPoint(e);
+      if(!isCandidate(wEl))return;
+      markCandidate(wEl,true);
+      try{if(e.dataTransfer)e.dataTransfer.dropEffect='copy';}catch(_e){}
+      // Vigtigt: ingen preventDefault/stopPropagation her. Tavlens globale drop-guard
+      // skal blot springe over HTML-widgetten, og iframe/TiddlyWiki skal få den native event.
+    }catch(_e){}
+  }
+  ['dragenter','dragover'].forEach(function(type){
+    document.addEventListener(type,prepareNativeDrop,true);
+    window.addEventListener(type,prepareNativeDrop,true);
+  });
+  document.addEventListener('drop',function(e){
+    try{
+      prepareNativeDrop(e);
+      setTimeout(clearMarks,900);
+    }catch(_e){}
+  },true);
+  ['dragleave','dragend','blur'].forEach(function(type){
+    window.addEventListener(type,function(){setTimeout(clearMarks,250);},true);
+    document.addEventListener(type,function(e){
+      try{
+        if(type==='dragleave' && e&&e.relatedTarget)return;
+      }catch(_e){}
+      setTimeout(clearMarks,250);
+    },true);
+  });
+})();
+</script>
+
+
+<script id="l750-tiddlywiki-import-ro-lock">
+/* l750: Holder TiddlyWiki-widgetten i ro under ekstern import.
+   Ingen autosave og ingen syntetisk drop: TiddlyWiki skal selv modtage importen,
+   og Tavle skal kun undgå at genopbygge iframe-widgetten midt i processen. */
+(function(){
+  'use strict';
+  if(window.__l750TiddlyWikiImportRoLock)return;
+  window.__l750TiddlyWikiImportRoLock=true;
+  var lock={id:'',until:0};
+
+  function now(){return Date.now?Date.now():(new Date()).getTime();}
+  function widgetData(wEl){
+    try{
+      var id=wEl&&wEl.dataset&&wEl.dataset.id;
+      if(!id)return null;
+      if(typeof window.findWidget==='function')return window.findWidget(String(id));
+      if(typeof slide==='function'){
+        var ws=(slide().widgets||[]);
+        for(var i=0;i<ws.length;i++){if(ws[i]&&String(ws[i].id)===String(id))return ws[i];}
+      }
+    }catch(_e){}
+    return null;
+  }
+  function isTwLikeEl(wEl){
+    try{
+      if(!wEl||!wEl.matches||!wEl.matches('.widget[data-type="html"]'))return false;
+      var w=widgetData(wEl),d=w&&w.data;
+      var title=String((w&&w.title)||wEl.textContent||'').toLowerCase();
+      return !!(title.indexOf('tiddlywiki')>=0 || (d&&(d.twMode==='tiddlywiki'||d.isTiddlyWiki||/tiddlywiki/i.test(String(d.name||'')))) || wEl.querySelector('.htmlTiddlyWikiMode'));
+    }catch(_e){return false;}
+  }
+  function htmlWidgetAtPoint(e){
+    try{
+      var t=e&&e.target;
+      if(t&&t.closest){
+        var hit=t.closest('.widget[data-type="html"]');
+        if(hit)return hit;
+      }
+      var x=Number(e&&e.clientX), y=Number(e&&e.clientY);
+      if(Number.isFinite(x)&&Number.isFinite(y)&&document.elementsFromPoint){
+        var els=document.elementsFromPoint(x,y)||[];
+        for(var i=0;i<els.length;i++){
+          var w=els[i]&&els[i].closest&&els[i].closest('.widget[data-type="html"]');
+          if(w)return w;
+        }
+      }
+    }catch(_e){}
+    return null;
+  }
+  function activateTw(wEl,ms){
+    try{
+      if(!isTwLikeEl(wEl))return false;
+      var id=String(wEl.dataset&&wEl.dataset.id||'');
+      if(!id)return false;
+      lock.id=id; lock.until=now()+Math.max(5000,Number(ms)||60000);
+      wEl.classList.add('htmlInteractive','tiddlyExternalDropReady','tiddlyExternalDropCandidate','tiddlyImportGrace');
+      var shield=wEl.querySelector('.htmlShield');
+      if(shield){shield.style.display='none';shield.style.pointerEvents='none';}
+      try{if(typeof window.setIframeControl==='function')window.setIframeControl(id,true);}catch(_e){}
+      return true;
+    }catch(_e){return false;}
+  }
+  function lockedEl(){
+    try{
+      if(!lock.id||lock.until<now())return null;
+      var el=document.querySelector('.widget[data-type="html"][data-id="'+CSS.escape(String(lock.id))+'"]');
+      if(!el||!isTwLikeEl(el)||!el.querySelector('iframe'))return null;
+      return el;
+    }catch(_e){return null;}
+  }
+  function release(){
+    try{
+      var id=lock.id; lock.id=''; lock.until=0;
+      document.querySelectorAll('.widget[data-type="html"].tiddlyImportGrace').forEach(function(el){
+        el.classList.remove('tiddlyImportGrace');
+        if(!el.classList.contains('htmlInteractive')){
+          var shield=el.querySelector('.htmlShield');
+          if(shield){shield.style.display='';shield.style.pointerEvents='';}
+        }
+      });
+      return id;
+    }catch(_e){lock.id='';lock.until=0;return '';}
+  }
+  window.__l750ReleaseTwImportLock=release;
+
+  ['dragenter','dragover'].forEach(function(type){
+    document.addEventListener(type,function(e){
+      try{
+        var w=htmlWidgetAtPoint(e);
+        if(w)activateTw(w,45000);
+      }catch(_e){}
+    },true);
+    window.addEventListener(type,function(e){
+      try{
+        var w=htmlWidgetAtPoint(e);
+        if(w)activateTw(w,45000);
+      }catch(_e){}
+    },true);
+  });
+  document.addEventListener('drop',function(e){
+    try{
+      var w=htmlWidgetAtPoint(e);
+      if(w&&activateTw(w,120000)){
+        // Ingen preventDefault her: TiddlyWiki skal stadig have browserens native drop.
+        setTimeout(function(){try{var el=lockedEl(); if(el)el.classList.remove('tiddlyExternalDropReady','tiddlyExternalDropCandidate');}catch(_e){}},1500);
+      }
+    }catch(_e){}
+  },true);
+
+  document.addEventListener('pointerdown',function(e){
+    try{
+      if(!lock.id)return;
+      var el=lockedEl();
+      if(!el)return;
+      if(e.target&&e.target.closest&&e.target.closest('.widget[data-id="'+CSS.escape(String(lock.id))+'"]'))return;
+      release();
+    }catch(_e){}
+  },true);
+  window.addEventListener('message',function(ev){
+    try{
+      var p=ev&&ev.data&&ev.data.tavle_tw_save;
+      if(p&&p.widgetId){lock.id=String(p.widgetId);lock.until=now()+3500;}
+    }catch(_e){}
+  },true);
+
+  try{
+    var oldFill=window.fillContent;
+    if(typeof oldFill==='function'&&!oldFill.__l750Wrapped){
+      var wrappedFill=function(el,w){
+        try{
+          var le=lockedEl();
+          if(le&&el&&w&&String(w.id)===String(lock.id)&&el===le&&el.querySelector('iframe')){
+            return;
+          }
+        }catch(_e){}
+        return oldFill.apply(this,arguments);
+      };
+      wrappedFill.__l750Wrapped=true;
+      window.fillContent=wrappedFill;
+      try{fillContent=wrappedFill;}catch(_e){}
+    }
+  }catch(_e){}
+  try{
+    var oldRender=window.render;
+    if(typeof oldRender==='function'&&!oldRender.__l750Wrapped){
+      var wrappedRender=function(){
+        try{
+          if(lockedEl()){
+            return;
+          }
+        }catch(_e){}
+        return oldRender.apply(this,arguments);
+      };
+      wrappedRender.__l750Wrapped=true;
+      window.render=wrappedRender;
+      try{render=wrappedRender;}catch(_e){}
+    }
+  }catch(_e){}
+})();
+</script>
 </body></html>
