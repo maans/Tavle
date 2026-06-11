@@ -41,6 +41,18 @@
 <!-- l705-focus-widget-hit-zone-overlay: Bygger på l704. Fokusvalg med klik/touch får usynlige hit-zoner over passive widgets, så gamle pointer-events-regler ikke kan forhindre tap-to-focus. -->
 <!-- l704-focus-passive-widget-hit-targets: Bygger på l703. Passive widgets får pointer-events:auto i fokusvisning, så l703's tap-to-focus faktisk kan ramme dem; første tap skifter stadig kun fokus. -->
 <!-- l703-focus-tap-select-widget: Bygger på l702. I fokusvisning kan klik/touch på en passiv widget nu skifte focusTarget, selv når tap rammer interaktivt indhold; første tap skifter fokus og aktiverer ikke samtidig indholdet. -->
+<!-- l767-tavlepanel-en-redigerknap: Tavlepanel får én redigerknap, altid synlig i normal redigering og skjult i fokus/præsentation. Bundknappen fjernes. Bygger på l766. -->
+<!-- l763-tavlepanel-let-redigering: Tavlepanel/Tavle-tjekpanel får let Mere-menu-lignende panelvisning og en kompakt indstillingsdrawer. Almindelige lister kan vælges tilbage uden at blande layouts. Bygger på l762. -->
+<!-- l762-tavlepanel-synlige-tavler: Tavlepanel får tydelig udvalgsstyring pr. widget: vis/skjul tavler, kun denne, kun aktuel, skjul alle og vis alle, så flere forskellige TavleLinklister/indexer kan eksistere på forskellige tavler. Bygger på l761. -->
+<!-- l761-tavlepanel-auto-grid-uden-retning: Tavlepanel/Tavle-tjekpanel bruger nu auto-grid som Mere-menuen: én knap pr. tavle, og rækker/kolonner tilpasser sig widgettens bredde/højde. Retningsvalget lodret/vandret skjules for tavlepaneler. Bygger på l760. -->
+<!-- l759-liste-og-tavlepanel-adskilt: Almindelige lister og Tavlepanel får to adskilte layouts. Almindelige lister redigeres direkte i listen; Tavleliste/Tavle-tjekliste har eget panel og egen indstillingsvisning med præcis toggle i panelbjælken. Bygger på l758. -->
+<!-- l758-tavlepanel-toggle-indstillinger: Tavleliste/Tavle-tjekliste behandles som paneltilstand med ren panelvisning og kan i redigering toggles tilbage til de almindelige listeindstillinger. Bygger på l757. -->
+<!-- l757-tavlepanel-rent-panel: Tavleliste/Tavle-tjekliste skjuler almindelige listekontroller/textarea, så kun tavlepanelvisningen vises. Panelindholdet bevarer egen titel, layoutknap og Tavleoversigt-knap. Bygger på l756. -->
+<!-- l756-tavlepanel-vandret-lodret: Tavleliste/Tavle-tjekliste får layoutvalg lodret/vandret i redigering; vandret panel bruges som top-/bundbjælke og følger samme aktive UI-tema. Bygger på l755. -->
+<!-- l755-tavlepanel-temanavn-tjek: Tavleliste/Tavle-tjekliste får eget panelnavn, fjerner dobbelt overskrift og følger TavleAppens UI-tema tydeligere. Bygger på l754. -->
+<!-- l754-tavleliste-panel-tjek: Tavleindex/Liste-widget får tema-panel-stil og ny Tavle-tjekliste med flueben + tavlelinks. Bygger på l753. -->
+<!-- l753-tavleindex-overblik-zoomud: Retter Tavleindex-ikonet så Tavleoversigt ikke åbner/lukker på dobbelt touch/click, og tilføjer et ekstra zoom-ud trin på 40%. Bygger på l752. -->
+<!-- l752-liste-tavleindex: Liste-widgetten får Tavleindex-tilstand med klikbare tavletitler, aktiv markering, skjul-fra-index og kompakt ▦-knap til Tavleoversigt. Bygger på l751. -->
 <!-- l702-list-focus-preview-fix: Bygger på l701. Fokustilstand for Liste tvinges til at vise formateret listPreview og skjule redigerings-textarea, så punktliste/tjekliste ikke bliver blank. -->
 <!-- l701-text-font-zoom: Bygger på l700. Tekst-widgetten får -/+ zoomknapper i formateringsbjælken; fontstørrelsen opdateres direkte på textarea og gemmes debounced for at undgå flimren. -->
 <!-- l700-text-list-toolbar-stability: Bygger på l699. Listekontrollerne bruger lokal/debounced save og reselecter ikke widgetten ved hvert tryk; toolbaren fastholdes layoutmæssigt for at reducere grafisk flimren. -->
@@ -1672,7 +1684,9 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.169 l751-tiddlywiki-import-syntaxfix</title>
+<title>Interaktiv tavle v1.2.187 l772-tavlepanel-check-og-redigerfix</title>
+<!-- l773-tavlepanel-redigerknap-persistens: ⚙-redigerknappen renderes altid i Tavlepanel-DOM og skjules kun med mode-CSS, så den kommer tilbage efter præsentation/desktop-skift. Bygger på l772. -->
+<!-- l772-tavlepanel-check-og-redigerfix: kirurgisk fix oven på l770. Redigerknap holdes synlig i normal redigering, skjules i fokus/præsentation. Tavle-tjek flueben får robust tap-binding. Titelzoom styrer tavletitler uden at ødelægge kortlayout. -->
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -15002,6 +15016,322 @@ body.focus-maximized .widget[data-type="pdf"] .content.pdf .pdfFormActivator{
   box-shadow:0 0 0 5px rgba(125,211,252,.14),0 18px 52px rgba(2,6,23,.34)!important;
 }
 </style>
+<style id="l763-tavlepanel-let-redigering-css">
+/* l763: Tavlepanel er en let panel-widget: ren visning + kompakt indstillingsdrawer. */
+.widget[data-type="text"] .listWidget.boardIndexWidget{height:100%!important;background:transparent!important;display:block!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .listPreview{padding:10px!important;overflow:auto!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel{height:100%!important;min-height:0!important;display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;gap:8px!important;color:var(--bi-panel-ink)!important;}
+.widget[data-type="text"] .tavlePanelMiniBar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;min-height:34px!important;padding:0 0 8px!important;border-bottom:1px solid var(--bi-panel-line)!important;}
+.widget[data-type="text"] .tavlePanelTitleHotspot{appearance:none!important;border:0!important;background:transparent!important;color:inherit!important;min-width:0!important;flex:1 1 auto!important;text-align:left!important;padding:0!important;margin:0!important;font:inherit!important;}
+.widget[data-type="text"] .tavlePanelTitleHotspot .boardIndexTitleLabel{font-size:clamp(12px,1.45vw,18px)!important;letter-spacing:.045em!important;text-transform:uppercase!important;font-weight:1000!important;color:var(--bi-panel-muted)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;display:block!important;}
+.widget[data-type="text"] .tavlePanelTitleHotspot .boardIndexUntitled{opacity:.58!important;}
+.widget[data-type="text"] .tavlePanelMiniActions,.widget[data-type="text"] .tavlePanelSettingsTop{display:flex!important;align-items:center!important;gap:6px!important;flex:0 0 auto!important;}
+.widget[data-type="text"] .tavlePanelMiniBtn,.widget[data-type="text"] .tavlePanelBackBtn{appearance:none!important;border:0!important;min-width:34px!important;height:34px!important;border-radius:12px!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;font-weight:1000!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line),0 3px 10px rgba(15,23,42,.10)!important;display:inline-grid!important;place-items:center!important;padding:0 10px!important;touch-action:manipulation!important;}
+.widget[data-type="text"] .tavlePanelBackBtn{width:auto!important;white-space:nowrap!important;}
+.widget[data-type="text"] .boardIndexList{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))!important;grid-auto-rows:minmax(54px,auto)!important;gap:9px!important;align-content:start!important;min-height:0!important;overflow:auto!important;padding:1px!important;}
+.widget[data-type="text"] .boardIndexMenuItem{appearance:none!important;border:0!important;width:100%!important;text-align:left!important;display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;align-items:center!important;gap:10px!important;padding:10px 12px!important;border-radius:16px!important;background:var(--bi-card-bg)!important;color:var(--bi-panel-ink)!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line),0 2px 8px rgba(15,23,42,.06)!important;font:inherit!important;font-size:clamp(14px,1.55vw,20px)!important;font-weight:950!important;line-height:1.05!important;touch-action:manipulation!important;min-height:54px!important;}
+.widget[data-type="text"] .boardIndexMenuItem.active{background:var(--bi-card-bg-active)!important;box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--bi-accent) 50%,transparent),0 8px 22px var(--bi-accent-soft)!important;}
+.widget[data-type="text"] .boardIndexMenuCheck{grid-template-columns:auto minmax(0,1fr)!important;padding:0!important;background:transparent!important;box-shadow:none!important;gap:8px!important;}
+.widget[data-type="text"] .boardIndexMenuCheck .boardIndexMenuBtn{appearance:none!important;border:0!important;background:var(--bi-card-bg)!important;color:inherit!important;border-radius:16px!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;min-height:54px!important;padding:10px 12px!important;text-align:left!important;display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;gap:9px!important;align-items:center!important;font:inherit!important;font-size:clamp(14px,1.55vw,20px)!important;font-weight:950!important;line-height:1.05!important;}
+.widget[data-type="text"] .boardIndexMenuCheck.active .boardIndexMenuBtn{background:var(--bi-card-bg-active)!important;box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--bi-accent) 50%,transparent),0 8px 22px var(--bi-accent-soft)!important;}
+.widget[data-type="text"] .boardIndexMenuNo{min-width:2.0em!important;height:2.0em!important;border-radius:999px!important;display:inline-grid!important;place-items:center!important;background:var(--bi-accent)!important;color:#06121f!important;font-size:.78em!important;font-weight:1000!important;line-height:1!important;}
+.widget[data-type="text"] .boardIndexMenuText{min-width:0!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important;text-overflow:ellipsis!important;word-break:break-word!important;}
+.widget[data-type="text"] .boardIndexCheckToggle{align-self:center!important;justify-self:center!important;margin-left:2px!important;}
+.widget[data-type="text"] .boardIndexCheckVisual{width:1.35em!important;height:1.35em!important;border-radius:8px!important;background:rgba(255,255,255,.58)!important;box-shadow:inset 0 0 0 2px var(--bi-panel-line)!important;}
+.widget[data-type="text"] .tavlePanelTinyStatus{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;border-top:1px dashed var(--bi-panel-line)!important;padding-top:6px!important;font-size:12px!important;color:var(--bi-panel-muted)!important;font-weight:900!important;}
+.widget[data-type="text"] .tavlePanelTinyStatus button{border:0!important;border-radius:999px!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;padding:5px 9px!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;}
+.widget[data-type="text"] .tavlePanelSettingsView{grid-template-rows:auto minmax(0,1fr)!important;}
+.widget[data-type="text"] .tavlePanelSettingsCompact{min-height:0!important;display:grid!important;grid-template-rows:auto auto auto minmax(0,1fr)!important;gap:8px!important;overflow:hidden!important;}
+.widget[data-type="text"] .boardIndexTitleInput{width:100%!important;border:0!important;border-radius:14px!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;padding:9px 11px!important;font-size:clamp(14px,1.5vw,18px)!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;text-transform:none!important;letter-spacing:0!important;}
+.widget[data-type="text"] .tavlePanelTypeGrid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;}
+.widget[data-type="text"] .tavlePanelTypeGrid button,.widget[data-type="text"] .tavlePanelQuickActions button,.widget[data-type="text"] .tavlePanelPickOnly{border:0!important;border-radius:999px!important;background:var(--bi-card-bg)!important;color:var(--bi-panel-ink)!important;padding:7px 8px!important;font-size:12px!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;white-space:nowrap!important;}
+.widget[data-type="text"] .tavlePanelTypeGrid button.active{background:var(--bi-accent)!important;color:#07111f!important;}
+.widget[data-type="text"] .tavlePanelQuickActions{display:flex!important;align-items:center!important;gap:6px!important;flex-wrap:wrap!important;}
+.widget[data-type="text"] .tavlePanelQuickActions small{margin-left:auto!important;font-size:12px!important;font-weight:950!important;color:var(--bi-panel-muted)!important;}
+.widget[data-type="text"] .tavlePanelPickGrid{min-height:0!important;overflow:auto!important;display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))!important;gap:7px!important;align-content:start!important;padding:1px!important;}
+.widget[data-type="text"] .tavlePanelPickCard{display:grid!important;grid-template-columns:auto auto minmax(0,1fr) auto!important;align-items:center!important;gap:7px!important;border-radius:14px!important;background:var(--bi-card-bg)!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;padding:7px!important;opacity:.58!important;}
+.widget[data-type="text"] .tavlePanelPickCard.included{opacity:1!important;}
+.widget[data-type="text"] .tavlePanelPickCard.active{box-shadow:inset 0 0 0 2px var(--bi-accent)!important;}
+.widget[data-type="text"] .tavlePanelPickInclude input,.widget[data-type="text"] .tavlePanelPickDone input{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;}
+.widget[data-type="text"] .tavlePanelPickInclude span,.widget[data-type="text"] .tavlePanelPickDone span{width:24px!important;height:24px!important;border-radius:8px!important;display:grid!important;place-items:center!important;background:rgba(255,255,255,.52)!important;box-shadow:inset 0 0 0 2px var(--bi-panel-line)!important;font-weight:1000!important;color:transparent!important;}
+.widget[data-type="text"] .tavlePanelPickInclude input:checked + span,.widget[data-type="text"] .tavlePanelPickDone input:checked + span{background:var(--bi-accent)!important;color:#07111f!important;}
+.widget[data-type="text"] .tavlePanelPickInclude input:checked + span::before{content:"✓";color:#07111f!important;}
+.widget[data-type="text"] .tavlePanelPickTitle{appearance:none!important;border:0!important;background:transparent!important;color:var(--bi-panel-ink)!important;display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;gap:7px!important;align-items:center!important;text-align:left!important;font-weight:950!important;font-size:13px!important;line-height:1.05!important;min-width:0!important;}
+.widget[data-type="text"] .tavlePanelPickTitle span:last-child{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+@media(max-width:720px){.widget[data-type="text"] .tavlePanelTypeGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}.widget[data-type="text"] .boardIndexList{grid-template-columns:repeat(auto-fit,minmax(min(118px,100%),1fr))!important;}}
+</style>
+
+<style id="l766-tavlepanel-redigering-laasfix-css">
+/* l765: tydelig og let redigering af Tavlepanel uden at gøre panelet tungt. */
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel{
+  box-sizing:border-box!important;
+  min-height:0!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelMiniBar{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  min-height:38px!important;
+  padding:0 0 8px!important;
+  margin:0!important;
+  border-bottom:1px solid var(--bi-panel-line)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelMiniActions{
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  flex:0 0 auto!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTitleHotspot{
+  display:block!important;
+  min-width:0!important;
+  flex:1 1 auto!important;
+  overflow:hidden!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelMiniBtn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-width:36px!important;
+  height:36px!important;
+  border-radius:13px!important;
+  padding:0 10px!important;
+  background:var(--bi-card-bg-active)!important;
+  color:var(--bi-panel-ink)!important;
+  box-shadow:inset 0 0 0 1px var(--bi-panel-line),0 3px 10px rgba(0,0,0,.10)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn{
+  width:36px!important;
+  min-width:36px!important;
+  padding:0!important;
+  font-size:17px!important;
+  font-weight:1000!important;
+  white-space:nowrap!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn span{display:none!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelOverviewBtn{
+  font-size:18px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTinyStatus{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+  border-top:1px dashed var(--bi-panel-line)!important;
+  padding-top:6px!important;
+  margin-top:0!important;
+  color:var(--bi-panel-muted)!important;
+  font-size:11px!important;
+  font-weight:950!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTinyStatus .tavlePanelEditWide{display:none!important;}
+body.focus-mode .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+body.focus-edit .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+body.focus-presentation .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+.app.present .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+.app.presentation .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn{display:none!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingsTop{
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-height:38px!important;
+  padding:0 0 8px!important;
+  border-bottom:1px solid var(--bi-panel-line)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBackBtn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:auto!important;
+  min-width:0!important;
+  height:36px!important;
+  padding:0 12px!important;
+  border-radius:999px!important;
+  font-size:12px!important;
+  font-weight:1000!important;
+  background:var(--bi-card-bg-active)!important;
+  color:var(--bi-panel-ink)!important;
+  box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexList{
+  grid-template-columns:repeat(auto-fit,minmax(min(148px,100%),1fr))!important;
+  gap:8px!important;
+  align-content:start!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuItem,
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuBtn{
+  min-height:52px!important;
+  padding:9px 11px!important;
+  border-radius:16px!important;
+  gap:9px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuText{
+  font-size:clamp(13px,1.25vw,18px)!important;
+  line-height:1.05!important;
+  display:-webkit-box!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+  overflow:hidden!important;
+  word-break:normal!important;
+  overflow-wrap:anywhere!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuNo{
+  width:1.8em!important;
+  height:1.8em!important;
+  font-size:.85em!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelPickGrid{
+  grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr))!important;
+  gap:7px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTypeGrid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelQuickActions button,
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTypeGrid button{
+  min-height:34px!important;
+}
+.app.present .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+.app.present .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTinyStatus,
+body.focus-mode .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+body.focus-edit .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+body.focus-presentation .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn,
+body.focus-mode .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTinyStatus,
+body.focus-edit .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTinyStatus,
+body.focus-presentation .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTinyStatus,
+body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTinyStatus{
+  display:none!important;
+}
+@media (max-width: 620px){
+  .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn span{display:none!important;}
+  .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelEditBtn{padding:0 10px!important;}
+}
+</style>
+
+<style id="l768-tavlepanel-titelzoom-css">
+/* l768: titelzoom i Tavlepanel-visning. Hører til panelvisningen, ikke indstillingslisten. */
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:2px!important;
+  height:36px!important;
+  padding:0 4px!important;
+  border-radius:13px!important;
+  background:var(--bi-card-bg-active)!important;
+  box-shadow:inset 0 0 0 1px var(--bi-panel-line),0 3px 10px rgba(0,0,0,.10)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup button{
+  appearance:none!important;
+  border:0!important;
+  width:26px!important;
+  min-width:26px!important;
+  height:28px!important;
+  border-radius:10px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  background:transparent!important;
+  color:var(--bi-panel-ink)!important;
+  font-size:19px!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  padding:0!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup span{
+  min-width:20px!important;
+  text-align:center!important;
+  color:var(--bi-panel-muted)!important;
+  font-size:11px!important;
+  font-weight:1000!important;
+  line-height:1!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexList{
+  grid-auto-rows:minmax(max(44px,calc(var(--board-fs,18px) * 3.05)),auto)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuItem,
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuCheck .boardIndexMenuBtn{
+  font-size:var(--board-fs,18px)!important;
+  line-height:1.04!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuItem{
+  padding:clamp(6px,calc(var(--board-fs,18px) * .42),12px) clamp(8px,calc(var(--board-fs,18px) * .56),14px)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuCheck .boardIndexMenuBtn{
+  padding:clamp(6px,calc(var(--board-fs,18px) * .42),12px) clamp(8px,calc(var(--board-fs,18px) * .56),14px)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuNo{
+  min-width:1.72em!important;
+  height:1.72em!important;
+  font-size:.68em!important;
+}
+body.focus-mode .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup,
+body.focus-edit .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup,
+body.focus-presentation .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup,
+body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup,
+.app.present .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup,
+.app.presentation .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup{display:none!important;}
+@media(max-width:720px){
+  .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup span{display:none!important;}
+  .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup{gap:0!important;padding:0 3px!important;}
+  .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelZoomGroup button{width:24px!important;min-width:24px!important;}
+}
+</style>
+
+<style id="l774-present-mere-tavler-css">
+/* l774: Præsentations-Mere får dynamisk Tavler-sektion. */
+.moreMenu.safe455PresentMoreMenu{
+  max-height:min(82vh,760px)!important;
+  overflow:auto!important;
+  align-content:start!important;
+}
+.moreMenu.safe455PresentMoreMenu .moreMenuSection{
+  display:block!important;
+  color:rgba(255,255,255,.80)!important;
+  font-size:11px!important;
+  font-weight:1000!important;
+  letter-spacing:.06em!important;
+  text-transform:uppercase!important;
+  padding:0 2px!important;
+}
+.moreMenu.safe455PresentMoreMenu .safe774MoreBoardBtn{
+  position:relative!important;
+}
+.moreMenu.safe455PresentMoreMenu .safe774MoreBoardBtn .ico{
+  width:24px!important;
+  height:24px!important;
+  border-radius:999px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  margin:0 auto!important;
+  background:rgba(148,163,184,.22)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)!important;
+  font-size:12px!important;
+  font-weight:1000!important;
+}
+.moreMenu.safe455PresentMoreMenu .safe774MoreBoardBtn.safe774MoreBoardActive{
+  outline:3px solid #22c55e!important;
+  outline-offset:2px!important;
+  box-shadow:0 0 0 6px rgba(34,197,94,.18), inset 0 0 0 1px rgba(255,255,255,.22)!important;
+}
+.moreMenu.safe455PresentMoreMenu .safe774MoreBoardBtn.safe774MoreBoardActive::after{
+  content:'•';
+  position:absolute;
+  top:5px;
+  right:7px;
+  color:#22c55e;
+  font-size:18px;
+  line-height:1;
+  font-weight:1000;
+}
+@media(max-width:640px){
+  .moreMenu.safe455PresentMoreMenu{max-height:min(84vh,680px)!important;}
+  .moreMenu.safe455PresentMoreMenu .moreMenuSection{font-size:10px!important;}
+}
+</style>
 </head>
 <body>
 
@@ -19982,7 +20312,7 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const boardPanelChromeBtns=(w.type==='text'&&w.data&&(w.data.listType==='boardIndex'||w.data.listType==='boardCheckIndex'))?'<button data-act="boardPanelTitleZoomOut" class="boardPanelChromeZoom" title="Mindre titler i Tavlepanel">−</button><button data-act="boardPanelTitleZoomIn" class="boardPanelChromeZoom" title="Større titler i Tavlepanel">＋</button>':'';const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -20006,7 +20336,7 @@ if(w.type==='pdf'){
     if(pdfTitle)widgetTitle=pdfTitle;
   }catch(_e){}
 }
-const titleHtml='<span class="titleText">'+esc(widgetTitle)+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}${mediaNameBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button>${linkedDataSourceOpen?'<button type="button" data-act="hideDataSource" title="Luk datakilde – forbindelsen bevares" aria-label="Luk datakilde – forbindelsen bevares">🔗</button>':'<button type="button" data-act="del" title="Luk">×</button>'}</div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+const titleHtml='<span class="titleText">'+esc(widgetTitle)+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}${boardPanelChromeBtns}${mediaNameBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button>${linkedDataSourceOpen?'<button type="button" data-act="hideDataSource" title="Luk datakilde – forbindelsen bevares" aria-label="Luk datakilde – forbindelsen bevares">🔗</button>':'<button type="button" data-act="del" title="Luk">×</button>'}</div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -23918,6 +24248,33 @@ function showMoreTools(){
   bd.onclick=()=>{bd.remove();menu.remove()};
   const menu=document.createElement('div');
   menu.className='moreMenu moreMenuGrouped'+(presentMode?' safe455PresentMoreMenu':'');
+  function safe774MoreEsc(v){
+    try{if(typeof esc==='function')return esc(String(v||''));}catch(_e){}
+    return String(v||'').replace(/[&<>"]/g,function(ch){return ch==='&'?'&amp;':ch==='<'?'&lt;':ch==='>'?'&gt;':'&quot;';});
+  }
+  function safe774MoreIsTrashSlide(s){
+    try{if(typeof isTrashBoard==='function' && isTrashBoard(s))return true;}catch(_e){}
+    try{if(typeof safe134IsTrashSlideForNav==='function' && safe134IsTrashSlideForNav(s))return true;}catch(_e){}
+    return !!(s&&(s.isTrashBoard===true||s.isTrash===true||s.trash===true||s.type==='trash'||/papirkurv|trash/i.test(String(s.title||''))));
+  }
+  function safe774MoreSlideTitle(s,i){
+    try{if(typeof safeSlideTitle==='function')return safeSlideTitle(s,i)||('Tavle '+(i+1));}catch(_e){}
+    return String((s&&s.title)||('Tavle '+(i+1)));
+  }
+  function safe774MoreBoardItems(){
+    const out=[];
+    try{
+      if(typeof safe588EnsureSlideIds==='function')safe588EnsureSlideIds();
+      const arr=(state&&Array.isArray(state.slides))?state.slides:[];
+      let no=0;
+      arr.forEach((s,i)=>{
+        if(!s||safe774MoreIsTrashSlide(s))return;
+        no++;
+        out.push(['board:'+i,String(no),safe774MoreEsc(safe774MoreSlideTitle(s,i)),i===state.active]);
+      });
+    }catch(_e){}
+    return out;
+  }
   const groups=presentMode ? [
     ['Indhold',[
       ['text','Aa','tekst'],
@@ -23932,7 +24289,8 @@ function showMoreTools(){
       ['html','&lt;/&gt;','html'],
       ['drawings','✏️','tegn.'],
       ['demos','🧪','demo']
-    ],4]
+    ],4],
+    ['Tavler',safe774MoreBoardItems(),4]
   ] : [
     ['Indhold',[
       ['text','Aa','tekst'],
@@ -23963,11 +24321,18 @@ function showMoreTools(){
     <div class="moreMenuGroup" style="grid-column:1/-1;display:grid;gap:7px;margin:0 0 8px 0;">
       <div class="moreMenuSection" style="display:block;color:rgba(255,255,255,.78);font-size:12px;font-weight:950;letter-spacing:.03em;text-transform:uppercase;padding:0 2px;">${g[0]}</div>
       <div class="moreMenuGroupButtons" style="display:grid;grid-template-columns:repeat(${g[2]||3},minmax(62px,1fr));gap:8px;">
-        ${g[1].map(t=>`<button data-more-tool="${t[0]}"><span class="ico">${t[1]}</span><span class="txt">${t[2]}</span></button>`).join('')}
+        ${g[1].map(t=>String(t[0]||'').indexOf('board:')===0
+          ? `<button data-more-board-go="${String(t[0]).slice(6)}" class="safe774MoreBoardBtn ${t[3]?'safe774MoreBoardActive':''}"><span class="ico">${t[1]}</span><span class="txt">${t[2]}</span></button>`
+          : `<button data-more-tool="${t[0]}"><span class="ico">${t[1]}</span><span class="txt">${t[2]}</span></button>`).join('')}
       </div>
     </div>`).join('');
   document.body.appendChild(bd);
   document.body.appendChild(menu);
+  const closeMore=()=>{
+    try{bd.remove();}catch(_e){}
+    try{menu.remove();}catch(_e){}
+    try{document.querySelectorAll('.moreMenuBackdrop,.moreMenu').forEach(n=>n.remove());}catch(_e){}
+  };
   menu.querySelectorAll('button[data-more-tool]').forEach(btn=>{
     btn.onclick=(e)=>{
       e.preventDefault();
@@ -23977,12 +24342,6 @@ function showMoreTools(){
       // SAFE453k direct modalfix:
       // Luk kun den eksisterende Mere-menu. Ingen capture-handler, ingen global modal-wrapper.
       // Derefter åbnes det valgte værktøj normalt.
-      const closeMore=()=>{
-        try{bd.remove();}catch(_e){}
-        try{menu.remove();}catch(_e){}
-        try{document.querySelectorAll('.moreMenuBackdrop,.moreMenu').forEach(n=>n.remove());}catch(_e){}
-      };
-
       closeMore();
 
       // Vent ét tick, så DOM'en faktisk er ryddet, før fx DataRemix/Hjælp/Demoer åbner.
@@ -23996,6 +24355,24 @@ function showMoreTools(){
         setTimeout(closeMore,0);
         setTimeout(closeMore,80);
       },0);
+    };
+  });
+  menu.querySelectorAll('button[data-more-board-go]').forEach(btn=>{
+    btn.onclick=(e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      const target=Number(btn.dataset.moreBoardGo);
+      closeMore();
+      try{
+        const arr=(state&&Array.isArray(state.slides))?state.slides:[];
+        if(!Number.isInteger(target)||target<0||target>=arr.length||safe774MoreIsTrashSlide(arr[target])){try{toast('Tavlen findes ikke længere');}catch(_e){};return;}
+        state.active=target;
+        try{selected=null;if(window.UIState)UIState.selectedWidgetId=null;}catch(_e){}
+        render();
+        try{save({silent:true});}catch(_e){}
+        try{toast(safe774MoreSlideTitle(arr[target],target));}catch(_e){}
+      }catch(err){console.error(err);try{toast('Kunne ikke skifte tavle');}catch(_e){}}
     };
   });
 }
@@ -26086,7 +26463,7 @@ body.safe455PresentToolsOpen .moreMenuBackdrop.safe455PresentMoreBackdrop{
   grid-template-columns:repeat(4,minmax(58px,1fr))!important;
 }
 .moreMenu.safe455PresentMoreMenu .moreMenuSection{
-  display:none!important;
+  display:block!important;
 }
 .moreMenu.safe455PresentMoreMenu button{
   min-height:54px!important;
@@ -35298,26 +35675,398 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
     const dec=[]; if(w.data.underline)dec.push('underline'); if(w.data.strike)dec.push('line-through');
     return 'font-size:'+(Number(w.data.fontSize||w.data.fs)||24)+'px;font-weight:'+(w.data.bold?'800':'400')+';font-style:'+(w.data.italic?'italic':'normal')+';text-decoration:'+(dec.length?dec.join(' '):'none')+';';
   }
+  function safe752BoardIndexIsTrashSlide(s){
+    try{
+      if(typeof safe588IsTrashSlide==='function')return safe588IsTrashSlide(s);
+      if(typeof isTrashBoard==='function')return isTrashBoard(s);
+      if(typeof safe134IsTrashSlideForNav==='function')return safe134IsTrashSlideForNav(s);
+      return !!(s && (s.isTrashBoard===true || s.title==='🗑 Papirkurv' || s.title==='Papirkurv'));
+    }catch(_e){return false;}
+  }
+  function safe752BoardIndexSlideTitle(s,i){
+    try{if(typeof safeSlideTitle==='function')return safeSlideTitle(s,i)||('Tavle '+(i+1));}catch(_e){}
+    return String((s&&s.title)||('Tavle '+(i+1)));
+  }
+  function safe752BoardIndexSlideKey(s,i){
+    try{if(typeof safe588EnsureSlideIds==='function')safe588EnsureSlideIds();}catch(_e){}
+    return String((s&&s.id)||('idx:'+i));
+  }
+  function safe752BoardIndexRecords(){
+    const out=[];
+    try{
+      if(typeof safe588EnsureSlideIds==='function')safe588EnsureSlideIds();
+      const arr=(state&&Array.isArray(state.slides))?state.slides:[];
+      let visibleNo=0;
+      arr.forEach((s,i)=>{
+        if(!s||safe752BoardIndexIsTrashSlide(s))return;
+        visibleNo++;
+        out.push({realIndex:i,visibleNo,key:safe752BoardIndexSlideKey(s,i),title:safe752BoardIndexSlideTitle(s,i),active:i===state.active});
+      });
+    }catch(_e){}
+    return out;
+  }
+  function safe752BoardIndexGo(realIndex){
+    try{
+      const i=Number(realIndex);
+      const arr=(state&&Array.isArray(state.slides))?state.slides:[];
+      if(!Number.isInteger(i)||i<0||i>=arr.length||safe752BoardIndexIsTrashSlide(arr[i])){toast('Tavlen findes ikke længere');return;}
+      state.active=i;
+      try{selected=null;if(window.UIState)UIState.selectedWidgetId=null;}catch(_e){}
+      render();
+      try{save({silent:true});}catch(_e){}
+      try{toast(safe752BoardIndexSlideTitle(arr[i],i));}catch(_e){}
+    }catch(err){console.warn('l752 Tavleindex kunne ikke skifte tavle',err);try{toast('Kunne ikke skifte tavle');}catch(_e){}}
+  }
+  function safe752BoardIndexOpenOverview(){
+    try{
+      if(typeof window.__tavleToggleBoardOverview==='function')window.__tavleToggleBoardOverview();
+      else if(typeof window.__tavleBoardOverviewModal==='function')window.__tavleBoardOverviewModal();
+      else if(typeof safe269BoardOverviewModal==='function')safe269BoardOverviewModal();
+      else if(typeof slideOverviewModal==='function')slideOverviewModal();
+      else toast('Tavleoversigt kunne ikke åbnes');
+    }catch(err){console.warn('l752 Tavleindex kunne ikke åbne Tavleoversigt',err);try{toast('Tavleoversigt kunne ikke åbnes');}catch(_e){}}
+  }
+  function safe752BoardIndexSetModeClass(root){
+    try{
+      const lw=root&&root.querySelector&&root.querySelector('.listWidget');
+      const t=String(w.data.listType||'plain');
+      const isBoardPanel=(t==='boardIndex'||t==='boardCheckIndex');
+      const editable=!!(root&&root.closest&&root.closest('.widget.selected')) && !app.classList.contains('present');
+      const classicEdit=isBoardPanel && editable && String(w.data.boardIndexPanelMode||'panel')==='classic';
+      if(lw){
+        lw.classList.toggle('boardIndexWidget',isBoardPanel);
+        lw.classList.toggle('boardCheckIndexWidget',t==='boardCheckIndex');
+        lw.classList.toggle('boardIndexHorizontal',String(w.data.boardIndexLayout||'vertical')==='horizontal');
+        lw.classList.toggle('boardIndexClassicEdit',classicEdit);
+      }
+    }catch(_e){}
+  }
   function safe695RenderListPreview(root){
+    safe752BoardIndexSetModeClass(root);
     const raw=String(w.data.text||'');
     const items=(typeof safe695ListItemsFromText==='function'
       ? safe695ListItemsFromText(raw)
       : raw.split(/\r?\n|[;,]/).map(x=>String(x||'').trim()).filter(Boolean));
     const type=String(w.data.listType||'plain');
     const checked=w.data.checkedItems||(w.data.checkedItems={});
+    const editable=!!(root&&root.closest&&root.closest('.widget.selected')) && !app.classList.contains('present');
     let html='';
-    const labelMap={plain:'Ingen',bullet:'Punktliste',number:'Nummereret liste',check:'Tjekliste'};
-    if(!items.length)html='<div class="listEmpty">Tom liste</div>';
-    else if(type==='number')html='<div class="listNumbered">'+items.map((x,i)=>'<div class="listNumberItem"><span class="listNumberBadge">'+(i+1)+'</span><span>'+esc(x)+'</span></div>').join('')+'</div>';
-    else if(type==='bullet')html='<div class="listBulleted">'+items.map(x=>'<div class="listBulletItem"><span class="listBulletDot">•</span><span>'+esc(x)+'</span></div>').join('')+'</div>';
-    else if(type==='check')html='<div class="listChecklist">'+items.map((x,i)=>{const key=String(x).toLowerCase();const on=!!checked[key];return '<label class="listCheckItem '+(on?'done':'')+'"><input type="checkbox" data-list-check="'+esc(key)+'" '+(on?'checked':'')+'><span>'+esc(x)+'</span></label>';}).join('')+'</div>';
-    else html='<div class="listLineList">'+items.map(x=>'<div class="listPlainItem"><span>'+esc(x)+'</span></div>').join('')+'</div>';
+    const labelMap={plain:'Ingen',bullet:'Punktliste',number:'Nummereret liste',check:'Tjekliste',boardIndex:'Tavleliste',boardCheckIndex:'Tavle-tjekliste'};
+    const isBoardPanel=(type==='boardIndex'||type==='boardCheckIndex');
+    function safe759EditableSpan(txt,i,cls){
+      return '<span class="'+(cls||'listEditableText')+'" data-list-edit-line="'+i+'" '+(editable?'contenteditable="true" spellcheck="false"':'')+'>'+esc(txt||'')+'</span>';
+    }
+    if(isBoardPanel){
+      const hidden=w.data.boardIndexHidden||(w.data.boardIndexHidden={});
+      const checks=w.data.boardIndexChecked||(w.data.boardIndexChecked={});
+      const isCheckIndex=type==='boardCheckIndex';
+      const allRecords=safe752BoardIndexRecords();
+      const records=allRecords.filter(r=>!hidden[r.key]);
+      const allCount=allRecords.length;
+      const shownCount=records.length;
+      const panelTitle=String(w.data.boardIndexTitle||'').trim();
+      function safe767CanEditPanel(){
+        try{
+          const b=document.body;
+          const a=document.getElementById('app')||document.querySelector('.app');
+          const inFocus=!!(b&&(b.classList.contains('focus-mode')||b.classList.contains('focus-edit')||b.classList.contains('focus-presentation')||b.classList.contains('focus-maximized')));
+          const inPresent=!!((a&&a.classList&&(a.classList.contains('present')||a.classList.contains('presentation')||a.classList.contains('focusMode')||a.classList.contains('focus-mode')||a.classList.contains('focus-presentation'))) || (b&&(b.classList.contains('present')||b.classList.contains('presentation'))));
+          return !inFocus && !inPresent;
+        }catch(_e){return editable;}
+      }
+      const canConfigure=safe767CanEditPanel();
+      const boardFs=Math.max(10,Math.min(30,Number(w.data.boardIndexFontSize||18)||18));
+      const mode=(String(w.data.boardIndexPanelMode||'panel')==='settings' && canConfigure)?'settings':'panel';
+      const titleLabel=panelTitle?esc(panelTitle):'';
+      const panelCls='tavlePanel '+(mode==='settings'?'tavlePanelSettingsView':'tavlePanelView')+' '+(isCheckIndex?'tavlePanelCheck':'tavlePanelList');
+      function safe763MiniTopBar(){
+        return '<div class="tavlePanelMiniBar '+(panelTitle?'':'tavlePanelUntitled')+'>'
+          +'<button type="button" class="tavlePanelTitleHotspot" data-board-panel-mode="settings" title="Redigér panelnavn og tavler">'
+          +(titleLabel?'<span class="boardIndexTitleLabel">'+titleLabel+'</span>':'<span class="boardIndexTitleLabel boardIndexUntitled">Navngiv panel…</span>')
+          +'</button>'
+          +'<div class="tavlePanelMiniActions">'
+          +'<button type="button" class="tavlePanelMiniBtn tavlePanelEditBtn" data-board-panel-mode="settings" title="Redigér tavlepanel" aria-label="Redigér tavlepanel">⚙</button>'
+          +'<button type="button" class="tavlePanelMiniBtn tavlePanelOverviewBtn" data-board-index-overview="1" title="Åbn Tavleoversigt" aria-label="Åbn Tavleoversigt">▦</button>'
+          +'</div></div>';
+      }
+      if(mode==='settings' && canConfigure){
+        const rows=allRecords.map(r=>{
+          const included=!hidden[r.key];
+          const on=!!checks[r.key];
+          return '<div class="tavlePanelPickCard '+(included?'included':'excluded')+' '+(r.active?'active':'')+'">'
+            +'<label class="tavlePanelPickInclude" title="Vis i dette panel"><input type="checkbox" data-board-index-include="'+esc(r.key)+'" '+(included?'checked':'')+'><span></span></label>'
+            +(isCheckIndex?'<label class="tavlePanelPickDone" title="Flueben i tjekpanelet"><input type="checkbox" data-board-index-check="'+esc(r.key)+'" '+(on?'checked':'')+'><span>✓</span></label>':'')
+            +'<button type="button" class="tavlePanelPickTitle" data-board-index-go="'+r.realIndex+'"><span class="boardIndexMenuNo">'+r.visibleNo+'</span><span>'+esc(r.title)+'</span></button>'
+            +'<button type="button" class="tavlePanelPickOnly" data-board-index-show-only="'+esc(r.key)+'" title="Lav dette panel til én genvej">Kun</button>'
+            +'</div>';
+        }).join('');
+        html='<div class="'+panelCls+'" data-board-index-layout="auto" style="--board-fs:'+boardFs+'px">'
+          +'<div class="tavlePanelSettingsTop widget-control">'
+            +'<button type="button" class="tavlePanelBackBtn" data-board-panel-mode="panel">← Vis panel</button>'
+            +'<button type="button" class="tavlePanelMiniBtn" data-board-index-overview="1" title="Åbn Tavleoversigt" aria-label="Åbn Tavleoversigt">▦</button>'
+          +'</div>'
+          +'<div class="tavlePanelSettingsCompact">'
+            +'<input class="boardIndexTitleInput" data-board-index-title="1" type="text" value="'+esc(panelTitle)+'" placeholder="Panelnavn (fx Prøvedag, Elevrunde, Links)">'
+            +'<div class="tavlePanelTypeGrid" role="group" aria-label="Listetype">'
+              +'<button type="button" class="'+(!isCheckIndex?'active':'')+'" data-board-index-set-type="boardIndex">Tavleliste</button>'
+              +'<button type="button" class="'+(isCheckIndex?'active':'')+'" data-board-index-set-type="boardCheckIndex">Tavle-tjek</button>'
+              +'<button type="button" data-board-index-set-type="plain">Alm. liste</button>'
+              +'<button type="button" data-board-index-set-type="check">Tjekliste</button>'
+            +'</div>'
+            +'<div class="tavlePanelQuickActions">'
+              +'<button type="button" data-board-index-show-all="1">Alle</button>'
+              +'<button type="button" data-board-index-hide-all="1">Ingen</button>'
+              +'<button type="button" data-board-index-show-active-only="1">Aktuel</button>'
+              +'<small>'+shownCount+'/'+allCount+' vist</small>'
+            +'</div>'
+            +'<div class="tavlePanelPickGrid">'+(rows||'<div class="listEmpty">Ingen tavler</div>')+'</div>'
+          +'</div></div>';
+      }else{
+        const rows=records.map(r=>{
+          const on=!!checks[r.key];
+          if(isCheckIndex){
+            return '<div class="boardIndexMenuItem boardIndexMenuCheck '+(r.active?'active ':'')+(on?'done':'')+'" data-board-key="'+esc(r.key)+'">'
+              +'<label class="boardIndexCheckToggle" title="Markér tavle som klaret"><input type="checkbox" data-board-index-check="'+esc(r.key)+'" '+(on?'checked':'')+'><span class="boardIndexCheckVisual" aria-hidden="true"></span></label>'
+              +'<button type="button" class="boardIndexMenuBtn" data-board-index-go="'+r.realIndex+'"><span class="boardIndexMenuNo">'+r.visibleNo+'</span><span class="boardIndexMenuText">'+esc(r.title)+'</span></button>'
+              +'</div>';
+          }
+          return '<button type="button" class="boardIndexMenuItem '+(r.active?'active':'')+'" data-board-index-go="'+r.realIndex+'"><span class="boardIndexMenuNo">'+r.visibleNo+'</span><span class="boardIndexMenuText">'+esc(r.title)+'</span></button>';
+        }).join('');
+        html='<div class="'+panelCls+'" data-board-index-layout="auto" style="--board-fs:'+boardFs+'px">'
+          +safe763MiniTopBar()
+          +'<div class="boardIndexList" data-board-index-layout="auto">'+(rows||'<div class="listEmpty">Ingen tavler i dette panel'+(canConfigure?' · tryk ⚙':'')+'</div>')+'</div>'
+          +(canConfigure?'<div class="tavlePanelTinyStatus widget-control"><span>'+shownCount+'/'+allCount+' vist</span></div>':'')
+          +'</div>';
+      }
+    }
+    else if(!items.length){
+      html='<div class="listEmpty '+(editable?'listEditableEmpty':'')+'" '+(editable?'contenteditable="true" spellcheck="false" data-list-edit-line="0"':'')+'>Tom liste</div>';
+    }
+    else if(type==='number')html='<div class="listNumbered">'+items.map((x,i)=>'<div class="listNumberItem"><span class="listNumberBadge">'+(i+1)+'</span>'+safe759EditableSpan(x,i)+'</div>').join('')+'</div>';
+    else if(type==='bullet')html='<div class="listBulleted">'+items.map((x,i)=>'<div class="listBulletItem"><span class="listBulletDot">•</span>'+safe759EditableSpan(x,i)+'</div>').join('')+'</div>';
+    else if(type==='check')html='<div class="listChecklist">'+items.map((x,i)=>{const key=String(x).toLowerCase();const on=!!checked[key];return '<label class="listCheckItem '+(on?'done':'')+'"><input type="checkbox" data-list-check="'+esc(key)+'" '+(on?'checked':'')+'>'+safe759EditableSpan(x,i)+'</label>';}).join('')+'</div>';
+    else html='<div class="listLineList">'+items.map((x,i)=>'<div class="listPlainItem">'+safe759EditableSpan(x,i)+'</div>').join('')+'</div>';
     const box=root.querySelector('.listPreview');
     if(box){box.innerHTML=html;box.setAttribute('data-list-view',labelMap[type]||'Liste');}
+    function safe759CollectEditableList(){
+      try{
+        const vals=[];
+        root.querySelectorAll('[data-list-edit-line]').forEach(sp=>{
+          const i=Number(sp.getAttribute('data-list-edit-line')||0);
+          let s=String(sp.textContent||'').replace(/\u00a0/g,' ').replace(/\s*\n\s*/g,' ').trim();
+          vals[i]=s;
+        });
+        while(vals.length && !String(vals[vals.length-1]||'').trim())vals.pop();
+        w.data.text=vals.join('\n');
+        const ta=root.querySelector('.listTextArea'); if(ta)ta.value=w.data.text;
+        safe700SaveSoon();
+      }catch(_e){}
+    }
+    function safe759FocusLine(i){
+      setTimeout(()=>{
+        try{
+          const sp=root.querySelector('[data-list-edit-line="'+i+'"]');
+          if(sp){sp.focus();const r=document.createRange();r.selectNodeContents(sp);r.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}
+        }catch(_e){}
+      },20);
+    }
+    root.querySelectorAll('[data-list-edit-line]').forEach(sp=>{
+      ['pointerdown','touchstart','mousedown','click'].forEach(ev=>{try{sp.addEventListener(ev,e=>safe695StopSoft(e),{capture:true,passive:false});}catch(_e){}});
+      sp.addEventListener('input',()=>safe759CollectEditableList());
+      sp.addEventListener('blur',()=>{safe759CollectEditableList();try{save({silent:true});}catch(_e){}});
+      sp.addEventListener('keydown',e=>{
+        try{e.stopPropagation();}catch(_e){}
+        const i=Number(sp.getAttribute('data-list-edit-line')||0);
+        if(e.key==='Enter'){
+          e.preventDefault();safe759CollectEditableList();
+          const vals=String(w.data.text||'').split(/\r?\n/);
+          vals.splice(i+1,0,''); w.data.text=vals.join('\n');
+          const ta=root.querySelector('.listTextArea'); if(ta)ta.value=w.data.text;
+          safe695RenderListPreview(root); safe759FocusLine(i+1); return;
+        }
+        if(e.key==='Backspace' && !String(sp.textContent||'').trim()){
+          const vals=String(w.data.text||'').split(/\r?\n/);
+          if(vals.length>1){e.preventDefault();vals.splice(i,1);w.data.text=vals.join('\n');const ta=root.querySelector('.listTextArea'); if(ta)ta.value=w.data.text;safe695RenderListPreview(root);safe759FocusLine(Math.max(0,i-1));}
+        }
+      });
+    });
+    root.querySelectorAll('[data-board-index-title]').forEach(inp=>{
+      ['pointerdown','touchstart','mousedown','click'].forEach(ev=>{try{inp.addEventListener(ev,e=>safe695StopSoft(e),{capture:true,passive:false});}catch(_e){}});
+      inp.addEventListener('input',e=>{
+        try{e.stopPropagation();}catch(_e){}
+        w.data.boardIndexTitle=String(inp.value||'');
+        safe700SaveSoon();
+      });
+      inp.addEventListener('keydown',e=>{
+        try{e.stopPropagation();}catch(_e){}
+        if(e.key==='Escape'){e.preventDefault();inp.blur();}
+        if(e.key==='Enter'){e.preventDefault();inp.blur();}
+      });
+      inp.addEventListener('blur',()=>{try{w.data.boardIndexTitle=String(inp.value||'');save({silent:true});safe695RenderListPreview(root);}catch(_e){}});
+    });
+    root.querySelectorAll('[data-board-index-go]').forEach(btn=>{
+      ['pointerdown','touchstart','mousedown'].forEach(ev=>{try{btn.addEventListener(ev,e=>safe695StopSoft(e),{capture:true,passive:true});}catch(_e){}});
+      let fired=0;
+      const run=e=>{const now=Date.now(); if(now-fired<360){safe695StopHard(e);return;} fired=now; safe695StopHard(e); safe752BoardIndexGo(Number(btn.getAttribute('data-board-index-go')));};
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-overview]').forEach(btn=>{
+      ['pointerdown','touchstart','mousedown'].forEach(ev=>{try{btn.addEventListener(ev,e=>safe695StopSoft(e),{capture:true,passive:true});}catch(_e){}});
+      let fired=0;
+      const run=e=>{const now=Date.now();if(now-fired<520){safe695StopHard(e);return;}fired=now;safe695StopHard(e);setTimeout(()=>safe752BoardIndexOpenOverview(),0);};
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    function safe773CanOpenBoardPanelSettings(){
+      try{
+        const b=document.body;
+        const a=document.getElementById('app')||document.querySelector('.app');
+        const inFocus=!!(b&&(b.classList.contains('focus-mode')||b.classList.contains('focus-edit')||b.classList.contains('focus-presentation')||b.classList.contains('focus-maximized')));
+        const inPresent=!!((a&&a.classList&&(a.classList.contains('present')||a.classList.contains('presentation')||a.classList.contains('focusMode')||a.classList.contains('focus-mode')||a.classList.contains('focus-presentation'))) || (b&&(b.classList.contains('present')||b.classList.contains('presentation'))));
+        return !inFocus && !inPresent;
+      }catch(_e){return true;}
+    }
+    root.querySelectorAll('[data-board-panel-mode]').forEach(btn=>{
+      const run=e=>{
+        safe695StopHard(e);
+        if(!safe773CanOpenBoardPanelSettings())return;
+        w.data.boardIndexPanelMode=String(btn.getAttribute('data-board-panel-mode')||'panel');
+        safe752BoardIndexSetModeClass(root);safe700SaveSoon();safe695RenderListPreview(root);
+      };
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-font-delta]').forEach(btn=>{
+      const run=e=>{
+        safe695StopHard(e);
+        const d=Number(btn.getAttribute('data-board-index-font-delta')||0)||0;
+        const cur=Number(w.data.boardIndexFontSize||18)||18;
+        w.data.boardIndexFontSize=Math.max(11,Math.min(42,cur+d));
+        safe700SaveSoon();
+        safe695RenderListPreview(root);
+      };
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-type-toggle]').forEach(btn=>{
+      const run=e=>{safe695StopHard(e);w.data.listType=String(w.data.listType||'boardIndex')==='boardCheckIndex'?'boardIndex':'boardCheckIndex';const sel=root.querySelector('.listTypeSelect');if(sel)sel.value=w.data.listType;safe700SaveSoon();safe695RenderListPreview(root);};
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-set-type]').forEach(btn=>{
+      const run=e=>{
+        safe695StopHard(e);
+        const next=String(btn.getAttribute('data-board-index-set-type')||'boardIndex');
+        w.data.listType=next;
+        const sel=root.querySelector('.listTypeSelect');if(sel)sel.value=w.data.listType;
+        w.data.boardIndexPanelMode='panel';
+        safe700SaveSoon();
+        if(next==='boardIndex'||next==='boardCheckIndex')safe695RenderListPreview(root);
+        else try{fillContent(el,w);}catch(_e){safe695RenderListPreview(root);}
+      };
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-set-layout]').forEach(btn=>{
+      const run=e=>{safe695StopHard(e);w.data.boardIndexLayout=String(btn.getAttribute('data-board-index-set-layout')||'vertical');safe752BoardIndexSetModeClass(root);safe700SaveSoon();safe695RenderListPreview(root);};
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-layout-toggle]').forEach(btn=>{
+      const run=e=>{safe695StopHard(e);w.data.boardIndexLayout=String(w.data.boardIndexLayout||'vertical')==='horizontal'?'vertical':'horizontal';safe752BoardIndexSetModeClass(root);safe700SaveSoon();safe695RenderListPreview(root);};
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-include]').forEach(ch=>{
+      ['pointerdown','touchstart','mousedown','pointerup','touchend','click'].forEach(type=>{try{ch.addEventListener(type,e=>safe695StopSoft(e),{capture:true,passive:false});}catch(_e){}});
+      ch.onchange=e=>{try{e.stopPropagation();}catch(_e){}const key=String(ch.getAttribute('data-board-index-include')||'');w.data.boardIndexHidden=w.data.boardIndexHidden||{};if(key){if(ch.checked)delete w.data.boardIndexHidden[key];else w.data.boardIndexHidden[key]=true;}safe700SaveSoon();safe695RenderListPreview(root);};
+    });
+    root.querySelectorAll('[data-board-index-show-all]').forEach(btn=>{
+      const run=e=>{safe695StopHard(e);w.data.boardIndexHidden={};safe700SaveSoon();safe695RenderListPreview(root);};
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-hide-all]').forEach(btn=>{
+      const run=e=>{
+        safe695StopHard(e);
+        w.data.boardIndexHidden=w.data.boardIndexHidden||{};
+        safe752BoardIndexRecords().forEach(r=>{w.data.boardIndexHidden[r.key]=true;});
+        safe700SaveSoon();
+        safe695RenderListPreview(root);
+      };
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-show-active-only]').forEach(btn=>{
+      const run=e=>{
+        safe695StopHard(e);
+        w.data.boardIndexHidden=w.data.boardIndexHidden||{};
+        const recs=safe752BoardIndexRecords();
+        const active=recs.find(r=>r.active)||recs[0];
+        recs.forEach(r=>{if(active && r.key===active.key)delete w.data.boardIndexHidden[r.key];else w.data.boardIndexHidden[r.key]=true;});
+        safe700SaveSoon();
+        safe695RenderListPreview(root);
+      };
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-show-only]').forEach(btn=>{
+      const run=e=>{
+        safe695StopHard(e);
+        const key=String(btn.getAttribute('data-board-index-show-only')||'');
+        w.data.boardIndexHidden=w.data.boardIndexHidden||{};
+        safe752BoardIndexRecords().forEach(r=>{if(r.key===key)delete w.data.boardIndexHidden[r.key];else w.data.boardIndexHidden[r.key]=true;});
+        safe700SaveSoon();
+        safe695RenderListPreview(root);
+      };
+      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
+    });
+    root.querySelectorAll('[data-board-index-check]').forEach(ch=>{
+      const key=String(ch.getAttribute('data-board-index-check')||'');
+      const hit=ch.closest('label')||ch;
+      let fired=0;
+      function setBoardCheck(next,e){
+        try{if(e)safe695StopHard(e);}catch(_e){}
+        if(!key)return;
+        w.data.boardIndexChecked=w.data.boardIndexChecked||{};
+        w.data.boardIndexChecked[key]=!!next;
+        try{ch.checked=!!next;}catch(_e){}
+        safe700SaveSoon();
+        safe695RenderListPreview(root);
+      }
+      function toggleBoardCheck(e){
+        const now=Date.now();
+        if(now-fired<420){try{safe695StopHard(e);}catch(_e){}return;}
+        fired=now;
+        setBoardCheck(!ch.checked,e);
+      }
+      ['pointerdown','touchstart','mousedown'].forEach(type=>{try{hit.addEventListener(type,e=>safe695StopSoft(e),{capture:true,passive:true});}catch(_e){}});
+      ['pointerup','touchend','click'].forEach(type=>{try{hit.addEventListener(type,toggleBoardCheck,{capture:true,passive:false});}catch(_e){}});
+      ch.onchange=e=>{
+        const now=Date.now();
+        if(now-fired<420){try{e.stopPropagation();}catch(_e){}return;}
+        fired=now;
+        setBoardCheck(ch.checked,e);
+      };
+    });
     root.querySelectorAll('[data-list-check]').forEach(ch=>{
       ['pointerdown','touchstart','mousedown'].forEach(type=>{try{ch.addEventListener(type,e=>safe695StopSoft(e),{capture:true,passive:true});}catch(_e){}});
       ch.onchange=e=>{
-        const txt=String(ch.closest('.listCheckItem')?.querySelector('span')?.textContent||'').trim();
+        const txt=String(ch.closest('.listCheckItem')?.querySelector('[data-list-edit-line]')?.textContent||'').trim();
         const k=txt.toLowerCase();
         w.data.checkedItems=w.data.checkedItems||{};
         if(k)w.data.checkedItems[k]=!!ch.checked;
@@ -35331,12 +36080,18 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
     w.data.kind='list'; w.data.listAsset=true; w.data.listType=w.data.listType||'plain';
     const listFs=Math.max(12,Math.min(72,Number(w.data.fontSize||w.data.fs||26)));
     w.data.fontSize=listFs;
-    c.innerHTML=`<div class="text listWidget" style="--fs:${listFs}px"><div class="textTools listTools widget-control"><select class="listTypeSelect" title="Listetype"><option value="plain">Ingen</option><option value="bullet">Punktliste</option><option value="number">Nummereret</option><option value="check">Tjekliste</option></select><button type="button" class="listFontBtn listFontMinus" title="Mindre tekst">−</button><span class="listFontSizeLabel">${listFs}</span><button type="button" class="listFontBtn listFontPlus" title="Større tekst">+</button></div><textarea class="listTextArea" placeholder="Skriv listen her. Linjeskift laver nye punkter. Komma og semikolon kan også bruges ved import/paste.">${esc(w.data.text||'')}</textarea><div class="listPreview"></div></div>`;
+    const isBoardPanelType=(w.data.listType==='boardIndex'||w.data.listType==='boardCheckIndex');
+    if(isBoardPanelType){
+      c.innerHTML=`<div class="text listWidget boardIndexWidget ${w.data.listType==='boardCheckIndex'?'boardCheckIndexWidget':''}" style="--fs:${listFs}px"><div class="listPreview"></div></div>`;
+      safe695RenderListPreview(c);
+      return;
+    }
+    c.innerHTML=`<div class="text listWidget" style="--fs:${listFs}px"><div class="textTools listTools widget-control"><select class="listTypeSelect" title="Listetype"><option value="plain">Almindelig</option><option value="bullet">Punktliste</option><option value="number">Nummereret liste</option><option value="check">Tjekliste</option><option value="boardIndex">Tavleliste</option><option value="boardCheckIndex">Tavle-tjekliste</option></select><button type="button" class="listFontBtn listFontMinus" title="Mindre tekst">−</button><span class="listFontSizeLabel">${listFs}</span><button type="button" class="listFontBtn listFontPlus" title="Større tekst">+</button></div><textarea class="listTextArea" aria-hidden="true" tabindex="-1">${esc(w.data.text||'')}</textarea><div class="listPreview"></div></div>`;
     const sel=c.querySelector('.listTypeSelect');
     if(sel){
       sel.value=w.data.listType||'plain';
       ['pointerdown','touchstart','mousedown'].forEach(type=>{try{sel.addEventListener(type,e=>safe695StopSoft(e),{capture:true,passive:true});}catch(_e){}});
-      sel.onchange=()=>{w.data.listType=sel.value||'plain';safe700SaveSoon();safe695RenderListPreview(c);};
+      sel.onchange=()=>{w.data.listType=sel.value||'plain'; w.data.boardIndexPanelMode='panel'; safe752BoardIndexSetModeClass(c);safe700SaveSoon();fillContent(el,w);};
     }
     function safe698SetListFont(delta){
       const n=Math.max(12,Math.min(72,Number(w.data.fontSize||w.data.fs||26)+delta));
@@ -38367,6 +39122,24 @@ function wireWidget(el,w){
   safe661BindLinkTap(safe453i79Prev,()=>safe453i79NavigateLinkList(w,-1));
   const safe453i79Next=el.querySelector('.safe453i79Next');
   safe661BindLinkTap(safe453i79Next,()=>safe453i79NavigateLinkList(w,1));
+  function safe769BindBoardPanelChromeZoom(btn,delta){
+    if(!btn)return;
+    const run=e=>{
+      if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
+      if(!canEditWidgets())return;
+      if(!(w&&w.type==='text'&&w.data&&(w.data.listType==='boardIndex'||w.data.listType==='boardCheckIndex')))return;
+      w.data.boardIndexFontSize=Math.max(10,Math.min(30,(Number(w.data.boardIndexFontSize||18)||18)+delta));
+      save();
+      render();
+      setTimeout(()=>{try{select(w.id,{editText:false});}catch(_e){}},0);
+      try{toast('Titler '+w.data.boardIndexFontSize);}catch(_e){}
+    };
+    btn.onclick=run;
+    btn.addEventListener('pointerdown',e=>{try{e.stopPropagation();}catch(_e){}},{passive:true});
+    btn.addEventListener('touchstart',e=>{try{e.stopPropagation();}catch(_e){}},{passive:true});
+  }
+  safe769BindBoardPanelChromeZoom(el.querySelector('[data-act=boardPanelTitleZoomOut]'),-2);
+  safe769BindBoardPanelChromeZoom(el.querySelector('[data-act=boardPanelTitleZoomIn]'),2);
 const renameMediaBtn=el.querySelector('[data-act=renameMedia]');
   if(renameMediaBtn)renameMediaBtn.onclick=e=>{
     e.preventDefault();
@@ -57734,7 +58507,7 @@ body.focus-maximized #safe453BoardZoomControls{
   if(window.__safe453i168BoardZoom)return;
   window.__safe453i168BoardZoom=true;
 
-  var ZOOMS=[0.5,0.67,0.75,0.9,1,1.25];
+  var ZOOMS=[0.4,0.5,0.67,0.75,0.9,1,1.25];
   var STORE_KEY='safe453_board_zoom_visual_v1';
   var currentZoom=1;
 
@@ -63691,21 +64464,8 @@ body.safe455PresentToolsOpen .moreMenu.moreMenuGrouped{
 }
 body.safe455PresentToolsOpen .moreMenu::before,
 body.safe455ToolbarPresentPeek .app.present .toolbar::before{
-  content:'Præsentationsværktøjer';
-  position:absolute;
-  left:50%;
-  top:-32px;
-  transform:translateX(-50%);
-  background:var(--safe455-present-tool-green);
-  color:#052e16;
-  border-radius:999px;
-  padding:5px 11px;
-  font-size:12px;
-  line-height:1;
-  font-weight:950;
-  white-space:nowrap;
-  pointer-events:none;
-  box-shadow:0 8px 20px rgba(0,0,0,.22);
+  content:none!important;
+  display:none!important;
 }
 body.safe455ToolbarPresentPeek .app.present .toolbar{position:absolute!important;}
 body.safe455PresentToolsOpen .moreMenu{position:fixed!important;}
@@ -71004,4 +71764,663 @@ html[data-tavle-theme="smartboard"] #modal:has(#closeHelp) .helpFAQ details[open
   }catch(_e){}
 })();
 </script>
+
+<style id="l755-tavlepanel-temanavn-tjek-css">
+/* l755: Tavleliste/Tavle-tjekliste er et panel i TavleAppens aktive UI-tema.
+   Headeren viser kun brugerens eget panelnavn; den gamle preview-label skjules for disse to typer. */
+.widget[data-type="text"] .listWidget.boardIndexWidget{
+  grid-template-rows:auto minmax(0,1fr)!important;
+  height:100%!important;
+  --bi-panel-bg:rgba(255,255,255,.90);
+  --bi-panel-ink:#111827;
+  --bi-panel-muted:#64748b;
+  --bi-panel-line:rgba(15,23,42,.12);
+  --bi-card-bg:rgba(255,255,255,.72);
+  --bi-card-bg-active:#fff;
+  --bi-accent:var(--accent,#22c55e);
+  --bi-accent-soft:rgba(34,197,94,.18);
+  --bi-panel-radius:18px;
+  --bi-panel-shadow:0 14px 32px rgba(15,23,42,.10);
+  background:transparent!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .listTextArea{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .listPreview{
+  display:block!important;height:100%!important;min-height:0!important;overflow:auto!important;
+  padding:12px!important;background:var(--bi-panel-bg)!important;color:var(--bi-panel-ink)!important;
+  border:1px solid var(--bi-panel-line)!important;border-radius:var(--bi-panel-radius)!important;
+  box-shadow:var(--bi-panel-shadow)!important;box-sizing:border-box!important;
+  font-size:var(--fs,26px)!important;line-height:1.18!important;-webkit-overflow-scrolling:touch!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .listPreview::before{content:none!important;display:none!important;}
+.widget[data-type="text"] .boardIndexHeader{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;
+  margin:0 0 10px!important;padding:2px 2px 9px!important;border-bottom:1px solid var(--bi-panel-line)!important;
+  color:var(--bi-panel-muted)!important;min-height:34px!important;
+}
+.widget[data-type="text"] .boardIndexHeader.boardIndexNoTitle{justify-content:flex-end!important;}
+.widget[data-type="text"] .boardIndexTitleLabel{
+  display:block!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+  font-size:.72em!important;font-weight:950!important;letter-spacing:.055em!important;text-transform:uppercase!important;color:var(--bi-panel-muted)!important;
+}
+.widget[data-type="text"] .boardIndexTitleLabel.boardIndexUntitled{display:none!important;}
+.widget[data-type="text"] .boardIndexTitleInput{
+  min-width:0!important;width:100%!important;border:0!important;outline:none!important;border-radius:12px!important;
+  background:rgba(255,255,255,.42)!important;color:var(--bi-panel-ink)!important;
+  box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;
+  padding:8px 10px!important;font:inherit!important;font-size:.74em!important;font-weight:950!important;letter-spacing:.045em!important;text-transform:uppercase!important;
+}
+.widget[data-type="text"] .boardIndexTitleInput::placeholder{color:var(--bi-panel-muted)!important;opacity:.72!important;}
+.widget[data-type="text"] .boardIndexOverviewBtn{
+  appearance:none!important;border:0!important;border-radius:12px!important;min-width:34px!important;height:32px!important;flex:0 0 auto!important;
+  display:inline-grid!important;place-items:center!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;
+  box-shadow:inset 0 0 0 1px var(--bi-panel-line),0 3px 10px rgba(15,23,42,.10)!important;
+  font-size:18px!important;font-weight:950!important;touch-action:manipulation!important;
+}
+.widget[data-type="text"] .boardIndexList{display:grid!important;gap:8px!important;}
+.widget[data-type="text"] .boardIndexItem{
+  appearance:none!important;border:0!important;width:100%!important;text-align:left!important;
+  display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;
+  padding:10px 12px!important;border-radius:16px!important;background:var(--bi-card-bg)!important;color:var(--bi-panel-ink)!important;
+  box-shadow:inset 0 0 0 1px var(--bi-panel-line),0 2px 8px rgba(15,23,42,.06)!important;
+  font:inherit!important;font-weight:900!important;line-height:1.12!important;touch-action:manipulation!important;
+}
+.widget[data-type="text"] .boardIndexItem.active{background:var(--bi-card-bg-active)!important;box-shadow:inset 0 0 0 3px color-mix(in srgb,var(--bi-accent) 46%,transparent),0 8px 20px var(--bi-accent-soft)!important;}
+.widget[data-type="text"] .boardIndexNo{min-width:2em!important;height:2em!important;border-radius:999px!important;display:inline-grid!important;place-items:center!important;background:var(--bi-panel-ink)!important;color:var(--bi-card-bg-active)!important;font-size:.72em!important;font-weight:950!important;}
+.widget[data-type="text"] .boardIndexTitle{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:normal!important;}
+.widget[data-type="text"] .boardIndexHide{width:28px!important;height:28px!important;border-radius:999px!important;display:inline-grid!important;place-items:center!important;background:rgba(239,68,68,.12)!important;color:#991b1b!important;font-weight:950!important;}
+.widget[data-type="text"] .boardIndexLinkTitle{appearance:none!important;border:0!important;background:transparent!important;color:inherit!important;text-align:left!important;padding:0!important;margin:0!important;font:inherit!important;font-weight:900!important;line-height:1.12!important;min-width:0!important;touch-action:manipulation!important;}
+.widget[data-type="text"] .boardIndexCheckToggle{display:inline-grid!important;place-items:center!important;cursor:pointer!important;touch-action:manipulation!important;}
+.widget[data-type="text"] .boardIndexCheckToggle input{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none!important;}
+.widget[data-type="text"] .boardIndexCheckVisual{width:1.35em!important;height:1.35em!important;border-radius:7px!important;display:inline-grid!important;place-items:center!important;background:rgba(255,255,255,.55)!important;box-shadow:inset 0 0 0 2px var(--bi-panel-line)!important;color:var(--bi-accent)!important;font-weight:950!important;}
+.widget[data-type="text"] .boardIndexCheckToggle input:checked + .boardIndexCheckVisual{background:var(--bi-accent)!important;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--bi-accent) 76%,#fff)!important;color:#fff!important;}
+.widget[data-type="text"] .boardIndexCheckToggle input:checked + .boardIndexCheckVisual::before{content:"✓";font-size:.95em!important;line-height:1!important;}
+.widget[data-type="text"] .boardIndexCheckItem.done .boardIndexTitle{text-decoration:line-through!important;opacity:.62!important;}
+.widget[data-type="text"] .boardIndexEditTools{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;margin-top:10px!important;padding-top:8px!important;border-top:1px dashed var(--bi-panel-line)!important;}
+.widget[data-type="text"] .boardIndexEditTools button{border:0!important;border-radius:999px!important;padding:7px 11px!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;}
+.widget[data-type="text"] .boardIndexEditTools small{font-weight:900!important;color:var(--bi-panel-muted)!important;}
+
+/* OpslagsTavle / Klassisk: post-it/papirpanel */
+html.theme-opslagstavle .widget[data-type="text"] .listWidget.boardIndexWidget,
+html[data-tavle-theme="opslagstavle"] .widget[data-type="text"] .listWidget.boardIndexWidget,
+html.theme-classic .widget[data-type="text"] .listWidget.boardIndexWidget,
+html[data-tavle-theme="classic"] .widget[data-type="text"] .listWidget.boardIndexWidget{
+  --bi-panel-bg:linear-gradient(180deg,#fff8b7,#fff6a4 42%,#fff4a3);
+  --bi-panel-ink:#1f2937;--bi-panel-muted:#78716c;--bi-panel-line:rgba(120,113,108,.22);
+  --bi-card-bg:rgba(255,255,255,.54);--bi-card-bg-active:rgba(255,255,255,.82);
+  --bi-accent:#22c55e;--bi-accent-soft:rgba(34,197,94,.18);--bi-panel-radius:19px;
+  --bi-panel-shadow:0 12px 0 rgba(120,113,108,.08),0 22px 42px rgba(15,23,42,.14);
+}
+/* GlasTavle/præsentationslook: lyst glas-panel */
+html.theme-glastavle .widget[data-type="text"] .listWidget.boardIndexWidget,
+html[data-tavle-theme="glastavle"] .widget[data-type="text"] .listWidget.boardIndexWidget,
+html.theme-presentation .widget[data-type="text"] .listWidget.boardIndexWidget,
+html[data-tavle-theme="presentation"] .widget[data-type="text"] .listWidget.boardIndexWidget{
+  --bi-panel-bg:linear-gradient(180deg,rgba(255,255,255,.88),rgba(248,250,252,.78));
+  --bi-panel-ink:#101828;--bi-panel-muted:#475467;--bi-panel-line:rgba(16,24,40,.13);
+  --bi-card-bg:rgba(248,250,252,.78);--bi-card-bg-active:#fff;--bi-accent:#2563eb;--bi-accent-soft:rgba(37,99,235,.16);
+  --bi-panel-radius:20px;--bi-panel-shadow:0 18px 48px rgba(15,23,42,.16);
+}
+html.theme-glastavle .widget[data-type="text"] .listWidget.boardIndexWidget .listPreview,
+html[data-tavle-theme="glastavle"] .widget[data-type="text"] .listWidget.boardIndexWidget .listPreview,
+html.theme-presentation .widget[data-type="text"] .listWidget.boardIndexWidget .listPreview,
+html[data-tavle-theme="presentation"] .widget[data-type="text"] .listWidget.boardIndexWidget .listPreview{backdrop-filter:blur(18px) saturate(1.14)!important;-webkit-backdrop-filter:blur(18px) saturate(1.14)!important;}
+/* FlipOver: varmt papir med mere kant og mindre runding */
+html.theme-flipover .widget[data-type="text"] .listWidget.boardIndexWidget,
+html[data-tavle-theme="flipover"] .widget[data-type="text"] .listWidget.boardIndexWidget{
+  --bi-panel-bg:#fffef7;--bi-panel-ink:#1f2937;--bi-panel-muted:#92400e;--bi-panel-line:rgba(146,64,14,.22);
+  --bi-card-bg:#fff7ed;--bi-card-bg-active:#fff;--bi-accent:#f59e0b;--bi-accent-soft:rgba(245,158,11,.20);
+  --bi-panel-radius:10px;--bi-panel-shadow:0 10px 0 rgba(120,53,15,.09),0 22px 42px rgba(120,53,15,.14);
+}
+/* SmartBoard: mørkt digitalt panel, som matcher den mørke modal/topbar-stil. */
+html.theme-smartboard .widget[data-type="text"] .listWidget.boardIndexWidget,
+html[data-tavle-theme="smartboard"] .widget[data-type="text"] .listWidget.boardIndexWidget{
+  --bi-panel-bg:linear-gradient(180deg,rgba(2,6,23,.94),rgba(15,23,42,.92));
+  --bi-panel-ink:#e0f2fe;--bi-panel-muted:#7dd3fc;--bi-panel-line:rgba(56,189,248,.26);
+  --bi-card-bg:rgba(15,23,42,.74);--bi-card-bg-active:rgba(8,47,73,.92);--bi-accent:#38bdf8;--bi-accent-soft:rgba(56,189,248,.20);
+  --bi-panel-radius:18px;--bi-panel-shadow:0 0 28px rgba(56,189,248,.13),0 20px 44px rgba(2,6,23,.36);
+}
+html.theme-smartboard .widget[data-type="text"] .boardIndexNo,
+html[data-tavle-theme="smartboard"] .widget[data-type="text"] .boardIndexNo{background:#38bdf8!important;color:#020617!important;}
+html.theme-smartboard .widget[data-type="text"] .boardIndexTitleInput,
+html[data-tavle-theme="smartboard"] .widget[data-type="text"] .boardIndexTitleInput{background:rgba(15,23,42,.74)!important;color:#e0f2fe!important;}
+html.theme-smartboard .widget[data-type="text"] .boardIndexHide,
+html[data-tavle-theme="smartboard"] .widget[data-type="text"] .boardIndexHide{background:rgba(239,68,68,.18)!important;color:#fecaca!important;}
+
+
+/* l756: Tavlepanel kan skiftes mellem lodret liste og vandret bjælke. */
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .listPreview{
+  padding:10px 12px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexHeader{
+  margin:0 0 8px!important;
+  padding:0 1px 7px!important;
+  min-height:30px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexList{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  align-content:flex-start!important;
+  gap:8px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexItem{
+  width:auto!important;
+  max-width:100%!important;
+  min-width:0!important;
+  flex:0 1 auto!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  padding:8px 10px!important;
+  border-radius:999px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexNo{
+  min-width:1.75em!important;
+  height:1.75em!important;
+  font-size:.66em!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexTitle{
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexLinkTitle{
+  max-width:16em!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexCheckVisual{
+  width:1.18em!important;
+  height:1.18em!important;
+  border-radius:6px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexEditTools{
+  flex-wrap:wrap!important;
+  justify-content:flex-start!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexEditTools small{
+  margin-left:auto!important;
+}
+
+</style>
+
+<style id="l757-tavlepanel-rent-panel-css">
+/* l757: Når Liste-widgetten bruges som Tavleliste/Tavle-tjekliste, skal den ikke vise det gamle liste-redigeringslayout oven på panelet. */
+.widget[data-type="text"] .listWidget.boardIndexWidget{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .listTools,
+.widget[data-type="text"] .listWidget.boardIndexWidget .textTools,
+.widget[data-type="text"] .listWidget.boardIndexWidget .listTextArea{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  width:0!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .listPreview{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  overflow:auto!important;
+}
+/* Lad selve widget-indholdet blive en ren holder for panelet. Den gamle content-flade må ikke lægge endnu et panel bagved. */
+.widget[data-type="text"] .content:has(.listWidget.boardIndexWidget){
+  padding:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+}
+/* Når widget-bjælken er væk i præsentation/fokus, skal panelet fylde hele widgetten og se ud som ét panel. */
+.app.present .widget[data-type="text"] .content:has(.listWidget.boardIndexWidget),
+body.focus-mode .widget[data-type="text"] .content:has(.listWidget.boardIndexWidget),
+body.focus-edit .widget[data-type="text"] .content:has(.listWidget.boardIndexWidget),
+body.focus-presentation .widget[data-type="text"] .content:has(.listWidget.boardIndexWidget),
+body.focus-maximized .widget[data-type="text"] .content:has(.listWidget.boardIndexWidget){
+  border-radius:inherit!important;
+  overflow:visible!important;
+}
+/* Diskret redigering: de små panelværktøjer ligger inde i panelet, ikke i den gamle liste-bjælke. */
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexEditTools{
+  display:flex!important;
+  flex-wrap:wrap!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexTitleInput{
+  cursor:text!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexHeader.boardIndexNoTitle{
+  min-height:34px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexHeader.boardIndexNoTitle::before{
+  content:"";
+  display:block;
+  flex:1 1 auto;
+  min-height:28px;
+}
+</style>
+
+
+<style id="l758-tavlepanel-toggle-indstillinger-css">
+/* l758: Tavlepanelet er en ren paneltilstand. I redigering kan man skifte til de almindelige listeindstillinger og tilbage igen. */
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexClassicTools{
+  display:none!important;
+}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit{
+  display:grid!important;
+  grid-template-rows:auto auto minmax(120px,1fr)!important;
+  gap:8px!important;
+  padding:10px!important;
+  overflow:hidden!important;
+  background:rgba(255,255,255,.86)!important;
+  color:#111827!important;
+  border-radius:18px!important;
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.12),0 12px 32px rgba(15,23,42,.12)!important;
+}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .boardIndexClassicTools{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  min-height:34px!important;
+  padding:0 0 6px!important;
+  border-bottom:1px solid rgba(15,23,42,.12)!important;
+}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .boardIndexClassicTools button{
+  border:0!important;
+  border-radius:999px!important;
+  padding:7px 12px!important;
+  font-weight:950!important;
+  background:#fff!important;
+  color:#111827!important;
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.12)!important;
+}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .boardIndexClassicTools small{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  font-weight:800!important;
+  color:#64748b!important;
+}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .listTools,
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .textTools{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  width:auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:visible!important;
+}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .listTextArea{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:110px!important;
+  max-height:none!important;
+  padding:12px!important;
+  margin:0!important;
+  overflow:auto!important;
+  box-sizing:border-box!important;
+  border-radius:14px!important;
+  border:1px solid rgba(15,23,42,.14)!important;
+  background:rgba(255,255,255,.92)!important;
+  color:#111827!important;
+}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .listPreview{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  height:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+}
+html.theme-smartboard .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit,
+html[data-tavle-theme="smartboard"] .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit{
+  background:linear-gradient(180deg,rgba(2,6,23,.94),rgba(15,23,42,.92))!important;
+  color:#e0f2fe!important;
+  box-shadow:inset 0 0 0 1px rgba(56,189,248,.24),0 0 28px rgba(56,189,248,.13),0 20px 44px rgba(2,6,23,.36)!important;
+}
+html.theme-smartboard .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .boardIndexClassicTools,
+html[data-tavle-theme="smartboard"] .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .boardIndexClassicTools{
+  border-bottom-color:rgba(56,189,248,.24)!important;
+}
+html.theme-smartboard .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .boardIndexClassicTools button,
+html[data-tavle-theme="smartboard"] .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .boardIndexClassicTools button{
+  background:rgba(8,47,73,.92)!important;
+  color:#e0f2fe!important;
+  box-shadow:inset 0 0 0 1px rgba(56,189,248,.28)!important;
+}
+html.theme-smartboard .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .boardIndexClassicTools small,
+html[data-tavle-theme="smartboard"] .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .boardIndexClassicTools small{
+  color:#7dd3fc!important;
+}
+html.theme-smartboard .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .listTextArea,
+html[data-tavle-theme="smartboard"] .widget.selected[data-type="text"] .listWidget.boardIndexWidget.boardIndexClassicEdit .listTextArea{
+  background:rgba(15,23,42,.74)!important;
+  color:#e0f2fe!important;
+  border-color:rgba(56,189,248,.28)!important;
+}
+</style>
+
+
+<style id="l759-liste-og-tavlepanel-adskilt-css">
+/* l759: Almindelige lister og Tavlepaneler er to adskilte layouts.
+   Almindelige lister redigeres direkte i listen; Tavleliste/Tavle-tjekliste har egen panelbjælke og egne indstillinger. */
+.widget[data-type="text"] .listWidget:not(.boardIndexWidget){
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+  height:100%!important;
+  overflow:hidden!important;
+}
+.widget[data-type="text"] .listWidget:not(.boardIndexWidget) .listTextArea{
+  display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+  width:0!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;
+}
+.widget[data-type="text"] .listWidget:not(.boardIndexWidget) .listPreview{
+  display:block!important;height:100%!important;min-height:0!important;overflow:auto!important;
+  border-top:1px solid rgba(148,163,184,.22)!important;
+  padding:12px 16px!important;
+}
+.widget[data-type="text"] .listWidget:not(.boardIndexWidget) [data-list-edit-line][contenteditable="true"]{
+  outline:none!important;cursor:text!important;min-width:1.5em!important;border-radius:8px!important;
+}
+.widget[data-type="text"] .listWidget:not(.boardIndexWidget) [data-list-edit-line][contenteditable="true"]:focus{
+  box-shadow:0 0 0 3px rgba(56,189,248,.22), inset 0 0 0 1px rgba(56,189,248,.38)!important;
+  background:rgba(255,255,255,.38)!important;
+}
+.widget[data-type="text"] .listWidget:not(.boardIndexWidget) .listCheckItem [data-list-edit-line]{flex:1 1 auto!important;}
+.widget[data-type="text"] .listWidget:not(.boardIndexWidget) .listEmpty[contenteditable="true"]{
+  font-style:normal!important;opacity:.85!important;padding:.7em .85em!important;background:rgba(241,245,249,.82)!important;border-radius:12px!important;
+}
+
+/* Tavlepanel: skjul den gamle listebjælke/tekstfelt helt og brug panelets egen bjælke. */
+.widget[data-type="text"] .listWidget.boardIndexWidget{
+  display:block!important;width:100%!important;height:100%!important;padding:0!important;margin:0!important;overflow:hidden!important;background:transparent!important;border:0!important;box-shadow:none!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget > .listTools,
+.widget[data-type="text"] .listWidget.boardIndexWidget > .textTools,
+.widget[data-type="text"] .listWidget.boardIndexWidget > .listTextArea,
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexClassicTools{
+  display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;width:0!important;height:0!important;min-height:0!important;max-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .listPreview{
+  display:block!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;overflow:auto!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .listPreview::before{content:none!important;display:none!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel{
+  width:100%!important;height:100%!important;min-height:0!important;box-sizing:border-box!important;overflow:auto!important;
+  padding:10px!important;background:var(--bi-panel-bg)!important;color:var(--bi-panel-ink)!important;
+  border:1px solid var(--bi-panel-line)!important;border-radius:var(--bi-panel-radius)!important;box-shadow:var(--bi-panel-shadow)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBar{
+  display:none!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important;margin:0 0 9px!important;padding:0 0 8px!important;border-bottom:1px solid var(--bi-panel-line)!important;
+}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBar{display:flex!important;}
+.app.present .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBar,
+body.focus-mode .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBar,
+body.focus-edit .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBar,
+body.focus-presentation .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBar,
+body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBar{display:none!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBar button,
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettings button,
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelFooter button{
+  appearance:none!important;border:0!important;border-radius:999px!important;padding:7px 10px!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;touch-action:manipulation!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSwitch{display:inline-flex!important;gap:2px!important;padding:3px!important;background:rgba(148,163,184,.15)!important;border-radius:999px!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSwitch button{box-shadow:none!important;background:transparent!important;padding:6px 9px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSwitch button.active,
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingsGrid button.active{background:var(--bi-accent)!important;color:white!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettings{display:grid!important;gap:10px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTitleSetting{display:grid!important;gap:5px!important;font-weight:950!important;color:var(--bi-panel-muted)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelTitleSetting input{width:100%!important;box-sizing:border-box!important;border:0!important;border-radius:12px!important;padding:10px 11px!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;font:inherit!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingsGrid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelBoardRows{display:grid!important;gap:7px!important;max-height:100%!important;overflow:auto!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingRow{display:grid!important;grid-template-columns:auto auto minmax(0,1fr)!important;gap:7px!important;align-items:center!important;padding:7px!important;border-radius:14px!important;background:var(--bi-card-bg)!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingRow.excluded{opacity:.55!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingRow > button{display:flex!important;align-items:center!important;gap:8px!important;min-width:0!important;text-align:left!important;background:transparent!important;box-shadow:none!important;color:inherit!important;padding:4px!important;border-radius:10px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelInclude,.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelDone{display:inline-flex!important;align-items:center!important;gap:4px!important;font-size:.7em!important;font-weight:950!important;color:var(--bi-panel-muted)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelFooter{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding-top:8px!important;border-top:1px dashed var(--bi-panel-line)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelFooter small{font-weight:950!important;color:var(--bi-panel-muted)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexEditTools{display:none!important;}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget .boardIndexEditTools{display:flex!important;}
+
+/* Vandret tavlepanel = bjælke, ikke udstrakt gammel listewidget. */
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .tavlePanel,
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel[data-board-index-layout="horizontal"]{
+  overflow:auto!important;padding:8px 10px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel[data-board-index-layout="horizontal"] .boardIndexHeader{margin:0 0 6px!important;padding-bottom:6px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel[data-board-index-layout="horizontal"] .boardIndexList{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:7px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel[data-board-index-layout="horizontal"] .boardIndexItem{width:auto!important;max-width:24em!important;border-radius:999px!important;padding:7px 10px!important;}
+
+/* SmartBoard følger det overordnede TavleApp-tema: mørkt/digitalt panel. */
+html.theme-smartboard .widget[data-type="text"] .listWidget.boardIndexWidget,
+html[data-tavle-theme="smartboard"] .widget[data-type="text"] .listWidget.boardIndexWidget{
+  --bi-panel-bg:linear-gradient(180deg,rgba(2,6,23,.94),rgba(15,23,42,.93));
+  --bi-panel-ink:#e0f2fe;--bi-panel-muted:#7dd3fc;--bi-panel-line:rgba(56,189,248,.24);
+  --bi-card-bg:rgba(8,47,73,.62);--bi-card-bg-active:rgba(14,116,144,.34);
+  --bi-accent:#38bdf8;--bi-accent-soft:rgba(56,189,248,.17);--bi-panel-shadow:0 0 28px rgba(56,189,248,.13),0 20px 44px rgba(2,6,23,.36);
+}
+
+
+/* l760: Tavlepanelet ligner Mere-menuen mere: én knap pr. tavle i en auto-grid,
+   som selv finder antal kolonner/rækker efter widgettens bredde/højde. */
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel{display:grid!important;grid-template-rows:auto auto minmax(0,1fr) auto!important;gap:10px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexHeader{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin:0!important;padding:0 0 8px!important;border-bottom:1px solid var(--bi-panel-line)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexTitleLabel{font-size:clamp(14px,1.8vw,20px)!important;font-weight:1000!important;letter-spacing:.02em!important;color:var(--bi-panel-muted)!important;min-height:1.2em!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexList{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr))!important;gap:10px!important;align-content:start!important;align-items:stretch!important;overflow:auto!important;padding:2px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuItem,
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuBtn{appearance:none!important;border:0!important;border-radius:18px!important;min-height:64px!important;padding:12px 14px!important;background:var(--bi-card-bg)!important;color:var(--bi-panel-ink)!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important,0 2px 8px rgba(0,0,0,.08)!important;font-weight:950!important;display:flex!important;align-items:center!important;gap:10px!important;text-align:left!important;width:100%!important;touch-action:manipulation!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuBtn{padding:0!important;min-height:0!important;background:transparent!important;box-shadow:none!important;color:inherit!important;border-radius:0!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuItem.active,
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuCheck.active{box-shadow:inset 0 0 0 2px var(--bi-accent)!important,0 0 0 3px var(--bi-accent-soft)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuNo{flex:0 0 auto!important;width:1.9em!important;height:1.9em!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:var(--bi-accent)!important;color:#0b1220!important;font-weight:1000!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuText{display:block!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important;line-height:1.08!important;font-size:clamp(15px,1.7vw,22px)!important;font-weight:950!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexMenuCheck{display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;gap:10px!important;align-items:center!important;padding:10px 12px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexCheckToggle{align-self:center!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexCheckVisual{width:28px!important;height:28px!important;border-radius:10px!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexOverviewBtn{appearance:none!important;border:0!important;border-radius:16px!important;min-width:46px!important;min-height:46px!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;font-weight:1000!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexEditTools{display:none!important;}
+.widget.selected[data-type="text"] .listWidget.boardIndexWidget .boardIndexEditTools{display:flex!important;flex-wrap:wrap!important;gap:8px!important;padding-top:8px!important;border-top:1px dashed var(--bi-panel-line)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .boardIndexEditTools button{appearance:none!important;border:0!important;border-radius:999px!important;padding:8px 12px!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelAutoNote{font-size:.86em!important;font-weight:900!important;color:var(--bi-panel-muted)!important;padding:2px 2px 0!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingsGrid{grid-template-columns:1fr 1fr!important;}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingsGrid button{min-height:46px!important;}
+</style>
+
+<style id="l761-tavlepanel-auto-grid-uden-retning-css">
+/* l761: Tavlepanel er ikke længere lodret/vandret. Det er et auto-grid som Mere-menuen. */
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .tavlePanel,
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel[data-board-index-layout="horizontal"],
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel[data-board-index-layout="vertical"],
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel[data-board-index-layout="auto"]{
+  overflow:auto!important;
+  padding:10px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel[data-board-index-layout] .boardIndexList,
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexList{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))!important;
+  gap:10px!important;
+  align-content:start!important;
+  align-items:stretch!important;
+  overflow:auto!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanel[data-board-index-layout] .boardIndexItem,
+.widget[data-type="text"] .listWidget.boardIndexWidget.boardIndexHorizontal .boardIndexItem{
+  width:100%!important;
+  max-width:none!important;
+  border-radius:18px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingsGrid{
+  grid-template-columns:1fr 1fr!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelAutoNote{
+  grid-column:1 / -1!important;
+  font-size:.82em!important;
+  font-weight:900!important;
+  color:var(--bi-panel-muted)!important;
+  padding:2px 4px 0!important;
+}
+</style>
+
+<style id="l762-tavlepanel-synlige-tavler-css">
+/* l762: tydelig styring af hvilke tavler der er med i netop dette Tavlepanel. */
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSelectionNote{
+  font-size:.82em!important;
+  font-weight:850!important;
+  color:var(--bi-panel-muted)!important;
+  background:rgba(148,163,184,.12)!important;
+  border-radius:12px!important;
+  padding:8px 10px!important;
+  box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelQuickActions{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:7px!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelQuickActions button{
+  appearance:none!important;
+  border:0!important;
+  border-radius:999px!important;
+  padding:7px 10px!important;
+  background:var(--bi-card-bg-active)!important;
+  color:var(--bi-panel-ink)!important;
+  font-weight:950!important;
+  box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingRow{
+  grid-template-columns:auto auto minmax(0,1fr) auto!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingRow:not(:has(.tavlePanelDone)){
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelOnlyBtn{
+  font-size:.72em!important;
+  padding:6px 9px!important;
+  white-space:nowrap!important;
+  color:var(--bi-panel-ink)!important;
+  background:var(--bi-card-bg-active)!important;
+  box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelRowGo{
+  min-width:0!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingRow.excluded .tavlePanelRowGo span:last-child{
+  text-decoration:line-through!important;
+}
+</style>
+
+<style id="l772-tavlepanel-check-og-redigerfix-css">
+/* l772: sent CSS-fix. Hold redigerknappen i panelet, gør flueben klikbart,
+   og lad titelzoom styre titler uden at kortene vælter. */
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelMiniBar{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-width:0!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelMiniActions{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  margin-left:auto!important;
+  flex:0 0 auto!important;
+  z-index:5!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelEditBtn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:36px!important;
+  min-width:36px!important;
+  height:36px!important;
+  padding:0!important;
+  font-size:17px!important;
+  line-height:1!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelEditBtn span{display:none!important;}
+.app.present .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelEditBtn,
+.app.presentation .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelEditBtn,
+body.focus-mode .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelEditBtn,
+body.focus-edit .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelEditBtn,
+body.focus-presentation .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelEditBtn,
+body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .tavlePanelEditBtn{
+  display:none!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .boardIndexList{
+  grid-auto-rows:minmax(max(46px,calc(var(--board-fs,18px) * 2.65)),auto)!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .boardIndexMenuItem{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .boardIndexMenuCheck{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr)!important;
+  align-items:stretch!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .boardIndexMenuCheck .boardIndexMenuBtn{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .boardIndexMenuText{
+  font-size:var(--board-fs,18px)!important;
+  line-height:1.06!important;
+  font-weight:950!important;
+  min-width:0!important;
+  max-width:100%!important;
+  display:-webkit-box!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  word-break:normal!important;
+  overflow-wrap:anywhere!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .boardIndexMenuNo{
+  width:1.72em!important;
+  min-width:1.72em!important;
+  height:1.72em!important;
+  font-size:.68em!important;
+  flex:0 0 auto!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .boardIndexCheckToggle{
+  position:relative!important;
+  z-index:6!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+  touch-action:manipulation!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelView .boardIndexCheckVisual{
+  pointer-events:none!important;
+}
+</style>
 </body></html>
