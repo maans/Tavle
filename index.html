@@ -110,6 +110,7 @@
 <!-- l674-groups-owner-keyboard-touch-fix: Bygger på l673. Kirurgisk Grupper-rettelse: Grupper-widgettens egen wireGroups får robuste pointer/touch-bindinger, inputs bevarer fokus, Dan/Gem/Liste/Kilde/+/-/lås virker på iPad, Space/Enter ejes af aktiv Grupper-widget og stopper evt. gruppedannelsesspin før resultat; Timer/Lykkehjul/DataWidget-logik uændret. -->
 <html lang="da">
 <head>
+<!-- l805-esc-slipper-widget-space-mere: Bygger på l803. MedieWidget indgår robust i pil-op/ned-widgetnavigation efter tavleskift, og aktiv/fokuseret MedieWidget ejer Space/Mellemrum til play/pause før Mere-menuen. -->
 <!-- l802-mediewidget-diskimport-stabil: Bygger på l800 (ikke l801). Tilføjer lokal Åbn fra disk til MedieWidget med direkte arkivering i TavleMediaArchive og kobling til medieliste, uden at røre Hjælp-layout eller gamle globale overrides. -->
 <!-- l800-medievaelger-youtube-titler-linkwidget-cleanup: Bygger på l799. Fælles medievælger til LinkWidget og MedieWidget, YouTube-rækker får brugbare fallbacktitler, MedieWidget får ☰-vælger, og den gamle Linkliste-editor omgår medielister. -->
 <!-- l799-linkwidget-youtube-visible-video-overlay-clean: Bygger på l798. LinkWidget autovælger første egentlige URL/YouTube-link fra medielister, så lokale medier ikke straks konverterer widgetten til MedieWidget. Media-lister bevarer type/badge når de kobles til LinkWidget. VideoWidget fjerner de store YouTube-overlayknapper; embed og lokale medieafspillere bevares. -->
@@ -16070,6 +16071,7 @@ function tavleYoutubeEmbedUrl(raw){
       const out=new URL('https://www.youtube.com/embed');
       out.searchParams.set('listType','playlist');
       out.searchParams.set('list',list);
+      out.searchParams.set('enablejsapi','1');
       return out.href;
     }
     if(!id)return '';
@@ -16080,6 +16082,7 @@ function tavleYoutubeEmbedUrl(raw){
       const sec=String(start).match(/^\d+$/)?start:String(start).replace(/[^0-9]/g,'');
       if(sec)out.searchParams.set('start',sec);
     }
+    out.searchParams.set('enablejsapi','1');
     return out.href;
   }catch(e){return ''}
 }
@@ -16135,6 +16138,7 @@ function safe453i221YoutubeEmbedUrl(raw){
         if(sec)out.searchParams.set('start',sec);
       }
     }
+    out.searchParams.set('enablejsapi','1');
     return out.href;
   }catch(_e){
     if(info.type==='playlist')return 'https://www.youtube.com/embed?listType=playlist&list='+encodeURIComponent(info.list);
@@ -50814,22 +50818,44 @@ document.addEventListener('pointerdown',function(e){
 },true);
 
 function widgetNavigationOrder(){
-  // Pil op/ned skal vælge alle synlige widgets på den aktive tavle i en forudsigelig visuel rækkefølge.
-  // l592: brug sharedVisibility-modellens synlige widgetliste, så spejlede widgets indgår symmetrisk.
-  // Først fra øverst til nederst, derefter fra venstre mod højre.
-  const visible=(typeof safe588WidgetsForCurrentSlide==='function')
-    ? safe588WidgetsForCurrentSlide()
-    : (slide().widgets||[]);
-  return visible
-    .filter(w=>w && w.id && !(typeof safe381IsHiddenLinkedDataWidget==='function' && safe381IsHiddenLinkedDataWidget(w)))
-    .slice()
-    .sort((a,b)=>{
-      const ay=Number(a.y)||0, by=Number(b.y)||0;
-      const ax=Number(a.x)||0, bx=Number(b.x)||0;
-      if(Math.abs(ay-by)>24) return ay-by;
-      if(Math.abs(ax-bx)>24) return ax-bx;
-      return (Number(a.z)||0)-(Number(b.z)||0);
+  // l804: Pil op/ned skal bruge den faktiske synlige DOM på den aktuelle tavle først.
+  // Det gør MedieWidgets robuste efter tavleskift, hvor state-selection kan pege på en
+  // widget fra forrige tavle, mens de nye MedieWidgets allerede er renderet på skærmen.
+  const byId=new Map();
+  function addWidgetRecord(w,el){
+    try{
+      if(!w||!w.id)return;
+      if(typeof safe381IsHiddenLinkedDataWidget==='function' && safe381IsHiddenLinkedDataWidget(w))return;
+      let x=Number(w.x)||0, y=Number(w.y)||0, zVal=Number(w.z)||0;
+      if(el&&el.getBoundingClientRect){
+        const r=el.getBoundingClientRect();
+        const cs=getComputedStyle(el);
+        if(!r||r.width<6||r.height<6||cs.display==='none'||cs.visibility==='hidden')return;
+        x=r.left; y=r.top;
+        const zi=parseInt(el.style.zIndex||cs.zIndex||'',10);
+        if(Number.isFinite(zi))zVal=zi;
+      }
+      byId.set(String(w.id),{w:w,x:x,y:y,z:zVal});
+    }catch(_e){}
+  }
+  try{
+    Array.from(document.querySelectorAll('#app .widget[data-id]')).forEach(el=>{
+      const id=String(el.dataset.id||'');
+      const w=(typeof findWidget==='function')?findWidget(id):((slide().widgets||[]).find(x=>String(x.id)===id));
+      if(w)addWidgetRecord(w,el);
     });
+  }catch(_e){}
+  try{
+    const visible=(typeof safe588WidgetsForCurrentSlide==='function')
+      ? safe588WidgetsForCurrentSlide()
+      : (slide().widgets||[]);
+    (visible||[]).forEach(w=>{if(w&&w.id&&!byId.has(String(w.id)))addWidgetRecord(w,null);});
+  }catch(_e){}
+  return Array.from(byId.values()).sort((a,b)=>{
+    if(Math.abs(a.y-b.y)>24) return a.y-b.y;
+    if(Math.abs(a.x-b.x)>24) return a.x-b.x;
+    return a.z-b.z;
+  }).map(r=>r.w);
 }
 function selectAdjacentWidget(dir){
   const list=widgetNavigationOrder();
@@ -51053,12 +51079,81 @@ function safe453i179TimerTabCountdownInput(e){
   return true;
 }
 
+function safe804ActiveMediaWidget(){
+  try{
+    let el=null,w=null,id='';
+    if(selected){
+      id=String(selected);
+      el=document.querySelector('.widget[data-id="'+CSS.escape(id)+'"][data-type="video"]');
+      w=findWidget(id);
+    }
+    if(!el||!w||w.type!=='video'){
+      el=document.querySelector('.widget.selected[data-type="video"], .widget.focusTarget[data-type="video"], .widget.focused[data-type="video"]');
+      id=el&&el.dataset?String(el.dataset.id||''):'';
+      w=id?findWidget(id):null;
+    }
+    if(!el||!w||w.type!=='video')return null;
+    try{selected=w.id||id;if(window.UIState)UIState.selectedWidgetId=w.id||id;}catch(_e){}
+    return {w:w,el:el};
+  }catch(_e){return null;}
+}
+function safe804PostYoutubeCommand(iframe,func){
+  try{
+    if(!iframe||!iframe.contentWindow)return false;
+    iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:func,args:[]}), '*');
+    return true;
+  }catch(_e){return false;}
+}
+function safe804MediaSpaceToggle(w,el){
+  try{
+    if(!w||w.type!=='video'||!el)return false;
+    const media=el.querySelector('audio.localVideoEl, video.localVideoEl, audio, video');
+    if(media){
+      if(media.paused||media.ended){
+        const p=media.play&&media.play();
+        if(p&&p.catch)p.catch(()=>{try{toast('Tryk på afspilleren for at starte første gang')}catch(_e){}});
+        return true;
+      }
+      media.pause&&media.pause();
+      return true;
+    }
+    const iframe=el.querySelector('.videoBox iframe, iframe');
+    if(iframe){
+      w.data=w.data||{};
+      const shouldPlay=!w.data.__safe804SpacePlaying;
+      const ok=safe804PostYoutubeCommand(iframe,shouldPlay?'playVideo':'pauseVideo');
+      w.data.__safe804SpacePlaying=shouldPlay;
+      try{save({silent:true});}catch(_e){}
+      if(ok){try{toast(shouldPlay?'Afspil':'Pause')}catch(_e){};return true;}
+    }
+  }catch(_e){}
+  return false;
+}
+window.safe804MediaOwnsSpace=function(e){
+  try{
+    const key=String((e&&e.key)||'');
+    if(!(key===' '||key==='Spacebar'||(e&&e.code==='Space')))return false;
+    if(e&&(e.shiftKey||e.ctrlKey||e.metaKey||e.altKey))return false;
+    const t=e&&e.target;
+    if(t&&(t.isContentEditable||(t.matches&&t.matches('input,textarea,select'))||(t.closest&&t.closest('input,textarea,select,[contenteditable="true"]'))))return false;
+    const m=safe804ActiveMediaWidget();
+    if(!m)return false;
+    if(!safe804MediaSpaceToggle(m.w,m.el))return false;
+    try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+    return true;
+  }catch(_e){return false;}
+};
+
 function activateSelectedWidgetWithSpace(){
   // l665: En fokuseret TimerWidget skal også kunne eje Space, selv om selected ikke er sat.
   if(!selected){
     try{
       const t=safe453i179SelectedTimer();
       if(t)return activateSelectedWidgetWithSpace.shiftLap ? safe453i179TimerLap() : safe453i179TimerStartStop();
+    }catch(_e){}
+    try{
+      const m=safe804ActiveMediaWidget();
+      if(m)return safe804MediaSpaceToggle(m.w,m.el);
     }catch(_e){}
     return false;
   }
@@ -51068,6 +51163,10 @@ function activateSelectedWidgetWithSpace(){
 
   if(w.type==='timer'){
     return activateSelectedWidgetWithSpace.shiftLap ? safe453i179TimerLap() : safe453i179TimerStartStop();
+  }
+
+  if(w.type==='video'){
+    return safe804MediaSpaceToggle(w,el);
   }
 
   if(w.type==='wheel'){
@@ -61958,6 +62057,7 @@ body.focus-presentation .toolbar,
       try{if(typeof window.safe674GroupsOwnsSpace==='function' && window.safe674GroupsOwnsSpace(e))return false;}catch(_groupsSpaceErr){}
       try{if(typeof window.safe671WheelOwnsSpace==='function' && window.safe671WheelOwnsSpace(e))return false;}catch(_wheelSpaceErr){}
       try{if(typeof window.safe666TimerOwnsSpace==='function' && window.safe666TimerOwnsSpace(e))return false;}catch(_timerSpaceErr){}
+      try{if(typeof window.safe804MediaOwnsSpace==='function' && window.safe804MediaOwnsSpace(e))return false;}catch(_mediaSpaceErr){}
       try{if(typeof safe453i179SelectedTimer==='function' && safe453i179SelectedTimer())return;}catch(_timerSpaceErr2){}
       if(!appAllowsMore())return;
       if(!isInsideApp(e.target,e))return;
@@ -62098,6 +62198,7 @@ body.focus-presentation .toolbar,
       try{if(typeof window.safe674GroupsOwnsSpace==='function' && window.safe674GroupsOwnsSpace(e))return false;}catch(_groupsSpaceErr){}
       try{if(typeof window.safe671WheelOwnsSpace==='function' && window.safe671WheelOwnsSpace(e))return false;}catch(_wheelSpaceErr){}
       try{if(typeof window.safe666TimerOwnsSpace==='function' && window.safe666TimerOwnsSpace(e))return false;}catch(_timerSpaceErr){}
+      try{if(typeof window.safe804MediaOwnsSpace==='function' && window.safe804MediaOwnsSpace(e))return false;}catch(_mediaSpaceErr){}
       try{if(typeof safe453i179SelectedTimer==='function' && safe453i179SelectedTimer())return;}catch(_timerSpaceErr2){}
       if(!appAllowsMore())return;
       if(!boardLikeTarget(e.target))return;
@@ -68242,8 +68343,48 @@ html[data-tavle-theme="presentation"] .app.present .content{border-radius:22px!i
     window.setTavleTheme=setTheme;
     window.getTavleTheme=current;
   }
+
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
 })();
+
+/* l806: Intern ESC-slip bridge i hovedscriptets scope.
+   Den ydre l805-patch kunne fjerne rød markering, men ikke altid nulstille Tavles interne
+   selected-variabel. Derfor kunne en senest aktiv MedieWidget stadig eje Space. */
+window.safe806ReleaseActiveWidgetInternal=function(opts){
+  var had=false;
+  try{if(typeof selected!=='undefined'&&selected!=null)had=true;}catch(_e){}
+  try{if(document.querySelector('.widget.selected[data-id],.widget.focusTarget[data-id],.widget.focused[data-id]'))had=true;}catch(_e){}
+  try{
+    if(typeof select==='function')select(null,{editText:false});
+    else {selected=null; if(window.UIState)UIState.selectedWidgetId=null;}
+  }catch(_e){
+    try{selected=null;}catch(__e){}
+    try{if(window.UIState)UIState.selectedWidgetId=null;}catch(__e){}
+  }
+  try{if(typeof clearFocusTarget==='function')clearFocusTarget();}catch(_e){}
+  try{
+    document.querySelectorAll('.widget.selected,.widget.focusTarget,.widget.focused').forEach(function(el){
+      el.classList.remove('selected','focusTarget','focused');
+    });
+  }catch(_e){}
+  try{
+    if(window.UIState){
+      UIState.selectedWidgetId=null;
+      UIState.focusedWidgetId=null;
+      UIState.maximizedWidgetId=null;
+    }
+  }catch(_e){}
+  try{if(typeof clearPdfKeyboardControl==='function')clearPdfKeyboardControl();}catch(_e){}
+  try{if(typeof clearIframeControl==='function')clearIframeControl();}catch(_e){}
+  try{
+    var ae=document.activeElement;
+    if(ae&&ae.blur&&ae!==document.body&&ae!==document.documentElement)ae.blur();
+  }catch(_e){}
+  try{if(typeof applyUIState==='function')applyUIState();}catch(_e){}
+  try{if(typeof updateContextHints==='function')updateContextHints('esc-release-widget-internal');}catch(_e){}
+  try{window.__tavleEscReleasedWidgetAt=Date.now();}catch(_e){}
+  return !!had;
+};
 </script>
 <!-- TAVLE THEME SELECTOR v3-real END -->
 
@@ -73686,4 +73827,151 @@ body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tav
    addDatasetWidget, save og render findes. Ingen global document-knapejer. */
 (function(){window.__l785MediaWidgetSynligDatasetkobling=true;})();
 </script>
+
+
+<!-- l806-esc-slipper-intern-space-guard: Bygger på l805. Retter ESC-slip i hovedscope, så den interne selected-variabel og kendte Space-ejere også slippes. -->
+<!-- l805-esc-slipper-widget-space-mere: ESC slipper valgt/fokuseret widget på normal tavle, så Mellemrum igen åbner Mere-menuen. Afgrænset global tastatur-ejer; modaler, Hjælp, Mere, papirkurv, PDF-/iframe-/fokustilstande og inputfelter bevarer deres egne ESC-flow. Bygger på l804. -->
+<script id="l805-esc-slipper-widget-space-mere">
+(function(){
+  if(window.__l805EscSlipperWidgetSpaceMere)return;
+  window.__l805EscSlipperWidgetSpaceMere=true;
+
+  function isEscape(e){return !!(e&&(e.key==='Escape'||e.key==='Esc'||e.code==='Escape'||e.keyCode===27||e.which===27));}
+  function stop(e){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){} return false;}
+  function isTypingTarget(t){
+    try{
+      if(!t)return false;
+      return !!(t.isContentEditable || (t.matches&&t.matches('input,textarea,select,[contenteditable="true"]')) || (t.closest&&t.closest('input,textarea,select,[contenteditable="true"]')));
+    }catch(_e){return false;}
+  }
+  function visible(el){
+    try{
+      if(!el||!el.isConnected)return false;
+      var cs=getComputedStyle(el);
+      if(cs.display==='none'||cs.visibility==='hidden'||cs.opacity==='0')return false;
+      var r=el.getBoundingClientRect();
+      return r.width>4&&r.height>4&&r.bottom>0&&r.right>0&&r.top<innerHeight&&r.left<innerWidth;
+    }catch(_e){return false;}
+  }
+  function modalOrMenuOwnsEsc(){
+    try{
+      var mb=document.getElementById('modalBack');
+      if(mb){
+        var cs=getComputedStyle(mb);
+        if(cs.display!=='none'&&cs.visibility!=='hidden'&&cs.opacity!=='0')return true;
+      }
+    }catch(_e){}
+    try{if(document.querySelector('.moreMenu,.moreMenuBackdrop'))return true;}catch(_e){}
+    try{if(document.querySelector('.pdfPagePickerPopover'))return true;}catch(_e){}
+    try{if(document.body.classList.contains('trashBoardActive'))return true;}catch(_e){}
+    return false;
+  }
+  function focusOrMaxOwnsEsc(){
+    try{
+      return !!(
+        document.body.classList.contains('focus-mode')||
+        document.body.classList.contains('focus-edit')||
+        document.body.classList.contains('focus-presentation')||
+        document.body.classList.contains('focus-maximized')||
+        document.body.classList.contains('maximized-from-edit')
+      );
+    }catch(_e){return false;}
+  }
+  function activeWidgetEl(){
+    try{
+      var el=document.querySelector('.widget.selected[data-id], .widget.focusTarget[data-id]');
+      if(visible(el))return el;
+      var id=window.UIState&&(UIState.selectedWidgetId||UIState.focusedWidgetId);
+      if(id){
+        try{el=document.querySelector('.widget[data-id="'+CSS.escape(String(id))+'"]');}catch(_e){el=null;}
+        if(visible(el))return el;
+      }
+    }catch(_e){}
+    return null;
+  }
+  function releaseWidget(){
+    var had=false;
+    try{if(activeWidgetEl())had=true;}catch(_e){}
+    try{
+      if(typeof window.safe806ReleaseActiveWidgetInternal==='function'){
+        if(window.safe806ReleaseActiveWidgetInternal({fromEsc:true}))had=true;
+      }
+    }catch(_e){}
+    try{
+      if(typeof window.select==='function')window.select(null,{editText:false});
+      else document.querySelectorAll('.widget.selected').forEach(function(el){el.classList.remove('selected');});
+      try{selected=null;}catch(__e){}
+      had=true;
+    }catch(_e){
+      try{selected=null;}catch(__e){}
+      try{document.querySelectorAll('.widget.selected').forEach(function(el){el.classList.remove('selected');});had=true;}catch(__e){}
+    }
+    try{
+      if(typeof window.clearFocusTarget==='function')window.clearFocusTarget();
+      else document.querySelectorAll('.widget.focusTarget,.widget.focused').forEach(function(el){el.classList.remove('focusTarget','focused');});
+    }catch(_e){}
+    try{if(window.UIState){UIState.selectedWidgetId=null;UIState.focusedWidgetId=null;UIState.maximizedWidgetId=null;}}catch(_e){}
+    try{if(typeof window.clearPdfKeyboardControl==='function')window.clearPdfKeyboardControl();}catch(_e){}
+    try{if(typeof window.clearIframeControl==='function' && window.isIframeControlActive && window.isIframeControlActive())window.clearIframeControl();}catch(_e){}
+    try{if(typeof window.applyUIState==='function')window.applyUIState();}catch(_e){}
+    try{if(typeof window.updateContextHints==='function')window.updateContextHints('esc-release-widget');}catch(_e){}
+    try{window.__tavleEscReleasedWidgetAt=Date.now();}catch(_e){}
+    return had;
+  }
+  function handle(e){
+    try{
+      if(!isEscape(e)||e.defaultPrevented)return;
+      if(e.metaKey||e.ctrlKey||e.altKey||e.shiftKey)return;
+      if(isTypingTarget(e.target)||isTypingTarget(document.activeElement))return;
+      if(modalOrMenuOwnsEsc())return;
+      if(focusOrMaxOwnsEsc())return;
+      if(window.isIframeControlActive&&window.isIframeControlActive())return;
+      if(!activeWidgetEl())return;
+      releaseWidget();
+      try{if(typeof toast==='function')toast('Widget sluppet');}catch(_e){}
+      return stop(e);
+    }catch(_e){}
+  }
+  document.addEventListener('keydown',handle,true);
+  window.addEventListener('keydown',handle,true);
+  window.safe805ReleaseActiveWidget=function(){return releaseWidget();};
+})();
+</script>
+
+<!-- l806-space-owner-guard-after-esc: Kendte Space-ejere må ikke bruge senest aktive widget efter ESC-slip. -->
+<script id="l806-space-owner-guard-after-esc">
+(function(){
+  if(window.__l806SpaceOwnerGuardAfterEsc)return;
+  window.__l806SpaceOwnerGuardAfterEsc=true;
+  function isSpace(e){try{return !!(e&&(e.key===' '||e.key==='Spacebar'||e.code==='Space'));}catch(_e){return false;}}
+  function selectedDom(){try{return !!document.querySelector('.widget.selected[data-id],.widget.focusTarget[data-id],.widget.focused[data-id]');}catch(_e){return false;}}
+  function guardActive(e){
+    try{
+      if(!isSpace(e))return false;
+      var at=Number(window.__tavleEscReleasedWidgetAt||0);
+      if(!at||Date.now()-at>10*60*1000)return false;
+      return !selectedDom();
+    }catch(_e){return false;}
+  }
+  function wrap(name){
+    try{
+      var fn=window[name];
+      if(typeof fn!=='function'||fn.__l806EscGuardWrapped)return;
+      var wrapped=function(e){
+        if(guardActive(e))return false;
+        return fn.apply(this,arguments);
+      };
+      wrapped.__l806EscGuardWrapped=true;
+      wrapped.__l806Original=fn;
+      window[name]=wrapped;
+    }catch(_e){}
+  }
+  ['safe804MediaOwnsSpace','safe671WheelOwnsSpace','safe666TimerOwnsSpace','safe674GroupsOwnsSpace'].forEach(wrap);
+  function clearRelease(){try{window.__tavleEscReleasedWidgetAt=0;}catch(_e){}}
+  document.addEventListener('pointerdown',function(e){try{if(e.target&&e.target.closest&&e.target.closest('.widget[data-id]'))clearRelease();}catch(_e){}},true);
+  document.addEventListener('touchstart',function(e){try{if(e.target&&e.target.closest&&e.target.closest('.widget[data-id]'))clearRelease();}catch(_e){}},{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){try{if(e.key==='ArrowUp'||e.key==='ArrowDown'||e.key==='ArrowLeft'||e.key==='ArrowRight'||e.key==='Enter')setTimeout(function(){if(selectedDom())clearRelease();},0);}catch(_e){}},true);
+})();
+</script>
+
 </body></html>
