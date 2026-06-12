@@ -1,5 +1,7 @@
+<!-- l826-tavleliste-uden-kun-aktuel-safe: Bygger på l825. Fjerner de overflødige Kun- og Aktuel-valg fra Tavleliste-indstillinger, så panelet kun har Alle/Ingen og individuelle flueben. Bevarer l825 zoom/flueben-fix. -->
+<!-- l824-hjaelp-medier-lister-toolbar-safe: Bygger på godkendt l823. Opdaterer kun Hjælp-teksten brugervendt med ny toolbar/præsentationsbjælke, MedieWidget, medielister/linklister, DataWidget-kobling og Listewidget. Ingen app-logik ændret. -->
 <!-- l684-poll-pdf-blob-datasource-fix: Bygger på l683. Testpatch: afstemnings-resultat-PDF sanitiserer kun PDF-tekst for WinAnsi/emoji, og koblede datakilder lukkes via tidlig målrettet ejer for hideDataSource/safe450-status med kort klik-suppression mod blob:null på iPad. -->
-<!-- l673-wheel-teacher-pick-target: Bygger på l672. Kirurgisk Lykkehjul-fix: Klik/tap direkte på et hjulstykke starter et troværdigt spin, der lander på den valgte mulighed og bruger den samme vinder-/puljelogik som almindeligt spin. Samtidig målrettes spin efter faktisk rotation, så stop/ny spin stadig lander korrekt. Ingen Timer/DataWidget/øvrige widgets ændret. -->
+<!-- l673-wheel-teacher-pick-target: Bygger på l672. Kirurgisk Lykkehjul-fix: Tryk direkte på et hjulstykke starter et troværdigt spin, der lander på den valgte mulighed og bruger den samme vinder-/puljelogik som almindeligt spin. Samtidig målrettes spin efter faktisk rotation, så stop/ny spin stadig lander korrekt. Ingen Timer/DataWidget/øvrige widgets ændret. -->
 <!-- l672-wheel-stop-before-choice: Bygger på l671. Kirurgisk Lykkehjul-fix: Space/Enter eller Stop mens hjulet kører stopper altid den aktuelle spin-animation uden at vælge noget; Auto stoppes også straks. Ingen ændring af Timer, DataWidget eller øvrige widgets. -->
 <!-- l593-pdf-more-surgical-repair: Bygger på l592. Kirurgisk fix: højreklik på tavlebaggrund tåler body/html/fullscreen targets via punkt-opslag, PDF-piletastaktivering ignorerer PDF-toolbar, Åbn PDF får robust pointerup/click-handler, og den dublerede PDF Svar-knap fjernes så Data er den eneste dataknap. -->
 <!-- l683-poll-auto-data-groups-close-owner: Bygger på l677. Kirurgisk genopbygning: Afstemning opretter skjult koblet poll-resultat-DataWidget ved første stemme, og Grupper-resultat-DataWidgets behandles som almindelige skjulbare koblede datakilder via safe381-ejeren. -->
@@ -15,7 +17,7 @@
 <!-- l738-board-pinch-over-pdf-stable: Bygger direkte på l737. Retter global tavle-pinch over PDF: l729s gamle PDF-specifikke pinch slippes helt, så to fingre zoomer tavlen også over PDF i redigering/fokus/præsentation. Én-finger-/musehjul-scroll i PDF fra l735 bevares; PDF-links/formularfelter er fortsat kun redigering-interaktive som ønsket. -->
 
 <!-- l737-board-zoom-not-pdf-zoom: Bygger direkte på l735. Fastholder den naturlige løsning: to-finger pinch zoomer tavle/visning frem for en særskilt PDF-zoom. PDF-scroll med én finger/musehjul, kantbladring, links, formularfelter og Shift+Z bevares. Ingen l736 PDF-specifik pinch-regel. -->
-<!-- l735-pdf-scroll-own-start: Bygger direkte på l734. Flytter én-finger-/musehjul-scroll af PDF til en tidligere lokal ejer, så scroll-positionen ikke nulstilles ved næste greb/tap. L729 bevares til pinch/global zoom, men slipper én-finger-pan til l735. PDF-links/formularfelter/kantbladring bevares. -->
+<!-- l735-pdf-scroll-own-start: Bygger direkte på l734. Flytter én-finger-/musehjul-scroll af PDF til en tidligere lokal ejer, så scroll-positionen ikke nulstilles ved næste greb/tryk. L729 bevares til pinch/global zoom, men slipper én-finger-pan til l735. PDF-links/formularfelter/kantbladring bevares. -->
 
 <!-- l734-pdf-scroll-position-preserve: Bygger direkte på l733. Bevarer PDF-viewerens scroll-position i widgetdata, så én-finger-scroll og musehjul ikke hopper tilbage til sidens top ved næste greb eller efter en intern re-render. PDF-kantbladring, links, formularfelter, flueben, global pinch og Shift+Z bevares. Ingen overlay. -->
 <!-- l733-pdf-one-finger-scroll-priority: Bygger direkte på l732. Giver PDF'ens neutrale midterflade førsteprioritet ved én-finger-scroll og musehjul, så nederste del af en PDF-side kan nås uden piletaster; PDF-kantbladring, links, formularfelter, flueben, global pinch og Shift+Z bevares. Ingen overlay. -->
@@ -38,9 +40,9 @@
 <!-- l708-focus-edit-touch-v118-owner: Bygger på l707. Den eksisterende v118 capture-handler, som virkede i præsentationsfokus, udvides kirurgisk til også at gælde almindelig fokus/edit og resolver transparente hit-zoner tilbage til rigtig widget. -->
 <!-- l707-focus-hit-zone-active-detection: Bygger på l706. Hit-zone overlayets fokusdetektion udvides til app/UIState-fokus, og overlayet får en aktivklasse der kan overstyre gamle body-class display:none-regler. -->
 <!-- l706-focus-hit-zone-pointerup-guard: Bygger på l705. Hit-zonerne ejer nu også pointerup/touchend/mouseup, så Tavlens gamle pointerup-fokusvælger ikke straks rydder fokus igen, fordi target ikke er en widget. -->
-<!-- l705-focus-widget-hit-zone-overlay: Bygger på l704. Fokusvalg med klik/touch får usynlige hit-zoner over passive widgets, så gamle pointer-events-regler ikke kan forhindre tap-to-focus. -->
-<!-- l704-focus-passive-widget-hit-targets: Bygger på l703. Passive widgets får pointer-events:auto i fokusvisning, så l703's tap-to-focus faktisk kan ramme dem; første tap skifter stadig kun fokus. -->
-<!-- l703-focus-tap-select-widget: Bygger på l702. I fokusvisning kan klik/touch på en passiv widget nu skifte focusTarget, selv når tap rammer interaktivt indhold; første tap skifter fokus og aktiverer ikke samtidig indholdet. -->
+<!-- l705-focus-widget-hit-zone-overlay: Bygger på l704. Fokusvalg med klik/touch får usynlige hit-zoner over passive widgets, så gamle pointer-events-regler ikke kan forhindre tryk-to-focus. -->
+<!-- l704-focus-passive-widget-hit-targets: Bygger på l703. Passive widgets får pointer-events:auto i fokusvisning, så l703's tryk-to-focus faktisk kan ramme dem; første tryk skifter stadig kun fokus. -->
+<!-- l703-focus-tryk-select-widget: Bygger på l702. I fokusvisning kan klik/touch på en passiv widget nu skifte focusTarget, selv når tryk rammer interaktivt indhold; første tryk skifter fokus og aktiverer ikke samtidig indholdet. -->
 <!-- l767-tavlepanel-en-redigerknap: Tavlepanel får én redigerknap, altid synlig i normal redigering og skjult i fokus/præsentation. Bundknappen fjernes. Bygger på l766. -->
 <!-- l763-tavlepanel-let-redigering: Tavlepanel/Tavle-tjekpanel får let Mere-menu-lignende panelvisning og en kompakt indstillingsdrawer. Almindelige lister kan vælges tilbage uden at blande layouts. Bygger på l762. -->
 <!-- l762-tavlepanel-synlige-tavler: Tavlepanel får tydelig udvalgsstyring pr. widget: vis/skjul tavler, kun denne, kun aktuel, skjul alle og vis alle, så flere forskellige TavleLinklister/indexer kan eksistere på forskellige tavler. Bygger på l761. -->
@@ -68,7 +70,7 @@
 <!-- l668-wheel-owner-buttons-touch-fix: Bygger på l667. Kirurgisk Lykkehjulet-ejerfix: Lykkehjulets egne knapper får lokal pointerup/touch/click-bro i wireWheel, så widgetvalg/drag ikke sluger iPad-tryk. Kilde/Pulje/Nulstil/Ny pulje/Drej og redigeringsknapper berøres kun i Lykkehjulets egen ejer. Timer-log/datakobling og øvrige widgets urørt. -->
 <!-- l661-linkcard-buttons-touch: Bygger på l660. Kirurgisk Link/iFrame-rettelse: linkkortets pile og kopiér-knap får robust pointerup+click uden at ændre bjælke-drag, data-kobling eller øvrige widgets. -->
 <!-- l667-timer-passive-countdown-panel: Bygger på l666. Kirurgisk TimerWidget-CSS: nedtællingens sekvens-editor i højre panel skjules ikke længere af den generelle widget-control-regel, når TimerWidgetten er passiv. Timer-log/datakobling urørt. -->
-<!-- l665-timer-space-lapscroll-owner: Bygger på l664. Kirurgisk TimerWidget-ejerfix: Space/Mellemrum får TimerWidgetten før Tavlens Mere-menu, stopurets mellemtidskort viser alle mellemtider i scrollbart felt, og scroll/tap i mellemtidslisten opretter ikke nye mellemtider. Timer-log/datakobling urørt. -->
+<!-- l665-timer-space-lapscroll-owner: Bygger på l664. Kirurgisk TimerWidget-ejerfix: Space/Mellemrum får TimerWidgetten før Tavlens Mere-menu, stopurets mellemtidskort viser alle mellemtider i scrollbart felt, og scroll/tryk i mellemtidslisten opretter ikke nye mellemtider. Timer-log/datakobling urørt. -->
 <!-- l666-timer-space-scroll-passive-panel: Bygger på l665. Kirurgisk TimerWidget-ejerfix: TimerWidgetten ejer Space/Mellemrum før Mere-menuen, mellemtidslisten får egen scroll-ejer, og stopurets højre panel holdes synligt også når widgetten er passiv. Timer-log/datakobling urørt. -->
 <!-- l664-stopwatch-lap-enter-visible: Bygger på l663. Kirurgisk TimerWidget-ejerfix: stopurets flag/mellemtid gør effekten synlig ved at skifte til visningskort, Enter starter stopur når det står stille og sætter mellemtid når det kører, og timer-genveje finder også fokuseret TimerWidget uden at røre Timer-log/datakobling. -->
 <!-- l663-timer-owner-touch-input-fix: Bygger på l662/l661. Kirurgisk TimerWidget-ejerfix: timerens egne input/select/knapper får lokal touch/pointer-beskyttelse, sekvensrække-klik ignorerer felter, combopopup åbner kun på levende felter, og start/stop/mode/panel/+/- bindes robust uden at røre Timer-log-datakoblingen. -->
@@ -80,7 +82,7 @@
 <!-- l645-widget-drag-pointer-capture-stabilize: Bygger på l644. Kirurgisk fix i widget-interaktionslaget: bjælke-drag/resize bevarer den oprindelige ejer, men får aktiv per-gesture document pointermove som reserve, så hurtige bevægelser ikke mister widgetten; rotationsnulstil bevares. -->
 <!-- l642-poll-open-from-datawidget: Bygger på l641. Kirurgisk tilføjelse i Åbn PDF-modalens Afstemning-fane: eksisterende afstemnings-DataWidgets kan åbnes som Resultat-PDF i den aktuelle PDFWidget og samtidig kobles til en AfstemningsWidget. -->
 <!-- l637-poll-pdf-results-datawidget-owner: Bygger på l636. Kirurgisk fix: Afstemnings-PDF-resultater må ikke ligne KaPardy/PDF-data i DataWidget, DataWidget-preview henter fallback fra widgetens dataset hvis state ikke er opdateret, og DataRemix-refresh tvinger synlige rækker uden at åbne KaPardy/PDFWidget. -->
-<!-- l636-poll-owner-tap-bindings: Bygger på l635. Kirurgisk fix i AfstemningsWidget-ejeren: poll-knapper, titel, valg og checkbox får robuste pointerup/click-bindinger i widgettens egen wirePoll, så widgetdrag/selection ikke sluger iPad-taps. Ingen DataRemix/PDF/KaPardy/spejlwidgets ændret. -->
+<!-- l636-poll-owner-tryk-bindings: Bygger på l635. Kirurgisk fix i AfstemningsWidget-ejeren: poll-knapper, titel, valg og checkbox får robuste pointerup/click-bindinger i widgettens egen wirePoll, så widgetdrag/selection ikke sluger iPad-tryks. Ingen DataRemix/PDF/KaPardy/spejlwidgets ændret. -->
 <!-- l635-dataremix-poll-handoff-visible: Bygger på l634. Kirurgisk fix: DataRemix PDF-import lukker DataRemix-ejerens overlay før DataWidget/Afstemning vises, sikrer straksopdatering af DataWidget-preview, og tvinger koblet AfstemningsWidget ulåst/klikbar efter handoff. Ingen PDF-render/KaPardy/spejlwidgets ændret. -->
 <!-- l634-poll-data-status-opens-datakilder: Bygger på l633. Kirurgisk ejerfix: Klik på AfstemningsWidgettens Data · Ingen koblet datakilde åbner den eksisterende Datakilder-modal i vælg-til-Afstemning-tilstand. Datakilder kan koble egnet afstemningsdata til widgetten. Ingen PDF/DataRemix-motor/KaPardy/spejlwidgets ændret. -->
 <!-- l633-poll-pdf-import-handoff-owner: Bygger på l631. Kirurgisk fix: DataRemix PDF-import bevarer den fungerende DataWidget-oprettelse, lukker først efter succes og anvender/kobler resultatet til AfstemningsWidget. Afstemning får data-knap med vælg/kobl, og widget låses op. Ingen PDF-rendering/KaPardy/spejlwidgets ændret. -->
@@ -93,7 +95,7 @@
 <!-- l615-external-pdf-test-only: Bygger direkte på fungerende l611. Kun PDF-data-url’er er erstattet med eksterne pdf/-stier; DataRemix/PDF-render/Mere-menu røres ikke. Test-HTML før repo-pakke. -->
 <!-- l604-help-cards-readable-match: Hjælpens nye grupper bevarer l603-opdelingen, men kortene matcher de gamle blå værktøjskort og får læselig tekst. Kun Hjælp-CSS. -->
 <!-- l603-help-tools-design-cleanup: Hjælpens værktøjskort opdelt i Widgets, Data/spil/remix, Steder/tavleværktøjer og HTMLApps. Datakilder fjernet fra widgetlisten; Spilbibliotek, Remix spil, DataRemix og Video tilføjet. Kun Hjælp-HTML/CSS og Hjælpens tool-click routing. -->
-<!-- l597-pdf-toolbar-tap-owner-ninja: Bygger på l596. Kirurgisk fix i PDF-widgettens egen toolbar-binding: Data, Hent, sidepile og zoom får samme pointerup/click-sikring som Åbn PDF, så widgetdrag/PDF-piletastlag ikke sluger knapperne. Ingen bred event-owner. -->
+<!-- l597-pdf-toolbar-tryk-owner-ninja: Bygger på l596. Kirurgisk fix i PDF-widgettens egen toolbar-binding: Data, Hent, sidepile og zoom får samme pointerup/click-sikring som Åbn PDF, så widgetdrag/PDF-piletastlag ikke sluger knapperne. Ingen bred event-owner. -->
 <!-- l596-moremenu-mode-toggle-ninja: Bygger på l595. Kirurgisk shortcut-ejer-fix: plain R/P må skifte redigering/præsentation mens Mere-menu eller almindelig modal er åben, men kun når fokus ikke står i input/textarea/select/contenteditable. Ingen ændring af Mere-navigation, PDF, spejlwidgets eller modal-flow. -->
 <!-- l595-pdf-toolbar-layer-ninja: Bygger på l593. Kasserer l594-event-owner. Kun kirurgisk CSS + passiv PDF-toolbar guard: PDF-værktøjslinjen ligger altid over PDF-piletastlaget, og pointer/touch på toolbaren slipper PDF-piletaster uden at stoppe knappernes egne handlers. -->
 <!-- l592-mirror-widget-arrow-cycle: Bygger på l591. Kirurgisk fix: pil op/ned bruger nu alle synlige widgetter på tavlen inkl. spejlede, og select()/PDF-keyboard finder widgetter via sharedVisibility-modellen. -->
@@ -110,6 +112,14 @@
 <!-- l674-groups-owner-keyboard-touch-fix: Bygger på l673. Kirurgisk Grupper-rettelse: Grupper-widgettens egen wireGroups får robuste pointer/touch-bindinger, inputs bevarer fokus, Dan/Gem/Liste/Kilde/+/-/lås virker på iPad, Space/Enter ejes af aktiv Grupper-widget og stopper evt. gruppedannelsesspin før resultat; Timer/Lykkehjul/DataWidget-logik uændret. -->
 <html lang="da">
 <head>
+<!-- l823-redigering-toolbar-ren-toggle-owner-safe: Bygger på l821 (ikke l822). Retter redigeringstilstandens toolbar-toggle i den eksisterende fallback-ejer: ingen pin-knap, en ren pil-ned i selve værktøjslinjen skjuler, og en centreret tre-prik-knap viser igen. Præsentationsbjælken fra l821 uændret. -->
+<!-- l820-praesentation-bundbar-5-ikoner-midte-safe: Bygger på l819. Fjerner Til redigering fra præsentationsbjælken og placerer Tavler/Mere som femte midterikon lige før højrepilen, så de fem midterikoner bliver Hjælp, Tema, Skjul, Baggrund, Tavler. Ingen autohide, ingen redigering-toolbar-ændring og ingen makeStandaloneHtml-ændring. -->
+<!-- l819-praesentation-bundbar-ikoner-orden-safe: Bygger på l818. Rydder kun op i præsentationsbjælkens ikonvalg og rækkefølge efter eksisterende app-logik: Mere/Tavler tæt ved højrepil, Tema får eget udseendeikon, Baggrund bruger baggrundsikonet fra Mere-menuen, og Redigering bruger tilbage-ikon i stedet for blyant. Ingen autohide, ingen makeStandaloneHtml-ændring. -->
+<!-- l818-praesentation-bundbar-touch-knapper-safe: Bygger på l817. Retter kun touch-aktivering i præsentationsbjælkens egne knapper ved at give l810/l811c-knapper pointerup/touchend/click-aktivering med dubletguard. Ingen layoutændring, ingen autohide og ingen makeStandaloneHtml-ændring. -->
+<!-- l817-praesentation-bundbar-pilned-i-midten-safe: Bygger på l816. Flytter kun skjulknappen fra venstre navigationsgruppe til midten af præsentationsbjælken, ca. samme sted som •••-visknappen vises når bjælken er skjult. Ingen autohide, ingen observers og ingen ændring af redigeringsværktøjslinjen. -->
+<!-- l811c-praesentation-bundbar-manuel-toggle-headsafe: Bygger direkte på testet l810. Tilføjer kun manuel skjul/vis-knap til l810-præsentationsbjælken. Ingen Shift+Space, ingen autohide, ingen observers og ingen CSS i JS-template-strings. -->
+<!-- l810-praesentation-bundbar-safe: Bygger på l809 fra virkende base. Tilføjer kun en separat, lille præsentations-bundbjælke via rigtig head/body patch. Mere-menuens Tavler-only fra l809 bevares. Ingen KaPardy/template-strings/hovedrender ændret. -->
+
 <!-- l805-esc-slipper-widget-space-mere: Bygger på l803. MedieWidget indgår robust i pil-op/ned-widgetnavigation efter tavleskift, og aktiv/fokuseret MedieWidget ejer Space/Mellemrum til play/pause før Mere-menuen. -->
 <!-- l802-mediewidget-diskimport-stabil: Bygger på l800 (ikke l801). Tilføjer lokal Åbn fra disk til MedieWidget med direkte arkivering i TavleMediaArchive og kobling til medieliste, uden at røre Hjælp-layout eller gamle globale overrides. -->
 <!-- l800-medievaelger-youtube-titler-linkwidget-cleanup: Bygger på l799. Fælles medievælger til LinkWidget og MedieWidget, YouTube-rækker får brugbare fallbacktitler, MedieWidget får ☰-vælger, og den gamle Linkliste-editor omgår medielister. -->
@@ -185,7 +195,7 @@ body,
 .drawLayer.active{
   touch-action:pinch-zoom!important;
 }
-/* Rigtige kontroller og indlejrede apps må ikke blive til tavle-pan ved almindeligt tap/klik. */
+/* Rigtige kontroller og indlejrede apps må ikke blive til tavle-pan ved almindeligt tryk/klik. */
 .topbar,
 .toolbar,
 .toolbarPeek,
@@ -626,7 +636,7 @@ body.focus-presentation .widget[data-type="pdf"],
 </script>
 <script id="l735-pdf-scroll-own-start">
 /* l735: PDF-scroll skal eje én finger/musehjul før l729/l733.
-   Det tidligere hop tilbage lignede en "tap/toggle"-feature eller konflikt mellem flere scroll-ejere.
+   Det tidligere hop tilbage lignede en "tryk/toggle"-feature eller konflikt mellem flere scroll-ejere.
    Denne ejer stopper kun neutral PDF-scroll og gemmer/gendanner scroll pr. widget+side i en lille runtime-cache.
    Den rører ikke links, formularfelter, PDF-kantfelter, toolbar eller to-finger pinch. */
 (function(){
@@ -832,7 +842,7 @@ body.focus-presentation .widget[data-type="pdf"],
   var lastTarget=null;
   var lastTargetAt=0;
   var suppressClickUntil=0;
-  // l730: pan skal føles direkte, men stadig først efter reel bevægelse, så tap på PDF stadig kan være tap.
+  // l730: pan skal føles direkte, men stadig først efter reel bevægelse, så tryk på PDF stadig kan være tryk.
   var PAN_START_PX=1.25;
   var MOUSE_PAN_START_PX=1.25;
 
@@ -1485,7 +1495,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
     if(key==='Escape'){
       /* SAFE453i200: Escape er ikke længere hovedvejen ud af iframe-kontrol,
          fordi cross-origin iframes og parent-fokus giver ustabil mellemtilstand.
-         Klik/tap uden for widgetten slipper iframe-kontrollen. */
+         Tryk uden for widgetten slipper iframe-kontrollen. */
       return false;
     }
     /* Stop TavleAppens genveje når parent faktisk har fokus.
@@ -1692,9 +1702,9 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.207 l800-medievaelger-youtube-titler-linkwidget-cleanup</title>
+<title>Interaktiv tavle v1.2.226 l826-tavleliste-uden-kun-aktuel-safe</title>
 <!-- l773-tavlepanel-redigerknap-persistens: ⚙-redigerknappen renderes altid i Tavlepanel-DOM og skjules kun med mode-CSS, så den kommer tilbage efter præsentation/desktop-skift. Bygger på l772. -->
-<!-- l772-tavlepanel-check-og-redigerfix: kirurgisk fix oven på l770. Redigerknap holdes synlig i normal redigering, skjules i fokus/præsentation. Tavle-tjek flueben får robust tap-binding. Titelzoom styrer tavletitler uden at ødelægge kortlayout. -->
+<!-- l772-tavlepanel-check-og-redigerfix: kirurgisk fix oven på l770. Redigerknap holdes synlig i normal redigering, skjules i fokus/præsentation. Tavle-tjek flueben får robust tryk-binding. Titelzoom styrer tavletitler uden at ødelægge kortlayout. -->
 <meta name="application-name" content="Interaktiv tavle">
 <meta name="apple-mobile-web-app-title" content="Interaktiv tavle">
 <meta name="theme-color" content="#1f2937">
@@ -4818,7 +4828,7 @@ body.focus-presentation .widget.focusTarget{
   pointer-events:auto!important;
 }
 
-/* Keep edit chrome hidden in presentation focus, but do not block content taps */
+/* Keep edit chrome hidden in presentation focus, but do not block content tryks */
 body.focus-presentation .widget .chrome,
 body.focus-presentation .widget .resize,
 body.focus-presentation .widget .rotater{
@@ -9005,7 +9015,7 @@ body.trashBoardActive #toolbarFallback{
 
 /* SAFE115: Prikzonen i titlen er et lille, afgrænset touchmål til
    redigering/præsentation. Selve kliklogikken ligger i SAFE115-scriptet
-   nederst i filen. Ingen baggrundstap og ingen ændring af titelredigering
+   nederst i filen. Ingen baggrundstryk og ingen ændring af titelredigering
    uden for venstre prikzone. */
 #title{
   --safe115-dot-zone:44px;
@@ -10369,7 +10379,7 @@ body.focus-presentation .content.kahoopardy .kahoopardyEditHelp{
 }
 </style>
 
-<style id="widget-cycle-tap-css">
+<style id="widget-cycle-tryk-css">
 #widgetCycle.widgetCycleBtn{
   margin-left:10px!important;
   background:#6d5dfc!important;
@@ -14405,7 +14415,7 @@ body.focus-presentation .timerCountdownPanelTabs{display:none!important}
 </style>
 
 <style id="l694-video-widget-owner-touch-css">
-/* l694: VideoWidget edit/open-kontroller skal ligge over iframe-laget og kunne tappes. */
+/* l694: VideoWidget edit/open-kontroller skal ligge over iframe-laget og kunne trykpes. */
 .widget[data-type="video"] .videoBox{position:relative!important}
 .widget[data-type="video"] .videoEditOverlay{
   position:absolute!important;
@@ -15052,12 +15062,13 @@ body.focus-maximized .widget[data-type="pdf"] .content.pdf .pdfFormActivator{
 .widget[data-type="text"] .tavlePanelSettingsCompact{min-height:0!important;display:grid!important;grid-template-rows:auto auto auto minmax(0,1fr)!important;gap:8px!important;overflow:hidden!important;}
 .widget[data-type="text"] .boardIndexTitleInput{width:100%!important;border:0!important;border-radius:14px!important;background:var(--bi-card-bg-active)!important;color:var(--bi-panel-ink)!important;padding:9px 11px!important;font-size:clamp(14px,1.5vw,18px)!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;text-transform:none!important;letter-spacing:0!important;}
 .widget[data-type="text"] .tavlePanelTypeGrid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;}
-.widget[data-type="text"] .tavlePanelTypeGrid button,.widget[data-type="text"] .tavlePanelQuickActions button,.widget[data-type="text"] .tavlePanelPickOnly{border:0!important;border-radius:999px!important;background:var(--bi-card-bg)!important;color:var(--bi-panel-ink)!important;padding:7px 8px!important;font-size:12px!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;white-space:nowrap!important;}
+.widget[data-type="text"] .tavlePanelTypeGrid button,.widget[data-type="text"] .tavlePanelQuickActions button{border:0!important;border-radius:999px!important;background:var(--bi-card-bg)!important;color:var(--bi-panel-ink)!important;padding:7px 8px!important;font-size:12px!important;font-weight:950!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;white-space:nowrap!important;}
 .widget[data-type="text"] .tavlePanelTypeGrid button.active{background:var(--bi-accent)!important;color:#07111f!important;}
 .widget[data-type="text"] .tavlePanelQuickActions{display:flex!important;align-items:center!important;gap:6px!important;flex-wrap:wrap!important;}
 .widget[data-type="text"] .tavlePanelQuickActions small{margin-left:auto!important;font-size:12px!important;font-weight:950!important;color:var(--bi-panel-muted)!important;}
 .widget[data-type="text"] .tavlePanelPickGrid{min-height:0!important;overflow:auto!important;display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))!important;gap:7px!important;align-content:start!important;padding:1px!important;}
-.widget[data-type="text"] .tavlePanelPickCard{display:grid!important;grid-template-columns:auto auto minmax(0,1fr) auto!important;align-items:center!important;gap:7px!important;border-radius:14px!important;background:var(--bi-card-bg)!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;padding:7px!important;opacity:.58!important;}
+.widget[data-type="text"] .tavlePanelPickCard{display:grid!important;grid-template-columns:auto auto minmax(0,1fr)!important;align-items:center!important;gap:7px!important;border-radius:14px!important;background:var(--bi-card-bg)!important;box-shadow:inset 0 0 0 1px var(--bi-panel-line)!important;padding:7px!important;opacity:.58!important;}
+.widget[data-type="text"] .tavlePanelPickCard:not(:has(.tavlePanelPickDone)){grid-template-columns:auto minmax(0,1fr)!important;}
 .widget[data-type="text"] .tavlePanelPickCard.included{opacity:1!important;}
 .widget[data-type="text"] .tavlePanelPickCard.active{box-shadow:inset 0 0 0 2px var(--bi-accent)!important;}
 .widget[data-type="text"] .tavlePanelPickInclude input,.widget[data-type="text"] .tavlePanelPickDone input{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;}
@@ -15483,6 +15494,225 @@ body.focus-maximized .widget[data-type="video"] .chrome .mini [data-act="mediaSa
 .safe785MediaActions button.primary{background:#6d5dfc;color:white;}
 .safe785MediaActions button.linked{background:#bbf7d0;color:#052e16;}
 </style>
+
+<style id="l810-praesentation-bundbar-safe-css">
+/* l810: diskret præsentationsbjælke. Ligger uden for Tavles normale toolbar og vises kun af l810-scriptet. */
+#l810PresentationBar{
+  position:fixed;
+  left:50%;
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);
+  z-index:2147482500;
+  display:none;
+  align-items:center;
+  gap:8px;
+  padding:8px;
+  border-radius:18px;
+  background:rgba(17,24,39,.88);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 12px 28px rgba(0,0,0,.28);
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+  pointer-events:auto;
+  touch-action:manipulation;
+}
+#l810PresentationBar.l810Show{display:flex;}
+#l810PresentationBar .l810Group{display:flex;gap:7px;align-items:center;}
+#l810PresentationBar .l810Center{padding:0 4px;border-left:0!important;border-right:0!important;}
+#l810PresentationBar button{
+  min-width:44px;
+  height:42px;
+  padding:0 12px;
+  border:0;
+  border-radius:13px;
+  background:rgba(255,255,255,.92);
+  color:#111827;
+  font-weight:950;
+  font-size:20px;
+  line-height:1;
+  display:inline-grid;
+  place-items:center;
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 2px 8px rgba(0,0,0,.16);
+  -webkit-user-select:none;
+  user-select:none;
+  touch-action:manipulation;
+}
+#l810PresentationBar button.l810Edit{min-width:54px;background:#e0f2fe;}
+#l810PresentationBar button:active{transform:translateY(1px) scale(.985);}
+@media(max-width:760px){
+  #l810PresentationBar{gap:6px;padding:7px;max-width:calc(100vw - 18px);overflow-x:auto;}
+  #l810PresentationBar button{min-width:40px;height:40px;padding:0 10px;font-size:18px;}
+  #l810PresentationBar .l810Center{padding:0 2px;}
+}
+body.focus-mode #l810PresentationBar,
+body.focus-edit #l810PresentationBar,
+body.focus-presentation #l810PresentationBar,
+body.focus-maximized #l810PresentationBar{display:none!important;}
+</style>
+<style id="l811c-praesentation-bundbar-manuel-toggle-headsafe-css">
+/* l821/l819/l818/l817: manuel skjul/vis for l810-præsentationsbjælken.
+   Skjulknappen er en almindelig statisk knap i midtergruppen, så den visuelt ligger tæt på samme x-position som •••-visknappen.
+   Ingen CSS i makeStandaloneHtml/template-strings. */
+#app.present .toolbar,
+#app.present .toolbarPeek,
+#app.present #toolbarPeek,
+#app.present .toolbarPinFloat,
+#app.present #toolbarPinFloat,
+#app.present #toolbarFallback,
+#app.present .toolbarFallback,
+#app.present #toolbarWakeZone{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+body.l811cPresentationBarHidden #l810PresentationBar{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+#l811cPresentationToggle{
+  position:fixed;
+  left:50%;
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  transform:translateX(-50%);
+  z-index:2147482550;
+  display:none;
+  min-width:72px;
+  min-height:42px;
+  padding:0 16px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  background:rgba(17,24,39,.84);
+  color:#fff;
+  font-weight:950;
+  font-size:18px;
+  box-shadow:0 12px 28px rgba(0,0,0,.26);
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+  touch-action:manipulation;
+  user-select:none;
+  -webkit-user-select:none;
+}
+body.l811cPresentationBarHidden #app.present ~ #l811cPresentationToggle{display:grid;place-items:center;}
+#l810PresentationBar #l811cPresentationHide{
+  position:static!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  flex:0 0 44px!important;
+  min-width:44px!important;
+  width:44px!important;
+  height:42px!important;
+  margin:0!important;
+  padding:0!important;
+  inset:auto!important;
+  transform:none!important;
+  background:#e0f2fe!important;
+  color:#111827!important;
+  border:1px solid rgba(255,255,255,.45)!important;
+  border-radius:13px!important;
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 2px 8px rgba(0,0,0,.16)!important;
+  font-size:20px!important;
+  line-height:1!important;
+  z-index:auto!important;
+}
+#l810PresentationBar #l811cPresentationHide::before,
+#l810PresentationBar #l811cPresentationHide::after{content:none!important;display:none!important;}
+body.focus-mode #l811cPresentationToggle,
+body.focus-edit #l811cPresentationToggle,
+body.focus-presentation #l811cPresentationToggle,
+body.focus-maximized #l811cPresentationToggle{display:none!important;}
+</style>
+<style id="l823-redigering-toolbar-ren-toggle-owner-safe-css">
+/* l823: Redigering bruger samme idé som præsentation: pil-ned i værktøjslinjen skjuler,
+   og en centreret tre-prik-knap viser værktøjslinjen igen. Retter den eksisterende toolbarFallback-ejer. */
+#app:not(.present) .toolbar .l823ToolbarHideTool{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+#app:not(.present) .toolbar .l823ToolbarHideTool button{
+  display:inline-grid!important;
+  place-items:center!important;
+  font-size:22px!important;
+  line-height:1!important;
+  touch-action:manipulation!important;
+}
+#app:not(.present) .toolbar .l823ToolbarHideTool button::before,
+#app:not(.present) .toolbar .l823ToolbarHideTool button::after{content:none!important;display:none!important;}
+#toolbarFallback.l823ToolbarDots,
+.toolbarFallback.l823ToolbarDots{
+  font-size:18px!important;
+  line-height:1!important;
+  overflow:visible!important;
+}
+#toolbarFallback.l823ToolbarDots::before,
+#toolbarFallback.l823ToolbarDots::after,
+.toolbarFallback.l823ToolbarDots::before,
+.toolbarFallback.l823ToolbarDots::after{
+  content:none!important;
+  display:none!important;
+}
+body.toolbar-is-hidden:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized) #app:not(.present) ~ #toolbarFallback.l823ToolbarDots,
+#app.toolbarHidden:not(.present) ~ #toolbarFallback.l823ToolbarDots{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:calc(14px + env(safe-area-inset-bottom,0px))!important;
+  transform:translateX(-50%)!important;
+  z-index:2147482550!important;
+  display:grid!important;
+  place-items:center!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  min-width:72px!important;
+  width:auto!important;
+  min-height:42px!important;
+  height:42px!important;
+  padding:0 16px!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  border-radius:999px!important;
+  background:rgba(17,24,39,.84)!important;
+  color:#fff!important;
+  font-weight:950!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.26)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+  backdrop-filter:blur(10px)!important;
+  touch-action:manipulation!important;
+  user-select:none!important;
+  -webkit-user-select:none!important;
+}
+body:not(.toolbar-is-hidden) #app:not(.present):not(.toolbarHidden) ~ #toolbarFallback.l823ToolbarDots{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+#app.present ~ #toolbarFallback.l823ToolbarDots,
+body.focus-mode #toolbarFallback.l823ToolbarDots,
+body.focus-edit #toolbarFallback.l823ToolbarDots,
+body.focus-presentation #toolbarFallback.l823ToolbarDots,
+body.focus-maximized #toolbarFallback.l823ToolbarDots{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+</style>
+
+<style id="l825-tavleliste-redigering-zoom-flueben-css">
+/* l825: Tavleliste-indstillinger får samme zoomgruppe som panelvisningen. */
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingsTop .tavlePanelZoomGroup{
+  margin-left:auto!important;
+}
+.widget[data-type="text"] .listWidget.boardIndexWidget .tavlePanelSettingsTop .tavlePanelZoomGroup + .tavlePanelMiniBtn{
+  margin-left:0!important;
+}
+</style>
+
 </head>
 <body>
 
@@ -23358,7 +23588,7 @@ function safe455uH102IsPdfFormEditAllowed(w){
 }
 
 /* l555: Rigtige PDF-inputfelter skal være til stede allerede før visuel "Udfyld"-tilstand.
-   På iPad åbner tastaturet kun stabilt, når brugeren tapper et faktisk inputfelt
+   På iPad åbner tastaturet kun stabilt, når brugeren trykper et faktisk inputfelt
    direkte – ikke når et senere async re-render forsøger at fokusere feltet. */
 function safe455uH102CanRenderPdfFormFields(w){
   /* l744: Formularfelter skal også renderes i præsentations- og fokustilstand,
@@ -23769,7 +23999,7 @@ async function safe455uH103FollowPdfLink(w,a,c){
 
 /* SAFE455uH45g10l129: Demo-PDF link-fallback.
    Nogle iPad/PDF.js-kombinationer gengiver Link-annotationer korrekt som felter,
-   men dest/Ref-opslaget giver ikke et brugbart sidetal ved tap. Demo-PDF'en har
+   men dest/Ref-opslaget giver ikke et brugbart sidetal ved tryk. Demo-PDF'en har
    bevidst en fast linkstruktur, så vi giver den en direkte, lokal fallback uden
    at ændre generel PDF-linkhåndtering. */
 function safe455uH129DemoPdfLinkFallbackPage(w,pos,order,items){
@@ -23820,7 +24050,7 @@ async function safe455uH102RenderPdfFormOverlay(w,page,viewport,viewer,wrap){
   if(content&&content.classList)content.classList.toggle('pdfFormActive',formUiActive);
   let overlay=wrap.querySelector('.pdfFormOverlay');
   if(!overlay){overlay=document.createElement('div');overlay.className='pdfFormOverlay';wrap.appendChild(overlay);}else overlay.innerHTML='';
-  // v16: PDF-flade-toggle må kun ske én gang pr. tap/klik.
+  // v16: PDF-flade-toggle må kun ske én gang pr. tryk/klik.
   // Tidligere var der både pointerdown og click, så toolbaren åbnede på tryk
   // og lukkede igen, når man slap. Brug pointerup og stop det efterfølgende click.
   overlay.onclick=function(e){
@@ -24771,20 +25001,6 @@ function showMoreTools(){
     return out;
   }
   const groups=presentMode ? [
-    ['Indhold',[
-      ['text','Aa','tekst'],
-      ['dataset','📊','data'],
-      ['dataTranslator','🔁','remix'],
-      ['list','☰','liste'],
-      ['calendar','📅','kalender'],
-      ['video','▶','video'],
-      ['image','🖼️','billede'],
-      ['link','🔗','link'],
-      ['pdf','PDF','pdf'],
-      ['html','&lt;/&gt;','html'],
-      ['drawings','✏️','tegn.'],
-      ['demos','🧪','demo']
-    ],4],
     ['Tavler',safe774MoreBoardItems(),4]
   ] : [
     ['Indhold',[
@@ -27502,7 +27718,7 @@ if(focusExitBtn)focusExitBtn.onclick=e=>{
   else setFocusMode(null);
   try{applyUIState();}catch(_e){}
 };
-// Capture fallback: the exit button must work even if another layer intercepts clicks/taps.
+// Capture fallback: the exit button must work even if another layer intercepts clicks/tryks.
 document.addEventListener('pointerdown',e=>{
   const exit=e.target&&e.target.closest&&e.target.closest('#focusExit,.focusExit');
   if(!exit)return;
@@ -27566,7 +27782,7 @@ if(maxEmergencyExit){
    Presentation focus already worked because the event target was usually the widget.
    Plain focus/edit can put an app/backdrop/content layer above the passive widgets, so
    target/closest/elementsFromPoint can miss the widget. We therefore choose the widget
-   whose current bounding rectangle contains the tap point. */
+   whose current bounding rectangle contains the tryk point. */
 (function(){
   function safe709FocusTapMode(){
     try{return (focusMode==='presentation' || focusMode==='edit');}
@@ -27608,7 +27824,7 @@ if(maxEmergencyExit){
   function safe709Choose(el,e,phase){
     if(!el || !el.dataset || !safe709FocusTapMode())return false;
 
-    // If the tap is on the already focused widget, let the widget itself behave as before.
+    // If the tryk is on the already focused widget, let the widget itself behave as before.
     if(el.classList.contains('focusTarget'))return false;
 
     safe709Stop(e);
@@ -29629,7 +29845,7 @@ function wirePoll(c,w,el){
       if(now-last<220){safe636Stop(e);return false;}
       last=now;
       safe636Stop(e);
-      try{fn(e);}catch(err){try{console.warn('l636 poll tap failed',err);}catch(_e){}}
+      try{fn(e);}catch(err){try{console.warn('l636 poll tryk failed',err);}catch(_e){}}
       return false;
     };
     try{node.addEventListener('pointerup',run,{passive:false,capture:true});}catch(_e){}
@@ -36270,10 +36486,17 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
         }catch(_e){return editable;}
       }
       const canConfigure=safe767CanEditPanel();
-      const boardFs=Math.max(10,Math.min(30,Number(w.data.boardIndexFontSize||18)||18));
+      const boardFs=Math.max(10,Math.min(42,Number(w.data.boardIndexFontSize||18)||18));
       const mode=(String(w.data.boardIndexPanelMode||'panel')==='settings' && canConfigure)?'settings':'panel';
       const titleLabel=panelTitle?esc(panelTitle):'';
       const panelCls='tavlePanel '+(mode==='settings'?'tavlePanelSettingsView':'tavlePanelView')+' '+(isCheckIndex?'tavlePanelCheck':'tavlePanelList');
+      function safe768ZoomGroup(){
+        return '<span class="tavlePanelZoomGroup widget-control" title="Tekststørrelse">'
+          +'<button type="button" data-board-index-font-delta="-2" title="Mindre tekst" aria-label="Mindre tekst">−</button>'
+          +'<span>'+boardFs+'</span>'
+          +'<button type="button" data-board-index-font-delta="2" title="Større tekst" aria-label="Større tekst">+</button>'
+          +'</span>';
+      }
       function safe763MiniTopBar(){
         return '<div class="tavlePanelMiniBar '+(panelTitle?'':'tavlePanelUntitled')+'>'
           +'<button type="button" class="tavlePanelTitleHotspot" data-board-panel-mode="settings" title="Redigér panelnavn og tavler">'
@@ -36281,6 +36504,7 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
           +'</button>'
           +'<div class="tavlePanelMiniActions">'
           +'<button type="button" class="tavlePanelMiniBtn tavlePanelEditBtn" data-board-panel-mode="settings" title="Redigér tavlepanel" aria-label="Redigér tavlepanel">⚙</button>'
+          +safe768ZoomGroup()
           +'<button type="button" class="tavlePanelMiniBtn tavlePanelOverviewBtn" data-board-index-overview="1" title="Åbn Tavleoversigt" aria-label="Åbn Tavleoversigt">▦</button>'
           +'</div></div>';
       }
@@ -36292,12 +36516,12 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
             +'<label class="tavlePanelPickInclude" title="Vis i dette panel"><input type="checkbox" data-board-index-include="'+esc(r.key)+'" '+(included?'checked':'')+'><span></span></label>'
             +(isCheckIndex?'<label class="tavlePanelPickDone" title="Flueben i tjekpanelet"><input type="checkbox" data-board-index-check="'+esc(r.key)+'" '+(on?'checked':'')+'><span>✓</span></label>':'')
             +'<button type="button" class="tavlePanelPickTitle" data-board-index-go="'+r.realIndex+'"><span class="boardIndexMenuNo">'+r.visibleNo+'</span><span>'+esc(r.title)+'</span></button>'
-            +'<button type="button" class="tavlePanelPickOnly" data-board-index-show-only="'+esc(r.key)+'" title="Lav dette panel til én genvej">Kun</button>'
             +'</div>';
         }).join('');
         html='<div class="'+panelCls+'" data-board-index-layout="auto" style="--board-fs:'+boardFs+'px">'
           +'<div class="tavlePanelSettingsTop widget-control">'
             +'<button type="button" class="tavlePanelBackBtn" data-board-panel-mode="panel">← Vis panel</button>'
+            +safe768ZoomGroup()
             +'<button type="button" class="tavlePanelMiniBtn" data-board-index-overview="1" title="Åbn Tavleoversigt" aria-label="Åbn Tavleoversigt">▦</button>'
           +'</div>'
           +'<div class="tavlePanelSettingsCompact">'
@@ -36311,7 +36535,6 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
             +'<div class="tavlePanelQuickActions">'
               +'<button type="button" data-board-index-show-all="1">Alle</button>'
               +'<button type="button" data-board-index-hide-all="1">Ingen</button>'
-              +'<button type="button" data-board-index-show-active-only="1">Aktuel</button>'
               +'<small>'+shownCount+'/'+allCount+' vist</small>'
             +'</div>'
             +'<div class="tavlePanelPickGrid">'+(rows||'<div class="listEmpty">Ingen tavler</div>')+'</div>'
@@ -36482,8 +36705,34 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
       try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
     });
     root.querySelectorAll('[data-board-index-include]').forEach(ch=>{
-      ['pointerdown','touchstart','mousedown','pointerup','touchend','click'].forEach(type=>{try{ch.addEventListener(type,e=>safe695StopSoft(e),{capture:true,passive:false});}catch(_e){}});
-      ch.onchange=e=>{try{e.stopPropagation();}catch(_e){}const key=String(ch.getAttribute('data-board-index-include')||'');w.data.boardIndexHidden=w.data.boardIndexHidden||{};if(key){if(ch.checked)delete w.data.boardIndexHidden[key];else w.data.boardIndexHidden[key]=true;}safe700SaveSoon();safe695RenderListPreview(root);};
+      const key=String(ch.getAttribute('data-board-index-include')||'');
+      const hit=ch.closest('label')||ch;
+      let fired=0;
+      function setBoardIncluded(next,e){
+        try{if(e)safe695StopHard(e);}catch(_e){}
+        if(!key)return;
+        w.data.boardIndexHidden=w.data.boardIndexHidden||{};
+        if(next)delete w.data.boardIndexHidden[key];
+        else w.data.boardIndexHidden[key]=true;
+        try{ch.checked=!!next;}catch(_e){}
+        safe700SaveSoon();
+        safe695RenderListPreview(root);
+      }
+      function toggleBoardIncluded(e){
+        const now=Date.now();
+        if(now-fired<420){try{safe695StopHard(e);}catch(_e){}return;}
+        fired=now;
+        const currentlyIncluded=!(w.data.boardIndexHidden&&w.data.boardIndexHidden[key]);
+        setBoardIncluded(!currentlyIncluded,e);
+      }
+      ['pointerdown','touchstart','mousedown'].forEach(type=>{try{hit.addEventListener(type,e=>safe695StopSoft(e),{capture:true,passive:true});}catch(_e){}});
+      ['pointerup','touchend','click'].forEach(type=>{try{hit.addEventListener(type,toggleBoardIncluded,{capture:true,passive:false});}catch(_e){}});
+      ch.onchange=e=>{
+        const now=Date.now();
+        if(now-fired<420){try{e.stopPropagation();}catch(_e){}return;}
+        fired=now;
+        setBoardIncluded(ch.checked,e);
+      };
     });
     root.querySelectorAll('[data-board-index-show-all]').forEach(btn=>{
       const run=e=>{safe695StopHard(e);w.data.boardIndexHidden={};safe700SaveSoon();safe695RenderListPreview(root);};
@@ -36496,33 +36745,6 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
         safe695StopHard(e);
         w.data.boardIndexHidden=w.data.boardIndexHidden||{};
         safe752BoardIndexRecords().forEach(r=>{w.data.boardIndexHidden[r.key]=true;});
-        safe700SaveSoon();
-        safe695RenderListPreview(root);
-      };
-      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
-      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
-      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
-    });
-    root.querySelectorAll('[data-board-index-show-active-only]').forEach(btn=>{
-      const run=e=>{
-        safe695StopHard(e);
-        w.data.boardIndexHidden=w.data.boardIndexHidden||{};
-        const recs=safe752BoardIndexRecords();
-        const active=recs.find(r=>r.active)||recs[0];
-        recs.forEach(r=>{if(active && r.key===active.key)delete w.data.boardIndexHidden[r.key];else w.data.boardIndexHidden[r.key]=true;});
-        safe700SaveSoon();
-        safe695RenderListPreview(root);
-      };
-      try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
-      try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
-      try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
-    });
-    root.querySelectorAll('[data-board-index-show-only]').forEach(btn=>{
-      const run=e=>{
-        safe695StopHard(e);
-        const key=String(btn.getAttribute('data-board-index-show-only')||'');
-        w.data.boardIndexHidden=w.data.boardIndexHidden||{};
-        safe752BoardIndexRecords().forEach(r=>{if(r.key===key)delete w.data.boardIndexHidden[r.key];else w.data.boardIndexHidden[r.key]=true;});
         safe700SaveSoon();
         safe695RenderListPreview(root);
       };
@@ -38113,7 +38335,7 @@ if(w.type==='drawcopy'){
     try{pdfOpenModalBtn.addEventListener('pointerup',openPdfModal,{passive:false});}catch(_e){}
     pdfOpenModalBtn.onclick=openPdfModal;
   }
-  /* l597: PDF-toolbar-knapper skal have samme tap-sikring som Åbn PDF.
+  /* l597: PDF-toolbar-knapper skal have samme tryk-sikring som Åbn PDF.
      Pointerdown stopper kun widgetdrag/PDF-pilelag; pointerup/click kører knappens egen handling.
      Lokal i PDF-widget-ejeren, ikke globalt. */
   const safe597PdfToolbarTap=(node,action)=>{
@@ -39217,7 +39439,7 @@ function newSlideForWidget(widgetId,action='move',sourceIndex=state.active){
 function widgetMoveModal(w){return safe588WidgetMoveModal(w);}
 
 
-/* v119 TEST: tap brings widget to front, drag keeps current layer */
+/* v119 TEST: tryk brings widget to front, drag keeps current layer */
 function normalizeWidgetLayers(){
   const ws=(typeof safe588WidgetsForCurrentSlide==='function'?safe588WidgetsForCurrentSlide():(slide().widgets||[]));
   ws.forEach(w=>{
@@ -39387,13 +39609,13 @@ if(!window.__safe455uH45g10l2bShiftOeLockInstalled){
 function wireWidget(el,w){
  let layerTap={x:0,y:0,t:0,moved:false,ignore:false};
  el.addEventListener('pointerdown',e=>{
-   // In focus mode, tapping a text widget should select it as focus target.
+   // In focus mode, trykping a text widget should select it as focus target.
    if(chooseFocusTargetFromTextWidget(e.target,e)){
      layerTap={x:e.clientX,y:e.clientY,t:0,moved:false,ignore:true};
      return;
    }
    // Text editing should behave like a normal textarea. Do not let the
-   // widget-level tap/selection logic steal focus/cursor from the textarea.
+   // widget-level tryk/selection logic steal focus/cursor from the textarea.
    if(isTextEditingTarget(e.target)){
      if(selected!==w.id) select(w.id);
      layerTap={x:e.clientX,y:e.clientY,t:0,moved:false,ignore:true};
@@ -40694,7 +40916,7 @@ function safe453i185aaCloseCombo(){
 function safe453i185aaOpenCombo(inp,c,w){
   try{
     // l663: Åbn kun den lille talmenu for et felt, der stadig findes i den aktuelle TimerWidget.
-    // Hvis rækken er blevet re-renderet efter et tap, kan et gammelt timeout ellers placere menuen i tavlens øverste venstre hjørne.
+    // Hvis rækken er blevet re-renderet efter et tryk, kan et gammelt timeout ellers placere menuen i tavlens øverste venstre hjørne.
     if(!inp||!inp.isConnected||(c&&!c.contains(inp))||inp.disabled||inp.readOnly)return;
     safe453i185aaCloseCombo();
     const kind=inp.classList.contains('timerSeqSec')?'sec':'min';
@@ -40942,7 +41164,7 @@ function safe453i183mInsertSequenceNear(c,w,after){
 
 
 function safe453i185abSelectCountdownSequence(c,w,targetIdx){
-  // SAFE453i185ae: Klik/tap på en sekvens vælger den i både visning og redigering.
+  // SAFE453i185ae: Tryk på en sekvens vælger den i både visning og redigering.
   // Hvis nedtællingen kører, afbrydes den aktuelle sekvens og den valgte starter forfra.
   try{
     if(!w||!w.data||(w.data.timerMode||'countdown')!=='countdown')return false;
@@ -41375,7 +41597,7 @@ function wireTimer(c,w){
       if(last && now-last<260)return;
       last=now;
       try{if(selected!==w.id)select(w.id,{editText:false});}catch(_e){}
-      try{fn(e);}catch(err){try{console.warn('l663 Timer-tap fejl',err)}catch(_e){}}
+      try{fn(e);}catch(err){try{console.warn('l663 Timer-tryk fejl',err)}catch(_e){}}
     };
     node.onpointerup=run;
     node.ontouchend=run;
@@ -41561,9 +41783,9 @@ function wireTimer(c,w){
       try{
         ev.preventDefault();ev.stopPropagation();
         const now=Date.now();
-        const last=Number(card.getAttribute('data-safe453-lasttap')||0);
+        const last=Number(card.getAttribute('data-safe453-lasttryk')||0);
         if(last&&now-last<250)return;
-        card.setAttribute('data-safe453-lasttap',String(now));
+        card.setAttribute('data-safe453-lasttryk',String(now));
         const idx=Math.floor(Number(card.getAttribute('data-seq-index'))||0);
         safe453i185abSelectCountdownSequence(c,w,idx);
       }catch(_e){}
@@ -41671,9 +41893,9 @@ function wireTimer(c,w){
         }
         e.preventDefault();e.stopPropagation();
         const now=Date.now();
-        const last=Number(card.getAttribute('data-safe453-lasttap')||0);
+        const last=Number(card.getAttribute('data-safe453-lasttryk')||0);
         if(last&&now-last<250)return;
-        card.setAttribute('data-safe453-lasttap',String(now));
+        card.setAttribute('data-safe453-lasttryk',String(now));
         const idx=Math.floor(Number(card.getAttribute('data-sw-index'))||0);
         safe453i185cAddStopwatchLap(c,w,idx);
       }catch(_e){}
@@ -42672,7 +42894,7 @@ function wireWheel(c,w){
  }
  function safe668WheelFakeEvent(btn,src){
    return {
-     type:'safe668-wheel-tap',
+     type:'safe668-wheel-tryk',
      target:btn,
      currentTarget:btn,
      originalEvent:src||null,
@@ -46039,8 +46261,8 @@ function showQuickHelp(){
 
   <div class="helpQuickStart">
     <div class="helpQuickCard"><b>1. Byg tavlen</b> Brug værktøjslinjen eller <b>Mere</b>. Træk widgets rundt, ændr størrelse og læg dem i lag.</div>
-    <div class="helpQuickCard"><b>2. Brug den live</b> <b>P/R</b> skifter præsentation, <b>F</b> fokuserer valgt widget, og <b>Shift+F</b> maksimerer.</div>
-    <div class="helpQuickCard"><b>3. Find rundt</b> <b>Q/Å/Shift+T</b> åbner Tavleoverblik, <b>D</b> åbner Datakilder, og <b>Esc</b> lukker eller går tilbage.</div>
+    <div class="helpQuickCard"><b>2. Gør klar til visning</b> <b>P/R</b> skifter præsentation, <b>F</b> fokuserer én widget, og <b>Shift+F</b> maksimerer.</div>
+    <div class="helpQuickCard"><b>3. Hold overblikket</b> <b>Q/Å/Shift+T</b> åbner Tavleoverblik, <b>D</b> åbner Datakilder, og <b>Esc</b> lukker eller går tilbage.</div>
   </div>
 
   <div class="helpPdfGuides" aria-label="PDF-guides til TavleAppen">
@@ -46061,6 +46283,8 @@ function showQuickHelp(){
     <button type="button" class="helpJumpBtn" data-help-jump="Prøv værktøjerne">Værktøjer</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Genvejskort">Genveje</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="Listewidget">Lister</button>
     <button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Zoom og bevæg">Zoom</button>
@@ -46082,8 +46306,9 @@ function showQuickHelp(){
           <li><b>F</b> fokuserer valgt widget. <b>Shift+F</b> maksimerer valgt eller fokuseret widget.</li>
           <li><b>Mellemrum</b> åbner <b>Mere</b>, når ingen widget er valgt. I Mere vælger <b>Enter</b> eller <b>Mellemrum</b>, og <b>Esc</b> lukker.</li>
           <li><b>Højreklik på tom tavlebaggrund</b> åbner også <b>Mere</b>.</li>
-          <li><b>Shift+N</b> viser eller skjuler værktøjslinjen. Den lille knap nederst til højre gør det samme.</li>
-          <li><b>Shift+klik</b> på den lille værktøjslinjeknap skifter til næste tema.</li>
+          <li><b>Redigering:</b> Brug <b>⌄</b> i værktøjslinjen for at skjule den. Brug <b>•••</b> nederst for at vise den igen. <b>Shift+N</b> gør det samme med tastatur.</li>
+          <li><b>Præsentation:</b> Den nederste bjælke har <b>?</b> Hjælp, <b>◐</b> tema, <b>⌄</b> skjul, <b>🎨</b> baggrund og <b>☰</b> Tavler. <b>•••</b> viser bjælken igen.</li>
+          <li><b>Shift+Mellemrum</b> skjuler eller viser præsentationsbjælken.</li>
           <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik.</li>
         </ul>
         <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Zoom og bevæg">Zoom</button><button type="button" class="helpJumpBtn" data-help-jump="Genvejskort">Genvejskort</button><button type="button" class="helpJumpBtn" data-help-jump="Tavleoverblik">Tavleoverblik</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">Fokus og præsentation</button></div>
@@ -46112,7 +46337,8 @@ function showQuickHelp(){
           <div class="helpKeyBox"><b>Live</b><b>P/R</b> præsentation · <b>F</b> fokus · <b>Shift+F</b> maksimer · <b>Mellemrum</b> Mere · <b>Esc</b> tilbage/luk</div>
           <div class="helpKeyBox"><b>Tavler</b><b>N</b> ny tavle · <b>←/→</b> skift tavle · <b>Q/Å/Shift+T</b> Tavleoverblik · <b>Cmd/Ctrl+O</b> widget-overblik</div>
           <div class="helpKeyBox"><b>Widgets</b><b>↑/↓</b> vælg widget · <b>Delete</b> til papirkurv · <b>Cmd/Ctrl+D</b> duplikér · <b>Cmd/Ctrl+←/→</b> flyt · <b>Shift+Ø</b> lås</div>
-          <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Shift+N</b> værktøjslinje · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
+          <div class="helpKeyBox"><b>Værktøjslinjer</b><b>Shift+N</b> redigeringslinje · <b>Shift+Mellemrum</b> præsentationslinje · <b>⌄</b> skjul · <b>•••</b> vis</div>
+          <div class="helpKeyBox"><b>System</b><b>D</b> Datakilder · <b>T</b> Papirkurv · <b>Cmd/Ctrl+S/G</b> gem/backup · <b>Shift+O</b> Redningsbælte</div>
           <div class="helpKeyBox"><b>Udseende og zoom</b><b>Knib med to fingre</b> zoom tavle · <b>Hold to fingre stille</b> nulstil · <b>Shift+Z</b> nulstil · <b>Shift+B</b> baggrund/tema · <b>Shift+G</b> grid</div>
           <div class="helpKeyBox"><b>I Hjælp</b><b>→/←</b> skift sektion · <b>↑/↓</b> scroll · <b>B</b> tema · <b>Enter</b> åbn/luk sektion · <b>Esc</b> luk</div>
         </div>
@@ -46140,7 +46366,7 @@ function showQuickHelp(){
               <button class="helpIconItem helpToolBtn" data-help-tool="image"><span class="helpIcon">🖼️</span><span><b>Billede</b><small>Shift+I · foto</small></span></button>
               <button class="helpIconItem helpToolBtn" data-help-tool="link"><span class="helpIcon">🔗</span><span><b>Link/iframe</b><small>Shift+L · web</small></span></button>
               <button class="helpIconItem helpToolBtn" data-help-tool="html"><span class="helpIcon codeIcon">&lt;/&gt;</span><span><b>HTML</b><small>Shift+H · embed</small></span></button>
-              <button class="helpIconItem helpToolBtn" data-help-tool="video"><span class="helpIcon">▶️</span><span><b>Video</b><small>video på tavlen</small></span></button>
+              <button class="helpIconItem helpToolBtn" data-help-tool="video"><span class="helpIcon">▶️</span><span><b>Medie</b><small>lyd/video/YouTube</small></span></button>
               <button class="helpIconItem helpToolBtn" data-help-tool="timer"><span class="helpIcon">⌛</span><span><b>Timer</b><small>Shift+K · tid</small></span></button>
               <button class="helpIconItem helpToolBtn" data-help-tool="clock"><span class="helpIcon">🕒</span><span><b>Ur</b><small>Shift+U · klokke</small></span></button>
             </div>
@@ -46195,50 +46421,68 @@ function showQuickHelp(){
     </details>
 
     <details>
-      <summary>Datakilder — lister og datasæt ét sted</summary>
+      <summary>Datakilder — lister, datasæt og koblinger</summary>
       <div class="answer">
         <ul class="helpCompactList">
-          <li><b>D</b> åbner Datakilder. Her kan du se, åbne og omdøbe lister og datasæt.</li>
-          <li><b>Datawidget</b> bruges til tabeller, CSV/TSV og Excel. <b>Listewidget</b> bruges til navne, stikord og simple linjelister.</li>
+          <li><b>D</b> åbner Datakilder. Her kan du se, åbne og omdøbe de lister og datasæt, tavlen bruger.</li>
+          <li><b>DataWidget</b> bruges til tabeller, CSV/TSV, Excel, linklister, medielister, KaPardy-spørgsmål, PDF-svar og andre data, der skal kunne genbruges.</li>
+          <li><b>🔗</b> betyder normalt “vis eller skjul den koblede datakilde”. Når en widget har en koblet DataWidget, kan du åbne data ved siden af widgetten uden at miste forbindelsen.</li>
+          <li><b>Link/iframe</b> kan bruge linklister. <b>MedieWidgetten</b> kan bruge medielister. Begge lister er almindelige datasæt, som kan åbnes og redigeres som DataWidget.</li>
           <li><b>↑/↓</b> vælger datakilde. <b>Enter</b> eller <b>Space</b> åbner den valgte kilde. <b>E</b> eller <b>F2</b> omdøber.</li>
-          <li>Inspektionsvinduer med <b>🔗</b> lukkes tilbage til Datakilder med <b>🔗</b>, <b>D</b> eller <b>Esc</b>.</li>
-          <li>Lister kan bruges af Lykkehjulet, Grupper, Ordsky, Afstemning, Kalender og KaPardy.</li>
           <li>Afstemningsdata fra PDF-svar ligger også som DataWidget. Herfra kan du åbne en pæn <b>Resultat-PDF</b> eller koble data til en AfstemningsWidget.</li>
-          <li>Hvis en liste skal sorteres, filtreres eller bruges på en ny måde, kan du sende den videre til <b>DataRemix</b>.</li>
+          <li>Hvis data skal sorteres, filtreres eller bruges på en ny måde, kan du sende dem videre til <b>DataRemix</b>.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button><button type="button" class="helpJumpBtn" data-help-jump="Listewidget">Listewidget</button><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button></div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Listewidget — navne, stikord og tjeklister</summary>
+      <div class="answer">
+        <ul class="helpCompactList">
+          <li><b>Shift+J</b> opretter en Listewidget. Brug den til navne, stikord, punkter, arbejdsopgaver eller små tjeklister.</li>
+          <li>Listen redigeres direkte i det store skrivefelt. Linjeskift laver nye punkter. Indsætter du tekst med kommaer, semikoloner eller linjeskift, bliver det til en brugbar liste.</li>
+          <li>Vælg listetype i toppen: neutral liste, punktopstilling, nummereret liste eller tjekliste.</li>
+          <li><b>− / +</b> ændrer skriftstørrelsen, så listen kan fylde mere eller være nemmere at læse på afstand.</li>
+          <li>Når widgetten ikke er valgt, i fokus eller i præsentation, vises den som en rolig liste uden redigeringsfelt.</li>
+          <li>Skal listen bruges af Lykkehjulet, Grupper, Ordsky eller andre datawidgets, så åbn den via <b>Datakilder</b> eller send den videre med <b>DataRemix</b>.</li>
+        </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button></div>
       </div>
     </details>
 
     <details>
       <summary>DataRemix — gør data klar til ny brug</summary>
       <div class="answer">
-        <p>DataRemix er stedet, hvor en eksisterende liste eller flere besvarede PDF-formularer bliver til en ny dataliste, der passer til en bestemt widget.</p>
+        <p>DataRemix gør en eksisterende datakilde klar til en ny opgave. Kilden bliver stående, og Tavle laver en ny DataWidget eller en ny koblet widget af det valgte udvalg.</p>
         <ul class="helpCompactList">
-          <li><b>Anonym afstemning trin for trin:</b> Åbn en tom afstemningsformular i en PDFWidget. Skriv spørgsmålet og de svarmuligheder, eleverne må vælge imellem. Markér <b>Andet</b>, hvis eleverne også må skrive deres eget svar.</li>
-          <li>Når formularen er klar, henter læreren den udfyldte <b>Elev-PDF</b> og deler den med eleverne, fx i Google Classroom som en kopi til hver elev.</li>
-          <li>Eleverne udfylder PDF’en og afleverer den igen. Læreren samler alle afleverede PDF’er og vælger dem i DataRemix med <b>Vælg besvarede PDF’er</b>.</li>
+          <li><b>Anonym afstemning:</b> Åbn en tom afstemningsformular i en PDFWidget, skriv spørgsmål og svarmuligheder, hent Elev-PDF, og saml de besvarede PDF’er i DataRemix.</li>
           <li>Tavle laver en anonym DataWidget med de samlede svar og en AfstemningsWidget, hvor resultatet kan vises som procentsøjler eller TagSky.</li>
-          <li>Fra DataWidgetten kan du åbne en pæn <b>Resultat-PDF</b>. Den kan blive på tavlen eller hentes som fil, hvis resultatet skal deles eller gemmes andre steder.</li>
-          <li><b>KaPardy Remix:</b> Åbn Remix fra DataRemix eller Spilbiblioteket, vælg spil og spørgsmålsbanker, og opret et nyt spil uden at ændre originalerne.</li>
-          <li><b>Lykkehjulet og Grupper:</b> Vælg en navne- eller stikordsliste, filtrér det du skal bruge, vælg destination, og lad Tavle oprette en ny koblet widget.</li>
-          <li><b>Tryg arbejdsgang:</b> Kilden bliver stående. DataRemix laver en ny datawidget, så du kan fortryde ved bare at slette den nye.</li>
+          <li>Fra DataWidgetten kan du åbne en pæn <b>Resultat-PDF</b>. Den kan blive på tavlen eller hentes som fil.</li>
+          <li><b>KaPardy Remix:</b> Vælg spil og spørgsmålsbanker, og opret et nyt spil uden at ændre originalerne.</li>
+          <li><b>Lister til aktivitet:</b> Vælg en navne- eller stikordsliste, filtrér det du skal bruge, og opret fx nyt Lykkehjulet, Grupper, Ordsky eller Afstemning.</li>
+          <li><b>Linklister:</b> Data med titel, adresse og note kan blive til en ny Link/iframe-widget med en koblet linkliste.</li>
+          <li><b>Kalenderdata:</b> Filtrér fx dage, aktiviteter eller noter og lav en ny liste, kalender-udtræk eller datakilde til videre brug.</li>
+          <li><b>Tryg arbejdsgang:</b> Kilden bliver stående. Vil du fortryde, sletter du bare den nye widget eller DataWidget.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button><button type="button" class="helpJumpBtn" data-help-jump="KaPardy">KaPardy</button></div>
       </div>
     </details>
 
     <details>
-      <summary>Links, hjemmesider og linklister</summary>
+      <summary>Medier, links og lister</summary>
       <div class="answer">
         <ul class="helpCompactList">
-          <li><b>Linkwidgetten</b> bruges til hjemmesider, du vil have med på tavlen.</li>
-          <li>Skriv ét link, vælg en gemt linkliste eller start med en demoliste.</li>
-          <li>En linkliste kan samle fx musikværktøjer, ordbøger, opgavebanker eller faglige ressourcer.</li>
-          <li>Når du vælger en linkliste, åbnes første link automatisk. Brug pilene ved titlen til at skifte link.</li>
-          <li>Nogle sider kan vises inde på tavlen. Andre åbner bedst i en ny fane.</li>
+          <li><b>Link/iframe-widgetten</b> er bedst til hjemmesider, webværktøjer, noder, kort, ordbøger, opgavebanker og andre links, der enten kan vises på tavlen eller åbnes i en ny fane.</li>
+          <li><b>MedieWidgetten</b> er til lyd, video, YouTube-links og lokale mediefiler, du vil kunne afspille fra tavlen.</li>
+          <li><b>Linklister</b> og <b>medielister</b> gemmes som DataWidgets. Det betyder, at de kan åbnes, redigeres, genbruges og kobles til flere widgets.</li>
+          <li>I MedieWidgetten åbner <b>🔗</b> den koblede medieliste som DataWidget. <b>☰</b> vælger et punkt fra listen. <b>＋</b> vælger liste eller gemmer det aktuelle medie i en liste.</li>
+          <li><b>Åbn fra disk</b> i MedieWidgetten lægger en lokal lyd- eller videofil ind i tavlens mediearkiv og gemmer den i den valgte medieliste.</li>
+          <li>En Link/iframe-widget kan også bruge en medieliste. Almindelige links åbnes som links; lokale lyd- og videomedier åbnes som MedieWidget.</li>
+          <li>I en DataWidget med URL’er vises knapper til at kopiere adressen eller åbne den eksternt.</li>
+          <li>Brug <b>Backup +</b>, når tavlen indeholder lokale lyd- eller videofiler, som skal kunne flyttes med tavlen.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">Iframe og fokus</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">Iframe og fokus</button><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button></div>
       </div>
     </details>
 
@@ -46252,7 +46496,7 @@ function showQuickHelp(){
           <li>Åbner du appen med et sessionslink, lægges sessionen automatisk i demolisten <b>TavleSessioner</b> med oprettet/senest åbnet.</li>
           <li>Sessioner gemmes i den browser og på den enhed, hvor de er lavet. Brug backup, hvis de skal flyttes.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button><button type="button" class="helpJumpBtn" data-help-jump="Links">Linklister</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button><button type="button" class="helpJumpBtn" data-help-jump="Medier">Linklister</button></div>
       </div>
     </details>
 
@@ -46262,14 +46506,14 @@ function showQuickHelp(){
         <ul class="helpCompactList">
           <li><b>HTML-widgetten</b> kan vise og gemme lokale HTML-filer i tavlens mediearkiv.</li>
           <li><b>HTMLApps</b> er små apps, der bor inde i Tavle som HTML-widgets. Brug Demoer eller knapperne i Hjælp til at installere Skriv, Tjek, Tavle eller TiddlyWiki.</li>
-          <li><b>Iframe viser en app. HTMLApp bor i tavlen.</b> Brug HTMLApp, hvis appen og dens data skal med i Backup Plus.</li>
+          <li><b>Iframe viser en webside. HTMLApp bor i tavlen.</b> Brug HTMLApp, hvis appen og dens data skal med i Backup Plus.</li>
           <li><b>Skriv</b> kan gemme backup tilbage til Tavle og sende PDF direkte til Tavle.</li>
           <li><b>Tjek</b> kan gemme via Tavle, når den kører inde i Tavle.</li>
-          <li>Klik/tap i webvisningen for at bruge den indlejrede side. Klik/tap uden for widgetten eller brug <b>Esc</b> for at komme tilbage.</li>
+          <li>Tryk i webvisningen for at bruge den indlejrede side. Brug <b>Esc</b> eller tryk uden for widgetten for at komme tilbage til tavlen.</li>
           <li><b>TiddlyWiki</b> kan installeres direkte fra Demoer eller vælges som HTMLApp/widget via Hjælp.</li>
-          <li>Store HTML-/TiddlyWiki-filer indlæses med manuel start, så appen ikke låser ved opstart.</li>
+          <li>Store HTML-/TiddlyWiki-filer indlæses med manuel start, så tavlen ikke bliver tung ved opstart.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF/iframe</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button><button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF/iframe</button></div>
       </div>
     </details>
 
@@ -46355,10 +46599,11 @@ function showQuickHelp(){
       <summary>Træk filer direkte ind på tavlen</summary>
       <div class="answer">
         <ul class="helpCompactList">
-          <li>Slip filer oven på tavlen for hurtigt at oprette indhold: billeder, PDF’er, tekstfiler, regneark, kalenderfiler, HTML-filer eller backups.</li>
+          <li>Slip filer oven på tavlen for hurtigt at oprette indhold: billeder, PDF’er, tekstfiler, regneark, kalenderfiler, HTML-filer, lyd/video eller backups.</li>
+          <li>Regneark og CSV kan blive til DataWidgets. Kalenderfiler kan bruges i Kalender. Lyd og video kan blive til MedieWidget.</li>
           <li>Du kan slippe flere filer på én gang. Hvis en fil ikke kan bruges direkte, ignorerer appen den eller giver besked.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button></div>
       </div>
     </details>
 
@@ -46367,13 +46612,13 @@ function showQuickHelp(){
       <div class="answer">
         <ul class="helpCompactList">
           <li><b>Gem backup</b> gemmer tavleopsætningen, så den kan åbnes igen senere.</li>
-          <li><b>Backup +</b> bruges, når tavlen indeholder lokale billeder, tegninger, kameraoptagelser, HTMLApps, lokale PDF’er eller gendannelsespunkter.</li>
+          <li><b>Backup +</b> bruges, når tavlen indeholder lokale billeder, tegninger, kameraoptagelser, HTMLApps, lokale PDF’er, lokale lyd-/videofiler eller gendannelsespunkter.</li>
           <li><b>Backup +</b> kan også importeres ved at indsætte JSON-tekst i Gem/åbn.</li>
           <li><b>Gem skabelon</b> er til tomme eller genbrugelige tavleopsætninger.</li>
-          <li><b>Hent filer fra tavlen</b> henter enkelte billeder, PDF’er, HTMLApps eller filer fra fx Skriv ud af tavlen.</li>
+          <li><b>Hent filer fra tavlen</b> henter enkelte billeder, PDF’er, HTMLApps, lokale medier eller filer fra fx Skriv ud af tavlen.</li>
           <li><b>Hvor ligger data?</b> viser, hvad tavlen bruger, uden at flytte eller slette noget.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Oprydning, sessioner og RESET">Oprydning/RESET</button><button type="button" class="helpJumpBtn" data-help-jump="Tavlesessioner">Tavlesessioner</button><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Oprydning, sessioner og RESET">Oprydning/RESET</button><button type="button" class="helpJumpBtn" data-help-jump="Tavlesessioner">Tavlesessioner</button><button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button></div>
       </div>
     </details>
 
@@ -46381,17 +46626,17 @@ function showQuickHelp(){
     <details>
       <summary>Oprydning, sessioner og RESET</summary>
       <div class="answer">
-        <p>Denne del er lidt mere teknisk og handler om, hvordan du rydder op i den aktuelle Tavle-session eller starter forfra i samme browser/app.</p>
+        <p>Brug denne del, når du vil starte på et nyt forløb, genbruge samme app-adresse eller rydde op i en session, der er blevet for tung.</p>
         <ul class="helpCompactList">
           <li><b>Ny session:</b> Den nemmeste måde at starte rent er ofte at bruge en ny adresse med <b>#SessionNavn</b>, fx <b>#Uge23</b>. Så får du et adskilt arbejdsrum uden at slette den gamle session.</li>
-          <li><b>Genbrug af samme session:</b> Hvis du bruger en skrivebordsapp/genvej fra Chrome eller Safari, kan du have brug for at genbruge samme adresse. Så kan oprydning eller RESET være mere praktisk end at lave en ny genvej.</li>
-          <li><b>Hvor ligger data?</b> viser, hvad den aktuelle tavle bruger: tavle-state, lokale filer, medier, gendannelsespunkter og eventuelle gamle rester. Den visning flytter eller sletter ikke noget i sig selv.</li>
-          <li><b>Oprydning</b> kan bruges til forsigtigt at rydde gamle localStorage-nøgler eller hente backup af udvalgte nøgler. Aktuel app-state og vigtige indstillingsnøgler er normalt beskyttet.</li>
-          <li><b>Medier</b> viser IndexedDB/mediearkivet. Her kan du finde og slette forældreløse medier, fx gamle testkopier, hvis de ikke længere bruges af den aktuelle tavle.</li>
-          <li><b>Factory reset</b> nulstiller TavleAppens localStorage i denne browser. Det er til situationer, hvor appen er blevet tung, rodet eller fejlramt, og du vil starte forfra i samme session/browser.</li>
+          <li><b>Genbrug af samme session:</b> Hvis du vil bruge samme adresse igen, kan oprydning eller RESET være mere praktisk end at lave en ny session.</li>
+          <li><b>Hvor ligger data?</b> viser tavle-state, lokale filer, medier, gendannelsespunkter og gamle rester. Visningen flytter eller sletter ikke noget i sig selv.</li>
+          <li><b>Oprydning</b> kan bruges til forsigtigt at rydde gamle nøgler eller hente backup af udvalgte dele. Den aktuelle tavle og vigtige indstillinger er normalt beskyttet.</li>
+          <li><b>Medier</b> viser appens mediearkiv. Her kan du finde og slette forældreløse medier, hvis de ikke længere bruges af den aktuelle tavle.</li>
+          <li><b>Factory reset</b> nulstiller TavleAppen i denne browser. Brug det først, når backup er taget, og du vil starte forfra i samme session/browser.</li>
           <li><b>Backup + før RESET:</b> Der findes to slags brugere: dem der tager <b>Backup +</b> inden reset — og dem der ønskede, de havde gjort det ;-)</li>
         </ul>
-        <p>Brug RESET som sidste udvej. Lav først <b>Backup +</b>, og hent eventuelt vigtige filer ud med <b>Hent filer fra tavlen</b>. Så kan du altid vende tilbage, hvis du opdager, at der var noget, du stadig skulle bruge.</p>
+        <p>Brug RESET som sidste udvej. Lav først <b>Backup +</b>, og hent eventuelt vigtige filer ud med <b>Hent filer fra tavlen</b>.</p>
         <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button><button type="button" class="helpJumpBtn" data-help-jump="Tavlesessioner">Tavlesessioner</button><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button></div>
       </div>
     </details>
@@ -46430,6 +46675,7 @@ function showQuickHelp(){
       <div class="answer">
         <ul class="helpCompactList">
           <li>I præsentation skjules redigeringsværktøjer, så tavlen kan bruges roligt foran elever.</li>
+          <li>Præsentationsbjælken nederst giver hurtig adgang til <b>Hjælp</b>, <b>tema</b>, <b>skjul bjælke</b>, <b>baggrund</b> og <b>Tavler</b>. Brug <b>•••</b> for at vise bjælken igen.</li>
           <li><b>F</b> fremhæver én widget. <b>Shift+F</b> maksimerer.</li>
           <li>PDF’er kan flyttes, forstørres, fokuseres, maksimeres og bruges i præsentation.</li>
           <li><b>Læs en PDF:</b> Scroll med én finger eller musehjul for at se hele siden. Venstre og højre kant skifter PDF-side.</li>
@@ -46437,16 +46683,16 @@ function showQuickHelp(){
           <li><b>Afstemningsformularer:</b> Åbn PDF, vælg Afstemning, udfyld spørgsmål og svar, og hent derefter <b>Elev-PDF</b>. Det er den fil, eleverne skal udfylde.</li>
           <li>Besvarede elev-PDF’er samles igen i DataRemix. Resultatet kan vises i AfstemningsWidgetten eller som en pæn Resultat-PDF.</li>
           <li>Når Skriv sender en PDF til Tavle, lander den som en almindelig PDF-widget.</li>
-          <li>I en iframe/HTMLApp kan du klikke/tappe i webvisningen for at bruge den indlejrede app. Klik/tap uden for widgetten eller brug <b>Esc</b> for at komme tilbage.</li>
+          <li>I en iframe/HTMLApp skal du trykke i webvisningen for at bruge den indlejrede side. Brug <b>Esc</b> eller tryk uden for widgetten for at komme tilbage til tavlen.</li>
           <li>Hvis noget virker låst, så prøv <b>Esc</b> først og derefter <b>Redningsbælte</b> med <b>Shift+O</b>.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="HTML-widget">HTMLApps</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup Plus</button></div>
       </div>
     </details>
   </div>
 
   <div class="helpPager">
-    <span>Hurtigst i gang: N ny tavle · Mellemrum Mere · P/R præsentation · F fokus · Knib med to fingre zoom · Hold to fingre stille eller Shift+Z nulstiller · Esc lukker/går tilbage</span>
+    <span>Hurtigst i gang: N ny tavle · Mellemrum Mere · P/R præsentation · F fokus · ⌄ skjuler værktøjslinje · ••• viser igen · Esc lukker/går tilbage</span>
     <button id="closeHelp">Luk</button>
   </div>`);
   function safe455bRemoveExistingHelpKeyHandler(){
@@ -52741,6 +52987,54 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
            document.body.classList.contains('focus-edit') ||
            document.body.classList.contains('focus-presentation');
   }
+  function stopToolbarToggleEvent(e){
+    try{
+      if(!e)return;
+      if(e.cancelable!==false)e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    }catch(_e){}
+  }
+  function bindToolbarToggleButton(btn,fn){
+    if(!btn || btn.__l823ToolbarToggleBound)return;
+    btn.__l823ToolbarToggleBound=true;
+    let last=0;
+    function activate(e){
+      stopToolbarToggleEvent(e);
+      const now=Date.now();
+      if(now-last<420)return false;
+      last=now;
+      try{fn(e);}catch(_e){}
+      return false;
+    }
+    ['pointerdown','mousedown','touchstart'].forEach(ev=>btn.addEventListener(ev,stopToolbarToggleEvent,{capture:true,passive:false}));
+    ['pointerup','mouseup','touchend'].forEach(ev=>btn.addEventListener(ev,activate,{capture:true,passive:false}));
+    btn.addEventListener('click',activate,{capture:true,passive:false});
+  }
+  function ensureToolbarHideButton(){
+    const tb=toolbar();
+    if(!tb)return;
+    let tool=tb.querySelector('.l823ToolbarHideTool');
+    if(!tool){
+      tool=document.createElement('div');
+      tool.className='tool l823ToolbarHideTool';
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.textContent='⌄';
+      btn.title='Skjul værktøjslinje';
+      btn.setAttribute('aria-label','Skjul værktøjslinje');
+      btn.setAttribute('data-tool','toolbar-hide');
+      const span=document.createElement('span');
+      span.textContent='skjul';
+      tool.appendChild(btn);
+      tool.appendChild(span);
+      bindToolbarToggleButton(btn,function(){hardHide();});
+    }
+    const tools=[...tb.querySelectorAll(':scope > .tool')].filter(el=>el!==tool && !el.classList.contains('pinTool'));
+    const insertBefore=tools[Math.floor(tools.length/2)] || tb.firstChild;
+    if(tool.parentNode!==tb)tb.insertBefore(tool,insertBefore);
+    else if(insertBefore && tool.nextSibling!==insertBefore && tool!==insertBefore)tb.insertBefore(tool,insertBefore);
+  }
   function removeOldPeekAndPin(){
     ['toolbarPeek','toolbarPinFloat','toolbarPinFallback'].forEach(id=>{
       const el = document.getElementById(id);
@@ -52764,6 +53058,8 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
   function updateFallbackVisual(){
     const b = document.getElementById('toolbarFallback');
     if(!b) return;
+    b.classList.add('l823ToolbarDots');
+    ensureToolbarHideButton();
     const directMaximized = document.body.classList.contains('focus-maximized') &&
       !document.body.classList.contains('focus-mode') &&
       !document.body.classList.contains('focus-edit') &&
@@ -52775,18 +53071,28 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
       b.style.setProperty('pointer-events','none','important');
       return;
     }
-    b.style.setProperty('display','flex','important');
-    b.style.setProperty('visibility','visible','important');
-    b.style.setProperty('pointer-events','auto','important');
     if(directMaximized){
-      b.textContent = '⌃';
+      b.textContent = '•••';
       b.title = 'Afslut maksimeret visning og vis værktøjslinje';
-    }else{
-      const isVisible = visibleToolbar(toolbar());
-      b.textContent = isVisible ? '⌄' : '⌃';
-      b.title = isVisible ? 'Skjul værktøjslinje' : 'Vis værktøjslinje';
+      b.setAttribute('aria-label', b.title);
+      b.style.setProperty('display','grid','important');
+      b.style.setProperty('visibility','visible','important');
+      b.style.setProperty('pointer-events','auto','important');
+      return;
     }
+    const hidden = document.body.classList.contains('toolbar-is-hidden') || app.classList.contains('toolbarHidden');
+    b.textContent = '•••';
+    b.title = hidden ? 'Vis værktøjslinje' : 'Værktøjslinjen er synlig';
     b.setAttribute('aria-label', b.title);
+    if(hidden){
+      b.style.setProperty('display','grid','important');
+      b.style.setProperty('visibility','visible','important');
+      b.style.setProperty('pointer-events','auto','important');
+    }else{
+      b.style.setProperty('display','none','important');
+      b.style.setProperty('visibility','hidden','important');
+      b.style.setProperty('pointer-events','none','important');
+    }
   }
   function clearHiddenState(){
     document.body.classList.remove('toolbar-is-hidden');
@@ -52928,9 +53234,9 @@ document.addEventListener('click',function(e){
 <script>
 /* v1.0.43: Link/iframe-widget selection guard.
    Formål:
-   - Et klik/tap på iframe-widgettens flade skal vælge widgetten ligesom en tekstwidget.
+   - Et klik/tryk på iframe-widgettens flade skal vælge widgetten ligesom en tekstwidget.
    - Iframe-indhold må ikke stjæle klik, når man vil fokusere, rotere eller vælge widgetten.
-   - Dobbeltklik/tap eller knapper som "Åbn/Aktiver webside" kan aktivere egentlig iframe-interaktion.
+   - Dobbeltklik/tryk eller knapper som "Åbn/Aktiver webside" kan aktivere egentlig iframe-interaktion.
 */
 (function(){
   if (window.__tavleIframeSelectionGuardV43) return;
@@ -52975,7 +53281,7 @@ document.addEventListener('click',function(e){
     selectWidget(widget, ev);
   }, true);
 
-  // Double-click/tap can activate the embedded web page temporarily.
+  // Double-click/tryk can activate the embedded web page temporarily.
   document.addEventListener('dblclick', function(ev){
     const widget = closestIframeWidget(ev.target);
     if (!widget || isControl(ev.target)) return;
@@ -54443,7 +54749,7 @@ document.addEventListener('click',function(e){
       setOverviewSelection(activeIndex);
       hint=document.createElement('div');
       hint.className='widgetOverviewHint';
-      hint.textContent='Widget-overblik: pile vælger i grid · Enter/tap åbner · F fokus · Shift+F maksimerer · ESC lukker';
+      hint.textContent='Widget-overblik: pile vælger i grid · Enter/tryk åbner · F fokus · Shift+F maksimerer · ESC lukker';
       app.appendChild(hint);
       try{ if(typeof window.toast==='function') window.toast('Widget-overblik'); }catch(_e){}
     }
@@ -60672,7 +60978,7 @@ body.safe453i185uTimerPresentation [data-stopwatch-panel],
 <!-- SAFE453i198: fokuser iframe ved berøring/klik, så Space og andre taster går til iframe-appen. -->
 
 
-<!-- SAFE453i200: Klik/tap uden for aktiv link/iframe-widget slipper iframekontrol.
+<!-- SAFE453i200: Tryk uden for aktiv link/iframe-widget slipper iframekontrol.
      Ingen fokus-trap: iframe-appens egne genveje bevares, når iframe har fokus. -->
 
 
@@ -65127,7 +65433,7 @@ body.focus-maximized .widget[data-type="link"].linkIframeActive .linkIframeShiel
       if(!widget||!isIframeMode(widget)||isChromeOrHandle(e.target))return;
       if(isActive(widget))return;
       activate(widget);
-      /* Første tap aktiverer kun siden. Næste tap går til iframe-indholdet. */
+      /* Første tryk aktiverer kun siden. Næste tryk går til iframe-indholdet. */
       e.preventDefault();
       e.stopPropagation();
       if(e.stopImmediatePropagation)e.stopImmediatePropagation();
@@ -65249,8 +65555,8 @@ body.focus-maximized .widget[data-type="link"].linkIframeActive .linkIframeShiel
 
     activate(widget);
 
-    /* First click/tap only opens the page for interaction.
-       The next click/tap goes into the iframe itself. */
+    /* First click/tryk only opens the page for interaction.
+       The next click/tryk goes into the iframe itself. */
     try{ev.preventDefault();}catch(_e){}
     try{ev.stopPropagation();}catch(_e){}
     try{if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}catch(_e){}
@@ -65691,6 +65997,12 @@ body.safe455ToolbarFocusActive #toolbarFallback{box-shadow:0 0 0 3px rgba(109,93
     var k=String(e.key||'');
     if(e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey && (k===' '||e.code==='Space')){
       if(typingTarget(e.target))return;
+      try{
+        var a=app();
+        if(a && a.classList && a.classList.contains('present') && typeof window.l812TogglePresentationBar==='function'){
+          stop(e); closeMore(); window.l812TogglePresentationBar(); return false;
+        }
+      }catch(_e){}
       stop(e); closeMore(); toggle(); return false;
     }
   },true);
@@ -66851,7 +67163,7 @@ body.safe455PresentToolsOpen .moreMenu{position:fixed!important;}
 
 <script id="safe455uH45g10l128-pdf-form-auto-state-fix">
 /* SAFE455uH45g10l128: Bevar v33-sidevælgeren, men gendan PDF-formular-UX.
-   - Klik/tap på passive formular-hotspots slår Udfyld til igen.
+   - Tryk på passive formular-hotspots slår Udfyld til igen.
    - Udfyld-knappen viser aktiv tilstand med det samme.
    - Kun UI/state-sync; ingen ændring af PDF-rendering, sidevælger, IndexedDB eller links. */
 (function(){
@@ -70765,8 +71077,8 @@ html body .widget[data-type="pdf"] .pdfControls .pdfFormGroup{
 
 
 <script id="l552-pdf-auto-edit-mode">
-/* l552: PDF-formularfelter redigeres direkte ved klik/tap.
-   Klik/tap uden for et redigerbart PDF-felt slår redigering fra igen.
+/* l552: PDF-formularfelter redigeres direkte ved klik/tryk.
+   Tryk uden for et redigerbart PDF-felt slår redigering fra igen.
    Bevidst lagt som smalt UX-lag oven på eksisterende PDF-formularmotor. */
 (function(){
   if(window.__l552PdfAutoEditMode)return;
@@ -70887,12 +71199,12 @@ html body .widget[data-type="pdf"] .pdfControls .pdfFormGroup{
 
       var pdfEl=pdfWidgetElFrom(t);
       if(pdfEl){
-        /* Klik/tap i PDF-fladen, men ikke i et felt: forlad formularredigering. */
+        /* Tryk i PDF-fladen, men ikke i et felt: forlad formularredigering. */
         if(!isEditablePdfTarget(t))deactivatePdf(pdfEl);
         return;
       }
 
-      /* Klik/tap uden for PDF-widgetten: forlad formularredigering i alle PDF'er. */
+      /* Tryk uden for PDF-widgetten: forlad formularredigering i alle PDF'er. */
       deactivateAllExcept(null);
     }catch(_e){}
   }
@@ -71171,7 +71483,7 @@ html body .widget[data-type="pdf"] .content.pdf .pdfFormActivator:focus{
 .widget[data-type="link"] .safe453i79Arrow,
 .widget[data-type="link"] .safe455hCopyUrl{
   touch-action:manipulation!important;
-  -webkit-tap-highlight-color:transparent!important;
+  -webkit-tryk-highlight-color:transparent!important;
 }
 .widget[data-type="link"] .safe455hCopyUrl{
   width:34px!important;
@@ -71977,7 +72289,7 @@ html body.focus-maximized .widget[data-type="text"] .listWidget .listPreview{
 <style id="l704-focus-passive-widget-hit-targets">
 /* l704: Passive widgets skal kunne rammes i fokusvisning.
    Tidligere havde især focus-presentation pointer-events:none på ikke-fokuserede widgets,
-   så klik/touch aldrig nåede frem til fokusvælgeren. Første tap på passiv widget
+   så klik/touch aldrig nåede frem til fokusvælgeren. Første tryk på passiv widget
    håndteres stadig af l703-scriptet og skifter kun fokus. */
 body.focus-mode .widget:not(.focusTarget),
 body.focus-edit .widget:not(.focusTarget),
@@ -72007,14 +72319,14 @@ body.focus-presentation .widget:not(.focusTarget) .rotater{
 }
 </style>
 
-<script id="l703-focus-tap-select-widget">
+<script id="l703-focus-tryk-select-widget">
 /*
 l703: Fokusvalg med klik/touch.
 Problem: I fokusvisning er widgetbjælkerne skjult, og den gamle fokusvælger ignorerer
 interaktive targets (textarea, checkbox, select osv.). Derfor kunne piletaster skifte fokus,
 men klik/touch på fx en Liste/Tekst kunne blive slugt af indholdet.
-Løsning: Når fokus er aktivt og brugeren tapper en anden widget, bliver den widget
-fokusTarget med det samme. Første tap skifter fokus; det aktiverer ikke samtidig en
+Løsning: Når fokus er aktivt og brugeren trykper en anden widget, bliver den widget
+fokusTarget med det samme. Første tryk skifter fokus; det aktiverer ikke samtidig en
 checkbox/textarea i den passive widget.
 */
 (function(){
@@ -72050,7 +72362,7 @@ checkbox/textarea i den passive widget.
       if(!el || !el.dataset)return;
       if(typeof select==='function')select(el.dataset.id,{editText:false});
       if(typeof setFocusTarget==='function')setFocusTarget(el);
-      if(typeof updateContextHints==='function')updateContextHints('focus-tap-widget');
+      if(typeof updateContextHints==='function')updateContextHints('focus-tryk-widget');
     }catch(_e){}
   }
 
@@ -72111,7 +72423,7 @@ l703/l704 forsøgte at lade passive widgets selv modtage trykket, men gamle foku
 eller widgetindhold kan stadig gøre, at event.target ikke bliver widgetten.
 Denne patch lægger i fokusvisning et usynligt, fast overlay med én hit-zone pr.
 passiv widget. Zonerne ligger oven på passive widgets, men ikke oven på den aktive
-focusTarget og ikke over fokus-exit. Første tap vælger kun widgetten.
+focusTarget og ikke over fokus-exit. Første tryk vælger kun widgetten.
 */
 (function(){
   if(window.__l705FocusWidgetHitZoneOverlay)return;
@@ -72216,7 +72528,7 @@ focusTarget og ikke over fokus-exit. Første tap vælger kun widgetten.
           'opacity:0',
           'pointer-events:auto',
           'touch-action:manipulation',
-          '-webkit-tap-highlight-color:transparent',
+          '-webkit-tryk-highlight-color:transparent',
           'cursor:pointer'
         ].join(';');
         ['pointerdown','pointerup','touchstart','touchend','mousedown','mouseup','click'].forEach(type=>{
@@ -73974,4 +74286,276 @@ body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tav
 })();
 </script>
 
+
+<script id="l810-praesentation-bundbar-safe-js">
+(function(){
+  if(window.__l810PresentationBarSafe)return;
+  window.__l810PresentationBarSafe=true;
+
+  function appEl(){return document.getElementById('app');}
+  function stop(e){
+    try{
+      if(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      }
+    }catch(_e){}
+  }
+  function clickById(id){
+    try{
+      var b=document.getElementById(id);
+      if(b && typeof b.click==='function'){b.click();return true;}
+    }catch(_e){}
+    return false;
+  }
+  function dispatchShortcut(key,shift){
+    try{
+      var ev=new KeyboardEvent('keydown',{key:key,code:key===' '?'Space':'Key'+String(key).toUpperCase(),shiftKey:!!shift,bubbles:true,cancelable:true});
+      document.dispatchEvent(ev);
+      return true;
+    }catch(_e){return false;}
+  }
+  function openHelp(){
+    try{
+      if(window.tavleShortcutAPI && typeof window.tavleShortcutAPI.createShortcutWidget==='function'){
+        window.tavleShortcutAPI.createShortcutWidget('?');
+        return;
+      }
+    }catch(_e){}
+    dispatchShortcut('?',true);
+  }
+  function cycleTheme(){
+    try{if(typeof window.cycleTavleTheme==='function'){window.cycleTavleTheme();return;}}catch(_e){}
+    dispatchShortcut('b',false);
+  }
+  function openBackground(){
+    try{
+      if(window.tavleShortcutAPI && typeof window.tavleShortcutAPI.createShortcutWidget==='function'){
+        window.tavleShortcutAPI.createShortcutWidget('m');
+        return;
+      }
+    }catch(_e){}
+    dispatchShortcut('b',true);
+  }
+  function openBoardMenu(){
+    try{if(typeof window.showMoreTools==='function'){window.showMoreTools();return;}}catch(_e){}
+    dispatchShortcut(' ',false);
+  }
+  function leavePresentation(){clickById('present');}
+  function shouldShow(){
+    try{
+      var app=appEl();
+      if(!app || !app.classList.contains('present'))return false;
+      if(document.body.classList.contains('focus-mode')||document.body.classList.contains('focus-edit')||document.body.classList.contains('focus-presentation')||document.body.classList.contains('focus-maximized'))return false;
+      if(app.classList.contains('trashBoardActive')||document.body.classList.contains('trashBoardActive'))return false;
+      if(document.querySelector('.widgetOverviewMode,.safe271BoardOverview,.trashBoardBar'))return false;
+      return true;
+    }catch(_e){return false;}
+  }
+  function update(){
+    try{
+      var bar=document.getElementById('l810PresentationBar');
+      if(bar)bar.classList.toggle('l810Show',shouldShow());
+    }catch(_e){}
+  }
+  function makeButton(txt,title,fn,cls){
+    var b=document.createElement('button');
+    b.type='button';
+    b.textContent=txt;
+    b.title=title;
+    b.setAttribute('aria-label',title);
+    if(cls)b.className=cls;
+    var lastActivate=0;
+    function activate(e){
+      stop(e);
+      var t=Date.now?Date.now():(new Date()).getTime();
+      if(t-lastActivate<360)return false;
+      lastActivate=t;
+      try{fn();}catch(_e){}
+      setTimeout(update,30);
+      return false;
+    }
+    b.addEventListener('pointerdown',stop,true);
+    b.addEventListener('touchstart',stop,{capture:true,passive:false});
+    b.addEventListener('pointerup',activate,true);
+    b.addEventListener('touchend',activate,{capture:true,passive:false});
+    b.addEventListener('click',activate,true);
+    return b;
+  }
+  function ensure(){
+    try{
+      if(document.getElementById('l810PresentationBar')){update();return;}
+      var bar=document.createElement('div');
+      bar.id='l810PresentationBar';
+      bar.setAttribute('aria-label','Præsentationsværktøjer');
+
+      var center=document.createElement('div');
+      center.className='l810Group l810Center';
+      center.appendChild(makeButton('?','Hjælp',openHelp));
+      center.appendChild(makeButton('◐','Skift tema',cycleTheme));
+      center.appendChild(makeButton('🎨','Baggrund',openBackground));
+      center.appendChild(makeButton('☰','Tavler',openBoardMenu));
+
+      bar.appendChild(center);
+      document.body.appendChild(bar);
+      update();
+    }catch(err){try{console.warn('l810 presentation bar failed',err);}catch(_e){}}
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure,{once:true}); else ensure();
+  try{new MutationObserver(update).observe(document.documentElement,{attributes:true,childList:true,subtree:true,attributeFilter:['class','style']});}catch(_e){}
+  window.addEventListener('resize',update,{passive:true});
+  window.addEventListener('orientationchange',function(){setTimeout(update,120);},{passive:true});
+  setTimeout(update,80);
+  setTimeout(update,500);
+})();
+</script>
+
+<script id="l811c-praesentation-bundbar-manuel-toggle-headsafe-js">
+(function(){
+  if(window.__l811cPresentationBarManualToggle)return;
+  window.__l811cPresentationBarManualToggle=true;
+
+  function stop(e){
+    try{
+      if(!e)return false;
+      if(e.cancelable!==false)e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    }catch(_e){}
+    return false;
+  }
+  function appIsPresent(){
+    try{var app=document.getElementById('app');return !!(app&&app.classList&&app.classList.contains('present'));}
+    catch(_e){return false;}
+  }
+  function setHidden(hidden){
+    try{
+      if(!appIsPresent())hidden=false;
+      document.body.classList.toggle('l811cPresentationBarHidden',!!hidden);
+    }catch(_e){}
+  }
+  function bindButton(btn,fn){
+    if(!btn||btn.__l811cBound)return;
+    btn.__l811cBound=true;
+    var lastActivate=0;
+    function activate(e){
+      stop(e);
+      var t=Date.now?Date.now():(new Date()).getTime();
+      if(t-lastActivate<360)return false;
+      lastActivate=t;
+      try{fn();}catch(_e){}
+      return false;
+    }
+    btn.addEventListener('pointerdown',stop,true);
+    btn.addEventListener('touchstart',stop,{capture:true,passive:false});
+    btn.addEventListener('pointerup',activate,true);
+    btn.addEventListener('touchend',activate,{capture:true,passive:false});
+    btn.addEventListener('click',activate,true);
+  }
+  function ensureToggle(){
+    var toggle=document.getElementById('l811cPresentationToggle');
+    if(!toggle){
+      toggle=document.createElement('button');
+      toggle.id='l811cPresentationToggle';
+      toggle.type='button';
+      toggle.textContent='•••';
+      toggle.title='Vis præsentationsværktøjer';
+      toggle.setAttribute('aria-label','Vis præsentationsværktøjer');
+      document.body.appendChild(toggle);
+    }
+    bindButton(toggle,function(){setHidden(false);});
+  }
+  function cleanupHideButtons(bar){
+    try{
+      Array.prototype.slice.call(document.querySelectorAll('#l811cPresentationHide,.l811cPresentationHide')).forEach(function(btn){
+        try{btn.parentNode&&btn.parentNode.removeChild(btn);}catch(_e){}
+      });
+      if(bar){
+        Array.prototype.slice.call(bar.querySelectorAll('button')).forEach(function(btn){
+          var txt=String(btn.textContent||'');
+          if(txt.indexOf('📌')>=0){try{btn.parentNode&&btn.parentNode.removeChild(btn);}catch(_e){}}
+        });
+      }
+    }catch(_e){}
+  }
+  function makeHideButton(){
+    var hide=document.createElement('button');
+    hide.id='l811cPresentationHide';
+    hide.className='l811cPresentationHide';
+    hide.type='button';
+    hide.textContent='⌄';
+    hide.title='Skjul værktøjslinje';
+    hide.setAttribute('aria-label','Skjul værktøjslinje');
+    bindButton(hide,function(){setHidden(true);});
+    return hide;
+  }
+  function insertHideButton(bar,hide){
+    try{
+      var center=bar&&bar.querySelector&&bar.querySelector('.l810Center');
+      if(center){
+        var buttons=Array.prototype.slice.call(center.querySelectorAll('button'));
+        var theme=buttons.filter(function(btn){
+          var label=String(btn.getAttribute('aria-label')||btn.title||btn.textContent||'');
+          return label.indexOf('Skift tema')>=0 || String(btn.textContent||'')==='🎨';
+        })[0]||buttons[1]||buttons[0]||null;
+        if(theme&&theme.parentNode===center)center.insertBefore(hide,theme.nextSibling);
+        else center.appendChild(hide);
+        return;
+      }
+      bar.insertBefore(hide,bar.firstChild);
+    }catch(_e){try{bar.appendChild(hide);}catch(__e){}}
+  }
+  function ensure(){
+    try{
+      ensureToggle();
+      var bar=document.getElementById('l810PresentationBar');
+      if(!bar)return false;
+      cleanupHideButtons(bar);
+      insertHideButton(bar,makeHideButton());
+      return true;
+    }catch(_e){return false;}
+  }
+  function retry(n){
+    try{if(ensure()||n<=0)return;setTimeout(function(){retry(n-1);},150);}
+    catch(_e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){retry(20);},{once:true});
+  else retry(20);
+})();
+</script>
+
+<script id="l812-praesentation-bundbar-shiftspace-safe-js">
+(function(){
+  if(window.__l812PresentationBarShiftSpaceSafe)return;
+  window.__l812PresentationBarShiftSpaceSafe=true;
+
+  function appIsPresent(){
+    try{var app=document.getElementById('app');return !!(app&&app.classList&&app.classList.contains('present'));}
+    catch(_e){return false;}
+  }
+  function setHidden(hidden){
+    try{
+      if(!appIsPresent())hidden=false;
+      document.body.classList.toggle('l811cPresentationBarHidden',!!hidden);
+    }catch(_e){}
+  }
+  function isHidden(){
+    try{return document.body.classList.contains('l811cPresentationBarHidden');}
+    catch(_e){return false;}
+  }
+  window.l812TogglePresentationBar=function(){
+    try{
+      if(!appIsPresent()){setHidden(false);return false;}
+      setHidden(!isHidden());
+      return true;
+    }catch(_e){return false;}
+  };
+  window.l812ShowPresentationBar=function(){setHidden(false);return true;};
+  window.l812HidePresentationBar=function(){if(appIsPresent())setHidden(true);return true;};
+
+  document.addEventListener('visibilitychange',function(){try{if(!appIsPresent())setHidden(false);}catch(_e){}},{passive:true});
+})();
+</script>
 </body></html>
