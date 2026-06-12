@@ -1,3 +1,7 @@
+<!-- l871-sessionknapper-over-vaerktoej-safe: Bygger på l870. Flytter kun sessionmærket nederst til højre op over bundværktøjslinjen, så værktøjslinjens knapper ikke dækkes. Når værktøjslinjen er skjult eller appen er i præsentation, må sessionmærket falde tilbage nederst. Ingen ændring af sessionpakker, reset/oprydning, Tavlegenerator, widgets eller data. -->
+<!-- l870-oprydning-aktuel-session-global-factory-safe: Bygger på l868. Erstatter den uklare Factory reset i Oprydning med to tydeligt adskilte handlinger: Ryd aktuel session (kun aktiv #session, via ny tom state gemt på den aktuelle KEY) og Slet alt Tavle-data i denne browser (alle Tavle-localStorage-nøgler + kendte Tavle IndexedDB-databaser). Ingen ændring af sessionpakker, Tavlegenerator, widgets eller mediemodel. -->
+<!-- l861-sessionpakke-spejl-data-medier-log-safe: Bygger på l860. Gør sessionpakker sikrere: spejlede widgets pakkes som én widget med sharedVisibility, relevante datasæt og mediereferencer følger med, import bevarer spejling append-only, overførselslog opdateres som DataWidget/datasæt, og importafslutning viser returknap til afsendersession. -->
+<!-- l860-sessionpakke-aabn-session-reload-safe: Bygger på l859. Kirurgisk fix: Åbn destination efter sessionpakke skifter hash og genindlæser appen, så #session initialiseres og indgående pakke opdages. Ingen ændring af pakkeformat, importlogik, generator, widgets eller Hjælp. -->
 <!-- l858-hjaelp-tavlegenerator-lister-safe: Bygger på l857. Opdaterer kun Hjælp med praktisk forklaring af ListeWidget til TavleListe/Tavlegenerator-flow, CSV/Excel til DataWidget/ListeWidget, medielister som tavlekilde og widget-synlighed via Spejl widget. Ingen app-logik ændret. -->
 <!-- l846-tavlegenerator-pdf-runtime-clone-safe: Bygger på l845. Retter Tavlegeneratorens widgetkopi: PDFWidgets kan indeholde runtime-objekter fra PDF.js (_pdfDoc/_pdfRenderToken/renderTasks), som fik JSON-kloning til at fejle og dermed udelod PDFWidgetten. Kloningen sanitiserer nu runtimefelter før JSON-copy, mens fileMediaRef/src/url bevares. -->
 <!-- l845-tavlegenerator-pdf-kopi-bevar-liste-synlighed-safe: Bygger på l844. Retter Tavlegeneratorens kopiering i egen ejer: fysiske widgets på skabelontavlen kopieres uafhængigt af spejl-/visibility-opslag, skjulte koblede DataWidgets holdes ude, PDFWidgetten bevarer kilde-data, og kilde-listens eksisterende synlighed (fx Alle tavler) ændres ikke ved generering. -->
@@ -1711,7 +1715,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.242 l858-hjaelp-tavlegenerator-lister-safe</title>
+<title>Interaktiv tavle v1.2.253 l870-oprydning-aktuel-session-global-factory-safe</title>
 <!-- l773-tavlepanel-redigerknap-persistens: ⚙-redigerknappen renderes altid i Tavlepanel-DOM og skjules kun med mode-CSS, så den kommer tilbage efter præsentation/desktop-skift. Bygger på l772. -->
 <!-- l772-tavlepanel-check-og-redigerfix: kirurgisk fix oven på l770. Redigerknap holdes synlig i normal redigering, skjules i fokus/præsentation. Tavle-tjek flueben får robust tryk-binding. Titelzoom styrer tavletitler uden at ødelægge kortlayout. -->
 <meta name="application-name" content="Interaktiv tavle">
@@ -16074,6 +16078,58 @@ body.focus-maximized #toolbarFallback.l823ToolbarDots{
   background:linear-gradient(180deg,rgba(11,18,36,0),#0b1224 42%)!important;
 }
 </style>
+<style id="l859-sessionpakke-css">
+/* l859: Lille UI-lag til Tavlegeneratorens "Send til session" og modtageprompt. */
+.safe859SessionShare{
+  margin-top:10px!important;
+  border:1px solid rgba(125,211,252,.30)!important;
+  border-radius:14px!important;
+  background:rgba(17,27,51,.82)!important;
+  padding:8px 10px!important;
+}
+.safe859SessionShare summary{
+  cursor:pointer!important;
+  font-weight:950!important;
+}
+.safe859SessionGrid{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:8px!important;
+  align-items:end!important;
+  margin-top:8px!important;
+}
+.safe859SessionGrid label{display:grid!important;gap:4px!important;margin:0!important;}
+.safe859SessionGrid input{margin:0!important;}
+.safe859SessionNote{
+  grid-column:1/-1!important;
+  margin:0!important;
+  font-size:12px!important;
+  line-height:1.25!important;
+  font-weight:800!important;
+  opacity:.82!important;
+}
+.safe859TransferModal{display:grid!important;gap:10px!important;}
+.safe859TransferModal .safe859TransferBox{
+  border-radius:14px!important;
+  padding:10px 12px!important;
+  background:rgba(15,23,42,.07)!important;
+  display:grid!important;
+  gap:6px!important;
+}
+.safe859TransferModal .safe859TransferActions{
+  display:flex!important;
+  gap:8px!important;
+  justify-content:flex-end!important;
+  flex-wrap:wrap!important;
+}
+.safe859TransferModal code{
+  background:rgba(15,23,42,.10)!important;
+  padding:2px 5px!important;
+  border-radius:6px!important;
+}
+@media(max-width:680px){.safe859SessionGrid{grid-template-columns:1fr!important;}.safe859SessionGrid button{width:100%!important;}}
+</style>
+
 
 </head>
 <body>
@@ -47220,10 +47276,11 @@ function showQuickHelp(){
           <li><b>Hvor ligger data?</b> viser tavle-state, lokale filer, medier, gendannelsespunkter og gamle rester. Visningen flytter eller sletter ikke noget i sig selv.</li>
           <li><b>Oprydning</b> kan bruges til forsigtigt at rydde gamle nøgler eller hente backup af udvalgte dele. Den aktuelle tavle og vigtige indstillinger er normalt beskyttet.</li>
           <li><b>Medier</b> viser appens mediearkiv. Her kan du finde og slette forældreløse medier, hvis de ikke længere bruges af den aktuelle tavle.</li>
-          <li><b>Factory reset</b> nulstiller TavleAppen i denne browser. Brug det først, når backup er taget, og du vil starte forfra i samme session/browser.</li>
-          <li><b>Backup + før RESET:</b> Der findes to slags brugere: dem der tager <b>Backup +</b> inden reset — og dem der ønskede, de havde gjort det ;-)</li>
+          <li><b>Ryd aktuel session</b> fjerner tavler, widgets og datasæt i den session, du står i. Andre #sessioner, Standard og mediearkiv røres ikke.</li>
+          <li><b>Slet alt Tavle-data i denne browser</b> er den egentlige Factory reset. Den fjerner alle Tavle-sessioner, sessionpakker og kendte Tavle IndexedDB-arkiver i denne browser/webapp.</li>
+          <li><b>Backup + før total reset:</b> Der findes to slags brugere: dem der tager <b>Backup +</b> inden reset — og dem der ønskede, de havde gjort det ;-)</li>
         </ul>
-        <p>Brug RESET som sidste udvej. Lav først <b>Backup +</b>, og hent eventuelt vigtige filer ud med <b>Hent filer fra tavlen</b>.</p>
+        <p>Brug total reset som sidste udvej. Lav først <b>Backup +</b>, og hent eventuelt vigtige filer ud med <b>Hent filer fra tavlen</b>.</p>
         <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button><button type="button" class="helpJumpBtn" data-help-jump="Tavlesessioner">Tavlesessioner</button><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button></div>
       </div>
     </details>
@@ -48058,80 +48115,102 @@ function safe453i122DeleteSelectedLocalStorageKeys(){
   safe453i122OpenLocalStorageCleanup();
 }
 
-function safe453i227FactoryResetLocalStorage(){
+function safe870CurrentSessionLabel(){
   try{
-    const rows=safe453i118LocalStorageRows();
-    const appKeys=rows
-      .map(function(r){return r&&r.key?String(r.key):'';})
-      .filter(Boolean)
-      .filter(function(k){
-        /* Factory reset i Tavle-maskinrummet: sletter appens egne localStorage-nøgler,
-           men rører ikke andre websites' nøgler hvis appen ligger på samme origin. */
-        return /^maans_interaktiv_tavle_/i.test(k) ||
-               /^interaktivTavle/i.test(k) ||
-               /^maans_tavle_/i.test(k) ||
-               /^tavle2\./i.test(k) ||
-               /^virtual-desks/i.test(k);
-      });
-
-    if(!appKeys.length){
-      toast('Ingen Tavle-localStorage-nøgler fundet');
+    const id=(typeof TAVLE_SESSION_ID!=='undefined'&&TAVLE_SESSION_ID)?String(TAVLE_SESSION_ID):'standard';
+    return (typeof safe859SessionLabel==='function')?safe859SessionLabel(id):(id==='standard'?'Standard':'#'+id);
+  }catch(_e){return 'Standard';}
+}
+function safe870FreshSessionState(){
+  const fresh={active:0,slides:[classicHdSlide()],datasets:[]};
+  try{
+    fresh.sessionMeta=fresh.sessionMeta||{};
+    fresh.sessionMeta.sessionId=(typeof TAVLE_SESSION_ID!=='undefined'&&TAVLE_SESSION_ID)?TAVLE_SESSION_ID:'standard';
+    fresh.sessionMeta.storageKey=(typeof KEY==='string')?KEY:'';
+    fresh.sessionMeta.baseUrl=String(location.href||'').replace(/#.*/, '');
+    fresh.sessionMeta.lastOpenedAt=Date.now();
+    fresh.sessionMeta.clearedAt=Date.now();
+  }catch(_e){}
+  return fresh;
+}
+function safe870RydAktuelSession(){
+  try{
+    const currentKey=(typeof KEY==='string'&&KEY)?KEY:'';
+    if(!currentKey){toast('Aktuel sessionsnøgle blev ikke fundet');return;}
+    const sessionName=safe870CurrentSessionLabel();
+    const sure=prompt('Ryd aktuel session '+sessionName+'?\n\nDette fjerner tavler, widgets og datasæt i denne session. Andre sessioner og IndexedDB/mediearkiv røres ikke.\n\nSkriv RYD for at fortsætte.');
+    if(String(sure||'').trim().toUpperCase()!=='RYD'){
+      toast('Ryd aktuel session annulleret');
       return;
     }
-
-    const currentKey=(typeof KEY==='string')?KEY:'';
-    const currentSize=rows.find(function(r){return r.key===currentKey;});
-    const msg=[
-      'Factory reset nulstiller TavleAppen i denne browser.',
-      '',
-      'Det sletter:',
-      '• nuværende tavler/widgets i localStorage',
-      '• gamle Tavle-versioner i localStorage',
-      '• lokale hjælpenøgler/viste quick-help nøgler',
-      '',
-      'Det sletter ikke IndexedDB/mediearkivet herfra.',
-      'Lav evt. backup først.',
-      '',
-      'Antal localStorage-nøgler: '+appKeys.length+(currentSize?' — aktuel app-state er med':''),
-      '',
-      'Fortsæt?'
-    ].join('\n');
-
-    if(!confirm(msg))return;
-
-    const sure=prompt('Skriv RESET for at nulstille TavleAppen i denne browser.');
-    if(String(sure||'').trim().toUpperCase()!=='RESET'){
-      toast('Factory reset annulleret');
-      return;
-    }
-
-    const payload={
-      app:'maans-interaktiv-tavle',
-      format:'factory-reset-localStorage-backup',
-      createdAt:new Date().toISOString(),
-      note:'Automatisk backup før factory reset af Tavle localStorage. IndexedDB/mediearkiv er ikke med.',
-      keys:{}
-    };
-    appKeys.forEach(function(k){
-      try{payload.keys[k]=localStorage.getItem(k);}catch(_e){payload.keys[k]=null;}
-    });
-
-    try{
-      const name='factory-reset-backup-'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json';
-      safeDownload(name,JSON.stringify(payload,null,2),'application/json;charset=utf-8');
-    }catch(_e){}
-
-    let deleted=0;
-    appKeys.forEach(function(k){
-      try{localStorage.removeItem(k);deleted++;}catch(_e){}
-    });
-
-    alert('Factory reset er gennemført. Appen genindlæses nu.\n\nSlettede nøgler: '+deleted);
+    const fresh=safe870FreshSessionState();
+    try{localStorage.setItem(currentKey,(typeof safe453i161Stringify==='function'?safe453i161Stringify(fresh):JSON.stringify(fresh)));}
+    catch(_e){localStorage.setItem(currentKey,JSON.stringify(fresh));}
+    alert('Aktuel session er ryddet: '+sessionName+'. Appen genindlæses nu.');
     location.reload();
   }catch(err){
-    console.warn('Factory reset fejlede',err);
-    toast('Factory reset kunne ikke gennemføres');
+    console.warn('Ryd aktuel session fejlede',err);
+    toast('Kunne ikke rydde aktuel session');
   }
+}
+function safe870IsTavleLocalStorageKey(k){
+  k=String(k||'');
+  return /^(maans_interaktiv_tavle|maans_tavle|maans_wheel_lists|tavle_|safe453|safe455|safe859|safe861|safe868|udtalelser_|tjek_)/i.test(k) || k.indexOf('TavleSessioner')>=0 || k.indexOf('tavle')>=0;
+}
+function safe870DeleteIndexedDbDatabase(name){
+  return new Promise(function(resolve){
+    try{
+      if(!window.indexedDB||!name){resolve({name:name,ok:false,reason:'indexedDB ikke tilgængelig'});return;}
+      const req=indexedDB.deleteDatabase(name);
+      let done=false;
+      function finish(ok,reason){if(done)return;done=true;resolve({name:name,ok:!!ok,reason:reason||''});}
+      req.onsuccess=function(){finish(true,'slettet');};
+      req.onerror=function(){finish(false,(req.error&&req.error.message)||'fejl');};
+      req.onblocked=function(){finish(false,'blokeret af åben fane/app');};
+      setTimeout(function(){finish(false,'timeout');},1800);
+    }catch(err){resolve({name:name,ok:false,reason:String((err&&err.message)||err)});}
+  });
+}
+async function safe870FactoryResetAltTavleData(){
+  try{
+    const sure=prompt('Slet ALT Tavle-data i denne browser/webapp?\n\nDette fjerner alle Tavle-sessioner, Standard, sessionpakker, Tavle-localStorage og kendte Tavle IndexedDB-arkiver.\n\nSkriv RESET ALT for at fortsætte.');
+    if(String(sure||'').trim().toUpperCase()!=='RESET ALT'){
+      toast('Slet alt Tavle-data annulleret');
+      return;
+    }
+    const removedKeys=[];
+    try{
+      const keys=[];
+      for(let i=0;i<localStorage.length;i++){keys.push(localStorage.key(i));}
+      keys.forEach(function(k){
+        if(safe870IsTavleLocalStorageKey(k)){
+          try{localStorage.removeItem(k);removedKeys.push(k);}catch(_e){}
+        }
+      });
+    }catch(_e){}
+    let dbNames=['maans_tavle_media_archive','tavle_drawings_db'];
+    try{
+      if(indexedDB&&typeof indexedDB.databases==='function'){
+        const dbs=await indexedDB.databases();
+        (dbs||[]).forEach(function(d){
+          const n=String(d&&d.name||'');
+          if(n&&/tavle|maans/i.test(n)&&dbNames.indexOf(n)<0)dbNames.push(n);
+        });
+      }
+    }catch(_e){}
+    const dbResults=[];
+    for(const n of dbNames){dbResults.push(await safe870DeleteIndexedDbDatabase(n));}
+    const blocked=dbResults.filter(r=>!r.ok).map(r=>r.name).filter(Boolean);
+    alert('Factory reset er forsøgt gennemført.\n\nlocalStorage-nøgler slettet: '+removedKeys.length+'\nIndexedDB: '+(dbResults.length-blocked.length)+'/'+dbResults.length+' slettet'+(blocked.length?'\nMuligt blokeret indtil genstart: '+blocked.join(', '):'')+'\n\nAppen åbnes nu uden #session.');
+    try{location.href=String(location.href||'').replace(/#.*/, '');}
+    catch(_e){location.reload();}
+  }catch(err){
+    console.warn('Slet alt Tavle-data fejlede',err);
+    toast('Kunne ikke slette alt Tavle-data');
+  }
+}
+function safe453i227FactoryResetLocalStorage(){
+  return safe870FactoryResetAltTavleData();
 }
 
 function safe453i122OpenLocalStorageCleanup(){
@@ -48150,7 +48229,7 @@ function safe453i122OpenLocalStorageCleanup(){
   }).join('');
   showModal(`<h2>Ryd gamle localStorage-data</h2>
     <div class="safe453StorageTopActions"><button data-safe453i122-back-storage="1" title="Tilbage til Hvor ligger data" aria-label="Tilbage til Hvor ligger data">←</button><span id="safe453i122SelectedCount">0 valgt</span></div>
-    <p class="safe453Note">Forsigtig oprydning. Intet er valgt på forhånd. Aktuel app-state og indstillingsnøgler er beskyttet. Denne funktion sletter kun localStorage-nøgler — ikke IndexedDB/mediearkivet.</p>
+    <p class="safe453Note">Forsigtig oprydning. Intet er valgt på forhånd. Aktuel app-state og indstillingsnøgler er beskyttet i nøgletabellen. Brug <b>Ryd aktuel session</b> til en frisk tom session, eller <b>Slet alt Tavle-data</b> hvis hele webappen/browserlageret skal nulstilles.</p>
     <div class="safe453i122CleanupBox">
       <table><thead><tr><th></th><th>Nøgle</th><th>Vurdering</th><th>Størrelse</th><th>Indhold</th></tr></thead><tbody>${body||'<tr><td colspan="5">Ingen localStorage-nøgler fundet</td></tr>'}</tbody></table>
     </div>
@@ -48160,15 +48239,20 @@ function safe453i122OpenLocalStorageCleanup(){
       <button id="safe453i122SelectNone">Vælg ingen</button>
       <button id="safe453i122BackupSelected" disabled>Hent backup af valgte</button>
     </div>
+    <div class="safe870ResetChoiceBox">
+      <strong>Ryd aktuel session</strong>
+      <small>Fjerner tavler, widgets og datasæt i den session du står i. Andre #sessioner, Standard og mediearkiv røres ikke.</small>
+      <button id="safe870ClearCurrentSession" type="button">Ryd aktuel session</button>
+    </div>
     <div class="safe453i227FactoryResetBox">
-      <strong>Nem nulstilling</strong>
-      <small>Brug kun hvis appen er blevet tung, rodet eller fejlramt, og du vil starte helt forfra i denne browser.</small>
-      <button id="safe453i227FactoryReset" type="button">Factory reset TavleAppen</button>
+      <strong>Slet alt Tavle-data i denne browser</strong>
+      <small>Fjerner alle Tavle-sessioner, sessionpakker og kendte Tavle IndexedDB-arkiver. Brug kun som sidste udvej efter Backup+.</small>
+      <button id="safe453i227FactoryReset" type="button">Slet alt Tavle-data</button>
     </div>
     <label class="safe453i122Confirm"><input id="safe453i122DeleteConfirm" type="checkbox"> Jeg forstår, at valgte localStorage-nøgler slettes fra denne browser.</label>
     <div class="safe453i122Actions"><button id="safe453i122DeleteSelected" disabled>Slet valgte nøgler</button><button data-safe453i122-back-storage="1">Tilbage</button></div>
     <style>
-      .safe453i122CleanupBox{max-height:45vh;overflow:auto;border:1px solid #dbe3ef;border-radius:12px;background:#fff;margin:10px 0}.safe453i122CleanupBox table{width:100%;border-collapse:collapse;font-size:.86rem}.safe453i122CleanupBox th,.safe453i122CleanupBox td{border-top:1px solid #eef2f7;padding:7px;text-align:left;vertical-align:top}.safe453i122CleanupBox code{font-size:.78rem;word-break:break-all}.safe453i122Protected{opacity:.62;background:#f7f8fb}.safe453i122Lock{display:inline-block;margin-left:6px;color:#526070}.safe453i122Actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.safe453i122Confirm{display:block;background:#fff7e8;border:1px solid #f3d39a;border-radius:10px;padding:9px;margin:10px 0;font-weight:700}.safe453i227FactoryResetBox{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;background:#fff1f2;border:1px solid #fecdd3;border-radius:12px;padding:10px;margin:12px 0}.safe453i227FactoryResetBox strong{color:#991b1b}.safe453i227FactoryResetBox small{color:#7f1d1d;font-weight:700}.safe453i227FactoryResetBox button{grid-row:1/3;grid-column:2;background:#b91c1c!important;color:#fff!important;font-weight:950}@media(max-width:760px){.safe453i122CleanupBox{max-height:42vh}.safe453i122Actions button{flex:1 1 45%}.safe453i227FactoryResetBox{grid-template-columns:1fr}.safe453i227FactoryResetBox button{grid-row:auto;grid-column:auto}}
+      .safe453i122CleanupBox{max-height:45vh;overflow:auto;border:1px solid #dbe3ef;border-radius:12px;background:#fff;margin:10px 0}.safe453i122CleanupBox table{width:100%;border-collapse:collapse;font-size:.86rem}.safe453i122CleanupBox th,.safe453i122CleanupBox td{border-top:1px solid #eef2f7;padding:7px;text-align:left;vertical-align:top}.safe453i122CleanupBox code{font-size:.78rem;word-break:break-all}.safe453i122Protected{opacity:.62;background:#f7f8fb}.safe453i122Lock{display:inline-block;margin-left:6px;color:#526070}.safe453i122Actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.safe453i122Confirm{display:block;background:#fff7e8;border:1px solid #f3d39a;border-radius:10px;padding:9px;margin:10px 0;font-weight:700}.safe870ResetChoiceBox,.safe453i227FactoryResetBox{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;border-radius:12px;padding:10px;margin:12px 0}.safe870ResetChoiceBox{background:#ecfdf5;border:1px solid #a7f3d0}.safe870ResetChoiceBox strong{color:#065f46}.safe870ResetChoiceBox small{color:#064e3b;font-weight:700}.safe870ResetChoiceBox button{grid-row:1/3;grid-column:2;background:#047857!important;color:#fff!important;font-weight:950}.safe453i227FactoryResetBox{background:#fff1f2;border:1px solid #fecdd3}.safe453i227FactoryResetBox strong{color:#991b1b}.safe453i227FactoryResetBox small{color:#7f1d1d;font-weight:700}.safe453i227FactoryResetBox button{grid-row:1/3;grid-column:2;background:#b91c1c!important;color:#fff!important;font-weight:950}@media(max-width:760px){.safe453i122CleanupBox{max-height:42vh}.safe453i122Actions button{flex:1 1 45%}.safe870ResetChoiceBox,.safe453i227FactoryResetBox{grid-template-columns:1fr}.safe870ResetChoiceBox button,.safe453i227FactoryResetBox button{grid-row:auto;grid-column:auto}}
     </style>`);
   modal.querySelectorAll('[data-safe453i122-back-storage]').forEach(function(btn){btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();}safe453i118OpenStorageOverview();};});
   modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){cb.onchange=safe453i122RefreshCleanupButtons;});
@@ -48193,6 +48277,8 @@ function safe453i122OpenLocalStorageCleanup(){
   if(none)none.onclick=function(){modal.querySelectorAll('input[data-safe453i122-ls-key]').forEach(function(cb){cb.checked=false;});safe453i122RefreshCleanupButtons();};
   const backup=modal.querySelector('#safe453i122BackupSelected');
   if(backup)backup.onclick=safe453i122BackupSelectedLocalStorageKeys;
+  const clearCurrent=modal.querySelector('#safe870ClearCurrentSession');
+  if(clearCurrent)clearCurrent.onclick=safe870RydAktuelSession;
   const factory=modal.querySelector('#safe453i227FactoryReset');
   if(factory)factory.onclick=safe453i227FactoryResetLocalStorage;
   const del=modal.querySelector('#safe453i122DeleteSelected');
@@ -50829,6 +50915,753 @@ function safe827MakeBoardFromTemplate(template,title,opts,seq,source){
   }
   return copy;
 }
+
+
+/* l861: Sessionpakker for Tavlegeneratoren.
+   Dette lag erstatter l859/l860-pakkelogikken, men rører ikke lokal Tavlegenerator.
+   Mål:
+   - Tavler kan genereres virtuelt til en anden #session uden at oprettes lokalt.
+   - Spejlede/all-visible widgets bevares som ÉN widget med sharedVisibility, ikke kopier pr. tavle.
+   - Relevante datasæt og mediereferencer følger med pakken.
+   - Import er append-only og skriver overførselslog som almindeligt datasæt/DataWidget-grundlag.
+*/
+const SAFE859_PACKAGE_INDEX_KEY='maans_tavle_session_packages_index_v1';
+const SAFE861_TRANSFER_LOG_NAME='Sessionpakker / Overførselslog';
+function safe859NowText(){try{return safe455uH33SessionTimestamp(new Date());}catch(_e){return new Date().toLocaleString('da-DK');}}
+function safe859CurrentSessionId(){try{return (typeof TAVLE_SESSION_ID!=='undefined'&&TAVLE_SESSION_ID)?String(TAVLE_SESSION_ID):'standard';}catch(_e){return 'standard';}}
+function safe859BaseUrl(){try{return String(location.href||'').replace(/#.*/, '');}catch(_e){return '';}}
+function safe859SessionId(raw){
+  try{
+    let s=String(raw||'').trim();
+    if(!s)return '';
+    try{const u=new URL(s,location.href); if(u.hash)s=decodeURIComponent(u.hash.replace(/^#/,''));}
+    catch(_u){}
+    s=s.replace(/^#/,'').trim();
+    if(typeof tavleSlugifySessionName==='function')s=tavleSlugifySessionName(s);
+    else s=s.replace(/[^A-Za-z0-9_-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+    return s||'';
+  }catch(_e){return '';}
+}
+function safe859SessionLabel(id){try{id=safe859SessionId(id)||String(id||'standard');return id==='standard'?'Standard':'#'+id;}catch(_e){return String(id||'');}}
+function safe859SessionUrl(id){
+  try{const base=safe859BaseUrl(); id=safe859SessionId(id)||'standard'; return id==='standard'?base:(base+'#'+encodeURIComponent(String(id||'')));}
+  catch(_e){return '#'+encodeURIComponent(String(id||''));}
+}
+function safe859PackageKey(id){return 'maans_tavle_session_package__'+String(id||'');}
+function safe859ReadPackageIndex(){
+  try{const a=JSON.parse(localStorage.getItem(SAFE859_PACKAGE_INDEX_KEY)||'[]');return Array.isArray(a)?a.map(String).filter(Boolean):[];}catch(_e){return [];}
+}
+function safe859WritePackageIndex(ids){
+  try{localStorage.setItem(SAFE859_PACKAGE_INDEX_KEY,JSON.stringify(Array.from(new Set((ids||[]).map(String).filter(Boolean))).slice(-80)));return true;}catch(_e){return false;}
+}
+function safe859ReadPackage(id){try{return JSON.parse(localStorage.getItem(safe859PackageKey(id))||'null');}catch(_e){return null;}}
+function safe859WritePackage(pkg){
+  if(!pkg||!pkg.id)return false;
+  try{
+    localStorage.setItem(safe859PackageKey(pkg.id),JSON.stringify(pkg));
+    const ids=safe859ReadPackageIndex();
+    ids.push(String(pkg.id));
+    safe859WritePackageIndex(ids);
+    return true;
+  }catch(_e){return false;}
+}
+async function safe859DownloadPackage(pkg){
+  try{
+    if(!pkg)return false;
+    try{toast('Pakker JSON…');}catch(_t){}
+    const full=safe859CloneForPackage(pkg,{});
+    full.transport='JSON-fil';
+    full.exportedAt=Date.now();
+    /* l862: Auto-overførsel gemmer kun lette lokale mediaRefs i localStorage.
+       Når brugeren vælger Gem JSON, beriges pakken først med dataURLs, så filen kan flyttes
+       til en anden browser/enhed uden at miste medier. */
+    try{
+      const refs=safe861MediaRefsFromObject({slides:full.slides,datasets:full.datasets});
+      if(refs&&refs.length){
+        full.media=await safe861PackageMediaRefs(refs,{includeDataUrl:true});
+        full.mediaRefCount=refs.length;
+        full.mediaPackedCount=(full.media||[]).filter(x=>x&&x.dataUrl).length;
+      }
+    }catch(_m){}
+    const name='tavlepakke-til-'+String(full&&full.toSession||'session')+'.json';
+    const txt=(typeof safe453i161Stringify==='function')?safe453i161Stringify(full,2):JSON.stringify(full,null,2);
+    if(typeof tavleDownloadTextFile==='function')tavleDownloadTextFile(name,txt,'application/json;charset=utf-8');
+    else {const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+    try{toast('JSON-pakke gemt');}catch(_t){}
+    return true;
+  }catch(_e){try{toast('Kunne ikke gemme JSON-pakke');}catch(__e){} return false;}
+}
+function safe859CloneForPackage(v,fallback){
+  try{if(typeof safe453i161Clone==='function')return safe453i161Clone(v,fallback===undefined?{}:fallback);}
+  catch(_e){}
+  try{return JSON.parse(JSON.stringify(v));}catch(_e){return fallback===undefined?{}:fallback;}
+}
+function safe861Html(s){try{return safe827Html(s);}catch(_e){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}}
+function safe861Uid(prefix){try{return (typeof uid==='function')?uid():(String(prefix||'id')+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8));}catch(_e){return String(prefix||'id')+'_'+Math.random().toString(36).slice(2,8);}}
+function safe861PackageSlideId(seq){return 'pkg_slide_'+Date.now().toString(36)+'_'+seq+'_'+Math.random().toString(36).slice(2,7);}
+function safe861PackageWidgetId(seq,i){return 'pkg_widget_'+Date.now().toString(36)+'_'+seq+'_'+i+'_'+Math.random().toString(36).slice(2,7);}
+function safe861CleanClone(w){try{safe842CleanClonedWidget(w);}catch(_e){} return w;}
+function safe861SharedVisibilityForGenerated(w,templateIndex,generatedIds){
+  try{
+    const v=(w&&w.sharedVisibility)||{};
+    const mode=String(v.mode||'single');
+    const ids=Array.isArray(v.slideIds)?v.slideIds.map(String).filter(Boolean):[];
+    if(mode==='all')return {mode:'selected',slideIds:generatedIds.slice()};
+    if(mode==='selected'&&ids.length>1)return {mode:'selected',slideIds:generatedIds.slice()};
+  }catch(_e){}
+  return null;
+}
+function safe859BuildGeneratedSlidesForPackage(source,opts){
+  try{
+    opts=Object.assign({},opts||{});
+    const names=(source&&Array.isArray(source.names)?source.names:[]).map(x=>String(x||'').trim()).filter(Boolean);
+    const requestedIndex=Number(opts.templateIndex);
+    const templateIndex=Number.isInteger(requestedIndex)&&state.slides&&state.slides[requestedIndex]&&!safe827IsTrash(state.slides[requestedIndex])?requestedIndex:(Number.isInteger(state.active)?state.active:0);
+    const template=state.slides&&state.slides[templateIndex];
+    if(!template||safe827IsTrash(template))return [];
+    const generated=names.map(function(name,i){
+      const sl={id:safe861PackageSlideId(i+1),title:String(name||'Ny tavle').trim()||'Ny tavle',widgets:[],transferMeta:{originKind:'generated-from-list',sourceKey:String(source&&source.key||''),sourceLabel:String(source&&source.label||''),sourceIndex:i,sourceName:String(name||''),templateSlideId:String(template.id||''),originKey:String(safe859CurrentSessionId())+'|template:'+String(template.id||template.title||templateIndex)+'|source:'+String(source&&source.key||'')+'|item:'+String(i)+'|name:'+String(name||'')}};
+      safe842CopySlideLook(template,sl,opts);
+      return sl;
+    });
+    if(!opts.copyWidgets||!generated.length)return generated;
+    const generatedIds=generated.map(sl=>String(sl.id));
+    const records=safe842VisibleTemplateWidgetRecords(templateIndex);
+    const sharedDone=new Set();
+    const baseZ=safe827MaxZ()+5000;
+    records.forEach(function(rec,ri){
+      const w=rec&&rec.w;
+      if(!w||safe827ShouldSkipWidget(w,source,opts))return;
+      const sharedVis=safe861SharedVisibilityForGenerated(w,templateIndex,generatedIds);
+      if(sharedVis){
+        const key=String(w.id||('shared_'+ri));
+        if(sharedDone.has(key))return;
+        sharedDone.add(key);
+        const cw=safe861CleanClone(safe827ClonePlain(w,null));
+        if(!cw)return;
+        cw.id=safe861PackageWidgetId(0,ri);
+        cw.sharedVisibility=sharedVis;
+        if(!(Number(cw.z)>0))cw.z=baseZ+ri;
+        cw.transferMeta=Object.assign({},cw.transferMeta||{},{originWidgetId:String(w.id||''),originVisibility:'shared'});
+        generated[0].widgets.push(cw);
+        return;
+      }
+      generated.forEach(function(sl,si){
+        const cw=safe861CleanClone(safe827ClonePlain(w,null));
+        if(!cw)return;
+        cw.id=safe861PackageWidgetId(si+1,ri);
+        cw.sharedVisibility={mode:'single',slideIds:[String(sl.id)]};
+        if(!(Number(cw.z)>0))cw.z=baseZ+si*100+ri;
+        cw.transferMeta=Object.assign({},cw.transferMeta||{},{originWidgetId:String(w.id||''),originVisibility:'single'});
+        sl.widgets.push(cw);
+      });
+    });
+    return generated;
+  }catch(_e){return [];}
+}
+function safe859DatasetRefsFromSlides(slides,source){
+  const wanted=new Set();
+  try{
+    const all=new Set((Array.isArray(state&&state.datasets)?state.datasets:[]).map(ds=>String(ds&&ds.id||'')).filter(Boolean));
+    function add(id){id=String(id||'');if(id&&all.has(id))wanted.add(id);}
+    if(source){add(source.datasetId);add(source.sourceDatasetId);add(source.linkedDataDatasetId);}
+    function scan(v,k){
+      try{
+        if(v==null)return;
+        if(typeof v==='string'){if(all.has(v))wanted.add(v);return;}
+        if(typeof v!=='object')return;
+        if(Array.isArray(v)){v.forEach(x=>scan(x,k));return;}
+        Object.keys(v).forEach(function(key){
+          const val=v[key];
+          if(/dataset|datasæt|dataSet|sourceDataset|linkedData/i.test(String(key||''))&&typeof val==='string')add(val);
+          scan(val,key);
+        });
+      }catch(_e){}
+    }
+    (slides||[]).forEach(function(sl){scan(sl,'slide');});
+  }catch(_e){}
+  return wanted;
+}
+function safe859PackageDatasets(slides,source){
+  try{
+    const ids=safe859DatasetRefsFromSlides(slides,source);
+    return (Array.isArray(state&&state.datasets)?state.datasets:[]).filter(ds=>ids.has(String(ds&&ds.id||''))).map(ds=>safe859CloneForPackage(ds,{}));
+  }catch(_e){return [];}
+}
+function safe861MediaRefsFromObject(obj){
+  const refs=new Set();
+  const seen=new Set();
+  const keys=new Set(['mediaRef','previewMediaRef','srcMediaRef','fileMediaRef','udtBackupRef','tjekBackupRef','localMediaRef','audioMediaRef','videoMediaRef','posterMediaRef','blobRef']);
+  function visit(v,depth){
+    try{
+      if(depth>14||v==null)return;
+      if(typeof v!=='object')return;
+      if(seen.has(v))return; seen.add(v);
+      if(Array.isArray(v)){v.forEach(x=>visit(x,depth+1));return;}
+      Object.keys(v).forEach(function(k){
+        const val=v[k];
+        if(keys.has(k)&&typeof val==='string'&&val)refs.add(val);
+        visit(val,depth+1);
+      });
+    }catch(_e){}
+  }
+  visit(obj,0);
+  return Array.from(refs).filter(Boolean);
+}
+function safe861BlobToDataUrl(blob){
+  return new Promise(function(resolve,reject){
+    try{const r=new FileReader();r.onload=function(){resolve(String(r.result||''));};r.onerror=function(){reject(r.error||new Error('Kunne ikke læse medie'));};r.readAsDataURL(blob);}catch(err){reject(err);}
+  });
+}
+function safe861DataUrlToBlob(dataUrl){
+  try{
+    const s=String(dataUrl||'');
+    const m=s.match(/^data:([^;,]*)(;base64)?,(.*)$/i);
+    if(!m)return new Blob([s],{type:'application/octet-stream'});
+    const mime=m[1]||'application/octet-stream';
+    const body=m[3]||'';
+    if(m[2]){
+      const bin=atob(body); const arr=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+      return new Blob([arr],{type:mime});
+    }
+    return new Blob([decodeURIComponent(body)],{type:mime});
+  }catch(_e){return new Blob([], {type:'application/octet-stream'});}
+}
+async function safe861PackageMediaRefs(refs,opts){
+  const out=[];
+  opts=Object.assign({includeDataUrl:false},opts||{});
+  try{
+    const archive=window.TavleMediaArchive;
+    const seen=new Set();
+    for(const ref of (refs||[])){
+      const id=String(ref||''); if(!id||seen.has(id))continue; seen.add(id);
+      let item={oldId:id,kind:'',name:id,mimeType:'application/octet-stream',size:0,source:'sessionpakke',meta:{},localOnly:!opts.includeDataUrl};
+      try{
+        if(archive&&typeof archive.getMedia==='function'){
+          const rec=await archive.getMedia(id);
+          if(rec){
+            item.kind=rec.kind||'';
+            item.name=rec.name||id;
+            item.mimeType=rec.mimeType||(rec.blob&&rec.blob.type)||'application/octet-stream';
+            item.size=Number(rec.size)||(rec.blob&&rec.blob.size)||0;
+            item.source=rec.source||'sessionpakke';
+            item.meta=safe859CloneForPackage(rec.meta||{},{});
+            item.localOnly=!opts.includeDataUrl;
+            if(opts.includeDataUrl&&rec.blob){
+              item.dataUrl=await safe861BlobToDataUrl(rec.blob);
+              item.localOnly=false;
+            }
+          }
+        }
+      }catch(err){try{console.warn('l862 kunne ikke læse medie',id,err);}catch(_e){}}
+      out.push(item);
+    }
+  }catch(_e){}
+  return out;
+}
+async function safe861ImportMediaItems(mediaItems,idMap){
+  try{
+    const archive=window.TavleMediaArchive;
+    for(const item of (mediaItems||[])){
+      try{
+        const old=String(item&&item.oldId||''); if(!old)continue;
+        if(item&&item.dataUrl&&archive&&typeof archive.putMedia==='function'){
+          const blob=safe861DataUrlToBlob(item.dataUrl||'');
+          const rec=await archive.putMedia({kind:item.kind||'session-media',name:item.name||old,mimeType:item.mimeType||(blob&&blob.type)||'application/octet-stream',size:Number(item.size)||(blob&&blob.size)||0,blob:blob,source:'session-package-import',meta:Object.assign({},safe859CloneForPackage(item.meta||{},{}),{oldMediaRef:old,importedAt:new Date().toISOString()})});
+          if(rec&&rec.id)idMap[old]=String(rec.id);
+        }else{
+          /* l862: Lokal auto-overførsel mellem #sessioner i samme browser skal ikke duplikere
+             medieblobs. Den importerede widget må beholde samme mediaRef, som stadig findes i
+             TavleMediaArchive på samme device/webapp. */
+          idMap[old]=old;
+        }
+      }catch(err){try{console.warn('l862 kunne ikke importere medie',item&&item.oldId,err);}catch(_e){}}
+    }
+  }catch(_e){}
+  return idMap;
+}
+function safe861EnsureTransferLogDataset(){
+  try{
+    state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+    let ds=state.datasets.find(x=>String(x&&x.name||'').trim()===SAFE861_TRANSFER_LOG_NAME);
+    if(!ds){
+      ds={id:safe861Uid('ds'),name:SAFE861_TRANSFER_LOG_NAME,type:'transfer-log',columns:['Dato/tid','Handling','Fra session','Fra link','Til session','Til link','Transport','Pakke-id','OriginKey','Tavletitel','Kilde tavle-id','Importeret tavle-id','Status','Kommentar'],rows:[],sourceName:SAFE861_TRANSFER_LOG_NAME,sourceType:'session-transfer-log',importedAt:Date.now(),updatedAt:Date.now()};
+      state.datasets.push(ds);
+    }
+    ds.columns=['Dato/tid','Handling','Fra session','Fra link','Til session','Til link','Transport','Pakke-id','OriginKey','Tavletitel','Kilde tavle-id','Importeret tavle-id','Status','Kommentar'];
+    ds.rows=Array.isArray(ds.rows)?ds.rows:[];
+    ds.type=ds.type||'transfer-log'; ds.sourceType=ds.sourceType||'session-transfer-log'; ds.updatedAt=Date.now();
+    return ds;
+  }catch(_e){return null;}
+}
+function safe861AppendTransferLogRows(rows){
+  try{
+    const ds=safe861EnsureTransferLogDataset(); if(!ds)return false;
+    (rows||[]).forEach(r=>ds.rows.push(r));
+    ds.updatedAt=Date.now();
+    return true;
+  }catch(_e){return false;}
+}
+function safe861LogRowsForPackage(pkg,action,importMap){
+  const rows=[]; const now=safe859NowText();
+  try{
+    (pkg.slides||[]).forEach(function(sl){
+      const meta=sl.transferMeta||{};
+      const oldId=String(sl.id||'');
+      const newId=importMap?String(importMap[oldId]||''):'';
+      rows.push([now,action||'Sendt',safe859SessionLabel(pkg.fromSession),pkg.fromUrl||safe859SessionUrl(pkg.fromSession),safe859SessionLabel(pkg.toSession),pkg.toUrl||safe859SessionUrl(pkg.toSession),pkg.transport||'lokal browserpakke',pkg.id||'',meta.originKey||'',sl.title||'',oldId,newId,importMap?'Hentet':'Sendt', (action==='Hentet'?'Hentet ':'Sendt ')+(pkg.slides||[]).length+' tavler']);
+    });
+  }catch(_e){}
+  return rows;
+}
+function safe859EnsureSessionListDataset(){
+  try{
+    state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+    let ds=state.datasets.find(x=>String(x&&x.name||'').trim()==='TavleSessioner');
+    if(!ds){
+      ds={id:safe861Uid('ds'),name:'TavleSessioner',type:'link-list',columns:['Titel','URL','Note','Oprettet','Senest åbnet'],rows:[],sourceName:'TavleSessioner',sourceType:'session-list',importedAt:Date.now(),updatedAt:Date.now()};
+      state.datasets.push(ds);
+    }
+    ds.columns=['Titel','URL','Note','Oprettet','Senest åbnet'];
+    ds.rows=Array.isArray(ds.rows)?ds.rows:[];
+    ds.type=ds.type||'link-list'; ds.sourceType=ds.sourceType||'session-list'; ds.sourceName=ds.sourceName||'TavleSessioner'; ds.updatedAt=Date.now();
+    return ds;
+  }catch(_e){return null;}
+}
+function safe859UpsertSessionListNote(sessionId,note,url,localKnown){
+  try{
+    const ds=safe859EnsureSessionListDataset(); if(!ds)return false;
+    const id=safe859SessionId(sessionId)||String(sessionId||'standard');
+    const title=id==='standard'?'Standard':id;
+    const row=[title,url||safe859SessionUrl(id),String(note||'')+(localKnown===false?' · findes evt. kun som oprindelse':'') ,safe859NowText(),safe859NowText()];
+    const key=(typeof safe455uH32SessionRowKey==='function')?safe455uH32SessionRowKey(row):title;
+    let found=false;
+    ds.rows=(ds.rows||[]).map(function(r){
+      try{
+        const nr=(typeof safe455uH32NormalizeSessionRow==='function')?safe455uH32NormalizeSessionRow(r):(Array.isArray(r)?r:[r&&r.Titel||'',r&&r.URL||'',r&&r.Note||'',r&&r.Oprettet||'',r&&r['Senest åbnet']||'']);
+        const rk=(typeof safe455uH32SessionRowKey==='function')?safe455uH32SessionRowKey(nr):String(nr[0]||'');
+        if(rk===key){found=true;return row;}
+        return nr;
+      }catch(_e){return r;}
+    });
+    if(!found)ds.rows.unshift(row);
+    return true;
+  }catch(_e){return false;}
+}
+function safe859CreateTransferPackageSyncSkeleton(source,opts,destinationRaw){
+  const to=safe859SessionId(destinationRaw);
+  if(!to){toast('Skriv en destinationssession, fx #uge26');return null;}
+  const from=safe859CurrentSessionId();
+  if(to===from){toast('Vælg en anden session end den aktuelle');return null;}
+  const slides=safe859BuildGeneratedSlidesForPackage(source,opts);
+  if(!slides.length){toast('Ingen tavler at sende');return null;}
+  const datasets=safe859PackageDatasets(slides,source);
+  const id='pkg_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+  return {packageType:'tavle-session-transfer',formatVersion:2,id:id,createdAt:Date.now(),createdAtText:safe859NowText(),status:'ready',transport:'lokal browserpakke',fromSession:from,fromUrl:safe859SessionUrl(from),toSession:to,toUrl:safe859SessionUrl(to),sourceLabel:String(source&&source.label||'Navneliste'),sourceKey:String(source&&source.key||''),sourceCount:slides.length,options:safe859CloneForPackage(opts||{},{}),slides:slides,datasets:datasets,media:[],notes:[]};
+}
+async function safe859CreateTransferPackage(source,opts,destinationRaw){
+  const pkg=safe859CreateTransferPackageSyncSkeleton(source,opts,destinationRaw);
+  if(!pkg)return null;
+  try{
+    const refs=safe861MediaRefsFromObject({slides:pkg.slides,datasets:pkg.datasets});
+    /* l862: Lokal auto-overførsel må være let nok til localStorage.
+       Derfor gemmes mediaRefs + metadata, men ikke blob/dataURL. I samme browser kan destinationen
+       stadig læse de samme mediaRefs fra TavleMediaArchive. */
+    pkg.media=await safe861PackageMediaRefs(refs,{includeDataUrl:false});
+    pkg.mediaRefCount=refs.length;
+    pkg.mediaPackedCount=(pkg.media||[]).length;
+    pkg.mediaStorage='local-media-ref';
+  }catch(_e){pkg.media=[];}
+  return pkg;
+}
+function safe859ShowPackageReady(pkg,stored){
+  try{
+    const dest=pkg.toUrl||safe859SessionUrl(pkg.toSession);
+    const mediaNote=(Number(pkg.mediaRefCount||0)>0)?(' · lokale medier: '+Number(pkg.mediaPackedCount||0)+'/'+Number(pkg.mediaRefCount||0)):' · ingen medier fundet';
+    showModal('<div class="safe859TransferModal"><h2>📦 Tavlepakke klar</h2><div class="safe859TransferBox"><b>'+safe861Html(pkg.sourceCount+' tavler til '+safe859SessionLabel(pkg.toSession))+'</b><span>Datasæt: '+safe861Html((pkg.datasets||[]).length)+mediaNote+'</span><span>Spejlede widgets bevares som én widget med synlighed på de importerede tavler.</span></div>'+(stored?'<p>Åbn destinationen for at hente pakken automatisk.</p>':'<p><b>Automatisk lagring lykkedes ikke.</b> Gem pakken som JSON og importer den manuelt i destinationen.</p>')+'<div class="safe859TransferActions">'+(stored?'<button id="safe859OpenDest" class="primary">Åbn '+safe861Html(safe859SessionLabel(pkg.toSession))+'</button>':'')+'<button id="safe859DownloadPkg">Gem JSON</button><button id="safe859StayHere">Bliv her</button></div></div>');
+    const open=modal.querySelector('#safe859OpenDest');
+    const dl=modal.querySelector('#safe859DownloadPkg');
+    const stay=modal.querySelector('#safe859StayHere');
+    if(open)open.onclick=function(e){
+      e.preventDefault();
+      try{closeModal();location.href=dest;setTimeout(function(){try{location.reload();}catch(_r){}},120);}catch(_e){try{window.open(dest,'_self');setTimeout(function(){try{location.reload();}catch(_r){}},180);}catch(__e){}}
+    };
+    if(dl)dl.onclick=function(e){e.preventDefault();safe859DownloadPackage(pkg);};
+    if(stay)stay.onclick=function(e){e.preventDefault();closeModal();};
+  }catch(_e){try{toast('Tavlepakke klar til '+safe859SessionLabel(pkg.toSession));}catch(__e){}}
+}
+async function safe859SendGeneratedPackage(source,opts,destinationRaw){
+  try{
+    try{toast('Pakker tavler…');}catch(_t){}
+    const pkg=await safe859CreateTransferPackage(source,opts,destinationRaw);
+    if(!pkg)return false;
+    const stored=safe859WritePackage(pkg);
+    try{safe859UpsertSessionListNote(pkg.toSession,'Sendt '+pkg.sourceCount+' tavler dertil fra '+safe859SessionLabel(pkg.fromSession)+' · '+safe859NowText(),pkg.toUrl,true);}catch(_e){}
+    try{safe868RememberSessionRelation(pkg.fromSession,pkg.toSession,'send');safe868UpdateSessionBadge();}catch(_e){}
+    try{safe861AppendTransferLogRows(safe861LogRowsForPackage(pkg,'Sendt',null));}catch(_e){}
+    try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+    safe859ShowPackageReady(pkg,stored);
+    return true;
+  }catch(err){console.error('l861 send fejl',err);try{toast('Kunne ikke sende tavlepakke');}catch(_e){}return false;}
+}
+function safe859UniqueSlideTitle(base){
+  try{
+    base=String(base||'Ny tavle').trim()||'Ny tavle';
+    const used=new Set((state.slides||[]).map(sl=>String(sl&&sl.title||'')));
+    if(!used.has(base))return base;
+    let i=2;
+    while(used.has(base+' '+i))i++;
+    return base+' '+i;
+  }catch(_e){return String(base||'Ny tavle');}
+}
+function safe859ReplaceIdsDeep(v,map){
+  try{
+    if(v==null)return v;
+    if(typeof v==='string')return map[v]||v;
+    if(typeof v!=='object')return v;
+    if(Array.isArray(v))return v.map(x=>safe859ReplaceIdsDeep(x,map));
+    Object.keys(v).forEach(function(k){v[k]=safe859ReplaceIdsDeep(v[k],map);});
+    return v;
+  }catch(_e){return v;}
+}
+function safe861NormalizeImportedVisibility(w,importedIds){
+  try{
+    w.sharedVisibility=w.sharedVisibility||{mode:'single',slideIds:[]};
+    let mode=String(w.sharedVisibility.mode||'single');
+    let ids=Array.isArray(w.sharedVisibility.slideIds)?w.sharedVisibility.slideIds.map(String).filter(Boolean):[];
+    const imported=new Set((importedIds||[]).map(String));
+    if(mode==='all'){
+      // En widget, der var "alle" i afsenderpakken, må ikke automatisk lægges på gamle tavler i destinationssessionen.
+      w.sharedVisibility={mode:'selected',slideIds:(importedIds||[]).map(String)};
+      return;
+    }
+    if(mode==='selected'){
+      ids=ids.filter(id=>imported.has(id));
+      w.sharedVisibility={mode:'selected',slideIds:ids.length?ids:[String((importedIds||[])[0]||'')]};
+      return;
+    }
+    if(mode==='archived'){w.sharedVisibility={mode:'archived',slideIds:[]};return;}
+    if(!ids.length)ids=[String((importedIds||[])[0]||'')];
+    w.sharedVisibility={mode:'single',slideIds:[String(ids[0])]};
+  }catch(_e){w.sharedVisibility={mode:'single',slideIds:[String((importedIds||[])[0]||'')]};}
+}
+function safe861ShowImportDone(pkg,count){
+  try{
+    const fromLabel=safe859SessionLabel(pkg.fromSession);
+    const fromUrl=pkg.fromUrl||safe859SessionUrl(pkg.fromSession);
+    showModal('<div class="safe859TransferModal"><h2>📦 Tavlepakke hentet</h2><div class="safe859TransferBox"><b>'+safe861Html(count+' tavler hentet fra '+fromLabel)+'</b><span>Widgets, data og medier er lagt til append-only.</span><span>Eksisterende tavler er ikke overskrevet.</span></div><div class="safe859TransferActions"><button id="safe861BackToSender" class="primary">Tilbage til '+safe861Html(fromLabel)+'</button><button id="safe861StayDest">Bliv her</button><button id="safe861OpenLog">Vis overførselslog</button></div></div>');
+    const back=modal.querySelector('#safe861BackToSender'), stay=modal.querySelector('#safe861StayDest'), log=modal.querySelector('#safe861OpenLog');
+    if(back)back.onclick=function(e){e.preventDefault();try{closeModal();location.href=fromUrl;setTimeout(function(){try{location.reload();}catch(_r){}},120);}catch(_e){}};
+    if(stay)stay.onclick=function(e){e.preventDefault();closeModal();};
+    if(log)log.onclick=function(e){e.preventDefault();closeModal();try{safe861EnsureTransferLogDataset(); if(typeof safe450OpenDatasetWidget==='function'){const ds=state.datasets.find(d=>String(d.name)===SAFE861_TRANSFER_LOG_NAME); if(ds)safe450OpenDatasetWidget(ds.id);} else toast('Overførselslog ligger i Data');}catch(_e){toast('Overførselslog ligger i Data');}};
+  }catch(_e){}
+}
+async function safe859ImportPackage(pkg){
+  try{
+    if(!pkg||pkg.packageType!=='tavle-session-transfer'||!Array.isArray(pkg.slides)||!pkg.slides.length)return false;
+    state.datasets=Array.isArray(state.datasets)?state.datasets:[];
+    const idMap={};
+    await safe861ImportMediaItems(Array.isArray(pkg.media)?pkg.media:[],idMap);
+    (Array.isArray(pkg.datasets)?pkg.datasets:[]).forEach(function(ds){
+      const old=String(ds&&ds.id||''); if(!old)return;
+      idMap[old]=safe861Uid('ds');
+      const nd=safe859CloneForPackage(ds,{});
+      nd.id=idMap[old];
+      safe859ReplaceIdsDeep(nd,idMap);
+      const baseName=String(nd.name||'Datasæt');
+      const used=new Set(state.datasets.map(x=>String(x&&x.name||'')));
+      let name=baseName, n=2;
+      while(used.has(name)){name=baseName+' '+n;n++;}
+      nd.name=name;
+      nd.importedAt=Date.now(); nd.updatedAt=Date.now();
+      nd.transferMeta=Object.assign({},nd.transferMeta||{},{packageId:pkg.id,fromSession:pkg.fromSession});
+      state.datasets.push(nd);
+    });
+    const newSlides=[];
+    (pkg.slides||[]).forEach(function(sl,si){
+      const oldSlideId=String(sl&&sl.id||'');
+      const ns=safe859CloneForPackage(sl,{});
+      ns.id=safe827NewSlideId('import_'+si);
+      if(oldSlideId)idMap[oldSlideId]=ns.id;
+      ns.title=safe859UniqueSlideTitle(ns.title||('Tavle '+(si+1)));
+      ns.widgets=Array.isArray(ns.widgets)?ns.widgets:[];
+      ns.widgets.forEach(function(w,wi){
+        const oldWid=String(w&&w.id||'');
+        const newWid=safe861Uid('w');
+        if(oldWid)idMap[oldWid]=newWid;
+        w.id=newWid;
+        safe842CleanClonedWidget(w);
+        if(!(Number(w.z)>0))w.z=safe827MaxZ()+1000+wi+si*100;
+      });
+      ns.transferMeta=Object.assign({},ns.transferMeta||{},{packageId:pkg.id,fromSession:pkg.fromSession,fromUrl:pkg.fromUrl});
+      newSlides.push(ns);
+    });
+    if(!newSlides.length)return false;
+    // Nu hvor alle slide/widget/dataset/media-id'er kendes, omskrives alt i én omgang.
+    newSlides.forEach(function(ns){
+      safe859ReplaceIdsDeep(ns,idMap);
+      ns.widgets=(ns.widgets||[]).map(function(w){safe861NormalizeImportedVisibility(w,newSlides.map(sl=>String(sl.id)));return w;});
+    });
+    const oldToNewSlide={};
+    Object.keys(idMap).forEach(function(k){if(String(k).indexOf('pkg_slide_')===0||String(k).indexOf('slide_l')===0)oldToNewSlide[k]=idMap[k];});
+    const trashIndex=(state.slides||[]).findIndex(safe827IsTrash);
+    const insertAt=trashIndex>=0?trashIndex:state.slides.length;
+    state.slides.splice.apply(state.slides,[insertAt,0].concat(newSlides));
+    state.active=insertAt;
+    try{safe859UpsertSessionListNote(pkg.fromSession,'Hentet '+newSlides.length+' tavler herfra · '+safe859NowText(),pkg.fromUrl,pkg.transport!=='file');}catch(_e){}
+    try{safe859UpsertSessionListNote(pkg.toSession,'Aktuel session · modtog '+newSlides.length+' tavler · '+safe859NowText(),pkg.toUrl,true);}catch(_e){}
+    try{safe868RememberSessionRelation(pkg.fromSession,pkg.toSession,'import');safe868UpdateSessionBadge();}catch(_e){}
+    try{safe861AppendTransferLogRows(safe861LogRowsForPackage(pkg,'Hentet',idMap));}catch(_e){}
+    try{safe455uH32RegisterCurrentSession();}catch(_e){}
+    try{selected=null;if(window.UIState)window.UIState.selectedWidgetId=null;}catch(_e){}
+    try{if(typeof safe588EnsureSlideIds==='function')safe588EnsureSlideIds();}catch(_e){}
+    render();
+    try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+    pkg.status='imported'; pkg.importedAt=Date.now(); pkg.importedTo=safe859CurrentSessionId(); pkg.importedSlideIds=newSlides.map(sl=>sl.id);
+    safe859WritePackage(pkg);
+    toast('Hentet '+newSlides.length+' tavler fra '+safe859SessionLabel(pkg.fromSession));
+    setTimeout(function(){safe861ShowImportDone(pkg,newSlides.length);},350);
+    return true;
+  }catch(err){console.error('l861 import fejl',err);try{toast('Kunne ikke hente tavlepakke');}catch(_e){}return false;}
+}
+function safe859IncomingPackages(){
+  try{
+    const here=safe859CurrentSessionId();
+    return safe859ReadPackageIndex().map(safe859ReadPackage).filter(function(pkg){
+      return pkg&&pkg.packageType==='tavle-session-transfer'&&String(pkg.toSession||'')===here&&pkg.status!=='imported'&&Array.isArray(pkg.slides)&&pkg.slides.length;
+    }).sort(function(a,b){return Number(b.createdAt||0)-Number(a.createdAt||0);});
+  }catch(_e){return [];}
+}
+function safe859CheckIncomingPackages(){
+  try{
+    if(window.__safe859IncomingChecked)return;
+    window.__safe859IncomingChecked=true;
+    const list=safe859IncomingPackages();
+    if(!list.length)return;
+    const pkg=list[0];
+    const from=safe859SessionLabel(pkg.fromSession);
+    const mediaLine=(Number(pkg.mediaRefCount||0)>0)?(' · medier '+Number(pkg.mediaPackedCount||0)+'/'+Number(pkg.mediaRefCount||0)):'';
+    showModal('<div class="safe859TransferModal"><h2>📦 Hent tavler?</h2><div class="safe859TransferBox"><b>'+safe861Html(pkg.slides.length+' tavler fra '+from)+'</b><span>'+safe861Html(pkg.sourceLabel||'Tavlepakke')+'</span><span>Datasæt: '+safe861Html((pkg.datasets||[]).length)+safe861Html(mediaLine)+'</span><span>De lægges til som nye tavler. Eksisterende tavler overskrives ikke.</span></div><div class="safe859TransferActions"><button id="safe859ImportPkg" class="primary">Hent tavler</button><button id="safe859SkipPkg">Ikke nu</button><button id="safe859RejectPkg">Afvis pakke</button></div></div>');
+    const imp=modal.querySelector('#safe859ImportPkg'), skip=modal.querySelector('#safe859SkipPkg'), rej=modal.querySelector('#safe859RejectPkg');
+    if(imp)imp.onclick=async function(e){e.preventDefault();closeModal();await safe859ImportPackage(pkg);};
+    if(skip)skip.onclick=function(e){e.preventDefault();closeModal();};
+    if(rej)rej.onclick=function(e){e.preventDefault();pkg.status='rejected';pkg.rejectedAt=Date.now();safe859WritePackage(pkg);closeModal();toast('Pakken er afvist');};
+  }catch(_e){}
+}
+try{window.safe859CheckIncomingPackages=safe859CheckIncomingPackages;}catch(_e){}
+try{setTimeout(safe859CheckIncomingPackages,900);}catch(_e){}
+
+
+
+/* l868: Kirurgisk stabilisering af sessionpakker.
+   Bevidst placeret i hoved-IIFE, så den kan bruge state/save/render/addDatasetWidget uden brede globale gæt.
+   - Sessionlinks holdes som rene #session-id'er i loggen.
+   - Sessionmærket nederst højre viser kun aktuel session + rene relaterede sessioner.
+   - Log/Sessionsliste åbnes som DataWidget via eksisterende addDatasetWidget.
+   - X i ListeWidgetens punkteditor stopper før widget-sletning og sletter kun punktet. */
+const SAFE868_REL_KEY='maans_tavle_session_relations_v2';
+function safe868SessionHash(id){
+  try{id=safe859SessionId(id)||'standard'; return '#'+encodeURIComponent(id==='standard'?'standard':id);}catch(_e){return '#standard';}
+}
+function safe868SessionFromUrlish(raw){
+  try{
+    const s=String(raw||'').trim();
+    if(!s)return '';
+    if(/^#/.test(s))return safe859SessionId(s)||'standard';
+    const u=new URL(s,location.href);
+    const here=new URL(location.href);
+    function normPath(p){return String(p||'').replace(/\/index\.html$/,'/').replace(/\/+$/,'/')||'/';}
+    const same=(u.protocol===here.protocol && u.host===here.host && normPath(u.pathname)===normPath(here.pathname));
+    if(same){
+      const h=decodeURIComponent(String(u.hash||'').replace(/^#/,''));
+      return safe859SessionId(h)||'standard';
+    }
+  }catch(_e){}
+  return '';
+}
+function safe868OpenSession(id){
+  try{
+    id=safe859SessionId(id)||'standard';
+    const base=safe859BaseUrl();
+    const target=base+'#'+encodeURIComponent(id==='standard'?'standard':id);
+    try{toast('Åbner '+safe859SessionLabel(id));}catch(_t){}
+    location.href=target;
+    setTimeout(function(){try{location.reload();}catch(_r){}},120);
+    return true;
+  }catch(_e){return false;}
+}
+function safe868ReadRelations(){
+  try{const o=JSON.parse(localStorage.getItem(SAFE868_REL_KEY)||'{}');return (o&&typeof o==='object'&&!Array.isArray(o))?o:{};}catch(_e){return {};}
+}
+function safe868WriteRelations(o){try{localStorage.setItem(SAFE868_REL_KEY,JSON.stringify(o||{}));return true;}catch(_e){return false;}}
+function safe868RememberSessionRelation(a,b,why){
+  try{
+    a=safe859SessionId(a)||'standard'; b=safe859SessionId(b)||'standard';
+    if(!a||!b||a===b)return;
+    const rel=safe868ReadRelations();
+    const now=Date.now();
+    function add(x,y){
+      rel[x]=Array.isArray(rel[x])?rel[x]:[];
+      rel[x]=rel[x].filter(r=>r&&String(r.id)!==String(y));
+      rel[x].unshift({id:y,at:now,why:String(why||'sessionpakke')});
+      rel[x]=rel[x].slice(0,4);
+    }
+    add(a,b); add(b,a);
+    safe868WriteRelations(rel);
+  }catch(_e){}
+}
+function safe868RelatedSessions(id){
+  try{
+    id=safe859SessionId(id)||'standard';
+    const rel=safe868ReadRelations();
+    const rows=Array.isArray(rel[id])?rel[id]:[];
+    const seen=new Set([id]);
+    return rows.map(r=>safe859SessionId(r&&r.id)).filter(x=>x&&!seen.has(x)&&(seen.add(x)||true)).slice(0,2);
+  }catch(_e){return [];}
+}
+function safe868FindOrOpenDatasetWidget(ds){
+  try{
+    if(!ds||!ds.id)return false;
+    let hit=null;
+    try{if(typeof safe376DatasetWidgetInfo==='function')hit=safe376DatasetWidgetInfo(ds.id);}catch(_e){}
+    if(hit&&hit.w){
+      if(Number.isInteger(hit.slideIndex))state.active=hit.slideIndex;
+      render();
+      setTimeout(function(){try{select(hit.w.id,{editText:false});}catch(_s){}},30);
+      return true;
+    }
+    const pt={x:Math.max(24,Math.min(innerWidth*.36,innerWidth-720)),y:Math.max(84,Math.min(innerHeight*.18,innerHeight-460))};
+    const w=addDatasetWidget(ds,pt);
+    if(w){try{w.title='📊 '+String(ds.name||'DataWidget').replace(/^📊\s*/,'').trim();}catch(_e){} render(); select(w.id,{editText:false}); save({silent:true}); return true;}
+  }catch(_e){}
+  return false;
+}
+function safe868OpenTransferLogWidget(){
+  try{const ds=safe861EnsureTransferLogDataset(); if(ds&&safe868FindOrOpenDatasetWidget(ds))return true;}catch(_e){}
+  try{toast('Kunne ikke åbne overførselslog');}catch(_t){}
+  return false;
+}
+function safe868OpenSessionListWidget(){
+  try{const ds=safe859EnsureSessionListDataset(); if(ds&&safe868FindOrOpenDatasetWidget(ds))return true;}catch(_e){}
+  try{toast('Kunne ikke åbne sessionslisten');}catch(_t){}
+  return false;
+}
+function safe868EnsureSessionBadge(){
+  let b=document.getElementById('safe868SessionBadge');
+  if(b)return b;
+  const style=document.createElement('style');
+  style.id='safe868-sessionbadge-css';
+  style.textContent='#safe868SessionBadge{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:2147483300;display:flex;gap:6px;align-items:center;max-width:min(78vw,680px);padding:6px;border-radius:999px;background:rgba(17,24,39,.82);box-shadow:0 10px 26px rgba(0,0,0,.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:13px;font-weight:950;color:#fff}#safe868SessionBadge button{border:0;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.12);color:#fff;font:inherit;white-space:nowrap;max-width:190px;overflow:hidden;text-overflow:ellipsis;touch-action:manipulation}#safe868SessionBadge button.primary{background:rgba(59,130,246,.78)}#safe868SessionBadge button.log{background:rgba(255,255,255,.18)}@media(max-width:760px){#safe868SessionBadge{font-size:12px;max-width:88vw}#safe868SessionBadge button{padding:6px 8px;max-width:125px}}';
+  try{document.head.appendChild(style);}catch(_e){}
+  b=document.createElement('div');
+  b.id='safe868SessionBadge';
+  b.setAttribute('aria-label','Tavle-session');
+  document.body.appendChild(b);
+  return b;
+}
+function safe868UpdateSessionBadge(){
+  try{
+    const b=safe868EnsureSessionBadge();
+    const here=safe859CurrentSessionId();
+    const rel=safe868RelatedSessions(here);
+    let html='<button type="button" class="log" data-safe868-session-list="1">Session '+safe861Html(safe859SessionLabel(here))+'</button>';
+    rel.forEach(function(id,i){html+='<button type="button" class="primary" data-safe868-go-session="'+safe861Html(id)+'">↔ '+safe861Html(safe859SessionLabel(id))+'</button>';});
+    html+='<button type="button" class="log" data-safe868-open-log="1">Log</button>';
+    b.innerHTML=html;
+    b.querySelectorAll('[data-safe868-go-session]').forEach(function(btn){btn.onclick=function(e){e.preventDefault();e.stopPropagation();safe868OpenSession(btn.getAttribute('data-safe868-go-session')||'standard');};});
+    const log=b.querySelector('[data-safe868-open-log]'); if(log)log.onclick=function(e){e.preventDefault();e.stopPropagation();safe868OpenTransferLogWidget();};
+    const sess=b.querySelector('[data-safe868-session-list]'); if(sess)sess.onclick=function(e){e.preventDefault();e.stopPropagation();safe868OpenSessionListWidget();};
+  }catch(_e){}
+}
+function safe868CleanSessionLinkUrl(id){return safe868SessionHash(id);}
+/* Override log-rækker, så DataWidget ikke får file://-links som eksterne URL'er. */
+function safe861LogRowsForPackage(pkg,action,importMap){
+  const rows=[]; const now=safe859NowText();
+  try{
+    (pkg.slides||[]).forEach(function(sl){
+      const meta=sl.transferMeta||{};
+      const oldId=String(sl.id||'');
+      const newId=importMap?String(importMap[oldId]||''):'';
+      rows.push([now,action||'Sendt',safe859SessionLabel(pkg.fromSession),safe868CleanSessionLinkUrl(pkg.fromSession),safe859SessionLabel(pkg.toSession),safe868CleanSessionLinkUrl(pkg.toSession),pkg.transport||'lokal browserpakke',pkg.id||'',meta.originKey||'',sl.title||'',oldId,newId,importMap?'Hentet':'Sendt',(action==='Hentet'?'Hentet ':'Sendt ')+(pkg.slides||[]).length+' tavler']);
+    });
+  }catch(_e){}
+  return rows;
+}
+/* Intercept sessionlinks i DataWidget før den generelle URL-åbner sender dem ud som file://. */
+function safe868HandleDatasetSessionOpen(e){
+  try{
+    const t=e&&e.target; if(!t||!t.closest)return;
+    const open=t.closest('[data-dataset-open-url],a.datasetOpenUrlLink');
+    if(!open)return;
+    const raw=open.getAttribute('data-dataset-open-url')||open.getAttribute('href')||'';
+    const sid=safe868SessionFromUrlish(raw);
+    if(!sid)return;
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    safe868OpenSession(sid);
+    return false;
+  }catch(_e){}
+}
+try{window.addEventListener('pointerup',safe868HandleDatasetSessionOpen,true);window.addEventListener('touchend',safe868HandleDatasetSessionOpen,true);window.addEventListener('click',safe868HandleDatasetSessionOpen,true);}catch(_e){}
+/* ListWidget: X i punkteditor sletter punktet, ikke hele widgetten. Fanges før globale widget-slettehandlers. */
+function safe868HandleListItemDelete(e){
+  try{
+    const t=e&&e.target; if(!t||!t.closest)return;
+    const btn=t.closest('[data-list-delete-item]'); if(!btn)return;
+    e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    if(e.type==='pointerdown'||e.type==='touchstart'||e.type==='mousedown')return false;
+    const el=btn.closest('.widget[data-id]'); const wid=el&&el.dataset&&el.dataset.id; if(!wid)return false;
+    let w=null; try{const rec=(typeof safe588FindWidgetRecord==='function')?safe588FindWidgetRecord(wid):null; w=rec&&rec.w;}catch(_e){}
+    if(!w){try{w=findWidget(wid);}catch(_e){}}
+    if(!w||w.type!=='text'||!w.data)return false;
+    const i=Number(btn.getAttribute('data-list-delete-item')||0)||0;
+    const vals=String(w.data.text||'').split(/\r?\n/).map(x=>String(x||'').trim()).filter(Boolean);
+    if(i>=0&&i<vals.length)vals.splice(i,1);
+    w.data.text=vals.join('\n');
+    try{save({silent:true});}catch(_s){}
+    try{fillContent(el,w);}catch(_f){try{render();select(w.id,{editText:false});}catch(_r){}}
+    try{toast('Listepunkt slettet');}catch(_t){}
+    return false;
+  }catch(_e){}
+}
+['pointerdown','touchstart','mousedown','pointerup','touchend','click'].forEach(function(ev){try{window.addEventListener(ev,safe868HandleListItemDelete,true);}catch(_e){}});
+/* Pakke-flow: husk rene relationer og brug intern sessionnavigation. */
+function safe868PatchTransferButtons(){
+  try{
+    document.querySelectorAll('#safe859OpenDest').forEach(function(btn){
+      if(btn.__safe868Patched)return; btn.__safe868Patched=true;
+      const old=btn.onclick;
+      btn.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+        try{
+          const m=String(btn.textContent||'').match(/#([A-Za-z0-9_-]+)/);
+          if(m&&m[1])return safe868OpenSession(m[1]);
+        }catch(_e){}
+        try{return old&&old.call(btn,e);}catch(_e){}
+      };
+    });
+    document.querySelectorAll('#safe861BackToSender').forEach(function(btn){
+      if(btn.__safe868Patched)return; btn.__safe868Patched=true;
+      const old=btn.onclick;
+      btn.onclick=function(e){
+        try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+        try{
+          const label=String(btn.textContent||'').replace(/^Tilbage til\s*/,'').trim();
+          const id=safe859SessionId(label)||'standard';
+          return safe868OpenSession(id);
+        }catch(_e){}
+        try{return old&&old.call(btn,e);}catch(_e){}
+      };
+    });
+    document.querySelectorAll('#safe861OpenLog').forEach(function(btn){
+      if(btn.__safe868Patched)return; btn.__safe868Patched=true;
+      btn.onclick=function(e){e.preventDefault();e.stopPropagation();closeModal();safe868OpenTransferLogWidget();};
+    });
+  }catch(_e){}
+}
+try{new MutationObserver(function(){safe868PatchTransferButtons();}).observe(document.documentElement,{childList:true,subtree:true});}catch(_e){}
+try{setInterval(function(){safe868UpdateSessionBadge();safe868PatchTransferButtons();},1200);setTimeout(safe868UpdateSessionBadge,250);setTimeout(safe868UpdateSessionBadge,1400);}catch(_e){}
+
 function safe827CreateBoards(sourceKey,opts){
   if(safe827CreateBoards._busy)return false;
   safe827CreateBoards._busy=true;
@@ -50914,7 +51747,7 @@ function safe827OpenBoardGenerator(){
     const sourceOptions=choices.map(function(ch){return '<option value="'+safe827Html(ch.key)+'">'+safe827Html(ch.label+' · '+ch.meta)+'</option>';}).join('');
     const templateOptions=templates.map(function(t){return '<option value="'+t.index+'" '+(t.index===activeIndex?'selected':'')+'>'+safe827Html(t.title+' · '+t.meta)+'</option>';}).join('');
     const empty='<div class="safe827Preview"><b>Ingen navneliste fundet.</b><p class="safe827Hint">Opret eller importer først en DataWidget/CSV eller en ListeWidget med navnene i den rækkefølge, tavlerne skal oprettes.</p></div>';
-    showModal('<div class="moveWidgetDialog safe827Generator"><h2>🧩 Tavlegenerator</h2><p>Vælg en skabelontavle og en navneliste. Når du trykker opret, laves tavlerne med det samme.</p>'+(templates.length?'<div class="safe827TemplateBox"><div class="safe827TemplateGrid"><label class="safe827Field">Skabelon<select id="safe827Template">'+templateOptions+'</select></label>'+(choices.length?'<label class="safe827Field">Navneliste<select id="safe827Source">'+sourceOptions+'</select></label>':'')+'</div></div>':'<div class="safe827Preview"><b>Ingen skabelontavle fundet.</b></div>')+(choices.length?'<div class="safe827Grid"><div class="safe827Preview" id="safe827Preview"></div><details class="safe830GeneratorOptions"><summary>Valg</summary><div class="safe827Checks"><label><input type="checkbox" id="safe827CopyWidgets" checked> Kopiér widgets og placeringer</label><label><input type="checkbox" id="safe827SkipSource" checked> Kopiér ikke navnelisten</label><label><input type="checkbox" id="safe827CopyBackground" checked> Kopiér baggrund og grid</label><label><input type="checkbox" id="safe827CopyDraw"> Kopiér tegning</label></div></details></div>':empty)+'<div class="safe827Actions">'+(choices.length&&templates.length?'<button id="safe827Create" class="primary">Opret tavler</button>':'')+'<button id="safe827Close">Luk</button></div></div>');
+    showModal('<div class="moveWidgetDialog safe827Generator"><h2>🧩 Tavlegenerator</h2><p>Vælg en skabelontavle og en navneliste. Når du trykker opret, laves tavlerne med det samme.</p>'+(templates.length?'<div class="safe827TemplateBox"><div class="safe827TemplateGrid"><label class="safe827Field">Skabelon<select id="safe827Template">'+templateOptions+'</select></label>'+(choices.length?'<label class="safe827Field">Navneliste<select id="safe827Source">'+sourceOptions+'</select></label>':'')+'</div></div>':'<div class="safe827Preview"><b>Ingen skabelontavle fundet.</b></div>')+(choices.length?'<div class="safe827Grid"><div class="safe827Preview" id="safe827Preview"></div><details class="safe830GeneratorOptions"><summary>Valg</summary><div class="safe827Checks"><label><input type="checkbox" id="safe827CopyWidgets" checked> Kopiér widgets og placeringer</label><label><input type="checkbox" id="safe827SkipSource" checked> Kopiér ikke navnelisten</label><label><input type="checkbox" id="safe827CopyBackground" checked> Kopiér baggrund og grid</label><label><input type="checkbox" id="safe827CopyDraw"> Kopiér tegning</label></div></details><details class="safe859SessionShare"><summary>Send til anden session</summary><div class="safe859SessionGrid"><label>Session<input type="text" id="safe859DestinationSession" placeholder="#uge26"></label><button id="safe859SendToSession" type="button">Send pakke</button><p class="safe859SessionNote">Tavlerne oprettes ikke her. De gemmes som pakke og hentes, når destinationen åbnes. Eksisterende tavler i destinationen overskrives ikke.</p></div></details></div>':empty)+'<div class="safe827Actions">'+(choices.length&&templates.length?'<button id="safe827Create" class="primary">Opret tavler</button>':'')+'<button id="safe827Close">Luk</button></div></div>');
     const sel=modal.querySelector('#safe827Source');
     const tmpl=modal.querySelector('#safe827Template');
     const preview=modal.querySelector('#safe827Preview');
@@ -50946,6 +51779,17 @@ function safe827OpenBoardGenerator(){
       if(!count){toast('Navnelisten er tom');return;}
       try{modal.classList.add('safe827Working');}catch(_e){}
       safe827CreateBoards(ch.key,readOpts());
+    });
+    const destInput=modal.querySelector('#safe859DestinationSession');
+    try{if(destInput)destInput.value=localStorage.getItem('maans_tavle_last_transfer_destination')||'';}catch(_e){}
+    safe827BindButton(modal.querySelector('#safe859SendToSession'),function(){
+      const ch=choice();
+      if(!ch){toast('Vælg en navneliste først');return;}
+      const count=(ch.names||[]).map(function(x){return String(x||'').trim();}).filter(Boolean).length;
+      if(!count){toast('Navnelisten er tom');return;}
+      const raw=destInput?destInput.value:'';
+      try{localStorage.setItem('maans_tavle_last_transfer_destination',raw||'');}catch(_e){}
+      safe859SendGeneratedPackage(ch,readOpts(),raw);
     });
   }catch(err){
     console.error('l830 Tavlegenerator modal fejl',err);
@@ -75787,4 +76631,38 @@ body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tav
   document.addEventListener('visibilitychange',function(){try{if(!appIsPresent())setHidden(false);}catch(_e){}},{passive:true});
 })();
 </script>
+
+<style id="l871-sessionbadge-toolbar-safe-css">
+/* l871: Sessionmærket må ikke ligge oven på bundværktøjslinjen.
+   Kun placering/flow for #safe868SessionBadge ændres. */
+#safe868SessionBadge{
+  bottom:calc(88px + env(safe-area-inset-bottom,0px))!important;
+  right:calc(12px + env(safe-area-inset-right,0px))!important;
+  max-width:min(58vw,560px)!important;
+  overflow-x:auto!important;
+  overscroll-behavior:contain!important;
+}
+#safe868SessionBadge::-webkit-scrollbar{display:none;}
+#safe868SessionBadge{scrollbar-width:none;}
+/* Når den almindelige værktøjslinje er skjult eller præsentation er aktiv,
+   kan sessionmærket igen bruge nederste højre hjørne. */
+.app.toolbarHidden ~ #safe868SessionBadge,
+.app.present ~ #safe868SessionBadge,
+body:has(.app.toolbarHidden) #safe868SessionBadge,
+body:has(.app.present) #safe868SessionBadge{
+  bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+}
+@media(max-width:760px){
+  #safe868SessionBadge{
+    bottom:calc(82px + env(safe-area-inset-bottom,0px))!important;
+    max-width:min(74vw,520px)!important;
+  }
+  .app.toolbarHidden ~ #safe868SessionBadge,
+  .app.present ~ #safe868SessionBadge,
+  body:has(.app.toolbarHidden) #safe868SessionBadge,
+  body:has(.app.present) #safe868SessionBadge{
+    bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+</style>
 </body></html>
