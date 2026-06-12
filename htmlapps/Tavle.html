@@ -110,6 +110,13 @@
 <!-- l674-groups-owner-keyboard-touch-fix: Bygger på l673. Kirurgisk Grupper-rettelse: Grupper-widgettens egen wireGroups får robuste pointer/touch-bindinger, inputs bevarer fokus, Dan/Gem/Liste/Kilde/+/-/lås virker på iPad, Space/Enter ejes af aktiv Grupper-widget og stopper evt. gruppedannelsesspin før resultat; Timer/Lykkehjul/DataWidget-logik uændret. -->
 <html lang="da">
 <head>
+<!-- l802-mediewidget-diskimport-stabil: Bygger på l800 (ikke l801). Tilføjer lokal Åbn fra disk til MedieWidget med direkte arkivering i TavleMediaArchive og kobling til medieliste, uden at røre Hjælp-layout eller gamle globale overrides. -->
+<!-- l800-medievaelger-youtube-titler-linkwidget-cleanup: Bygger på l799. Fælles medievælger til LinkWidget og MedieWidget, YouTube-rækker får brugbare fallbacktitler, MedieWidget får ☰-vælger, og den gamle Linkliste-editor omgår medielister. -->
+<!-- l799-linkwidget-youtube-visible-video-overlay-clean: Bygger på l798. LinkWidget autovælger første egentlige URL/YouTube-link fra medielister, så lokale medier ikke straks konverterer widgetten til MedieWidget. Media-lister bevarer type/badge når de kobles til LinkWidget. VideoWidget fjerner de store YouTube-overlayknapper; embed og lokale medieafspillere bevares. -->
+<!-- l797-mediewidget-link-aabner-data-plus-vaelger-liste: Bygger på l796/l795/l794/l785. MedieWidget: 🔗 åbner den direkte tilkoblede DataWidget/medieliste og falder kun tilbage til vælgeren, hvis ingen liste er koblet. ＋ åbner altid Medieliste-valg/gem-dialogen i stedet for at autogemme. LinkWidget-mediehandoff fra l796 bevares. -->
+<!-- l803-media-data-toggle-gemfix: Bygger på l802. MedieWidgettens 🔗 toggler den koblede DataWidget åben/lukket, DataWidgettens egen 🔗 lukker fortsat, og medieliste-dialogens gem/åbn-række-handlinger lukker modal før state/render for at undgå sort backdrop. -->
+<!-- l778-mediewidget-audio-import: VideoWidget udvides til MedieWidget for lyd: audiofiler/-URLer/-tiddlere importeres som VideoWidget/MedieWidget med audio-controls og Hent lyd. Bygger på l777. -->
+
 <!-- l568-focus-stripe-clip-all-widgets: Kirurgisk CSS-fix for temaernes venstrestreg i fokus/maksimering: alle widgettyper i GlasTavle/SmartBoard/FlipOver/OpslagsTavle klippes inden for widgettens afrundede hjørner, så farvestregen ikke går for højt eller for langt ned. Ingen JS/widgetlogik. -->
 <!-- l566-left-stripe-focus-canvas-fix: Kirurgisk tema-CSS: FlipOver/SmartBoard venstrestreg starter nu under widgetbjælken i redigering, og Tekst/Liste i fokus får både indhold og underliggende tekst-lærred afrundet som i præsentation. Ingen JS/widgetlogik. -->
 <!-- l565-left-stripe-focus-rounding: Temaets venstre farvestreg starter under widgetbjælken i redigering, så den ikke stikker over rundingen. I fokus/maksimering får Tekst/Liste-indhold igen fuldt afrundede hjørner, når bjælken skjules. Kun tema-CSS. -->
@@ -1684,7 +1691,7 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Interaktiv tavle v1.2.187 l772-tavlepanel-check-og-redigerfix</title>
+<title>Interaktiv tavle v1.2.207 l800-medievaelger-youtube-titler-linkwidget-cleanup</title>
 <!-- l773-tavlepanel-redigerknap-persistens: ⚙-redigerknappen renderes altid i Tavlepanel-DOM og skjules kun med mode-CSS, så den kommer tilbage efter præsentation/desktop-skift. Bygger på l772. -->
 <!-- l772-tavlepanel-check-og-redigerfix: kirurgisk fix oven på l770. Redigerknap holdes synlig i normal redigering, skjules i fokus/præsentation. Tavle-tjek flueben får robust tap-binding. Titelzoom styrer tavletitler uden at ødelægge kortlayout. -->
 <meta name="application-name" content="Interaktiv tavle">
@@ -15332,6 +15339,149 @@ body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tav
   .moreMenu.safe455PresentMoreMenu .moreMenuSection{font-size:10px!important;}
 }
 </style>
+
+<style id="l775-tiddler-media-drop-css">
+/* l775: Lokal/arkiveret VideoWidget fra TiddlyWiki-medietiddler. */
+.widget[data-type="video"] .localVideoBox{position:relative!important;padding:0!important;overflow:hidden!important;background:#050816!important;}
+.widget[data-type="video"] .localVideoBox video{width:100%!important;height:100%!important;display:block!important;object-fit:contain!important;background:#050816!important;}
+.widget[data-type="video"] .localVideoBox .localVideoStatus{position:absolute!important;left:12px!important;bottom:12px!important;right:12px!important;color:#fff!important;background:rgba(15,23,42,.72)!important;border-radius:10px!important;padding:7px 10px!important;font-size:12px!important;font-weight:800!important;pointer-events:none!important;}
+.widget[data-type="video"] .localVideoBox .videoEditOverlay{position:absolute!important;right:10px!important;top:10px!important;display:flex!important;gap:6px!important;z-index:4!important;}
+.widget[data-type="video"] .localVideoBox .videoEditOverlay button{border:0!important;border-radius:999px!important;padding:7px 10px!important;background:rgba(255,255,255,.90)!important;color:#111827!important;font-weight:900!important;box-shadow:0 3px 10px rgba(0,0,0,.22)!important;}
+.app.present .widget[data-type="video"] .localVideoBox .videoEditOverlay,
+body.focus-presentation .widget[data-type="video"] .localVideoBox .videoEditOverlay{display:none!important;}
+</style>
+<style id="l777-video-panel-download-uden-play-overlay-css">
+/* l777: Downloadknappen må ikke ligge oven på browserens afspil-knap. Lokal video får et lille bundpanel, som skjules under afspilning. */
+.widget[data-type="video"] .localVideoBox{position:relative!important;padding:0!important;overflow:hidden!important;background:#050816!important;}
+.widget[data-type="video"] .localVideoBox video.localVideoEl{width:100%!important;height:100%!important;display:block!important;object-fit:contain!important;background:#050816!important;position:relative!important;z-index:1!important;}
+.widget[data-type="video"] .localVideoBox .localVideoPanel{position:absolute!important;left:10px!important;right:10px!important;bottom:10px!important;top:auto!important;z-index:6!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:7px 8px!important;border-radius:14px!important;background:rgba(2,6,23,.72)!important;box-shadow:0 8px 22px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.14)!important;pointer-events:auto!important;transition:opacity .18s ease, transform .18s ease!important;}
+.widget[data-type="video"] .localVideoBox.isPlaying .localVideoPanel{opacity:0!important;pointer-events:none!important;transform:translateY(8px)!important;}
+.widget[data-type="video"] .localVideoBox .localVideoPanelHint{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;color:rgba(255,255,255,.80)!important;font-size:12px!important;font-weight:900!important;letter-spacing:.02em!important;}
+.widget[data-type="video"] .localVideoBox .localVideoPanel .videoDownloadBtn{border:0!important;border-radius:999px!important;padding:7px 11px!important;background:rgba(255,255,255,.94)!important;color:#111827!important;font-size:13px!important;font-weight:950!important;box-shadow:0 3px 10px rgba(0,0,0,.22)!important;white-space:nowrap!important;}
+/* Neutralisér den gamle centrale videoEditOverlay-regel for lokale videoer. */
+.widget[data-type="video"] .localVideoBox .videoEditOverlay{display:none!important;}
+.app.present .widget[data-type="video"] .localVideoBox .localVideoPanel,
+body.focus-mode .widget[data-type="video"] .localVideoBox .localVideoPanel,
+body.focus-edit .widget[data-type="video"] .localVideoBox .localVideoPanel,
+body.focus-presentation .widget[data-type="video"] .localVideoBox .localVideoPanel,
+body.focus-maximized .widget[data-type="video"] .localVideoBox .localVideoPanel{display:none!important;}
+</style>
+
+<style id="l778-mediewidget-audio-css">
+/* l778: VideoWidget kan også vise lydfiler som MedieWidget. */
+.widget[data-type="video"] .localAudioBox{
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) auto auto!important;
+  gap:10px!important;
+  padding:14px!important;
+  background:linear-gradient(180deg,#071122,#0f172a)!important;
+}
+.widget[data-type="video"] .localAudioBox .localAudioFace{
+  min-height:0!important;
+  display:grid!important;
+  place-items:center!important;
+  align-content:center!important;
+  gap:10px!important;
+  color:#e0f2fe!important;
+  text-align:center!important;
+  overflow:hidden!important;
+  border-radius:18px!important;
+  background:radial-gradient(circle at 50% 25%,rgba(56,189,248,.18),rgba(15,23,42,.12) 54%,rgba(2,6,23,.30))!important;
+  box-shadow:inset 0 0 0 1px rgba(125,211,252,.18)!important;
+}
+.widget[data-type="video"] .localAudioBox .localAudioIcon{
+  width:58px!important;
+  height:58px!important;
+  border-radius:999px!important;
+  display:grid!important;
+  place-items:center!important;
+  background:rgba(56,189,248,.20)!important;
+  box-shadow:inset 0 0 0 1px rgba(125,211,252,.28),0 8px 28px rgba(0,0,0,.22)!important;
+  font-size:28px!important;
+}
+.widget[data-type="video"] .localAudioBox .localAudioName{
+  max-width:92%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  font-weight:950!important;
+  font-size:clamp(15px,2.2vw,28px)!important;
+  line-height:1.1!important;
+}
+.widget[data-type="video"] .localAudioBox audio.localAudioEl{
+  width:100%!important;
+  display:block!important;
+  position:relative!important;
+  z-index:2!important;
+}
+.widget[data-type="video"] .localAudioBox .localVideoPanel{
+  position:relative!important;
+  left:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  opacity:1!important;
+}
+.widget[data-type="video"] .localAudioBox.isPlaying .localVideoPanel{
+  opacity:1!important;
+  pointer-events:auto!important;
+  transform:none!important;
+}
+</style>
+<style id="l785-mediewidget-synlig-datasetkobling-css">
+/* l785: MedieWidget får rigtig datakobling i widgetbjælken. Bygger på virkende l779.
+   Knapperne ligger i chrome via makeWidget og skjules ikke af gamle focus-mode klasser. */
+.widget[data-type="video"] .chrome .mini [data-act="mediaListChrome"],
+.widget[data-type="video"] .chrome .mini [data-act="mediaSaveChrome"]{
+  display:inline-grid!important;
+  place-items:center!important;
+  min-width:34px!important;
+  height:34px!important;
+  padding:0 9px!important;
+  border-radius:10px!important;
+  background:rgba(255,255,255,.16)!important;
+  color:#fff!important;
+  font-size:16px!important;
+  font-weight:1000!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+.widget[data-type="video"] .chrome .mini [data-act="mediaListChrome"].linked{
+  background:rgba(34,197,94,.92)!important;
+  color:#052e16!important;
+  box-shadow:0 0 0 2px rgba(187,247,208,.45)!important;
+}
+.widget[data-type="video"] .chrome .mini [data-act="mediaSaveChrome"]{
+  background:rgba(56,189,248,.22)!important;
+}
+.widget[data-type="video"] .chrome .mini [data-act="mediaListChrome"]:active,
+.widget[data-type="video"] .chrome .mini [data-act="mediaSaveChrome"]:active{transform:scale(.96)!important;}
+.app.present .widget[data-type="video"] .chrome .mini [data-act="mediaListChrome"],
+.app.present .widget[data-type="video"] .chrome .mini [data-act="mediaSaveChrome"],
+body.focus-presentation .widget[data-type="video"] .chrome .mini [data-act="mediaListChrome"],
+body.focus-presentation .widget[data-type="video"] .chrome .mini [data-act="mediaSaveChrome"],
+body.focus-maximized .widget[data-type="video"] .chrome .mini [data-act="mediaListChrome"],
+body.focus-maximized .widget[data-type="video"] .chrome .mini [data-act="mediaSaveChrome"]{
+  display:none!important;
+}
+.safe785MediaChooser{display:grid;gap:12px;max-height:80vh;overflow:auto;}
+.safe785MediaChooser h2{margin:0;}
+.safe785MediaHint{margin:0;color:#475569;font-weight:750;line-height:1.35;font-size:13px;}
+.safe785MediaChooser label{display:grid;gap:5px;font-weight:900;color:#334155;}
+.safe785MediaChooser select,.safe785MediaChooser input{width:100%;border:1px solid #d1d5db;border-radius:12px;padding:9px 10px;background:white;color:#111827;font-weight:800;}
+.safe785MediaRows{display:grid;gap:8px;max-height:min(42vh,360px);overflow:auto;padding-right:2px;}
+.safe785MediaRow{width:100%;display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;text-align:left!important;border:1px solid #dbe3ef!important;border-radius:14px!important;background:#f8fafc!important;color:#111827!important;padding:9px 10px!important;margin:0!important;box-shadow:0 1px 4px rgba(15,23,42,.05)!important;}
+.safe785MediaRow.current{background:#eef2ff!important;border-color:#93c5fd!important;box-shadow:0 0 0 3px rgba(59,130,246,.12)!important;}
+.safe785MediaKind{width:32px;height:32px;border-radius:999px;background:#38bdf8;color:#06121f;display:grid;place-items:center;font-weight:1000;}
+.safe785MediaRow b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;}
+.safe785MediaRow small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#64748b;font-size:12px;font-weight:750;margin-top:2px;}
+.safe785MediaActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;border-top:1px solid #e5e7eb;padding-top:10px;}
+.safe785MediaActions button{border:0;border-radius:999px;padding:8px 12px;font-weight:950;background:#e5e7eb;color:#111827;}
+.safe785MediaActions button.primary{background:#6d5dfc;color:white;}
+.safe785MediaActions button.linked{background:#bbf7d0;color:#052e16;}
+</style>
 </head>
 <body>
 
@@ -17832,8 +17982,8 @@ try{
       w=addDroppedWidget('image',{mediaRef:String(m.id),name:name,mimeType:m.mimeType||mime,size:Number(m.size)||0,source:m.source||'indexeddb-adoption'},p,name);
     }else if(kind==='html'||mime==='text/html'||/\.html?$/i.test(name)){
       w=addDroppedWidget('html',{srcMediaRef:String(m.id),name:name,mimeType:m.mimeType||'text/html',source:m.source||'indexeddb-adoption',html:'<!-- HTML gemt i TavleMediaArchive: '+String(m.id).replace(/--/g,'')+' -->'},p,name);
-    }else if(kind==='audio'||/^audio\//.test(mime)||/\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(name)){
-      w=addDroppedWidget('audio',{mediaRef:String(m.id),name:name,mimeType:m.mimeType||mime,source:m.source||'indexeddb-adoption'},p,name);
+    }else if(kind==='audio'||/^audio\//.test(mime)||/\.(mp3|wav|m4a|aac|oga|ogg|opus|flac|aiff?|caf|amr)$/i.test(name)){
+      w=addDroppedWidget('video',{mediaRef:String(m.id),mediaKind:'audio',name:name,mimeType:m.mimeType||mime,source:m.source||'indexeddb-adoption'},p,name);
     }else if(kind==='video'||/^video\//.test(mime)||/\.(mp4|webm|mov|m4v)$/i.test(name)){
       w=addDroppedWidget('video',{mediaRef:String(m.id),name:name,mimeType:m.mimeType||mime,source:m.source||'indexeddb-adoption'},p,name);
     }else if(kind==='dataset'||kind==='csv'||mime==='text/csv'||/\.(csv|tsv|xlsx?|ods)$/i.test(name)){
@@ -17947,6 +18097,117 @@ function isLikelyPdfFile(file){
 }
 function isLikelyImageFile(file){
   return /^image\//.test(file.type||'') || /\.(png|jpe?g|gif|webp|svg)$/i.test(file.name||'');
+}
+
+
+/* l778: Lydfiler behandles som MedieWidget via VideoWidget-motoren, før tekst/html-fallback. */
+function safe778IsLikelyAudioFile(file){
+  const name=String(file&&file.name||'').toLowerCase();
+  const type=String(file&&file.type||'').toLowerCase();
+  return /^audio\//.test(type) || /\.(mp3|wav|m4a|aac|oga|ogg|opus|flac|aiff?|caf|amr)$/i.test(name);
+}
+function safe778MimeForAudioFile(file){
+  const type=String(file&&file.type||'').trim();
+  if(/^audio\//i.test(type))return type;
+  const name=String(file&&file.name||'').toLowerCase();
+  if(/\.mp3$/i.test(name))return 'audio/mpeg';
+  if(/\.m4a$/i.test(name))return 'audio/mp4';
+  if(/\.aac$/i.test(name))return 'audio/aac';
+  if(/\.wav$/i.test(name))return 'audio/wav';
+  if(/\.oga$/i.test(name))return 'audio/ogg';
+  if(/\.ogg$/i.test(name))return 'audio/ogg';
+  if(/\.opus$/i.test(name))return 'audio/ogg; codecs=opus';
+  if(/\.flac$/i.test(name))return 'audio/flac';
+  if(/\.aif$/i.test(name)||/\.aiff$/i.test(name))return 'audio/aiff';
+  if(/\.caf$/i.test(name))return 'audio/x-caf';
+  if(/\.amr$/i.test(name))return 'audio/amr';
+  return 'audio/*';
+}
+function safe778LooksLikeAudioUrl(src){
+  const s=String(src||'').trim();
+  return /^data:audio\//i.test(s) || /\.(mp3|wav|m4a|aac|oga|ogg|opus|flac|aiff?|caf|amr)(?:$|[?#])/i.test(s);
+}
+async function safe778ImportAudioFileAsWidget(file,point){
+  const name=String(file&&file.name||'Lyd').trim()||'Lyd';
+  const mime=safe778MimeForAudioFile(file);
+  const archive=window.TavleMediaArchive;
+  if(archive&&typeof archive.putMedia==='function'){
+    try{
+      const rec=await archive.putMedia({
+        kind:'audio',
+        name:name,
+        mimeType:mime,
+        size:Number(file&&file.size)||0,
+        blob:file,
+        source:'audio-file-import',
+        meta:{safePhase:'l778',flow:'audio-file-to-mediewidget',importedAt:new Date().toISOString()}
+      });
+      if(rec&&rec.id){
+        addDroppedWidget('video',{mediaRef:rec.id,mediaKind:'audio',name:rec.name||name,mimeType:rec.mimeType||mime,size:rec.size||file.size||0,source:'audio-file-import'},point,name);
+        try{toast('Lyd gemt i mediearkiv');}catch(_e){}
+        return {ok:true,kind:'audio',label:name};
+      }
+    }catch(err){console.warn('l778 audio import IndexedDB fallback til dataURL',err);}
+  }
+  const src=await readFileAsDataURL(file);
+  addDroppedWidget('video',{src:src,mediaKind:'audio',name:name,mimeType:mime,size:Number(file&&file.size)||0,source:'audio-file-import-dataurl-fallback'},point,name);
+  try{toast('Lyd indsat');}catch(_e){}
+  return {ok:true,kind:'audio',label:name};
+}
+
+/* l776: Videofiler skal altid blive til VideoWidget – aldrig tekst/html-widget.
+   MIME kan være tom på iPad/Safari, så filendelse tæller også. */
+function safe776IsLikelyVideoFile(file){
+  const name=String(file&&file.name||'').toLowerCase();
+  const type=String(file&&file.type||'').toLowerCase();
+  return /^video\//.test(type) || /\.(mp4|m4v|mov|webm|ogv|avi|mkv|wmv|3gp|3g2)$/i.test(name);
+}
+function safe776MimeForVideoFile(file){
+  const type=String(file&&file.type||'').trim();
+  if(/^video\//i.test(type))return type;
+  const name=String(file&&file.name||'').toLowerCase();
+  if(/\.webm$/i.test(name))return 'video/webm';
+  if(/\.mp4$/i.test(name))return 'video/mp4';
+  if(/\.m4v$/i.test(name))return 'video/mp4';
+  if(/\.mov$/i.test(name))return 'video/quicktime';
+  if(/\.ogv$/i.test(name))return 'video/ogg';
+  if(/\.avi$/i.test(name))return 'video/x-msvideo';
+  if(/\.mkv$/i.test(name))return 'video/x-matroska';
+  if(/\.wmv$/i.test(name))return 'video/x-ms-wmv';
+  if(/\.3gp$/i.test(name))return 'video/3gpp';
+  if(/\.3g2$/i.test(name))return 'video/3gpp2';
+  return 'video/*';
+}
+function safe776LooksLikeVideoUrl(src){
+  const s=String(src||'').trim();
+  return /^data:video\//i.test(s) || /^blob:/i.test(s) || /\.(mp4|m4v|mov|webm|ogv|avi|mkv|wmv|3gp|3g2)(?:$|[?#])/i.test(s);
+}
+async function safe776ImportVideoFileAsWidget(file,point){
+  const name=String(file&&file.name||'Video').trim()||'Video';
+  const mime=safe776MimeForVideoFile(file);
+  const archive=window.TavleMediaArchive;
+  if(archive&&typeof archive.putMedia==='function'){
+    try{
+      const rec=await archive.putMedia({
+        kind:'video',
+        name:name,
+        mimeType:mime,
+        size:Number(file&&file.size)||0,
+        blob:file,
+        source:'video-file-import',
+        meta:{safePhase:'l776',flow:'video-file-to-videowidget',importedAt:new Date().toISOString()}
+      });
+      if(rec&&rec.id){
+        addDroppedWidget('video',{mediaRef:rec.id,name:rec.name||name,mimeType:rec.mimeType||mime,size:rec.size||file.size||0,source:'video-file-import'},point,name);
+        try{toast('Video gemt i mediearkiv');}catch(_e){}
+        return {ok:true,kind:'video',label:name};
+      }
+    }catch(err){console.warn('l776 video import IndexedDB fallback til dataURL',err);}
+  }
+  const src=await readFileAsDataURL(file);
+  addDroppedWidget('video',{src:src,name:name,mimeType:mime,size:Number(file&&file.size)||0,source:'video-file-import-dataurl-fallback'},point,name);
+  try{toast('Video indsat');}catch(_e){}
+  return {ok:true,kind:'video',label:name};
 }
 
 
@@ -20081,6 +20342,12 @@ async function handleDroppedFile(file,point){
       return {ok:false,kind:'error',label:'Kunne ikke parse CSV: '+(err&&err.message||'ukendt fejl')};
     }
   }
+  if(safe778IsLikelyAudioFile(file)){
+    return await safe778ImportAudioFileAsWidget(file,point);
+  }
+  if(safe776IsLikelyVideoFile(file)){
+    return await safe776ImportVideoFileAsWidget(file,point);
+  }
   if(isLikelyImageFile(file)){
     // SAFE453i112: Drag/drop af lokale billedfiler bruger nu samme smalle mediaRef-forsøg
     // som tom billedwidget → Fra enhed. Ved fejl faldes der tilbage til gammelt dataURL-flow.
@@ -20146,11 +20413,235 @@ async function handleDroppedFile(file,point){
   toast('Filtypen understøttes ikke endnu');
   return {ok:false,kind:'error',label:'Filtypen understøttes ikke endnu: '+(file.name||'ukendt fil')};
 }
-function handleDroppedUrlOrText(raw,point){
+function safe775FileNameFromTitle(title,fallback){
+  let name=String(title||fallback||'medie').trim()||String(fallback||'medie');
+  name=name.replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ').slice(0,180);
+  return name||String(fallback||'medie');
+}
+function safe775ExtFromName(name){
+  const m=String(name||'').toLowerCase().match(/\.([a-z0-9]{2,8})(?:$|[?#])/);
+  return m?m[1]:'';
+}
+function safe775InferMediaMime(tid){
+  const type=String(tid&&tid.type||'').trim().toLowerCase();
+  const title=String(tid&&tid.title||tid&&tid.name||'');
+  const ext=safe775ExtFromName(title);
+  if(/^image\//.test(type)||/^video\//.test(type)||/^audio\//.test(type))return type;
+  if(['webp','png','jpg','jpeg','gif','svg'].includes(ext))return ext==='jpg'?'image/jpeg':(ext==='svg'?'image/svg+xml':'image/'+ext);
+  if(['webm','mp4','mov','m4v','ogv'].includes(ext))return ext==='ogv'?'video/ogg':(ext==='mov'?'video/quicktime':'video/'+ext.replace('m4v','mp4'));
+  if(['mp3','wav','m4a','aac','oga','ogg','opus','flac','aif','aiff','caf','amr'].includes(ext)){
+    if(ext==='mp3')return 'audio/mpeg';
+    if(ext==='m4a')return 'audio/mp4';
+    if(ext==='oga'||ext==='ogg'||ext==='opus')return 'audio/ogg';
+    if(ext==='aif'||ext==='aiff')return 'audio/aiff';
+    return 'audio/'+ext;
+  }
+  return '';
+}
+function safe775IsSupportedTiddlerMediaMime(mime){
+  mime=String(mime||'').toLowerCase();
+  return /^image\//.test(mime)||/^video\//.test(mime)||/^audio\//.test(mime);
+}
+function safe775IsVideoUrl(src){
+  const s=String(src||'').trim();
+  return /^data:video\//i.test(s)||/^blob:/i.test(s)||/\.(webm|mp4|mov|m4v|ogv)(?:$|[?#])/i.test(s)||/^https?:\/\/[^\s]+\.(webm|mp4|mov|m4v|ogv)(?:$|[?#])/i.test(s);
+}
+function safe775DecodeDataPayload(dataUrl){
+  const s=String(dataUrl||'');
+  const comma=s.indexOf(',');
+  if(comma<0)return '';
+  const meta=s.slice(5,comma).toLowerCase();
+  const body=s.slice(comma+1);
+  try{
+    if(meta.includes(';base64'))return atob(body.replace(/\s+/g,''));
+    try{return decodeURIComponent(body);}catch(_e){return body;}
+  }catch(err){console.warn('l775 kunne ikke afkode data-payload',err);return '';}
+}
+function safe775ParseTiddlersFromDrop(raw){
+  const s=String(raw||'').trim();
+  if(!s)return [];
+  let json='';
+  if(/^data:text\/vnd\.tiddler\b/i.test(s)||/^data:application\/json\b/i.test(s)){
+    json=safe775DecodeDataPayload(s);
+  }else if(s[0]==='{'||s[0]==='['){
+    json=s;
+  }
+  if(!json)return [];
+  try{
+    const parsed=JSON.parse(json);
+    const arr=Array.isArray(parsed)?parsed:[parsed];
+    return arr.filter(x=>x&&typeof x==='object');
+  }catch(err){
+    console.warn('l775 kunne ikke parse TiddlyWiki-tiddler',err);
+    return [];
+  }
+}
+function safe775Base64ToBlob(b64,mime){
+  b64=String(b64||'').replace(/\s+/g,'');
+  if(!b64)return null;
+  try{
+    const bin=atob(b64);
+    const chunk=8192;
+    const parts=[];
+    for(let i=0;i<bin.length;i+=chunk){
+      const slice=bin.slice(i,i+chunk);
+      const arr=new Uint8Array(slice.length);
+      for(let j=0;j<slice.length;j++)arr[j]=slice.charCodeAt(j);
+      parts.push(arr);
+    }
+    return new Blob(parts,{type:mime||'application/octet-stream'});
+  }catch(err){
+    console.warn('l775 base64→Blob fejlede',err);
+    return null;
+  }
+}
+function safe775DataUrlToBlob(dataUrl,expectedMime){
+  const s=String(dataUrl||'');
+  const m=s.match(/^data:([^;,]+)?(;base64)?,([\s\S]*)$/i);
+  if(!m)return null;
+  const mime=m[1]||expectedMime||'application/octet-stream';
+  try{
+    if(m[2])return safe775Base64ToBlob(m[3],mime);
+    const decoded=decodeURIComponent(m[3]||'');
+    return new Blob([decoded],{type:mime});
+  }catch(err){console.warn('l775 dataURL→Blob fejlede',err);return null;}
+}
+function safe775CanonicalUri(tid){
+  return String((tid&&(tid._canonical_uri||tid.canonical_uri||tid.uri||tid.url))||'').trim();
+}
+function safe775BlobFromTiddler(tid,mime){
+  const uri=safe775CanonicalUri(tid);
+  const body=String(tid&&tid.text||'').trim();
+  if(/^data:/i.test(uri))return safe775DataUrlToBlob(uri,mime);
+  if(/^data:/i.test(body))return safe775DataUrlToBlob(body,mime);
+  return safe775Base64ToBlob(body,mime);
+}
+function safe775DataUrlFromTiddler(tid,mime){
+  const uri=safe775CanonicalUri(tid);
+  const body=String(tid&&tid.text||'').trim();
+  if(/^data:/i.test(uri))return uri;
+  if(/^data:/i.test(body))return body;
+  if(body)return 'data:'+(mime||'application/octet-stream')+';base64,'+body.replace(/\s+/g,'');
+  return '';
+}
+function safe775MediaKindFromMime(mime){mime=String(mime||'');return /^video\//i.test(mime)?'video':(/^audio\//i.test(mime)?'audio':'image');}
+async function safe775CreateMediaWidgetFromTiddler(tid,point,index){
+  const mime=safe775InferMediaMime(tid);
+  if(!safe775IsSupportedTiddlerMediaMime(mime))return null;
+  const kind=safe775MediaKindFromMime(mime);
+  const fallback=kind==='video'?'video.webm':(kind==='audio'?'lyd.mp3':'billede.webp');
+  const name=safe775FileNameFromTitle(tid&&tid.title,fallback);
+  const p=dropBatchPoint(point||{x:160,y:130},index||0);
+  const uri=safe775CanonicalUri(tid);
+  let widgetData=null;
+  let stored=false;
+  if(/^https?:\/\//i.test(uri)){
+    widgetData=kind==='image'
+      ? {src:uri,name,mimeType:mime,source:'tiddlywiki-uri'}
+      : {url:uri,mediaKind:kind,name,mimeType:mime,source:'tiddlywiki-uri'};
+  }else{
+    const blob=safe775BlobFromTiddler(tid,mime);
+    const archive=window.TavleMediaArchive;
+    if(blob&&archive&&typeof archive.putMedia==='function'){
+      try{
+        const rec=await archive.putMedia({
+          kind,
+          name,
+          mimeType:mime,
+          size:blob.size||0,
+          blob,
+          source:'tiddlywiki-tiddler-drop',
+          meta:{safePhase:'l775',originalTitle:String(tid&&tid.title||''),importedAt:new Date().toISOString(),flow:'tiddler-media-drop'}
+        });
+        if(rec&&rec.id){
+          widgetData={mediaRef:rec.id,mediaKind:kind,name:rec.name||name,mimeType:rec.mimeType||mime,size:rec.size||blob.size||0,source:'tiddlywiki-tiddler-drop'};
+          stored=true;
+        }
+      }catch(err){console.warn('l775 kunne ikke gemme medietiddler i TavleMediaArchive; bruger dataURL fallback',err);}
+    }
+    if(!widgetData){
+      const dataUrl=safe775DataUrlFromTiddler(tid,mime);
+      if(!dataUrl)return null;
+      widgetData=kind==='image'
+        ? {src:dataUrl,name,mimeType:mime,source:'tiddlywiki-tiddler-drop'}
+        : {src:dataUrl,mediaKind:kind,name,mimeType:mime,source:'tiddlywiki-tiddler-drop'};
+    }
+  }
+  const widgetType=kind==='image'?'image':'video';
+  const w=addDroppedWidget(widgetType,widgetData,p,name);
+  return {ok:true,kind,label:name+(stored?' · gemt i mediearkiv':''),widgetId:w&&w.id};
+}
+async function safe775HandleDroppedTiddlerMedia(raw,point){
+  const tids=safe775ParseTiddlersFromDrop(raw);
+  if(!tids.length)return null;
+  const media=tids.filter(t=>safe775IsSupportedTiddlerMediaMime(safe775InferMediaMime(t)));
+  if(!media.length)return null;
+  const results=[];
+  for(let i=0;i<media.length;i++){
+    const r=await safe775CreateMediaWidgetFromTiddler(media[i],point,i);
+    if(r)results.push(r);
+  }
+  if(!results.length)return null;
+  const imgs=results.filter(r=>r.kind==='image').length;
+  const vids=results.filter(r=>r.kind==='video').length;
+  const auds=results.filter(r=>r.kind==='audio').length;
+  const parts=[];
+  if(imgs)parts.push(imgs+' billede'+(imgs===1?'':'r'));
+  if(vids)parts.push(vids+' video'+(vids===1?'':'er'));
+  if(auds)parts.push(auds+' lydfil'+(auds===1?'':'er'));
+  toast('Tiddler-medie indsat: '+parts.join(' + '));
+  return {ok:true,kind:(auds&&!vids&&!imgs?'audio':(vids&&!imgs&&!auds?'video':(imgs&&!vids&&!auds?'image':'media'))),count:results.length,label:'Tiddler-medie · '+parts.join(' + ')};
+}
+function safe775DownloadBlob(blob,name){
+  try{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=safe775FileNameFromTitle(name,'video.webm');
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(_e){}},1500);
+  }catch(err){console.warn('l775 download blob failed',err);try{toast('Kunne ikke hente filen');}catch(_e){}}
+}
+function safe775DownloadVideoWidget(w){
+  try{
+    const d=w&&w.data||{};
+    const isAudio=String(d.mediaKind||'').toLowerCase()==='audio'||/^audio\//i.test(String(d.mimeType||''))||/^data:audio\//i.test(String(d.src||''));
+    const name=d.name||w.title||(isAudio?'lyd.mp3':'video.webm');
+    if(d.mediaRef&&window.TavleMediaArchive&&typeof window.TavleMediaArchive.getBlob==='function'){
+      window.TavleMediaArchive.getBlob(d.mediaRef).then(blob=>{
+        if(blob)safe775DownloadBlob(blob,name); else toast((isAudio?'Lyden':'Videoen')+' kunne ikke læses fra mediearkivet');
+      }).catch(err=>{console.warn('l775 video download failed',err);toast(isAudio?'Kunne ikke hente lyden':'Kunne ikke hente videoen');});
+      return;
+    }
+    const src=String(d.src||'');
+    if(/^data:(video|audio)\//i.test(src)){downloadDataUrl(src,name);return;}
+    const url=String(d.url||'');
+    if(url)window.open(url,'_blank','noopener');
+  }catch(err){console.warn('l775 safe775DownloadVideoWidget failed',err);}
+}
+
+async function handleDroppedUrlOrText(raw,point){
   const text=String(raw||'').trim();
   if(!text)return false;
+  const tiddlerMedia=await safe775HandleDroppedTiddlerMedia(text,point);
+  if(tiddlerMedia)return tiddlerMedia;
   const urlMatch=text.match(/https?:\/\/[^\s<>"']+/i) || text.match(/(?:youtu\.be|youtube\.com)\/[^\s<>"']+/i);
   const maybeUrl=urlMatch ? urlMatch[0] : text;
+  if(safe778LooksLikeAudioUrl(maybeUrl)){
+    const src=/^data:audio\//i.test(maybeUrl)?maybeUrl:normalizeLinkUrl(maybeUrl);
+    let label=String(src||'Lyd').replace(/^https?:\/\//,'').replace(/^www\./,'');
+    try{label=decodeURIComponent((label.split('/').pop()||label).split('?')[0].split('#')[0])||'Lyd';}catch(_e){label='Lyd';}
+    addDroppedWidget('video',(/^data:audio\//i.test(src)?{src:src,mediaKind:'audio',name:label,source:'audio-url-drop'}:{url:src,mediaKind:'audio',name:label,source:'audio-url-drop'}),point,label||'Lyd');
+    toast('Lyd indsat');
+    return {ok:true,kind:'audio',label:label||'Lyd'};
+  }
+  if(safe776LooksLikeVideoUrl(maybeUrl)){
+    const src=/^data:video\//i.test(maybeUrl)||/^blob:/i.test(maybeUrl)?maybeUrl:normalizeLinkUrl(maybeUrl);
+    let label=String(src||'Video').replace(/^https?:\/\//,'').replace(/^www\./,'');
+    try{label=decodeURIComponent((label.split('/').pop()||label).split('?')[0].split('#')[0])||'Video';}catch(_e){label='Video';}
+    addDroppedWidget('video',(/^data:video\//i.test(src)?{src:src,mediaKind:'video',name:label,source:'video-url-drop'}:{url:src,mediaKind:'video',name:label,source:'video-url-drop'}),point,label||'Video');
+    toast('Video indsat');
+    return {ok:true,kind:'video',label:label||'Video'};
+  }
   if(isYoutubeUrl(maybeUrl)){
     addDroppedWidget('video',{url:normalizeLinkUrl(maybeUrl)},point,'Video');
     toast('YouTube-video indsat');
@@ -20282,7 +20773,7 @@ document.addEventListener('drop',async e=>{
     return;
   }
   const dropped=droppedTextFromDataTransfer(e.dataTransfer);
-  const raw=handleDroppedUrlOrText(dropped,point);
+  const raw=await handleDroppedUrlOrText(dropped,point);
   const res=raw?normalizeImportResult(raw,null):null;
   if(res){showImportSummary([res],{closeModal:true});toastImportCount(res.ok!==false?1:0)}
 },true);
@@ -20312,7 +20803,7 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const boardPanelChromeBtns=(w.type==='text'&&w.data&&(w.data.listType==='boardIndex'||w.data.listType==='boardCheckIndex'))?'<button data-act="boardPanelTitleZoomOut" class="boardPanelChromeZoom" title="Mindre titler i Tavlepanel">−</button><button data-act="boardPanelTitleZoomIn" class="boardPanelChromeZoom" title="Større titler i Tavlepanel">＋</button>':'';const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':((w.type==='text'&&w.data&&w.data.datasetId)?'<button data-act="dataTranslatorChrome" title="Remix data til ny datawidget">🔁</button><button data-act="datasetCopyListChrome" title="Lav liste fra datasættets kolonner">→</button><button data-act="toggleDatasetTextView" title="Skift mellem datasæt og tekst">▣</button>':''));const boardPanelChromeBtns=(w.type==='text'&&w.data&&(w.data.listType==='boardIndex'||w.data.listType==='boardCheckIndex'))?'<button data-act="boardPanelTitleZoomOut" class="boardPanelChromeZoom" title="Mindre titler i Tavlepanel">−</button><button data-act="boardPanelTitleZoomIn" class="boardPanelChromeZoom" title="Større titler i Tavlepanel">＋</button>':'';const mediaChromeBtns=(w.type==='video')?'<button data-act="mediaListChrome" title="Åbn koblet DataWidget/medieliste – eller vælg liste">🔗</button><button data-act="mediaPickerChrome" title="Vælg/afspil fra medieliste">☰</button><button data-act="mediaSaveChrome" title="Vælg/gem i medieliste">＋</button>':'';const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -20336,7 +20827,7 @@ if(w.type==='pdf'){
     if(pdfTitle)widgetTitle=pdfTitle;
   }catch(_e){}
 }
-const titleHtml='<span class="titleText">'+esc(widgetTitle)+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}${boardPanelChromeBtns}${mediaNameBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button>${linkedDataSourceOpen?'<button type="button" data-act="hideDataSource" title="Luk datakilde – forbindelsen bevares" aria-label="Luk datakilde – forbindelsen bevares">🔗</button>':'<button type="button" data-act="del" title="Luk">×</button>'}</div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
+const titleHtml='<span class="titleText">'+esc(widgetTitle)+'</span>';el.innerHTML=`<div class="chrome">${titleHtml}<div class="mini"><button data-act="up">⬆</button><button data-act="down">⬇</button>${linkEditBtn}${boardPanelChromeBtns}${mediaChromeBtns}${mediaNameBtn}<button data-act="max" title="Maksimer">⛶</button><button data-act="lock">${w.locked?'🔒':'🔓'}</button><button data-act="move" title="Flyt eller kopiér til anden tavle">↪</button>${linkedDataSourceOpen?'<button type="button" data-act="hideDataSource" title="Luk datakilde – forbindelsen bevares" aria-label="Luk datakilde – forbindelsen bevares">🔗</button>':'<button type="button" data-act="del" title="Luk">×</button>'}</div></div><div class="content"></div><div class="resize"></div><div class="rotater">↻</div>`;app.appendChild(el);fillContent(el,w); wireWidget(el,w);}
 
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function makeGroupsFromList(names,size){names=shuffleArray(names.filter(Boolean));size=Math.max(1,Number(size)||2);const groups=[];for(let i=0;i<names.length;i+=size)groups.push(names.slice(i,i+size));if(groups.length>1&&groups[groups.length-1].length===1){groups[groups.length-2].push(groups[groups.length-1][0]);groups.pop()}return groups}
@@ -36172,13 +36663,55 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
       });
     }catch(_e){}
   }
+  const localMediaRef=String((w.data&&w.data.mediaRef)||'').trim();
+  const localSrc=String((w.data&&w.data.src)||'').trim();
+  const localUrl=String((w.data&&w.data.url)||'').trim();
+  const mime=String((w.data&&w.data.mimeType)||'').toLowerCase();
+  const mediaKind=String((w.data&&w.data.mediaKind)||'').toLowerCase();
+  const isAudioMedia=mediaKind==='audio'||/^audio\//.test(mime)||safe778LooksLikeAudioUrl(localSrc)||safe778LooksLikeAudioUrl(localUrl);
+  const localMediaSrc=localSrc || (isAudioMedia?(safe778LooksLikeAudioUrl(localUrl)?localUrl:''):(safe775IsVideoUrl(localUrl)?localUrl:''));
+  if(localMediaRef || localMediaSrc){
+    const srcAttr=localMediaSrc?' src="'+esc(localMediaSrc)+'"':'';
+    const name=String((w.data&&w.data.name)||w.title||(isAudioMedia?'lyd.mp3':'video.webm'));
+    const label=isAudioMedia?'Lyd':'Video';
+    const mediaHtml=isAudioMedia
+      ? `<div class="localAudioFace"><div class="localAudioIcon">🔊</div><div class="localAudioName">${esc(name)}</div></div><audio class="localVideoEl localAudioEl" controls preload="metadata"${srcAttr}></audio>`
+      : `<video class="localVideoEl" controls playsinline preload="metadata"${srcAttr}></video>`;
+    c.innerHTML=`<div class="videoBox localVideoBox ${isAudioMedia?'localAudioBox':''}">${mediaHtml}<div class="localVideoPanel widget-control"><span class="localVideoPanelHint">${label}</span><button type="button" class="videoDownloadBtn" title="Hent ${isAudioMedia?'lyd':'video'} som fil">⬇ Hent ${isAudioMedia?'lyd':'video'}</button></div><div class="localVideoStatus">${localMediaRef?'Henter '+(isAudioMedia?'lyd':'video')+' fra mediearkiv…':''}</div></div>`;
+    const vid=c.querySelector(isAudioMedia?'audio':'video');
+    const status=c.querySelector('.localVideoStatus');
+    if(localMediaRef&&window.TavleMediaArchive&&typeof window.TavleMediaArchive.getBlob==='function'){
+      window.TavleMediaArchive.getBlob(localMediaRef).then(blob=>{
+        if(!blob){if(status)status.textContent=(isAudioMedia?'Lyden':'Videoen')+' kunne ikke læses fra mediearkivet';return;}
+        const url=URL.createObjectURL(blob);
+        if(vid){vid.src=url;vid.dataset.objectUrl=url;}
+        if(status)status.textContent='';
+      }).catch(err=>{console.warn('l778 lokalt medie kunne ikke læses',err);if(status)status.textContent=(isAudioMedia?'Lyden':'Videoen')+' kunne ikke læses';});
+    }else if(status){status.textContent='';}
+    function safe777SetLocalVideoPlaying(on){
+      try{const box=c.querySelector('.localVideoBox'); if(box)box.classList.toggle('isPlaying',!!on);}catch(_e){}
+    }
+    if(vid){
+      try{vid.addEventListener('play',()=>safe777SetLocalVideoPlaying(true));}catch(_e){}
+      try{vid.addEventListener('playing',()=>safe777SetLocalVideoPlaying(true));}catch(_e){}
+      try{vid.addEventListener('pause',()=>safe777SetLocalVideoPlaying(false));}catch(_e){}
+      try{vid.addEventListener('ended',()=>safe777SetLocalVideoPlaying(false));}catch(_e){}
+      try{vid.addEventListener('error',()=>safe777SetLocalVideoPlaying(false));}catch(_e){}
+    }
+    const dl=c.querySelector('.videoDownloadBtn');
+    safe694BindVideoButton(dl,()=>safe775DownloadVideoWidget(w));
+    c.ondblclick=e=>{if(app.classList.contains('present'))return;e.preventDefault();e.stopPropagation();};
+    return;
+  }
   const ytInfo=safe453i225YoutubeInfo(w.data.url||'');
   const id=ytInfo&&ytInfo.id?ytInfo.id:'';
   const ytSrc=safe453i221YoutubeEmbedUrl(w.data.url||'');
   const ytOpen=id?('https://youtu.be/'+id):(ytInfo&&ytInfo.list?('https://www.youtube.com/playlist?list='+encodeURIComponent(ytInfo.list)):'');
-  c.innerHTML=`<div class="videoBox">${ytSrc?`<iframe src="${esc(ytSrc)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><div class="videoEditOverlay widget-control"><button type="button" class="videoEditBtn">Skift YouTube-link</button><a class="videoOpenLink" target="_blank" rel="noopener" href="${esc(ytOpen||'#')}">Åbn på YouTube</a></div>`:`<div><button type="button" class="videoEditBtn">Indsæt YouTube-link</button><p>Hvis indlejring blokeres på iPad, brug linket til YouTube.</p></div>`}</div>`;
-  const editBtn=c.querySelector('.videoEditBtn');
+  c.innerHTML=`<div class="videoBox">${ytSrc?`<iframe src="${esc(ytSrc)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`:`<div><button type="button" class="videoEditBtn">Indsæt YouTube-link</button><button type="button" class="videoEditBtn videoDiskBtn">Åbn lyd/video fra disk</button><p>Hvis indlejring blokeres på iPad, brug linket til YouTube.</p></div>`}</div>`;
+  const editBtn=c.querySelector('.videoEditBtn:not(.videoDiskBtn)');
   safe694BindVideoButton(editBtn,()=>askVideo(w));
+  const diskBtn=c.querySelector('.videoDiskBtn');
+  safe694BindVideoButton(diskBtn,()=>safe802PickMediaFromDisk(w,{from:'emptyVideoWidget'}));
   const openLink=c.querySelector('.videoOpenLink');
   if(openLink){
     ['pointerdown','mousedown','touchstart'].forEach(type=>{
@@ -38446,7 +38979,8 @@ function permanentlyDeleteSelectedTrashWidget(){
   const idx=selectedTrashWidgetIndex();
   if(!isTrashBoard(s)||idx<0){try{toast('Vælg en widget i papirkurven')}catch(_e){};return false;}
   const w=s.widgets[idx];
-  const mediaRefs=tavleL39WidgetMediaRefs(w);
+  let mediaRefs=tavleL39WidgetMediaRefs(w);
+  try{mediaRefs=mediaRefs.concat(safe798MediaCleanupForPermanentDelete([w]));}catch(_e){}
   s.widgets.splice(idx,1);
   if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
   trashOverviewLayout(s); render(); updateTrashTopIconState(); save({silent:true});
@@ -38468,6 +39002,7 @@ function clearTrashBoardPermanently(){
     var mediaRefs=[];
     try{
       s.widgets.forEach(function(w){ mediaRefs=mediaRefs.concat(tavleL39WidgetMediaRefs(w)); });
+      try{mediaRefs=mediaRefs.concat(safe798MediaCleanupForPermanentDelete(s.widgets.slice()));}catch(_e){}
       mediaRefs=Array.from(new Set(mediaRefs.map(String).filter(Boolean)));
     }catch(_e){}
     s.widgets=[];
@@ -38517,7 +39052,8 @@ function permanentlyDeleteNormalWidgetById(id){
   const idx=s.widgets.findIndex(w=>String(w.id)===String(id));
   if(idx<0){try{toast('Vælg en widget først')}catch(_e){};return false;}
   const w=s.widgets[idx];
-  const mediaRefs=tavleL39WidgetMediaRefs(w);
+  let mediaRefs=tavleL39WidgetMediaRefs(w);
+  try{mediaRefs=mediaRefs.concat(safe798MediaCleanupForPermanentDelete([w]));}catch(_e){}
   s.widgets.splice(idx,1);
   if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}
   render(); updateTrashTopIconState(); save({silent:true});
@@ -38876,6 +39412,48 @@ function wireWidget(el,w){
    if(isTap && (!layerTap.ignore || w.type==='text'))bringWidgetToFront(w,el);
    layerTap.t=0;
  },{passive:true});const hideDataSourceBtn=el.querySelector('[data-act=hideDataSource]');if(hideDataSourceBtn)hideDataSourceBtn.onclick=e=>{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();w.data=w.data||{};if(w.data.sourceOpenedFromDataSourcesModal&&typeof safe453fCloseDataSourcesInspectionWidget==='function'){safe453fCloseDataSourcesInspectionWidget(w);return false;}const dsid=w.data.datasetId||'';let hidden=false;if(dsid&&typeof safe381HideDataSourceWidgetByDataset==='function'){try{hidden=!!safe381HideDataSourceWidgetByDataset(dsid);}catch(_e){hidden=false;}}/* SAFE427: garanti for at netop DEN synlige widget, brugeren klikkede på, skjules. safe381HideDataSourceWidgetByDataset kan ramme en anden instans ved delt datasetId. */if(w.data&&w.data.sourceOpen){w.data.sourceOpen=false;delete w.data.sourceOpenedFromWidgetId;if(String(selected)===String(w.id)){selected=null;if(window.UIState)UIState.selectedWidgetId=null;}render();save({silent:true});if(!hidden)toast('Datakilde skjult');}return false;};const delBtn=el.querySelector('[data-act=del]');if(delBtn)delBtn.onclick=e=>{e.preventDefault();e.stopPropagation(); if(e.stopImmediatePropagation)e.stopImmediatePropagation(); if(window.__tavleDeleteWidgetToTrash){window.__tavleDeleteWidgetToTrash(w.id);return;} if(activeIframeWidgetId&&String(activeIframeWidgetId)===String(w.id))clearIframeControl();slide().widgets=slide().widgets.filter(x=>x.id!==w.id);el.remove();save()};el.querySelector('[data-act=up]').onclick=e=>{e.stopPropagation();w.z=++z;el.style.zIndex=w.z;save()};el.querySelector('[data-act=down]').onclick=e=>{e.stopPropagation();w.z=Math.max(1,w.z-2);el.style.zIndex=w.z;save()};el.querySelector('[data-act=max]').onclick=e=>{e.preventDefault();e.stopPropagation();select(w.id);setFocusTarget(el);toggleFocusMaximized()};
+
+ // l794: MedieWidgetens 🔗/＋ ejes af widgetten selv. Hjælpefunktionerne ligger i hovedscope.
+ function safe794BindMediaChromeButton(btn,fn){
+   if(!btn||btn.__safe794MediaChromeBound)return;
+   btn.__safe794MediaChromeBound=true;
+   let lastFire=0;
+   const soft=e=>{try{if(e){e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}}catch(_e){}};
+   const hard=e=>{try{if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}}catch(_e){}};
+   ['pointerdown','mousedown','touchstart'].forEach(type=>{try{btn.addEventListener(type,soft,{capture:true,passive:true});}catch(_e){}});
+   ['pointerup','touchend','click'].forEach(type=>{try{btn.addEventListener(type,function(e){
+     const now=Date.now();
+     hard(e);
+     if(now-lastFire<420)return false;
+     lastFire=now;
+     try{select(w.id,{editText:false});}catch(_e){try{select(w.id);}catch(__e){}}
+     try{fn(e);}catch(err){console.error('l794 MedieWidget chrome action failed',err);try{toast('Medieknappen kunne ikke udføres');}catch(_e){}}
+     return false;
+   },{capture:true,passive:false});}catch(_e){}});
+   btn.onclick=function(e){hard(e);return false;};
+ }
+ const mediaListChromeBtn=el.querySelector('[data-act=mediaListChrome]');
+ if(mediaListChromeBtn)safe794BindMediaChromeButton(mediaListChromeBtn,()=>{
+   /* l797: 🔗 følger samme brugerlogik som dataknapper i de andre widgets:
+      åbner den direkte tilkoblede DataWidget. Kun hvis ingen liste er koblet,
+      falder den tilbage til Medie-/linkliste-vælgeren. */
+   const ds=safe794MediaLinkedDataset(w);
+   if(ds)return safe794MediaOpenDataWidget(w);
+   return safe794MediaOpenDialog(w,'link');
+ });
+ const mediaPickerChromeBtn=el.querySelector('[data-act=mediaPickerChrome]');
+ if(mediaPickerChromeBtn)safe794BindMediaChromeButton(mediaPickerChromeBtn,()=>{
+   /* l800: ☰ er MedieWidgettens DJ-/medievælger. Hvis der ikke er koblet en liste, åbnes den enkle listevælger. */
+   if(typeof safe800OpenMediaPicker==='function' && safe794MediaLinkedDataset(w))return safe800OpenMediaPicker(w,{from:'mediaWidget'});
+   return safe794MediaOpenDialog(w,'link');
+ });
+ const mediaSaveChromeBtn=el.querySelector('[data-act=mediaSaveChrome]');
+ if(mediaSaveChromeBtn)safe794BindMediaChromeButton(mediaSaveChromeBtn,()=>{
+   /* l797: ＋ skal åbne valg/gem-dialogen, ikke autogemme uden synligt valg. */
+   return safe794MediaOpenDialog(w,'save');
+ });
+ try{safe794MediaRefreshChrome(el);}catch(_e){}
+
  const dataTranslatorChromeBtn=el.querySelector('[data-act=dataTranslatorChrome]');
   if(dataTranslatorChromeBtn)dataTranslatorChromeBtn.onclick=e=>{
     e.preventDefault();e.stopPropagation();
@@ -39041,6 +39619,11 @@ function wireWidget(el,w){
     e.stopPropagation();
     if(!canEditWidgets())return;
     select(w.id,{editText:false});
+    try{
+      const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
+      const ds=ref&&ref.datasetId?findDatasetById(ref.datasetId):null;
+      if(ds&&typeof safe794MediaIsDataset==='function'&&safe794MediaIsDataset(ds)&&typeof safe800OpenMediaPicker==='function')return safe800OpenMediaPicker(w,{from:'editLink'});
+    }catch(_e){}
     askLink(w);
   };
 
@@ -39050,6 +39633,11 @@ function wireWidget(el,w){
     e.preventDefault();e.stopPropagation();
     if(!canEditWidgets())return;
     select(w.id,{editText:false});
+    try{
+      const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
+      const ds=ref&&ref.datasetId?findDatasetById(ref.datasetId):null;
+      if(ds&&typeof safe794MediaIsDataset==='function'&&safe794MediaIsDataset(ds)&&typeof safe800OpenMediaPicker==='function')return safe800OpenMediaPicker(w,{from:'linkListButton'});
+    }catch(_e){}
     if(typeof safe537OpenLinkDropdown==='function')safe537OpenLinkDropdown(w,linkListBtn);
     else safe453i71OpenLinkPicker(w);
   };
@@ -39080,6 +39668,11 @@ function wireWidget(el,w){
     e.preventDefault();e.stopPropagation();
     if(!canEditWidgets())return;
     select(w.id,{editText:false});
+    try{
+      const ref=(typeof safe453i71LinkListRef==='function')?safe453i71LinkListRef(w):null;
+      const ds=ref&&ref.datasetId?findDatasetById(ref.datasetId):null;
+      if(ds&&typeof safe794MediaIsDataset==='function'&&safe794MediaIsDataset(ds)&&typeof safe800OpenMediaPicker==='function')return safe800OpenMediaPicker(w,{from:'linkListPick'});
+    }catch(_e){}
     if(typeof safe537OpenLinkDropdown==='function')safe537OpenLinkDropdown(w,linkListPick);
     else safe453i71OpenLinkPicker(w);
   };
@@ -42219,7 +42812,557 @@ function closeModal(){
   modalBack.style.display='none';
 }
 modalBack.onclick=e=>{if(e.target===modalBack)closeModal()}
-function askVideo(w){showModal(`<h2>Video</h2><input id="vurl" placeholder="YouTube-link" value="${esc(w.data.url||'')}"><button id="ok">Gem</button><button id="cancel">Luk</button><p>Hvis YouTube blokerer embed, vises link/åbn eksternt.</p>`);modal.querySelector('#ok').onclick=()=>{w.data.url=modal.querySelector('#vurl').value;closeModal();render()};modal.querySelector('#cancel').onclick=closeModal}
+/* l794: MedieWidgetens medie-/linkliste-bro ligger i hovedscope.
+   Vigtigt: Den må ikke ligge som sen ekstern patch, fordi DataWidget, modal og state
+   ejes her i Tavles hoved-IIFE. */
+const SAFE794_MEDIA_ROLE='mediaList';
+const SAFE794_MEDIA_SHARED_NAME='Medier og links';
+function safe794MediaColumns(){return ['Titel','Type','URL','MediaRef','MIME','Kilde','Note'];}
+function safe794MediaNorm(v){return String(v==null?'':v).trim();}
+function safe794MediaIsAudioUrl(v){return /^(data:audio\/|blob:)/i.test(String(v||''))||/\.(mp3|wav|m4a|aac|ogg|oga|opus|flac|aif|aiff|caf|amr)(\?|#|$)/i.test(String(v||''));}
+function safe794MediaIsVideoUrl(v){return /^(data:video\/|blob:)/i.test(String(v||''))||/\.(mp4|m4v|mov|webm|ogv|avi|mkv|wmv|3gp)(\?|#|$)/i.test(String(v||''));}
+function safe794MediaToast(msg){try{toast(msg);}catch(_e){}}
+function safe794MediaRegisterRole(){try{if(typeof SAFE450_LINKED_DATA_ROLES==='object'&&SAFE450_LINKED_DATA_ROLES)SAFE450_LINKED_DATA_ROLES[SAFE794_MEDIA_ROLE]={label:'Medieliste',empty:'Ingen koblet medieliste'};}catch(_e){}}
+function safe794MediaAllDatasets(){state.datasets=Array.isArray(state.datasets)?state.datasets:[];return state.datasets;}
+function safe794MediaDatasetById(id){id=String(id||'');if(!id)return null;try{const ds=findDatasetById(id);if(ds)return ds;}catch(_e){}return safe794MediaAllDatasets().find(ds=>String(ds&&ds.id)===id)||null;}
+function safe794MediaPutDataset(ds){if(!ds)return null;try{updateDatasetInState(ds);}catch(_e){state.datasets=Array.isArray(state.datasets)?state.datasets:[];const i=state.datasets.findIndex(x=>String(x&&x.id)===String(ds.id));if(i>=0)state.datasets[i]=ds;else state.datasets.push(ds);try{save({silent:true});}catch(__e){try{save();}catch(__e2){}}}return ds;}
+function safe794MediaColMap(cols){const m={};(cols||[]).forEach((c,i)=>{m[String(c||'').toLowerCase().replace(/\s+/g,'')]=i;});return m;}
+function safe794MediaCell(row,map,names){for(let i=0;i<names.length;i++){const k=String(names[i]).toLowerCase().replace(/\s+/g,'');if(map[k]!=null)return safe794MediaNorm((row||[])[map[k]]);}return '';}
+function safe794MediaSourceFrom(url,mediaRef,mime){url=safe794MediaNorm(url);mediaRef=safe794MediaNorm(mediaRef);mime=safe794MediaNorm(mime);if(mediaRef)return 'Mediearkiv';if(/^https?:\/\/([^/]+\.)?youtu(be\.com|\.be)/i.test(url))return 'YouTube';if(/^https?:/i.test(url))return 'URL';if(/^data:/i.test(url))return 'DataURL';if(/^blob:/i.test(url))return 'Blob';if(mime)return mime;return '';}
+function safe794MediaTypeFrom(url,mediaRef,mime,kind){kind=safe794MediaNorm(kind).toLowerCase();mime=safe794MediaNorm(mime).toLowerCase();if(kind==='audio'||kind==='video')return kind;if(/^audio\//.test(mime)||safe794MediaIsAudioUrl(url))return 'audio';return 'video';}
+function safe794MediaItemFromRow(row,map,i){let title=safe794MediaCell(row,map,['titel','title','navn','name'])||('Medie '+(i+1));const url=safe794MediaCell(row,map,['url','link','src','adresse']);const mediaRef=safe794MediaCell(row,map,['mediaref','medieref','ref','arkiv']);const mime=safe794MediaCell(row,map,['mime','mimetype','type/mime']);const type=safe794MediaCell(row,map,['type','kind','medietype','media'])||safe794MediaTypeFrom(url,mediaRef,mime,'');const source=safe794MediaCell(row,map,['kilde','source'])||safe794MediaSourceFrom(url,mediaRef,mime);const note=safe794MediaCell(row,map,['note','noter','besked']);const it={title,type:String(type||'video').toLowerCase(),url,mediaRef,mime,source,note};it.title=safe800MediaDisplayTitle(it,i);return it;}
+function safe794MediaRowFromItem(it){it=it||{};const title=safe800MediaDisplayTitle(it,null);return [title||'Medie',it.type||'video',it.url||'',it.mediaRef||'',it.mime||'',it.source||safe794MediaSourceFrom(it.url,it.mediaRef,it.mime),it.note||''];}
+function safe794MediaEnsureShape(ds){if(!ds)return null;const cols=Array.isArray(ds.columns)&&ds.columns.length?ds.columns.slice():[];const oldMap=safe794MediaColMap(cols);ds.rows=Array.isArray(ds.rows)?ds.rows:[];const wanted=safe794MediaColumns();const needs=cols.length!==wanted.length||wanted.some((c,i)=>String(cols[i]||'')!==c);if(needs){ds.rows=ds.rows.map((r,i)=>safe794MediaRowFromItem(safe794MediaItemFromRow(r||[],oldMap,i)));}ds.columns=wanted;ds.type='media-list';ds.sourceType='media-list';ds.sourceName=ds.sourceName||'MedieWidget';ds.name=ds.name||'Medieliste';return ds;}
+function safe794MediaIsDataset(ds){if(!ds||!Array.isArray(ds.rows))return false;if(String(ds.type||'')==='media-list'||String(ds.sourceType||'')==='media-list')return true;const names=(ds.columns||[]).map(c=>String(c||'').toLowerCase()).join('|');return /(mediaref|medieref|mime|url|link|kilde|source)/.test(names)&&/(type|titel|title|navn|name|media|medie)/.test(names);}
+function safe794MediaRef(w){const d=(w&&w.data)||{};const r=d.linkedDataSources&&d.linkedDataSources[SAFE794_MEDIA_ROLE];return {datasetId:safe794MediaNorm((r&&r.datasetId)||d.mediaListDatasetId),widgetId:safe794MediaNorm((r&&r.widgetId)||d.mediaListWidgetId),name:safe794MediaNorm((r&&r.name)||d.mediaListDatasetName)||'Medieliste'};}
+function safe794MediaConnect(w,ds){if(!w||!ds)return null;safe794MediaEnsureShape(ds);safe794MediaPutDataset(ds);safe794MediaRegisterRole();w.data=w.data||{};w.data.linkedDataSources=w.data.linkedDataSources||{};const old=safe794MediaRef(w);w.data.linkedDataSources[SAFE794_MEDIA_ROLE]={role:SAFE794_MEDIA_ROLE,datasetId:String(ds.id),widgetId:old.widgetId||'',name:String(ds.name||'Medieliste')};w.data.mediaListDatasetId=String(ds.id);w.data.mediaListDatasetName=String(ds.name||'Medieliste');try{save({silent:true});}catch(_e){try{save();}catch(__e){}}safe794MediaRefreshChrome();return ds;}
+function safe794MediaLinkedDataset(w){const r=safe794MediaRef(w);const ds=r.datasetId?safe794MediaDatasetById(r.datasetId):null;if(ds){safe794MediaEnsureShape(ds);safe794MediaPutDataset(ds);return ds;}return null;}
+function safe794MediaCreateDataset(name,ownerW){const ds={id:'ds'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),name:name||'Medieliste',type:'media-list',sourceType:'media-list',sourceName:'MedieWidget',columns:safe794MediaColumns(),rows:[],importedAt:Date.now(),updatedAt:Date.now()};if(ownerW)ds.ownerWidgetId=String(ownerW.id||'');safe794MediaPutDataset(ds);return ds;}
+function safe794MediaSharedDataset(){let ds=safe794MediaAllDatasets().find(x=>x&&safe794MediaIsDataset(x)&&String(x.name||'')===SAFE794_MEDIA_SHARED_NAME);if(!ds)ds=safe794MediaCreateDataset(SAFE794_MEDIA_SHARED_NAME,null);safe794MediaEnsureShape(ds);safe794MediaPutDataset(ds);return ds;}
+function safe794MediaTitleFromUrl(url){try{const p=decodeURIComponent(String(url||'').split('?')[0].split('#')[0]);const n=p.split('/').filter(Boolean).pop()||'';return n||'Medie';}catch(_e){return 'Medie';}}
+function safe800YoutubeIdFromUrl(url){
+  try{
+    const u=String(url||'').trim();
+    if(!u)return '';
+    let m=u.match(/youtu\.be\/([^?&#/]+)/i); if(m&&m[1])return decodeURIComponent(m[1]);
+    m=u.match(/[?&]v=([^?&#]+)/i); if(m&&m[1])return decodeURIComponent(m[1]);
+    m=u.match(/\/embed\/([^?&#/]+)/i); if(m&&m[1])return decodeURIComponent(m[1]);
+    m=u.match(/\/shorts\/([^?&#/]+)/i); if(m&&m[1])return decodeURIComponent(m[1]);
+  }catch(_e){}
+  return '';
+}
+function safe800IsGenericMediaTitle(title){
+  const t=String(title||'').trim().toLowerCase();
+  return !t || t==='video' || t==='medie' || t==='link' || t==='youtube / medielink' || /^medie\s*\d+$/i.test(t) || /^link\s*\d+$/i.test(t);
+}
+function safe800MediaDisplayTitle(it,i){
+  try{
+    it=it||{};
+    const raw=String(it.title||'').trim();
+    const url=String(it.url||'').trim();
+    const source=String(it.source||'').trim();
+    const mime=String(it.mime||'').trim();
+    const mediaRef=String(it.mediaRef||'').trim();
+    const yid=safe800YoutubeIdFromUrl(url);
+    if(yid && safe800IsGenericMediaTitle(raw))return 'YouTube · '+yid;
+    if(!safe800IsGenericMediaTitle(raw))return raw;
+    const file=safe794MediaTitleFromUrl(url);
+    if(file && !safe800IsGenericMediaTitle(file))return file;
+    if(mediaRef && !safe800IsGenericMediaTitle(raw))return raw;
+    if(/^audio\//i.test(mime)||String(it.type||'').toLowerCase()==='audio')return 'Lyd '+((i!=null?Number(i)+1:1)||1);
+    if(/^video\//i.test(mime)||String(it.type||'').toLowerCase()==='video')return 'Video '+((i!=null?Number(i)+1:1)||1);
+    if(source)return source+' '+((i!=null?Number(i)+1:1)||1);
+  }catch(_e){}
+  return String((it&&it.title)||'Medie').trim()||'Medie';
+}
+function safe800MediaSubline(it){
+  try{
+    it=it||{};
+    const bits=[];
+    const type=String(it.type||'').trim(); if(type)bits.push(type);
+    const source=String(it.source||'').trim(); if(source)bits.push(source);
+    const mime=String(it.mime||'').trim(); if(mime)bits.push(mime);
+    if(it.mediaRef)bits.push('Mediearkiv');
+    else if(it.url)bits.push(String(it.url));
+    return bits.join(' · ');
+  }catch(_e){return '';}
+}
+
+function safe794MediaCurrentItem(w){try{const d=(w&&w.data)||{};let rawUrl=safe794MediaNorm(d.url)||safe794MediaNorm(d.src);const mediaRef=safe794MediaNorm(d.mediaRef);const mime=safe794MediaNorm(d.mimeType||d.mime);const type=safe794MediaTypeFrom(rawUrl,mediaRef,mime,d.mediaKind);if(mediaRef&&(/^blob:/i.test(rawUrl)||/^data:/i.test(rawUrl)))rawUrl='';let title=safe794MediaNorm(d.name)||safe794MediaNorm(w&&w.title)||safe794MediaTitleFromUrl(rawUrl)||mediaRef||'Medie';if(!rawUrl&&!mediaRef)return null;const it={title,type,url:rawUrl,mediaRef,mime,source:safe794MediaSourceFrom(rawUrl,mediaRef,mime),note:''};it.title=safe800MediaDisplayTitle(it,null);return it;}catch(_e){return null;}}
+function safe794MediaItems(ds){safe794MediaEnsureShape(ds);const m=safe794MediaColMap(ds.columns);return (ds.rows||[]).map((r,i)=>safe794MediaItemFromRow(r||[],m,i)).filter(x=>x.url||x.mediaRef);}
+function safe798MediaAllWidgets(){
+  const out=[];
+  try{(state.slides||[]).forEach(sl=>{(sl.widgets||[]).forEach(w=>{if(w)out.push(w);});});}catch(_e){}
+  return out;
+}
+function safe798MediaWidgetLinkedDatasetId(w){try{return safe794MediaRef(w).datasetId||'';}catch(_e){return '';}}
+function safe798MediaWidgetKey(w){try{const it=safe794MediaCurrentItem(w);return it?safe794MediaKey(it):'';}catch(_e){return '';}}
+function safe798MediaCleanupForPermanentDelete(widgets){
+  try{
+    widgets=(Array.isArray(widgets)?widgets:[widgets]).filter(Boolean);
+    if(!widgets.length)return [];
+    const deletedIds=new Set(widgets.map(w=>String(w&&w.id||'')).filter(Boolean));
+    const candidates=[];
+    widgets.forEach(w=>{
+      if(!w||w.type!=='video')return;
+      const dsId=safe798MediaWidgetLinkedDatasetId(w);
+      if(!dsId)return;
+      const ds=safe794MediaDatasetById(dsId);
+      if(!ds)return;
+      safe794MediaEnsureShape(ds);
+      const idx=Number(w&&w.data&&w.data.mediaListRowIndex);
+      const key=safe798MediaWidgetKey(w);
+      candidates.push({w,ds,dsId,idx:Number.isInteger(idx)?idx:-1,key});
+    });
+    if(!candidates.length)return [];
+    const all=safe798MediaAllWidgets();
+    const extraRefs=[];
+    const byDs={};
+    candidates.forEach(c=>{(byDs[c.dsId]=byDs[c.dsId]||[]).push(c);});
+    Object.keys(byDs).forEach(dsId=>{
+      const ds=safe794MediaDatasetById(dsId);
+      if(!ds||!Array.isArray(ds.rows))return;
+      safe794MediaEnsureShape(ds);
+      const map=safe794MediaColMap(ds.columns);
+      let remove=[];
+      byDs[dsId].forEach(c=>{
+        const key=c.key;
+        let usedElsewhere=false;
+        if(key){
+          usedElsewhere=all.some(other=>{
+            if(!other||deletedIds.has(String(other.id||''))||other.type!=='video')return false;
+            if(safe798MediaWidgetLinkedDatasetId(other)!==dsId)return false;
+            return safe798MediaWidgetKey(other)===key;
+          });
+        }
+        if(usedElsewhere)return;
+        if(c.idx>=0 && c.idx<ds.rows.length){remove.push(c.idx);return;}
+        if(key){
+          ds.rows.forEach((r,i)=>{const it=safe794MediaItemFromRow(r||[],map,i);if(safe794MediaKey(it)===key)remove.push(i);});
+        }
+      });
+      remove=Array.from(new Set(remove)).filter(i=>i>=0&&i<ds.rows.length).sort((a,b)=>b-a);
+      if(!remove.length)return;
+      remove.forEach(i=>{
+        try{const it=safe794MediaItemFromRow(ds.rows[i]||[],map,i);if(it&&it.mediaRef)extraRefs.push(it.mediaRef);}catch(_e){}
+        ds.rows.splice(i,1);
+      });
+      ds.updatedAt=Date.now();
+      safe794MediaPutDataset(ds);
+      // Justér rækkeindeks på andre widgets på samme liste, så de ikke peger én række forkert efter sletning.
+      all.forEach(other=>{
+        if(!other||deletedIds.has(String(other.id||''))||other.type!=='video')return;
+        if(safe798MediaWidgetLinkedDatasetId(other)!==dsId)return;
+        const oldIdx=Number(other&&other.data&&other.data.mediaListRowIndex);
+        if(!Number.isInteger(oldIdx)||oldIdx<0)return;
+        const shift=remove.filter(i=>i<oldIdx).length;
+        if(shift){other.data.mediaListRowIndex=Math.max(0,oldIdx-shift);}
+      });
+    });
+    return Array.from(new Set(extraRefs.map(String).filter(Boolean)));
+  }catch(err){try{console.warn('l798 media cleanup failed',err);}catch(_e){} return [];}
+}
+function safe794MediaKey(it){
+  const ref=safe794MediaNorm(it&&it.mediaRef);
+  if(ref)return 'mediaref:'+ref.toLowerCase();
+  const url=safe794MediaNorm(it&&it.url);
+  if(url)return 'url:'+url.toLowerCase();
+  const title=safe794MediaNorm(it&&it.title);
+  return title?('title:'+title.toLowerCase()):'';
+}
+function safe794MediaAddCurrentToDataset(w,ds){
+  try{
+    const it=safe794MediaCurrentItem(w);
+    if(!it){safe794MediaToast('Der er ikke et aktuelt medie/link i widgetten endnu');return false;}
+    if(!ds){safe794MediaToast('Vælg eller opret først en medieliste');return false;}
+    safe794MediaEnsureShape(ds);
+    const m=safe794MediaColMap(ds.columns);
+    const key=safe794MediaKey(it);
+    let existing=-1;
+    if(key){
+      for(let i=0;i<(ds.rows||[]).length;i++){
+        const old=safe794MediaItemFromRow(ds.rows[i]||[],m,i);
+        if(safe794MediaKey(old)===key){existing=i;break;}
+      }
+    }
+    /* l795: ＋ betyder "gem som en post i listen".
+       Den må ikke overskrive en anden YouTube-/mediepost, bare fordi titlen er den samme.
+       Hvis samme URL/MediaRef allerede findes, kobles widgetten til listen og peger på den række,
+       men rækken erstattes ikke. Nye URL'er/MediaRefs tilføjes som nye rækker. */
+    if(existing>=0){
+      w.data=w.data||{};
+      w.data.mediaListRowIndex=existing;
+      safe794MediaConnect(w,ds);
+      safe794MediaToast('Findes allerede i '+(ds.name||'Medieliste'));
+      return true;
+    }
+    ds.rows=Array.isArray(ds.rows)?ds.rows:[];
+    ds.rows.push(safe794MediaRowFromItem(it));
+    ds.updatedAt=Date.now();
+    safe794MediaPutDataset(ds);
+    w.data=w.data||{};
+    w.data.mediaListRowIndex=ds.rows.length-1;
+    safe794MediaConnect(w,ds);
+    safe794MediaToast('Gemt i '+(ds.name||'Medieliste'));
+    return true;
+  }catch(err){
+    console.warn('l795 addCurrent failed',err);
+    safe794MediaToast('Mediet kunne ikke gemmes');
+    return false;
+  }
+}
+function safe794MediaApplyItem(w,it,idx){try{if(!w||!it)return false;w.data=w.data||{};w.data.name=it.title||w.data.name||'Medie';w.title=it.title||w.title||'Video';w.data.mediaKind=it.type||'video';w.data.mimeType=it.mime||'';w.data.mediaListRowIndex=Number(idx)||0;if(it.mediaRef){w.data.mediaRef=it.mediaRef;delete w.data.src;w.data.url=it.url||'';}else{delete w.data.mediaRef;w.data.url=it.url||'';w.data.src=(/^data:(audio|video)\//i.test(it.url||'')||safe794MediaIsAudioUrl(it.url)||safe794MediaIsVideoUrl(it.url))?it.url:'';}save({silent:true});render();setTimeout(()=>{try{select(w.id,{editText:false});}catch(_e){}},30);return true;}catch(err){console.warn('l794 applyItem failed',err);safe794MediaToast('Mediet kunne ikke åbnes');return false;}}
+function safe803MediaDatasetIsOpen(dsId){
+  try{
+    dsId=String(dsId||'').trim();
+    if(!dsId)return false;
+    const all=(typeof safe376AllWidgetsWithSlide==='function')?safe376AllWidgetsWithSlide():[];
+    return all.some(hit=>hit&&hit.w&&hit.w.type==='text'&&hit.w.data&&String(hit.w.data.datasetId||'')===dsId&&hit.w.data.sourceOpen===true);
+  }catch(_e){return false;}
+}
+function safe794MediaOpenDataWidget(w){
+  try{
+    const ds=safe794MediaLinkedDataset(w);
+    if(!ds){safe794MediaToast('Kobl eller opret først en medieliste');return false;}
+    if(safe803MediaDatasetIsOpen(ds.id)){
+      if(typeof safe381HideDataSourceWidgetByDataset==='function')return safe381HideDataSourceWidgetByDataset(ds.id);
+      safe794MediaToast('Medielisten er allerede åben');
+      return true;
+    }
+    if(typeof safe381OpenDatasetSourceNearWidget==='function')return safe381OpenDatasetSourceNearWidget(ds.id,w);
+    if(typeof addDatasetWidget==='function'){
+      addDatasetWidget(ds,{x:(Number(w.x)||120)+40,y:(Number(w.y)||120)+40});
+      return true;
+    }
+    safe794MediaToast('DataWidget kunne ikke åbnes');return false;
+  }catch(err){console.warn('l803 open/toggle DataWidget failed',err);safe794MediaToast('Medielisten kunne ikke åbnes');return false;}
+}
+function safe794MediaExistingChoices(currentDs){const arr=safe794MediaAllDatasets().filter(safe794MediaIsDataset).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'da'));if(currentDs&&!arr.some(x=>String(x.id)===String(currentDs.id)))arr.unshift(currentDs);return arr;}
+function safe794MediaCurrentIndex(w,arr){try{const row=Number(w&&w.data&&w.data.mediaListRowIndex);if(Number.isInteger(row)&&row>=0&&row<arr.length)return row;const cur=safe794MediaCurrentItem(w);if(!cur)return -1;const k=safe794MediaKey(cur);return arr.findIndex(x=>safe794MediaKey(x)===k);}catch(_e){return -1;}}
+function safe794MediaResolveSelectedDatasetValue(v){
+  v=safe794MediaNorm(v);
+  if(v==='__shared__')return safe794MediaSharedDataset();
+  return v?safe794MediaDatasetById(v):null;
+}
+function safe794MediaOpenDialog(w,mode='link'){
+  try{
+    w=(w&&w.id?findWidget(w.id):null)||w;
+    if(!w){safe794MediaToast('MedieWidget kunne ikke findes');return false;}
+    const ds=safe794MediaLinkedDataset(w);
+    const curIt=safe794MediaCurrentItem(w);
+    let choices=safe794MediaExistingChoices(ds);
+    const hasShared=choices.some(x=>String(x&&x.name||'')===SAFE794_MEDIA_SHARED_NAME);
+    const selectorOptions=[];
+    selectorOptions.push('<option value="__shared__" '+(!ds?'selected':'')+'>'+esc(SAFE794_MEDIA_SHARED_NAME)+' · fælles liste</option>');
+    choices.forEach(x=>{
+      if(!x)return;
+      if(String(x.name||'')===SAFE794_MEDIA_SHARED_NAME && !hasShared)return;
+      selectorOptions.push('<option value="'+esc(x.id)+'" '+(ds&&String(x.id)===String(ds.id)?'selected':'')+'>'+esc(x.name||'Medieliste')+' · '+((x.rows||[]).length)+' medier</option>');
+    });
+    const arr=ds?safe794MediaItems(ds):[];
+    const cur=safe794MediaCurrentIndex(w,arr);
+    const rows=arr.slice(0,8).map((it,i)=>'<button type="button" class="safe785MediaRow '+(i===cur?'current':'')+'" data-safe794-media-row="'+i+'"><span class="safe785MediaKind">'+(it.type==='audio'?'♪':'▶')+'</span><span><b>'+esc(it.title)+'</b><small>'+esc(it.mediaRef?('Indlejret · '+(it.mime||it.mediaRef)):(it.url||''))+(it.source?' · '+esc(it.source):'')+'</small></span><span>'+(i===cur?'✓':'Åbn')+'</span></button>').join('');
+    const rowBlock=ds?('<div class="safe785MediaRows">'+(rows||'<p class="safe785MediaHint">Den koblede liste er tom.</p>')+'</div>'):'<p class="safe785MediaHint">Ingen medieliste er koblet endnu. Vælg en liste nedenfor.</p>';
+    const currentLine=curIt?('<p class="safe785MediaHint"><b>Aktuelt medie:</b> '+esc(curIt.title)+'<br><small>'+(curIt.mediaRef?'Gemmes som MediaRef i listen.':'Gemmes som URL i listen.')+'</small></p>'):'<p class="safe785MediaHint"><b>Intet aktuelt medie i widgetten.</b><br><small>Du kan stadig koble widgetten til en liste og vælge medier senere.</small></p>';
+    const primaryText=curIt?'Gem i valgte liste':'Brug valgte liste';
+    showModal('<div class="safe785MediaChooser"><h2>Medieliste</h2><p class="safe785MediaHint">Vælg hvilken liste MedieWidgetten skal bruge. <b>🔗 åbner den koblede DataWidget</b>; <b>＋ bruges til at gemme eller skifte liste</b>.</p>'+currentLine+'<label>Vælg liste<select id="safe794MediaDataset">'+selectorOptions.join('')+'</select></label>'+rowBlock+'<div class="safe785MediaActions"><button id="safe794Primary" type="button" class="primary">'+primaryText+'</button><button id="safe802DiskMedia" type="button">Åbn fra disk</button><button id="safe794NewList" type="button">Ny egen liste</button><button id="close" type="button">Luk</button></div></div>');
+    const sel=modal.querySelector('#safe794MediaDataset');
+    const selectedDs=()=>safe794MediaResolveSelectedDatasetValue(sel&&sel.value);
+    const connect=(nd)=>{if(!nd)return false;safe794MediaEnsureShape(nd);safe794MediaConnect(w,nd);return true;};
+    const diskBtn=modal.querySelector('#safe802DiskMedia');
+    if(diskBtn)diskBtn.onclick=()=>{
+      try{
+        const nd=selectedDs()||safe794MediaSharedDataset();
+        connect(nd);
+        closeModal();
+        safe802PickMediaFromDisk(w,{datasetId:nd&&nd.id,closeModalOnSuccess:true,from:'mediaListDialog'});
+      }catch(err){console.warn('l803 disk from media dialog failed',err);try{closeModal();}catch(_e){}safe794MediaToast('Kunne ikke åbne fra disk');}
+    };
+    Array.from(modal.querySelectorAll('[data-safe794-media-row]')).forEach(btn=>{
+      btn.onclick=()=>{
+        const idx=Number(btn.getAttribute('data-safe794-media-row'));
+        const it=arr[idx];
+        if(!it)return;
+        closeModal();
+        setTimeout(()=>{try{safe794MediaApplyItem(w,it,idx);}catch(err){console.warn('l803 media row apply failed',err);safe794MediaToast('Mediet kunne ikke åbnes');}},0);
+      };
+    });
+    const primary=modal.querySelector('#safe794Primary');
+    if(primary)primary.onclick=()=>{
+      let nd=null;
+      try{nd=selectedDs();}catch(err){console.warn('l803 resolve media list failed',err);}
+      if(!nd){safe794MediaToast('Vælg først en medieliste');return;}
+      closeModal();
+      setTimeout(()=>{
+        try{
+          connect(nd);
+          if(curIt)safe794MediaAddCurrentToDataset(w,nd);
+          else safe794MediaToast('Koblet til '+(nd.name||'Medieliste'));
+        }catch(err){console.warn('l803 media primary failed',err);safe794MediaToast('Medielisten kunne ikke gemmes');}
+      },0);
+    };
+    const newBtn=modal.querySelector('#safe794NewList');
+    if(newBtn)newBtn.onclick=()=>{
+      const suggested=curIt?(curIt.title+' – medieliste'):'Min medieliste';
+      closeModal();
+      setTimeout(()=>{
+        try{
+          const nd=safe794MediaCreateDataset(suggested,w);
+          connect(nd);
+          if(curIt)safe794MediaAddCurrentToDataset(w,nd);
+          else safe794MediaToast('Koblet til '+(nd.name||'Medieliste'));
+        }catch(err){console.warn('l803 new media list failed',err);safe794MediaToast('Ny medieliste kunne ikke oprettes');}
+      },0);
+    };
+    const closeBtn=modal.querySelector('#close');
+    if(closeBtn)closeBtn.onclick=closeModal;
+    return true;
+  }catch(err){
+    console.warn('l798 openDialog failed',err);
+    safe794MediaToast('Medielisten kunne ikke åbnes');
+    return false;
+  }
+}
+
+function safe800ResolveMediaDatasetForWidget(w){
+  try{
+    if(!w)return null;
+    if(w.type==='video')return safe794MediaLinkedDataset(w);
+    if(w.type==='link'){
+      const ref=safe453i71LinkListRef(w);
+      const ds=ref&&ref.datasetId?findDatasetById(ref.datasetId):null;
+      return (ds&&safe794MediaIsDataset(ds))?ds:null;
+    }
+  }catch(_e){}
+  return null;
+}
+function safe800EnsureCurrentMediaSavedBeforeSwitch(w,ds,nextKey){
+  try{
+    if(!w||w.type!=='video'||!ds)return false;
+    const cur=safe794MediaCurrentItem(w);
+    if(!cur)return false;
+    const key=safe794MediaKey(cur);
+    if(!key||key===nextKey)return false;
+    const exists=safe794MediaItems(ds).some(it=>safe794MediaKey(it)===key);
+    if(!exists){safe794MediaAddCurrentToDataset(w,ds);safe794MediaToast('Forrige medie blev bevaret i '+(ds.name||'medielisten'));}
+    return true;
+  }catch(_e){return false;}
+}
+function safe800OpenMediaPicker(w,opts){
+  try{
+    opts=opts||{};
+    w=(w&&w.id?findWidget(w.id):null)||w;
+    if(!w)return false;
+    const ds=safe800ResolveMediaDatasetForWidget(w);
+    if(!ds){
+      if(w.type==='video')return safe794MediaOpenDialog(w,'link');
+      if(w.type==='link')return safe453i71OpenLinkListChooser(w);
+      return false;
+    }
+    safe794MediaEnsureShape(ds);
+    const items=safe794MediaItems(ds);
+    if(!items.length){safe794MediaToast('Medielisten er tom');return false;}
+    const currentIdx=(w.type==='video')?safe794MediaCurrentIndex(w,items):safe453i79CurrentLinkIndex(w,items);
+    const rows=items.map((it,i)=>{
+      const title=safe800MediaDisplayTitle(it,i);
+      const sub=safe800MediaSubline(it);
+      const isCur=i===currentIdx;
+      const icon=it.mediaRef?(it.type==='audio'?'♪':'▶'):(safe800YoutubeIdFromUrl(it.url)?'▶':'↗');
+      const action=it.mediaRef?'Afspil':(safe795LinkItemShouldUseMediaWidget(it)?'Afspil':'Åbn');
+      return '<button type="button" class="safe785MediaRow '+(isCur?'current':'')+'" data-safe800-row="'+i+'"><span class="safe785MediaKind">'+esc(icon)+'</span><span><b>'+esc(title)+'</b><small>'+esc(sub)+'</small></span><span>'+(isCur?'✓':esc(action))+'</span></button>';
+    }).join('');
+    const modeLabel=w.type==='video'?'MedieWidget':'LinkWidget';
+    showModal('<div class="safe785MediaChooser"><h2>Medier og links</h2><p class="safe785MediaHint"><b>'+esc(ds.name||'Medieliste')+'</b> · '+items.length+' medier/links. Vælg et punkt for at åbne det i '+esc(modeLabel)+'. Almindelige links/YouTube bliver i LinkWidget; lokale lyd/video-medier åbnes i MedieWidget.</p><div class="safe785MediaRows">'+rows+'</div><div class="safe785MediaActions"><button id="safe800ChangeList" type="button">Skift liste</button>'+(w.type==='video'?'<button id="safe802DiskMediaPicker" type="button">Åbn fra disk</button>':'')+'<button id="safe800OpenData" type="button">Åbn DataWidget</button><button id="close" type="button">Luk</button></div></div>');
+    Array.from(modal.querySelectorAll('[data-safe800-row]')).forEach(btn=>{
+      btn.onclick=()=>{
+        const idx=Number(btn.getAttribute('data-safe800-row'));
+        const it=items[idx];
+        if(!it)return;
+        const key=safe794MediaKey(it);
+        closeModal();
+        setTimeout(()=>{
+          try{
+            if(w.type==='video'){
+              safe800EnsureCurrentMediaSavedBeforeSwitch(w,ds,key);
+              safe794MediaApplyItem(w,it,idx);
+            }else if(w.type==='link'){
+              safe453i78ApplyLinkItemToWidget(w,it,{fromMediaPicker:true});
+              try{save();}catch(_e){}
+              try{render();setTimeout(()=>select(w.id,{editText:false}),30);}catch(_e){}
+            }
+          }catch(err){console.warn('l803 media picker row failed',err);safe794MediaToast('Mediet kunne ikke åbnes');}
+        },0);
+      };
+    });
+    const change=modal.querySelector('#safe800ChangeList');
+    if(change)change.onclick=()=>{closeModal();setTimeout(()=>{try{w.type==='video'?safe794MediaOpenDialog(w,'link'):safe453i71OpenLinkListChooser(w);}catch(_e){}},40);};
+    const openData=modal.querySelector('#safe800OpenData');
+    if(openData)openData.onclick=()=>{closeModal();setTimeout(()=>{try{w.type==='video'?safe794MediaOpenDataWidget(w):safe381OpenDatasetSourceNearWidget(ds.id,w);}catch(_e){}},40);};
+    const diskPick=modal.querySelector('#safe802DiskMediaPicker');
+    if(diskPick)diskPick.onclick=()=>{safe802PickMediaFromDisk(w,{datasetId:ds&&ds.id,closeModalOnSuccess:true,from:'mediaPicker'});};
+    const closeBtn=modal.querySelector('#close'); if(closeBtn)closeBtn.onclick=closeModal;
+    return true;
+  }catch(err){console.warn('l800 media picker failed',err);safe794MediaToast('Medievælgeren kunne ikke åbnes');return false;}
+}
+
+function safe802MediaFileKind(file){try{if(safe778IsLikelyAudioFile(file))return 'audio';if(safe776IsLikelyVideoFile(file))return 'video';}catch(_e){}return '';}
+function safe802MediaFileMime(file,kind){try{return kind==='audio'?safe778MimeForAudioFile(file):safe776MimeForVideoFile(file);}catch(_e){return (file&&file.type)||'';}}
+function safe802DatasetFromOpts(w,opts){
+  try{
+    opts=opts||{};
+    if(opts.datasetId){const byId=safe794MediaDatasetById(opts.datasetId);if(byId)return byId;}
+    const linked=safe794MediaLinkedDataset(w);if(linked)return linked;
+    return safe794MediaSharedDataset();
+  }catch(_e){return null;}
+}
+function safe802ApplyImportedMediaToWidget(w,it,ds,opts){
+  try{
+    if(!w||!it)return false;
+    ds=ds||safe794MediaSharedDataset();
+    safe794MediaEnsureShape(ds);
+    w.data=w.data||{};
+    w.data.name=it.title||'Medie';
+    w.title=it.title||'Medie';
+    w.data.mediaKind=it.type||'video';
+    w.data.mimeType=it.mime||'';
+    w.data.source=it.source||'mediawidget-disk-import';
+    if(it.mediaRef){w.data.mediaRef=it.mediaRef;delete w.data.src;w.data.url='';}
+    else {delete w.data.mediaRef;w.data.src=it.url||'';w.data.url='';}
+    safe794MediaConnect(w,ds);
+    safe794MediaAddCurrentToDataset(w,ds);
+    try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+    if(opts&&opts.closeModalOnSuccess){try{closeModal();}catch(_e){}}
+    render();
+    setTimeout(()=>{try{select(w.id,{editText:false});}catch(_e){}},30);
+    return true;
+  }catch(err){console.warn('l802 apply imported media failed',err);safe794MediaToast('Mediet kunne ikke åbnes');return false;}
+}
+async function safe802ImportMediaFileToWidget(w,file,opts){
+  try{
+    opts=opts||{};
+    w=(w&&w.id?findWidget(w.id):null)||w;
+    if(!w||w.type!=='video'){safe794MediaToast('Vælg en MedieWidget først');return false;}
+    if(!file)return false;
+    const kind=safe802MediaFileKind(file);
+    if(!kind){safe794MediaToast('Vælg en lyd- eller videofil');return false;}
+    const ds=safe802DatasetFromOpts(w,opts);
+    if(!ds){safe794MediaToast('Medielisten kunne ikke oprettes');return false;}
+    safe800EnsureCurrentMediaSavedBeforeSwitch(w,ds,'disk:'+String(file.name||'')+':'+String(file.size||''));
+    const name=String(file.name||((kind==='audio')?'Lyd':'Video')).trim()||((kind==='audio')?'Lyd':'Video');
+    const mime=safe802MediaFileMime(file,kind);
+    let it=null;
+    const archive=window.TavleMediaArchive;
+    if(archive&&typeof archive.putMedia==='function'){
+      try{
+        const rec=await archive.putMedia({
+          kind:kind,
+          name:name,
+          mimeType:mime,
+          size:Number(file.size)||0,
+          blob:file,
+          source:'mediawidget-disk-import',
+          meta:{safePhase:'l802',flow:'disk-file-direct-to-existing-mediewidget',importedAt:new Date().toISOString()}
+        });
+        if(rec&&rec.id)it={title:rec.name||name,type:kind,url:'',mediaRef:String(rec.id),mime:rec.mimeType||mime,source:'Mediearkiv',note:'Fra disk'};
+      }catch(err){console.warn('l802 archive import failed; fallback to dataURL',err);}
+    }
+    if(!it){
+      const src=await readFileAsDataURL(file);
+      it={title:name,type:kind,url:src,mediaRef:'',mime:mime,source:'DataURL',note:'Fra disk'};
+    }
+    safe802ApplyImportedMediaToWidget(w,it,ds,opts);
+    safe794MediaToast('Åbnet fra disk og gemt i '+(ds.name||'Medier og links'));
+    return true;
+  }catch(err){console.warn('l802 disk import failed',err);safe794MediaToast('Mediet kunne ikke åbnes fra disk');return false;}
+}
+function safe802PickMediaFromDisk(w,opts){
+  try{
+    opts=opts||{};
+    w=(w&&w.id?findWidget(w.id):null)||w;
+    if(!w||w.type!=='video'){safe794MediaToast('Vælg en MedieWidget først');return false;}
+    const input=document.createElement('input');
+    input.type='file';
+    input.accept='audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.oga,.opus,.flac,.aif,.aiff,.caf,.amr,.mp4,.m4v,.mov,.webm,.ogv,.avi,.mkv,.wmv,.3gp,.3g2';
+    input.style.position='fixed';
+    input.style.left='-9999px';
+    input.style.top='0';
+    input.onchange=()=>{const f=input.files&&input.files[0];try{input.remove();}catch(_e){}if(f)safe802ImportMediaFileToWidget(w,f,opts);};
+    document.body.appendChild(input);
+    input.click();
+    return true;
+  }catch(err){console.warn('l802 pick disk media failed',err);safe794MediaToast('Kunne ikke åbne filvælgeren');return false;}
+}
+window.safe802PickMediaFromDisk=safe802PickMediaFromDisk;
+window.safe802ImportMediaFileToWidget=safe802ImportMediaFileToWidget;
+
+function safe794MediaSaveOrChoose(w){w=(w&&w.id?findWidget(w.id):null)||w;if(!w)return false;return safe794MediaOpenDialog(w,'save');}
+function safe794MediaRefreshChrome(root=document){try{Array.from(root.querySelectorAll?root.querySelectorAll('.widget[data-type="video"][data-id]'):[]).forEach(el=>{const w=findWidget(el.dataset.id);const ref=safe794MediaRef(w);const linked=!!(ref.datasetId&&safe794MediaDatasetById(ref.datasetId));const open=linked&&safe803MediaDatasetIsOpen(ref.datasetId);const b=el.querySelector('[data-act="mediaListChrome"]');if(b){b.classList.toggle('linked',linked);b.classList.toggle('open',!!open);b.title=linked?(open?'Luk koblet DataWidget/medieliste':'Åbn koblet DataWidget/medieliste'):'Vælg medieliste';}const plus=el.querySelector('[data-act="mediaSaveChrome"]');if(plus){plus.title='Vælg/gem i medieliste';}});}catch(_e){}}
+window.safe794OpenMediaListDialog=safe794MediaOpenDialog;
+window.safe794SaveCurrentMediaOrChoose=safe794MediaSaveOrChoose;
+window.safe794OpenMediaDataWidget=safe794MediaOpenDataWidget;
+window.safe794RefreshMediaChrome=safe794MediaRefreshChrome;
+window.safe800OpenMediaPicker=safe800OpenMediaPicker;
+window.safe792OpenMediaListDialog=w=>safe794MediaOpenDialog(w,'link');
+window.safe792OpenMediaSaveDialog=w=>safe794MediaOpenDialog(w,'save');
+window.safe792SaveCurrentMediaOrChoose=safe794MediaSaveOrChoose;
+window.safe792OpenMediaDataWidget=safe794MediaOpenDataWidget;
+window.safe792RefreshMediaChrome=safe794MediaRefreshChrome;
+window.safe785OpenMediaChooser=w=>safe794MediaOpenDialog(w,'link');
+window.safe785AddCurrentMediaToList=safe794MediaSaveOrChoose;
+window.safe785OpenMediaDataWidget=safe794MediaOpenDataWidget;
+
+function safe803CloseModalHard(){
+  try{closeModal();}catch(_e){}
+  try{if(modalBack)modalBack.style.display='none';}catch(_e){}
+  try{if(modal)modal.classList.remove('moveWidgetModal');}catch(_e){}
+}
+function askVideo(w){
+  w.data=w.data||{};
+  const oldUrl=String(w.data.url||'');
+  const oldTitle=String(w.data.name||w.title||'').trim();
+  const shownTitle=safe800IsGenericMediaTitle(oldTitle)?'':oldTitle;
+  showModal(`<h2>Video / medielink</h2><label>Titel <input id="vtitle" placeholder="Fx Slackline freestyle" value="${esc(shownTitle)}"></label><label>Adresse <input id="vurl" placeholder="YouTube-link eller anden medieadresse" value="${esc(oldUrl)}"></label><button id="ok">Gem i widget</button><button id="saveList">Gem og vælg medieliste</button><button id="safe802VideoDisk">Åbn fra disk</button><button id="cancel">Luk</button><p><b>Tip:</b> Giv YouTube-links en tydelig titel. Hvis titlen er tom, bruger Tavle et kort navn som <b>YouTube · video-id</b> i medielisten.</p>`);
+  const input=modal.querySelector('#vurl');
+  const titleInput=modal.querySelector('#vtitle');
+  let busy=false;
+  const commit=(opts)=>{
+    opts=opts||{};
+    w.data=w.data||{};
+    const url=input?input.value:'';
+    let title=String(titleInput&&titleInput.value||'').trim();
+    if(!title)title=safe800MediaDisplayTitle({title:'Video',url:url,type:'video',source:safe794MediaSourceFrom(url,'','')},null);
+    w.data.url=url;
+    w.data.name=title;
+    w.title=title;
+    w.data.mediaKind=w.data.mediaKind||'video';
+    try{delete w.data.mediaRef;}catch(_e){}
+    try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+    if(opts.close!==false)safe803CloseModalHard();
+    try{render();}catch(err){console.warn('l803 video render after commit failed',err);}
+    return true;
+  };
+  const okBtn=modal.querySelector('#ok');
+  if(okBtn)okBtn.onclick=()=>{if(busy)return;busy=true;try{commit();}catch(err){busy=false;console.warn('l803 video commit failed',err);safe803CloseModalHard();safe794MediaToast('Video-link kunne ikke gemmes');}};
+  const saveList=modal.querySelector('#saveList');
+  if(saveList)saveList.onclick=()=>{
+    if(busy)return;
+    busy=true;
+    try{saveList.disabled=true;}catch(_e){}
+    const id=w.id;
+    try{commit({close:false});}catch(err){console.warn('l803 video commit before media-list failed',err);}
+    safe803CloseModalHard();
+    setTimeout(()=>{
+      try{
+        const live=findWidget(id)||w;
+        safe794MediaOpenDialog(live,'save');
+      }catch(err){console.warn('l803 open media-list after video save failed',err);safe803CloseModalHard();safe794MediaToast('Medielisten kunne ikke åbnes');}
+    },120);
+  };
+  const disk=modal.querySelector('#safe802VideoDisk');
+  if(disk)disk.onclick=()=>{if(busy)return;busy=true;try{disk.disabled=true;}catch(_e){};try{safe802PickMediaFromDisk(w,{closeModalOnSuccess:true,from:'askVideo'});}catch(err){busy=false;console.warn('l803 disk from video modal failed',err);safe803CloseModalHard();safe794MediaToast('Kunne ikke åbne fra disk');}};
+  const cancel=modal.querySelector('#cancel');
+  if(cancel)cancel.onclick=()=>safe803CloseModalHard();
+}
 function canEditWidgets(){
   return !app.classList.contains('present') &&
          !focusMode &&
@@ -42437,6 +43580,21 @@ function safe453i71DatasetLinkColumns(ds){
 }
 function safe453i71LinkItemsFromDataset(ds){
   if(!ds)return [];
+  try{
+    if(typeof safe794MediaIsDataset==='function'&&safe794MediaIsDataset(ds)){
+      return safe794MediaItems(ds).map((it,i)=>({
+        rowIndex:i,
+        title:String(it.title||('Medie '+(i+1))).trim(),
+        url:normalizeLinkUrl(it.url||''),
+        note:String(it.note||it.source||'').trim(),
+        type:String(it.type||'video').toLowerCase(),
+        mediaRef:String(it.mediaRef||'').trim(),
+        mime:String(it.mime||'').trim(),
+        source:String(it.source||'').trim(),
+        fromMediaList:true
+      })).filter(x=>x.url||x.mediaRef);
+    }
+  }catch(_e){}
   const rows=Array.isArray(ds.rows)?ds.rows:[];
   const {urlCol,titleCol,noteCol}=safe453i71DatasetLinkColumns(ds);
   return rows.map((r,i)=>{
@@ -42534,17 +43692,90 @@ function safe453i79ActiveLinkWidgetForKeys(){
   },true);
 })();
 
+function safe795LinkItemShouldUseMediaWidget(item){
+  try{
+    if(!item)return false;
+    if(item.mediaRef)return true;
+    const type=String(item.type||'').toLowerCase();
+    const url=String(item.url||'').trim();
+    if(!url)return false;
+    if(typeof safe453i221IsYoutube==='function'&&safe453i221IsYoutube(url))return false;
+    if(type==='audio'||type==='video')return true;
+    if(typeof safe794MediaIsAudioUrl==='function'&&safe794MediaIsAudioUrl(url))return true;
+    if(typeof safe794MediaIsVideoUrl==='function'&&safe794MediaIsVideoUrl(url))return true;
+  }catch(_e){}
+  return false;
+}
+function safe796SwitchLinkWidgetToMediaWidget(linkW,item,ds){
+  try{
+    if(!linkW||!item)return null;
+    const live=(linkW.id&&typeof findWidget==='function')?(findWidget(linkW.id)||linkW):linkW;
+    if(!live)return null;
+    /* l796: Lokale/arkiverede medier fra en medieliste skal ikke vises som
+       et passivt LinkWidget-kort. Den samme widget skifter type til MedieWidget,
+       så brugeren straks får audio/video-afspilleren og MedieWidgettens egne
+       medielisteknapper. Almindelige URL/YouTube-links bliver i LinkWidget. */
+    live.type='video';
+    live.data=live.data||{};
+    live.data.previousLinkWidget=true;
+    live.data.previousLinkListDatasetId=String(ds&&ds.id||live.data.linkListDatasetId||'');
+    live.data.previousLinkListRowIndex=Number.isFinite(Number(item.rowIndex))?Number(item.rowIndex):0;
+    live.data.view='media';
+    delete live.data.mediaDelegated;
+    delete live.data.viewType;
+    delete live.data.museScore;
+    delete live.data.museScoreEmbedUrl;
+    delete live.data.youtubeEmbed;
+    delete live.data.youtubeEmbedUrl;
+    if(ds&&typeof safe794MediaConnect==='function')safe794MediaConnect(live,ds);
+    return live;
+  }catch(err){console.warn('l796 switch LinkWidget to MediaWidget failed',err);return null;}
+}
+function safe795FindOrCreateMediaWidgetForLink(linkW,item,ds){
+  try{
+    /* l796: Primær vej er in-place skift: LinkWidgetten bliver til MedieWidget.
+       Funktionenavnet bevares for at røre mindst muligt ved resten af l795-flowet. */
+    if(linkW&&linkW.type==='link')return safe796SwitchLinkWidgetToMediaWidget(linkW,item,ds);
+    if(linkW&&linkW.type==='video'){if(ds&&typeof safe794MediaConnect==='function')safe794MediaConnect(linkW,ds);return linkW;}
+    return null;
+  }catch(err){console.warn('l796 create/find media widget failed',err);return null;}
+}
+function safe795DelegateMediaItemFromLinkWidget(w,item){
+  try{
+    const ref=safe453i71LinkListRef(w);
+    const ds=ref.datasetId?findDatasetById(ref.datasetId):null;
+    const mw=safe795FindOrCreateMediaWidgetForLink(w,item,ds);
+    if(!mw){toast('Kunne ikke skifte til MedieWidget');return false;}
+    const it={title:item.title||'Medie',type:item.type||'video',url:item.url||'',mediaRef:item.mediaRef||'',mime:item.mime||'',source:item.source||'',note:item.note||''};
+    if(typeof safe794MediaApplyItem==='function')safe794MediaApplyItem(mw,it,Number(item.rowIndex)||0);
+    else {mw.data=mw.data||{};mw.data.url=it.url;mw.data.mediaRef=it.mediaRef;mw.data.mediaKind=it.type;mw.data.mimeType=it.mime;mw.title=it.title;render();}
+    toast('Skiftet til MedieWidget');
+    return true;
+  }catch(err){console.warn('l796 media delegation failed',err);try{toast('Mediet kunne ikke åbnes i MedieWidget');}catch(_e){}return false;}
+}
 function safe453i78ApplyLinkItemToWidget(w,item,opts){
-  if(!w||!item||!item.url)return false;
+  if(!w||!item||(!item.url&&!item.mediaRef))return false;
   opts=opts||{};
   w.data=w.data||{};
-  const parsed=safe453i195ParseMuseScore(item.url);
-  w.data.url=normalizeLinkUrl(parsed?parsed.pageUrl:item.url);
   w.data.text=String(item.title||'Link').trim()||'Link';
   try{w.title=w.data.text;}catch(_e){}
-  if(parsed && (!item.title || String(item.title).trim()==='Link'))w.data.text=parsed.title||w.data.text;
   w.data.linkNote=String(item.note||'').trim();
   w.data.linkListRowIndex=Number.isFinite(Number(item.rowIndex))?Number(item.rowIndex):null;
+  if(item.fromMediaList&&safe795LinkItemShouldUseMediaWidget(item)){
+    w.data.url=normalizeLinkUrl(item.url||'');
+    w.data.view='link';
+    w.data.mediaDelegated=true;
+    delete w.data.viewType;
+    delete w.data.museScore;
+    delete w.data.museScoreEmbedUrl;
+    delete w.data.youtubeEmbed;
+    delete w.data.youtubeEmbedUrl;
+    return safe795DelegateMediaItemFromLinkWidget(w,item);
+  }
+  const parsed=safe453i195ParseMuseScore(item.url);
+  w.data.url=normalizeLinkUrl(parsed?parsed.pageUrl:item.url);
+  delete w.data.mediaDelegated;
+  if(parsed && (!item.title || String(item.title).trim()==='Link'))w.data.text=parsed.title||w.data.text;
   if(parsed){
     w.data.view='iframe';
     w.data.iframeInteractive=false;
@@ -42574,7 +43805,18 @@ function safe453i78LoadFirstLinkFromDataset(w,ds){
   try{
     const items=safe453i71LinkItemsFromDataset(ds);
     if(!items.length)return false;
-    return safe453i78ApplyLinkItemToWidget(w,items[0],{first:true});
+    /* l799: Når en LinkWidget kobles til en medieliste, må første lokale lyd/video-række
+       ikke straks konvertere LinkWidgetten til MedieWidget. Vælg først en række, som
+       LinkWidget faktisk kan vise selv: almindelig URL eller YouTube. Hvis listen kun
+       indeholder lokale medier, bruges den gamle handoff-vej som fallback. */
+    const linkable=items.find(it=>{
+      try{
+        if(!it||!it.url)return false;
+        if(it.mediaRef)return false;
+        return !safe795LinkItemShouldUseMediaWidget(it);
+      }catch(_e){return !!(it&&it.url&&!it.mediaRef);}
+    });
+    return safe453i78ApplyLinkItemToWidget(w,linkable||items[0],{first:true});
   }catch(_e){return false;}
 }
 function safe453i71LikelyLinkDataset(ds){
@@ -42598,13 +43840,15 @@ function safe453i71LinkListBarHtml(w){
 function safe453i80IsLinkListDataset(ds){
   try{
     if(!ds)return false;
+    if(typeof safe794MediaIsDataset==='function'&&safe794MediaIsDataset(ds))return true;
     const type=String(ds.type||'').toLowerCase();
     const sourceType=String(ds.sourceType||'').toLowerCase();
-    if(type==='link-list'||sourceType==='link-list'||sourceType==='link-list-demo')return true;
+    if(type==='link-list'||sourceType==='link-list'||sourceType==='link-list-demo'||type==='media-list'||sourceType==='media-list')return true;
     const cols=(Array.isArray(ds.columns)?ds.columns:[]).map(c=>String(c||'').trim().toLowerCase());
     const hasUrl=cols.some(c=>['url','link','adresse','web','website','side'].includes(c)||c.includes('url')||c.includes('link'));
     const hasTitle=cols.some(c=>['titel','title','navn','name','tekst','label'].includes(c)||c.includes('titel')||c.includes('navn'));
-    return hasUrl && (hasTitle || cols.some(c=>c.includes('note')||c.includes('beskrivelse')));
+    const hasMediaRef=cols.some(c=>c.includes('mediaref')||c.includes('medieref')||c.includes('mime'));
+    return (hasUrl||hasMediaRef) && (hasTitle || cols.some(c=>c.includes('note')||c.includes('beskrivelse')||c.includes('kilde')));
   }catch(_e){return false;}
 }
 function safe453i71AllDatasetChoices(){
@@ -42620,14 +43864,15 @@ function safe453i71OpenLinkListChooser(w){
     const items=safe453i71LinkItemsFromDataset(ds);
     const likely=safe453i71LikelyLinkDataset(ds);
     const selected=String(ds.id)===String(current)?' · valgt':'';
-    return `<div class="safe453i71LinkRow" data-linklist-row="${esc(ds.id)}"><span><button type="button" class="safe453i77TitleBtn" data-linklist-ds="${esc(ds.id)}">${esc(ds.name||'Datasæt')}${esc(selected)}</button><small>${items.length?items.length+' links':((ds.rows||[]).length+' rækker')} · linkliste</small></span><span class="safe453i77LinkActionHint">klik på titel</span></div>`;
+    const isMedia=(typeof safe794MediaIsDataset==='function'&&safe794MediaIsDataset(ds));
+    return `<div class="safe453i71LinkRow" data-linklist-row="${esc(ds.id)}"><span><button type="button" class="safe453i77TitleBtn" data-linklist-ds="${esc(ds.id)}">${esc(ds.name||'Datasæt')}${esc(selected)}</button><small>${items.length?items.length+(isMedia?' medier/links':' links'):((ds.rows||[]).length+' rækker')} · ${isMedia?'medieliste':'linkliste'}</small></span><span class="safe453i77LinkActionHint">klik på titel</span></div>`;
   }).join('') || '<p>Ingen datawidgets fundet endnu.</p>';
   const demoCards=(typeof SAFE453I72_LINK_DEMOS!=='undefined'?SAFE453I72_LINK_DEMOS:[]).map((demo,i)=>`
     <div class="safe453i72DemoCard">
       <button type="button" class="safe453i77TitleBtn" data-demo-use="${i}">${esc(demo.name)}</button>
       <small>${esc(demo.desc)} · ${(demo.rows||[]).length} links</small>
     </div>`).join('') || '<p>Ingen demolister fundet.</p>';
-  showModal(`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">Linkliste</h2><button id="linkListModalHelp" type="button" title="Åbn hjælp til linklister" aria-label="Åbn hjælp til linklister" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div><p style="margin-top:0;opacity:.75;font-weight:800">Klik på titlen på en eksisterende linkliste eller en demoliste. Listen kobles til linkwidgetten og kan redigeres bagefter ved at åbne den koblede datawidget. Midlertidige uændrede demolister ryddes automatisk, når du vælger en ny liste.</p><section class="safe453i73ChooserSection"><h3>Mine linklister</h3><p class="safe453i73ChooserHelp">Datawidgets du allerede har lavet. Klik på titlen for at bruge listen; redigering foregår i selve datawidgetten.</p><div class="safe453i71LinkRows">${rows}</div></section><section class="safe453i73ChooserSection"><h3>Demolister</h3><p class="safe453i73ChooserHelp">Eksempler med undervisningsværktøjer, der normalt egner sig bedre til iframe/mini-browser end almindelige hjemmesider. Klik på titlen for at bruge listen.</p><div class="safe453i72DemoGrid">${demoCards}</div></section><div class="calendarModalBtns"><button id="newLinkList">Ny linkliste</button><button id="close">Luk</button></div>`);
+  showModal(`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">Linkliste</h2><button id="linkListModalHelp" type="button" title="Åbn hjælp til linklister" aria-label="Åbn hjælp til linklister" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div><p style="margin-top:0;opacity:.75;font-weight:800">Klik på titlen på en eksisterende linkliste, medieliste eller en demoliste. Listen kobles til linkwidgetten og kan redigeres bagefter ved at åbne den koblede datawidget. Midlertidige uændrede demolister ryddes automatisk, når du vælger en ny liste.</p><section class="safe453i73ChooserSection"><h3>Mine link-/medielister</h3><p class="safe453i73ChooserHelp">Datawidgets du allerede har lavet. LinkWidget kan selv vise almindelige URL/YouTube-links. Indlejrede lyd/video-medier fra en medieliste sendes videre til MedieWidget.</p><div class="safe453i71LinkRows">${rows}</div></section><section class="safe453i73ChooserSection"><h3>Demolister</h3><p class="safe453i73ChooserHelp">Eksempler med undervisningsværktøjer, der normalt egner sig bedre til iframe/mini-browser end almindelige hjemmesider. Klik på titlen for at bruge listen.</p><div class="safe453i72DemoGrid">${demoCards}</div></section><div class="calendarModalBtns"><button id="newLinkList">Ny linkliste</button><button id="close">Luk</button></div>`);
   safe455uH22WireModalHelp('linkListModalHelp','Links, hjemmesider og linklister');
   modal.querySelector('#close').onclick=closeModal;
   modal.querySelector('#newLinkList').onclick=()=>safe453i71CreateNewLinkList(w);
@@ -43142,6 +44387,15 @@ function safe453i80EnsureLinkDatasetColumns(ds){
 }
 function safe453i80MarkAsLinkList(ds){
   if(!ds)return ds;
+  /* l799: En medieliste må gerne bruges som linkliste i LinkWidget, men den må ikke
+     omdøbes/type-skiftes til link-list. Ellers skifter DataWidget-badget fra
+     MEDIA-LIST til LINK-LIST og det bliver uklart, hvorfor lokale medier optræder der. */
+  if(typeof safe794MediaIsDataset==='function'&&safe794MediaIsDataset(ds)){
+    ds.safe453i80LinkList=true;
+    ds.safe453i80UsableAsLinkList=true;
+    ds.sourceName=ds.sourceName||'MedieWidget';
+    return ds;
+  }
   ds.type='link-list';
   ds.sourceType=ds.sourceType||'link-list';
   ds.sourceName=ds.sourceName||'Link/iframe';
@@ -43471,6 +44725,9 @@ function safe453i203OpenLinkModal(w,opts){
   w.data=w.data||{};
   const ref=safe453i71LinkListRef(w);
   const currentDs=ref.datasetId?findDatasetById(ref.datasetId):null;
+  if(currentDs&&typeof safe794MediaIsDataset==='function'&&safe794MediaIsDataset(currentDs)&&typeof safe800OpenMediaPicker==='function'){
+    return safe800OpenMediaPicker(w,{from:'oldLinkEditor'});
+  }
   const choices=safe453i203Choices();
   const hasDs=!!currentDs;
   const defaultListName=safe453i80LinkListDefaultName(w);
@@ -47760,11 +49017,11 @@ function showSaveFileOptions(){
       <div class="saveDropIcon">📄</div>
       <b>Slip filer her</b>
       <span>eller <span class="saveDropChoose">vælg filer</span></span>
-      <div class="saveDropHint">PDF, ICS, billeder, tekst, HTML, CSV/TSV/XLSX m.m. indsættes som widgets/datawidgets. Tavlefiler/JSON er backups og åbner hele tavlen efter advarsel.</div>
+      <div class="saveDropHint">PDF, ICS, billeder, video, tekst, HTML, CSV/TSV/XLSX m.m. indsættes som widgets/datawidgets. Video- og lydfiler bliver altid Medie/VideoWidgets. Tavlefiler/JSON er backups og åbner hele tavlen efter advarsel.</div>
     </div>
 
     <input id="saveDropInput" type="file" style="display:none" multiple
-      accept=".json,.tavle,.ics,.pdf,.png,.jpg,.jpeg,.webp,.gif,.svg,.txt,.md,.markdown,.html,.htm,.css,.js,.csv,.tsv,.xlsx,.xls,.gsheet,application/json,application/pdf,image/*,text/*">
+      accept=".json,.tavle,.ics,.pdf,.png,.jpg,.jpeg,.webp,.gif,.svg,.mp4,.m4v,.mov,.webm,.ogv,.avi,.mkv,.wmv,.3gp,.3g2,.mp3,.wav,.m4a,.aac,.oga,.ogg,.opus,.flac,.aif,.aiff,.caf,.amr,.txt,.md,.markdown,.html,.htm,.css,.js,.csv,.tsv,.xlsx,.xls,.gsheet,application/json,application/pdf,image/*,video/*,audio/*,text/*">
 
     <div class="saveActions v40">
       <button id="safe453i118StorageOverviewSave">Hvor ligger data?</button>
@@ -72423,4 +73680,10 @@ body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tav
   pointer-events:none!important;
 }
 </style>
+<script id="l794-mediewidget-main-owned-compat">
+/* l794: Den gamle l785 MedieWidget-patch er bevidst deaktiveret her.
+   Medie-/linkliste-logikken ligger nu i Tavles hovedscope, hvor state, showModal,
+   addDatasetWidget, save og render findes. Ingen global document-knapejer. */
+(function(){window.__l785MediaWidgetSynligDatasetkobling=true;})();
+</script>
 </body></html>
