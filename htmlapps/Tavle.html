@@ -1,3 +1,8 @@
+<!-- l881-tavleindeks-dataset-koblet-safe: Bygger på l878. Tavleindeks oprettes/holdes som et rigtigt sessionsdatasæt og bruges som Tavlegenerator-kilde til eksisterende tavler, så TavleListe-udvalg ikke skal aflæses fra gammel tekstliste. -->
+<!-- l878-tavlegenerator-tavleliste-typefix-safe: Bygger på l877. Kirurgisk rettelse: Tavlegeneratorens TavleListe-kildegenkendelse accepterer nu både text- og list-widgets samt listType/listMode/mode/kind-varianter. Sessionmærke-placering fra l877 bevares. Ingen ændring af sessionpakker/reset/log. -->
+<!-- l875-tavlegenerator-dom-tavleliste-kilde-safe: Bygger på l874. Retter kun DOM-fallbacken i l872-kildelæseren, så en synlig/spejlet TavleListe findes via data-board-index-go, selv hvis listWidget.boardIndexWidget-klassen ikke kan læses. Ingen ændring af session/reset/log. -->
+<!-- l874-tavlegenerator-tavleliste-kilde-kirurgisk-safe: Bygger på l872. Retter kun l872 Tavlegenerator-kildelæseren, så synlige/spejlede TavleListe- og Tavle-tjekliste-widgets kan vælges som eksisterende tavleudvalg. Ingen ny bred session/log/reset-patch. -->
+<!-- l872b-sessionindstillinger-opstart-safe: Opstartsvalg som Vis Hjælp ved opstart er nu sessionsspecifikt pr. #session. Bygger oven på l872 TavleListe-udvalg i Tavlegenerator. -->
 <!-- l871-sessionknapper-over-vaerktoej-safe: Bygger på l870. Flytter kun sessionmærket nederst til højre op over bundværktøjslinjen, så værktøjslinjens knapper ikke dækkes. Når værktøjslinjen er skjult eller appen er i præsentation, må sessionmærket falde tilbage nederst. Ingen ændring af sessionpakker, reset/oprydning, Tavlegenerator, widgets eller data. -->
 <!-- l870-oprydning-aktuel-session-global-factory-safe: Bygger på l868. Erstatter den uklare Factory reset i Oprydning med to tydeligt adskilte handlinger: Ryd aktuel session (kun aktiv #session, via ny tom state gemt på den aktuelle KEY) og Slet alt Tavle-data i denne browser (alle Tavle-localStorage-nøgler + kendte Tavle IndexedDB-databaser). Ingen ændring af sessionpakker, Tavlegenerator, widgets eller mediemodel. -->
 <!-- l861-sessionpakke-spejl-data-medier-log-safe: Bygger på l860. Gør sessionpakker sikrere: spejlede widgets pakkes som én widget med sharedVisibility, relevante datasæt og mediereferencer følger med, import bevarer spejling append-only, overførselslog opdateres som DataWidget/datasæt, og importafslutning viser returknap til afsendersession. -->
@@ -46770,16 +46775,40 @@ function tavleHelpOpenPdfGuide(key){
 const TAVLE_HELP_STARTUP_KEY='maans_tavle_help_open_on_startup';
 let tavleHelpStartupAlreadyOpened=false;
 let tavleHelpStartupTimer=null;
+/* l872b: Opstartsvalg er sessionsspecifikt.
+   Fx kan #uge26 have Hjælp ved opstart slået til, mens Standard har det slået fra.
+   Legacy-nøglen bruges kun som fallback i Standard, så gamle valg ikke forsvinder brat. */
+function tavleCurrentSessionIdForSettings(){
+  try{
+    const id=String((typeof TAVLE_SESSION_ID!=='undefined'&&TAVLE_SESSION_ID)||window.__TAVLE_SESSION_ID__||'standard').trim();
+    return id||'standard';
+  }catch(_e){return 'standard'}
+}
+function tavleSessionScopedSettingKey(baseKey){
+  try{
+    const id=tavleCurrentSessionIdForSettings();
+    return String(baseKey||'maans_tavle_setting')+'__session__'+String(id||'standard');
+  }catch(_e){return String(baseKey||'maans_tavle_setting')+'__session__standard'}
+}
+function tavleHelpStartupKeyForCurrentSession(){
+  return tavleSessionScopedSettingKey(TAVLE_HELP_STARTUP_KEY);
+}
 function tavleHelpStartupEnabled(){
   try{
-    const v=localStorage.getItem(TAVLE_HELP_STARTUP_KEY);
-    // l576: Hjælp åbner som udgangspunkt ved opstart. Kun et eksplicit fravalg ('0') slår det fra.
-    return v!=='0';
+    const key=tavleHelpStartupKeyForCurrentSession();
+    const v=localStorage.getItem(key);
+    if(v!==null)return v!=='0';
+    // Kun Standard arver den gamle globale indstilling. Nye #sessioner starter med eget valg.
+    if(tavleCurrentSessionIdForSettings()==='standard'){
+      const legacy=localStorage.getItem(TAVLE_HELP_STARTUP_KEY);
+      if(legacy!==null)return legacy!=='0';
+    }
+    return true;
   }catch(_e){return true}
 }
 function tavleSetHelpStartupEnabled(on){
-  try{localStorage.setItem(TAVLE_HELP_STARTUP_KEY,on?'1':'0')}catch(_e){}
-  try{toast(on?'Hjælp åbner ved opstart':'Hjælp åbner ikke automatisk')}catch(_e){}
+  try{localStorage.setItem(tavleHelpStartupKeyForCurrentSession(),on?'1':'0')}catch(_e){}
+  try{toast(on?'Hjælp åbner ved opstart i denne session':'Hjælp åbner ikke automatisk i denne session')}catch(_e){}
 }
 function tavleMaybeOpenStartupHelp(){
   try{
@@ -46890,7 +46919,7 @@ function showQuickHelp(){
     <p><b>Min undervisningstavle</b> er et arbejdsbord til undervisning. Byg en tavle af widgets, vis den for eleverne, og gem det, du vil bruge igen.</p>
     <label class="helpHintToggleRow">
       <input id="helpStartupToggle" type="checkbox" ${tavleHelpStartupEnabled()?'checked':''}>
-      <span>Vis Hjælp ved opstart</span>
+      <span>Vis Hjælp ved opstart i denne session</span>
     </label>
   </div>
 
@@ -47641,18 +47670,16 @@ function showQuickHelp(){
 }
 function maybeShowQuickHelp(){
   try{
-    const seenKey='maans_tavle_seen_quick_help_v162_test';
-    const startupKey='maans_tavle_help_open_on_startup';
-    const enabled=(localStorage.getItem(startupKey)!=='0');
-    // l578: Genbrug den eksisterende førstegangs-/factory-reset åbner.
-    // Tidligere åbnede Hjælp kun, når seenKey manglede. Nu åbner Hjælp ved
-    // hver opstart som standard, indtil brugeren aktivt slår valget fra.
+    const seenKey=(typeof tavleSessionScopedSettingKey==='function')
+      ? tavleSessionScopedSettingKey('maans_tavle_seen_quick_help_v162_test')
+      : 'maans_tavle_seen_quick_help_v162_test';
+    const enabled=(typeof tavleHelpStartupEnabled==='function') ? tavleHelpStartupEnabled() : (localStorage.getItem('maans_tavle_help_open_on_startup')!=='0');
+    // l872b: Opstarts-Hjælp følger den aktuelle #session.
     if(enabled){
       localStorage.setItem(seenKey,'1');
       setTimeout(function(){try{showQuickHelp();}catch(_e){}},700);
       return;
     }
-    // Brugerens fravalg skal også forhindre den gamle førstegangslogik i at åbne Hjælp.
     localStorage.setItem(seenKey,'1');
   }catch(e){}
 }
@@ -50605,6 +50632,172 @@ function safe827DatasetWidgetMap(){
   }catch(_e){}
   return map;
 }
+
+/* l881: Tavleindeks som rigtigt sessionsdatasæt.
+   TavleGeneratoren skal kunne sende eksisterende tavler ud fra et stabilt indeks,
+   ikke forsøge at aflæse en TavleListe som almindelig tekst. Datasættet holdes
+   opdateret ud fra de faktiske tavler og – hvis der findes en TavleListe – dens
+   viste/skjulte valg. */
+function safe881IsTrashSlide(sl){
+  try{if(typeof safe827IsTrash==='function')return safe827IsTrash(sl);}catch(_e){}
+  try{if(typeof safe588IsTrashSlide==='function')return safe588IsTrashSlide(sl);}catch(_e){}
+  try{if(typeof safe134IsTrashSlideForNav==='function')return safe134IsTrashSlideForNav(sl);}catch(_e){}
+  try{if(typeof isTrashBoard==='function')return isTrashBoard(sl);}catch(_e){}
+  return !!(sl&&(sl.isTrashBoard===true||sl.title==='🗑 Papirkurv'||sl.title==='Papirkurv'));
+}
+function safe881SlideTitle(sl,i){
+  try{if(typeof safe827SlideTitle==='function')return safe827SlideTitle(sl,i)||('Tavle '+(i+1));}catch(_e){}
+  try{if(typeof safeSlideTitle==='function')return safeSlideTitle(sl,i)||('Tavle '+(i+1));}catch(_e){}
+  return String((sl&&sl.title)||('Tavle '+(i+1)));
+}
+function safe881SlideKey(sl,i){
+  try{if(typeof safe588EnsureSlideIds==='function')safe588EnsureSlideIds();}catch(_e){}
+  return String((sl&&sl.id)||('idx:'+i));
+}
+function safe881IsBoardListWidget(w){
+  try{
+    if(!w||!w.data)return false;
+    const d=w.data||{};
+    const t=String(d.listType||d.listMode||d.mode||d.kind||'');
+    if(t==='boardIndex'||t==='boardCheckIndex'||t==='boards'||t==='boardcheck'||t==='boardChecklist')return true;
+    if(d.boardIndexHidden||d.boardIndexChecked||d.boardIndexPanelMode||d.boardIndexLayout||d.boardIndexTitle)return true;
+  }catch(_e){}
+  return false;
+}
+function safe881FindBoardIndexWidgetRecord(){
+  try{
+    if(typeof safe588CurrentWidgetRecords==='function'){
+      const cur=safe588CurrentWidgetRecords();
+      for(const rec of cur){if(rec&&rec.w&&safe881IsBoardListWidget(rec.w))return rec;}
+    }
+  }catch(_e){}
+  try{
+    const slides=Array.isArray(state&&state.slides)?state.slides:[];
+    let first=null, active=null;
+    slides.forEach(function(sl,si){
+      if(!sl||safe881IsTrashSlide(sl))return;
+      (Array.isArray(sl.widgets)?sl.widgets:[]).forEach(function(w,wi){
+        if(!safe881IsBoardListWidget(w))return;
+        const rec={w:w,slide:sl,slideIndex:si,index:wi};
+        if(first===null)first=rec;
+        if(Number.isInteger(state&&state.active)&&si===state.active&&active===null)active=rec;
+      });
+    });
+    return active||first;
+  }catch(_e){return null;}
+}
+function safe881BoardIndexRowsFromState(boardRec){
+  const rows=[];
+  try{
+    const slides=Array.isArray(state&&state.slides)?state.slides:[];
+    const w=boardRec&&boardRec.w;
+    const hidden=(w&&w.data&&w.data.boardIndexHidden)||{};
+    const checked=(w&&w.data&&w.data.boardIndexChecked)||{};
+    let no=0;
+    slides.forEach(function(sl,i){
+      if(!sl||safe881IsTrashSlide(sl))return;
+      no++;
+      const key=safe881SlideKey(sl,i);
+      const included=!(hidden&&hidden[key]);
+      const sid=String((sl&&sl.id)||key);
+      rows.push([
+        safe881SlideTitle(sl,i),
+        included?'ja':'nej',
+        String(no),
+        sid,
+        String(i),
+        i===(state&&state.active)?'ja':'',
+        (w&&w.id)?String(w.id):'',
+        checked&&checked[key]?'ja':''
+      ]);
+    });
+  }catch(_e){}
+  return rows;
+}
+function safe881BoardIndexDatasetName(){return 'Tavleindeks';}
+function safe881IsBoardIndexDataset(ds){
+  try{return !!(ds&&(String(ds.type||'')==='tavle-board-index'||ds.boardIndexDataset===true||String(ds.sourceType||'')==='tavleindeks'));}catch(_e){return false;}
+}
+function safe881EnsureBoardIndexDataset(){
+  try{
+    state.datasets=Array.isArray(state&&state.datasets)?state.datasets:[];
+    const boardRec=safe881FindBoardIndexWidgetRecord();
+    let ds=state.datasets.find(function(x){return safe881IsBoardIndexDataset(x);});
+    if(!ds){
+      ds={
+        id:'ds_tavleindeks_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+        name:safe881BoardIndexDatasetName(),
+        type:'tavle-board-index',
+        sourceType:'tavleindeks',
+        sourceName:'Aktuel sessions tavler',
+        boardIndexDataset:true,
+        columns:['Titel','Valgt','Nr','TavleId','Index','Aktiv','KildeWidgetId','Tjekket'],
+        rows:[],
+        importedAt:Date.now(),
+        updatedAt:Date.now()
+      };
+      state.datasets.push(ds);
+    }
+    ds.name=safe881BoardIndexDatasetName();
+    ds.type='tavle-board-index';
+    ds.sourceType='tavleindeks';
+    ds.sourceName=boardRec&&boardRec.w?('TavleListe: '+String((boardRec.w.data&&boardRec.w.data.boardIndexTitle)||boardRec.w.title||'TavleListe')):'Aktuel sessions tavler';
+    ds.boardIndexDataset=true;
+    ds.columns=['Titel','Valgt','Nr','TavleId','Index','Aktiv','KildeWidgetId','Tjekket'];
+    const nextRows=safe881BoardIndexRowsFromState(boardRec);
+    const old=JSON.stringify(ds.rows||[]);
+    const neu=JSON.stringify(nextRows||[]);
+    ds.rows=nextRows;
+    ds.updatedAt=Date.now();
+    ds.meta=Object.assign({},ds.meta||{},{session:(typeof safe859CurrentSessionId==='function'?safe859CurrentSessionId():(typeof TAVLE_SESSION_ID!=='undefined'?TAVLE_SESSION_ID:'standard')),sourceWidgetId:boardRec&&boardRec.w?String(boardRec.w.id||''):'',sourceSlideIndex:boardRec&&Number.isInteger(boardRec.slideIndex)?boardRec.slideIndex:null});
+    try{
+      if(boardRec&&boardRec.w){
+        boardRec.w.data=boardRec.w.data||{};
+        boardRec.w.data.linkedBoardIndexDatasetId=ds.id;
+        boardRec.w.data.sourceDatasetId=boardRec.w.data.sourceDatasetId||ds.id;
+        boardRec.w.data.sourceColumns=boardRec.w.data.sourceColumns||['Titel'];
+      }
+    }catch(_l){}
+    if(old!==neu){try{save({silent:true});}catch(_s){try{save();}catch(__s){}}}
+    return ds;
+  }catch(err){try{console.warn('l881 Tavleindeks-datasæt kunne ikke synkroniseres',err);}catch(_e){}return null;}
+}
+function safe881BoardIndexSourceChoice(){
+  try{
+    const ds=safe881EnsureBoardIndexDataset();
+    if(!ds||!Array.isArray(ds.rows))return null;
+    const cols=Array.isArray(ds.columns)?ds.columns:[];
+    const idxTitle=Math.max(0,cols.indexOf('Titel'));
+    const idxValgt=cols.indexOf('Valgt');
+    const idxNr=cols.indexOf('Nr');
+    const idxId=cols.indexOf('TavleId');
+    const idxIndex=cols.indexOf('Index');
+    const slides=Array.isArray(state&&state.slides)?state.slides:[];
+    const idToIndex={};
+    slides.forEach(function(sl,i){if(sl&&!safe881IsTrashSlide(sl))idToIndex[String(sl.id||safe881SlideKey(sl,i))]=i;});
+    const records=[];
+    ds.rows.forEach(function(row,ri){
+      row=Array.isArray(row)?row:[];
+      const valgt=idxValgt>=0?String(row[idxValgt]||'').trim().toLowerCase():'ja';
+      if(valgt==='nej'||valgt==='no'||valgt==='false'||valgt==='0'||valgt==='')return;
+      let realIndex=null;
+      const sid=idxId>=0?String(row[idxId]||'').trim():'';
+      if(sid&&Object.prototype.hasOwnProperty.call(idToIndex,sid))realIndex=idToIndex[sid];
+      if(realIndex===null){const n=Number(idxIndex>=0?row[idxIndex]:NaN); if(Number.isInteger(n)&&slides[n]&&!safe881IsTrashSlide(slides[n]))realIndex=n;}
+      if(realIndex===null)return;
+      const sl=slides[realIndex];
+      const key=safe881SlideKey(sl,realIndex);
+      records.push({realIndex:realIndex,visibleNo:Number(row[idxNr]||ri+1)||ri+1,key:key,slideId:String(sl.id||key),title:String(row[idxTitle]||safe881SlideTitle(sl,realIndex)),checked:false,active:realIndex===(state&&state.active)});
+    });
+    const seen={};
+    const filtered=records.filter(function(r){const k=String(r.slideId||r.realIndex); if(seen[k])return false; seen[k]=true; return true;});
+    if(!filtered.length)return null;
+    return {key:'boardindex-dataset:'+String(ds.id),label:'↪ Tavleindeks',meta:filtered.length+' valgte eksisterende tavler · koblet datasæt',count:filtered.length,names:filtered.map(function(r){return r.title;}),kind:'boardList',datasetId:String(ds.id),sourceDatasetId:String(ds.id),sourceWidgetId:'',sourceSlideIndex:null,slideIndexes:filtered.map(function(r){return r.realIndex;}),slideIds:filtered.map(function(r){return r.slideId;}),boardRecords:filtered,boardListType:'Tavleindeks'};
+  }catch(_e){return null;}
+}
+try{window.safe881EnsureBoardIndexDataset=safe881EnsureBoardIndexDataset;window.safe881BoardIndexSourceChoice=safe881BoardIndexSourceChoice;window.safe881IsBoardIndexDataset=safe881IsBoardIndexDataset;}catch(_e){}
+try{setTimeout(function(){safe881EnsureBoardIndexDataset();},600);}catch(_e){}
+try{document.addEventListener('click',function(e){try{if(e.target&&e.target.closest&&e.target.closest('[data-board-index-include],[data-board-index-show-all],[data-board-index-hide-all],[data-board-index-set-type]'))setTimeout(safe881EnsureBoardIndexDataset,180);}catch(_x){}},true);}catch(_e){}
 function safe827SourceChoices(){
   const out=[];
   const seen=new Set();
@@ -50615,6 +50808,10 @@ function safe827SourceChoices(){
     seen.add(String(obj.key));
     out.push(obj);
   }
+  try{
+    const boardIndexChoice=safe881BoardIndexSourceChoice();
+    if(boardIndexChoice)addSource(boardIndexChoice);
+  }catch(_e){}
   function listMeta(ch,names){
     const cols=Array.isArray(ch&&ch.sourceColumns)&&ch.sourceColumns.length?(' · '+ch.sourceColumns.map(String).join(' + ')):'';
     return names.length+' punkter'+cols+' · '+String((ch&&ch.locationLabel)||'listewidget');
@@ -50666,6 +50863,7 @@ function safe827SourceChoices(){
     datasets.forEach(function(ch){
       const ds=ch&&ch.ds?ch.ds:ch;
       if(!ds||!ds.id)return;
+      try{if(typeof safe881IsBoardIndexDataset==='function'&&safe881IsBoardIndexDataset(ds))return;}catch(_bi){}
       const dsid=String(ds.id);
       const names=safe827FirstColumnNamesFromDataset(ds);
       if(!names.length)return;
@@ -50680,6 +50878,7 @@ function safe827SourceChoices(){
   try{
     (Array.isArray(state&&state.datasets)?state.datasets:[]).forEach(function(ds){
       if(!ds||!ds.id)return;
+      try{if(typeof safe881IsBoardIndexDataset==='function'&&safe881IsBoardIndexDataset(ds))return;}catch(_bi){}
       const dsid=String(ds.id);
       const names=safe827FirstColumnNamesFromDataset(ds);
       if(!names.length)return;
@@ -50691,7 +50890,8 @@ function safe827SourceChoices(){
   function rank(ch){
     try{
       const si=Number.isInteger(ch&&ch.sourceSlideIndex)?ch.sourceSlideIndex:null;
-      if(ch&&ch.kind==='list')return si===activeIndex?0:(si!=null?2:3);
+      if(ch&&ch.kind==='boardList')return 0;
+      if(ch&&ch.kind==='list')return si===activeIndex?1:(si!=null?3:4);
       if(ch&&ch.kind==='dataset')return si===activeIndex?10:(si!=null?11:12);
     }catch(_e){}
     return 20;
@@ -51762,10 +51962,20 @@ function safe827OpenBoardGenerator(){
       if(!ch){preview.innerHTML='<b>Vælg en navneliste.</b>';if(createBtn)createBtn.textContent='Opret tavler';return;}
       const names=(ch.names||[]).map(function(x){return String(x||'').trim();}).filter(Boolean);
       const shown=names.slice(0,12).map(function(n,i){return '<div class="safe827PreviewItem"><span class="no">'+(i+1)+'.</span><span>'+safe827Html(n)+'</span></div>';}).join('');
+      const isBoardSource=!!(ch&&ch.kind==='boardList');
+      if(isBoardSource){
+        preview.innerHTML='<b>'+names.length+' eksisterende tavler vælges</b><p class="safe827Hint">Kilde: '+safe827Html(ch.boardListType||'Tavleindeks')+' · tavlerne sendes med deres egne widgets, data, medier, baggrund og grid.</p><div class="safe827PreviewList">'+(shown||'<div class="safe827PreviewItem">Ingen tavler</div>')+(names.length>12?'<div class="safe827PreviewItem"><span class="no">…</span><span>'+safe827Html(names.length-12)+' flere</span></div>':'')+'</div>';
+        if(createBtn){createBtn.textContent='Brug Send pakke'; createBtn.disabled=true; createBtn.title='Tavleindeks er eksisterende tavler og sendes som pakke';}
+        const sendBtn=modal.querySelector('#safe859SendToSession'); if(sendBtn)sendBtn.textContent='Send '+names.length+' tavler';
+        const note=modal.querySelector('.safe859SessionNote'); if(note)note.textContent='Tavlerne findes allerede i denne session. De pakkes som udvalg fra Tavleindeks og hentes append-only i destinationen.';
+        return;
+      }
       const sameBoard=(tt&&Number.isInteger(ch.sourceSlideIndex)&&ch.sourceSlideIndex===tt.index);
       const skipHint=sameBoard?'<p class="safe827Hint safe827DangerHint">Navnelisten ligger på skabelontavlen og kopieres ikke med, hvis valget er slået til.</p>':'';
       preview.innerHTML='<b>'+names.length+' tavler oprettes</b><p class="safe827Hint">Skabelon: '+safe827Html(tt?tt.title:'Aktuel tavle')+'</p>'+skipHint+'<div class="safe827PreviewList">'+(shown||'<div class="safe827PreviewItem">Ingen navne</div>')+(names.length>12?'<div class="safe827PreviewItem"><span class="no">…</span><span>'+safe827Html(names.length-12)+' flere</span></div>':'')+'</div>';
-      if(createBtn)createBtn.textContent='Opret '+names.length+' tavler';
+      if(createBtn){createBtn.disabled=false;createBtn.title='';createBtn.textContent='Opret '+names.length+' tavler';}
+      const sendBtn=modal.querySelector('#safe859SendToSession'); if(sendBtn)sendBtn.textContent='Send pakke';
+      const note=modal.querySelector('.safe859SessionNote'); if(note)note.textContent='Tavlerne oprettes ikke her. De gemmes som pakke og hentes, når destinationen åbnes. Eksisterende tavler i destinationen overskrives ikke.';
     }
     if(sel){sel.onchange=refresh;}
     if(tmpl){tmpl.onchange=refresh;}
@@ -51777,6 +51987,7 @@ function safe827OpenBoardGenerator(){
       if(!ch){toast('Vælg en navneliste først');return;}
       const count=(ch.names||[]).map(function(x){return String(x||'').trim();}).filter(Boolean).length;
       if(!count){toast('Navnelisten er tom');return;}
+      if(ch.kind==='boardList'){toast('Tavleindeks er eksisterende tavler. Brug Send pakke til anden session.');return;}
       try{modal.classList.add('safe827Working');}catch(_e){}
       safe827CreateBoards(ch.key,readOpts());
     });
@@ -76632,6 +76843,412 @@ body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tav
 })();
 </script>
 
+<!-- l872-tavlegenerator-send-tavleliste-udvalg-safe: Bygger på l871. Tavlegeneratoren kan nu bruge en TavleListe/Tavle-tjekliste som udvalg af eksisterende tavler ved Send til anden session. TavleListe-kilder aflæses som synlige tavler med tavle-id, pakkes append-only som eksisterende tavler med widgets/data/medier, og lokal Opret-knap deaktiveres for denne kilde. -->
+
+<script id="l872-tavlegenerator-send-tavleliste-udvalg">
+/* l872: TavleListe/Tavle-tjekliste som udvalg af eksisterende tavler i Tavlegeneratorens sessionpakker.
+   Kirurgisk lag: ændrer ikke ListeWidget-rendering, sessionbadge, reset eller lokal generering fra almindelige navnelister.
+   TavleListe-kilder bruges kun som eksisterende tavleudvalg ved "Send til anden session". */
+(function(){
+  if(window.__l872BoardListTransfer)return;
+  window.__l872BoardListTransfer=true;
+
+  var oldSourceChoices = null;
+  var oldBuildGeneratedSlidesForPackage = null;
+  var oldOpenBoardGenerator = null;
+  var oldCreateBoards = null;
+  try{oldSourceChoices = (typeof safe827SourceChoices==='function') ? safe827SourceChoices : window.safe827SourceChoices;}catch(_e){}
+  try{oldBuildGeneratedSlidesForPackage = (typeof safe859BuildGeneratedSlidesForPackage==='function') ? safe859BuildGeneratedSlidesForPackage : window.safe859BuildGeneratedSlidesForPackage;}catch(_e){}
+  try{oldOpenBoardGenerator = (typeof safe827OpenBoardGenerator==='function') ? safe827OpenBoardGenerator : window.safe827OpenBoardGenerator;}catch(_e){}
+  try{oldCreateBoards = (typeof safe827CreateBoards==='function') ? safe827CreateBoards : window.safe827CreateBoards;}catch(_e){}
+
+  function html(s){try{return (typeof safe827Html==='function')?safe827Html(s):String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}catch(_e){return String(s||'');}}
+  function isTrash(sl){try{if(typeof safe827IsTrash==='function')return safe827IsTrash(sl);}catch(_e){}try{if(typeof safe588IsTrashSlide==='function')return safe588IsTrashSlide(sl);}catch(_e){}try{if(typeof isTrashBoard==='function')return isTrashBoard(sl);}catch(_e){}return !!(sl&&(sl.isTrashBoard===true||sl.title==='🗑 Papirkurv'||sl.title==='Papirkurv'));}
+  function titleOf(sl,i){try{if(typeof safe827SlideTitle==='function')return safe827SlideTitle(sl,i);}catch(_e){}try{if(typeof safeSlideTitle==='function')return safeSlideTitle(sl,i)||('Tavle '+(i+1));}catch(_e){}return String((sl&&sl.title)||('Tavle '+(i+1)));}
+  function slideKey(sl,i){try{if(typeof safe588EnsureSlideIds==='function')safe588EnsureSlideIds();}catch(_e){}return String((sl&&sl.id)||('idx:'+i));}
+  function clonePlain(v,fallback){try{return (typeof safe827ClonePlain==='function')?safe827ClonePlain(v,fallback):JSON.parse(JSON.stringify(v));}catch(_e){return fallback;}}
+  function currentSession(){try{return (typeof safe859CurrentSessionId==='function')?safe859CurrentSessionId():'standard';}catch(_e){return 'standard';}}
+
+  function findWidgetRecord(widgetId){
+    try{if(typeof safe588FindWidgetRecord==='function'){var rec=safe588FindWidgetRecord(widgetId); if(rec&&rec.w)return rec;}}catch(_e){}
+    try{
+      var slides=Array.isArray(state&&state.slides)?state.slides:[];
+      for(var si=0;si<slides.length;si++){
+        var ws=(slides[si]&&slides[si].widgets)||[];
+        for(var wi=0;wi<ws.length;wi++){
+          if(ws[wi]&&String(ws[wi].id||'')===String(widgetId))return {w:ws[wi],slide:slides[si],slideIndex:si,index:wi};
+        }
+      }
+    }catch(_e){}
+    return null;
+  }
+  function isBoardListWidget(w){
+    try{
+      if(!w||!w.data)return false;
+      /* l878: TavleListe kan i ældre/nye spor være enten text- eller list-widget,
+         og mode kan ligge i listType, listMode, mode eller kind. */
+      var wt=String(w.type||'');
+      if(wt!=='text'&&wt!=='list')return false;
+      var d=w.data||{};
+      var t=String(d.listType||d.listMode||d.mode||d.kind||'');
+      if(t==='boardIndex'||t==='boardCheckIndex'||t==='boards'||t==='boardcheck'||t==='boardChecklist')return true;
+      // l874/l878: robust fallback for already-rendered board list widgets whose panel data is present
+      // even if listType is temporarily not read by the generator source scanner.
+      if(d.boardIndexHidden||d.boardIndexChecked||d.boardIndexPanelMode||d.boardIndexLayout||d.boardIndexTitle)return true;
+    }catch(_e){}
+    return false;
+  }
+  function boardListVisibleRecordsFromWidget(w){
+    var out=[];
+    try{
+      if(!isBoardListWidget(w))return out;
+      try{if(typeof safe588EnsureSlideIds==='function')safe588EnsureSlideIds();}catch(_e){}
+      var hidden=(w.data&&w.data.boardIndexHidden)||{};
+      var checks=(w.data&&w.data.boardIndexChecked)||{};
+      var slides=Array.isArray(state&&state.slides)?state.slides:[];
+      var visibleNo=0;
+      slides.forEach(function(sl,i){
+        if(!sl||isTrash(sl))return;
+        visibleNo++;
+        var key=slideKey(sl,i);
+        if(hidden&&hidden[key])return;
+        out.push({realIndex:i,visibleNo:visibleNo,key:key,slideId:String(sl.id||key),title:titleOf(sl,i),checked:!!checks[key],active:i===state.active});
+      });
+    }catch(_e){}
+    return out;
+  }
+  function boardListSourceChoices(){
+    var out=[];
+    var seen=new Set();
+    function addChoice(ch){
+      try{
+        if(!ch||!ch.key)return;
+        var k=String(ch.key);
+        if(seen.has(k))return;
+        seen.add(k);
+        out.push(ch);
+      }catch(_e){}
+    }
+    function makeChoice(w,si,labelOverride){
+      try{
+        if(!isBoardListWidget(w))return null;
+        var recs=boardListVisibleRecordsFromWidget(w);
+        if(!recs.length)return null;
+        var name=String(labelOverride||(w.data&&w.data.boardIndexTitle)||w.title||'TavleListe').replace(/^☰0?0*/,'').replace(/^☰0*/,'').trim()||'TavleListe';
+        var mode=String(w.data&&(w.data.listType||w.data.listMode||w.data.mode||w.data.kind)||'');
+        var type=(mode==='boardCheckIndex'||mode==='boardcheck'||mode==='boardChecklist')?'Tavle-tjekliste':'TavleListe';
+        return {
+          key:'boardlist:'+String(w.id||''),
+          label:'↪ '+name,
+          meta:recs.length+' eksisterende tavler · '+type,
+          count:recs.length,
+          names:recs.map(function(r){return r.title;}),
+          kind:'boardList',
+          sourceWidgetId:String(w.id||''),
+          sourceSlideIndex:Number.isInteger(si)?si:null,
+          sourceSlideId:Number.isInteger(si)?String((state.slides&&state.slides[si]&&state.slides[si].id)||''):'',
+          slideIndexes:recs.map(function(r){return r.realIndex;}),
+          slideIds:recs.map(function(r){return r.slideId;}),
+          boardRecords:recs,
+          boardListType:type
+        };
+      }catch(_e){return null;}
+    }
+    try{
+      var slides=Array.isArray(state&&state.slides)?state.slides:[];
+      // 1) Physical widgets anywhere in state.
+      slides.forEach(function(sl,si){
+        if(!sl||isTrash(sl))return;
+        ((sl&&sl.widgets)||[]).forEach(function(w){
+          var ch=makeChoice(w,si,null);
+          if(ch)addChoice(ch);
+        });
+      });
+      // 2) Widgets visible on current slide via sharedVisibility, if the owner helper exists.
+      try{
+        if(typeof safe588CurrentWidgetRecords==='function'){
+          safe588CurrentWidgetRecords().forEach(function(rec){
+            if(!rec||!rec.w)return;
+            var ch=makeChoice(rec.w,rec.slideIndex,null);
+            if(ch)addChoice(ch);
+          });
+        }
+      }catch(_e){}
+      // 3) DOM fallback for rendered/spejlede TavleListe panels.
+      try{
+        document.querySelectorAll('.widget[data-id]').forEach(function(widgetEl){
+          var lw=null;
+          try{
+            lw=(widgetEl.querySelector&&widgetEl.querySelector('.listWidget.boardIndexWidget'))
+              || ((widgetEl.querySelector&&widgetEl.querySelector('.listWidget [data-board-index-go]'))?widgetEl.querySelector('.listWidget'):null)
+              || ((widgetEl.querySelector&&widgetEl.querySelector('[data-board-index-go]'))?widgetEl:null);
+          }catch(_e){}
+          if(!lw)return;
+          /* l875: TavleListen kan være synlig/spejlet og fuldt renderet uden at kildescanneren
+             kan læse klassen .boardIndexWidget på listWidget. Et rigtigt tavlepanel afsløres
+             derfor også af knapper med data-board-index-go. */
+          widgetEl=(lw.closest&&lw.closest('.widget[data-id]'))||widgetEl;
+          var wid=widgetEl&&widgetEl.dataset&&widgetEl.dataset.id;
+          if(!wid)return;
+          if(seen.has('boardlist:'+String(wid)))return;
+          var rec=findWidgetRecord(wid);
+          var labelEl=lw.querySelector('.boardIndexTitleLabel,.tavlePanelTitleHotspot');
+          var label=labelEl?String(labelEl.textContent||'').trim():'';
+          if(rec&&rec.w){
+            var ch=makeChoice(rec.w,rec.slideIndex,label||null);
+            if(ch){addChoice(ch);return;}
+          }
+          // Last fallback: build the source from visible DOM buttons. This is only a source choice;
+          // the package builder can still send these real slide indexes.
+          var records=[];
+          lw.querySelectorAll('[data-board-index-go]').forEach(function(btn){
+            var i=Number(btn.getAttribute('data-board-index-go'));
+            var sl=slides[i];
+            if(!Number.isInteger(i)||!sl||isTrash(sl))return;
+            var key=slideKey(sl,i);
+            records.push({realIndex:i,visibleNo:records.length+1,key:key,slideId:String(sl.id||key),title:titleOf(sl,i),checked:false,active:i===state.active});
+          });
+          if(!records.length)return;
+          var type=(lw.classList&&lw.classList.contains('boardCheckIndexWidget'))?'Tavle-tjekliste':((lw.querySelector&&lw.querySelector('[data-board-index-check]'))?'Tavle-tjekliste':'TavleListe');
+          addChoice({
+            key:'boardlist:'+String(wid),
+            label:'↪ '+(label||'TavleListe'),
+            meta:records.length+' eksisterende tavler · '+type,
+            count:records.length,
+            names:records.map(function(r){return r.title;}),
+            kind:'boardList',
+            sourceWidgetId:String(wid),
+            sourceSlideIndex:null,
+            sourceSlideId:'',
+            slideIndexes:records.map(function(r){return r.realIndex;}),
+            slideIds:records.map(function(r){return r.slideId;}),
+            boardRecords:records,
+            boardListType:type
+          });
+        });
+      }catch(_e){}
+    }catch(_e){}
+    return out;
+  }
+  function boardListWidgetIds(){
+    var set=new Set();
+    try{boardListSourceChoices().forEach(function(ch){if(ch.sourceWidgetId)set.add(String(ch.sourceWidgetId));});}catch(_e){}
+    return set;
+  }
+  function sourceChoices872(){
+    var base=[];
+    try{base=oldSourceChoices?oldSourceChoices():[];}catch(_e){base=[];}
+    var boardSources=boardListSourceChoices();
+    var boardIds=boardListWidgetIds();
+    var filtered=(base||[]).filter(function(ch){
+      try{
+        var wid=String((ch&&ch.sourceWidgetId)||'');
+        if(wid&&boardIds.has(wid)&&String(ch&&ch.kind||'')==='list')return false;
+        if(/^list:/.test(String(ch&&ch.key||''))&&boardIds.has(String(ch.key).replace(/^list:/,'')))return false;
+      }catch(_e){}
+      return true;
+    });
+    var out=boardSources.concat(filtered);
+    try{
+      var active=Number.isInteger(state&&state.active)?state.active:null;
+      function rank(ch){
+        if(ch&&ch.kind==='boardList')return Number.isInteger(ch.sourceSlideIndex)&&ch.sourceSlideIndex===active?0:1;
+        if(ch&&ch.kind==='list')return Number.isInteger(ch.sourceSlideIndex)&&ch.sourceSlideIndex===active?4:5;
+        if(ch&&ch.kind==='dataset')return 10;
+        return 20;
+      }
+      out.sort(function(a,b){var ra=rank(a),rb=rank(b); if(ra!==rb)return ra-rb; return String(a.label||'').localeCompare(String(b.label||''),'da');});
+    }catch(_e){}
+    return out;
+  }
+
+  function rebuildBoardListSource(source){
+    try{
+      if(!source||source.kind!=='boardList')return source;
+      var rec=findWidgetRecord(source.sourceWidgetId);
+      if(rec&&rec.w){
+        var recs=boardListVisibleRecordsFromWidget(rec.w);
+        if(recs.length){
+          var copy=Object.assign({},source);
+          copy.names=recs.map(function(r){return r.title;});
+          copy.count=recs.length;
+          copy.slideIndexes=recs.map(function(r){return r.realIndex;});
+          copy.slideIds=recs.map(function(r){return r.slideId;});
+          copy.boardRecords=recs;
+          copy.sourceSlideIndex=rec.slideIndex;
+          return copy;
+        }
+      }
+    }catch(_e){}
+    return source;
+  }
+  function visibleOnSlide(w,targetIndex,homeIndex){
+    try{if(typeof safe588WidgetVisibleOnSlide==='function')return !!safe588WidgetVisibleOnSlide(w,targetIndex,homeIndex);}catch(_e){}
+    try{
+      if(!w)return false;
+      var v=w.sharedVisibility||{};
+      var mode=String(v.mode||'single');
+      var slides=Array.isArray(state&&state.slides)?state.slides:[];
+      var target=slides[targetIndex];
+      var targetId=String((target&&target.id)||('idx:'+targetIndex));
+      if(mode==='archived')return false;
+      if(mode==='all')return true;
+      var ids=Array.isArray(v.slideIds)?v.slideIds.map(String):[];
+      if(mode==='selected')return ids.indexOf(targetId)>=0;
+      if(ids.length)return ids.indexOf(targetId)>=0;
+      return Number(targetIndex)===Number(homeIndex);
+    }catch(_e){return Number(targetIndex)===Number(homeIndex);}
+  }
+  function lookCopyFromSlide(sl,opts,seq){
+    var copy={id:(typeof safe861PackageSlideId==='function')?safe861PackageSlideId(seq):('pkg_slide_'+Date.now().toString(36)+'_'+seq+'_'+Math.random().toString(36).slice(2,7)),title:titleOf(sl,seq-1),widgets:[]};
+    try{if(typeof safe842CopySlideLook==='function')safe842CopySlideLook(sl,copy,{copyBackground:opts.copyBackground!==false,copyDraw:!!opts.copyDraw});}
+    catch(_e){
+      copy.bg=sl&&sl.bg||'linear-gradient(135deg,#eef7ff,#d6ecff)';
+      copy.grid=!!(sl&&sl.grid); copy.draw=opts.copyDraw?(sl&&sl.draw||''):'';
+    }
+    return copy;
+  }
+  function isHiddenLinkedDataWidget(w){try{return !!(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w));}catch(_e){return false;}}
+  function shouldSkipSourceWidget(w,source,opts){
+    try{
+      if(!opts||!opts.skipSourceWidget||!source||!w)return false;
+      if(source.sourceWidgetId&&String(w.id||'')===String(source.sourceWidgetId))return true;
+      if(typeof safe827ShouldSkipWidget==='function'&&safe827ShouldSkipWidget(w,source,opts))return true;
+    }catch(_e){}
+    return false;
+  }
+  function buildExistingSlidesForPackage(source,opts){
+    try{
+      source=rebuildBoardListSource(source);
+      opts=Object.assign({},opts||{});
+      var slides=Array.isArray(state&&state.slides)?state.slides:[];
+      var indexes=(source.slideIndexes||[]).map(function(x){return Number(x);}).filter(function(i){return Number.isInteger(i)&&slides[i]&&!isTrash(slides[i]);});
+      // Dubletfilter uden at ændre rækkefølgen fra TavleListen.
+      var seenIdx=new Set(); indexes=indexes.filter(function(i){if(seenIdx.has(i))return false; seenIdx.add(i); return true;});
+      if(!indexes.length)return [];
+      var out=[], indexToPkg={}, origIdToPkg={};
+      indexes.forEach(function(i,seq){
+        var sl=slides[i];
+        var c=lookCopyFromSlide(sl,opts,seq+1);
+        var oldId=String(sl.id||('idx:'+i));
+        c.title=titleOf(sl,i);
+        c.transferMeta=Object.assign({},c.transferMeta||{},{
+          originKind:'existing-from-boardlist',
+          sourceKey:String(source.key||''),
+          sourceLabel:String(source.label||''),
+          sourceWidgetId:String(source.sourceWidgetId||''),
+          sourceIndex:seq,
+          sourceName:c.title,
+          originalSlideId:oldId,
+          originKey:String(currentSession())+'|slide:'+oldId
+        });
+        out.push(c); indexToPkg[i]=String(c.id); origIdToPkg[oldId]=String(c.id);
+      });
+      if(!opts.copyWidgets)return out;
+      var packageById={}; out.forEach(function(sl){packageById[String(sl.id)]=sl;});
+      var selectedIndexes=indexes.slice();
+      var widgetDone=new Set();
+      var baseZ=0; try{baseZ=(typeof safe827MaxZ==='function'?safe827MaxZ():1)+7000;}catch(_e){baseZ=7000;}
+      slides.forEach(function(homeSlide,homeIndex){
+        if(!homeSlide||isTrash(homeSlide))return;
+        ((homeSlide.widgets)||[]).forEach(function(w,wi){
+          if(!w||widgetDone.has(String(w.id||('w:'+homeIndex+':'+wi))))return;
+          if(isHiddenLinkedDataWidget(w))return;
+          if(shouldSkipSourceWidget(w,source,opts))return;
+          var targetPkgIds=[];
+          selectedIndexes.forEach(function(targetIndex){
+            try{if(visibleOnSlide(w,targetIndex,homeIndex)){var pid=indexToPkg[targetIndex]; if(pid)targetPkgIds.push(pid);}}catch(_e){}
+          });
+          targetPkgIds=targetPkgIds.filter(function(id,i,a){return id&&a.indexOf(id)===i;});
+          if(!targetPkgIds.length)return;
+          widgetDone.add(String(w.id||('w:'+homeIndex+':'+wi)));
+          var cw=(typeof safe861CleanClone==='function')?safe861CleanClone(clonePlain(w,null)):clonePlain(w,null);
+          if(!cw)return;
+          cw.id=(typeof safe861PackageWidgetId==='function')?safe861PackageWidgetId(0,wi+homeIndex*1000):('pkg_widget_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7));
+          try{if(typeof safe842CleanClonedWidget==='function')safe842CleanClonedWidget(cw);}catch(_e){}
+          var v=(w&&w.sharedVisibility)||{};
+          var mode=String(v.mode||'single');
+          if(targetPkgIds.length>1 || mode==='all' || mode==='selected')cw.sharedVisibility={mode:'selected',slideIds:targetPkgIds.slice()};
+          else cw.sharedVisibility={mode:'single',slideIds:[targetPkgIds[0]]};
+          if(!(Number(cw.z)>0))cw.z=baseZ+wi+homeIndex*1000;
+          cw.transferMeta=Object.assign({},cw.transferMeta||{},{originWidgetId:String(w.id||''),originSlideId:String((homeSlide&&homeSlide.id)||('idx:'+homeIndex)),originVisibility:mode,targetCount:targetPkgIds.length});
+          var host=packageById[targetPkgIds[0]]||out[0];
+          if(host)host.widgets.push(cw);
+        });
+      });
+      return out;
+    }catch(err){try{console.warn('l872 kunne ikke pakke TavleListe-udvalg',err);}catch(_e){} return [];}
+  }
+
+  function buildSlidesForPackage872(source,opts){
+    try{if(source&&source.kind==='boardList')return buildExistingSlidesForPackage(source,opts||{});}catch(_e){}
+    return oldBuildGeneratedSlidesForPackage?oldBuildGeneratedSlidesForPackage(source,opts):[];
+  }
+
+  function createBoards872(sourceKey,opts){
+    try{
+      var ch=sourceChoices872().find(function(x){return String(x.key)===String(sourceKey);});
+      if(ch&&ch.kind==='boardList'){
+        try{toast('TavleListe er et udvalg af eksisterende tavler. Brug Send pakke til anden session.');}catch(_e){}
+        return false;
+      }
+    }catch(_e){}
+    return oldCreateBoards?oldCreateBoards(sourceKey,opts):false;
+  }
+
+  function patchGeneratorUi(){
+    try{
+      var m=document.getElementById('modal');
+      if(!m||!m.querySelector||!m.querySelector('.safe827Generator'))return;
+      var sel=m.querySelector('#safe827Source');
+      var preview=m.querySelector('#safe827Preview');
+      var createBtn=m.querySelector('#safe827Create');
+      var sendBtn=m.querySelector('#safe859SendToSession');
+      var note=m.querySelector('.safe859SessionNote');
+      if(!sel||sel.__l872BoardListUiBound)return;
+      function currentChoice(){try{return sourceChoices872().find(function(x){return String(x.key)===String(sel.value);});}catch(_e){return null;}}
+      function update(){
+        try{
+          var ch=currentChoice();
+          if(!ch)return;
+          var isBoard=ch.kind==='boardList';
+          var count=(ch.names||[]).length;
+          if(isBoard&&preview){
+            var shown=(ch.names||[]).slice(0,12).map(function(n,i){return '<div class="safe827PreviewItem"><span class="no">'+(i+1)+'.</span><span>'+html(n)+'</span></div>';}).join('');
+            preview.innerHTML='<b>'+count+' eksisterende tavler vælges</b><p class="safe827Hint">Kilde: '+html(ch.boardListType||'TavleListe')+' · tavlerne sendes med deres egne widgets, data, medier, baggrund og grid.</p><div class="safe827PreviewList">'+(shown||'<div class="safe827PreviewItem">Ingen tavler</div>')+(count>12?'<div class="safe827PreviewItem"><span class="no">…</span><span>'+html(count-12)+' flere</span></div>':'')+'</div>';
+          }
+          if(createBtn){
+            createBtn.disabled=!!isBoard;
+            if(isBoard){createBtn.textContent='Brug Send pakke'; createBtn.title='TavleListe sender eksisterende tavler til en anden session';}
+          }
+          if(sendBtn)sendBtn.textContent=isBoard?('Send '+count+' tavler'):'Send pakke';
+          if(note){
+            note.textContent=isBoard
+              ? 'Tavlerne findes allerede i denne session. De pakkes som udvalg fra TavleListen og hentes append-only i destinationen.'
+              : 'Tavlerne oprettes ikke her. De gemmes som pakke og hentes, når destinationen åbnes. Eksisterende tavler i destinationen overskrives ikke.';
+          }
+        }catch(_e){}
+      }
+      sel.__l872BoardListUiBound=true;
+      sel.addEventListener('change',function(){setTimeout(update,0);},true);
+      m.querySelectorAll('#safe827Template,#safe827CopyWidgets,#safe827SkipSource,#safe827CopyBackground,#safe827CopyDraw').forEach(function(el){try{el.addEventListener('change',function(){setTimeout(update,0);},true);}catch(_e){}});
+      setTimeout(update,0); setTimeout(update,80);
+    }catch(_e){}
+  }
+
+  function openBoardGenerator872(){
+    try{if(oldOpenBoardGenerator)oldOpenBoardGenerator(); else return;}catch(err){try{console.error('l872 generator-open fejl',err);}catch(_e){}}
+    try{setTimeout(patchGeneratorUi,0);setTimeout(patchGeneratorUi,120);}catch(_e){}
+  }
+
+  try{window.safe827SourceChoices=sourceChoices872; safe827SourceChoices=sourceChoices872;}catch(_e){}
+  try{window.safe859BuildGeneratedSlidesForPackage=buildSlidesForPackage872; safe859BuildGeneratedSlidesForPackage=buildSlidesForPackage872;}catch(_e){}
+  try{window.safe827CreateBoards=createBoards872; safe827CreateBoards=createBoards872;}catch(_e){}
+  try{window.safe827OpenBoardGenerator=openBoardGenerator872; safe827OpenBoardGenerator=openBoardGenerator872;}catch(_e){}
+  try{window.safe872BoardListSourceChoices=boardListSourceChoices;}catch(_e){}
+})();
+</script>
+
 <style id="l871-sessionbadge-toolbar-safe-css">
 /* l871: Sessionmærket må ikke ligge oven på bundværktøjslinjen.
    Kun placering/flow for #safe868SessionBadge ændres. */
@@ -76663,6 +77280,40 @@ body:has(.app.present) #safe868SessionBadge{
   body:has(.app.present) #safe868SessionBadge{
     bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
   }
+}
+</style>
+
+<!-- l877-tavleliste-kilde-badgefast-repair-safe: Bygger på l875. Kun CSS-placering: sessionmærket ligger fast nederst højre og toolbar-åbn-knappen bevares øverst i stakken. Ingen JS-logik ændret. -->
+<style id="l877-sessionbadge-fixed-bottom-css">
+/* l877: Sessionsknapperne skal ikke hoppe med værktøjslinjen.
+   De må gerne blive dækket af toolbaren; tre-prik-knappen skal fortsat kunne åbne toolbaren. */
+#safe868SessionBadge{
+  position:fixed!important;
+  right:calc(12px + env(safe-area-inset-right,0px))!important;
+  bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+  max-width:min(42vw,520px)!important;
+  z-index:2147482400!important;
+}
+body:has(.app.toolbarHidden) #safe868SessionBadge,
+body:has(.app.present) #safe868SessionBadge,
+.app.toolbarHidden ~ #safe868SessionBadge,
+.app.present ~ #safe868SessionBadge{
+  bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+}
+#toolbarFallback.l823ToolbarDots,
+.toolbarFallback.l823ToolbarDots{
+  z-index:2147482550!important;
+  pointer-events:auto!important;
+}
+body.toolbar-is-hidden:not(.focus-mode):not(.focus-edit):not(.focus-presentation):not(.focus-maximized) #app:not(.present) ~ #toolbarFallback.l823ToolbarDots,
+#app.toolbarHidden:not(.present) ~ #toolbarFallback.l823ToolbarDots{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+@media(max-width:760px){
+  #safe868SessionBadge{max-width:min(54vw,420px)!important;}
 }
 </style>
 </body></html>
