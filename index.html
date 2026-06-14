@@ -1,3 +1,5 @@
+<!-- l925-tavleoversigt-helpknap-ejerfix-safe: Bygger direkte på brugerens virkende l923. Retter kun Tavleoversigtens egen modal-template: ?-knappen flyttes fra knaprækken op på titellinjen i øverste højre hjørne. Ingen nye scripts, ingen global CSS, ingen ændring af Tavleshots, sessioner eller Tavlegenerator. -->
+<!-- l923-help-smartboard-checkbox-label-ownerfix-safe: Bygger direkte på brugerens senest virkende l921. Retter kun Hjælpens SmartBoard-styling i den eksisterende hjælperække-ejer, så teksten ved “Vis Hjælp ved opstart i denne session” bliver læsbar igen. Ingen nye scripts, ingen ændring af Tavleshots, sessionslogik eller Tavlegenerator. -->
 <!-- l918-tavlegenerator-sessionvaelger-som-hjaelp-safe: Bygger på accepteret l916. Tavlegeneratorens Send til anden session bruger nu samme enkle valgmetode som Hjælp: dropdown til kendte sessioner og prompt ved “Skriv ny session”. Det gamle fritekstfelt er skjult men bevares som værdibærer, så eksisterende sendelogik ikke ændres. -->
 <!-- l915-help-sessionhint-smartboard-readable-safe: Bygger på accepteret l914. Retter kun Hjælpens korte Sessioner-hint i SmartBoard-temaet, så både brødtekst og fremhævede ord bliver læsbare på en mørk/dæmpet flade. Ingen sessionslogik, tema-gemning, links eller øvrig Hjælp ændret. -->
 <!-- l914-sessioner-husker-temaer-safe: Bygger på accepteret l913. Tema vælges og huskes nu pr. #session, så fx #NN og #MM kan have hvert sit Tavle-tema. Hjælp nævner dette kort under Sessioner. Ingen reset/import/sessionlink-ændring. -->
@@ -1260,7 +1262,7 @@ body.focus-presentation .widget[data-type="pdf"],
 <!-- SAFE453z: Fullscreen-knappen skjules ikke længere bare fordi Chrome rapporterer standalone/PWA. Den vises hvis requestFullscreen-metode findes. -->
 <!-- SAFE455u: Link/iframe-widget: iframe aktiveres stabilt i max/fokus, toolbar forenkles yderligere, linkkort poleres. Bygger på SAFE455t. -->
 <!-- SAFE455uG: LinkWidget LinkListe-knap får mere sigende ikon (☰) for at undgå forveksling med generel datakilde-🔗. -->
-<!-- SAFE455uH22: Kontekst-hjælp på 5 modaler: Datakilder, Hvor ligger data, Hent filer, Tavleoversigt, Gendannelsespunkter. -->
+<!-- SAFE455uH22: Kontekst-hjælp på 5 modaler: Datakilder, Hvor ligger data, Hent filer, Tavleoversigt, Tavleshots. -->
 <!-- SAFE455uH24: Kontekst-hjælp på 5 ekstra modaler: Linkliste, PDF-link, Baggrund, Importér ICS, Kalenderlink. -->
 <!-- SAFE455uH25: Kontekst-hjælp på 5 ekstra modaler: PDF-URL-input, KaPardy AI-prompt, KaPardy spørgsmålsbank, KaPardy-dataimport, DataRemix. -->
 <!-- SAFE455uH26: DataRemix-navn konsolideret i brugerfladen, og den aktive DataRemix-modal får kontekst-?. -->
@@ -27213,7 +27215,7 @@ body.focus-maximized .widget[data-type="wheel"] .wheelLinkedPoolBar{
 </style>
 
 
-<!-- SAFE454b: Tavleoverblik-genveje only. Tilføjer S=Tavleshot og G=Gendannelsespunkter inde i Tavleoversigt. Ingen højreklik/UR/modalændringer. -->
+<!-- SAFE454b: Tavleoverblik-genveje only. Tilføjer S=Tavleshot og G=Tavleshots inde i Tavleoversigt. Ingen højreklik/UR/modalændringer. -->
 <!-- SAFE454b4: Tavleoverblik S/G bruger nu eksisterende knapper/klikflows i stedet for egen direkte logik. -->
 
 <!-- SAFE453i32 GRID LIGHT CSS ONLY:
@@ -34085,7 +34087,7 @@ function kahoopardyHandleKeyboard(e){
     if(!isEnter)return;
     const open=safe449a18ActiveModal();
     if(!open)return;
-    // SAFE454b7: Gendannelsespunkter-modal har sin egen lokale Enter/Esc-logik.
+    // SAFE454b7: Tavleshots-modal har sin egen lokale Enter/Esc-logik.
     // Den tidlige KaPardy/modal-Enter-guard må ikke stoppe Enter her,
     // ellers når tastetrykket aldrig frem til restore-keyhandleren.
     // SAFE456d: Redningsbælte-modal har også egen lokal Enter/Esc-logik.
@@ -34650,7 +34652,7 @@ function safe351EventColor(ev){return ev.color||SAFE351_CAL_TYPES[ev.type]||'#4f
 function safe351NormalizeEvents(w){w.data=w.data||{};w.data.year=Number(w.data.year)||new Date().getFullYear();w.data.month=Number(w.data.month)||new Date().getMonth()+1;w.data.view=w.data.view||'month';if(w.data.showWeekNumbers===undefined)w.data.showWeekNumbers=true;if(w.data.showHolidays===undefined)w.data.showHolidays=true;w.data.events=Array.isArray(w.data.events)?w.data.events:[];w.data.events=w.data.events.map(ev=>{
   ev=ev||{};
   const next={id:ev.id||uid(),date:String(ev.date||safe351TodayISO()).slice(0,10),start:String(ev.start||''),end:String(ev.end||''),title:String(ev.title||'Ny aktivitet'),type:String(ev.type||'Andet'),hold:String(ev.hold||''),place:String(ev.place||''),note:String(ev.note||''),color:String(ev.color||''),status:String(ev.status||'planlagt')};
-  // SAFE448g: Bevar ekstra kalenderfelter, så Quick add kan linke til tavleøjeblik/gendannelsespunkter.
+  // SAFE448g: Bevar ekstra kalenderfelter, så Quick add kan linke til tavleøjeblik/tavleshots.
   ['snapshotWidgetId','snapshotSlideIndex','restorePointId','restorePointTitle'].forEach(k=>{
     if(ev[k]!==undefined&&ev[k]!==null&&ev[k]!=='' )next[k]=ev[k];
   });
@@ -35356,7 +35358,7 @@ function safe448eFindRestorePointById(id){
 }
 function safe448eOpenQuickRestorePoint(id){
   const point=safe448eFindRestorePointById(id);
-  if(!point||!point.boardState||!Array.isArray(point.boardState.widgets)){toast('Gendannelsespunkt mangler');return;}
+  if(!point||!point.boardState||!Array.isArray(point.boardState.widgets)){toast('Tavleshot mangler');return;}
   try{
     safe430OpenAllRestorePointsModal({selectedId:String(id||''),returnToOverview:false});
   }catch(_e){
@@ -35410,7 +35412,7 @@ async function safe365AddQuickCalendarActivity(w,el){
     if(point){
       ev.restorePointId=point.id;
       ev.restorePointTitle=point.title||'Tavleøjeblik';
-      ev.note += '\n\n📌 Tavleøjeblik: Gendannelsespunkt gemt';
+      ev.note += '\n\n📌 Tavleøjeblik: Tavleshot gemt';
     }else{
       ev.note += '\n\n📌 Tavleøjeblik kunne ikke gemmes.';
     }
@@ -35915,7 +35917,7 @@ function safe360OpenEventPreview(w,ev,date,el){
     const lines=String(noteBox.textContent||'').split(/\n/);
     noteBox.innerHTML=lines.map(line=>{
       if(/Tavleøjeblik/.test(line)){
-        return `<div class="calRestoreNoteRow"><button type="button" id="calRestorePointFromNote" class="calRestoreNoteLink" title="Åbn gendannelsespunkter" aria-label="Åbn tavleøjeblik">📌 Tavleøjeblik</button><span class="calRestoreNoteText">Gendannelsespunkt gemt</span></div>`;
+        return `<div class="calRestoreNoteRow"><button type="button" id="calRestorePointFromNote" class="calRestoreNoteLink" title="Åbn Tavleshots" aria-label="Åbn tavleøjeblik">📌 Tavleøjeblik</button><span class="calRestoreNoteText">Tavleshot gemt</span></div>`;
       }
       return `<div>${esc(line)}</div>`;
     }).join('');
@@ -47142,13 +47144,13 @@ function showQuickHelp(){
     </details>
 
     <details open>
-      <summary>Tavleoverblik, Tavleshot og gendannelsespunkter</summary>
+      <summary>Tavleoverblik, Tavleshot og tavleshots</summary>
       <div class="answer">
         <ul class="helpCompactList">
           <li><b>Q</b>, <b>Å</b> eller <b>Shift+T</b> åbner/lukker Tavleoverblik.</li>
           <li>Brug <b>piletaster</b> til at markere en tavle og <b>Enter</b> til at åbne den.</li>
           <li><b>S</b> laver Tavleshot af den markerede tavle.</li>
-          <li><b>G</b> åbner Gendannelsespunkter. Marker et punkt og tryk <b>Enter</b> for at gendanne som ny tavle.</li>
+          <li><b>G</b> åbner Tavleshots. Marker et punkt og tryk <b>Enter</b> for at gendanne som ny tavle.</li>
           <li><b>Delete/Backspace</b> sletter en almindelig tavle. <b>Cmd/Ctrl + piletaster</b> flytter tavlen i rækkefølgen.</li>
           <li><b>🧩 Tavlegenerator</b> kan oprette mange tavler på én gang ud fra en ListeWidget, DataWidget eller Medieliste. Den aktuelle tavle kan bruges som skabelon, så widgets, baggrund og grid følger med.</li>
         </ul>
@@ -47357,7 +47359,7 @@ function showQuickHelp(){
       <div class="answer">
         <ul class="helpCompactList">
           <li><b>Gem backup</b> gemmer tavleopsætningen, så den kan åbnes igen senere.</li>
-          <li><b>Backup +</b> bruges, når tavlen indeholder lokale billeder, tegninger, kameraoptagelser, HTMLApps, lokale PDF’er, lokale lyd-/videofiler eller gendannelsespunkter.</li>
+          <li><b>Backup +</b> bruges, når tavlen indeholder lokale billeder, tegninger, kameraoptagelser, HTMLApps, lokale PDF’er, lokale lyd-/videofiler eller tavleshots.</li>
           <li><b>Backup +</b> kan også importeres ved at indsætte JSON-tekst i Gem/åbn.</li>
           <li><b>Gem skabelon</b> er til tomme eller genbrugelige tavleopsætninger.</li>
           <li><b>Hent filer fra tavlen</b> henter enkelte billeder, PDF’er, HTMLApps, lokale medier eller filer fra fx Skriv ud af tavlen.</li>
@@ -47375,7 +47377,7 @@ function showQuickHelp(){
         <ul class="helpCompactList">
           <li><b>Ny session:</b> Den nemmeste måde at starte rent er ofte at bruge en ny adresse med <b>#SessionNavn</b>, fx <b>#Uge23</b>. Så får du et adskilt arbejdsrum uden at slette den gamle session.</li>
           <li><b>Genbrug af samme session:</b> Hvis du vil bruge samme adresse igen, kan oprydning eller RESET være mere praktisk end at lave en ny session.</li>
-          <li><b>Hvor ligger data?</b> viser tavle-state, lokale filer, medier, gendannelsespunkter og gamle rester. Visningen flytter eller sletter ikke noget i sig selv.</li>
+          <li><b>Hvor ligger data?</b> viser tavle-state, lokale filer, medier, tavleshots og gamle rester. Visningen flytter eller sletter ikke noget i sig selv.</li>
           <li><b>Oprydning</b> kan bruges til forsigtigt at rydde gamle nøgler eller hente backup af udvalgte dele. Den aktuelle tavle og vigtige indstillinger er normalt beskyttet.</li>
           <li><b>Medier</b> viser appens mediearkiv. Her kan du finde og slette forældreløse medier, hvis de ikke længere bruges af den aktuelle tavle.</li>
           <li><b>Ryd aktuel session</b> fjerner tavler, widgets og datasæt i den session, du står i. Andre #sessioner, Standard og mediearkiv røres ikke.</li>
@@ -47398,7 +47400,7 @@ function showQuickHelp(){
           <li>Gendannede widgets forsøges lagt tilbage på samme tavle med samme størrelse, placering og rotation.</li>
           <li><b>Gendan alle</b> bruges, hvis du har slettet flere ting fra forskellige tavler.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Tavleoverblik">Gendannelsespunkter</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Tavleoverblik">Tavleshots</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup</button></div>
       </div>
     </details>
 
@@ -47731,7 +47733,7 @@ function showQuickHelp(){
           }
           if(tool==='restorePoints'){
             if(typeof safe430OpenAllRestorePointsModal==='function')safe430OpenAllRestorePointsModal();
-            else toast('Gendannelsespunkter kunne ikke åbnes');
+            else toast('Tavleshots kunne ikke åbnes');
             return;
           }
           if(typeof handleTool==='function') handleTool(tool);
@@ -47967,7 +47969,7 @@ function safe453i119MediaLabel(rec,key){
   const kind=String(rec&&rec.kind||'media').toLowerCase();
   const mime=String(rec&&rec.mimeType||'').toLowerCase();
   key=String(key||'');
-  if(key==='previewMediaRef')return 'Gendannelsespunkt-preview';
+  if(key==='previewMediaRef')return 'Tavleshot-preview';
   if(kind==='image'||mime.startsWith('image/'))return 'Billede fra IndexedDB';
   if(kind==='pdf'||mime.includes('pdf'))return 'PDF fra IndexedDB';
   if(kind==='audio'||mime.startsWith('audio/'))return 'Lyd fra IndexedDB';
@@ -48391,7 +48393,7 @@ function safe453i118StorageKindLabel(mime,path){
   mime=String(mime||''); path=String(path||'');
   if(/image\//.test(mime))return 'Billede/dataURL';
   if(/pdf/.test(mime))return 'PDF/dataURL';
-  if(/preview|restore|boardshot|TavleShot/i.test(path))return 'Gendannelsespunkt-preview';
+  if(/preview|restore|boardshot|TavleShot/i.test(path))return 'Tavleshot-preview';
   return 'Indlejret dataURL';
 }
 let safe453i120StorageOverviewEscHandler=null;
@@ -48622,7 +48624,7 @@ function safe453i124OpenIndexedDbMediaMap(){
 
 function safe453i133KindForRefKey(key){
   key=String(key||'');
-  if(key==='previewMediaRef')return 'Preview / gendannelsespunkt';
+  if(key==='previewMediaRef')return 'Preview / tavleshot';
   if(key==='mediaRef')return 'Medie i widget';
   if(key==='srcMediaRef')return 'Kildemedie';
   if(key==='fileMediaRef')return 'Filmedie';
@@ -48702,7 +48704,7 @@ function safe453i144ScanDrawState(root){
       if(!v||depth>8)return;
       if(typeof v==='string'){
         if(/^data:image\//i.test(v)&&/restore|gendan|boardshot|snapshot|preview/i.test(path)){
-          safe453i144AddDrawTrace(out,'Gendannelsespunkt-preview',path,'Indlejret i tavlen',safe453i144DataUrlBytes(v),'Ældre preview/snapshot i state');
+          safe453i144AddDrawTrace(out,'Tavleshot-preview',path,'Indlejret i tavlen',safe453i144DataUrlBytes(v),'Ældre preview/snapshot i state');
         }
         return;
       }
@@ -49759,7 +49761,7 @@ function safe453i142MediaIdsInBackupPlus(data){
 }
 function safe453i142ShortRefPath(path){
   path=String(path||'');
-  return path.replace(/^state\./,'').replace(/\.data\./g,'.').replace(/restorePoints\[(\d+)\]/g,'Gendannelsespunkt $1').replace(/slides\[(\d+)\]\.widgets\[(\d+)\]/g,'Tavle $1 · widget $2');
+  return path.replace(/^state\./,'').replace(/\.data\./g,'.').replace(/restorePoints\[(\d+)\]/g,'Tavleshot $1').replace(/slides\[(\d+)\]\.widgets\[(\d+)\]/g,'Tavle $1 · widget $2');
 }
 
 function safe453i166CountPdfMediaArchiveFromSaveData(data){
@@ -50270,7 +50272,7 @@ function safe429InsertRestoredBoardShot(boardState,opts){
   try{closeModal();}catch(_e){}
   render();
   save();
-  toast('Gendannelsespunkt åbnet som ny tavle med '+(restored.widgets||[]).length+' widgets');
+  toast('Tavleshot åbnet som ny tavle med '+(restored.widgets||[]).length+' widgets');
   return restored;
 }
 function safe429CaptureBoardStateGlobal(excludeWidgetId){
@@ -50330,7 +50332,7 @@ async function safe429CaptureActiveBoardRestorePoint(){
       else{if(!Array.isArray(board.restorePoints))board.restorePoints=[];board.restorePoints.push(point);}
     }catch(_e){if(!Array.isArray(board.restorePoints))board.restorePoints=[];board.restorePoints.push(point);}
     save({silent:true});
-    toast('Tavleshot gemt i Gendannelsespunkter');
+    toast('Tavleshot gemt');
     try{safe269BoardOverviewModal(board);}catch(_e){}
     return point;
   }catch(e){console.error('SAFE429 capture restore point fejl',e);toast('Kunne ikke tage tavleshot');return null;}
@@ -50346,7 +50348,7 @@ function safe428BoardRestorePoints(board){
         preview:String(p.preview||p.previewWebp||p.src||''),
         previewMediaRef:String(p.previewMediaRef||p.previewRef||''),
         previewMimeType:String(p.previewMimeType||''),
-        title:String(p.title||p.name||p.boardState.sourceSlideTitle||'Gendannelsespunkt'),
+        title:String(p.title||p.name||p.boardState.sourceSlideTitle||'Tavleshot'),
         capturedAt:String(p.capturedAt||p.createdAt||p.boardState.capturedAt||''),
         count:Array.isArray(p.boardState.widgets)?p.boardState.widgets.length:0
       });
@@ -50360,7 +50362,7 @@ function safe428BoardRestorePoints(board){
         points.push({
           source:'image-widget',widget:x.w,widgetIndex:x.idx,boardState:bs,
           preview:String(data.src||data.previewWebp||''),
-          title:String(x.w.title||data.name||bs.sourceSlideTitle||'Gendannelsespunkt'),
+          title:String(x.w.title||data.name||bs.sourceSlideTitle||'Tavleshot'),
           capturedAt:String(bs.capturedAt||data.capturedAt||''),
           count:Array.isArray(bs.widgets)?bs.widgets.length:0
         });
@@ -50397,7 +50399,7 @@ function safe430NormalizeRestorePoint(p,meta){
     id:String(p.id||('restore_'+(p.capturedAt||bs.capturedAt||Date.now())+'_'+Math.random().toString(36).slice(2,7))),
     createdAt:String(p.createdAt||p.capturedAt||bs.capturedAt||new Date().toISOString()),
     capturedAt:String(p.capturedAt||bs.capturedAt||p.createdAt||''),
-    title:String(p.title||p.name||bs.sourceSlideTitle||'Gendannelsespunkt'),
+    title:String(p.title||p.name||bs.sourceSlideTitle||'Tavleshot'),
     preview:String(p.preview||p.previewWebp||p.src||''),
     previewMediaRef:String(p.previewMediaRef||p.previewRef||''),
     previewMimeType:String(p.previewMimeType||''),
@@ -50483,7 +50485,7 @@ function safe430OpenAllRestorePointsModal(opts){
     const returnToOverview=(opts.returnToOverview!==false);
     const points=safe430CollectAllRestorePoints();
     if(!points.length){
-      showModal(`<div class="safe428RestorePointsModal safe429RestoreModal"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">↩ Gendannelsespunkter</h2><button id="restorePointsHelp" type="button" title="Åbn hjælp til gendannelsespunkter" aria-label="Åbn hjælp til gendannelsespunkter" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div><div class="safe430RestoreEmpty">Der er endnu ingen gendannelsespunkter. Brug 📸 Tavleshot i Tavleoversigt for at gemme den aktuelle tavle.</div><div class="safe429RestoreFooter"><span></span><button type="button" id="safe430CloseRestorePoints">Luk</button></div></div>`);
+      showModal(`<div class="safe428RestorePointsModal safe429RestoreModal"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">📁 Tavleshots</h2><button id="restorePointsHelp" type="button" title="Åbn hjælp til Tavleshots" aria-label="Åbn hjælp til Tavleshots" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div><div class="safe430RestoreEmpty">Der er endnu ingen tavleshots. Brug 📸 Tavleshot i Tavleoversigt for at gemme den aktuelle tavle.</div><div class="safe429RestoreFooter"><span></span><button type="button" id="safe430CloseRestorePoints">Luk</button></div></div>`);
       safe455uH22WireModalHelp('restorePointsHelp','Tavleoverblik');
       const close=modal.querySelector('#safe430CloseRestorePoints');
       function safe454b3CleanupEmptyRestoreKeys(){
@@ -50518,14 +50520,14 @@ function safe430OpenAllRestorePointsModal(opts){
       const archived=p.archivedFromDeletedBoard?' · slettet tavle':'';
       return `<button type="button" class="bgChoice v46 safe429RestoreChoice ${i===initialIndex?'kbSelected':''}" data-safe430-card="${i}" title="Åbn som ny tavle">
         <span class="bgChoicePreview">${preview}</span>
-        <span class="bgChoiceMeta"><span class="bgChoiceTitle">${esc(p.title||'Gendannelsespunkt')}</span><span class="bgBadge">↩</span></span>
+        <span class="bgChoiceMeta"><span class="bgChoiceTitle">${esc(p.title||'Tavleshot')}</span><span class="bgBadge">↩</span></span>
         <span class="bgChoiceDesc">${date?esc(date)+' · ':''}${esc(sourceTitle)} · ${p.count} widget${p.count===1?'':'s'}</span>
         <span class="safe430RestoreSource">${esc(p.source||'global')}${esc(archived)}</span>
       </button>`;
     }).join('');
     showModal(`<div class="safe428RestorePointsModal safe429RestoreModal">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">↩ Gendannelsespunkter</h2><button id="restorePointsHelp" type="button" title="Åbn hjælp til gendannelsespunkter" aria-label="Åbn hjælp til gendannelsespunkter" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div>
-      <p>Viser ${points.length} gendannelsespunkt${points.length===1?'':'er'} på tværs af tavler. Valg åbnes som ny tavle; eksisterende tavler ændres ikke.</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">📁 Tavleshots</h2><button id="restorePointsHelp" type="button" title="Åbn hjælp til Tavleshots" aria-label="Åbn hjælp til Tavleshots" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div>
+      <p>Viser ${points.length} tavleshot${points.length===1?'':'er'} på tværs af tavler. Valg åbnes som ny tavle; eksisterende tavler ændres ikke.</p>
       <div class="safe428RestoreGrid bgGrid v46" id="safe430RestoreGrid">${cards}</div>
       <div class="safe429RestoreFooter"><span class="safe429RestoreHint">Pile vælger · Enter åbner · Esc lukker</span><button type="button" id="safe430CloseRestorePoints">Luk</button></div>
     </div>`);
@@ -50552,7 +50554,7 @@ function safe430OpenAllRestorePointsModal(opts){
     function cleanup(){try{safe453i108RemoveFromAppKeys();}catch(_e){}try{modalBack.classList.remove('bgModalKeyboard','bgPreviewing');}catch(_e){}}
     function openPoint(idx){
       const p=points[idx];
-      if(!p||!p.boardState){toast('Gendannelsespunkt mangler data');return;}
+      if(!p||!p.boardState){toast('Tavleshot mangler data');return;}
       cleanup();
       safe429InsertRestoredBoardShot(p.boardState,{title:true,background:true,grid:true,draw:true,selectedMap:{}});
     }
@@ -50575,14 +50577,14 @@ function safe430OpenAllRestorePointsModal(opts){
     document.addEventListener('keydown',keyHandler,true);
     try{if(window.safe453i116HydrateRestorePointPreviews)window.safe453i116HydrateRestorePointPreviews(modal);}catch(_e){}
     highlight(initialIndex);
-  }catch(e){console.error('SAFE430 global restore modal fejl',e);try{toast('Kunne ikke åbne gendannelsespunkter')}catch(_e){}}
+  }catch(e){console.error('SAFE430 global restore modal fejl',e);try{toast('Kunne ikke åbne Tavleshots')}catch(_e){}}
 }
 
 function safe428OpenBoardRestorePointsModal(boardIndex){
   try{
     const board=(state&&state.slides&&state.slides[boardIndex])?state.slides[boardIndex]:null;
     const points=safe428BoardRestorePoints(board);
-    if(!board||!points.length){toast('Ingen gendannelsespunkter på denne tavle');return;}
+    if(!board||!points.length){toast('Ingen tavleshots på denne tavle');return;}
     const boardTitle=String(board.title||('Tavle '+(boardIndex+1)));
     const cards=points.map((p,i)=>{
       const date=safe428FormatRestoreDate(p.capturedAt);
@@ -50592,13 +50594,13 @@ function safe428OpenBoardRestorePointsModal(boardIndex){
       const badge=p.source==='slide'?'Tavleshot':'Billedwidget';
       return `<button type="button" class="bgChoice v46 safe429RestoreChoice ${i===initialIndex?'kbSelected':''}" data-safe428-card="${i}" title="Åbn som ny tavle">
         <span class="bgChoicePreview">${preview}</span>
-        <span class="bgChoiceMeta"><span class="bgChoiceTitle">${esc(p.title||'Gendannelsespunkt')}</span><span class="bgBadge">${esc(badge)}</span></span>
+        <span class="bgChoiceMeta"><span class="bgChoiceTitle">${esc(p.title||'Tavleshot')}</span><span class="bgBadge">${esc(badge)}</span></span>
         <span class="bgChoiceDesc">${date?esc(date)+' · ':''}${esc(source)} · ${p.count} widget${p.count===1?'':'s'}</span>
       </button>`;
     }).join('');
     showModal(`<div class="safe428RestorePointsModal safe429RestoreModal">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">↩ Gendannelsespunkter</h2><button id="restorePointsHelp" type="button" title="Åbn hjælp til gendannelsespunkter" aria-label="Åbn hjælp til gendannelsespunkter" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div>
-      <p><b>${esc(boardTitle)}</b> har ${points.length} gendannelsespunkt${points.length===1?'':'er'}. Valg åbnes som ny tavle; den eksisterende tavle ændres ikke.</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px"><h2 style="margin:0">📁 Tavleshots</h2><button id="restorePointsHelp" type="button" title="Åbn hjælp til Tavleshots" aria-label="Åbn hjælp til Tavleshots" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div>
+      <p><b>${esc(boardTitle)}</b> har ${points.length} tavleshot${points.length===1?'':'er'}. Valg åbnes som ny tavle; den eksisterende tavle ændres ikke.</p>
       <div class="safe428RestoreGrid bgGrid v46" id="safe429RestoreGrid">${cards}</div>
       <div class="safe429RestoreFooter"><span class="safe429RestoreHint">Pile vælger · Enter åbner · Esc lukker</span><button type="button" id="safe428CloseRestorePoints">Luk</button></div>
     </div>`);
@@ -50625,7 +50627,7 @@ function safe428OpenBoardRestorePointsModal(boardIndex){
     }
     const openPoint=(idx)=>{
       const p=points[idx];
-      if(!p||!p.boardState){toast('Gendannelsespunkt mangler data');return;}
+      if(!p||!p.boardState){toast('Tavleshot mangler data');return;}
       safe429CloseRestoreKeyHandler();
       safe429InsertRestoredBoardShot(p.boardState,{title:true,background:true,grid:true,draw:true,selectedMap:{}});
     };
@@ -50655,7 +50657,7 @@ function safe428OpenBoardRestorePointsModal(boardIndex){
     document.addEventListener('keydown',restoreKeyHandler,true);
     try{if(window.safe453i116HydrateRestorePointPreviews)window.safe453i116HydrateRestorePointPreviews(modal);}catch(_e){}
     restoreHighlight(0);
-  }catch(e){console.error('SAFE429 restore points modal fejl',e);try{toast('Kunne ikke åbne gendannelsespunkter')}catch(_e){}}
+  }catch(e){console.error('SAFE429 restore points modal fejl',e);try{toast('Kunne ikke åbne Tavleshots')}catch(_e){}}
 }
 
 function safe827Html(s){try{return esc(s)}catch(_e){return String(s||'').replace(/[&<>"']/g,function(m){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]);});}}
@@ -52443,7 +52445,7 @@ function safe269BoardOverviewModal(preferredBoard=null){
       const actionStyle='display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 7px;border-radius:999px;border:1px solid rgba(15,23,42,.18);background:#f1f5f9;color:#111827;font-weight:950;font-size:13px;cursor:pointer;user-select:none;margin-left:4px;';
       const deleteStyle='display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:24px;padding:0 8px;border-radius:999px;border:1px solid #fecaca;background:#fee2e2;color:#991b1b;font-weight:950;font-size:13px;cursor:pointer;user-select:none;margin-left:6px;';
       const disabledStyle='opacity:.28;pointer-events:none;';
-      // SAFE430: gendannelsespunkter åbnes nu samlet fra topknappen, ikke pr. tavlerække.
+      // SAFE430: tavleshots åbnes nu samlet fra topknappen, ikke pr. tavlerække.
       const restoreAction='';
       const actions=(!isPresentationOverview&&!isTrashBoard(s))?`<span class="boardOverviewActions">
         ${restoreAction}
@@ -52463,12 +52465,12 @@ function safe269BoardOverviewModal(preferredBoard=null){
     // boardOverviewItem, kan pile-navigation aktivere den og efterlade modalens
     // keyboard-state i en uheldig mellemtilstand. Derfor vises kun normale tavler her.
     const trashHtml='';
-    showModal(`<div class="moveWidgetDialog safe271BoardOverview" data-safe-board-overview="1"><div class="safe429OverviewHead"><h2>Tavleoversigt</h2><div class="safe430OverviewTools"><button type="button" id="boardOverviewHelp" title="Åbn hjælp til Tavleoversigt" aria-label="Åbn hjælp til Tavleoversigt">?</button><button type="button" id="safe429TakeBoardShot" class="boardOverviewShotBtn" title="Tag tavleshot af aktiv tavle">📸 Tavleshot</button><button type="button" id="safe430OpenRestorePoints" class="safe430RestoreAllBtn" title="Vis alle gendannelsespunkter">↩ Gendannelsespunkter</button><button type="button" id="safe827OpenGenerator" class="safe430RestoreAllBtn" title="Opret tavler fra DataWidget eller ListeWidget">🧩 Tavlegenerator</button></div></div>
+    showModal(`<div class="moveWidgetDialog safe271BoardOverview" data-safe-board-overview="1"><div class="safe429OverviewHead"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px 0"><h2 style="margin:0">Tavleoversigt</h2><button type="button" id="boardOverviewHelp" title="Åbn hjælp til Tavleoversigt" aria-label="Åbn hjælp til Tavleoversigt" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">?</button></div><div class="safe430OverviewTools"><button type="button" id="safe429TakeBoardShot" class="boardOverviewShotBtn" title="Tag tavleshot af aktiv tavle">📸 Tavleshot</button><button type="button" id="safe430OpenRestorePoints" class="safe430RestoreAllBtn" title="Åbn Tavleshots" aria-label="Åbn Tavleshots">📁</button><button type="button" id="safe827OpenGenerator" class="safe430RestoreAllBtn" title="Opret tavler fra DataWidget eller ListeWidget">🧩 Tavlegenerator</button></div></div>
       <p>Klik på en tavle for at gå til den.</p>
       <div class="boardOverviewList">${normalHtml}${trashHtml}</div>
       <div class="boardOverviewHint">${isPresentationOverview
-        ? 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · S = Tavleshot · G = Gendannelsespunkter · Delete sletter · Esc lukker'
-        : 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · S = Tavleshot · G = Gendannelsespunkter · Delete sletter · Cmd/Ctrl+pil flytter · Esc lukker'}</div>
+        ? 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · S = Tag tavleshot · G = Tavleshots · Delete sletter · Esc lukker'
+        : 'Tal vælger tavle · ↑/↓/←/→ markerer · Enter åbner · S = Tag tavleshot · G = Tavleshots · Delete sletter · Cmd/Ctrl+pil flytter · Esc lukker'}</div>
     </div>`);
     safe455uH22WireModalHelp('boardOverviewHelp','Tavleoverblik');
     const boardItems=Array.from(modal.querySelectorAll('.boardOverviewItem[data-slide-index]'));
@@ -52702,7 +52704,7 @@ function safe269BoardOverviewModal(preferredBoard=null){
             const btn=modal&&modal.querySelector&&modal.querySelector('#safe430OpenRestorePoints');
             if(btn)btn.click();
             else safe430OpenAllRestorePointsModal();
-          }catch(_e){ try{toast('Kunne ikke åbne gendannelsespunkter')}catch(_t){} }
+          }catch(_e){ try{toast('Kunne ikke åbne Tavleshots')}catch(_t){} }
           return;
         }
 
@@ -52798,7 +52800,7 @@ function safe269BoardOverviewModal(preferredBoard=null){
           const btn=modal&&modal.querySelector&&modal.querySelector('#safe430OpenRestorePoints');
           if(btn)btn.click();
           else safe430OpenAllRestorePointsModal();
-        }catch(_e){ try{toast('Kunne ikke åbne gendannelsespunkter')}catch(_t){} }
+        }catch(_e){ try{toast('Kunne ikke åbne Tavleshots')}catch(_t){} }
         return;
       }
 
@@ -54178,7 +54180,7 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
   const st=document.createElement('style');
   st.id='safe453eDrawingArchiveCss';
   st.textContent=`
-/* SAFE453f: Tegningsarkivet lægger sig visuelt op ad baggrundsvælgeren og gendannelsespunkter. */
+/* SAFE453f: Tegningsarkivet lægger sig visuelt op ad baggrundsvælgeren og tavleshots. */
 .safe453fDrawingArchive{max-width:980px;width:min(980px,94vw);}
 .safe453fDrawingArchive h2{margin:0 0 8px;}
 .safe453fDrawingArchive p{margin:.25rem 0 .7rem;color:#475569;font-weight:750;line-height:1.25;}
@@ -54232,7 +54234,7 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
 })();
 
 
-/* SAFE453f: Tegningsarkiv Fase 3f — modal-layout som baggrundsvælger/gendannelsespunkter.
+/* SAFE453f: Tegningsarkiv Fase 3f — modal-layout som baggrundsvælger/tavleshots.
    Bygger på godkendt SAFE453e2: preview og IndexedDB-gemning bevares.
    Kun layout/visuelt udtryk ændres. Stadig ingen sletning, download eller indsætning. */
 (function(){
@@ -54397,7 +54399,7 @@ document.getElementById('drawClear').onclick=()=>{ctx.clearRect(0,0,innerWidth,i
 })();
 
 
-/* SAFE453g: Tegningsarkivet får tastaturnavigation som baggrundsvælger/gendannelsespunkter.
+/* SAFE453g: Tegningsarkivet får tastaturnavigation som baggrundsvælger/tavleshots.
    Bygger på godkendt SAFE453f. Kun arkivmodalens navigation/scroll/markering ændres.
    Stadig ingen sletning, download eller indsætning som billedwidget. */
 (function(){
@@ -78736,6 +78738,30 @@ body.focus-presentation #safe868SessionBadge,
     max-width:100%!important;
     min-width:min(210px,70vw)!important;
   }
+}
+
+/* l923: SmartBoard-regressionfix i Hjælpens egen opstartsrække.
+   Kun teksten ved checkboxen rammes; sessionsvælgeren beholder sit hvide select-felt. */
+html.theme-smartboard #modal .helpHintToggleRow > span,
+html[data-tavle-theme="smartboard"] #modal .helpHintToggleRow > span,
+body.theme-smartboard #modal .helpHintToggleRow > span,
+body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow > span{
+  color:#f8fafc!important;
+  opacity:1!important;
+  visibility:visible!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.42)!important;
+}
+html.theme-smartboard #modal .helpHintToggleRow,
+html[data-tavle-theme="smartboard"] #modal .helpHintToggleRow,
+body.theme-smartboard #modal .helpHintToggleRow,
+body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow{
+  color:#f8fafc!important;
+}
+html.theme-smartboard #modal .helpHintToggleRow input#helpStartupToggle,
+html[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupToggle,
+body.theme-smartboard #modal .helpHintToggleRow input#helpStartupToggle,
+body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupToggle{
+  accent-color:#38bdf8!important;
 }
 </style>
 <script id="l891-sessionvalg-en-prompt-inline">
