@@ -1,4 +1,19 @@
-<!-- l926-session-log-datawidgets-toggle-hide-safe: Bygger på accepteret l925. Retter kun Session- og Log-knappernes DataWidget-flow: klik åbner, klik igen skjuler; X/Delete skjuler samme midlertidige DataWidget uden papirkurv. Datasættene TavleSessioner og Sessionpakker/Overførselslog bevares i appens hukommelse. -->
+<!-- l944_medie_rotationsreset_afspiller_ikke_SAFE: Bygger på l943. Retter kun samspillet mellem rotationsknap og MedieWidget: dobbeltklik/tryk på rotationsknappen nulstiller rotation uden at samme gesture bagefter tæller som tap-to-play på lydfladen. Ingen ændring af lydkontroller, toolbar, sessioner eller fokus. -->
+<!-- l943_medie_audio_egne_controls_roteret_SAFE: Bygger på l942. Retter kun MedieWidgettens lyd-render/ejer: lyd får egne HTML-kontroller (play/pause, tid og scrub), fordi native iOS audio-controls kan forsvinde visuelt på roterede widgets. Ingen toolbar, session, bundtap eller fokusændring. -->
+<!-- l942_medie_roteret_audio_controls_visible_SAFE: Bygger på l941. Retter kun MedieWidgettens eksisterende lyd-CSS, så audio-controls får fast synlig højde og ikke kollapser/forsvinder, når widgetten roteres. Ingen JS, ingen toolbar, ingen sessionpakke-ændring. -->
+<!-- l941_medie_roteret_afspil_tapfix_SAFE: Bygger på l940. Retter kun lokal MedieWidget/VideoWidget-ejer: roterede lyd-/videowidgets får et robust tap-to-play/tap-to-pause på selve mediefladen, så native mediekontroller ikke er eneste afspilningsvej efter rotation. Ingen toolbar, bundtap, sessionpakke eller fokus-ændring. -->
+<!-- l940_sessionpakker_skip_sessionadmin_widgets_SAFE: Bygger på l939. Retter kun sessionpakke-ejeren: TavleSessioner og Sessionpakker/Overførselslog må hverken pakkes som widgets, pakkes som datasæt eller importeres fra gamle pakker. Ingen ændring af toolbar, bundtap, fokus-••• eller SessionBadge-visning. -->
+<!-- l939-sessionlog-skjult-seneste-ejer-css-safe: Bygger på l938, men retter kun den senere SessionBadge-styling, som overstyrede l938s hide-regel. Ingen JS, ingen toolbar, ingen bundtap, ingen fokus-•••. -->
+<!-- l938-sessionlog-skjult-owner-css-safe: Bygger direkte på brugerens seneste sikre l936_SAFE(1). Retter kun SessionBadge-ejerens egen CSS, så Session/Log skjules robust i præsentation/fokus. Ingen ny JS, ingen bundtap-/toolbar-ændring, ingen fokus-•••-ændring. -->
+<!-- l936-rollback-l935-l934-brug-l933-safe: Bygger direkte på brugerens uploadede l933_SAFE(2). Kasserer l934/l935-sporet helt. Ingen nye rettelser: dette er en ren sikker rollback-kopi til videre test/arbejde. -->
+<!-- l933-focus-dots-stabil-no-refresh-safe: Bygger på l932. Stopper blink i fokus ved at gøre •••-knappen til en stabil, dæmpet fokus-knap: samme tilstand styles ikke igen og igen, toolbar-knappen genopbygges ikke i fokus, og den periodiske rednings-refresh er roligere i fokus. -->
+<!-- l932-focus-dots-dim-no-blink-safe: Bygger på l931. I fokusvisning holdes ••• synlig som diskret redningsknap uden blink: den dæmpes, fjernes fra tab/fokus-flow og må ikke visuelt konkurrere med den fokuserede widget. -->
+<!-- l931-toolbar-baggrundstap-toggle-og-sessionbadge-hide-safe: Bygger på l930. Klik/tryk på tavlebaggrunden ved siden af nederste værktøjslinje toggler nu linjen: synlig linje skjules, skjult linje/••• vises igen. Session/Log-badgen skjules i præsentations-/fokustilstande. -->
+<!-- l930-toolbar-baggrundstap-skjuler-safe: Bygger på l929. Klik/tryk på tavlebaggrunden ved siden af den nederste værktøjslinje skjuler nu den synlige linje og viser ••• i stedet, både i redigering og præsentation. Kun toolbar-/præsentationsbar-ejeren ændres. -->
+<!-- l929-praesentation-baggrundscykel-safe: Bygger på l928. Retter kun præsentationsbjælkens 🎨-knap, så den cykler til næste indbyggede baggrund i stedet for at åbne den store baggrundsvælger. Tema-knap, session/log-DataWidgets, Tavleshots og redigeringsværktøjslinje er uændret. -->
+<!-- l928-toolbar-dots-presentation-focus-ownerfix-safe: Bygger på l927. •••-redningsknappen holdes nu også tilgængelig i præsentations-/fokusvisning: i præsentation viser den præsentationsbjælken igen, og i fokus åbner den præsentations-/Mere-værktøjer uden tastatur. Ingen ændring af session/log-DataWidgets, Tavleshots eller Tavleoversigt. -->
+<!-- l927-toolbar-dots-always-available-ownerfix-safe: Bygger på l926. Retter kun redigeringsværktøjslinjens skjul/vis-ejer: når værktøjslinjen er skjult, holdes •••-knappen synlig og klikbar som redningsknap. Ingen ændring af session/log-DataWidgets, Tavleshots, Tavleoversigt eller præsentationsbjælken. -->
+<!-- l926-session-log-datawidgets-toggle-hide-safe: Bygger på accepteret l925. Retter kun Session- og Log-knappernes DataWidget-flow: klik åbner, klik igen skjuler; X skjuler samme midlertidige DataWidget uden papirkurv. Datasættene TavleSessioner og Sessionpakker/Overførselslog bevares i appens hukommelse. -->
 <!-- l925-tavleoversigt-helpknap-ejerfix-safe: Bygger direkte på brugerens virkende l923. Retter kun Tavleoversigtens egen modal-template: ?-knappen flyttes fra knaprækken op på titellinjen i øverste højre hjørne. Ingen nye scripts, ingen global CSS, ingen ændring af Tavleshots, sessioner eller Tavlegenerator. -->
 <!-- l923-help-smartboard-checkbox-label-ownerfix-safe: Bygger direkte på brugerens senest virkende l921. Retter kun Hjælpens SmartBoard-styling i den eksisterende hjælperække-ejer, så teksten ved “Vis Hjælp ved opstart i denne session” bliver læsbar igen. Ingen nye scripts, ingen ændring af Tavleshots, sessionslogik eller Tavlegenerator. -->
 <!-- l918-tavlegenerator-sessionvaelger-som-hjaelp-safe: Bygger på accepteret l916. Tavlegeneratorens Send til anden session bruger nu samme enkle valgmetode som Hjælp: dropdown til kendte sessioner og prompt ved “Skriv ny session”. Det gamle fritekstfelt er skjult men bevares som værdibærer, så eksisterende sendelogik ikke ændres. -->
@@ -15383,7 +15398,7 @@ body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tav
 
 <style id="l775-tiddler-media-drop-css">
 /* l775: Lokal/arkiveret VideoWidget fra TiddlyWiki-medietiddler. */
-.widget[data-type="video"] .localVideoBox{position:relative!important;padding:0!important;overflow:hidden!important;background:#050816!important;}
+.widget[data-type="video"] .localVideoBox{position:relative!important;padding:0!important;overflow:hidden!important;background:#050816!important;touch-action:manipulation!important;}
 .widget[data-type="video"] .localVideoBox video{width:100%!important;height:100%!important;display:block!important;object-fit:contain!important;background:#050816!important;}
 .widget[data-type="video"] .localVideoBox .localVideoStatus{position:absolute!important;left:12px!important;bottom:12px!important;right:12px!important;color:#fff!important;background:rgba(15,23,42,.72)!important;border-radius:10px!important;padding:7px 10px!important;font-size:12px!important;font-weight:800!important;pointer-events:none!important;}
 .widget[data-type="video"] .localVideoBox .videoEditOverlay{position:absolute!important;right:10px!important;top:10px!important;display:flex!important;gap:6px!important;z-index:4!important;}
@@ -15412,7 +15427,7 @@ body.focus-maximized .widget[data-type="video"] .localVideoBox .localVideoPanel{
 /* l778: VideoWidget kan også vise lydfiler som MedieWidget. */
 .widget[data-type="video"] .localAudioBox{
   display:grid!important;
-  grid-template-rows:minmax(0,1fr) auto auto!important;
+  grid-template-rows:minmax(0,1fr) 42px auto!important;
   gap:10px!important;
   padding:14px!important;
   background:linear-gradient(180deg,#071122,#0f172a)!important;
@@ -15429,6 +15444,8 @@ body.focus-maximized .widget[data-type="video"] .localVideoBox .localVideoPanel{
   border-radius:18px!important;
   background:radial-gradient(circle at 50% 25%,rgba(56,189,248,.18),rgba(15,23,42,.12) 54%,rgba(2,6,23,.30))!important;
   box-shadow:inset 0 0 0 1px rgba(125,211,252,.18)!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
 }
 .widget[data-type="video"] .localAudioBox .localAudioIcon{
   width:58px!important;
@@ -15450,10 +15467,64 @@ body.focus-maximized .widget[data-type="video"] .localVideoBox .localVideoPanel{
   line-height:1.1!important;
 }
 .widget[data-type="video"] .localAudioBox audio.localAudioEl{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  min-height:1px!important;
+  max-height:1px!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.widget[data-type="video"] .localAudioBox .localAudioControls{
   width:100%!important;
-  display:block!important;
+  min-width:0!important;
+  min-height:42px!important;
+  display:grid!important;
+  grid-template-columns:38px auto minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:8px!important;
   position:relative!important;
-  z-index:2!important;
+  z-index:9!important;
+  padding:5px 8px!important;
+  border-radius:14px!important;
+  background:rgba(2,6,23,.72)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.14)!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+.widget[data-type="video"] .localAudioBox .localAudioControls button{
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  display:grid!important;
+  place-items:center!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.92)!important;
+  color:#111827!important;
+  font-size:15px!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  padding:0!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+.widget[data-type="video"] .localAudioBox .localAudioTime{
+  color:rgba(255,255,255,.82)!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  font-variant-numeric:tabular-nums!important;
+  white-space:nowrap!important;
+}
+.widget[data-type="video"] .localAudioBox .localAudioScrub{
+  min-width:0!important;
+  width:100%!important;
+  height:28px!important;
+  margin:0!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  accent-color:#93c5fd!important;
 }
 .widget[data-type="video"] .localAudioBox .localVideoPanel{
   position:relative!important;
@@ -15720,11 +15791,28 @@ body:not(.toolbar-is-hidden) #app:not(.present):not(.toolbarHidden) ~ #toolbarFa
   opacity:0!important;
   pointer-events:none!important;
 }
-#app.present ~ #toolbarFallback.l823ToolbarDots,
-body.focus-mode #toolbarFallback.l823ToolbarDots,
-body.focus-edit #toolbarFallback.l823ToolbarDots,
-body.focus-presentation #toolbarFallback.l823ToolbarDots,
-body.focus-maximized #toolbarFallback.l823ToolbarDots{
+/* l928: ••• må også være tilgængelig i præsentations-/fokusvisning.
+   Synlighed styres af toolbarFallback-ejeren med inline !important, så ældre skjuleregler ikke låser brugeren ude. */
+#toolbarFallback.l823ToolbarDots.l932FocusDimDots,
+.toolbarFallback.l823ToolbarDots.l932FocusDimDots{
+  transition:none!important;
+  animation:none!important;
+  -webkit-animation:none!important;
+}
+body.focus-mode #toolbarFallback.l823ToolbarDots.l932FocusDimDots,
+body.focus-edit #toolbarFallback.l823ToolbarDots.l932FocusDimDots,
+body.focus-presentation #toolbarFallback.l823ToolbarDots.l932FocusDimDots{
+  display:grid!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:.22!important;
+  transition:none!important;
+  animation:none!important;
+  -webkit-animation:none!important;
+  will-change:auto!important;
+}
+body.trashBoardActive #toolbarFallback.l823ToolbarDots,
+.app.trashBoardActive ~ #toolbarFallback.l823ToolbarDots{
   display:none!important;
   visibility:hidden!important;
   opacity:0!important;
@@ -37587,7 +37675,7 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
     const name=String((w.data&&w.data.name)||w.title||(isAudioMedia?'lyd.mp3':'video.webm'));
     const label=isAudioMedia?'Lyd':'Video';
     const mediaHtml=isAudioMedia
-      ? `<div class="localAudioFace"><div class="localAudioIcon">🔊</div><div class="localAudioName">${esc(name)}</div></div><audio class="localVideoEl localAudioEl" controls preload="metadata"${srcAttr}></audio>`
+      ? `<div class="localAudioFace"><div class="localAudioIcon">🔊</div><div class="localAudioName">${esc(name)}</div></div><audio class="localVideoEl localAudioEl" preload="metadata"${srcAttr}></audio><div class="localAudioControls" aria-label="Lydkontroller"><button type="button" class="localAudioPlay" title="Afspil/pause">▶</button><span class="localAudioTime current">00:00</span><input class="localAudioScrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Spol i lyd"><span class="localAudioTime duration">--:--</span></div>`
       : `<video class="localVideoEl" controls playsinline preload="metadata"${srcAttr}></video>`;
     c.innerHTML=`<div class="videoBox localVideoBox ${isAudioMedia?'localAudioBox':''}">${mediaHtml}<div class="localVideoPanel widget-control"><span class="localVideoPanelHint">${label}</span><button type="button" class="videoDownloadBtn" title="Hent ${isAudioMedia?'lyd':'video'} som fil">⬇ Hent ${isAudioMedia?'lyd':'video'}</button></div><div class="localVideoStatus">${localMediaRef?'Henter '+(isAudioMedia?'lyd':'video')+' fra mediearkiv…':''}</div></div>`;
     const vid=c.querySelector(isAudioMedia?'audio':'video');
@@ -37609,6 +37697,108 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
       try{vid.addEventListener('pause',()=>safe777SetLocalVideoPlaying(false));}catch(_e){}
       try{vid.addEventListener('ended',()=>safe777SetLocalVideoPlaying(false));}catch(_e){}
       try{vid.addEventListener('error',()=>safe777SetLocalVideoPlaying(false));}catch(_e){}
+
+      /* l943: Native iOS audio-controls kan forsvinde visuelt på en roteret widget.
+         Derfor får lyd en lille HTML-ejet kontrolbjælke, der roteres sammen med widgetten. */
+      try{
+        if(isAudioMedia){
+          const bar=c.querySelector('.localAudioControls');
+          const playBtn=bar&&bar.querySelector('.localAudioPlay');
+          const scrub=bar&&bar.querySelector('.localAudioScrub');
+          const cur=bar&&bar.querySelector('.localAudioTime.current');
+          const dur=bar&&bar.querySelector('.localAudioTime.duration');
+          const fmt=s=>{
+            s=Number(s)||0;
+            if(!Number.isFinite(s)||s<0)s=0;
+            const m=Math.floor(s/60), ss=Math.floor(s%60);
+            return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+          };
+          let scrubbing=false;
+          const sync=()=>{
+            try{
+              const d=Number(vid.duration)||0;
+              const t=Number(vid.currentTime)||0;
+              if(playBtn)playBtn.textContent=(vid.paused||vid.ended)?'▶':'Ⅱ';
+              if(cur)cur.textContent=fmt(t);
+              if(dur)dur.textContent=d?fmt(d):'--:--';
+              if(scrub&&!scrubbing)scrub.value=String(d?Math.max(0,Math.min(1000,Math.round((t/d)*1000))):0);
+            }catch(_e){}
+          };
+          const toggle=e=>{
+            try{
+              safe694HardStop(e);
+              if(vid.paused||vid.ended){
+                const p=vid.play();
+                if(p&&typeof p.catch==='function')p.catch(err=>{console.warn('l943 lyd kunne ikke afspilles',err);try{toast('Lyden kunne ikke afspilles');}catch(_t){}});
+              }else vid.pause();
+              setTimeout(sync,40);
+            }catch(err){console.warn('l943 lydkontrol fejlede',err);}
+          };
+          if(playBtn&&!playBtn.__l943AudioPlayBound){
+            playBtn.__l943AudioPlayBound=true;
+            ['pointerdown','touchstart','mousedown'].forEach(type=>{try{playBtn.addEventListener(type,safe694SoftStop,{capture:true,passive:false});}catch(_e){}});
+            ['pointerup','touchend','click'].forEach(type=>{try{playBtn.addEventListener(type,toggle,{capture:true,passive:false});}catch(_e){}});
+          }
+          if(scrub&&!scrub.__l943AudioScrubBound){
+            scrub.__l943AudioScrubBound=true;
+            ['pointerdown','touchstart','mousedown'].forEach(type=>{try{scrub.addEventListener(type,e=>{scrubbing=true;safe694SoftStop(e);},{capture:true,passive:false});}catch(_e){}});
+            const seek=e=>{
+              try{
+                safe694HardStop(e);
+                const d=Number(vid.duration)||0;
+                if(d)vid.currentTime=(Number(scrub.value)||0)/1000*d;
+                scrubbing=false;
+                sync();
+              }catch(_e){scrubbing=false;}
+            };
+            scrub.addEventListener('input',e=>{try{scrubbing=true;const d=Number(vid.duration)||0;if(cur&&d)cur.textContent=fmt((Number(scrub.value)||0)/1000*d);safe694SoftStop(e);}catch(_e){}},{capture:true,passive:false});
+            ['change','pointerup','touchend','mouseup'].forEach(type=>{try{scrub.addEventListener(type,seek,{capture:true,passive:false});}catch(_e){}});
+          }
+          ['loadedmetadata','durationchange','timeupdate','play','playing','pause','ended'].forEach(type=>{try{vid.addEventListener(type,sync);}catch(_e){}});
+          sync();
+        }
+      }catch(_e){}
+
+      /* l941: Native audio/video-controls kan på iPad miste præcis touch-hit-test,
+         når hele widgetten er roteret. Derfor får selve mediefladen en ejet,
+         robust tap-to-play/tap-to-pause-vej uden at ændre rotationsmotoren. */
+      try{
+        const playTargets=Array.from(c.querySelectorAll('.localAudioFace,.localVideoBox'));
+        let lastTap=0;
+        const isControlTarget=t=>!!(t&&t.closest&&t.closest('button,.videoDownloadBtn,a,input,textarea,select,.chrome,.mini,audio,video'));
+        const togglePlay=e=>{
+          try{
+            const now=Date.now();
+            if(window.__safe944MediaTapSuppressUntil && now<window.__safe944MediaTapSuppressUntil){
+              safe694HardStop(e);
+              return;
+            }
+            if(isControlTarget(e&&e.target))return;
+            if(now-lastTap<420){safe694HardStop(e);return;}
+            lastTap=now;
+            safe694HardStop(e);
+            if(vid.paused||vid.ended){
+              const p=vid.play();
+              if(p&&typeof p.catch==='function')p.catch(err=>{console.warn('l941 medie kunne ikke afspilles',err);try{toast('Mediet kunne ikke afspilles');}catch(_t){}});
+            }else{
+              vid.pause();
+            }
+          }catch(err){console.warn('l941 medie tap-to-play fejlede',err);}
+        };
+        playTargets.forEach(target=>{
+          if(!target||target.__l941MediaTapPlay)return;
+          target.__l941MediaTapPlay=true;
+          ['pointerdown','mousedown','touchstart'].forEach(type=>{
+            try{target.addEventListener(type,function(e){
+              if(window.__safe944MediaTapSuppressUntil && Date.now()<window.__safe944MediaTapSuppressUntil){safe694SoftStop(e);return;}
+              if(!isControlTarget(e.target))safe694SoftStop(e);
+            },{capture:true,passive:true});}catch(_e){}
+          });
+          ['pointerup','touchend','click'].forEach(type=>{
+            try{target.addEventListener(type,togglePlay,{capture:true,passive:false});}catch(_e){}
+          });
+        });
+      }catch(_e){}
     }
     const dl=c.querySelector('.videoDownloadBtn');
     safe694BindVideoButton(dl,()=>safe775DownloadVideoWidget(w));
@@ -39709,12 +39899,6 @@ function trashOverviewLayout(sl){
   });
 }
 function trashWidgetToBoard(id){
-  /* l926: Session-/Log-DataWidgets er midlertidige visninger. Delete/X skjuler dem uden papirkurv. */
-  try{
-    if(window.safe868HideSessionMemoryDatasetWidget && window.safe868HideSessionMemoryDatasetWidget(id,{toast:false})){
-      return true;
-    }
-  }catch(_safe868HideErr){}
   return safe588ArchiveWidgetToTrash(id,{fromDelete:true});
 }
 function selectedTrashWidgetIndex(){
@@ -40803,7 +40987,13 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
  const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
  if(rh){
    rh.title='Dobbeltklik / hold inde for at nulstille rotation';
-   rh.addEventListener('dblclick',e=>{e.preventDefault();e.stopPropagation();rot=false;rotHoldDidReset=true;resetWidgetRotation(w,el)});
+   const safe944SuppressMediaTapFromRotation=()=>{
+     try{window.__safe944MediaTapSuppressUntil=Date.now()+900;}catch(_e){}
+   };
+   ['pointerdown','pointerup','touchstart','touchend','mousedown','mouseup','click','dblclick'].forEach(type=>{
+     try{rh.addEventListener(type,safe944SuppressMediaTapFromRotation,{capture:true,passive:true});}catch(_e){}
+   });
+   rh.addEventListener('dblclick',e=>{safe944SuppressMediaTapFromRotation();e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();rot=false;rotHoldDidReset=true;resetWidgetRotation(w,el)});
    rh.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation()});
  }
  chrome.addEventListener('pointerdown',e=>{
@@ -51138,7 +51328,42 @@ function safe844IsListWidget(w){
     return !!(w&&w.type==='text'&&(d.kind==='list'||d.listAsset===true||d.createdFromDataset===true||title.indexOf('liste')>=0));
   }catch(_e){return false;}
 }
+function safe940IsSessionAdminDataset(ds){
+  try{
+    if(!ds)return false;
+    const name=String(ds.name||'').trim();
+    const type=String(ds.type||'').trim();
+    const sourceType=String(ds.sourceType||'').trim();
+    const sourceName=String(ds.sourceName||'').trim();
+    if(name==='TavleSessioner' || sourceName==='TavleSessioner' || sourceType==='session-list')return true;
+    if(name==='Sessionpakker / Overførselslog' || sourceName==='Sessionpakker / Overførselslog' || type==='transfer-log' || sourceType==='session-transfer-log')return true;
+    try{if(typeof safe868SessionMemoryDatasetKind==='function'&&safe868SessionMemoryDatasetKind(ds))return true;}catch(_e){}
+  }catch(_e){}
+  return false;
+}
+function safe940IsSessionAdminWidget(w){
+  try{
+    if(!w)return false;
+    const d=(w.data&&typeof w.data==='object')?w.data:{};
+    if(d.safe868MemoryDatasetWidget || d.safe868MemoryDatasetKind)return true;
+    const title=String(w.title||w.name||d.title||d.name||'').trim();
+    if(/^TavleSessioner(?:\s|$)/i.test(title))return true;
+    if(title==='Sessionpakker / Overførselslog' || /Overførselslog/i.test(title))return true;
+    const ids=[d.datasetId,d.sourceDatasetId,d.linkedDataDatasetId].map(x=>String(x||'').trim()).filter(Boolean);
+    if(ids.length && state && Array.isArray(state.datasets)){
+      for(const id of ids){
+        const ds=state.datasets.find(x=>String(x&&x.id||'')===id);
+        if(safe940IsSessionAdminDataset(ds))return true;
+      }
+    }
+    try{if(typeof safe868IsSessionMemoryDatasetWidget==='function'&&safe868IsSessionMemoryDatasetWidget(w))return true;}catch(_e){}
+  }catch(_e){}
+  return false;
+}
 function safe827ShouldSkipWidget(w,source,opts){
+  try{
+    if(safe940IsSessionAdminWidget(w))return true;
+  }catch(_e){}
   try{
     if(!opts||!opts.skipSourceWidget||!w||!source)return false;
     const wid=String(w.id||'');
@@ -51380,7 +51605,9 @@ function safe859DatasetRefsFromSlides(slides,source){
 function safe859PackageDatasets(slides,source){
   try{
     const ids=safe859DatasetRefsFromSlides(slides,source);
-    return (Array.isArray(state&&state.datasets)?state.datasets:[]).filter(ds=>ids.has(String(ds&&ds.id||''))).map(ds=>safe859CloneForPackage(ds,{}));
+    return (Array.isArray(state&&state.datasets)?state.datasets:[])
+      .filter(ds=>ids.has(String(ds&&ds.id||''))&&!safe940IsSessionAdminDataset(ds))
+      .map(ds=>safe859CloneForPackage(ds,{}));
   }catch(_e){return [];}
 }
 function safe861MediaRefsFromObject(obj){
@@ -51841,6 +52068,7 @@ async function safe859ImportPackage(pkg){
     const idMap={};
     await safe861ImportMediaItems(Array.isArray(pkg.media)?pkg.media:[],idMap);
     (Array.isArray(pkg.datasets)?pkg.datasets:[]).forEach(function(ds){
+      if(safe940IsSessionAdminDataset(ds))return;
       const old=String(ds&&ds.id||''); if(!old)return;
       idMap[old]=safe861Uid('ds');
       const nd=safe859CloneForPackage(ds,{});
@@ -51862,7 +52090,7 @@ async function safe859ImportPackage(pkg){
       ns.id=safe827NewSlideId('import_'+si);
       if(oldSlideId)idMap[oldSlideId]=ns.id;
       ns.title=safe859UniqueSlideTitle(ns.title||('Tavle '+(si+1)));
-      ns.widgets=Array.isArray(ns.widgets)?ns.widgets:[];
+      ns.widgets=Array.isArray(ns.widgets)?ns.widgets.filter(function(w){return !safe940IsSessionAdminWidget(w);}):[];
       ns.widgets.forEach(function(w,wi){
         const oldWid=String(w&&w.id||'');
         const newWid=safe861Uid('w');
@@ -52126,7 +52354,7 @@ function safe868EnsureSessionBadge(){
   if(b)return b;
   const style=document.createElement('style');
   style.id='safe868-sessionbadge-css';
-  style.textContent='#safe868SessionBadge{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:2147483300;display:flex;gap:6px;align-items:center;max-width:min(78vw,680px);padding:6px;border-radius:999px;background:rgba(17,24,39,.82);box-shadow:0 10px 26px rgba(0,0,0,.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:13px;font-weight:950;color:#fff}#safe868SessionBadge button{border:0;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.12);color:#fff;font:inherit;white-space:nowrap;max-width:190px;overflow:hidden;text-overflow:ellipsis;touch-action:manipulation}#safe868SessionBadge button.primary{background:rgba(59,130,246,.78)}#safe868SessionBadge button.log{background:rgba(255,255,255,.18)}@media(max-width:760px){#safe868SessionBadge{font-size:12px;max-width:88vw}#safe868SessionBadge button{padding:6px 8px;max-width:125px}}';
+  style.textContent='#safe868SessionBadge{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:2147483300;display:flex;gap:6px;align-items:center;max-width:min(78vw,680px);padding:6px;border-radius:999px;background:rgba(17,24,39,.82);box-shadow:0 10px 26px rgba(0,0,0,.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:13px;font-weight:950;color:#fff}#safe868SessionBadge button{border:0;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.12);color:#fff;font:inherit;white-space:nowrap;max-width:190px;overflow:hidden;text-overflow:ellipsis;touch-action:manipulation}#safe868SessionBadge button.primary{background:rgba(59,130,246,.78)}#safe868SessionBadge button.log{background:rgba(255,255,255,.18)}#app.present~#safe868SessionBadge,.app.present~#safe868SessionBadge,#app.presentation~#safe868SessionBadge,.app.focusMode~#safe868SessionBadge,#app.focus-mode~#safe868SessionBadge,#app.focus-edit~#safe868SessionBadge,#app.focus-presentation~#safe868SessionBadge,#app.focus-maximized~#safe868SessionBadge,body.present #safe868SessionBadge,body.presentation #safe868SessionBadge,body.focus-mode #safe868SessionBadge,body.focus-edit #safe868SessionBadge,body.focus-presentation #safe868SessionBadge,body.focus-maximized #safe868SessionBadge{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}@media(max-width:760px){#safe868SessionBadge{font-size:12px;max-width:88vw}#safe868SessionBadge button{padding:6px 8px;max-width:125px}}';
   try{document.head.appendChild(style);}catch(_e){}
   b=document.createElement('div');
   b.id='safe868SessionBadge';
@@ -55639,10 +55867,37 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
 (function(){
   function toolbar(){ return document.querySelector('.toolbar'); }
   function appIsPresentationOrFocus(){
+    /* l928: ••• er ikke længere kun en redigerings-redningsknap.
+       I præsentation/fokus skal den give adgang til præsentationsværktøjer uden tastatur. */
     return app.classList.contains('present') ||
            document.body.classList.contains('focus-mode') ||
            document.body.classList.contains('focus-edit') ||
            document.body.classList.contains('focus-presentation');
+  }
+  function showPresentationOrFocusTools(){
+    try{
+      if(app.classList.contains('present')){
+        document.body.classList.remove('l811cPresentationBarHidden');
+        if(typeof window.l812ShowPresentationBar==='function')window.l812ShowPresentationBar();
+        setTimeout(updateFallbackVisual,40);
+        setTimeout(updateFallbackVisual,180);
+        return true;
+      }
+    }catch(_e){}
+    try{
+      if(typeof window.showMoreTools==='function'){
+        window.showMoreTools();
+        setTimeout(updateFallbackVisual,40);
+        return true;
+      }
+    }catch(_e){}
+    try{
+      const ev=new KeyboardEvent('keydown',{key:' ',code:'Space',bubbles:true,cancelable:true});
+      document.dispatchEvent(ev);
+      setTimeout(updateFallbackVisual,40);
+      return true;
+    }catch(_e){}
+    return false;
   }
   function stopToolbarToggleEvent(e){
     try{
@@ -55712,44 +55967,94 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
            !tb.classList.contains('hidden') &&
            cs.pointerEvents !== 'none';
   }
+  function l927SetFallbackButtonVisible(b,on,dim){
+    if(!b)return;
+    const wantedState = on ? (dim ? 'dim' : 'on') : 'off';
+    if(b.__l933FallbackVisibleState === wantedState){
+      try{ if(dim && document.activeElement===b)b.blur(); }catch(_e){}
+      return;
+    }
+    b.__l933FallbackVisibleState = wantedState;
+    if(on){
+      b.style.setProperty('position','fixed','important');
+      b.style.setProperty('left','50%','important');
+      b.style.setProperty('right','auto','important');
+      b.style.setProperty('bottom','calc(14px + env(safe-area-inset-bottom,0px))','important');
+      b.style.setProperty('transform','translateX(-50%)','important');
+      b.style.setProperty('z-index','2147483550','important');
+      b.style.setProperty('display','grid','important');
+      b.style.setProperty('place-items','center','important');
+      b.style.setProperty('visibility','visible','important');
+      b.style.setProperty('pointer-events','auto','important');
+      b.style.setProperty('touch-action','manipulation','important');
+      b.style.setProperty('min-width',dim?'56px':'72px','important');
+      b.style.setProperty('height',dim?'34px':'42px','important');
+      b.style.setProperty('padding',dim?'0 12px':'0 16px','important');
+      b.style.setProperty('opacity',dim?'.26':'1','important');
+      b.style.setProperty('background',dim?'rgba(17,24,39,.34)':'rgba(17,24,39,.84)','important');
+      b.style.setProperty('box-shadow',dim?'0 4px 14px rgba(0,0,0,.16)':'0 12px 28px rgba(0,0,0,.26)','important');
+      b.style.setProperty('border-color',dim?'rgba(255,255,255,.10)':'rgba(255,255,255,.18)','important');
+      b.style.setProperty('color',dim?'rgba(255,255,255,.72)':'#fff','important');
+      b.style.setProperty('font-size',dim?'15px':'18px','important');
+      b.classList.toggle('l932FocusDimDots',!!dim);
+      b.setAttribute('tabindex','-1');
+      try{ if(document.activeElement===b)b.blur(); }catch(_e){}
+    }else{
+      b.classList.remove('l932FocusDimDots');
+      b.style.setProperty('display','none','important');
+      b.style.setProperty('visibility','hidden','important');
+      b.style.setProperty('opacity','0','important');
+      b.style.setProperty('pointer-events','none','important');
+    }
+  }
+  function l927ToolbarActuallyHidden(tb){
+    try{
+      if(document.body.classList.contains('toolbar-is-hidden') || app.classList.contains('toolbarHidden'))return true;
+      if(!tb)return false;
+      const cs=getComputedStyle(tb);
+      return tb.classList.contains('hidden') || tb.classList.contains('forceHidden') ||
+             cs.display==='none' || cs.visibility==='hidden' || cs.pointerEvents==='none' ||
+             parseFloat(cs.opacity||'1')<0.2 || /translateY\((9[0-9]|1[0-9]{2})px\)/.test(String(cs.transform||''));
+    }catch(_e){return document.body.classList.contains('toolbar-is-hidden') || app.classList.contains('toolbarHidden');}
+  }
   function updateFallbackVisual(){
     const b = document.getElementById('toolbarFallback');
     if(!b) return;
     b.classList.add('l823ToolbarDots');
-    ensureToolbarHideButton();
+
+    const focusLikeEarly = document.body.classList.contains('focus-mode') ||
+      document.body.classList.contains('focus-edit') ||
+      document.body.classList.contains('focus-presentation');
+
+    /* l933: I fokus må ••• ikke blinke. Undgå derfor at genopbygge/redigere
+       den skjulte redigerings-toolbar ved hvert refresh i fokus. */
+    if(!focusLikeEarly)ensureToolbarHideButton();
+
     const directMaximized = document.body.classList.contains('focus-maximized') &&
       !document.body.classList.contains('focus-mode') &&
       !document.body.classList.contains('focus-edit') &&
       !document.body.classList.contains('focus-presentation') &&
       !app.classList.contains('present');
-    if(appIsPresentationOrFocus() && !directMaximized){
-      b.style.setProperty('display','none','important');
-      b.style.setProperty('visibility','hidden','important');
-      b.style.setProperty('pointer-events','none','important');
-      return;
-    }
-    if(directMaximized){
-      b.textContent = '•••';
-      b.title = 'Afslut maksimeret visning og vis værktøjslinje';
-      b.setAttribute('aria-label', b.title);
-      b.style.setProperty('display','grid','important');
-      b.style.setProperty('visibility','visible','important');
-      b.style.setProperty('pointer-events','auto','important');
-      return;
-    }
-    const hidden = document.body.classList.contains('toolbar-is-hidden') || app.classList.contains('toolbarHidden');
+
+    const presentationOrFocus = appIsPresentationOrFocus();
+    const focusLike = document.body.classList.contains('focus-mode') ||
+      document.body.classList.contains('focus-edit') ||
+      document.body.classList.contains('focus-presentation');
+    const presentationHidden = app.classList.contains('present') &&
+      document.body.classList.contains('l811cPresentationBarHidden');
+
     b.textContent = '•••';
-    b.title = hidden ? 'Vis værktøjslinje' : 'Værktøjslinjen er synlig';
+    b.title = presentationOrFocus ? 'Vis præsentationsværktøjer' : (directMaximized ? 'Afslut maksimeret visning og vis værktøjslinje' : 'Vis værktøjslinje');
     b.setAttribute('aria-label', b.title);
-    if(hidden){
-      b.style.setProperty('display','grid','important');
-      b.style.setProperty('visibility','visible','important');
-      b.style.setProperty('pointer-events','auto','important');
-    }else{
-      b.style.setProperty('display','none','important');
-      b.style.setProperty('visibility','hidden','important');
-      b.style.setProperty('pointer-events','none','important');
-    }
+
+    const tb = toolbar();
+    const hidden = directMaximized || l927ToolbarActuallyHidden(tb);
+    const suppress = document.body.classList.contains('focus-maximized') && !directMaximized && !presentationOrFocus;
+    const show = app.classList.contains('present')
+      ? (presentationHidden || focusLike)
+      : (focusLike || (!!hidden && !suppress));
+
+    l927SetFallbackButtonVisible(b, !!show, !!(show && focusLike));
   }
   function clearHiddenState(){
     document.body.classList.remove('toolbar-is-hidden');
@@ -55766,6 +56071,8 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
     try{ clearTimeout(toolbarHideTimer); }catch(e){}
     try{ clearTimeout(toolbarTimer); }catch(e){}
     updateFallbackVisual();
+    setTimeout(updateFallbackVisual,40);
+    setTimeout(updateFallbackVisual,220);
   }
   function hardHide(){
     const tb = toolbar();
@@ -55778,6 +56085,9 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
       tb.style.opacity = '0';
     }
     updateFallbackVisual();
+    setTimeout(updateFallbackVisual,40);
+    setTimeout(updateFallbackVisual,220);
+    setTimeout(updateFallbackVisual,700);
   }
   let lastActivation = 0;
   function stopOnly(e){
@@ -55793,10 +56103,13 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
       clearHiddenState();
       return;
     }
-    if(appIsPresentationOrFocus()) return;
     const now = Date.now();
     if(now - lastActivation < 450) return;
     lastActivation = now;
+    if(appIsPresentationOrFocus()){
+      showPresentationOrFocusTools();
+      return;
+    }
     const tb = toolbar();
     if(visibleToolbar(tb)) hardHide();
     else clearHiddenState();
@@ -55808,10 +56121,104 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
       clearHiddenState();
       return;
     }
-    if(appIsPresentationOrFocus()) return;
     const now = Date.now();
     if(now - lastActivation < 650) return;
+    if(appIsPresentationOrFocus()){
+      lastActivation = now;
+      showPresentationOrFocusTools();
+      return;
+    }
     activate(e);
+  }
+  function l930IsBackgroundSideTap(e){
+    try{
+      if(!e || !Number.isFinite(e.clientX) || !Number.isFinite(e.clientY))return false;
+      const t=e.target;
+      if(t && t.closest && t.closest(
+        '.widget,.toolbar,#toolbarFallback,.toolbarFallback,#toolbarPeek,.toolbarPeek,#toolbarWakeZone,'+
+        '#l810PresentationBar,#l811cPresentationToggle,#safe868SessionBadge,.topbar,#title,.title,'+
+        '.modal,.modalBack,.modalBackdrop,.focusExit,#maxEmergencyExit,button,input,textarea,select,a,[role="button"]'
+      ))return false;
+      const a=app || document.getElementById('app');
+      if(t && t.closest && a && !t.closest('#app') && t!==document.body && t!==document.documentElement)return false;
+
+      const bar = (a && a.classList && a.classList.contains('present')) ? document.getElementById('l810PresentationBar') : toolbar();
+      if(bar){
+        const cs=getComputedStyle(bar);
+        const visible=cs.display!=='none' && cs.visibility!=='hidden' && parseFloat(cs.opacity||'1')>.12 && cs.pointerEvents!=='none';
+        if(visible){
+          const r=bar.getBoundingClientRect();
+          const yNear=e.clientY>=r.top-28 && e.clientY<=r.bottom+34;
+          const xBeside=e.clientX<r.left-10 || e.clientX>r.right+10;
+          return !!(yNear && xBeside);
+        }
+      }
+      // Fallback: hvis barens mål ikke kan aflæses, bruges kun nederste zone.
+      return e.clientY>window.innerHeight-110;
+    }catch(_e){return false;}
+  }
+  function l930HideVisibleBarFromBackgroundTap(){
+    /* l931: Samme princip som •••.
+       Tryk ved siden af en synlig bundlinje skjuler den.
+       Tryk samme sted når den er skjult viser den igen. */
+    try{
+      if(app && app.classList && app.classList.contains('present')){
+        const hidden = document.body.classList.contains('l811cPresentationBarHidden') ||
+          !document.getElementById('l810PresentationBar') ||
+          getComputedStyle(document.getElementById('l810PresentationBar')).display==='none';
+        if(hidden){
+          showPresentationOrFocusTools();
+        }else{
+          document.body.classList.add('l811cPresentationBarHidden');
+          try{ if(typeof window.l812HidePresentationBar==='function')window.l812HidePresentationBar(); }catch(_e){}
+        }
+        updateFallbackVisual();
+        setTimeout(updateFallbackVisual,40);
+        setTimeout(updateFallbackVisual,180);
+        return true;
+      }
+      if(appIsPresentationOrFocus()){
+        showPresentationOrFocusTools();
+        return true;
+      }
+      const tb=toolbar();
+      if(visibleToolbar(tb)){
+        hardHide();
+        return true;
+      }
+      if(document.body.classList.contains('toolbar-is-hidden') || app.classList.contains('toolbarHidden') || l927ToolbarActuallyHidden(tb)){
+        clearHiddenState();
+        return true;
+      }
+    }catch(_e){}
+    return false;
+  }
+  function wireBackgroundSideTapHide(){
+    if(window.__l930BackgroundSideTapHideWired)return;
+    window.__l930BackgroundSideTapHideWired=true;
+    let down=null;
+    document.addEventListener('pointerdown',function(e){
+      try{
+        if(l930IsBackgroundSideTap(e)){
+          down={x:e.clientX,y:e.clientY,t:Date.now?Date.now():(new Date()).getTime()};
+        }else down=null;
+      }catch(_e){down=null;}
+    },true);
+    document.addEventListener('pointerup',function(e){
+      try{
+        if(!down)return;
+        const dx=Math.abs(e.clientX-down.x), dy=Math.abs(e.clientY-down.y);
+        const dt=(Date.now?Date.now():(new Date()).getTime())-down.t;
+        down=null;
+        if(dx>16 || dy>16 || dt>900)return;
+        if(!l930IsBackgroundSideTap(e))return;
+        if(l930HideVisibleBarFromBackgroundTap()){
+          if(e.cancelable!==false)e.preventDefault();
+          e.stopPropagation();
+          if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        }
+      }catch(_e){down=null;}
+    },true);
   }
   function ensureButton(){
     removeOldPeekAndPin();
@@ -55837,10 +56244,26 @@ wireRobustWidgetClose();render();normalizeDomLayerOrder();updateSlidesOverviewVi
     updateFallbackVisual();
   }
   ensureButton();
-  setInterval(ensureButton, 1000);
+  wireBackgroundSideTapHide();
+  /* l933: Redningsknappen skal stadig kunne genskabes, men i fokus må den ikke blinke.
+     Derfor bruges en roligere refresh i fokus, og samme visuelle tilstand styles ikke igen. */
+  setInterval(function(){
+    try{
+      const focusLike = document.body.classList.contains('focus-mode') ||
+        document.body.classList.contains('focus-edit') ||
+        document.body.classList.contains('focus-presentation');
+      if(focusLike){
+        const b=document.getElementById('toolbarFallback');
+        if(!b)ensureButton();
+        else updateFallbackVisual();
+        return;
+      }
+      ensureButton();
+    }catch(_e){try{ensureButton();}catch(__e){}}
+  }, 1200);
   window.showToolbarNow = clearHiddenState;
   window.hideToolbarNow = hardHide;
-  window.toggleToolbarNow = function(){ if(appIsPresentationOrFocus()) return; const tb=toolbar(); visibleToolbar(tb) ? hardHide() : clearHiddenState(); };
+  window.toggleToolbarNow = function(){ if(appIsPresentationOrFocus()) { showPresentationOrFocusTools(); return; } const tb=toolbar(); visibleToolbar(tb) ? hardHide() : clearHiddenState(); };
 })();
 
 })();
@@ -77013,14 +77436,70 @@ body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tav
     try{if(typeof window.cycleTavleTheme==='function'){window.cycleTavleTheme();return;}}catch(_e){}
     dispatchShortcut('b',false);
   }
-  function openBackground(){
+  function cyclePresentationBackground(){
     try{
-      if(window.tavleShortcutAPI && typeof window.tavleShortcutAPI.createShortcutWidget==='function'){
-        window.tavleShortcutAPI.createShortcutWidget('m');
-        return;
+      const s=(typeof slide==='function')?slide():null;
+      if(!s)return false;
+
+      const all=(typeof TAVLE_BACKGROUNDS!=='undefined' && Array.isArray(TAVLE_BACKGROUNDS))
+        ? TAVLE_BACKGROUNDS.filter(function(bg){return bg && bg.src;})
+        : [];
+      const hd=all.filter(function(bg){return String(bg.version||'')==='HD';});
+      const pool=hd.length ? hd : all;
+      if(!pool.length){
+        if(typeof window.applyRandomBackgroundToActiveSlide==='function')return !!window.applyRandomBackgroundToActiveSlide();
+        return false;
       }
+
+      function norm(v){
+        try{
+          return String(v||'')
+            .replace(/^.*backgrounds\//,'backgrounds/')
+            .replace(/[?#].*$/,'')
+            .trim()
+            .toLowerCase();
+        }catch(_e){return '';}
+      }
+      const curSrc=norm(s.bgImage||'');
+      const curName=String(s.bgImageName||'').trim().toLowerCase();
+      const curTitle=String(s.bgImageTitle||'').trim().toLowerCase();
+
+      let idx=pool.findIndex(function(bg){
+        return norm(bg.src)===curSrc ||
+          String(bg.name||'').trim().toLowerCase()===curName ||
+          (curTitle && String(bg.title||'').trim().toLowerCase()===curTitle && String(bg.version||'')===String(s.bgImageVersion||''));
+      });
+      const next=pool[(idx+1+pool.length)%pool.length];
+
+      if(typeof applyThemeBackgroundToSlide==='function'){
+        applyThemeBackgroundToSlide(s,next);
+      }else{
+        const resolved=(typeof resolveAssetPath==='function') ? resolveAssetPath(next.src) : next.src;
+        s.bg='linear-gradient(135deg,#eef7ff,#d6ecff)';
+        s.bgImage=resolved;
+        s.bgImageSource='builtin';
+        s.bgImageTitle=next.title||'';
+        s.bgImageName=next.name||'';
+        s.bgImageVersion=next.version||'';
+        s.bgFit='cover';
+        s.bgFilter=s.bgFilter||'standard';
+      }
+      try{render();}catch(_r){}
+      try{save({silent:true});}catch(_s){try{save();}catch(__s){}}
+      try{toast('Baggrund: '+(next.title||'Ny')+(next.version?(' ('+next.version+')'):''));}catch(_t){}
+      return true;
+    }catch(err){
+      try{console.warn('l929 baggrundscyklus fejlede',err);}catch(_e){}
+      return false;
+    }
+  }
+  function openBackground(){
+    /* l929: I præsentation skal 🎨 være et hurtigt "næste baggrund"-tryk,
+       ikke åbne den store baggrundsvælger oven på tavlen. */
+    if(cyclePresentationBackground())return;
+    try{
+      if(typeof window.applyRandomBackgroundToActiveSlide==='function' && window.applyRandomBackgroundToActiveSlide())return;
     }catch(_e){}
-    dispatchShortcut('b',true);
   }
   function openBoardMenu(){
     try{if(typeof window.showMoreTools==='function'){window.showMoreTools();return;}}catch(_e){}
@@ -77078,7 +77557,7 @@ body.focus-maximized .widget[data-type="text"] .listWidget.boardIndexWidget .tav
       center.className='l810Group l810Center';
       center.appendChild(makeButton('?','Hjælp',openHelp));
       center.appendChild(makeButton('◐','Skift tema',cycleTheme));
-      center.appendChild(makeButton('🎨','Baggrund',openBackground));
+      center.appendChild(makeButton('🎨','Skift baggrund',openBackground));
       center.appendChild(makeButton('☰','Tavler',openBoardMenu));
 
       bar.appendChild(center);
@@ -78427,6 +78906,22 @@ body.focus-presentation #safe868SessionBadge,
 #safe868SessionBadge .safe889Pill.active{background:#fff;color:#111827;}
 #safe868SessionBadge .safe889Pill.from{background:#2563eb;color:#fff;}
 #safe868SessionBadge .safe889Pill.log{background:rgba(255,255,255,.18);color:#fff;}
+
+/* l939: Seneste SessionBadge-stil skal også respektere visningstilstande.
+   Session/Log er kun redigeringshjælp og skjules derfor i fokus og præsentation. */
+body.focus-mode #safe868SessionBadge,
+body.focus-edit #safe868SessionBadge,
+body.focus-presentation #safe868SessionBadge,
+body.focus-maximized #safe868SessionBadge,
+#app.present ~ #safe868SessionBadge,
+.app.present ~ #safe868SessionBadge,
+body:has(#app.present) #safe868SessionBadge,
+body:has(.app.present) #safe868SessionBadge{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
 </style>
 <script id="l889-sessionmodal-demosessioner-datafelter">
 (function(){
