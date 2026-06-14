@@ -1,3 +1,4 @@
+<!-- l918-tavlegenerator-sessionvaelger-som-hjaelp-safe: Bygger på accepteret l916. Tavlegeneratorens Send til anden session bruger nu samme enkle valgmetode som Hjælp: dropdown til kendte sessioner og prompt ved “Skriv ny session”. Det gamle fritekstfelt er skjult men bevares som værdibærer, så eksisterende sendelogik ikke ændres. -->
 <!-- l915-help-sessionhint-smartboard-readable-safe: Bygger på accepteret l914. Retter kun Hjælpens korte Sessioner-hint i SmartBoard-temaet, så både brødtekst og fremhævede ord bliver læsbare på en mørk/dæmpet flade. Ingen sessionslogik, tema-gemning, links eller øvrig Hjælp ændret. -->
 <!-- l914-sessioner-husker-temaer-safe: Bygger på accepteret l913. Tema vælges og huskes nu pr. #session, så fx #NN og #MM kan have hvert sit Tavle-tema. Hjælp nævner dette kort under Sessioner. Ingen reset/import/sessionlink-ændring. -->
 <!-- l913-help-sessioner-praktisk-opdatering-safe: Bygger på accepteret l912. Opdaterer kun Hjælp-teksten om sessioner med praktiske hints ved opstart, session-skift, TavleSessioner og backup. Ingen sessionslogik, links, reset, import eller widgetflow ændret. -->
@@ -80000,5 +80001,275 @@ body.focus-presentation #safe868SessionBadge,
   [40,150,350,800,1400,2600,4200].forEach(function(ms){setTimeout(function(){ensureHelpPicker(true);},ms);});
 })();
 </script>
+
+<!-- l918-tavlegenerator-sessionvaelger-som-hjaelp-safe START -->
+<style id="l918-tavlegenerator-session-picker-css">
+/* l918: Tavlegenerator bruger samme enkle sessionsvalg som Hjælp: dropdown + prompt ved ny session. */
+#modal .safe827Generator .safe859SessionShare{
+  margin-top:10px!important;
+  padding:8px 10px!important;
+}
+#modal .safe827Generator .safe859SessionShare summary{
+  font-weight:950!important;
+}
+#modal .safe827Generator .safe859SessionGrid{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:8px 10px!important;
+  align-items:end!important;
+}
+#modal .safe827Generator .safe918SessionField{
+  display:grid!important;
+  gap:5px!important;
+  min-width:0!important;
+  margin:0!important;
+}
+#modal .safe827Generator .safe918SessionPickRow{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:0!important;
+  min-width:0!important;
+}
+#modal .safe827Generator #safe918DestinationPicker{
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  border:1px solid #93c5fd!important;
+  border-radius:12px!important;
+  background:#f8fafc!important;
+  color:#0f172a!important;
+  font-weight:900!important;
+  min-height:42px!important;
+  padding:9px 11px!important;
+}
+#modal .safe827Generator #safe918DestinationPicker option{
+  color:#0f172a!important;
+  background:#fff!important;
+}
+#modal .safe827Generator #safe859DestinationSession.safe918HiddenInput{
+  position:absolute!important;
+  left:-10000px!important;
+  width:1px!important;
+  height:1px!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+#modal .safe827Generator .safe918SessionHint,
+#modal .safe827Generator .safe916SessionHint{
+  display:none!important;
+}
+#modal .safe827Generator .safe859SessionNote{
+  grid-column:1/-1!important;
+  margin:0!important;
+  color:#cbd5e1!important;
+  opacity:.86!important;
+  font-size:12px!important;
+  line-height:1.25!important;
+  font-weight:750!important;
+}
+#modal .safe827Generator #safe859SendToSession{
+  min-height:42px!important;
+  white-space:nowrap!important;
+  align-self:end!important;
+}
+@media(max-width:760px){
+  #modal .safe827Generator .safe859SessionGrid{grid-template-columns:1fr!important;}
+  #modal .safe827Generator #safe859SendToSession{width:100%!important;}
+}
+</style>
+<script id="l918-tavlegenerator-session-picker-safe">
+(function(){
+  if(window.__l918TavleGeneratorSessionPicker)return;
+  window.__l918TavleGeneratorSessionPicker=true;
+
+  var pending=false;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function clean(raw){
+    try{if(typeof safe859SessionId==='function')return safe859SessionId(raw)||'';}catch(_e){}
+    try{
+      var s=String(raw||'').trim().replace(/^#/,'');
+      if(!s)return '';
+      return s.replace(/[^A-Za-z0-9_-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')||'';
+    }catch(_e){return '';}
+  }
+  function current(){
+    try{if(typeof safe859CurrentSessionId==='function')return clean(safe859CurrentSessionId())||'standard';}catch(_e){}
+    try{if(typeof TAVLE_SESSION_ID!=='undefined'&&TAVLE_SESSION_ID)return clean(TAVLE_SESSION_ID)||'standard';}catch(_e){}
+    try{var h=decodeURIComponent(String(location.hash||'').replace(/^#/,'')); if(h)return clean(h)||'standard';}catch(_e){}
+    return 'standard';
+  }
+  function label(id){id=clean(id)||'standard';return id==='standard'?'Standard':'#'+id;}
+  function collectSessions(){
+    var map={}, here=current();
+    function add(id,note,lastMs){
+      id=clean(id)||'';
+      if(!id)return;
+      if(!map[id])map[id]={id:id,note:note||'',lastMs:lastMs||0};
+      else{
+        if(note&&!map[id].note)map[id].note=note;
+        if(lastMs&&lastMs>Number(map[id].lastMs||0))map[id].lastMs=lastMs;
+      }
+    }
+    add('standard','Standard');
+    add(here,'Aktuel session',Date.now?Date.now():0);
+    try{
+      if(typeof window.safe908CollectHelpSessions==='function'){
+        (window.safe908CollectHelpSessions(true)||[]).forEach(function(r){
+          add(r&&(r.id||r.title||r.name||r.Titel),r&&(r.note||r.Note||''),r&&(r.lastMs||r.lastOpenedAt||0));
+        });
+      }
+    }catch(_e){}
+    try{
+      if(Array.isArray(state&&state.datasets))state.datasets.forEach(function(ds){
+        var name=String(ds&&ds.name||'').trim();
+        if(!/^TavleSessioner(?:\s+\d+)?$/i.test(name))return;
+        var head=(ds.headers||ds.columns||[]).map(String);
+        var titleI=head.findIndex(function(h){return /^titel$/i.test(h);}); if(titleI<0)titleI=0;
+        var noteI=head.findIndex(function(h){return /^note|beskrivelse$/i.test(h);});
+        (Array.isArray(ds.rows)?ds.rows:[]).forEach(function(row){
+          var title=Array.isArray(row)?row[titleI]:(row&&(row.Titel||row.titel||row.Session));
+          var note=noteI>=0&&Array.isArray(row)?row[noteI]:(row&&(row.Note||row.note||row.Beskrivelse||''));
+          add(title,note||'TavleSessioner');
+        });
+      });
+    }catch(_e){}
+    try{
+      var base=(typeof TAVLE_BASE_STORAGE_KEY!=='undefined'&&TAVLE_BASE_STORAGE_KEY)?String(TAVLE_BASE_STORAGE_KEY):'maans_tavle_state_v162_test';
+      for(var i=0;i<localStorage.length;i++){
+        var key=localStorage.key(i)||'';
+        if(key===base)add('standard','Lokal session');
+        var p=base+'__session__';
+        if(key.indexOf(p)===0)add(key.slice(p.length),'Tidligere åbnet session');
+      }
+    }catch(_e){}
+    var arr=Object.keys(map).map(function(k){return map[k];});
+    arr.sort(function(a,b){
+      if(a.id===here&&b.id!==here)return -1;
+      if(b.id===here&&a.id!==here)return 1;
+      if(a.id==='standard'&&b.id!=='standard')return -1;
+      if(b.id==='standard'&&a.id!=='standard')return 1;
+      var bl=Number(b.lastMs||0), al=Number(a.lastMs||0); if(bl!==al)return bl-al;
+      return label(a.id).localeCompare(label(b.id),'da');
+    });
+    return arr;
+  }
+  function hasOption(select,id){
+    try{for(var i=0;i<select.options.length;i++){if(select.options[i]&&select.options[i].value===id)return true;}}catch(_e){}
+    return false;
+  }
+  function ensureOption(select,id,text){
+    try{
+      id=clean(id); if(!id)return;
+      if(hasOption(select,id))return;
+      var opt=document.createElement('option');
+      opt.value=id;
+      opt.textContent=text||label(id);
+      var newOpt=Array.prototype.slice.call(select.options).find(function(o){return o&&o.value==='__new__';});
+      if(newOpt)select.insertBefore(opt,newOpt); else select.appendChild(opt);
+    }catch(_e){}
+  }
+  function buildOptions(selected){
+    var here=current(), seen={}, selectedId=clean(selected);
+    var html='<option value="">Vælg session…</option>';
+    collectSessions().forEach(function(r){
+      var id=clean(r&&r.id); if(!id||seen[id])return; seen[id]=true;
+      var disabled=(id===here)?' disabled':'';
+      var sel=(id===selectedId)?' selected':'';
+      html+='<option value="'+esc(id)+'"'+disabled+sel+'>'+esc(label(id)+(id===here?' · aktuel':''))+'</option>';
+    });
+    if(selectedId&&!seen[selectedId])html+='<option value="'+esc(selectedId)+'" selected>'+esc(label(selectedId))+'</option>';
+    html+='<option value="__new__">＋ Skriv ny session…</option>';
+    return html;
+  }
+  function setDestination(input,id){
+    id=clean(id);
+    input.value=id?((id==='standard')?'standard':'#'+id):'';
+    try{input.dispatchEvent(new Event('input',{bubbles:true}));}catch(_e){}
+    try{input.dispatchEvent(new Event('change',{bubbles:true}));}catch(_e){}
+  }
+  function promptForSession(input,select){
+    var before=clean(input.value||'');
+    var name='';
+    try{name=prompt('Navn på ny session','');}catch(_e){}
+    var id=clean(name);
+    if(!id){select.value=before&&hasOption(select,before)?before:'';return;}
+    ensureOption(select,id,label(id));
+    select.value=id;
+    setDestination(input,id);
+  }
+  function upgradeGeneratorSessionField(){
+    try{
+      var m=document.getElementById('modal');
+      if(!m||!m.querySelector||!m.querySelector('.safe827Generator'))return;
+      var input=m.querySelector('#safe859DestinationSession');
+      if(!input)return;
+      var labelEl=input.closest('label')||input.parentNode;
+      if(!labelEl)return;
+      labelEl.classList.add('safe918SessionField');
+
+      var row=labelEl.querySelector('.safe918SessionPickRow');
+      var select=labelEl.querySelector('#safe918DestinationPicker');
+      if(!row){
+        row=document.createElement('div');
+        row.className='safe918SessionPickRow';
+        input.parentNode.insertBefore(row,input);
+        row.appendChild(input);
+      }
+      if(!select){
+        select=document.createElement('select');
+        select.id='safe918DestinationPicker';
+        select.setAttribute('aria-label','Vælg session');
+        row.insertBefore(select,input);
+      }
+
+      input.classList.add('safe918HiddenInput');
+      input.setAttribute('autocomplete','off');
+      input.setAttribute('aria-hidden','true');
+
+      var selected=clean(input.value||'');
+      var opts=buildOptions(selected);
+      if(select.getAttribute('data-l918-options')!==opts){
+        select.innerHTML=opts;
+        select.setAttribute('data-l918-options',opts);
+      }
+      if(selected&&hasOption(select,selected))select.value=selected;
+      else if(!selected)select.value='';
+
+      var hint=labelEl.querySelector('.safe916SessionHint,.safe918SessionHint');
+      if(hint)hint.remove();
+      var note=m.querySelector('.safe859SessionNote');
+      if(note)note.textContent='Pakken hentes, når sessionen åbnes.';
+
+      if(!select.__l918Bound){
+        select.__l918Bound=true;
+        ['pointerdown','touchstart','mousedown','focus','click'].forEach(function(ev){
+          select.addEventListener(ev,function(){try{var s=clean(input.value||'');select.innerHTML=buildOptions(s);if(s&&hasOption(select,s))select.value=s;}catch(_e){}},true);
+        });
+        select.addEventListener('change',function(e){
+          try{e.stopPropagation();}catch(_e){}
+          var v=select.value;
+          if(v==='__new__'){
+            promptForSession(input,select);
+          }else if(v){
+            setDestination(input,v);
+          }else{
+            setDestination(input,'');
+          }
+        },true);
+      }
+    }catch(err){try{console.warn('l918 Tavlegenerator sessionvælger fejlede',err);}catch(_e){}}
+  }
+  function schedule(){
+    if(pending)return;
+    pending=true;
+    setTimeout(function(){pending=false;upgradeGeneratorSessionField();},30);
+  }
+  try{new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});}catch(_e){}
+  try{document.addEventListener('click',function(e){try{if(e&&e.target&&e.target.closest&&e.target.closest('.safe827Generator'))setTimeout(upgradeGeneratorSessionField,0);}catch(_x){}},true);}catch(_e){}
+  [40,160,400,900].forEach(function(ms){setTimeout(upgradeGeneratorSessionField,ms);});
+  window.safe918UpgradeGeneratorSessionField=upgradeGeneratorSessionField;
+})();
+</script>
+<!-- l918-tavlegenerator-sessionvaelger-som-hjaelp-safe END -->
 
 </body></html>
