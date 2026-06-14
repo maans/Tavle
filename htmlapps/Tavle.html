@@ -1,3 +1,4 @@
+<!-- l926-session-log-datawidgets-toggle-hide-safe: Bygger på accepteret l925. Retter kun Session- og Log-knappernes DataWidget-flow: klik åbner, klik igen skjuler; X/Delete skjuler samme midlertidige DataWidget uden papirkurv. Datasættene TavleSessioner og Sessionpakker/Overførselslog bevares i appens hukommelse. -->
 <!-- l925-tavleoversigt-helpknap-ejerfix-safe: Bygger direkte på brugerens virkende l923. Retter kun Tavleoversigtens egen modal-template: ?-knappen flyttes fra knaprækken op på titellinjen i øverste højre hjørne. Ingen nye scripts, ingen global CSS, ingen ændring af Tavleshots, sessioner eller Tavlegenerator. -->
 <!-- l923-help-smartboard-checkbox-label-ownerfix-safe: Bygger direkte på brugerens senest virkende l921. Retter kun Hjælpens SmartBoard-styling i den eksisterende hjælperække-ejer, så teksten ved “Vis Hjælp ved opstart i denne session” bliver læsbar igen. Ingen nye scripts, ingen ændring af Tavleshots, sessionslogik eller Tavlegenerator. -->
 <!-- l918-tavlegenerator-sessionvaelger-som-hjaelp-safe: Bygger på accepteret l916. Tavlegeneratorens Send til anden session bruger nu samme enkle valgmetode som Hjælp: dropdown til kendte sessioner og prompt ved “Skriv ny session”. Det gamle fritekstfelt er skjult men bevares som værdibærer, så eksisterende sendelogik ikke ændres. -->
@@ -39708,6 +39709,12 @@ function trashOverviewLayout(sl){
   });
 }
 function trashWidgetToBoard(id){
+  /* l926: Session-/Log-DataWidgets er midlertidige visninger. Delete/X skjuler dem uden papirkurv. */
+  try{
+    if(window.safe868HideSessionMemoryDatasetWidget && window.safe868HideSessionMemoryDatasetWidget(id,{toast:false})){
+      return true;
+    }
+  }catch(_safe868HideErr){}
   return safe588ArchiveWidgetToTrash(id,{fromDelete:true});
 }
 function selectedTrashWidgetIndex(){
@@ -49185,6 +49192,14 @@ function wireRobustWidgetClose(){
     if(widget.__closeActivatedAt && now-widget.__closeActivatedAt<700)return;
     widget.__closeActivatedAt=now;
 
+    /* l926: Session- og log-DataWidgets er kun visninger af data i appens hukommelse.
+       X skal derfor skjule/fjerne visningen direkte, ikke sende den i papirkurven. */
+    try{
+      if(window.safe868HideSessionMemoryDatasetWidget && window.safe868HideSessionMemoryDatasetWidget(id,{toast:false})){
+        return;
+      }
+    }catch(_safe868HideErr){}
+
     /* SAFE21: Widget-X følger samme regler som tastatur-sletning.
        Normal tavle: X -> papirkurv. Shift+X -> permanent sletning.
        Papirkurv: X -> permanent sletning. */
@@ -51982,12 +51997,91 @@ function safe868RelatedSessions(id){
     return rows.map(r=>safe859SessionId(r&&r.id)).filter(x=>x&&!seen.has(x)&&(seen.add(x)||true)).slice(0,2);
   }catch(_e){return [];}
 }
+function safe868SessionMemoryDatasetKind(ds){
+  try{
+    const name=String(ds&&ds.name||'').trim();
+    const type=String(ds&&ds.type||'').trim();
+    const sourceType=String(ds&&ds.sourceType||'').trim();
+    const sourceName=String(ds&&ds.sourceName||'').trim();
+    if(name==='TavleSessioner' || sourceType==='session-list' || sourceName==='TavleSessioner')return 'sessions';
+    if(name===SAFE861_TRANSFER_LOG_NAME || type==='transfer-log' || sourceType==='session-transfer-log' || sourceName===SAFE861_TRANSFER_LOG_NAME)return 'transfer-log';
+  }catch(_e){}
+  return '';
+}
+function safe868DatasetByWidget(w){
+  try{
+    const dsId=String(w&&w.data&&w.data.datasetId||'').trim();
+    if(!dsId)return null;
+    if(typeof findDatasetById==='function')return findDatasetById(dsId);
+    if(state&&Array.isArray(state.datasets))return state.datasets.find(d=>String(d&&d.id)===dsId)||null;
+  }catch(_e){}
+  return null;
+}
+function safe868IsSessionMemoryDatasetWidget(w){
+  try{
+    if(!w||w.type!=='text'||!w.data||!w.data.datasetId)return false;
+    if(w.data.safe868MemoryDatasetWidget)return true;
+    const ds=safe868DatasetByWidget(w);
+    return !!safe868SessionMemoryDatasetKind(ds);
+  }catch(_e){return false;}
+}
+function safe868WidgetHitById(widgetId){
+  try{
+    widgetId=String(widgetId||'');
+    if(!widgetId)return null;
+    if(typeof safe376AllWidgetsWithSlide==='function'){
+      const hit=(safe376AllWidgetsWithSlide()||[]).find(x=>String(x&&x.w&&x.w.id)===widgetId);
+      if(hit)return hit;
+    }
+    if(state&&Array.isArray(state.slides)){
+      for(let si=0;si<state.slides.length;si++){
+        const s=state.slides[si];
+        const ws=Array.isArray(s&&s.widgets)?s.widgets:[];
+        const wi=ws.findIndex(w=>String(w&&w.id)===widgetId);
+        if(wi>=0)return {w:ws[wi],slide:s,slideIndex:si,widgetIndex:wi};
+      }
+    }
+  }catch(_e){}
+  return null;
+}
+function safe868HideSessionMemoryDatasetWidget(widgetId,opts){
+  try{
+    opts=opts||{};
+    widgetId=String(widgetId||'');
+    if(!widgetId)return false;
+    const hit=safe868WidgetHitById(widgetId);
+    if(hit&&hit.w){
+      if(!safe868IsSessionMemoryDatasetWidget(hit.w))return false;
+      const arr=hit.slide&&Array.isArray(hit.slide.widgets)?hit.slide.widgets:null;
+      if(arr){
+        const idx=arr.findIndex(w=>String(w&&w.id)===widgetId);
+        if(idx>=0)arr.splice(idx,1);
+      }
+      try{
+        if(String(selected||'')===widgetId)selected=null;
+        if(window.UIState&&String(UIState.selectedWidgetId||'')===widgetId)UIState.selectedWidgetId=null;
+      }catch(_e){}
+      render();
+      try{save({silent:true});}catch(_s){try{save();}catch(__e){}}
+      if(opts.toast)try{toast('DataWidget skjult');}catch(_t){}
+      return true;
+    }
+    const el=document.querySelector('.widget[data-id="'+CSS.escape(widgetId)+'"],.widget[data-widget-id="'+CSS.escape(widgetId)+'"],#'+CSS.escape(widgetId));
+    if(el){el.remove();try{save({silent:true});}catch(_e){} return true;}
+  }catch(err){try{console.warn('safe868HideSessionMemoryDatasetWidget fejlede',err);}catch(_e){}}
+  return false;
+}
 function safe868FindOrOpenDatasetWidget(ds){
   try{
     if(!ds||!ds.id)return false;
+    const kind=safe868SessionMemoryDatasetKind(ds);
     let hit=null;
     try{if(typeof safe376DatasetWidgetInfo==='function')hit=safe376DatasetWidgetInfo(ds.id);}catch(_e){}
     if(hit&&hit.w){
+      if(kind){
+        safe868HideSessionMemoryDatasetWidget(hit.w.id,{toast:false});
+        return true;
+      }
       if(Number.isInteger(hit.slideIndex))state.active=hit.slideIndex;
       render();
       setTimeout(function(){try{select(hit.w.id,{editText:false});}catch(_s){}},30);
@@ -51995,10 +52089,28 @@ function safe868FindOrOpenDatasetWidget(ds){
     }
     const pt={x:Math.max(24,Math.min(innerWidth*.36,innerWidth-720)),y:Math.max(84,Math.min(innerHeight*.18,innerHeight-460))};
     const w=addDatasetWidget(ds,pt);
-    if(w){try{w.title='📊 '+String(ds.name||'DataWidget').replace(/^📊\s*/,'').trim();}catch(_e){} render(); select(w.id,{editText:false}); save({silent:true}); return true;}
+    if(w){
+      try{
+        w.title='📊 '+String(ds.name||'DataWidget').replace(/^📊\s*/,'').trim();
+        if(kind){
+          w.data=w.data||{};
+          w.data.safe868MemoryDatasetWidget=true;
+          w.data.safe868MemoryDatasetKind=kind;
+        }
+      }catch(_e){}
+      render();
+      select(w.id,{editText:false});
+      save({silent:true});
+      return true;
+    }
   }catch(_e){}
   return false;
 }
+try{
+  window.safe868HideSessionMemoryDatasetWidget=safe868HideSessionMemoryDatasetWidget;
+  window.safe868IsSessionMemoryDatasetWidget=safe868IsSessionMemoryDatasetWidget;
+}catch(_e){}
+
 function safe868OpenTransferLogWidget(){
   try{const ds=safe861EnsureTransferLogDataset(); if(ds&&safe868FindOrOpenDatasetWidget(ds))return true;}catch(_e){}
   try{toast('Kunne ikke åbne overførselslog');}catch(_t){}
