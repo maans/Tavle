@@ -57,6 +57,7 @@
 <!-- l746-tiddlywiki-load-touchfix: Bygger på l745. Kirurgisk HTML/TiddlyWiki-fix: den tunge arkiv-placeholder får robust pointer/touch/click-binding, og Indlæs åbner som preview/htmlapp i stedet for at falde tilbage til editor. Ingen ændring af arkiv, backup, PDF eller øvrige widgets. -->
 <!-- l835-tavlegenerator-laeselige-valg-modal-safe: Bygger på l833. Synkroniserer kun aktiv-markering i præsentations-Mere/Tavler, når aktiv tavle ændres mens menuen er åben. Ingen ændring af navigationslogik, generator, ListeWidget eller makeStandaloneHtml. -->
 <!-- l848-liste-tavler-dialog-scopefix-safe: Bygger på l847. Retter scope-fejl i ListeWidget: valg af Tavleliste/Tavle-tjekliste åbner nu den enkle før-dialog, fordi dialogfunktionen ligger i samme ejer-scope som select.onchange. Tavlegenerator/PDF-kopiering fra l846/l847 bevares. -->
+<!-- l960_link_media_list_guard_SAFE: Bygger på l959. Retter kun grænsen mellem LinkWidget, MedieWidget og medielister: almindelige web-/Google-links i en medieliste bliver i LinkWidget med link/iframe-visning, mens kun rigtige lyd-/videofiler eller arkiverede medier skifter til MedieWidget. Reparerer også tidligere fejlkonverterede LinkWidgets tilbage ved render. -->
 <!doctype html>
 <!-- l748-tiddlywiki-native-external-drop-restore: Bygger på l746. Genskaber den gamle native drop-vej til TiddlyWiki: ved ekstern drag/drop over valgt/aktiv TiddlyWiki/HTML-widget slippes htmlShield uden syntetisk drop, så iframe/TiddlyWiki selv modtager tiddler-JSON. Ingen arkiv/backup/PDF/tema/dataflow ændret. -->
 <!-- l751-tiddlywiki-import-syntaxfix: Kun syntaxfix af l750. Retter escape-linje i TiddlyWiki-savebridge, som låste appen. Ingen ny importlogik. -->
@@ -18661,7 +18662,7 @@ function safe588WidgetMoveModal(w){
 // WIDGET CORE
 ////////////////////////////////////////////////////////////
 /* render-flow: rydder DOM-widgets, anvender baggrund/grid, bygger widgets og opdaterer papirkurv. Rør ikke uden fuld regressionstest. */
-function render(){safe588EnsureSlideIds();document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=safe134SlideInfoText();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');safe588CurrentWidgetRecords().forEach(rec=>{const w=rec.w;if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w))return;makeWidget(w)});updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0);try{safe834SyncPresentMoreActive();}catch(_e){}}
+function render(){try{if(typeof safe960RepairMisdelegatedLinkMediaWidgets==='function')safe960RepairMisdelegatedLinkMediaWidgets({silent:true});}catch(_e){}safe588EnsureSlideIds();document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=safe134SlideInfoText();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');safe588CurrentWidgetRecords().forEach(rec=>{const w=rec.w;if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w))return;makeWidget(w)});updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0);try{safe834SyncPresentMoreActive();}catch(_e){}}
 /* addWidget(): opretter widget-objekt, fitter til viewport, kalder makeWidget(), select() og save(). Bevar rækkefølgen. */
 function addWidget(type,data={}){safe588EnsureSlideIds();const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:type==='timer'?860:((type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll'||type==='kahoopardy'||type==='calendar')?860:(type==='dataset'?390:(type==='text'?420:520))),h:type==='timer'?520:(type==='wheel'?560:(type==='calendar'?560:(type==='kahoopardy'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='link'?230:320)))))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};safe588SetVisibility(w,'single',[safe588SlideId(state.active)]);fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',kahoopardy:'KaPardy',timer:'Timer',calendar:'Kalender',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
@@ -44909,19 +44910,104 @@ function safe453i79ActiveLinkWidgetForKeys(){
   },true);
 })();
 
+/* l960: Skarpere grænse mellem LinkWidget og MedieWidget.
+   En række i en medieliste kan godt være et almindeligt web-link. Kolonnen Type kan
+   historisk stå som "video" som standard, så den må ikke alene tvinge LinkWidgetten
+   over i MedieWidget. Kun rigtige lokale/arkiverede lyd-/videomedier eller tydelige
+   lyd-/videofiler skal skifte til MedieWidget. YouTube og almindelige web-URL'er
+   bliver i LinkWidget, hvor brugeren stadig kan vælge link/iframe-visning. */
+function safe960PlayableMediaEvidence(item){
+  try{
+    if(!item)return false;
+    const url=String(item.url||'').trim();
+    const mediaRef=String(item.mediaRef||'').trim();
+    const mime=String(item.mime||item.mimeType||'').trim().toLowerCase();
+    const source=String(item.source||'').trim().toLowerCase();
+    if(mediaRef)return true;
+    if(/^audio\//.test(mime)||/^video\//.test(mime))return true;
+    if(/^data:audio\//i.test(url)||/^data:video\//i.test(url)||/^blob:/i.test(url))return true;
+    if(typeof safe794MediaIsAudioUrl==='function'&&safe794MediaIsAudioUrl(url))return true;
+    if(typeof safe794MediaIsVideoUrl==='function'&&safe794MediaIsVideoUrl(url))return true;
+    if((source==='mediearkiv'||source==='dataurl'||source==='blob')&&url)return true;
+  }catch(_e){}
+  return false;
+}
 function safe795LinkItemShouldUseMediaWidget(item){
   try{
     if(!item)return false;
-    if(item.mediaRef)return true;
-    const type=String(item.type||'').toLowerCase();
     const url=String(item.url||'').trim();
-    if(!url)return false;
-    if(typeof safe453i221IsYoutube==='function'&&safe453i221IsYoutube(url))return false;
-    if(type==='audio'||type==='video')return true;
-    if(typeof safe794MediaIsAudioUrl==='function'&&safe794MediaIsAudioUrl(url))return true;
-    if(typeof safe794MediaIsVideoUrl==='function'&&safe794MediaIsVideoUrl(url))return true;
+    if(url&&typeof safe453i221IsYoutube==='function'&&safe453i221IsYoutube(url))return false;
+    return !!safe960PlayableMediaEvidence(item);
   }catch(_e){}
   return false;
+}
+function safe960RepairMisdelegatedLinkMediaWidgets(opts){
+  try{
+    opts=opts||{};
+    if(!state||!Array.isArray(state.slides))return false;
+    let changed=false;
+    state.slides.forEach(sl=>{
+      ((sl&&sl.widgets)||[]).forEach(w=>{
+        try{
+          if(!w||w.type!=='video'||!w.data||!w.data.previousLinkWidget)return;
+          const d=w.data;
+          const url=String(d.url||d.src||'').trim();
+          const item={
+            title:String(d.name||w.title||d.text||'Link').trim(),
+            url:url,
+            type:String(d.mediaKind||d.type||'').toLowerCase(),
+            mediaRef:String(d.mediaRef||'').trim(),
+            mime:String(d.mimeType||d.mime||'').trim(),
+            source:String(d.source||'').trim()
+          };
+          if(safe795LinkItemShouldUseMediaWidget(item))return;
+          w.type='link';
+          w.title=item.title||'Link';
+          d.text=w.title;
+          d.url=normalizeLinkUrl(url);
+          d.view=(url&&(typeof safe453i221IsYoutube==='function')&&safe453i221IsYoutube(url))?'iframe':'link';
+          d.iframeInteractive=false;
+          d.linkListRowIndex=Number.isFinite(Number(d.previousLinkListRowIndex))?Number(d.previousLinkListRowIndex):Number.isFinite(Number(d.mediaListRowIndex))?Number(d.mediaListRowIndex):null;
+          const dsid=String(d.previousLinkListDatasetId||d.mediaListDatasetId||'').trim();
+          if(dsid){
+            const ds=(typeof findDatasetById==='function')?findDatasetById(dsid):null;
+            const name=String((ds&&ds.name)||d.mediaListDatasetName||d.linkListDatasetName||'Linkliste');
+            d.linkedDataSources=d.linkedDataSources||{};
+            d.linkedDataSources.linkList={role:'linkList',datasetId:dsid,widgetId:String(d.mediaListWidgetId||''),name:name};
+            d.linkListDatasetId=dsid;
+            d.linkListDatasetName=name;
+          }
+          if(d.linkedDataSources&&d.linkedDataSources.mediaList)delete d.linkedDataSources.mediaList;
+          delete d.mediaListDatasetId;
+          delete d.mediaListDatasetName;
+          delete d.mediaKind;
+          delete d.mimeType;
+          delete d.mediaRef;
+          delete d.src;
+          delete d.previousLinkWidget;
+          delete d.mediaDelegated;
+          if(url&&typeof safe453i221IsYoutube==='function'&&safe453i221IsYoutube(url)){
+            d.viewType='youtube';
+            d.youtubeEmbed=true;
+            d.youtubeEmbedUrl=safe453i221YoutubeEmbedUrl(url);
+            delete d.museScore;
+            delete d.museScoreEmbedUrl;
+          }else{
+            delete d.viewType;
+            delete d.youtubeEmbed;
+            delete d.youtubeEmbedUrl;
+            delete d.museScore;
+            delete d.museScoreEmbedUrl;
+          }
+          changed=true;
+        }catch(_w){}
+      });
+    });
+    if(changed&&!(opts&&opts.noSave)){
+      try{save({silent:true});}catch(_s){try{save();}catch(_s2){}}
+    }
+    return changed;
+  }catch(_e){return false;}
 }
 function safe796SwitchLinkWidgetToMediaWidget(linkW,item,ds){
   try{
