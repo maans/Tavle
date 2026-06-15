@@ -1758,9 +1758,16 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 <meta name="application-name" content="Min undervisningstavle">
 <meta name="apple-mobile-web-app-title" content="Min undervisningstavle">
 <meta name="theme-color" content="#1f2937">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="512x512" href="icons/tavle_icon_512.png">
-<link rel="apple-touch-icon" href="icons/tavle_icon_512.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/tavle_icon_180.png">
+<link rel="apple-touch-icon" sizes="192x192" href="./icons/tavle_icon_192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/tavle_icon_32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="./icons/tavle_icon_64.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/tavle_icon_192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icons/tavle_icon_512.png">
 <!-- Interaktiv tavle v1.0.13-dev – PDF keyboard navigation -->
 <style>
 
@@ -10020,7 +10027,6 @@ body.focus-presentation .content.pdf .pdfFormOverlay{
     --accent: #a855f7;
   }
 </style>
-<link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_512.png">
 
 <style id="phase1-import-feedback-css">
 .importSummaryBackdrop{position:absolute;inset:0;z-index:3199;background:transparent;display:none}.importSummaryBackdrop.show{display:block}
@@ -48652,14 +48658,16 @@ function safe963Esc(v){
   return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
 }
 function safe963CleanSession(raw){
-  try{if(typeof safe859SessionId==='function')return safe859SessionId(raw)||'standard';}catch(_e){}
   try{raw=decodeURIComponent(String(raw||''));}catch(_e){raw=String(raw||'');}
-  var s=String(raw||'').trim().replace(/^#+/,'').trim();
+  var s=String(raw||'').trim();
+  try{var u=new URL(s,location.href); if(u.hash)s=decodeURIComponent(u.hash.replace(/^#/,''));}catch(_u){}
+  s=String(s||'').trim().replace(/^#+/,'').trim();
   if(!s||/^standard$/i.test(s))return 'standard';
   try{s=s.normalize('NFKD').replace(/[\u0300-\u036f]/g,'');}catch(_e){}
   s=s.replace(/æ/g,'ae').replace(/Æ/g,'Ae').replace(/ø/g,'oe').replace(/Ø/g,'Oe').replace(/å/g,'aa').replace(/Å/g,'Aa');
   s=s.replace(/[^A-Za-z0-9_-]+/g,'-').replace(/-+/g,'-').replace(/^[-_]+|[-_]+$/g,'').slice(0,64);
-  return s||'standard';
+  if(!s||/^standard$/i.test(s))return 'standard';
+  return s;
 }
 function safe963SessionLabel(id){id=safe963CleanSession(id);return id==='standard'?'Standard':'#'+id;}
 function safe963BaseUrl(){try{return String(location.href||'').replace(/#.*/,'');}catch(_e){return '';}}
@@ -48697,7 +48705,7 @@ function safe963CollectSessionMap(){
     for(var i=0;i<localStorage.length;i++){
       var key=localStorage.key(i)||'';
       if(key===base){var raw=localStorage.getItem(key)||'';add('standard',{storageKey:key,hasData:!!raw,sizeBytes:safe963StringBytes(raw),source:'storage'});continue;}
-      if(key.indexOf(prefix)===0){var id=key.slice(prefix.length);var raw2=localStorage.getItem(key)||'';add(id,{storageKey:key,hasData:!!raw2,sizeBytes:safe963StringBytes(raw2),source:'storage'});}
+      if(key.indexOf(prefix)===0){var id=key.slice(prefix.length);var raw2=localStorage.getItem(key)||'';if(/^standard$/i.test(String(id||''))){try{if(!raw2||raw2==='null'||raw2==='{}'||raw2==='[]'||raw2.length<12)localStorage.removeItem(key);}catch(_e){}continue;}add(id,{storageKey:key,hasData:!!raw2,sizeBytes:safe963StringBytes(raw2),source:'storage'});}
     }
   }catch(_e){}
   return map;
@@ -48840,9 +48848,11 @@ function safe970NormalizeStandardSessionAliases(){
       try{
         var raw=localStorage.getItem(k)||'';
         var baseRaw=localStorage.getItem(base)||'';
-        if(!raw || raw==='null' || raw==='{}' || raw==='[]' || raw.length<12){localStorage.removeItem(k);return;}
-        if(!baseRaw || baseRaw==='null' || baseRaw==='{}' || baseRaw==='[]' || baseRaw.length<12){localStorage.setItem(base,raw);localStorage.removeItem(k);return;}
-        /* Hvis både Standard og aliaset har egentlige data, skjules aliaset via normalisering, men slettes ikke automatisk. */
+        var emptyAlias=(!raw || raw==='null' || raw==='{}' || raw==='[]' || raw.length<12);
+        var emptyBase=(!baseRaw || baseRaw==='null' || baseRaw==='{}' || baseRaw==='[]' || baseRaw.length<12);
+        if(emptyAlias){localStorage.removeItem(k);return;}
+        if(emptyBase){localStorage.setItem(base,raw);localStorage.removeItem(k);return;}
+        /* Begge har data: aliaset bevares som skjult sikkerhedsrest, men fjernes fra registries/oversigter. */
       }catch(_e){}
     });
     function normPayload(raw){
@@ -79845,45 +79855,69 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
 
 <!-- l892-sessionvalg-inline-uden-ekstra-label-safe: Bygger på l891. Kun visuel/praktisk justering: fjerner det ekstra “Session”-label ved Hjælpens sessionvælger, fordi teksten “Vis Hjælp ved opstart i denne session” allerede angiver konteksten. Én-prompt-sessionvalg fra l891 bevares. -->
 <style id="l892-help-session-picker-no-extra-label-css">
-/* l969: Hjælpens sessionsvælger holdes kompakt, så den igen kan stå på samme linje som opstarts-checkboxen. */
+/* l971: Hjælpens sessionsvælger låses til samme række som opstartsvalget uden at blive bred af lange sessionsnavne. */
 #modal .helpHintToggleRow{
+  display:grid!important;
+  grid-template-columns:22px minmax(0,1fr) minmax(150px,220px)!important;
+  align-items:center!important;
+  gap:8px 10px!important;
   flex-wrap:nowrap!important;
-  gap:8px!important;
+  width:100%!important;
+  max-width:100%!important;
+}
+#modal .helpHintToggleRow > input#helpStartupToggle{
+  grid-column:1!important;
+  width:22px!important;
+  height:22px!important;
+  margin:0!important;
 }
 #modal .helpHintToggleRow > span{
-  flex:0 1 auto!important;
+  grid-column:2!important;
   min-width:0!important;
-  white-space:normal!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
 }
 #modal .helpHintToggleRow .safe889HelpSessionPicker label,
-#modal .helpHintToggleRow .safe891HelpSessionPicker label{
+#modal .helpHintToggleRow .safe891HelpSessionPicker label,
+#modal .helpHintToggleRow .safe908HelpSessionPicker label{
   display:none!important;
 }
 #modal .helpHintToggleRow .safe889HelpSessionPicker,
-#modal .helpHintToggleRow .safe891HelpSessionPicker{
-  margin-left:auto!important;
-  flex:0 1 230px!important;
-  min-width:150px!important;
-  max-width:230px!important;
+#modal .helpHintToggleRow .safe891HelpSessionPicker,
+#modal .helpHintToggleRow .safe908HelpSessionPicker{
+  grid-column:3!important;
+  display:block!important;
+  justify-self:end!important;
+  align-self:center!important;
+  margin:0!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:220px!important;
+  flex:0 0 auto!important;
 }
 #modal .helpHintToggleRow .safe889HelpSessionPicker select,
-#modal .helpHintToggleRow .safe891HelpSessionPicker select{
+#modal .helpHintToggleRow .safe891HelpSessionPicker select,
+#modal .helpHintToggleRow .safe908HelpSessionPicker select{
   width:100%!important;
   min-width:0!important;
   max-width:100%!important;
+  margin:0!important;
   overflow:hidden!important;
   text-overflow:ellipsis!important;
   white-space:nowrap!important;
 }
-@media(max-width:760px){
+@media(max-width:560px){
   #modal .helpHintToggleRow{
-    flex-wrap:wrap!important;
+    grid-template-columns:22px minmax(0,1fr)!important;
   }
   #modal .helpHintToggleRow .safe889HelpSessionPicker,
-  #modal .helpHintToggleRow .safe891HelpSessionPicker{
-    margin-left:32px!important;
-    flex:1 1 calc(100% - 32px)!important;
-    max-width:calc(100% - 32px)!important;
+  #modal .helpHintToggleRow .safe891HelpSessionPicker,
+  #modal .helpHintToggleRow .safe908HelpSessionPicker{
+    grid-column:2!important;
+    justify-self:stretch!important;
+    max-width:100%!important;
+    margin-top:4px!important;
   }
 }
 </style>
