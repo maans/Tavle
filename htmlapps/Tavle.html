@@ -1758,11 +1758,9 @@ SCRIPT-KORT / LOAD-RÆKKEFØLGE
 <meta name="application-name" content="Min undervisningstavle">
 <meta name="apple-mobile-web-app-title" content="Min undervisningstavle">
 <meta name="theme-color" content="#1f2937">
-<link rel="icon" type="image/png" sizes="512x512" href="https://maans.github.io/Tavle/icons/tavle_icon_512.png">
-<link rel="icon" type="image/png" sizes="192x192" href="https://maans.github.io/Tavle/icons/tavle_icon_512.png">
-<link rel="apple-touch-icon" sizes="512x512" href="https://maans.github.io/Tavle/icons/tavle_icon_512.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="https://maans.github.io/Tavle/icons/tavle_icon_512.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/tavle_icon_512.png">
+<link rel="apple-touch-icon" href="icons/tavle_icon_512.png">
 <!-- Interaktiv tavle v1.0.13-dev – PDF keyboard navigation -->
 <style>
 
@@ -10022,7 +10020,7 @@ body.focus-presentation .content.pdf .pdfFormOverlay{
     --accent: #a855f7;
   }
 </style>
-<link rel="icon" type="image/png" sizes="32x32" href="https://maans.github.io/Tavle/icons/tavle_icon_512.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/tavle_icon_512.png">
 
 <style id="phase1-import-feedback-css">
 .importSummaryBackdrop{position:absolute;inset:0;z-index:3199;background:transparent;display:none}.importSummaryBackdrop.show{display:block}
@@ -16715,6 +16713,7 @@ function tavleSlugifySessionName(input){
     s=s.normalize('NFKD').replace(/[\u0300-\u036f]/g,'');
     s=s.replace(/æ/g,'ae').replace(/Æ/g,'Ae').replace(/ø/g,'oe').replace(/Ø/g,'Oe').replace(/å/g,'aa').replace(/Å/g,'Aa');
     s=s.replace(/[^A-Za-z0-9_-]+/g,'-').replace(/-+/g,'-').replace(/^[-_]+|[-_]+$/g,'').slice(0,64);
+    if(/^standard$/i.test(s))return 'standard';
     return s;
   }catch(_e){return '';}
 }
@@ -48682,7 +48681,7 @@ function safe963CurrentSession(){
 }
 function safe963CollectSessionMap(){
   var map={};
-  function add(id,meta){id=safe963CleanSession(id);if(!id)return;var old=map[id]||{id:id,title:id==='standard'?'Standard':id,url:safe963SessionUrl(id),storageKey:safe963SessionKey(id),sizeBytes:0,hasData:false};meta=meta||{};Object.keys(meta).forEach(function(k){if(meta[k]!=null&&meta[k]!==''&&k!=='id')old[k]=meta[k];});old.id=id;old.title=old.title||(id==='standard'?'Standard':id);old.url=old.url||safe963SessionUrl(id);old.storageKey=old.storageKey||safe963SessionKey(id);map[id]=old;}
+  function add(id,meta){id=safe963CleanSession(id);if(!id)return;var old=map[id]||{id:id,title:id==='standard'?'Standard':id,url:safe963SessionUrl(id),storageKey:safe963SessionKey(id),sizeBytes:0,hasData:false};meta=meta||{};Object.keys(meta).forEach(function(k){if(meta[k]==null||meta[k]===''||k==='id')return;if(id==='standard'&&k==='storageKey'&&String(meta[k]||'')!==safe963SessionKey('standard'))return;old[k]=meta[k];});old.id=id;old.title=id==='standard'?'Standard':(old.title||id);old.url=id==='standard'?safe963SessionUrl('standard'):(old.url||safe963SessionUrl(id));old.storageKey=id==='standard'?safe963SessionKey('standard'):(old.storageKey||safe963SessionKey(id));map[id]=old;}
   add('standard',{source:'standard'});
   add(safe963CurrentSession(),{active:true,source:'current'});
   try{var last=localStorage.getItem('maans_tavle_last_active_session_v1');if(last)add(last,{source:'last'});}catch(_e){}
@@ -48825,6 +48824,49 @@ function safe963DeleteSessionIds(ids){
     safe963OpenSessionDeleteModal();
   }catch(err){try{console.warn('safe963 session-delete failed',err);toast('Kunne ikke slette sessioner');}catch(_e){}}
 }
+function safe970NormalizeStandardSessionAliases(){
+  try{
+    var base='maans_interaktiv_tavle_v162_test';
+    var prefix=base+'__session__';
+    var badKeys=[];
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i)||'';
+      if(k.indexOf(prefix)===0){
+        var id=k.slice(prefix.length);
+        if(/^standard$/i.test(String(id||'')))badKeys.push(k);
+      }
+    }
+    badKeys.forEach(function(k){
+      try{
+        var raw=localStorage.getItem(k)||'';
+        var baseRaw=localStorage.getItem(base)||'';
+        if(!raw || raw==='null' || raw==='{}' || raw==='[]' || raw.length<12){localStorage.removeItem(k);return;}
+        if(!baseRaw || baseRaw==='null' || baseRaw==='{}' || baseRaw==='[]' || baseRaw.length<12){localStorage.setItem(base,raw);localStorage.removeItem(k);return;}
+        /* Hvis både Standard og aliaset har egentlige data, skjules aliaset via normalisering, men slettes ikke automatisk. */
+      }catch(_e){}
+    });
+    function normPayload(raw){
+      var p=safe963ParseJson(raw||''); if(!p)return null;
+      var arr=Array.isArray(p)?p:(Array.isArray(p.sessions)?p.sessions:null);
+      if(!arr)return p;
+      var seen={},next=[];
+      arr.forEach(function(item){
+        var obj=(typeof item==='string')?{id:item}:Object.assign({},item||{});
+        var id=safe963CleanSession(obj.id||obj.title||obj.name||obj.Titel||'standard');
+        if(id==='standard'){obj.id='standard';obj.title='Standard';obj.Titel='Standard';obj.url=safe963SessionUrl('standard');obj.URL=safe963SessionUrl('standard');}
+        else {obj.id=id; if(!obj.title&&!obj.Titel)obj.title=id;}
+        if(seen[id])return; seen[id]=true; next.push(obj);
+      });
+      if(Array.isArray(p))return next;
+      p.sessions=next;p.updatedAt=Date.now();return p;
+    }
+    ['maans_tavle_sessions_registry_v1','maans_tavle_all_known_sessions_v1'].forEach(function(k){
+      try{var n=normPayload(localStorage.getItem(k));if(n)localStorage.setItem(k,JSON.stringify(n));}catch(_e){}
+    });
+  }catch(_e){}
+}
+try{safe970NormalizeStandardSessionAliases();}catch(_e){}
+
 function safe963OpenSessionDeleteModal(){
   var sessions=safe963SessionArray(),cur=safe963CurrentSession();
   var rows=sessions.map(function(s){var id=safe963CleanSession(s.id);var sum=safe963SummarizeSession(id);var active=id===cur;return '<label class="safe963SessionDeleteRow '+(active?'active':'')+'"><input type="checkbox" data-safe963-delete-session value="'+safe963Esc(id)+'" '+(active?'':'')+'><span><b>'+safe963Esc(safe963SessionLabel(id))+'</b><small>'+(active?'Aktiv session · ':'')+sum.slides+' tavler · '+sum.widgets+' widgets · '+safe963FmtBytes(sum.rawBytes)+'</small></span></label>';}).join('');
@@ -51692,6 +51734,7 @@ function safe859SessionId(raw){
     s=s.replace(/^#/,'').trim();
     if(typeof tavleSlugifySessionName==='function')s=tavleSlugifySessionName(s);
     else s=s.replace(/[^A-Za-z0-9_-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+    if(/^standard$/i.test(s))return 'standard';
     return s||'';
   }catch(_e){return '';}
 }
