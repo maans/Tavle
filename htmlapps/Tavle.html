@@ -1,3 +1,4 @@
+<!-- l957_touch_widget_handles_ownerfix_SAFE: Bygger på l956. Retter touch-flyt/resize/rotation i widget-ejeren: widgetbjælke, resize-håndtag og rotationshåndtag får egen touch-gestus uden native tavle-/browser-pan, og drag/resize korrigeres for Tavlezoom. Almindelig tavleflade, vandret tavleskift, PDF-scroll og to-finger tavlezoom bevares. -->
 <!-- l956_hjaelp_backuppp_sessioner_SAFE: Bygger på l955. Opdaterer kun Hjælp-teksten om sessioner, TavleSessioner og Backup++ i samme brugervendte stil som resten af Hjælp. Ingen app-logik, backup-logik, importlogik, CSS-layout eller session-synkronisering ændret. -->
 <!-- l955_tavlesessioner_global_sync_SAFE: Bygger på testet l954. Retter TavleSessioner som global sessionsoversigt: safe859EnsureSessionListDataset synkroniserer nu alle TavleSessioner-datasæt i den aktuelle session til samme globale browser-scan/registry, eksponerer en refresh-funktion til Backup++ import og genopfrisker ved opstart uden at ændre Backup/Backup+ eller Backup++ eksportformat. -->
 <!-- l951_backuppp_import_copy_status_SAFE: Bygger på l950. Retter Backup++-tekstimport og kopifeedback: Indsæt backup-tekst genkender nu TavleBackup++ JSON og åbner en sikker import-preview med valg af sessions, standardimport som nye kopier og særskilt overskriv-knap. Kopiér JSON i både Backup+ og Backup++ giver synlig status i modalen. Eksisterende almindelig Backup/Backup+ import og eksport bevares. -->
@@ -40858,6 +40859,33 @@ const renameMediaBtn=el.querySelector('[data-act=renameMedia]');
   };
 el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
  let drag=false,rot=false,res=false,start={}; let rotHoldTimer=null, rotHoldStart=null, rotHoldDidReset=false;
+ function safe957BoardGestureScale(){
+    try{
+      let z=1;
+      if(typeof window.safe453GetBoardZoom==='function')z=Number(window.safe453GetBoardZoom())||1;
+      else {
+        const css=getComputedStyle(document.documentElement).getPropertyValue('--safe453-board-zoom');
+        if(css)z=Number(css)||1;
+      }
+      if(!isFinite(z)||z<=0)z=1;
+      return z;
+    }catch(_e){return 1;}
+ }
+ function safe957BoardPointFromClient(x,y){
+    const z=safe957BoardGestureScale();
+    return {x:(Number(x)||0)/z,y:(Number(y)||0)/z,z:z};
+ }
+ function safe957StopTouchTransform(e){
+    try{
+      if(!e)return;
+      const pt=String(e.pointerType||'');
+      if(pt==='touch'||pt==='pen'||e.type==='touchstart'||e.type==='touchmove'){
+        if(e.cancelable)e.preventDefault();
+        e.stopPropagation();
+        if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      }
+    }catch(_e){}
+ }
  /* SAFE455uH45g10l72 performance patch 2:
     Pointermove kan komme langt oftere end skærmens opdateringsrate, især på iPad/Mac med iframe-widgets.
     Vi samler derfor drag/resize/rotation style-opdateringer i requestAnimationFrame.
@@ -40867,14 +40895,17 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
  const safe455l72Raf=(window.requestAnimationFrame||function(fn){return setTimeout(fn,16)}).bind(window);
  function safe455l72ApplyMove(m){
     if(!m)return;
+    const z=(start&&start.scale)||safe957BoardGestureScale();
+    const dx=((Number(m.clientX)||0)-((start&&Number(start.x))||0))/(z||1);
+    const dy=((Number(m.clientY)||0)-((start&&Number(start.y))||0))/(z||1);
     if(drag){
-      w.x=start.wx+m.clientX-start.x;
-      w.y=start.wy+m.clientY-start.y;
+      w.x=start.wx+dx;
+      w.y=start.wy+dy;
       el.style.transform=transformFor(w);
     }
     if(res){
-      w.w=Math.max(120,start.ww+m.clientX-start.x);
-      w.h=Math.max(90,start.wh+m.clientY-start.y);
+      w.w=Math.max(120,start.ww+dx);
+      w.h=Math.max(90,start.wh+dy);
       el.style.width=w.w+'px';
       el.style.height=w.h+'px';
       el.style.setProperty('--widget-w',w.w+'px');
@@ -40885,7 +40916,8 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
         clearTimeout(rotHoldTimer);
         rotHoldTimer=null;
       }
-      const nowAngle=Math.atan2(m.clientY-start.cy,m.clientX-start.cx)*180/Math.PI;
+      const p=safe957BoardPointFromClient(m.clientX,m.clientY);
+      const nowAngle=Math.atan2(p.y-start.cy,p.x-start.cx)*180/Math.PI;
       let delta=nowAngle-start.startAngle;
       if(delta>180)delta-=360;
       if(delta<-180)delta+=360;
@@ -40919,7 +40951,8 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
         clearTimeout(rotHoldTimer);
         rotHoldTimer=null;
       }
-      const nowAngle=Math.atan2(m.clientY-start.cy,m.clientX-start.cx)*180/Math.PI;
+      const p=safe957BoardPointFromClient(m.clientX,m.clientY);
+      const nowAngle=Math.atan2(p.y-start.cy,p.x-start.cx)*180/Math.PI;
       let delta=nowAngle-start.startAngle;
       if(delta>180)delta-=360;
       if(delta<-180)delta+=360;
@@ -40953,9 +40986,14 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
     try{
       if(safe644EndPointerId!=null && ev && ev.pointerId!=null && ev.pointerId!==safe644EndPointerId)return;
       if(!(drag||res))return;
+      if(ev&&(ev.pointerType==='touch'||ev.pointerType==='pen')){
+        if(ev.cancelable)ev.preventDefault();
+        ev.stopPropagation();
+        if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+      }
       safe455l72ScheduleMove(ev);
-      // Stop ikke propagation: widgettens oprindelige pointermove må stadig være ejer,
-      // men document-move holder fast ved hurtige bevægelser, hvis capture glipper.
+      // l957: Ved touch må document-reserven stoppe tavle-/browser-pan,
+      // men den ændrer stadig ikke widgettens oprindelige drag-ejer.
     }catch(_e){}
  }
  function safe644RemoveDocEnd(){
@@ -40993,9 +41031,9 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
     safe644EndPointerId=pid;
     if(safe644DocEndInstalled)return;
     safe644DocEndInstalled=true;
-    document.addEventListener('pointermove',safe645DocMoveDragResize,{capture:true,passive:true});
-    document.addEventListener('pointerup',safe644EndDragResize,{capture:true,passive:true});
-    document.addEventListener('pointercancel',safe644EndDragResize,{capture:true,passive:true});
+    document.addEventListener('pointermove',safe645DocMoveDragResize,{capture:true,passive:false});
+    document.addEventListener('pointerup',safe644EndDragResize,{capture:true,passive:false});
+    document.addEventListener('pointercancel',safe644EndDragResize,{capture:true,passive:false});
  }
  const chrome=el.querySelector('.chrome'), rh=el.querySelector('.rotater'), rez=el.querySelector('.resize');
  if(rh){
@@ -41010,6 +41048,8 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
    rh.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation()});
  }
  chrome.addEventListener('pointerdown',e=>{
+   // l957: Touch på widgetbjælken skal eje gestussen, så tavle-/browser-pan ikke følger med.
+   // Knapper i bjælken slippes stadig til deres egne handlers længere nede.
    // l657: Bjælkens egne knapper/controls må ikke starte drag.
    // Det løser Link/iFrame-værktøjslinjen på iPad uden at ændre selve drag-ejeren.
    if(e.target && e.target.closest && e.target.closest('.mini, .mini button, button[data-act], input, select, textarea, label, a, [contenteditable="true"]')){
@@ -41017,6 +41057,7 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
      return;
    }
    if(w.locked)return;
+   safe957StopTouchTransform(e);
    // Klik på bjælken betyder vælg/flyt widget - ikke skriv i tekstfeltet.
    try{
      if(document.activeElement && document.activeElement.closest && document.activeElement.closest('.widget')===el){
@@ -41026,12 +41067,12 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
    select(w.id,{editText:false});
    setToolbarHidden(true);
    drag=true;
-   start={x:e.clientX,y:e.clientY,wx:w.x,wy:w.y};
+   start={x:e.clientX,y:e.clientY,wx:w.x,wy:w.y,scale:safe957BoardGestureScale()};
    try{chrome.setPointerCapture(e.pointerId);}catch(_e){}
    safe644InstallDocEnd(e.pointerId);
  });
  
- rez.addEventListener('pointerdown',e=>{if(w.locked)return;e.stopPropagation();setToolbarHidden(true);res=true;start={x:e.clientX,y:e.clientY,ww:w.w,wh:w.h};try{rez.setPointerCapture(e.pointerId);}catch(_e){};safe644InstallDocEnd(e.pointerId)});
+ rez.addEventListener('pointerdown',e=>{if(w.locked)return;safe957StopTouchTransform(e);e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();setToolbarHidden(true);res=true;start={x:e.clientX,y:e.clientY,ww:w.w,wh:w.h,scale:safe957BoardGestureScale()};try{rez.setPointerCapture(e.pointerId);}catch(_e){};safe644InstallDocEnd(e.pointerId)});
  rh.addEventListener('pointerdown',e=>{
     try{
       const now=Date.now();
@@ -41049,8 +41090,10 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
       }
     }catch(_e){}
     if(w.locked)return;
+    safe957StopTouchTransform(e);
     e.preventDefault();
     e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
     select(w.id);
     rot=true;
     rotHoldDidReset=false;
@@ -41063,10 +41106,12 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
       try{rh.releasePointerCapture(e.pointerId)}catch(_e){}
     },650);
     const cx=w.x+w.w/2, cy=w.y+w.h/2;
+    const bp=safe957BoardPointFromClient(e.clientX,e.clientY);
     start={
       cx,cy,
-      startAngle:Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI,
-      startRotation:Number(w.rotation||0)
+      startAngle:Math.atan2(bp.y-cy,bp.x-cx)*180/Math.PI,
+      startRotation:Number(w.rotation||0),
+      scale:bp.z||safe957BoardGestureScale()
     };
     rh.setPointerCapture(e.pointerId);
 
@@ -83425,5 +83470,32 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
 }
 #modal .safe827Generator .safe827PreviewItem span{color:#f8fafc!important;}
 #modal .safe827Generator .safe827PreviewItem .no{color:#bfdbfe!important;}
+</style>
+
+<style id="l957-touch-widget-transform-owner-css">
+/* l957: Kun widget-transform-håndtag får touch-action:none.
+   Tavlefladen, PDF-scroll og to-finger tavlezoom bevares udenfor disse håndtag. */
+.widget .chrome,
+.widget .resize,
+.widget .rotater{
+  touch-action:none!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+}
+.widget .chrome .mini,
+.widget .chrome .mini *,
+.widget .chrome button,
+.widget .chrome input,
+.widget .chrome select,
+.widget .chrome textarea,
+.widget .chrome label,
+.widget .chrome a{
+  touch-action:manipulation!important;
+}
+body.widget-transform-active,
+body.widget-transform-active #app,
+body.widget-transform-active #safe453BoardZoomLayer{
+  overscroll-behavior:contain!important;
+}
 </style>
 </body></html>
