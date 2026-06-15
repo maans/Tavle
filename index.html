@@ -1,3 +1,4 @@
+<!-- l959_tavleliste_active_scroll_SAFE: Bygger direkte på brugerens senest virkende l957. Retter kun TavleListe/Tavle-tjekliste i ListeWidget-ejeren: efter render scrolles den lokale tavleliste, så aktiv tavle holdes synlig; loop sidste→første springer til top, første→sidste til bund. Ingen ændring af touch-drag, PDF, zoom, Backup++ eller sessiondata. -->
 <!-- l957_touch_widget_handles_ownerfix_SAFE: Bygger på l956. Retter touch-flyt/resize/rotation i widget-ejeren: widgetbjælke, resize-håndtag og rotationshåndtag får egen touch-gestus uden native tavle-/browser-pan, og drag/resize korrigeres for Tavlezoom. Almindelig tavleflade, vandret tavleskift, PDF-scroll og to-finger tavlezoom bevares. -->
 <!-- l956_hjaelp_backuppp_sessioner_SAFE: Bygger på l955. Opdaterer kun Hjælp-teksten om sessioner, TavleSessioner og Backup++ i samme brugervendte stil som resten af Hjælp. Ingen app-logik, backup-logik, importlogik, CSS-layout eller session-synkronisering ændret. -->
 <!-- l955_tavlesessioner_global_sync_SAFE: Bygger på testet l954. Retter TavleSessioner som global sessionsoversigt: safe859EnsureSessionListDataset synkroniserer nu alle TavleSessioner-datasæt i den aktuelle session til samme globale browser-scan/registry, eksponerer en refresh-funktion til Backup++ import og genopfrisker ved opstart uden at ændre Backup/Backup+ eller Backup++ eksportformat. -->
@@ -37153,6 +37154,56 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
     else html='<div class="listLineList">'+items.map((x,i)=>'<div class="listPlainItem">'+safe759EditableSpan(x,i)+'</div>').join('')+'</div>';
     const box=root.querySelector('.listPreview');
     if(box){box.innerHTML=html;box.setAttribute('data-list-view',labelMap[type]||'Liste');}
+
+    /* l959: TavleListe/Tavle-tjekliste følger den aktive tavle.
+       Kirurgisk i ListeWidget-ejeren: scroll kun den lokale tavle-liste efter render.
+       Ingen global navigation, ingen ændring af tavleflade/touch/PDF/zoom. */
+    function safe959EnsureActiveBoardVisible(){
+      try{
+        if(!isBoardPanel||!root||!root.querySelector)return;
+        const panel=root.querySelector('.tavlePanel');
+        if(!panel)return;
+        const list=panel.querySelector('.boardIndexList')||panel.querySelector('.tavlePanelPickGrid');
+        if(!list)return;
+        const active=list.querySelector('.boardIndexMenuItem.active,.tavlePanelPickCard.active');
+        if(!active)return;
+        const activeBtn=(active.matches&&active.matches('[data-board-index-go]'))?active:active.querySelector('[data-board-index-go]');
+        if(!activeBtn)return;
+        const buttons=Array.prototype.slice.call(list.querySelectorAll('[data-board-index-go]')).filter(function(btn){
+          try{return !!(btn.offsetParent!==null||btn.getClientRects().length);}
+          catch(_e){return true;}
+        });
+        const orderIndex=buttons.indexOf(activeBtn);
+        if(orderIndex<0)return;
+        const maxIndex=buttons.length-1;
+        const prevIndex=Number.isInteger(w.__safe959BoardListOrderIndex)?w.__safe959BoardListOrderIndex:null;
+        let scrollBox=list;
+        try{
+          if(scrollBox.scrollHeight<=scrollBox.clientHeight+2 && panel.scrollHeight>panel.clientHeight+2)scrollBox=panel;
+        }catch(_e){}
+        if(!scrollBox||scrollBox.clientHeight<8)return;
+        const margin=Math.max(10,Math.min(24,Math.round((scrollBox.clientHeight||0)*0.05)));
+        if(prevIndex!==null && maxIndex>0 && prevIndex===maxIndex && orderIndex===0){
+          scrollBox.scrollTop=0;
+        }else if(prevIndex!==null && maxIndex>0 && prevIndex===0 && orderIndex===maxIndex){
+          scrollBox.scrollTop=scrollBox.scrollHeight;
+        }else{
+          const sr=scrollBox.getBoundingClientRect();
+          const ar=active.getBoundingClientRect();
+          const top=ar.top-sr.top;
+          const bottom=ar.bottom-sr.top;
+          if(top<margin)scrollBox.scrollTop+=top-margin;
+          else if(bottom>scrollBox.clientHeight-margin)scrollBox.scrollTop+=bottom-scrollBox.clientHeight+margin;
+        }
+        w.__safe959BoardListOrderIndex=orderIndex;
+      }catch(_e){}
+    }
+    if(isBoardPanel){
+      try{
+        requestAnimationFrame(function(){safe959EnsureActiveBoardVisible();});
+        setTimeout(safe959EnsureActiveBoardVisible,80);
+      }catch(_e){safe959EnsureActiveBoardVisible();}
+    }
     function safe759CollectEditableList(){
       try{
         const vals=[];
