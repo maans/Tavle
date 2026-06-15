@@ -1,3 +1,4 @@
+<!-- l961_link_click_drag_perf_SAFE: Bygger på l960. Retter kun Link/iframeWidget: linkkortets titel og URL åbner nu destinationen robust med touch/click, URL-linjen er et rigtigt link, og Link/iframe-widgetten får lokal transform-pause under flyt/resize så iframe/linkfladen ikke gør træk trægt. Ingen ændring af TavleListe-scroll, medieliste-guard, PDF, Backup++ eller sessiondata. -->
 <!-- l959_tavleliste_active_scroll_SAFE: Bygger direkte på brugerens senest virkende l957. Retter kun TavleListe/Tavle-tjekliste i ListeWidget-ejeren: efter render scrolles den lokale tavleliste, så aktiv tavle holdes synlig; loop sidste→første springer til top, første→sidste til bund. Ingen ændring af touch-drag, PDF, zoom, Backup++ eller sessiondata. -->
 <!-- l957_touch_widget_handles_ownerfix_SAFE: Bygger på l956. Retter touch-flyt/resize/rotation i widget-ejeren: widgetbjælke, resize-håndtag og rotationshåndtag får egen touch-gestus uden native tavle-/browser-pan, og drag/resize korrigeres for Tavlezoom. Almindelig tavleflade, vandret tavleskift, PDF-scroll og to-finger tavlezoom bevares. -->
 <!-- l956_hjaelp_backuppp_sessioner_SAFE: Bygger på l955. Opdaterer kun Hjælp-teksten om sessioner, TavleSessioner og Backup++ i samme brugervendte stil som resten af Hjælp. Ingen app-logik, backup-logik, importlogik, CSS-layout eller session-synkronisering ændret. -->
@@ -38333,9 +38334,36 @@ if(w.type==='poll'){
     const linkNote=String(w.data.linkNote||'').trim();
     const navHtml=safe453i79LinkNavHtml(w,'link');
     const fallbackHero=`<div class="safe455hLinkNavSingle"><a class="safe455hLinkTitle" target="_blank" rel="noopener" href="${esc(url||'#')}">${esc(linkTitle)}</a></div>`;
-    const urlRow=url?`<div class="safe455hUrlRow"><span class="safe455hUrlText">${esc(url)}</span><button type="button" class="safe455hCopyUrl" data-copy-url="${esc(url)}" title="Kopiér adressen">⧉</button></div>`:'';
+    const urlRow=url?`<div class="safe455hUrlRow"><a class="safe455hUrlText safe961LinkOpen" target="_blank" rel="noopener" href="${esc(url)}" title="Åbn link">${esc(url)}</a><button type="button" class="safe455hCopyUrl" data-copy-url="${esc(url)}" title="Kopiér adressen">⧉</button></div>`:'';
     const noteRow=linkNote?`<div class="safe455hNote">${esc(linkNote)}</div>`:'';
     c.innerHTML=`${safe453i71LinkListBarHtml(w)}<div class="linkBox safe453i78LinkView safe455oLinkMode safe455hLinkCard"><div class="safe455oLinkHero safe455hLinkHero">${navHtml||fallbackHero}</div>${urlRow}${noteRow}</div>`;
+    function safe961OpenLinkFromCard(e){
+      try{
+        const a=e&&e.target&&e.target.closest&&e.target.closest('.safe455hLinkTitle,.safe961LinkOpen');
+        if(!a)return false;
+        const href=normalizeLinkUrl(a.getAttribute('href')||url||'');
+        if(!href||href==='#')return false;
+        const now=Date.now();
+        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        if(c.__safe961LastLinkOpen && now-c.__safe961LastLinkOpen<650)return true;
+        c.__safe961LastLinkOpen=now;
+        try{select(w.id,{editText:false});}catch(_e){}
+        const out=document.createElement('a');
+        out.href=href;out.target='_blank';out.rel='noopener';
+        document.body.appendChild(out);out.click();out.remove();
+        return true;
+      }catch(_e){return false;}
+    }
+    c.querySelectorAll('.safe455hLinkTitle,.safe961LinkOpen').forEach(function(a){
+      if(a.__safe961OpenBound)return;
+      a.__safe961OpenBound=true;
+      try{a.style.touchAction='manipulation';}catch(_e){}
+      try{a.addEventListener('pointerdown',function(e){try{e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}},{capture:true,passive:true});}catch(_e){}
+      try{a.addEventListener('touchstart',function(e){try{e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}},{capture:true,passive:true});}catch(_e){}
+      try{a.addEventListener('pointerup',safe961OpenLinkFromCard,{capture:true,passive:false});}catch(_e){}
+      try{a.addEventListener('touchend',safe961OpenLinkFromCard,{capture:true,passive:false});}catch(_e){}
+      try{a.addEventListener('click',safe961OpenLinkFromCard,{capture:true,passive:false});}catch(_e){}
+    });
   }
   c.ondblclick=e=>{if(!canEditWidgets())return;e.preventDefault();e.stopPropagation();select(w.id,{editText:false});askLink(w)};
 }
@@ -40938,6 +40966,18 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
       }
     }catch(_e){}
  }
+ function safe961BeginLinkTransformPause(){
+    /* l961: Link/iframe-widgetten kan blive tung at flytte, især hvis den
+       står i iframe-/webvisning eller lige har været i webvisning. Pausen
+       er lokal for den aktive LinkWidget og fjernes af den eksisterende
+       drag/resize/rotation-slutlogik. */
+    try{
+      if(w&&w.type==='link'){
+        document.body.classList.add('widget-transform-active');
+        el.classList.add('widgetTransforming');
+      }
+    }catch(_e){}
+ }
  /* SAFE455uH45g10l72 performance patch 2:
     Pointermove kan komme langt oftere end skærmens opdateringsrate, især på iPad/Mac med iframe-widgets.
     Vi samler derfor drag/resize/rotation style-opdateringer i requestAnimationFrame.
@@ -41119,12 +41159,13 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
    select(w.id,{editText:false});
    setToolbarHidden(true);
    drag=true;
+   safe961BeginLinkTransformPause();
    start={x:e.clientX,y:e.clientY,wx:w.x,wy:w.y,scale:safe957BoardGestureScale()};
    try{chrome.setPointerCapture(e.pointerId);}catch(_e){}
    safe644InstallDocEnd(e.pointerId);
  });
  
- rez.addEventListener('pointerdown',e=>{if(w.locked)return;safe957StopTouchTransform(e);e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();setToolbarHidden(true);res=true;start={x:e.clientX,y:e.clientY,ww:w.w,wh:w.h,scale:safe957BoardGestureScale()};try{rez.setPointerCapture(e.pointerId);}catch(_e){};safe644InstallDocEnd(e.pointerId)});
+ rez.addEventListener('pointerdown',e=>{if(w.locked)return;safe957StopTouchTransform(e);e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();setToolbarHidden(true);res=true;safe961BeginLinkTransformPause();start={x:e.clientX,y:e.clientY,ww:w.w,wh:w.h,scale:safe957BoardGestureScale()};try{rez.setPointerCapture(e.pointerId);}catch(_e){};safe644InstallDocEnd(e.pointerId)});
  rh.addEventListener('pointerdown',e=>{
     try{
       const now=Date.now();
@@ -44944,7 +44985,7 @@ function safe795LinkItemShouldUseMediaWidget(item){
 function safe960RepairMisdelegatedLinkMediaWidgets(opts){
   try{
     opts=opts||{};
-    if(!state||!Array.isArray(state.slides))return false;
+    if(!window.state||!Array.isArray(state.slides))return false;
     let changed=false;
     state.slides.forEach(sl=>{
       ((sl&&sl.widgets)||[]).forEach(w=>{
@@ -83628,6 +83669,13 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
 .widget .chrome label,
 .widget .chrome a{
   touch-action:manipulation!important;
+}
+.widget[data-type="link"] .safe961LinkOpen,
+.widget[data-type="link"] .safe455hLinkTitle{
+  touch-action:manipulation!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  cursor:pointer!important;
 }
 body.widget-transform-active,
 body.widget-transform-active #app,
