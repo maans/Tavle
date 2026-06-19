@@ -1,3 +1,6 @@
+<!-- l1071_gruppekort_live_medlemmer_SAFE: Bygger direkte på l1070. Retter kun den levende forbindelse mellem GruppeWidget og Gruppekort: Gruppekort læser medlemmer fra GruppeWidgettens aktuelle groups-array, kilden findes først via det gemte kildetavle-ID, og gruppeDefinitioner synkroniseres efter en koblet liste/resultat har opdateret GruppeWidgetten. Ingen ændring af gruppedannelsesalgoritme, gruppetavler, roller, Gruppearbejde, sessionpakker, Elevkort eller Hjælp. -->
+<!-- l1070_sessionpakke_afvis_standard_SAFE: Bygger direkte på l1069. Retter kun den eksisterende sessionpakke-ejer: afviste pakker må ikke længere tælle som indgående pakker, og Afvis pakke fjerner pakken fra det globale pakkeindeks/storage. Ryd aktuel session ændres ikke, fordi sessionpakker med vilje ligger globalt mellem sessioner. Gamle afviste pakker ignoreres straks. -->
+<!-- l1069_grupper_touch_demo_SAFE: Bygger direkte på l1068. Retter kun GruppeWidgettens egen touch-ejer og Grupper-demo: pointerup/touchend/click fra samme fingertryk deduplikeres, så Dan grupper ikke straks stopper igen; ældre/demo-GruppeWidgets med navne som tekst normaliseres lokalt til navneliste og groupCount til Personer pr. gruppe; Demoer opretter fremover Grupper med den aktuelle datastruktur. Ingen ændring af gruppedannelsesalgoritme, Gruppekort, gruppetavler, Elevkort, Hjælp eller øvrige widgets. -->
 <!-- l1068_hjaelp_grupper_elevkort_SAFE: Bygger direkte på fungerende l1067. Opdaterer kun den eksisterende Hjælp-tekst om GruppeWidget, gruppetavler, Tavlegenerator, Elevkort, elevtavler og elevnoter. Ingen app-logik, widget-rendering, events, data, gruppedannelse, elevsessioner eller sessionsoverførsel ændres. -->
 <!-- l1066_gruppearbejde_faner_kirurgisk_SAFE: Bygger direkte på brugerens ikke-låste l1062. Ændrer kun Gruppekortets eksisterende Arbejde-visning: tre lokale underfaner (Opgaver, Kommentarer, Svar) filtrerer det allerede eksisterende Gruppearbejde-datasæt. Ingen nye globale eventhandlere, ingen ændring af DataWidget-lukning, GruppeWidget, gruppedannelse, gruppetavler eller sessionsoverførsel. -->
 <!-- l1058_pdf_modal_handler_cleanup_SAFE: Bygger direkte på l1057. Retter kun PDFWidget → DATA → Hent PDF-svar-modalens event-ejer: gamle capture-handlere på den genbrugte #modal fjernes før nye bindes, så et tidligere succesfuldt valg ikke kan stå med picking=true og sluge næste tryk på datasættet. PDF-hentning fra l1055 og ikke-destruktiv delt dataset-læsning fra l1057 bevares. -->
@@ -24111,15 +24114,46 @@ function safe1059GroupRole(ownerW,index,name){
 function safe1059FindSourceGroupWidget(cardW){
   try{
     const d=(cardW&&cardW.data)||{};
-    let rec=safe1059FindWidgetRecord(d.sourceGroupWidgetId);
-    if(rec&&rec.w&&rec.w.type==='groups')return rec;
+    const sourceSlideId=String(d.sourceSlideId||'');
+    const sourceWidgetId=String(d.sourceGroupWidgetId||'');
     const setId=String(d.groupSetId||'');
+    /* l1071: Brug først den kildetavle, Gruppekortet allerede kender. Det undgår,
+       at en importeret eller ældre GruppeWidget med samme gruppesæt vælges før masteren. */
+    if(sourceSlideId){
+      for(let si=0;si<(state.slides||[]).length;si++){
+        const sl=state.slides[si];
+        if(String(sl&&sl.id||'')!==sourceSlideId)continue;
+        const ws=(sl&&sl.widgets)||[];
+        for(let wi=0;wi<ws.length;wi++){
+          const w=ws[wi];
+          if(!w||w.type!=='groups')continue;
+          if((sourceWidgetId&&String(w.id||'')===sourceWidgetId)||(setId&&w.data&&String(w.data.groupSetId||'')===setId))return {slide:sl,slideIndex:si,index:wi,w:w};
+        }
+      }
+    }
+    let rec=safe1059FindWidgetRecord(sourceWidgetId);
+    if(rec&&rec.w&&rec.w.type==='groups')return rec;
     if(setId){for(let si=0;si<(state.slides||[]).length;si++){const sl=state.slides[si];const ws=(sl&&sl.widgets)||[];for(let wi=0;wi<ws.length;wi++){const w=ws[wi];if(w&&w.type==='groups'&&w.data&&String(w.data.groupSetId||'')===setId)return {slide:sl,slideIndex:si,index:wi,w:w};}}}
   }catch(_e){}
   return null;
 }
 function safe1059GroupDefForCard(cardW){
-  try{const rec=safe1059FindSourceGroupWidget(cardW);if(!rec)return {rec:null,def:null,index:-1};const defs=safe1059EnsureGroupSet(rec.w,{});const gid=String(cardW.data&&cardW.data.groupId||'');const index=defs.findIndex(x=>String(x&&x.id||'')===gid);return {rec:rec,def:index>=0?defs[index]:null,index:index};}catch(_e){return {rec:null,def:null,index:-1};}
+  try{
+    const rec=safe1059FindSourceGroupWidget(cardW);
+    if(!rec)return {rec:null,def:null,index:-1};
+    const defs=safe1059EnsureGroupSet(rec.w,{});
+    const gid=String(cardW.data&&cardW.data.groupId||'');
+    const index=defs.findIndex(x=>String(x&&x.id||'')===gid);
+    const def=index>=0?defs[index]:null;
+    /* l1071: Medlemmernes sandhed ligger i GruppeWidgettens aktuelle grupper.
+       Gruppekortet må derfor ikke vise et ældre members-snapshot fra groupDefinitions. */
+    if(def&&rec.w&&rec.w.data&&Array.isArray(rec.w.data.groups)&&Array.isArray(rec.w.data.groups[index])){
+      const liveMembers=(typeof safe1061CleanGroupMembers==='function')?safe1061CleanGroupMembers(rec.w.data.groups[index]):rec.w.data.groups[index].map(x=>String(x==null?'':x).trim()).filter(Boolean);
+      const before=Array.isArray(def.members)?def.members:[];
+      if(before.length!==liveMembers.length||before.some((name,i)=>String(name)!==String(liveMembers[i])))def.members=liveMembers.slice();
+    }
+    return {rec:rec,def:def,index:index};
+  }catch(_e){return {rec:null,def:null,index:-1};}
 }
 function safe1059EnsureWorkDataset(ownerW){
   try{
@@ -24898,8 +24932,11 @@ function wireGroups(c,w){
     let last=0;
     const run=e=>{
       const now=Date.now();
-      if(e.type==='click' && now-last<420){hardStop(e);return false;}
-      if(e.type!=='click')last=now;
+      // Et enkelt fingertryk på iPad kan udløse både pointerup, touchend og click.
+      // Hele gesturefølgen skal kun aktivere knappen én gang; ellers starter Dan grupper
+      // på første event og stopper straks igen på den næste.
+      if(now-last<420){hardStop(e);return false;}
+      last=now;
       hardStop(e);markActive();
       try{fn(e);}catch(err){console.error('l674 Grupper-knap fejlede',err);try{toast('Grupper-knap fejlede')}catch(_e){}}
       return false;
@@ -30576,7 +30613,7 @@ function safe453kOpenDemoModal(){
     ['list','☰','Liste-demo','En navneliste klar til hjul og grupper',()=>safe453kCreateDemoWidget('text',{text:'Alma\nBertram\nClara\nEmil\nFreja\nIda\nJohan\nLiva',fontSize:22,kind:'list',listAsset:true},'☰ Demo: navneliste')],
     ['timer','⌛','Timer-demo','En enkel nedtælling til korte aktiviteter',()=>safe453kCreateDemoWidget('timer',{mode:'countdown',minutes:5,seconds:0,title:'Arbejd i 5 minutter'},'⌛ Demo: timer')],
     ['wheel','🎲','Lykkehjulet-demo','Et hjul med små aktivitetstyper',()=>safe453kCreateDemoWidget('wheel',{names:['Forklar begreb','Find eksempel','Stil spørgsmål','Tegn svaret','Arbejd to og to'],original:['Forklar begreb','Find eksempel','Stil spørgsmål','Tegn svaret','Arbejd to og to'],chosen:[]},'🎲 Demo: aktivitetshjul')],
-    ['groups','👥','Grupper-demo','Navne klar til gruppeinddeling',()=>safe453kCreateDemoWidget('groups',{names:'Alma\nBertram\nClara\nEmil\nFreja\nIda\nJohan\nLiva',groupCount:3},'👥 Demo: grupper')],
+    ['groups','👥','Grupper-demo','Navne klar til gruppeinddeling',()=>safe453kCreateDemoWidget('groups',{names:['Alma','Bertram','Clara','Emil','Freja','Ida','Johan','Liva'],size:3,groups:[],groupLocks:[],groupsVisible:false},'👥 Demo: grupper')],
     ['poll','😊','Afstemning-demo','Et spørgsmål med tre svarmuligheder',()=>safe453kCreateDemoWidget('poll',{question:'Hvordan går det med opgaven?',options:['Jeg er godt i gang','Jeg har brug for hjælp','Jeg er færdig'],votes:[0,0,0]},'😊 Demo: afstemning')],
     ['wordcloud','☁️','Ordsky-demo','En ordsky med startord',()=>safe453kCreateDemoWidget('wordcloud',{question:'Hvilke ord passer til emnet?',words:['fællesskab','mod','nysgerrighed','ansvar','humor','fordybelse']},'☁️ Demo: ordsky')],
     ['kahoopardy','🏆','KaPardy-demo','En quiz med fem spørgsmål',()=>safe453kCreateDemoWidget('kahoopardy',{editing:true,mode:'kahoot',teams:[{name:'Hold 1',score:0,correct:0},{name:'Hold 2',score:0,correct:0}],questions:safe453kDemoQuestions(),stage:'question'},'🏆 Demo: KaPardy')],
@@ -42085,9 +42122,20 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
  if(w.type==='kahoopardy'){normalizeKahoopardy(w);renderKahoopardy(el,w)}
 // --- WIDGET: GROUPS ---
  if(w.type==='groups'){
+ w.data=w.data||{};
+ // Lokalt kompatibilitetslag for gamle sessioner og den tidligere Grupper-demo,
+ // hvor navne kunne ligge som linjeskiftstekst og gruppestørrelsen som groupCount.
+ if(typeof w.data.names==='string')w.data.names=String(w.data.names).split(/\r?\n|[;,]/).map(x=>String(x||'').trim()).filter(Boolean);
+ if(!Array.isArray(w.data.names))w.data.names=[];
+ if(w.data.size==null&&w.data.groupCount!=null)w.data.size=Math.max(1,Number(w.data.groupCount)||2);
  w.data.names??=[];w.data.size??=2;w.data.groups??=[];w.data.groupLocks??=[];w.data.groupsVisible??=!!(w.data.groups&&w.data.groups.length);
- try{safe1059EnsureGroupSet(w,{});}catch(_e){}
- try{if(typeof safe452tRefreshGroupsFromLinkedList==='function')safe452tRefreshGroupsFromLinkedList(w);}catch(_e){}
+ let safe1071GroupsSourceChanged=false;
+ try{if(typeof safe452tRefreshGroupsFromLinkedList==='function')safe1071GroupsSourceChanged=!!safe452tRefreshGroupsFromLinkedList(w);}catch(_e){}
+ try{
+   const safe1071HasGroups=Array.isArray(w.data.groups)&&w.data.groups.some(g=>Array.isArray(g)&&g.length);
+   safe1059EnsureGroupSet(w,{clearMembers:safe1071GroupsSourceChanged&&!safe1071HasGroups});
+ }catch(_e){}
+ if(safe1071GroupsSourceChanged){setTimeout(()=>{try{safe1059RefreshLinkedGroupBoards(w,{save:false});}catch(_e){}},0);}
  let safe452GroupsStatusLabel='Liste';
  try{
    const safe676Ref=(typeof safe450GetLinkedDataRef==='function')?safe450GetLinkedDataRef(w,'participants'):null;
@@ -57473,7 +57521,8 @@ function safe859IncomingPackages(){
   try{
     const here=safe859CurrentSessionId();
     return safe859ReadPackageIndex().map(safe859ReadPackage).filter(function(pkg){
-      return pkg&&pkg.packageType==='tavle-session-transfer'&&String(pkg.toSession||'')===here&&pkg.status!=='imported'&&Array.isArray(pkg.slides)&&pkg.slides.length;
+      const status=String(pkg&&pkg.status||'ready');
+      return pkg&&pkg.packageType==='tavle-session-transfer'&&String(pkg.toSession||'')===here&&(status==='ready'||status==='')&&Array.isArray(pkg.slides)&&pkg.slides.length;
     }).sort(function(a,b){return Number(b.createdAt||0)-Number(a.createdAt||0);});
   }catch(_e){return [];}
 }
@@ -57490,7 +57539,15 @@ function safe859CheckIncomingPackages(){
     const imp=modal.querySelector('#safe859ImportPkg'), skip=modal.querySelector('#safe859SkipPkg'), rej=modal.querySelector('#safe859RejectPkg');
     if(imp)imp.onclick=async function(e){e.preventDefault();closeModal();await safe859ImportPackage(pkg);};
     if(skip)skip.onclick=function(e){e.preventDefault();closeModal();};
-    if(rej)rej.onclick=function(e){e.preventDefault();pkg.status='rejected';pkg.rejectedAt=Date.now();safe859WritePackage(pkg);closeModal();toast('Pakken er afvist');};
+    if(rej)rej.onclick=function(e){
+      e.preventDefault();
+      pkg.status='rejected';
+      pkg.rejectedAt=Date.now();
+      try{localStorage.removeItem(safe859PackageKey(pkg.id));}catch(_e){}
+      try{safe859WritePackageIndex(safe859ReadPackageIndex().filter(function(id){return String(id)!==String(pkg.id);}));}catch(_e){}
+      closeModal();
+      toast('Pakken er afvist');
+    };
   }catch(_e){}
 }
 try{window.safe859CheckIncomingPackages=safe859CheckIncomingPackages;}catch(_e){}
