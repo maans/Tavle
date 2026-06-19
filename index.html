@@ -1,3 +1,8 @@
+<!-- l1058_pdf_modal_handler_cleanup_SAFE: Bygger direkte på l1057. Retter kun PDFWidget → DATA → Hent PDF-svar-modalens event-ejer: gamle capture-handlere på den genbrugte #modal fjernes før nye bindes, så et tidligere succesfuldt valg ikke kan stå med picking=true og sluge næste tryk på datasættet. PDF-hentning fra l1055 og ikke-destruktiv delt dataset-læsning fra l1057 bevares. -->
+<!-- l1057_pdf_shared_dataset_nondestructive_SAFE: Bygger direkte på l1055. Retter kun PDFWidget → DATA → Hent PDF-svar i selve den eksisterende apply-ejer: Hent fra et PDF-svar-datasæt er nu ikke-destruktiv læsning til den aktuelle PDFWidget og må ikke oprette/flytte/omdefinere DataWidget-ejerskab eller synkronisere tilbage til kildedatasættet. Dermed kan mange PDFWidgets bruge samme eller forskellige PDF-svar-datasæt. PDF-hentning fra GitHub/repo fra l1055 bevares. -->
+<!-- l1055_pdf_fetch_bytes_fallback_SAFE: Bygger direkte på l1052 og bevarer den fungerende PDFWidget → DATA → Hent PDF-svar. Retter kun PDF-hentning/render-source for eksterne repo-PDFer: PDFWidget-demo, Hjælp- og KaPardy/Afstemning/Lykkehjul/Grupper-formularer forsøges nu hentet som bytes via samme relative pdf/-sti med same-origin først og jsDelivr/raw.githubusercontent fallback, så lokal/downloadet HTML ikke går i stå på CORS/custom-domain. Ingen ændring af DATA/Hent PDF-svar, Tavlekort, Tavlegenerator, LinkWidget, TavleListe eller sessionlogik. -->
+<!-- l1052_pdf_hentdata_plain_answers_owner_SAFE: Bygger på l1050/l1028. Retter kun PDFWidget → DATA → Hent PDF-svar efter at l1050 viste, at KaPardy/DataWidget-override stadig kunne overtage et almindeligt PDF-svar-datasæt. l1052 indsætter en lokal ejer i samme PDF/DataWidget-scope: almindelige PDF-svar-datasæt (Felt/Svar/karakter_*) anvendes direkte til pdfFormData før KaPardy-sporet får lov. Ingen ændring af scanning, Tavlekort, Tavlegenerator, PDF-navigation, LinkWidget, TavleListe eller sessionlogik. -->
+<!-- l1050_pdf_hentdata_prebuilt_map_SAFE: Bygger direkte på l1049/l1028. Retter kun PDFWidget → DATA → Hent PDF-svar efter at datasættet findes og tryk registreres: vælgeren gemmer nu et færdigbygget Felt/Svar-map på kandidaten, og anvendelsen bruger dette map før normalisering samt en sidste “første/to første kolonner”-fallback for allerede godkendte PDF-svar-datasæt. Ingen ændring af scanning, Tavlekort, Tavlegenerator, PDF-navigation, LinkWidget, TavleListe eller sessionlogik. -->
 <!-- l1028_session_sletning_uden_spoegelsesrækker_SAFE: Bygger på l1024. Bevarer den gode elevsession-overførsel og retter kun session-sletning/TavleSessioner-ejeren: slettede sessions gemmes som tombstones, gamle TavleSessioner-rækker bruges ikke længere som kilde til ny sessionsliste, og listen bygges fra reelle storage-keys/registries med filter, så slettede sessions ikke genskabes når man åbner andre sessions. -->
 <!-- l1023_elevsession_import_rowrepair_SAFE: Bygger på l1022. Retter kun importerede elevsessioner, hvor Elevkort efter sessionpakke kunne fastholde første elevrække på alle tavler. Elevkort-rækken repareres ud fra tavlens transferMeta/tavletitel, og note-/rapportoprettelse bruger derefter den rigtige elevrække. -->
 <!-- l1022_elevsession_pakke_med_elevnoter_uden_importoverride_SAFE: Bygger på l1020/l1018-linjen og kasserer l1021-importoverride. Retter kun elevsession-pakken, så relateret Elevnoter-datasæt følger med uden at ændre Tavlegeneratorens/importens fungerende widgetvej. Ingen skjult baggrundsskrivning. -->
@@ -24771,6 +24776,104 @@ async function safe453i156StoreDroppedPdfFile(file){
   });
   return rec;
 }
+/* l1055: PDF'er fra repoet skal kunne vises både online og fra en downloadet/lokal Tavle.html.
+   Baggrundsbilleder kan ofte indlæses direkte på tværs af domæner, men PDF.js/fetch kræver CORS.
+   Derfor hentes repo-PDF'er som bytes med fallback til GitHub CDN/raw, før PDF.js får dem. */
+function safe1055PdfRelPathFromUrl(src){
+  try{
+    src=String(src||'').trim();
+    if(!src||/^data:|^blob:/i.test(src))return '';
+    src=src.split('#')[0].split('?')[0];
+    src=src.replace(/^\.?\//,'');
+    let m=src.match(/(?:^|\/)(pdf\/[^?#]+)/i);
+    if(m&&m[1])return decodeURIComponent(m[1]).replace(/^\/+/,'');
+    m=src.match(/(?:^|\/)(Tavle\/pdf\/[^?#]+)/i);
+    if(m&&m[1])return decodeURIComponent(m[1]).replace(/^Tavle\//i,'').replace(/^\/+/,'');
+  }catch(_e){}
+  return '';
+}
+function safe1055UniqueUrls(list){
+  const out=[], seen=new Set();
+  (list||[]).forEach(function(u){
+    try{
+      u=String(u||'').trim();
+      if(!u||seen.has(u))return;
+      seen.add(u); out.push(u);
+    }catch(_e){}
+  });
+  return out;
+}
+function safe1055JoinBase(base,rel){
+  try{return String(base||'').replace(/\/?$/,'/')+String(rel||'').replace(/^\/+/,'');}catch(_e){return String(rel||'');}
+}
+function safe1055PdfCandidateUrls(src){
+  try{
+    src=String(src||'').trim();
+    const rel=safe1055PdfRelPathFromUrl(src);
+    if(!rel)return src?[src]:[];
+    const candidates=[];
+    const proto=String((location&&location.protocol)||'');
+    const isLocal=(proto==='file:'||proto==='blob:'||proto==='about:');
+    const origin=(typeof location!=='undefined'&&location&&/^https?:/i.test(proto))?String(location.origin||''):'';
+    let pageBase='';
+    try{
+      if(origin){
+        const p=String(location.pathname||'');
+        const dir=p.replace(/[^\/]*$/,'');
+        pageBase=origin+dir;
+      }
+    }catch(_e){}
+
+    /* Online version: prøv den samme rod først. Downloadet/lokal version: gå hurtigere til CORS-venlige CDN'er. */
+    if(!isLocal){
+      if(src)candidates.push(src);
+      if(pageBase)candidates.push(safe1055JoinBase(pageBase,rel));
+      if(origin)candidates.push(safe1055JoinBase(origin+'/',rel));
+      if(origin)candidates.push(safe1055JoinBase(origin+'/Tavle/',rel));
+    }
+
+    const configured=(window.TAVLE_ASSET_BASE|| (typeof DEFAULT_TAVLE_ASSET_BASE!=='undefined'?DEFAULT_TAVLE_ASSET_BASE:''));
+    if(configured)candidates.push(safe1055JoinBase(configured,rel));
+
+    candidates.push('https://cdn.jsdelivr.net/gh/maans/Tavle@main/'+rel);
+    candidates.push('https://raw.githubusercontent.com/maans/Tavle/main/'+rel);
+    candidates.push('https://maans.github.io/Tavle/'+rel);
+    candidates.push('https://tavle.maans.dk/'+rel);
+    candidates.push('https://maans.dk/Tavle/'+rel);
+
+    if(isLocal&&src)candidates.push(src);
+    return safe1055UniqueUrls(candidates);
+  }catch(_e){return src?[String(src)]:[];}
+}
+function safe1055LooksLikePdfBytes(bytes,contentType){
+  try{
+    if(!bytes||!bytes.length)return false;
+    const head=String.fromCharCode(bytes[0]||0,bytes[1]||0,bytes[2]||0,bytes[3]||0);
+    if(head==='%PDF')return true;
+    if(String(contentType||'').toLowerCase().indexOf('pdf')>=0)return true;
+  }catch(_e){}
+  return false;
+}
+async function safe1055FetchPdfBytesFromCandidates(candidates){
+  let lastErr=null;
+  for(const url of (candidates||[])){
+    try{
+      if(!url||/^data:|^blob:/i.test(url))continue;
+      const res=await fetch(url,{method:'GET',mode:'cors',credentials:'omit',cache:'no-store'});
+      if(!res||!res.ok)throw new Error('HTTP '+(res&&res.status));
+      const ct=res.headers&&res.headers.get?res.headers.get('content-type'):'';
+      const buf=await res.arrayBuffer();
+      const bytes=new Uint8Array(buf);
+      if(!safe1055LooksLikePdfBytes(bytes,ct))throw new Error('Ikke PDF-data');
+      return {url:url,bytes:bytes,contentType:ct||'application/pdf'};
+    }catch(err){
+      lastErr=err;
+      try{console.warn('l1055 PDF-kilde virkede ikke:',url,err);}catch(_e){}
+    }
+  }
+  if(lastErr)throw lastErr;
+  throw new Error('Ingen PDF-kilder');
+}
 async function safe453i155PdfRenderSource(w){
   const d=(w&&w.data)||{};
   const legacySrc=d.src||d.url||'';
@@ -24784,6 +24887,24 @@ async function safe453i155PdfRenderSource(w){
       }
     }catch(err){
       console.warn('SAFE453i155 PDF fileMediaRef kunne ikke læses; forsøger legacy fallback',err);
+    }
+  }
+  if(isEmbeddedPdf(legacySrc))return {kind:'embedded',src:legacySrc,bytes:null,ref:ref};
+  if(/^blob:/i.test(String(legacySrc||'')))return {kind:'url',src:legacySrc,bytes:null,ref:ref};
+
+  const candidates=safe1055PdfCandidateUrls(legacySrc);
+  const rel=safe1055PdfRelPathFromUrl(legacySrc);
+  if(rel&&candidates.length){
+    try{
+      const hit=await safe1055FetchPdfBytesFromCandidates(candidates);
+      try{
+        d.src=hit.url;
+        if(d.url&&String(d.url).indexOf('pdf/')>=0)d.url=hit.url;
+        d.__safe1055PdfLoadedFrom=hit.url;
+      }catch(_e){}
+      return {kind:'repo-bytes',bytes:hit.bytes,src:hit.url,ref:ref};
+    }catch(err){
+      console.warn('l1055 kunne ikke hente repo-PDF som bytes; forsøger original PDF.js-url',err,candidates);
     }
   }
   return {kind:isEmbeddedPdf(legacySrc)?'embedded':'url',src:legacySrc,bytes:null,ref:ref};
@@ -24848,111 +24969,937 @@ function safe455uH131EnsurePdfWidgetDemo(w){
 
 
 /* SAFE455uH45g10l147: Direkte og lokal hentning af PDF-formularsvar fra DataWidget.
-   Lagt direkte i den fungerende v47e-modal i stedet for som wrapper, så knappen faktisk vises. */
+   l1045: Kirurgisk genopbygning kun af PDFWidget -> DATA -> Hent PDF-svar.
+   Retter ikke Tavlekort, Tavlegenerator, PDF-navigation, LinkWidget, TavleListe eller sessionlogik.
+   Ny strategi: læs PDF-svar fra samme datakilder som Tavle allerede bruger:
+   - state.datasets
+   - DataWidgets på alle tavler, både datasetId, indlejret dataset og tekstpreview
+   - PDFWidgets med pdfFormData
+   - som sidste fallback: DOM-tabel/tekst i synlige DataWidgets
+   Vigtigt: Hent må ikke kræve, at DataWidgetten er lokal/synlig på aktuel tavle. */
 const SAFE455uH45g10l149_KAPARDY_TEMPLATE_10_DATA_URL=(typeof safe458bResolveAssetPath==='function'?safe458bResolveAssetPath('pdf/kapardy/Tavle_KaPardy_PDF_skabelon_10_spoergsmaal.pdf'):'pdf/kapardy/Tavle_KaPardy_PDF_skabelon_10_spoergsmaal.pdf');
+function safe455uH147Esc(v){try{return (typeof esc==='function')?esc(v):String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}catch(_e){return String(v||'');}}
+function safe455uH147PlainText(v){
+  try{
+    if(v==null)return '';
+    if(typeof v==='object'){
+      const keys=['label','name','title','key','field','header','text','value','displayValue','content'];
+      for(const k of keys){if(v[k]!=null&&String(v[k]).trim()!=='')return safe455uH147PlainText(v[k]);}
+      try{return JSON.stringify(v);}catch(_e){return String(v);}
+    }
+    let s=String(v);
+    try{if(typeof safe87DecodeCell==='function')s=String(safe87DecodeCell(s));}catch(_e){}
+    return s.replace(/<[^>]+>/g,'').replace(/&nbsp;/gi,' ').trim();
+  }catch(_e){return String(v||'').trim();}
+}
+function safe455uH147Norm(v){
+  try{return safe455uH147PlainText(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g,'aa').replace(/[^a-z0-9]+/g,'').trim();}
+  catch(_e){return String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,'').trim();}
+}
 function safe455uH147ColumnIndex(cols,names){
-  cols=(cols||[]).map(c=>String(c||'').trim().toLowerCase());
-  for(const n of names){const i=cols.indexOf(String(n||'').trim().toLowerCase()); if(i>=0)return i;}
+  cols=(Array.isArray(cols)?cols:[]).map(c=>safe455uH147PlainText(c));
+  const wanted=(names||[]).map(safe455uH147Norm).filter(Boolean);
+  for(let i=0;i<cols.length;i++){
+    const n=safe455uH147Norm(cols[i]);
+    if(!n)continue;
+    if(wanted.includes(n))return i;
+  }
+  for(let i=0;i<cols.length;i++){
+    const n=safe455uH147Norm(cols[i]);
+    if(!n)continue;
+    if(wanted.includes('felt')&&['pdffelt','feltnavn','fieldname','formfield','formularfelt','key'].includes(n))return i;
+    if(wanted.includes('svar')&&['pdfsvar','vaerdi','value','answer','formvalue','formularsvar'].includes(n))return i;
+  }
   return -1;
+}
+function safe455uH147LooksLikePdfAnswers(ds,w){
+  try{
+    const d=(ds&&ds.data&&typeof ds.data==='object')?ds.data:{};
+    const wd=(w&&w.data&&typeof w.data==='object')?w.data:{};
+    const hay=[
+      ds&&ds.type,ds&&ds.name,ds&&ds.title,ds&&ds.sourceType,ds&&ds.sourceName,ds&&ds.importedFrom,
+      d.type,d.sourceType,d.sourceName,d.datasetView?'datasetView':'',
+      w&&w.type,w&&w.title,wd.sourceType,wd.sourceName,wd.datasetView?'datasetView':'',wd.pdfFormDatasetName,wd.sourceDatasetName
+    ].map(x=>safe455uH147PlainText(x)).join(' ').toLowerCase();
+    return /pdf\s*-?\s*svar|pdf[-_ ]?form[-_ ]?answers|pdf[-_ ]?answers|formularsvar|pdf-form-widget|pdfwidget|pdf/.test(hay);
+  }catch(_e){return false;}
+}
+function safe455uH147RowLen(row){
+  try{
+    if(Array.isArray(row))return row.length;
+    if(row&&typeof row==='object'){
+      for(const k of ['cells','values','row','data','items']){if(Array.isArray(row[k]))return row[k].length;}
+      return Object.keys(row).length;
+    }
+  }catch(_e){}
+  return 0;
+}
+function safe455uH147CellValue(row,index,colName){
+  try{
+    if(Array.isArray(row))return safe455uH147PlainText(row[index]);
+    if(row&&typeof row==='object'){
+      for(const k of ['cells','values','row','data','items']){if(Array.isArray(row[k]))return safe455uH147PlainText(row[k][index]);}
+      const raw=safe455uH147PlainText(colName);
+      if(raw&&Object.prototype.hasOwnProperty.call(row,raw))return safe455uH147PlainText(row[raw]);
+      const wanted=safe455uH147Norm(colName);
+      const key=Object.keys(row).find(k=>safe455uH147Norm(k)===wanted);
+      if(key!=null)return safe455uH147PlainText(row[key]);
+      const vals=Object.values(row);
+      return safe455uH147PlainText(vals[index]);
+    }
+  }catch(_e){}
+  return '';
+}
+function safe455uH147RowsFromUnknown(value){
+  try{
+    if(!value)return [];
+    if(Array.isArray(value))return value;
+    if(typeof value==='object')return Object.values(value);
+  }catch(_e){}
+  return [];
+}
+function safe455uH147ColumnsFromObjectRows(rows){
+  try{
+    const first=(rows||[]).find(r=>r&&typeof r==='object'&&!Array.isArray(r));
+    if(first){
+      const ignore={cells:1,values:1,row:1,data:1,items:1};
+      return Object.keys(first).filter(k=>!ignore[k]);
+    }
+    const arr=(rows||[]).find(r=>Array.isArray(r));
+    if(arr)return arr.map((_,i)=>'Kolonne '+(i+1));
+  }catch(_e){}
+  return [];
+}
+function safe455uH147MapToRows(obj){
+  const rows=[];
+  try{
+    if(!obj||typeof obj!=='object'||Array.isArray(obj))return rows;
+    Object.keys(obj).forEach(k=>{
+      const v=obj[k];
+      if(v==null||String(v).trim()==='')return;
+      if(typeof v==='object'&&!Array.isArray(v))return;
+      rows.push([safe455uH147PlainText(k),safe455uH147PlainText(v)]);
+    });
+  }catch(_e){}
+  return rows;
+}
+function safe455uH147NormalizeDatasetCandidate(ds,w,dsId){
+  try{
+    if(!ds)return null;
+    const source=ds;
+    let rows=[];
+    let columns=[];
+    let objectMapRows=[];
+    if(source.pdfFormData&&typeof source.pdfFormData==='object')objectMapRows=safe455uH147MapToRows(source.pdfFormData);
+    if(!objectMapRows.length && source.data&&source.data.pdfFormData&&typeof source.data.pdfFormData==='object')objectMapRows=safe455uH147MapToRows(source.data.pdfFormData);
+    if(!objectMapRows.length && source.data&&typeof source.data==='object'&&!Array.isArray(source.data)&&!source.rows&&!source.records&&!source.items&&!source.values){
+      // Meget forsigtig: kun map->Felt/Svar hvis objektet ligner et PDF-svar-map.
+      if(safe455uH147LooksLikePdfAnswers(source,w))objectMapRows=safe455uH147MapToRows(source.data);
+    }
+    if(objectMapRows.length){
+      columns=['Felt','Svar'];
+      rows=objectMapRows;
+    }else{
+      rows=safe455uH147RowsFromUnknown(source.rows||source.records||source.items||source.values||source.data||[]);
+      let cols=source.columns||source.cols||source.headers||source.header||source.fields||source.fieldNames||[];
+      columns=Array.isArray(cols)?cols:safe455uH147RowsFromUnknown(cols);
+      columns=(columns||[]).map(safe455uH147PlainText).filter(x=>x&&x!=='…');
+      if(!columns.length)columns=safe455uH147ColumnsFromObjectRows(rows).map(safe455uH147PlainText).filter(Boolean);
+    }
+    const out={};
+    try{Object.keys(source||{}).forEach(k=>{if(k!=='data')out[k]=source[k];});}catch(_e){}
+    out.id=safe455uH147PlainText(out.id||dsId||source.datasetId||source.sourceDatasetId||'')||('ds_pdf_answers_'+safe455uH147PlainText((w&&w.id)||Date.now()).replace(/[^a-zA-Z0-9_-]/g,''));
+    out.name=safe455uH147PlainText(out.name||out.title||source.name||source.title||(w&&w.title)||'PDF-svar').replace(/^📊\s*/,'').trim()||'PDF-svar';
+    out.type=safe455uH147PlainText(out.type||source.type||source.sourceType||'pdf-form-answers')||'pdf-form-answers';
+    out.sourceType=safe455uH147PlainText(out.sourceType||source.sourceType||'');
+    out.columns=columns;
+    out.rows=rows;
+    if(w&&w.id)out.sourceWidgetId=safe455uH147PlainText(out.sourceWidgetId||w.id);
+    safe455uH147RepairPdfColumns(out,w);
+    return out;
+  }catch(_e){return null;}
+}
+function safe455uH147FirstColLooksLikePdfField(ds){
+  try{
+    const rows=(ds&&ds.rows)||[];
+    if(!rows.length)return false;
+    let hits=0,total=0;
+    for(const r of rows.slice(0,16)){
+      if(safe455uH147RowLen(r)<2)continue;
+      total++;
+      const first=safe455uH147PlainText(safe455uH147CellValue(r,0,'Felt'));
+      const second=safe455uH147PlainText(safe455uH147CellValue(r,1,'Svar'));
+      if(!first||!second)continue;
+      if(/^[A-Za-zÆØÅæøå][\w.-]*_\d+/.test(first)||/^kp_\d+_/i.test(first)||/^(field|felt|karakter|noter?|svar)[_\-.]?\d*/i.test(first))hits++;
+    }
+    return hits>=2 || (hits>=1&&total<=3);
+  }catch(_e){return false;}
+}
+function safe455uH147RepairPdfColumns(ds,w){
+  try{
+    if(!ds)return ds;
+    ds.columns=Array.isArray(ds.columns)?ds.columns:[];
+    ds.rows=Array.isArray(ds.rows)?ds.rows:[];
+    const hasF=safe455uH147ColumnIndex(ds.columns,['felt','field','feltnavn','fieldname','formfield'])>=0;
+    const hasS=safe455uH147ColumnIndex(ds.columns,['svar','answer','value','værdi','vaerdi','formvalue'])>=0;
+    if(hasF&&hasS)return ds;
+    const maxLen=Math.max(0,...(ds.rows||[]).slice(0,12).map(safe455uH147RowLen));
+    const looks=safe455uH147LooksLikePdfAnswers(ds,w)||safe455uH147FirstColLooksLikePdfField(ds);
+    if(maxLen>=2&&looks){
+      const defaults=['Felt','Svar','PDF','Side','Opdateret','Kolonne 6','Kolonne 7','Kolonne 8'];
+      const old=Array.isArray(ds.columns)?ds.columns:[];
+      ds.columns=Array.from({length:Math.max(maxLen,2)},(_,i)=>safe455uH147PlainText(old[i])||defaults[i]||('Kolonne '+(i+1)));
+      if(safe455uH147ColumnIndex(ds.columns,['felt','field'])<0)ds.columns[0]='Felt';
+      if(safe455uH147ColumnIndex(ds.columns,['svar','answer','value'])<0)ds.columns[1]='Svar';
+    }
+  }catch(_e){}
+  return ds;
 }
 function safe455uH147DatasetIsPdfFieldAnswers(ds){
   try{
-    if(!ds||!Array.isArray(ds.columns)||!Array.isArray(ds.rows))return false;
-    const iF=safe455uH147ColumnIndex(ds.columns,['felt','field']);
-    const iS=safe455uH147ColumnIndex(ds.columns,['svar','answer','value']);
+    ds=safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id);
+    if(!ds||!Array.isArray(ds.columns)||!Array.isArray(ds.rows)||!ds.rows.length)return false;
+    safe455uH147RepairPdfColumns(ds,null);
+    let iF=safe455uH147ColumnIndex(ds.columns,['felt','field','feltnavn','fieldname','formfield']);
+    let iS=safe455uH147ColumnIndex(ds.columns,['svar','answer','value','værdi','vaerdi','formvalue']);
     if(iF<0||iS<0)return false;
-    return (ds.rows||[]).some(r=>String((r||[])[iF]||'').trim()&&String((r||[])[iS]||'').trim());
+    const fCol=ds.columns[iF]||'Felt', sCol=ds.columns[iS]||'Svar';
+    return (ds.rows||[]).some(r=>safe455uH147PlainText(safe455uH147CellValue(r,iF,fCol)).trim()!=='' && safe455uH147PlainText(safe455uH147CellValue(r,iS,sCol)).trim()!=='');
   }catch(_e){return false;}
 }
 function safe455uH147IsKaPardyPdfAnswers(ds){
   try{
+    ds=safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id);
     if(!safe455uH147DatasetIsPdfFieldAnswers(ds))return false;
-    const iF=safe455uH147ColumnIndex(ds.columns,['felt','field']);
-    const keys=(ds.rows||[]).map(r=>String((r||[])[iF]||'').trim().toLowerCase());
-    return keys.some(k=>/^kp_\d+_/.test(k));
+    const iF=safe455uH147ColumnIndex(ds.columns,['felt','field','feltnavn','fieldname','formfield']);
+    const fCol=ds.columns[iF]||'Felt';
+    return (ds.rows||[]).map(r=>safe455uH147PlainText(safe455uH147CellValue(r,iF,fCol)).toLowerCase()).some(k=>/^kp_\d+_/.test(k));
   }catch(_e){return false;}
 }
-function safe455uH147PdfAnswerDatasets(){
+function safe455uH147AllWidgetsWithSlideLocal(){
+  try{if(typeof safe376AllWidgetsWithSlide==='function')return safe376AllWidgetsWithSlide()||[];}catch(_e){}
+  const out=[];
+  try{(state.slides||[]).forEach((sl,si)=>{(sl.widgets||[]).forEach(w=>out.push({w,slide:sl,slideIndex:si}));});}catch(_e){}
+  return out;
+}
+function safe455uH147FindDatasetInStateLocal(id){
+  try{if(id&&typeof findDatasetById==='function')return findDatasetById(id);}catch(_e){}
+  try{return (Array.isArray(state&&state.datasets)?state.datasets:[]).find(ds=>String(ds&&ds.id)===String(id));}catch(_e){return null;}
+}
+function safe455uH147WidgetByIdLocal(id){
   try{
-    return (Array.isArray(state&&state.datasets)?state.datasets:[]).filter(ds=>{
-      if(!safe455uH147DatasetIsPdfFieldAnswers(ds))return false;
+    id=String(id||''); if(!id)return null;
+    if(typeof findWidget==='function'){const fw=findWidget(id); if(fw)return fw;}
+    const hit=safe455uH147AllWidgetsWithSlideLocal().find(x=>x&&x.w&&String(x.w.id)===id);
+    return hit&&hit.w;
+  }catch(_e){return null;}
+}
+function safe455uH147DatasetFromPipeText(text,name,id,w){
+  try{
+    text=String(text||'');
+    if(!text)return null;
+    const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    let h=-1;
+    for(let i=0;i<lines.length;i++){
+      const parts=lines[i].split('|').map(safe455uH147PlainText).filter(x=>x&&x!=='…');
+      if(parts.length>=2 && safe455uH147ColumnIndex(parts,['felt','field'])>=0 && safe455uH147ColumnIndex(parts,['svar','answer','value'])>=0){h=i;break;}
+    }
+    if(h<0)return null;
+    const columns=lines[h].split('|').map(safe455uH147PlainText).filter(x=>x&&x!=='…');
+    const rows=[];
+    for(let i=h+1;i<lines.length;i++){
+      if(/^[-|\s]+$/.test(lines[i]))continue;
+      if(/^…/.test(lines[i])||/^Tip:/i.test(lines[i]))break;
+      const cells=lines[i].split('|').map(safe455uH147PlainText).slice(0,columns.length);
+      if(cells.length&&cells.some(Boolean))rows.push(cells);
+    }
+    return safe455uH147NormalizeDatasetCandidate({id:id||'',name:name||'PDF-svar',type:'pdf-form-answers',columns,rows,sourceType:'text-preview'},w,id);
+  }catch(_e){return null;}
+}
+function safe455uH147DatasetFromDataWidget(w){
+  try{
+    if(!w||!w.data)return null;
+    const dsId=safe455uH147PlainText(w.data.datasetId||w.data.sourceDatasetId||w.data.linkedDataDatasetId||'');
+    const candidates=[];
+    const ds=dsId?safe455uH147FindDatasetInStateLocal(dsId):null;
+    if(ds)candidates.push(safe455uH147NormalizeDatasetCandidate(ds,w,dsId));
+    if(w.data.dataset)candidates.push(safe455uH147NormalizeDatasetCandidate(w.data.dataset,w,dsId));
+    if(w.data.pdfFormData)candidates.push(safe455uH147NormalizeDatasetCandidate({id:dsId,name:w.data.pdfFormDatasetName||w.data.sourceDatasetName||w.title||'PDF-svar',type:'pdf-form-answers',pdfFormData:w.data.pdfFormData,sourceType:'pdf-form-widget'},w,dsId));
+    if(Array.isArray(w.data.columns)||Array.isArray(w.data.rows)||Array.isArray(w.data.data)||Array.isArray(w.data.records)){
+      candidates.push(safe455uH147NormalizeDatasetCandidate({id:dsId,name:w.title,type:w.data.type||w.data.sourceType||'dataset',columns:w.data.columns,rows:w.data.rows||w.data.data||w.data.records,sourceType:w.data.sourceType},w,dsId));
+    }
+    if(w.data.text)candidates.push(safe455uH147DatasetFromPipeText(w.data.text,String(w.title||'PDF-svar').replace(/^📊\s*/,''),dsId,w));
+    for(const cand of candidates){if(cand&&safe455uH147DatasetIsPdfFieldAnswers(cand))return cand;}
+    return null;
+  }catch(_e){return null;}
+}
+function safe455uH147DatasetFromPdfWidget(w){
+  try{
+    if(!w||w.type!=='pdf'||!w.data)return null;
+    if(typeof safe455uH103BuildPdfAnswersDataset==='function'){
+      const built=safe455uH103BuildPdfAnswersDataset(w);
+      if(built&&safe455uH147DatasetIsPdfFieldAnswers(built))return safe455uH147NormalizeDatasetCandidate(built,w,built.id);
+    }
+    if(w.data.pdfFormData){
+      const ds=safe455uH147NormalizeDatasetCandidate({id:w.data.pdfFormDatasetId||w.data.sourceDatasetId||'',name:w.data.pdfFormDatasetName||w.data.sourceDatasetName||('PDF-svar - '+(w.data.name||w.title||'PDF')),type:'pdf-form-answers',pdfFormData:w.data.pdfFormData,sourceType:'pdf-form-widget',sourceWidgetId:w.id},w,w.data.pdfFormDatasetId||w.data.sourceDatasetId);
+      if(safe455uH147DatasetIsPdfFieldAnswers(ds))return ds;
+    }
+  }catch(_e){}
+  return null;
+}
+function safe455uH147DatasetFromDomWidgetEl(el){
+  try{
+    if(!el||!el.isConnected)return null;
+    const wid=safe455uH147PlainText(el.dataset&&el.dataset.id||'');
+    const w=safe455uH147WidgetByIdLocal(wid);
+    const titleEl=el.querySelector&&el.querySelector('.datasetTitleName');
+    const chromeTitle=el.querySelector&&el.querySelector('.chrome .titleText');
+    const name=safe455uH147PlainText((titleEl&&titleEl.textContent)||(chromeTitle&&chromeTitle.textContent)||(w&&w.title)||'PDF-svar').replace(/^📊\s*/,'').trim()||'PDF-svar';
+    const table=(el.querySelector&&el.querySelector('.safe85DatasetTable,.datasetPreview table'))||null;
+    if(table){
+      let columns=[];
+      const heads=Array.prototype.slice.call(table.querySelectorAll('thead input[data-safe85-head], thead th input, thead th'));
+      heads.forEach((node,idx)=>{
+        if(node.matches&&node.matches('th')&&idx===0&&node.querySelector('button'))return;
+        const inp=node.querySelector&&node.querySelector('input');
+        const val=safe455uH147PlainText((inp&&(inp.value||inp.getAttribute('value'))) || (node.value||node.getAttribute&&node.getAttribute('value')) || node.textContent);
+        if(val&&val!=='…'&&!/^−$/.test(val))columns.push(val);
+      });
+      if(columns[0]&&/^(#|række|raekke)$/i.test(columns[0]))columns=columns.slice(1);
+      const rows=[];
+      Array.prototype.slice.call(table.querySelectorAll('tbody tr')).forEach(tr=>{
+        const row=[];
+        const inputs=Array.prototype.slice.call(tr.querySelectorAll('input[data-safe85-cell]'));
+        if(inputs.length){
+          inputs.forEach(inp=>{
+            const m=String(inp.getAttribute('data-safe85-cell')||'').match(/^(\d+):(\d+)$/);
+            const ci=m?Number(m[2]):row.length;
+            row[ci]=safe455uH147PlainText(inp.value||inp.getAttribute('value')||inp.textContent);
+          });
+        }else{
+          Array.prototype.slice.call(tr.querySelectorAll('td')).forEach((td,idx)=>{
+            if(idx===0&&td.querySelector&&td.querySelector('button'))return;
+            const inp=td.querySelector&&td.querySelector('input,textarea');
+            row.push(safe455uH147PlainText((inp&&(inp.value||inp.textContent))||td.textContent));
+          });
+        }
+        if(row.some(Boolean))rows.push(row);
+      });
+      const ds=safe455uH147NormalizeDatasetCandidate({id:(w&&w.data&&(w.data.datasetId||w.data.sourceDatasetId))||'',name,type:'pdf-form-answers',columns,rows,sourceType:'dom-table',sourceWidgetId:wid},w,(w&&w.data&&(w.data.datasetId||w.data.sourceDatasetId))||'');
+      if(safe455uH147DatasetIsPdfFieldAnswers(ds))return ds;
+    }
+    const text=safe455uH147PlainText(el.textContent||'');
+    const ds=safe455uH147DatasetFromPipeText(text,name,(w&&w.data&&(w.data.datasetId||w.data.sourceDatasetId))||'',w);
+    if(ds&&safe455uH147DatasetIsPdfFieldAnswers(ds))return ds;
+  }catch(_e){}
+  return null;
+}
+
+function safe455uH147ForcePdfAnswerMap(ds){
+  /* l1050: Sidste, meget lokal fallback til allerede godkendte PDF-svar-kandidater.
+     Når vælgeren har godkendt et datasæt som PDF-svar, må anvendelsen gerne bruge
+     de to første reelle kolonner som Felt/Svar, også hvis normalisering skjuler den
+     oprindelige struktur. */
+  const map={};
+  try{
+    function txt(v){return safe455uH147PlainText(v).trim();}
+    function add(k,v){
+      k=txt(k);
+      if(!k||/^felt$/i.test(k)||/^field$/i.test(k)||/^kolonne\s*1$/i.test(k))return;
+      const s=txt(v);
+      if(s==='')return;
+      map[k]=s;
+    }
+    function cell(v){
       try{
-        // SAFE455uH45g10l148: "Fra DataWidget" skal betyde en faktisk lokal DataWidget,
-        // ikke bare et løst dataset. Det matcher de andre widgets' datakoblingsmodel.
-        return !!(typeof safe450FindDataWidgetByDatasetId==='function'&&safe450FindDataWidgetByDatasetId(ds.id));
-      }catch(_e){return false;}
+        if(v==null)return '';
+        if(typeof v==='string'||typeof v==='number'||typeof v==='boolean')return txt(v);
+        if(Array.isArray(v)){
+          if(v.length===1)return cell(v[0]);
+          return v.map(cell).filter(Boolean).join(' ');
+        }
+        if(typeof v==='object'){
+          for(const k of ['value','displayValue','formattedValue','text','label','name','title','content','raw','v','w']){
+            if(Object.prototype.hasOwnProperty.call(v,k)){const s=cell(v[k]); if(s)return s;}
+          }
+          return txt(v);
+        }
+        return txt(v);
+      }catch(_e){return '';}
+    }
+    function rowsOf(x){
+      try{
+        if(!x)return [];
+        if(Array.isArray(x))return x;
+        for(const k of ['rows','records','items','values','data']){
+          if(Array.isArray(x[k]))return x[k];
+        }
+        if(x.data&&typeof x.data==='object'){
+          for(const k of ['rows','records','items','values','data']){
+            if(Array.isArray(x.data[k]))return x.data[k];
+          }
+        }
+      }catch(_e){}
+      return [];
+    }
+    function colsOf(x){
+      try{
+        let cols=(x&&(x.columns||x.cols||x.headers||x.header||x.fields||x.fieldNames))||(x&&x.data&&(x.data.columns||x.data.cols||x.data.headers||x.data.header||x.data.fields||x.data.fieldNames))||[];
+        if(!Array.isArray(cols)&&cols&&typeof cols==='object')cols=Object.values(cols);
+        return Array.isArray(cols)?cols.map(cell).filter(Boolean):[];
+      }catch(_e){return [];}
+    }
+    function objByNorm(obj,names){
+      try{
+        if(!obj||typeof obj!=='object'||Array.isArray(obj))return '';
+        const wanted=(Array.isArray(names)?names:[names]).map(safe455uH147Norm);
+        for(const k of Object.keys(obj)){if(wanted.indexOf(safe455uH147Norm(k))>=0)return cell(obj[k]);}
+      }catch(_e){}
+      return '';
+    }
+    function rowArray(row,cols){
+      try{
+        if(row==null)return [];
+        if(Array.isArray(row))return row.map(cell);
+        if(typeof row==='string'){
+          const s=String(row);
+          const d=s.indexOf('|')>=0?'|':(s.indexOf('\t')>=0?'\t':(s.indexOf(';')>=0?';':(s.indexOf(',')>=0?',':null)));
+          return d?s.split(d).map(cell):[cell(s)];
+        }
+        if(typeof row==='object'){
+          const f=objByNorm(row,['felt','field','feltnavn','fieldname','formfield','key']);
+          const s=objByNorm(row,['svar','answer','value','værdi','vaerdi','formvalue']);
+          if(f||s)return [f,s];
+          for(const k of ['cells','values','row','data','items']){if(Array.isArray(row[k]))return row[k].map(cell);}
+          if(cols&&cols.length){
+            const byCols=cols.map(c=>objByNorm(row,c));
+            if(byCols.some(Boolean))return byCols;
+          }
+          const nums=Object.keys(row).filter(k=>/^\d+$/.test(k)).sort((a,b)=>Number(a)-Number(b));
+          if(nums.length)return nums.map(k=>cell(row[k]));
+          return Object.keys(row).map(k=>cell(row[k]));
+        }
+      }catch(_e){}
+      return [];
+    }
+    function use(x){
+      try{
+        if(!x)return;
+        if(x.__safe455uH147PrebuiltMap&&typeof x.__safe455uH147PrebuiltMap==='object'){
+          Object.keys(x.__safe455uH147PrebuiltMap).forEach(k=>add(k,x.__safe455uH147PrebuiltMap[k]));
+        }
+        if(x.pdfFormData&&typeof x.pdfFormData==='object'&&!Array.isArray(x.pdfFormData))Object.keys(x.pdfFormData).forEach(k=>add(k,x.pdfFormData[k]));
+        if(x.data&&x.data.pdfFormData&&typeof x.data.pdfFormData==='object')Object.keys(x.data.pdfFormData).forEach(k=>add(k,x.data.pdfFormData[k]));
+        const rows=rowsOf(x), cols=colsOf(x);
+        let iF=safe455uH147ColumnIndex(cols,['felt','field','feltnavn','fieldname','formfield','key']);
+        let iS=safe455uH147ColumnIndex(cols,['svar','answer','value','værdi','vaerdi','formvalue']);
+        if(iF<0||iS<0){iF=0;iS=1;}
+        rows.forEach(r=>{const a=rowArray(r,cols); if(a.length>Math.max(iF,iS))add(a[iF],a[iS]);});
+      }catch(_e){}
+    }
+    use(ds);
+    try{use(safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id));}catch(_e){}
+    try{if(ds&&ds.data)use(ds.data);}catch(_e){}
+  }catch(err){try{console.warn('l1050 force PDF map fejlede',err);}catch(_e){}}
+  return map;
+}
+function safe455uH147AddCandidate(list,seen,ds,meta){
+  try{
+    const rawCandidate=ds;
+    ds=safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id);
+    if(!safe455uH147DatasetIsPdfFieldAnswers(ds))return false;
+    if(!ds.id)ds.id='ds_pdf_answers_'+Math.random().toString(36).slice(2);
+    const prebuilt=Object.assign({},safe455uH147ForcePdfAnswerMap(rawCandidate),safe455uH147ForcePdfAnswerMap(ds));
+    if(Object.keys(prebuilt).length){try{Object.defineProperty(ds,'__safe455uH147PrebuiltMap',{value:prebuilt,configurable:true});}catch(_e){ds.__safe455uH147PrebuiltMap=prebuilt;}}
+    if(meta&&meta.widgetId){try{Object.defineProperty(ds,'__safe455uH147WidgetId',{value:String(meta.widgetId),configurable:true});}catch(_e){ds.__safe455uH147WidgetId=String(meta.widgetId);}}
+    if(meta&&meta.slideIndex!=null){try{Object.defineProperty(ds,'__safe455uH147SlideIndex',{value:meta.slideIndex,configurable:true});}catch(_e){ds.__safe455uH147SlideIndex=meta.slideIndex;}}
+    const key=String(ds.id||'')||safe455uH147Norm(ds.name)+'|'+JSON.stringify(ds.columns||[]);
+    if(seen[key])return false;
+    list.push(ds); seen[key]=ds; return true;
+  }catch(_e){return false;}
+}
+function safe455uH147ScanPdfAnswerDatasetsWithStats(){
+  const stats={state:0,widgets:0,pdfWidgets:0,domWidgets:0,accepted:0,rejected:[]};
+  const list=[],seen=Object.create(null);
+  try{
+    const allState=Array.isArray(state&&state.datasets)?state.datasets:[];
+    stats.state=allState.length;
+    allState.forEach(ds=>{
+      const norm=safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id);
+      if(!safe455uH147AddCandidate(list,seen,norm,{source:'state'})){
+        if(stats.rejected.length<10)stats.rejected.push({k:'datasæt',name:safe455uH147PlainText(ds&&ds.name||ds&&ds.title||ds&&ds.id||'uden navn'),type:safe455uH147PlainText(ds&&ds.type||ds&&ds.sourceType||''),cols:(norm&&norm.columns||[]).slice(0,5).join(', '),rows:(norm&&norm.rows&&norm.rows.length)||0});
+      }
     });
-  }catch(_e){return [];}
+    const all=safe455uH147AllWidgetsWithSlideLocal();
+    stats.widgets=all.filter(x=>x&&x.w&&x.w.data&&(x.w.type==='text'||x.w.type==='dataset'||x.w.data.datasetId||x.w.data.sourceDatasetId||x.w.data.dataset||x.w.data.text||x.w.data.datasetView)).length;
+    stats.pdfWidgets=all.filter(x=>x&&x.w&&x.w.type==='pdf').length;
+    all.forEach(hit=>{
+      const w=hit&&hit.w; if(!w)return;
+      if(w.type==='pdf'){
+        const ds=safe455uH147DatasetFromPdfWidget(w);
+        safe455uH147AddCandidate(list,seen,ds,{source:'pdf-widget',widgetId:w.id,slideIndex:hit.slideIndex});
+        return;
+      }
+      if(w.data&&(w.type==='text'||w.type==='dataset'||w.data.datasetId||w.data.sourceDatasetId||w.data.dataset||w.data.text||w.data.datasetView||safe455uH147LooksLikePdfAnswers(w.data,w))){
+        const ds=safe455uH147DatasetFromDataWidget(w);
+        safe455uH147AddCandidate(list,seen,ds,{source:'widget',widgetId:w.id,slideIndex:hit.slideIndex});
+      }
+    });
+    try{
+      const domEls=Array.prototype.slice.call(document.querySelectorAll('.widget,[data-widget-id],[data-id]')).filter(el=>el.querySelector&&el.querySelector('.datasetCard,.datasetPreview table,.safe85DatasetTable'));
+      stats.domWidgets=domEls.length;
+      domEls.forEach(el=>safe455uH147AddCandidate(list,seen,safe455uH147DatasetFromDomWidgetEl(el),{source:'dom-widget',widgetId:String(el.dataset&&el.dataset.id||'')}));
+    }catch(_e){}
+    stats.accepted=list.length;
+  }catch(_e){}
+  try{window.__safe455uH147LastScan={stats:stats,list:list};}catch(_e){}
+  return {list:list,stats:stats};
+}
+function safe455uH147PdfAnswerDatasets(){
+  try{return safe455uH147ScanPdfAnswerDatasetsWithStats().list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'da'));}
+  catch(_e){return [];}
 }
 function safe455uH147DatasetToPdfFormMap(ds){
   const map={};
   try{
-    const iF=safe455uH147ColumnIndex(ds.columns,['felt','field']);
-    const iS=safe455uH147ColumnIndex(ds.columns,['svar','answer','value']);
+    ds=safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id);
+    safe455uH147RepairPdfColumns(ds,null);
+    const iF=safe455uH147ColumnIndex(ds.columns,['felt','field','feltnavn','fieldname','formfield']);
+    const iS=safe455uH147ColumnIndex(ds.columns,['svar','answer','value','værdi','vaerdi','formvalue']);
+    if(iF<0||iS<0)return map;
+    const fCol=ds.columns[iF]||'Felt', sCol=ds.columns[iS]||'Svar';
     (ds.rows||[]).forEach(r=>{
-      r=Array.isArray(r)?r:[];
-      const k=String(r[iF]||'').trim();
+      const k=safe455uH147PlainText(safe455uH147CellValue(r,iF,fCol)).trim();
       if(!k)return;
-      map[k]=String(r[iS]||'');
+      map[k]=safe455uH147PlainText(safe455uH147CellValue(r,iS,sCol));
     });
   }catch(_e){}
   return map;
 }
+
+function safe455uH147DatasetToPdfFormMapLocal(ds){
+  /* l1048: Lokal Felt/Svar-mapper til Hent PDF-svar.
+     Bruger ikke det globale safe455uH147DatasetToPdfFormMap-navn, fordi senere
+     KaPardy-spor må udvide/override det navn. Her skal almindelige PDF-svar
+     altid kunne anvendes, når vælgeren allerede har fundet datasættet. */
+  const map={};
+  try{
+    const original=ds;
+    ds=safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id)||original||{};
+    safe455uH147RepairPdfColumns(ds,null);
+
+    function add(k,v){
+      k=safe455uH147PlainText(k).trim();
+      if(!k)return;
+      if(/^felt$/i.test(k)||/^field$/i.test(k))return;
+      map[k]=safe455uH147PlainText(v);
+    }
+    function addObjectMap(obj){
+      if(!obj||typeof obj!=='object'||Array.isArray(obj))return;
+      Object.keys(obj).forEach(function(k){
+        const v=obj[k];
+        if(v==null)return;
+        if(typeof v==='object'&&!Array.isArray(v))return;
+        add(k,v);
+      });
+    }
+
+    if(original&&original.pdfFormData)addObjectMap(original.pdfFormData);
+    if(original&&original.data&&original.data.pdfFormData)addObjectMap(original.data.pdfFormData);
+    if(!Object.keys(map).length&&ds&&ds.pdfFormData)addObjectMap(ds.pdfFormData);
+    if(!Object.keys(map).length&&ds&&ds.data&&ds.data.pdfFormData)addObjectMap(ds.data.pdfFormData);
+
+    const rows=Array.isArray(ds&&ds.rows)?ds.rows:[];
+    const cols=Array.isArray(ds&&ds.columns)?ds.columns:[];
+    let iF=safe455uH147ColumnIndex(cols,['felt','field','feltnavn','fieldname','formfield']);
+    let iS=safe455uH147ColumnIndex(cols,['svar','answer','value','værdi','vaerdi','formvalue']);
+    const looks=safe455uH147LooksLikePdfAnswers(ds,null)||safe455uH147FirstColLooksLikePdfField(ds)||safe455uH147PlainText(ds&&ds.type).toLowerCase().indexOf('pdf')>=0;
+    if((iF<0||iS<0)&&looks&&rows.some(function(r){return safe455uH147RowLen(r)>=2;})){
+      iF=0; iS=1;
+    }
+    if(iF>=0&&iS>=0){
+      const fCol=cols[iF]||'Felt', sCol=cols[iS]||'Svar';
+      rows.forEach(function(r){
+        add(safe455uH147CellValue(r,iF,fCol),safe455uH147CellValue(r,iS,sCol));
+      });
+    }
+
+    if(!Object.keys(map).length&&rows.length){
+      rows.forEach(function(r){
+        if(!r||typeof r!=='object')return;
+        const keys=Object.keys(r);
+        const fKey=keys.find(function(k){return ['felt','field','feltnavn','fieldname','formfield','key'].indexOf(safe455uH147Norm(k))>=0;});
+        const sKey=keys.find(function(k){return ['svar','answer','value','vaerdi','værdi','formvalue'].indexOf(safe455uH147Norm(k))>=0;});
+        if(fKey&&sKey)add(r[fKey],r[sKey]);
+      });
+    }
+
+    if(!Object.keys(map).length&&looks&&rows.length){
+      rows.forEach(function(r){
+        if(safe455uH147RowLen(r)>=2)add(safe455uH147CellValue(r,0,'Felt'),safe455uH147CellValue(r,1,'Svar'));
+      });
+    }
+
+    if(!Object.keys(map).length&&original&&original.data&&looks)addObjectMap(original.data);
+  }catch(err){try{console.warn('l1048 PDF Felt/Svar-map fejlede',err);}catch(_e){}}
+  return map;
+}
+function safe455uH147FindDataWidgetForDataset(ds){
+  try{
+    if(!ds)return null;
+    const id=safe455uH147PlainText(ds.id||'');
+    let hit=null;
+    if(id){try{hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(id):null;}catch(_e){} if(!hit)try{hit=(typeof safe376DatasetWidgetInfo==='function')?safe376DatasetWidgetInfo(id):null;}catch(_e){} if(hit&&hit.w)return hit;}
+    const wanted=safe455uH147PlainText(ds.__safe455uH147WidgetId||ds.sourceWidgetId||'');
+    const all=safe455uH147AllWidgetsWithSlideLocal();
+    for(const x of all){
+      const w=x&&x.w; if(!w||!w.data)return null;
+      if(wanted&&String(w.id)===wanted)return x;
+      if(id&&(safe455uH147PlainText(w.data.datasetId)===id||safe455uH147PlainText(w.data.sourceDatasetId)===id))return x;
+    }
+  }catch(_e){}
+  return null;
+}
+function safe455uH147EnsureDatasetInState(ds){
+  try{
+    ds=safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id);
+    if(!ds)return null;
+    if(!ds.id)ds.id='ds_pdf_answers_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+    const clean={};
+    Object.keys(ds).forEach(k=>{if(!/^__safe455uH147/.test(k))clean[k]=ds[k];});
+    clean.id=ds.id; clean.name=ds.name||'PDF-svar'; clean.type=clean.type||'pdf-form-answers';
+    clean.columns=Array.isArray(clean.columns)?clean.columns:[];
+    clean.rows=Array.isArray(clean.rows)?clean.rows:[];
+    if(typeof updateDatasetInState==='function')updateDatasetInState(clean);
+    else if(typeof addDataset==='function'&&!safe455uH147FindDatasetInStateLocal(clean.id))addDataset(clean);
+    return clean;
+  }catch(_e){return ds;}
+}
+function safe455uH147EnsureDataWidgetForDataset(ds,ownerW){
+  try{
+    let hit=safe455uH147FindDataWidgetForDataset(ds);
+    if(hit&&hit.w){
+      const dw=hit.w; dw.data=dw.data||{}; dw.data.datasetId=ds.id; dw.data.datasetView=true; dw.data.sourceType=dw.data.sourceType||'dataset';
+      if(typeof formatDatasetAsTextWidgetContent==='function')dw.data.text=formatDatasetAsTextWidgetContent(ds);
+      return hit;
+    }
+    ds=safe455uH147EnsureDatasetInState(ds)||ds;
+    const keepW=Math.min(680,Math.max(460,(window.innerWidth||1200)*.46));
+    const keepH=Math.min(440,Math.max(300,(window.innerHeight||800)*.38));
+    const x=Math.max(24,Math.min((Number(ownerW&&ownerW.x)||140)+40,(window.innerWidth||1200)-keepW-30));
+    const y=Math.max(78,Math.min((Number(ownerW&&ownerW.y)||130)+40,(window.innerHeight||800)-keepH-40));
+    const dw={id:uid(),type:'text',x,y,w:keepW,h:keepH,z:++z,rotation:0,locked:false,title:'📊 '+(ds.name||'PDF-svar'),data:{text:(typeof formatDatasetAsTextWidgetContent==='function')?formatDatasetAsTextWidgetContent(ds):'',datasetId:ds.id,datasetView:true,sourceType:'dataset',sourceOpen:false,sourceOpenedByPdfHentData:true}};
+    try{if(typeof safe588SetVisibility==='function')safe588SetVisibility(dw,'single',[safe588SlideId(state.active)]);}catch(_e){}
+    const sl=slide(); sl.widgets=sl.widgets||[]; sl.widgets.push(dw);
+    return {w:dw,slide:sl,slideIndex:state.active};
+  }catch(_e){return null;}
+}
+
+function safe455uH147DatasetToPdfFormMapRawRows(ds){
+  /* l1049: sidste anvendelsesled må ikke afhænge af DataWidget-previewformatet.
+     Når vælgeren allerede har fundet et PDF-svar-datasæt, læser vi Felt/Svar direkte
+     fra rå rækker i flere kendte Tavle-formater. */
+  const map={};
+  try{
+    function deep(v){
+      try{
+        if(v==null)return '';
+        if(typeof v==='string'||typeof v==='number'||typeof v==='boolean')return safe455uH147PlainText(v);
+        if(Array.isArray(v)){
+          for(const x of v){const s=deep(x); if(s)return s;}
+          return '';
+        }
+        if(typeof v==='object'){
+          const keys=['value','displayValue','formattedValue','text','label','name','title','content','raw','v','w','html'];
+          for(const k of keys){if(Object.prototype.hasOwnProperty.call(v,k)){const s=deep(v[k]); if(s)return s;}}
+          try{return safe455uH147PlainText(v);}catch(_e){return '';}        
+        }
+        return safe455uH147PlainText(v);
+      }catch(_e){return '';}
+    }
+    function norm(v){try{return safe455uH147Norm(deep(v));}catch(_e){return '';}}
+    function add(k,v){
+      k=deep(k).trim();
+      if(!k||/^felt$/i.test(k)||/^field$/i.test(k)||/^kolonne\s*1$/i.test(k))return;
+      const val=deep(v);
+      if(val==null)return;
+      map[k]=val;
+    }
+    function fieldish(k){
+      k=deep(k).trim();
+      return !!(/^[A-Za-zÆØÅæøå][\w.-]*_\d+/.test(k)||/^kp_\d+_/i.test(k)||/^(field|felt|karakter|noter?|svar)[_\-.]?\d*/i.test(k));
+    }
+    function looksPdf(x){
+      try{return safe455uH147LooksLikePdfAnswers(x,null)||safe455uH147PlainText(x&&x.type).toLowerCase().indexOf('pdf')>=0||safe455uH147PlainText(x&&x.name).toLowerCase().indexOf('pdf-svar')>=0;}catch(_e){return false;}
+    }
+    function objGetByNorm(obj,wanted){
+      try{
+        if(!obj||typeof obj!=='object'||Array.isArray(obj))return '';
+        const want=Array.isArray(wanted)?wanted.map(norm):[norm(wanted)];
+        for(const k of Object.keys(obj)){if(want.indexOf(norm(k))>=0)return deep(obj[k]);}
+      }catch(_e){}
+      return '';
+    }
+    function directMap(obj){
+      try{
+        if(!obj||typeof obj!=='object'||Array.isArray(obj))return;
+        const keys=Object.keys(obj);
+        let hits=0;
+        keys.forEach(function(k){if(fieldish(k)&&deep(obj[k])!=='')hits++;});
+        if(hits){keys.forEach(function(k){if(fieldish(k))add(k,obj[k]);});}
+      }catch(_e){}
+    }
+    function rowsOf(x){
+      try{
+        if(!x)return [];
+        if(Array.isArray(x))return x;
+        if(Array.isArray(x.rows))return x.rows;
+        if(Array.isArray(x.records))return x.records;
+        if(Array.isArray(x.items))return x.items;
+        if(Array.isArray(x.values))return x.values;
+        if(x.data){
+          if(Array.isArray(x.data))return x.data;
+          if(Array.isArray(x.data.rows))return x.data.rows;
+          if(Array.isArray(x.data.records))return x.data.records;
+          if(Array.isArray(x.data.items))return x.data.items;
+          if(Array.isArray(x.data.values))return x.data.values;
+        }
+      }catch(_e){}
+      return [];
+    }
+    function colsOf(x){
+      try{
+        let cols=(x&&(x.columns||x.cols||x.headers||x.header||x.fields||x.fieldNames))||(x&&x.data&&(x.data.columns||x.data.cols||x.data.headers||x.data.header||x.data.fields||x.data.fieldNames))||[];
+        if(!Array.isArray(cols)&&cols&&typeof cols==='object')cols=Object.values(cols);
+        return Array.isArray(cols)?cols.map(deep).filter(Boolean):[];
+      }catch(_e){return [];}
+    }
+    function rowToArray(row,cols){
+      try{
+        if(row==null)return [];
+        if(Array.isArray(row))return row.map(deep);
+        if(typeof row==='string'){
+          const s=String(row);
+          const delim=s.indexOf('|')>=0?'|':(s.indexOf('\t')>=0?'\t':(s.indexOf(';')>=0?';':(s.indexOf(',')>=0?',':null)));
+          return delim?s.split(delim).map(deep):[deep(s)];
+        }
+        if(typeof row==='object'){
+          for(const k of ['cells','values','row','data','items']){
+            if(Array.isArray(row[k]))return row[k].map(deep);
+          }
+          if(cols&&cols.length){
+            const byCols=cols.map(function(c){return objGetByNorm(row,c);});
+            if(byCols.some(Boolean))return byCols;
+          }
+          const nums=Object.keys(row).filter(k=>/^\d+$/.test(k)).sort((a,b)=>Number(a)-Number(b));
+          if(nums.length)return nums.map(k=>deep(row[k]));
+          return Object.keys(row).map(k=>deep(row[k]));
+        }
+      }catch(_e){}
+      return [];
+    }
+    function mapOne(x){
+      try{
+        if(!x)return;
+        if(x.pdfFormData)directMap(x.pdfFormData);
+        if(x.data&&x.data.pdfFormData)directMap(x.data.pdfFormData);
+        if(x.data&&looksPdf(x))directMap(x.data);
+        const cols=colsOf(x);
+        const rows=rowsOf(x);
+        let iF=safe455uH147ColumnIndex(cols,['felt','field','feltnavn','fieldname','formfield','key']);
+        let iS=safe455uH147ColumnIndex(cols,['svar','answer','value','værdi','vaerdi','formvalue']);
+        if((iF<0||iS<0)&&looksPdf(x)){iF=0;iS=1;}
+        rows.forEach(function(r){
+          try{
+            if(r&&typeof r==='object'&&!Array.isArray(r)){
+              const f=objGetByNorm(r,['felt','field','feltnavn','fieldname','formfield','key']);
+              const s=objGetByNorm(r,['svar','answer','value','værdi','vaerdi','formvalue']);
+              if(f){add(f,s);return;}
+            }
+            const a=rowToArray(r,cols);
+            if(iF>=0&&iS>=0&&a.length>Math.max(iF,iS)){add(a[iF],a[iS]);return;}
+            if(a.length>=2&&(looksPdf(x)||fieldish(a[0]))){add(a[0],a[1]);return;}
+            // Fallback: find et felt-navn hvor som helst i rækken og brug næste celle som svar.
+            for(let i=0;i<a.length-1;i++){if(fieldish(a[i])){add(a[i],a[i+1]);break;}}
+          }catch(_e){}
+        });
+        if(x.text||x.data&&x.data.text){
+          const t=String(x.text||x.data.text||'');
+          t.split(/\r?\n/).forEach(function(line){
+            const parts=line.indexOf('|')>=0?line.split('|'):(line.indexOf('\t')>=0?line.split('\t'):[]);
+            if(parts.length>=2&&(fieldish(parts[0])||looksPdf(x)))add(parts[0],parts[1]);
+          });
+        }
+      }catch(_e){}
+    }
+    const candidates=[];
+    function push(x){if(x&&candidates.indexOf(x)<0)candidates.push(x);}
+    push(ds);
+    try{push(safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id));}catch(_e){}
+    try{if(ds&&ds.data)push(ds.data);}catch(_e){}
+    try{
+      const id=safe455uH147PlainText(ds&&ds.id||ds&&ds.datasetId||ds&&ds.sourceDatasetId||'');
+      if(id)push(safe455uH147FindDatasetInStateLocal(id));
+    }catch(_e){}
+    try{
+      const n=safe455uH147Norm(ds&&ds.name||ds&&ds.title||'');
+      if(n&&state&&Array.isArray(state.datasets)){
+        state.datasets.forEach(function(sds){if(safe455uH147Norm(sds&&sds.name||sds&&sds.title||'')===n)push(sds);});
+      }
+    }catch(_e){}
+    candidates.forEach(mapOne);
+    try{window.__safe455uH147LastApplyMap={keys:Object.keys(map),candidateCount:candidates.length,sampleCandidate:candidates[0]};}catch(_e){}
+  }catch(err){try{console.warn('l1049 rawrow PDF map fejlede',err);}catch(_e){}}
+  return map;
+}
+
 function safe455uH147ApplyDatasetToPdfWidget(w,el,c,ds){
   try{
-    const map=safe455uH147DatasetToPdfFormMap(ds);
-    const keys=Object.keys(map);
-    if(!keys.length){toast('DataWidgetten havde ingen Felt/Svar-værdier');return false;}
-    let hit=null;
-    try{hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null;}catch(_e){}
-    if(!hit||!hit.w){toast('Den valgte DataWidget blev ikke fundet');return false;}
+    const originalDs=ds;
+    const normalizedDs=safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id)||ds;
+    const prebuiltMap=(originalDs&&originalDs.__safe455uH147PrebuiltMap&&typeof originalDs.__safe455uH147PrebuiltMap==='object')?originalDs.__safe455uH147PrebuiltMap:{};
+    const map=Object.assign({}, prebuiltMap, safe455uH147DatasetToPdfFormMapLocal(normalizedDs), safe455uH147DatasetToPdfFormMapLocal(originalDs), safe455uH147DatasetToPdfFormMapRawRows(normalizedDs), safe455uH147DatasetToPdfFormMapRawRows(originalDs), safe455uH147ForcePdfAnswerMap(normalizedDs), safe455uH147ForcePdfAnswerMap(originalDs));
+    const keys=Object.keys(map).filter(k=>String(k||'').trim()!=='' && String(map[k]||'').trim()!=='');
+    try{window.__safe455uH147LastApplyMap={keys:keys,candidateCount:1,rows:(normalizedDs&&normalizedDs.rows&&normalizedDs.rows.length)||0,cols:(normalizedDs&&normalizedDs.columns&&normalizedDs.columns.length)||0,prebuilt:Object.keys(prebuiltMap||{}).length};}catch(_e){}
+    if(!keys.length){toast('Datasættet blev fundet, men havde ingen brugbare Felt/Svar-værdier');return false;}
+    /* l1057: Ikke-destruktiv delt PDF-svar-læsning.
+       Vigtigt: Hent skal kun kopiere Felt/Svar-værdier ind i DENNE PDFWidget.
+       Den må ikke oprette en ny DataWidget, flytte den eksisterende datakilde,
+       sætte denne PDF som ejer eller synkronisere tilbage til kildedatasættet.
+       Så kan 3, 10 eller flere PDFWidgets læse fra samme dataset uden at overtage hinanden. */
+    ds=safe455uH147EnsureDatasetInState(normalizedDs)||normalizedDs;
+    const dsId=String(ds.id||normalizedDs&&normalizedDs.id||originalDs&&originalDs.id||'');
+    const dsName=String(ds.name||normalizedDs&&normalizedDs.name||originalDs&&originalDs.name||'PDF-svar');
     if(!w.data||typeof w.data!=='object'||Array.isArray(w.data))w.data={};
     w.data.pdfFormData=Object.assign({},w.data.pdfFormData||{},map);
     w.data.pdfFormUpdatedAt=(new Date()).toISOString();
     w.data.pdfInteractive=true;
-
-    // SAFE455uH45g10l148: Brug samme datakobling som andre widgets.
-    // PDFWidgetten peger på den eksisterende DataWidget/dataset i stedet for at lave
-    // en løs kopi eller en ekstra instans. safe381 gør, at samme DataWidget vises/skjules,
-    // og at X i hjørnet bliver til "luk datakilde", mens forbindelsen bevares.
-    w.data.pdfFormDatasetId=String(ds.id||'');
-    w.data.pdfFormDatasetName=String(ds.name||'DataWidget');
-    w.data.sourceDatasetId=String(ds.id||'');
-    w.data.sourceDatasetName=String(ds.name||'DataWidget');
-    w.data.lastLocalDataWidgetSourceDatasetId=String(ds.id||'');
-    w.data.lastLocalDataWidgetSourceName=String(ds.name||'DataWidget');
-    try{if(typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,hit,'data',ds.name||'DataWidget');}catch(_e){}
-    try{safe455uH103SyncPdfAnswersDataset(w,{silent:true});}catch(_e){}
+    w.data.pdfFormDatasetId=dsId;
+    w.data.pdfFormDatasetName=dsName;
+    w.data.sourceDatasetId=dsId;
+    w.data.sourceDatasetName=dsName;
+    w.data.lastLocalDataWidgetSourceDatasetId=dsId;
+    w.data.lastLocalDataWidgetSourceName=dsName;
+    w.data.pdfSharedAnswerDataset=true;
+    w.data.pdfAnswerDatasetMode='shared-read';
+    /* Bevar evt. eksisterende linkmetadata, men opret/flyt ikke DataWidget her. */
+    try{if(w.data.linkedDataSources&&w.data.linkedDataSources.data){w.data.linkedDataSources.data.datasetId=dsId;w.data.linkedDataSources.data.name=dsName;}}catch(_e){}
     try{closeModal();}catch(_e){}
     try{
-      if(typeof safe381OpenDatasetSourceNearWidget==='function')safe381OpenDatasetSourceNearWidget(ds.id,w);
-      else {fillContent(el,w); save();}
-    }catch(_e){try{fillContent(el,w);}catch(__e){try{renderPdfJsWidget(w,c);}catch(__e2){}} try{save();}catch(__e){}}
-    toast('PDFWidget koblet til DataWidget: '+keys.length+' felter');
+      if(typeof fillContent==='function')fillContent(el,w);
+      else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);
+    }catch(_e){try{renderPdfJsWidget(w,c);}catch(__e){}}
+    try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+    toast('PDF-svar hentet: '+keys.length+' felter · delt læsning');
     return true;
-  }catch(err){console.warn('SAFE455uH147 kunne ikke koble DataWidget til PDFWidget',err);try{toast('Kunne ikke koble DataWidget');}catch(_e){} return false;}
+  }catch(err){console.warn('SAFE455uH147 kunne ikke hente PDF-svar',err);try{toast('Kunne ikke hente PDF-svar');}catch(_e){} return false;}
 }
 function safe455uH147OpenDataWidgetPickerForPdf(w,el,c){
   try{
-    const list=safe455uH147PdfAnswerDatasets();
-    const html=list.length?list.map((ds,i)=>{
-      const rows=Array.isArray(ds.rows)?ds.rows.length:0;
-      const kp=safe455uH147IsKaPardyPdfAnswers(ds);
-      return '<button type="button" class="safe455uH147PickCard" data-i="'+i+'"><b>'+(kp?'🎯 ':'📊 ')+esc(ds.name||('DataWidget '+(i+1)))+'</b><small>'+(kp?'KaPardy/PDF-svar · ':'Felt/Svar-data · ')+rows+' rækker</small></button>';
-    }).join(''):'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;font-weight:800;color:#475569">Ingen DataWidgets med kolonnerne <b>Felt</b> og <b>Svar</b> blev fundet.</div>';
-    showModal('<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px"><h2 style="margin:0">Hent data fra DataWidget</h2><button id="safe455uH147X" type="button" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">×</button></div><p style="margin:0 0 12px;font-weight:750;color:#374151;line-height:1.35">Vælg en lokal DataWidget med kolonnerne <b>Felt</b> og <b>Svar</b>. Så udfyldes de tilsvarende PDF-formularfelter igen.</p><div style="display:grid;gap:8px;max-height:min(55vh,520px);overflow:auto">'+html+'</div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="safe455uH147Close" type="button">Luk</button></div>');
+    const scan=safe455uH147ScanPdfAnswerDatasetsWithStats();
+    const list=scan.list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'da'));
+    const st=scan.stats||{};
+    let html='';
+    if(list.length){
+      html=list.map((ds,i)=>{
+        const rows=Array.isArray(ds.rows)?ds.rows.length:0;
+        const kp=safe455uH147IsKaPardyPdfAnswers(ds);
+        const source=ds.__safe455uH147WidgetId?'Fra DataWidget/PDFWidget':'Sessionsdatasæt';
+        return '<button type="button" class="safe455uH147PickCard" data-i="'+i+'" data-safe455u-h147-pick="'+i+'"><b>'+(kp?'🎯 ':'📊 ')+safe455uH147Esc(ds.name||('PDF-svar '+(i+1)))+'</b><small>'+(kp?'KaPardy/PDF-svar · ':'PDF-svar · ')+rows+' rækker · '+safe455uH147Esc(source)+'</small><span class="safe455uH147PickHint">Tryk for at hente svarene ind i PDF’en</span></button>';
+      }).join('');
+    }else{
+      const rejected=(st.rejected||[]).slice(0,6).map(r=>'<div style="font-size:12px;color:#64748b;margin-top:4px">• '+safe455uH147Esc(r.name||'uden navn')+' · '+safe455uH147Esc(r.type||'type?')+' · kolonner: '+safe455uH147Esc(r.cols||'ingen')+' · rækker: '+safe455uH147Esc(r.rows||0)+'</div>').join('');
+      html='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;font-weight:800;color:#475569">Ingen PDF-svar-datasæt blev genkendt.<br><small style="display:block;margin-top:6px;color:#64748b">Søgte i '+(st.state||0)+' sessionsdatasæt, '+(st.widgets||0)+' DataWidgets, '+(st.pdfWidgets||0)+' PDFWidgets og '+(st.domWidgets||0)+' synlige DataWidget-tabeller.</small>'+rejected+'</div>';
+    }
+    showModal('<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px"><h2 style="margin:0">Hent PDF-svar</h2><button id="safe455uH147X" type="button" style="min-width:38px;height:38px;border-radius:999px;padding:0;font-weight:950">×</button></div><p style="margin:0 0 12px;font-weight:750;color:#374151;line-height:1.35">Vælg et PDF-svar-datasæt. Der søges i hele sessionen – også i skjulte/koblede DataWidgets og andre PDFWidgets.</p><div style="display:grid;gap:8px;max-height:min(55vh,520px);overflow:auto">'+html+'</div><div id="safe455uH147Status" style="display:none;margin-top:10px;background:#eef2ff;border:1px solid #c7d2fe;color:#1e3a8a;border-radius:12px;padding:9px 11px;font-weight:850;font-size:13px"></div><div style="display:flex;justify-content:flex-end;margin-top:12px"><button id="safe455uH147Close" type="button">Luk</button></div>');
     const root=document.getElementById('modal'); if(!root)return;
-    root.querySelectorAll('.safe455uH147PickCard').forEach(btn=>btn.onclick=function(e){
-      e.preventDefault();e.stopPropagation();
-      const ds=list[Number(btn.dataset.i)];
-      safe455uH147ApplyDatasetToPdfWidget(w,el,c,ds);
+    const status=root.querySelector('#safe455uH147Status');
+    let safe455uH147LastPickAt=0;
+    let safe455uH147Picking=false;
+    function safe455uH147SetStatus(msg,isError){
+      try{
+        if(!status)return;
+        status.style.display='block';
+        status.style.background=isError?'#fef2f2':'#eef2ff';
+        status.style.borderColor=isError?'#fecaca':'#c7d2fe';
+        status.style.color=isError?'#991b1b':'#1e3a8a';
+        status.textContent=String(msg||'');
+      }catch(_e){}
+    }
+    function safe455uH147StopPickEvent(e){
+      try{if(e){e.preventDefault&&e.preventDefault();e.stopPropagation&&e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}}catch(_e){}
+    }
+    function safe455uH147PickByIndex(index,btn,e){
+      try{
+        safe455uH147StopPickEvent(e);
+        const now=Date.now?Date.now():(new Date()).getTime();
+        if(safe455uH147Picking||now-safe455uH147LastPickAt<450)return false;
+        safe455uH147LastPickAt=now;
+        const ds=list[Number(index)];
+        if(!ds){safe455uH147SetStatus('Kunne ikke finde det valgte PDF-svar.',true);try{toast('Kunne ikke finde det valgte PDF-svar');}catch(_e){} return false;}
+        safe455uH147Picking=true;
+        safe455uH147SetStatus('Henter PDF-svar fra “'+String(ds.name||'PDF-svar')+'” …',false);
+        try{if(btn){btn.disabled=true;btn.classList.add('safe455uH147Picking');btn.style.opacity='.72';btn.style.transform='scale(.995)';}}catch(_e){}
+        setTimeout(function(){
+          try{
+            const ok=safe455uH147ApplyDatasetToPdfWidget(w,el,c,ds);
+            if(!ok){
+              safe455uH147Picking=false;
+              safe455uH147SetStatus('Datasættet blev fundet, men kunne ikke anvendes på PDF’en. Debug: '+(window.__safe455uH147LastApplyMap&&window.__safe455uH147LastApplyMap.rows!=null?window.__safe455uH147LastApplyMap.rows:'?')+' rækker / '+(window.__safe455uH147LastApplyMap&&window.__safe455uH147LastApplyMap.cols!=null?window.__safe455uH147LastApplyMap.cols:'?')+' kolonner / '+(window.__safe455uH147LastApplyMap&&window.__safe455uH147LastApplyMap.prebuilt!=null?window.__safe455uH147LastApplyMap.prebuilt:'?')+' præmap / '+(window.__safe455uH147LastApplyMap&&window.__safe455uH147LastApplyMap.keys?window.__safe455uH147LastApplyMap.keys.length:'0')+' felter.',true);
+              try{if(btn){btn.disabled=false;btn.classList.remove('safe455uH147Picking');btn.style.opacity='';btn.style.transform='';}}catch(_e){}
+            }
+          }catch(err){
+            safe455uH147Picking=false;
+            console.warn('SAFE455uH147 valg kunne ikke anvendes',err);
+            safe455uH147SetStatus('Fejl ved hentning af PDF-svar: '+(err&&err.message?err.message:err),true);
+            try{toast('Kunne ikke hente PDF-svar');}catch(_e){}
+            try{if(btn){btn.disabled=false;btn.classList.remove('safe455uH147Picking');btn.style.opacity='';btn.style.transform='';}}catch(_e){}
+          }
+        },0);
+        return false;
+      }catch(err){
+        console.warn('SAFE455uH147 valgkort kunne ikke aktiveres',err);
+        safe455uH147SetStatus('Kunne ikke vælge PDF-svar: '+(err&&err.message?err.message:err),true);
+        try{toast('Kunne ikke vælge PDF-svar');}catch(_e){}
+        return false;
+      }
+    }
+    function safe455uH147PickFromEvent(e){
+      try{
+        const target=e&&e.target;
+        const btn=target&&target.closest&&target.closest('.safe455uH147PickCard,[data-safe455u-h147-pick]');
+        if(!btn||!root.contains(btn))return;
+        return safe455uH147PickByIndex(btn.getAttribute('data-safe455u-h147-pick')||btn.dataset.i,btn,e);
+      }catch(_e){}
+    }
+    // l1058: #modal genbruges af showModal. Gamle capture-handlere fra forrige PDF-svar-modal
+    // kunne stå tilbage med picking=true efter et succesfuldt valg og sluge næste tryk,
+    // så de skal fjernes før nye bindes.
+    try{
+      if(Array.isArray(root.__safe455uH147PickHandlers)){
+        root.__safe455uH147PickHandlers.forEach(function(h){
+          try{root.removeEventListener(h.type,h.fn,true);}catch(_e){}
+        });
+      }
+      root.__safe455uH147PickHandlers=[];
+    }catch(_e){}
+    // Brug tidligt pointerdown/touchstart på modal-root som ejer.
+    ['pointerdown','touchstart','mousedown','click','pointerup','touchend'].forEach(function(type){
+      try{
+        root.addEventListener(type,safe455uH147PickFromEvent,{capture:true,passive:false});
+        root.__safe455uH147PickHandlers.push({type:type,fn:safe455uH147PickFromEvent});
+      }catch(_e){}
+    });
+    root.querySelectorAll('.safe455uH147PickCard').forEach(function(btn){
+      try{btn.onpointerdown=function(e){return safe455uH147PickByIndex(btn.getAttribute('data-safe455u-h147-pick')||btn.dataset.i,btn,e);};}catch(_e){}
+      try{btn.ontouchstart=function(e){return safe455uH147PickByIndex(btn.getAttribute('data-safe455u-h147-pick')||btn.dataset.i,btn,e);};}catch(_e){}
+      try{btn.onclick=function(e){return safe455uH147PickByIndex(btn.getAttribute('data-safe455u-h147-pick')||btn.dataset.i,btn,e);};}catch(_e){}
     });
     const close=function(){try{closeModal();}catch(_e){}};
     const x=root.querySelector('#safe455uH147X'); if(x)x.onclick=close;
     const b=root.querySelector('#safe455uH147Close'); if(b)b.onclick=close;
-  }catch(err){console.warn('SAFE455uH147 picker error',err);try{toast('Kunne ikke åbne DataWidget-vælger');}catch(_e){}}
+  }catch(err){console.warn('SAFE455uH147 picker error',err);try{toast('Kunne ikke åbne PDF-svar-vælger');}catch(_e){}}
 }
-
 
 /* SAFE455uH45g10l150: Når brugeren vælger en TOM PDF-skabelon, skal PDFWidgetten ikke arve en tidligere koblet DataWidget.
    Kun valget "Start fra DataWidget" må koble/udfylde data. */
@@ -25389,6 +26336,180 @@ function safe455uH147ApplyDatasetToPdfWidget(w,el,c,ds){
     return safe458b_originalApplyDatasetToPdfWidget ? safe458b_originalApplyDatasetToPdfWidget(w,el,c,ds) : false;
   }catch(err){console.warn('safe455uH147ApplyDatasetToPdfWidget override failed',err);try{toast('Kunne ikke koble DataWidget');}catch(_e){} return false;}
 }
+
+
+/* l1052: Almindelige PDF-svar skal ikke sendes gennem KaPardy-åbneren.
+   l1050 viste at datasættet blev fundet, men sidste apply-led gav ? rækker/? kolonner,
+   fordi det sene KaPardy/DataWidget-spor kunne overtage et Felt/Svar-datasæt.
+   Denne assignment ligger i samme scope som PDF-ejeren og fanger kun tydelige PDF-svar. */
+const safe1052_previousApplyDatasetToPdfWidget = safe455uH147ApplyDatasetToPdfWidget;
+function safe1052DeepText(v){
+  try{
+    if(v==null)return '';
+    if(typeof v==='object'){
+      for(const k of ['value','v','raw','text','label','name','title','content']){
+        if(v[k]!=null&&String(v[k]).trim()!=='')return safe1052DeepText(v[k]);
+      }
+      try{return safe455uH147PlainText(v);}catch(_e){return JSON.stringify(v);}
+    }
+    return safe455uH147PlainText(v);
+  }catch(_e){return String(v||'').trim();}
+}
+function safe1052Norm(v){try{return safe455uH147Norm(v);}catch(_e){return String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}}
+function safe1052Fieldish(k){
+  k=safe1052DeepText(k).trim();
+  return !!(/^[A-Za-zÆØÅæøå][\w.-]*_\d+/.test(k)||/^kp_\d+_/i.test(k)||/^(field|felt|karakter|noter?|svar)[_\-.]?\d*/i.test(k));
+}
+function safe1052HasExplicitQuestionBankColumns(ds){
+  try{
+    const cols=(ds&&Array.isArray(ds.columns)?ds.columns:[]).map(safe1052Norm);
+    if(!cols.length)return false;
+    const has=function(names){return names.map(safe1052Norm).some(n=>cols.indexOf(n)>=0);};
+    return has(['Kategori']) && has(['Spørgsmål','Spoergsmaal','Sporgsmaal','Sporsmaal','Spm']) && has(['Point']) && has(['Rigtigt svar','Rigtigt_svar','Correct answer','Correct']);
+  }catch(_e){return false;}
+}
+function safe1052LooksLikePlainPdfAnswers(ds){
+  try{
+    if(!ds)return false;
+    // Rigtige KaPardy/question-bank-datasæt skal fortsat ejes af KaPardy-sporet.
+    if(safe1052HasExplicitQuestionBankColumns(ds))return false;
+    if(ds.__safe455uH147PrebuiltMap&&Object.keys(ds.__safe455uH147PrebuiltMap).some(safe1052Fieldish))return true;
+    const hay=[ds.type,ds.name,ds.title,ds.sourceType,ds.sourceName,ds.importedFrom].map(safe1052DeepText).join(' ').toLowerCase();
+    if(/pdf\s*-?\s*svar|pdf[-_ ]?form[-_ ]?answers|formularsvar/.test(hay))return true;
+    if(Array.isArray(ds.columns)){
+      const iF=safe455uH147ColumnIndex(ds.columns,['felt','field','feltnavn','fieldname','formfield','key']);
+      const iS=safe455uH147ColumnIndex(ds.columns,['svar','answer','value','værdi','vaerdi','formvalue']);
+      if(iF>=0&&iS>=0)return true;
+    }
+    const rows=Array.isArray(ds.rows)?ds.rows:[];
+    let hits=0;
+    rows.slice(0,12).forEach(function(r){try{if(safe1052Fieldish(Array.isArray(r)?r[0]:(r&&typeof r==='object'?(r.Felt||r.felt||r.field||r[0]):'')))hits++;}catch(_e){}});
+    return hits>0;
+  }catch(_e){return false;}
+}
+function safe1052RowToArray(row,cols){
+  try{
+    if(row==null)return [];
+    if(Array.isArray(row))return row.map(safe1052DeepText);
+    if(typeof row==='string'){
+      const delim=row.indexOf('|')>=0?'|':(row.indexOf('\t')>=0?'\t':(row.indexOf(';')>=0?';':(row.indexOf(',')>=0?',':null)));
+      return delim?row.split(delim).map(safe1052DeepText):[safe1052DeepText(row)];
+    }
+    if(typeof row==='object'){
+      for(const k of ['cells','values','row','data','items'])if(Array.isArray(row[k]))return row[k].map(safe1052DeepText);
+      if(cols&&cols.length){
+        const vals=cols.map(function(c){
+          const want=safe1052Norm(c);
+          const key=Object.keys(row).find(function(k){return safe1052Norm(k)===want;});
+          return key!=null?safe1052DeepText(row[key]):'';
+        });
+        if(vals.some(Boolean))return vals;
+      }
+      const nums=Object.keys(row).filter(k=>/^\d+$/.test(k)).sort((a,b)=>Number(a)-Number(b));
+      if(nums.length)return nums.map(k=>safe1052DeepText(row[k]));
+      return Object.keys(row).map(k=>safe1052DeepText(row[k]));
+    }
+  }catch(_e){}
+  return [];
+}
+function safe1052BuildPlainPdfMap(ds){
+  const map={};
+  let debug={rows:null,cols:null,prebuilt:0,keys:[]};
+  function add(k,v){
+    k=safe1052DeepText(k).trim();
+    v=safe1052DeepText(v);
+    if(!k||v==null)return;
+    map[k]=v;
+  }
+  try{
+    const candidates=[];
+    function push(x){if(x&&candidates.indexOf(x)<0)candidates.push(x);}
+    push(ds);
+    try{push(safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id));}catch(_e){}
+    try{if(ds&&ds.data)push(ds.data);}catch(_e){}
+    try{
+      const id=safe1052DeepText(ds&&ds.id||ds&&ds.datasetId||ds&&ds.sourceDatasetId||'');
+      if(id)push(safe455uH147FindDatasetInStateLocal(id));
+    }catch(_e){}
+    try{
+      const n=safe1052Norm(ds&&ds.name||ds&&ds.title||'');
+      if(n&&state&&Array.isArray(state.datasets))state.datasets.forEach(function(sds){
+        if(safe1052Norm(sds&&sds.name||sds&&sds.title||'')===n)push(sds);
+      });
+    }catch(_e){}
+    candidates.forEach(function(x){
+      try{
+        if(!x)return;
+        if(x.__safe455uH147PrebuiltMap&&typeof x.__safe455uH147PrebuiltMap==='object'){
+          Object.keys(x.__safe455uH147PrebuiltMap).forEach(function(k){if(safe1052Fieldish(k))add(k,x.__safe455uH147PrebuiltMap[k]);});
+        }
+        if(x.pdfFormData&&typeof x.pdfFormData==='object')Object.keys(x.pdfFormData).forEach(k=>add(k,x.pdfFormData[k]));
+        if(x.data&&x.data.pdfFormData&&typeof x.data.pdfFormData==='object')Object.keys(x.data.pdfFormData).forEach(k=>add(k,x.data.pdfFormData[k]));
+        const cols=(Array.isArray(x.columns)?x.columns:(x.data&&Array.isArray(x.data.columns)?x.data.columns:[])).map(safe1052DeepText);
+        const rows=(Array.isArray(x.rows)?x.rows:(x.data&&Array.isArray(x.data.rows)?x.data.rows:(x.data&&Array.isArray(x.data)?x.data:[])));
+        if(debug.rows==null&&Array.isArray(rows))debug.rows=rows.length;
+        if(debug.cols==null&&Array.isArray(cols))debug.cols=cols.length;
+        let iF=safe455uH147ColumnIndex(cols,['felt','field','feltnavn','fieldname','formfield','key']);
+        let iS=safe455uH147ColumnIndex(cols,['svar','answer','value','værdi','vaerdi','formvalue']);
+        if((iF<0||iS<0)&&safe1052LooksLikePlainPdfAnswers(x)){iF=0;iS=1;}
+        rows.forEach(function(r){
+          const a=safe1052RowToArray(r,cols);
+          if(iF>=0&&iS>=0&&a.length>Math.max(iF,iS)){add(a[iF],a[iS]);return;}
+          if(a.length>=2&&(safe1052Fieldish(a[0])||safe1052LooksLikePlainPdfAnswers(x))){add(a[0],a[1]);return;}
+          for(let i=0;i<a.length-1;i++){if(safe1052Fieldish(a[i])){add(a[i],a[i+1]);break;}}
+        });
+        if(x.text||x.data&&x.data.text){
+          String(x.text||x.data.text||'').split(/\r?\n/).forEach(function(line){
+            const parts=line.indexOf('|')>=0?line.split('|'):(line.indexOf('\t')>=0?line.split('\t'):[]);
+            if(parts.length>=2&&(safe1052Fieldish(parts[0])||safe1052LooksLikePlainPdfAnswers(x)))add(parts[0],parts[1]);
+          });
+        }
+      }catch(_e){}
+    });
+    debug.prebuilt=Object.keys((ds&&ds.__safe455uH147PrebuiltMap)||{}).length;
+    debug.keys=Object.keys(map).filter(k=>String(map[k]||'').trim()!=='');
+    try{window.__safe455uH147LastApplyMap=debug;}catch(_e){}
+  }catch(err){try{console.warn('l1052 map failed',err);}catch(_e){}}
+  return map;
+}
+safe455uH147ApplyDatasetToPdfWidget=function(w,el,c,ds){
+  try{
+    const plain=safe1052LooksLikePlainPdfAnswers(ds);
+    if(!plain)return safe1052_previousApplyDatasetToPdfWidget?safe1052_previousApplyDatasetToPdfWidget(w,el,c,ds):false;
+    const map=safe1052BuildPlainPdfMap(ds);
+    const keys=Object.keys(map).filter(k=>String(k||'').trim()!==''&&String(map[k]||'').trim()!=='');
+    try{
+      if(!window.__safe455uH147LastApplyMap)window.__safe455uH147LastApplyMap={};
+      window.__safe455uH147LastApplyMap.keys=keys;
+    }catch(_e){}
+    if(!keys.length){try{toast('Datasættet blev fundet, men havde ingen brugbare Felt/Svar-værdier');}catch(_e){}return false;}
+    const normalized=safe455uH147NormalizeDatasetCandidate(ds,null,ds&&ds.id)||ds;
+    const stored=safe455uH147EnsureDatasetInState(normalized)||normalized;
+    let hit=null;
+    try{hit=safe450FindDataWidgetByDatasetId&&safe450FindDataWidgetByDatasetId(stored.id||ds.id);}catch(_e){}
+    if(!w.data||typeof w.data!=='object'||Array.isArray(w.data))w.data={};
+    w.data.pdfFormData=Object.assign({},w.data.pdfFormData||{},map);
+    w.data.pdfFormUpdatedAt=(new Date()).toISOString();
+    w.data.pdfInteractive=true;
+    w.data.pdfFormDatasetId=String((stored&&stored.id)||ds.id||'');
+    w.data.pdfFormDatasetName=String((stored&&stored.name)||ds.name||'PDF-svar');
+    w.data.sourceDatasetId=String((stored&&stored.id)||ds.id||'');
+    w.data.sourceDatasetName=String((stored&&stored.name)||ds.name||'PDF-svar');
+    w.data.lastLocalDataWidgetSourceDatasetId=String((stored&&stored.id)||ds.id||'');
+    w.data.lastLocalDataWidgetSourceName=String((stored&&stored.name)||ds.name||'PDF-svar');
+    try{if(hit&&typeof safe450SetLinkedDataWidget==='function')safe450SetLinkedDataWidget(w,hit,'data',(stored&&stored.name)||ds.name||'PDF-svar');}catch(_e){}
+    try{safe455uH103SyncPdfAnswersDataset(w,{silent:true});}catch(_e){}
+    try{closeModal();}catch(_e){}
+    try{if(typeof fillContent==='function')fillContent(el,w);else if(typeof renderPdfJsWidget==='function')renderPdfJsWidget(w,c);else if(typeof render==='function')render();}catch(_e){try{renderPdfJsWidget(w,c);}catch(__e){}}
+    try{if(typeof save==='function')save({silent:true});}catch(_e){try{save();}catch(__e){}}
+    try{toast('PDF-svar hentet: '+keys.length+' felter');}catch(_e){}
+    return true;
+  }catch(err){
+    try{console.warn('l1052 plain PDF-svar apply failed',err);}catch(_e){}
+    try{toast('Kunne ikke hente PDF-svar');}catch(_e){}
+    return false;
+  }
+};
 // Button on DataWidget: create a PDFWidget and configure it immediately.
 function safe458OpenDatasetInPdfWidget(dsId){
   try{
