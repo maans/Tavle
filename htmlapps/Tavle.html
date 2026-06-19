@@ -1,3 +1,5 @@
+<!-- l1068_hjaelp_grupper_elevkort_SAFE: Bygger direkte på fungerende l1067. Opdaterer kun den eksisterende Hjælp-tekst om GruppeWidget, gruppetavler, Tavlegenerator, Elevkort, elevtavler og elevnoter. Ingen app-logik, widget-rendering, events, data, gruppedannelse, elevsessioner eller sessionsoverførsel ændres. -->
+<!-- l1066_gruppearbejde_faner_kirurgisk_SAFE: Bygger direkte på brugerens ikke-låste l1062. Ændrer kun Gruppekortets eksisterende Arbejde-visning: tre lokale underfaner (Opgaver, Kommentarer, Svar) filtrerer det allerede eksisterende Gruppearbejde-datasæt. Ingen nye globale eventhandlere, ingen ændring af DataWidget-lukning, GruppeWidget, gruppedannelse, gruppetavler eller sessionsoverførsel. -->
 <!-- l1058_pdf_modal_handler_cleanup_SAFE: Bygger direkte på l1057. Retter kun PDFWidget → DATA → Hent PDF-svar-modalens event-ejer: gamle capture-handlere på den genbrugte #modal fjernes før nye bindes, så et tidligere succesfuldt valg ikke kan stå med picking=true og sluge næste tryk på datasættet. PDF-hentning fra l1055 og ikke-destruktiv delt dataset-læsning fra l1057 bevares. -->
 <!-- l1057_pdf_shared_dataset_nondestructive_SAFE: Bygger direkte på l1055. Retter kun PDFWidget → DATA → Hent PDF-svar i selve den eksisterende apply-ejer: Hent fra et PDF-svar-datasæt er nu ikke-destruktiv læsning til den aktuelle PDFWidget og må ikke oprette/flytte/omdefinere DataWidget-ejerskab eller synkronisere tilbage til kildedatasættet. Dermed kan mange PDFWidgets bruge samme eller forskellige PDF-svar-datasæt. PDF-hentning fra GitHub/repo fra l1055 bevares. -->
 <!-- l1055_pdf_fetch_bytes_fallback_SAFE: Bygger direkte på l1052 og bevarer den fungerende PDFWidget → DATA → Hent PDF-svar. Retter kun PDF-hentning/render-source for eksterne repo-PDFer: PDFWidget-demo, Hjælp- og KaPardy/Afstemning/Lykkehjul/Grupper-formularer forsøges nu hentet som bytes via samme relative pdf/-sti med same-origin først og jsDelivr/raw.githubusercontent fallback, så lokal/downloadet HTML ikke går i stå på CORS/custom-domain. Ingen ændring af DATA/Hent PDF-svar, Tavlekort, Tavlegenerator, LinkWidget, TavleListe eller sessionlogik. -->
@@ -102,6 +104,11 @@
 <!-- l835-tavlegenerator-laeselige-valg-modal-safe: Bygger på l833. Synkroniserer kun aktiv-markering i præsentations-Mere/Tavler, når aktiv tavle ændres mens menuen er åben. Ingen ændring af navigationslogik, generator, ListeWidget eller makeStandaloneHtml. -->
 <!-- l848-liste-tavler-dialog-scopefix-safe: Bygger på l847. Retter scope-fejl i ListeWidget: valg af Tavleliste/Tavle-tjekliste åbner nu den enkle før-dialog, fordi dialogfunktionen ligger i samme ejer-scope som select.onchange. Tavlegenerator/PDF-kopiering fra l846/l847 bevares. -->
 <!-- l960_link_media_list_guard_SAFE: Bygger på l959. Retter kun grænsen mellem LinkWidget, MedieWidget og medielister: almindelige web-/Google-links i en medieliste bliver i LinkWidget med link/iframe-visning, mens kun rigtige lyd-/videofiler eller arkiverede medier skifter til MedieWidget. Reparerer også tidligere fejlkonverterede LinkWidgets tilbage ved render. -->
+<!-- l1060_gruppetavler_session_kobling_SAFE: Bygger direkte på l1059. Retter kun gruppetavle-flowet: GruppeWidgettens egne deltager-/resultat-/arbejds-DataWidgets kopieres ikke til gruppetavlerne; teksten “levende kobling” ændres til “koblet til GruppeWidget”; og Opret gruppetavler får Send til anden session via den eksisterende append-only sessionpakkevej. Pakken indeholder skabelontavlen med GruppeWidget + tilknyttede data samt de virtuelle gruppetavler, så koblingen bevares efter import. Den eksisterende GruppeWidget, gruppedannelse, PDF/CSV/Data og touch-ejere ændres ikke. -->
+<!-- l1062_gruppetavler_ny_og_del_gruppe_SAFE: Bygger direkte på l1061. Tilføjer kun løbende vedligeholdelse af det eksisterende gruppesæt i GroupWidget-ejeren: + Gruppe opretter én ny tom gruppe med nyt stabilt gruppe-ID og én ny gruppetavle; Del gruppe flytter valgte medlemmer til en ny gruppe og kan kopiere gruppens opgaver/spørgsmål uden svar og kommentarer. Personer pr. gruppe genberegnes som et praktisk forslag, GruppeWidgetten forbliver master, eksisterende gruppe-ID'er/noter/tavler bevares, og Tavler-modal/sessionpakke bruger den eksplicitte gruppestruktur. Ingen ændring af den almindelige Dan grupper-algoritme, GruppeWidgettens kildeliste, PDF/CSV/Data eller øvrige widgets. -->
+<!-- l1061_gruppetavler_logisk_antal_SAFE: Bygger direkte på l1060. Retter kun planlægning og pakning af gruppetavler i GroupWidget-ejeren: Når Dan grupper har et resultat, bruges præcis resultatets antal grupper; tidligere kunstige tomme grupper trimmes; før gruppedannelse foreslås antal tavler ud fra navne ÷ Personer pr. gruppe, men kan ændres manuelt; tomme gruppetavler ændrer ikke GroupWidgettens groups-array; og sessionpakken sender kun de valgte/aktive grupper, så gamle ekstra tomme tavler ikke følger med. Eksisterende GruppeWidget, gruppealgoritme, PDF/CSV/Data, Gruppekort, gruppearbejde og sessionpakke-import ændres ikke. -->
+<!-- l1059_gruppetavler_live_gruppekort_SAFE: Bygger direkte på l1058. Tilføjer kirurgisk GroupWidget → levende gruppetavler i GroupWidget-ejeren: den aktuelle tavle bruges som skabelon, GroupWidgetten bevares som master, Elevkort erstattes af Gruppekort, tavletitel/medlemmer/roller læses via stabilt gruppesæt-ID + gruppe-ID, og gruppeopgaver/kommentarer/svar gemmes i et separat gruppearbejds-datasæt. Eksisterende Grupper-dannelse, PDF/CSV/Data, kildeliste og touch-ejere bevares. -->
+<!-- l1067_roller_direkte_SAFE: Bygger direkte på den fungerende l1066. Retter kun Gruppekortets eksisterende rollefelter: i almindelig redigering vises de straks på Gruppe-fanen, også før kortet har været gennem Arbejde-fanen. Præsentation bevarer passiv rolletekst. Ingen ny handler, ingen ny scriptblok og ingen ændring af data, faner, GruppeWidget, gruppetavler eller sessionoverførsel. -->
 <!doctype html>
 <!-- l748-tiddlywiki-native-external-drop-restore: Bygger på l746. Genskaber den gamle native drop-vej til TiddlyWiki: ved ekstern drag/drop over valgt/aktiv TiddlyWiki/HTML-widget slippes htmlShield uden syntetisk drop, så iframe/TiddlyWiki selv modtager tiddler-JSON. Ingen arkiv/backup/PDF/tema/dataflow ændret. -->
 <!-- l751-tiddlywiki-import-syntaxfix: Kun syntaxfix af l750. Retter escape-linje i TiddlyWiki-savebridge, som låste appen. Ingen ny importlogik. -->
@@ -2447,6 +2454,27 @@ body.focus-presentation .modalBackdrop.wheelConfirmBackdrop,
   pointer-events:none!important;
 }
 
+
+
+/* l1059: Gruppekort og gruppetavle-preview. Kun GroupWidget/Gruppekort-flowet. */
+.safe1059GroupCard{height:100%;display:flex;flex-direction:column;background:linear-gradient(180deg,#f8fafc,#fff);color:#0f172a;overflow:hidden}
+.safe1059GroupCardHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid #dbe3ef;background:#eef6ff}
+.safe1059GroupCardTitle{min-width:0}.safe1059GroupCardTitle h2{margin:0;font-size:clamp(20px,2.4vw,32px);line-height:1.05;color:#0f172a;overflow-wrap:anywhere}.safe1059GroupCardTitle p{margin:5px 0 0;color:#475569;font-weight:750}
+.safe1059GroupCardHead button,.safe1059GroupTabs button,.safe1059GroupActions button,.safe1059WorkActions button{border:0;border-radius:10px;background:#e2e8f0;color:#0f172a;padding:8px 10px;font-weight:900;touch-action:manipulation}
+.safe1059GroupTabs{display:flex;gap:7px;padding:9px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0}.safe1059GroupTabs button.active{background:#2563eb;color:#fff}
+.safe1059GroupCardBody{min-height:0;flex:1;overflow:auto;padding:14px 16px}.safe1059MemberList{display:grid;gap:8px}.safe1059MemberRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,.75fr);gap:10px;align-items:center;padding:9px 10px;border:1px solid #dbe3ef;border-radius:11px;background:#fff}.safe1059MemberName{font-weight:950;overflow-wrap:anywhere}.safe1059MemberRole{color:#475569;font-weight:800}.safe1059MemberRoleInput{width:100%;min-width:0;border:1px solid #cbd5e1;border-radius:9px;padding:7px 8px;background:#fff;color:#111827}
+.safe1059Empty{padding:18px;border:1px dashed #94a3b8;border-radius:12px;text-align:center;color:#475569;font-weight:850;background:#f8fafc}.safe1059GroupActions,.safe1059WorkActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.safe1059GroupActions button.primary,.safe1059WorkActions button.primary{background:#2563eb;color:#fff}
+.safe1059WorkList{display:grid;gap:8px}.safe1059WorkItem{display:grid;gap:4px;width:100%;text-align:left;border:1px solid #dbe3ef;border-radius:12px;padding:10px 12px;background:#fff;color:#0f172a}.safe1059WorkItem b{font-size:15px}.safe1059WorkItem span{color:#475569;line-height:1.3}.safe1059WorkType{display:inline-flex;width:max-content;border-radius:999px;padding:3px 7px;background:#e0ecff;color:#1d4ed8;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.03em}
+.safe1059SourceMissing{background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:12px;padding:10px 12px;font-weight:850}
+.safe1059GroupModal{display:grid;gap:12px;color:#111827}.safe1059GroupModal p{margin:0;color:#475569;line-height:1.35;font-weight:750}.safe1059GroupModal .safe1059Meta{display:flex;gap:7px;flex-wrap:wrap}.safe1059GroupModal .safe1059Pill{display:inline-flex;border-radius:999px;padding:5px 9px;background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;font-weight:900;font-size:12px}.safe1059GroupModal .safe1059Preview{max-height:min(55vh,440px);overflow:auto;border:1px solid #dbe3ef;border-radius:13px;background:#f8fafc}.safe1059GroupModal table{width:100%;border-collapse:collapse}.safe1059GroupModal th,.safe1059GroupModal td{padding:8px 9px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:middle}.safe1059GroupModal th{position:sticky;top:0;background:#e8f0ff;color:#1e3a8a;z-index:1}.safe1059GroupModal input,.safe1059GroupModal select,.safe1059GroupModal textarea{width:100%;margin:0!important;border:1px solid #cbd5e1;border-radius:9px;padding:8px;background:#fff;color:#111827}.safe1059GroupModal .safe1059Actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}.safe1059GroupModal .safe1059Warn{padding:9px 11px;border-radius:11px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:850;line-height:1.3}
+.safe1059SessionBox{padding:10px 12px;border:1px solid #bfdbfe;border-radius:13px;background:#eff6ff}.safe1059SessionBox>b{display:block;margin-bottom:4px;color:#1e3a8a}.safe1059SessionBox p{margin:0 0 9px!important}.safe1059SessionRow{display:grid;grid-template-columns:minmax(150px,1fr) minmax(170px,1fr) auto;gap:8px;align-items:center}.safe1059SessionRow button{border:0;border-radius:10px;background:#2563eb;color:#fff;padding:9px 12px;font-weight:900;white-space:nowrap}@media(max-width:760px){.safe1059SessionRow{grid-template-columns:1fr}.safe1059SessionRow button{width:100%}}
+.safe1061PlanBox{display:grid;gap:4px;padding:11px 13px;border:1px solid #bae6fd;border-radius:12px;background:#f0f9ff;color:#0f172a}.safe1061PlanBox b{font-size:16px;color:#0c4a6e}.safe1061PlanBox span{color:#334155;font-weight:750;line-height:1.35}.safe1061Estimate{margin-top:-6px;padding:8px 10px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-weight:800;line-height:1.3}
+.safe1062MemberPicker{display:grid;gap:7px;max-height:min(42vh,330px);overflow:auto;padding:8px;border:1px solid #dbe3ef;border-radius:12px;background:#f8fafc}.safe1062MemberChoice{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px;align-items:center;padding:8px 10px;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:#0f172a;font-weight:850}.safe1062MemberChoice input{width:20px!important;height:20px!important;margin:0!important}.safe1062GroupSummary{padding:9px 11px;border-radius:11px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-weight:850;line-height:1.35}.safe1062GroupHint{padding:9px 11px;border-radius:11px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:800;line-height:1.35}.widget[data-type="groups"] .addGroupAfterBoards .groupsBtnIcon,.widget[data-type="groups"] .splitGroupAfterBoards .groupsBtnIcon{font-size:18px}
+
+.safe1059RoleTag{display:inline-block;margin-left:6px;border-radius:999px;padding:2px 6px;background:#e0f2fe;color:#075985;font-size:11px;font-weight:900;vertical-align:middle}
+.widget[data-type="groups"] .createGroupBoards .groupsBtnIcon{font-size:18px}
+.app.present .safe1059GroupCardHead button,.app.present .safe1059GroupTabs,.app.present .safe1059GroupActions,.app.present .safe1059WorkActions{display:none!important}
+@media(max-width:700px){.safe1059MemberRow{grid-template-columns:1fr}.safe1059GroupCardHead{padding:11px 12px}.safe1059GroupCardBody{padding:11px 12px}}
 
 .content.groups{background:white}
 .groupsBox{
@@ -23957,7 +23985,505 @@ function makeGroupsWithLocks(names,size,currentGroups,locks){
 // WIDGET CONTENT RENDERING
 ////////////////////////////////////////////////////////////
 /* Type-specifik render/wire-logik. Hold data-normalisering tæt på den widgettype, den tilhører. */
-function renderGroups(groups,locks=[]){if(!groups||!groups.length)return '<p>Ingen grupper endnu.</p>';const cls=groups.length>4?' groupCompact':'';return groups.map((g,i)=>{const locked=!!locks[i];return `<div class="groupCard${cls}" data-group-i="${i}"><button type="button" class="groupLock ${locked?'isLocked':''}" data-i="${i}" title="${locked?'Låst: bevares ved ny randomisering':'Åben: blandes med ved ny randomisering'}">${locked?'🔒':'🔓'}</button><b>Gruppe ${i+1}</b>${g.map(esc).join('<br>')}</div>`}).join('')}
+
+/* l1059: Gruppetavler med kobling. Funktionerne ligger i samme hovedscope som GroupWidget,
+   Tavlegenerator, state, save/render og Elevkort. GroupWidgetten er master; Gruppekort er visninger. */
+function safe1059Norm(v){return String(v==null?'':v).replace(/\s+/g,' ').trim().toLocaleLowerCase('da-DK');}
+function safe1059FindWidgetRecord(id){
+  id=String(id||''); if(!id)return null;
+  try{for(let si=0;si<(state.slides||[]).length;si++){const sl=state.slides[si];const ws=(sl&&sl.widgets)||[];for(let wi=0;wi<ws.length;wi++){if(String(ws[wi]&&ws[wi].id||'')===id)return {slide:sl,slideIndex:si,index:wi,w:ws[wi]};}}}catch(_e){}
+  return null;
+}
+function safe1059IsGroupCard(w){try{return !!(w&&w.type==='text'&&w.data&&w.data.groupCardView===true&&w.data.groupSetId&&w.data.groupId);}catch(_e){return false;}}
+/* l1060: GruppeWidgettens egne datakilder hører til mastertavlen og må ikke kopieres til hver gruppetavle. */
+function safe1060GroupSourceRefs(ownerW){
+  const datasetIds=new Set(),widgetIds=new Set();
+  function addDs(v){v=String(v||'').trim();if(v)datasetIds.add(v);}
+  function addWid(v){v=String(v||'').trim();if(v)widgetIds.add(v);}
+  try{
+    const d=(ownerW&&ownerW.data)||{};
+    [d.sourceDatasetId,d.datasetId,d.linkedDataDatasetId,d.groupsResultDatasetId,d.groupWorkDatasetId].forEach(addDs);
+    [d.linkedDataWidgetId].forEach(addWid);
+    const map=d.linkedDataSources&&typeof d.linkedDataSources==='object'?d.linkedDataSources:{};
+    Object.keys(map).forEach(k=>{const r=map[k]||{};addDs(r.datasetId);addWid(r.widgetId);});
+    ['participants','data','groups','groupResults','groupWork'].forEach(role=>{try{const r=typeof safe450GetLinkedDataRef==='function'?safe450GetLinkedDataRef(ownerW,role):null;if(r){addDs(r.datasetId);addWid(r.widgetId);}}catch(_e){}});
+    (state.datasets||[]).forEach(ds=>{const type=String(ds&&ds.type||ds&&ds.sourceType||'').toLowerCase();if(String(ds&&ds.sourceWidgetId||'')===String(ownerW&&ownerW.id||'')&&['groups-participants','groups-results','group-work'].includes(type))addDs(ds.id);});
+    const rec=safe1059FindWidgetRecord(ownerW&&ownerW.id);
+    ((rec&&rec.slide&&rec.slide.widgets)||[]).forEach(w=>{
+      const wd=(w&&w.data)||{};const type=String(wd.sourceType||wd.datasetType||'').toLowerCase();let ds=null;
+      try{const id=String(wd.datasetId||wd.sourceDatasetId||wd.linkedDataDatasetId||'');if(id&&typeof findDatasetById==='function')ds=findDatasetById(id);}catch(_e){}
+      const dt=String(ds&&ds.type||ds&&ds.sourceType||type||'').toLowerCase();
+      if(['groups-participants','groups-results','group-work'].includes(type)||['groups-participants','groups-results','group-work'].includes(dt)){addWid(w&&w.id);addDs(wd.datasetId||wd.sourceDatasetId||wd.linkedDataDatasetId||ds&&ds.id);}
+    });
+  }catch(_e){}
+  return {datasetIds,widgetIds};
+}
+function safe1060IsGroupSourceDataWidget(w,ownerW){
+  try{
+    if(!w||w.type!=='text'||!w.data)return false;
+    const d=w.data,refs=safe1060GroupSourceRefs(ownerW);
+    if(refs.widgetIds.has(String(w.id||'')))return true;
+    const ids=[d.datasetId,d.sourceDatasetId,d.linkedDataDatasetId,d.dataset&&d.dataset.id].map(x=>String(x||'')).filter(Boolean);
+    return ids.some(id=>refs.datasetIds.has(id));
+  }catch(_e){return false;}
+}
+function safe1061CleanGroupMembers(group){
+  return Array.isArray(group)?group.map(x=>String(x==null?'':x).trim()).filter(Boolean):[];
+}
+function safe1061GroupPlan(ownerW){
+  const d=(ownerW&&ownerW.data)||{};
+  const names=Array.isArray(d.names)?d.names.map(x=>String(x==null?'':x).trim()).filter(Boolean):[];
+  const size=Math.max(1,Math.floor(Number(d.size)||2));
+  const groups=Array.isArray(d.groups)?d.groups:[];
+  let lastReal=-1;
+  for(let i=0;i<groups.length;i++)if(safe1061CleanGroupMembers(groups[i]).length)lastReal=i;
+  const realCount=lastReal+1;
+  const activeDefs=(Array.isArray(d.groupDefinitions)?d.groupDefinitions:[]).filter(x=>x&&x.active!==false).length;
+  /* l1062: En gruppe, der er oprettet eller fremkommet ved Del gruppe, er en rigtig gruppe,
+     også mens den er tom. Kunstige l1060/l1061-tomme grupper tæller kun, hvis strukturen
+     udtrykkeligt er gjort levende via + Gruppe eller Del gruppe. */
+  const explicitCount=d.groupStructureExplicit===true?Math.max(groups.length,activeDefs):0;
+  const resultCount=Math.max(realCount,explicitCount);
+  const suggested=names.length?Math.max(1,Math.ceil(names.length/size)):Math.max(1,activeDefs||4);
+  return {names:names,participantCount:names.length,size:size,hasResult:resultCount>0,resultCount:resultCount,suggestedCount:suggested,count:resultCount>0?resultCount:suggested,explicitCount:explicitCount};
+}
+function safe1061RepairLegacyEmptyGroups(ownerW){
+  try{
+    if(!ownerW||!ownerW.data)return 0;
+    const d=ownerW.data,groups=Array.isArray(d.groups)?d.groups:[];
+    if(d.groupStructureExplicit===true)return 0;
+    const plan=safe1061GroupPlan(ownerW);
+    if(!plan.hasResult)return 0;
+    const expectedFromSize=plan.participantCount?Math.max(1,Math.ceil(plan.participantCount/plan.size)):plan.resultCount;
+    const keep=Math.max(plan.resultCount,expectedFromSize);
+    if(groups.length<=keep)return 0;
+    const trailing=groups.slice(keep);
+    if(trailing.some(g=>safe1061CleanGroupMembers(g).length))return 0;
+    const removed=groups.length-keep;
+    d.groups=groups.slice(0,keep);
+    if(Array.isArray(d.groupLocks))d.groupLocks=d.groupLocks.slice(0,keep);
+    return removed;
+  }catch(_e){return 0;}
+}
+function safe1061SurplusGroupBoards(ownerW,activeDefs){
+  try{
+    const setId=String(ownerW&&ownerW.data&&ownerW.data.groupSetId||'');
+    if(!setId)return [];
+    const activeIds=new Set((activeDefs||[]).map(d=>String(d&&d.id||'')).filter(Boolean));
+    return (state.slides||[]).filter(sl=>{const m=sl&&sl.groupBoardMeta;return !!(m&&String(m.groupSetId||'')===setId&&!activeIds.has(String(m.groupId||'')));});
+  }catch(_e){return [];}
+}
+function safe1059EnsureGroupSet(ownerW,opts){
+  opts=opts||{}; if(!ownerW)return [];
+  ownerW.data=ownerW.data||{}; const d=ownerW.data;
+  if(!d.groupSetId)d.groupSetId='groupset_'+(typeof uid==='function'?uid():Date.now().toString(36));
+  let defs=Array.isArray(d.groupDefinitions)?d.groupDefinitions.map(x=>Object.assign({},x||{})):[];
+  const groups=Array.isArray(d.groups)?d.groups:[];
+  const plan=safe1061GroupPlan(ownerW);
+  let count=Number(opts.count);
+  if(!(count>=0)){
+    const activeCount=defs.filter(x=>x&&x.active!==false).length;
+    count=plan.hasResult?plan.resultCount:activeCount;
+  }
+  count=Math.max(0,Math.min(60,Math.floor(count||0)));
+  for(let i=0;i<count;i++){
+    let def=defs[i]||{};
+    if(!def.id)def.id='group_'+(typeof uid==='function'?uid():(Date.now().toString(36)+'_'+i));
+    def.title=String(def.title||('Gruppe '+(i+1))).trim()||('Gruppe '+(i+1));
+    def.roles=(def.roles&&typeof def.roles==='object'&&!Array.isArray(def.roles))?def.roles:{};
+    if(i<groups.length && Array.isArray(groups[i]))def.members=safe1061CleanGroupMembers(groups[i]);
+    else if(opts.clearMembers)def.members=[];
+    else if(!Array.isArray(def.members))def.members=[];
+    def.active=true; def.index=i;
+    defs[i]=def;
+  }
+  for(let i=count;i<defs.length;i++){if(defs[i]){defs[i].active=false;defs[i].index=i;}}
+  d.groupDefinitions=defs;
+  d.groupSetVersion=1;
+  return defs;
+}
+function safe1059GroupTitle(ownerW,index){
+  try{const defs=safe1059EnsureGroupSet(ownerW,{});const d=defs[index];return String(d&&d.title||('Gruppe '+(index+1)));}catch(_e){return 'Gruppe '+(index+1);}
+}
+function safe1059GroupRole(ownerW,index,name){
+  try{const def=safe1059EnsureGroupSet(ownerW,{})[index];return String(def&&def.roles&&def.roles[safe1059Norm(name)]||'').trim();}catch(_e){return '';}
+}
+function safe1059FindSourceGroupWidget(cardW){
+  try{
+    const d=(cardW&&cardW.data)||{};
+    let rec=safe1059FindWidgetRecord(d.sourceGroupWidgetId);
+    if(rec&&rec.w&&rec.w.type==='groups')return rec;
+    const setId=String(d.groupSetId||'');
+    if(setId){for(let si=0;si<(state.slides||[]).length;si++){const sl=state.slides[si];const ws=(sl&&sl.widgets)||[];for(let wi=0;wi<ws.length;wi++){const w=ws[wi];if(w&&w.type==='groups'&&w.data&&String(w.data.groupSetId||'')===setId)return {slide:sl,slideIndex:si,index:wi,w:w};}}}
+  }catch(_e){}
+  return null;
+}
+function safe1059GroupDefForCard(cardW){
+  try{const rec=safe1059FindSourceGroupWidget(cardW);if(!rec)return {rec:null,def:null,index:-1};const defs=safe1059EnsureGroupSet(rec.w,{});const gid=String(cardW.data&&cardW.data.groupId||'');const index=defs.findIndex(x=>String(x&&x.id||'')===gid);return {rec:rec,def:index>=0?defs[index]:null,index:index};}catch(_e){return {rec:null,def:null,index:-1};}
+}
+function safe1059EnsureWorkDataset(ownerW){
+  try{
+    ownerW.data=ownerW.data||{}; let ds=null;
+    if(ownerW.data.groupWorkDatasetId&&typeof findDatasetById==='function')ds=findDatasetById(ownerW.data.groupWorkDatasetId);
+    if(!ds){
+      ds={id:(typeof uid==='function'?uid():'groupwork_'+Date.now().toString(36)),name:'Gruppearbejde - '+String(ownerW.title||'Grupper').replace(/^👥\s*/,''),type:'group-work',columns:['Gruppe-ID','Gruppetitel','Type','Titel','Tekst','Dato','Status','Note-ID'],rows:[],createdAt:Date.now(),sourceWidgetId:String(ownerW.id||''),groupSetId:String(ownerW.data.groupSetId||'')};
+      if(typeof addDataset==='function')addDataset(ds);else{state.datasets=Array.isArray(state.datasets)?state.datasets:[];state.datasets.push(ds);}
+      ownerW.data.groupWorkDatasetId=ds.id;
+    }
+    ds.type='group-work'; ds.groupSetId=String(ownerW.data.groupSetId||''); ds.sourceWidgetId=String(ownerW.id||'');
+    ds.columns=['Gruppe-ID','Gruppetitel','Type','Titel','Tekst','Dato','Status','Note-ID']; ds.rows=Array.isArray(ds.rows)?ds.rows:[];
+    return ds;
+  }catch(_e){return null;}
+}
+function safe1059WorkItems(ownerW,groupId){
+  try{const ds=ownerW&&ownerW.data&&ownerW.data.groupWorkDatasetId&&typeof findDatasetById==='function'?findDatasetById(ownerW.data.groupWorkDatasetId):null;if(!ds)return [];return (ds.rows||[]).map((r,i)=>({row:r,index:i})).filter(x=>String(x.row&&x.row[0]||'')===String(groupId||'')).map(x=>({groupId:String(x.row[0]||''),groupTitle:String(x.row[1]||''),type:String(x.row[2]||'Notat'),title:String(x.row[3]||'Uden titel'),text:String(x.row[4]||''),date:String(x.row[5]||''),status:String(x.row[6]||''),id:String(x.row[7]||''),rowIndex:x.index}));}catch(_e){return [];}
+}
+function safe1059RefreshSourceDom(ownerW){
+  try{const el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(String(ownerW.id)):String(ownerW.id))+'"]');if(el&&typeof fillContent==='function')fillContent(el,ownerW);}catch(_e){}
+}
+function safe1059RefreshLinkedGroupBoards(ownerW,opts){
+  opts=opts||{}; if(!ownerW||!ownerW.data)return 0;
+  const defs=safe1059EnsureGroupSet(ownerW,{}).filter(d=>d&&d.active!==false);
+  const map=new Map(defs.map(d=>[String(d&&d.id||''),d])); let changed=0;
+  try{
+    (state.slides||[]).forEach((sl,si)=>{
+      const meta=sl&&sl.groupBoardMeta; if(!meta||String(meta.groupSetId||'')!==String(ownerW.data.groupSetId||''))return;
+      const def=map.get(String(meta.groupId||''));
+      if(def){
+        const title=String(def.title||'Gruppe').trim()||'Gruppe'; if(sl.title!==title){sl.title=title;changed++;}
+        meta.orphaned=false; meta.sourceGroupWidgetId=String(ownerW.id||''); meta.groupSetId=String(ownerW.data.groupSetId||'');
+      }else meta.orphaned=true;
+      ((sl&&sl.widgets)||[]).forEach(card=>{if(!safe1059IsGroupCard(card))return;if(String(card.data.groupSetId||'')!==String(ownerW.data.groupSetId||''))return;card.data.sourceGroupWidgetId=String(ownerW.id||'');if(def){card.data.groupId=String(def.id||'');card.title='👥 '+String(def.title||'Gruppe');}});
+      if(si===state.active){try{const titleElLocal=(typeof titleEl!=='undefined'&&titleEl)?titleEl:document.querySelector('.title');if(titleElLocal&&def)titleElLocal.textContent=String(def.title||'Gruppe');}catch(_e){};try{document.querySelectorAll('.widget[data-id]').forEach(el=>{const id=el.dataset.id;const rec=safe1059FindWidgetRecord(id);if(rec&&safe1059IsGroupCard(rec.w)&&typeof fillContent==='function')fillContent(el,rec.w);});}catch(_e){}}
+    });
+  }catch(_e){}
+  if(opts.save){try{save({silent:true});}catch(_e){try{save();}catch(__e){}}}
+  return changed;
+}
+function safe1059CopyGroupCardLayout(from,to){try{to.x=Math.round(Number(from.x)||0);to.y=Math.round(Number(from.y)||0);to.w=Math.max(220,Math.round(Number(from.w)||480));to.h=Math.max(180,Math.round(Number(from.h)||420));to.rotation=Number(from.rotation)||0;return true;}catch(_e){return false;}}
+function safe1059SyncGroupCardLayout(master,opts){
+  try{if(!safe1059IsGroupCard(master))return false;const key=String(master.data.groupSetId||'');let n=0;(state.slides||[]).forEach(sl=>((sl&&sl.widgets)||[]).forEach(w=>{if(!safe1059IsGroupCard(w)||String(w.id)===String(master.id)||String(w.data.groupSetId||'')!==key)return;safe1059CopyGroupCardLayout(master,w);try{if(typeof safe976ApplyLayoutToVisibleDom==='function')safe976ApplyLayoutToVisibleDom(w);}catch(_e){}n++;}));if(opts&&opts.save)try{save({silent:true});}catch(_e){}return n;}catch(_e){return false;}
+}
+function safe1059PrepareGroupCard(card,def,ownerW,boardId){
+  card=card||{}; card.type='text'; card.title='👥 '+String(def.title||'Gruppe'); card.w=Math.max(320,Number(card.w)||520); card.h=Math.max(250,Number(card.h)||440); card.data=card.data||{};
+  const keepTab=String(card.data.groupCardTab||'group');
+  card.data={groupCardView:true,groupCardTab:keepTab,groupSetId:String(ownerW.data.groupSetId||''),groupId:String(def.id||''),sourceGroupWidgetId:String(ownerW.id||''),sourceSlideId:String((safe1059FindWidgetRecord(ownerW.id)||{}).slide&&((safe1059FindWidgetRecord(ownerW.id)||{}).slide.id)||''),groupWorkDatasetId:String(ownerW.data.groupWorkDatasetId||'')};
+  card.sharedVisibility={mode:'single',slideIds:[String(boardId||'')]};
+  return card;
+}
+function safe1059DefaultGroupCard(ownerW){
+  try{const rec=safe1059FindWidgetRecord(ownerW.id);const source=(rec&&rec.slide)||{};const elev=((source.widgets)||[]).find(w=>w&&w.type==='text'&&w.data&&w.data.addressCardView);if(elev)return {x:Number(elev.x)||380,y:Number(elev.y)||90,w:Number(elev.w)||560,h:Number(elev.h)||500,rotation:Number(elev.rotation)||0,z:Number(elev.z)||10};}catch(_e){}
+  try{const lay=(typeof safe969StudentLayout==='function')?safe969StudentLayout():null;if(lay&&lay.card)return Object.assign({rotation:0,z:10},lay.card);}catch(_e){}
+  return {x:380,y:90,w:560,h:480,rotation:0,z:10};
+}
+function safe1059FindGroupBoard(ownerW,def){
+  try{const setId=String(ownerW.data.groupSetId||''),gid=String(def.id||'');for(let i=0;i<(state.slides||[]).length;i++){const sl=state.slides[i];const m=sl&&sl.groupBoardMeta;if(m&&String(m.groupSetId||'')===setId&&String(m.groupId||'')===gid)return {slide:sl,index:i};if(def.boardId&&String(sl&&sl.id||'')===String(def.boardId))return {slide:sl,index:i};}}catch(_e){}return null;
+}
+function safe1059EnsureCardOnBoard(sl,def,ownerW){
+  sl.widgets=Array.isArray(sl.widgets)?sl.widgets:[];
+  let cards=sl.widgets.filter(w=>safe1059IsGroupCard(w)); let card=cards.find(w=>String(w.data.groupId||'')===String(def.id||''))||cards[0]||null;
+  if(!card){const layout=safe1059DefaultGroupCard(ownerW);card={id:(typeof uid==='function'?uid():'groupcard_'+Date.now().toString(36)),type:'text',x:layout.x,y:layout.y,w:layout.w,h:layout.h,z:++z,rotation:layout.rotation||0,locked:false,title:'👥 '+def.title,data:{}};sl.widgets.push(card);}
+  safe1059PrepareGroupCard(card,def,ownerW,sl.id);
+  return card;
+}
+function safe1059PostprocessNewGroupBoard(sl,def,ownerW){
+  sl.widgets=Array.isArray(sl.widgets)?sl.widgets:[];
+  let converted=null;
+  const clean=[];
+  sl.widgets.forEach(w=>{
+    const d=(w&&w.data)||{};
+    if(w&&w.type==='groups'&&String(d.groupSetId||'')===String(ownerW.data.groupSetId||''))return;
+    if(safe1060IsGroupSourceDataWidget(w,ownerW))return;
+    if(d.studentNoteWidget||d.studentNotesReportWidget||d.studentSessionIndex)return;
+    if(d.addressCardView){if(!converted){converted=w;safe1059PrepareGroupCard(converted,def,ownerW,sl.id);clean.push(converted);}return;}
+    if(d.groupCardView){if(!converted){converted=w;safe1059PrepareGroupCard(converted,def,ownerW,sl.id);clean.push(converted);}return;}
+    clean.push(w);
+  });
+  sl.widgets=clean;
+  if(!converted)converted=safe1059EnsureCardOnBoard(sl,def,ownerW);
+  sl.groupBoardMeta={kind:'live-group-board',groupSetId:String(ownerW.data.groupSetId||''),groupId:String(def.id||''),sourceGroupWidgetId:String(ownerW.id||''),sourceSlideId:String((safe1059FindWidgetRecord(ownerW.id)||{}).slide&&((safe1059FindWidgetRecord(ownerW.id)||{}).slide.id)||''),createdAt:Date.now()};
+  sl.title=String(def.title||'Gruppe'); def.boardId=String(sl.id||'');
+  return converted;
+}
+function safe1059CreateOrUpdateGroupBoards(ownerW,count,titles){
+  if(safe1059CreateOrUpdateGroupBoards._busy)return false; safe1059CreateOrUpdateGroupBoards._busy=true;
+  try{
+    const rec=safe1059FindWidgetRecord(ownerW.id);if(!rec){toast('Kunne ikke finde GruppeWidgetten');return false;}
+    const repaired=safe1061RepairLegacyEmptyGroups(ownerW);
+    const plan=safe1061GroupPlan(ownerW);
+    count=plan.hasResult?plan.resultCount:Math.max(1,Math.min(40,Number(count)||plan.suggestedCount||1));
+    const defs=safe1059EnsureGroupSet(ownerW,{count:count});
+    (titles||[]).forEach((t,i)=>{if(i<count&&defs[i]&&String(t||'').trim())defs[i].title=String(t).trim();});
+    safe1059EnsureWorkDataset(ownerW);
+    let created=0,updated=0,firstIndex=-1;const newSlides=[];
+    for(let i=0;i<count;i++){
+      const def=defs[i];def.active=true;
+      let hit=safe1059FindGroupBoard(ownerW,def);
+      if(hit){hit.slide.title=def.title;hit.slide.groupBoardMeta=Object.assign({},hit.slide.groupBoardMeta||{},{kind:'live-group-board',groupSetId:String(ownerW.data.groupSetId),groupId:String(def.id),sourceGroupWidgetId:String(ownerW.id),sourceSlideId:String(rec.slide&&rec.slide.id||'')});safe1059EnsureCardOnBoard(hit.slide,def,ownerW);def.boardId=String(hit.slide.id||'');updated++;if(firstIndex<0)firstIndex=hit.index;continue;}
+      const opts={templateIndex:rec.slideIndex,copyWidgets:true,skipSourceWidget:true,copyBackground:true,copyDraw:false};
+      const source={kind:'group',sourceWidgetId:String(ownerW.id||''),sourceSlideIndex:rec.slideIndex,names:[],label:'Grupper'};
+      let sl=(typeof safe827MakeBoardFromTemplate==='function')?safe827MakeBoardFromTemplate(rec.slide,def.title,opts,i+1,source):safe969CopySourceSlideShell(rec.slide,def.title);
+      if(!sl.id)sl.id=(typeof safe827NewSlideId==='function')?safe827NewSlideId(i+1):('groupboard_'+Date.now().toString(36)+'_'+i);
+      safe1059PostprocessNewGroupBoard(sl,def,ownerW);newSlides.push(sl);created++;
+    }
+    if(newSlides.length){let trash=-1;try{trash=(state.slides||[]).findIndex(sl=>typeof safe588IsTrashSlide==='function'&&safe588IsTrashSlide(sl));}catch(_e){}const at=trash>=0?trash:state.slides.length;state.slides.splice.apply(state.slides,[at,0].concat(newSlides));if(firstIndex<0)firstIndex=at;}
+    safe1059RefreshLinkedGroupBoards(ownerW,{});
+    if(plan.hasResult){ownerW.data.groupsVisible=true;ownerW.data.listHidden=true;try{if(typeof safe676SyncGroupsResultDataset==='function')safe676SyncGroupsResultDataset({});}catch(_e){}}
+    try{save({silent:true});}catch(_e){save();}
+    try{closeModal();}catch(_e){}
+    if(firstIndex>=0)state.active=firstIndex;
+    try{render();}catch(_e){}
+    const surplus=safe1061SurplusGroupBoards(ownerW,defs.slice(0,count)).length;
+    let msg=(created?'Oprettet '+created:'Ingen nye')+' gruppetavler'+(updated?' · '+updated+' opdateret':'');
+    if(repaired)msg+=' · '+repaired+' kunstige tomme grupper ryddet';
+    if(surplus)msg+=' · '+surplus+' tidligere tavler bevaret';
+    try{toast(msg);}catch(_e){}
+    try{setTimeout(()=>{if(typeof safe269BoardOverviewModal==='function')safe269BoardOverviewModal(state.slides&&state.slides[state.active]);else if(typeof window.__tavleToggleBoardOverview==='function')window.__tavleToggleBoardOverview();},120);}catch(_e){}
+    return true;
+  }catch(err){console.error('l1061 gruppetavler fejlede',err);try{toast('Kunne ikke oprette gruppetavler: '+(err&&err.message||err));}catch(_e){}return false;}finally{setTimeout(()=>{safe1059CreateOrUpdateGroupBoards._busy=false;},900);}
+}
+
+/* l1060: Send hele gruppeforløbet via Tavles eksisterende sessionpakker.
+   Mastertavlen bevarer GruppeWidget + datakilder; gruppetavlerne får kun Gruppekort og øvrige skabelonwidgets. */
+function safe1060CloneGroupMasterSlide(ownerW){
+  try{
+    const rec=safe1059FindWidgetRecord(ownerW&&ownerW.id);if(!rec||!rec.slide)return null;
+    const master=safe859CloneForPackage(rec.slide,{});master.id=String(rec.slide.id||('groupmaster_'+Date.now().toString(36)));master.title=String(rec.slide.title||'Grupper');
+    const records=[];const seen=new Set();
+    ((rec.slide&&rec.slide.widgets)||[]).forEach(w=>{if(w&&!seen.has(String(w.id||''))){seen.add(String(w.id||''));records.push(w);}});
+    try{(safe842VisibleTemplateWidgetRecords(rec.slideIndex)||[]).forEach(r=>{const w=r&&r.w;if(w&&!seen.has(String(w.id||''))){seen.add(String(w.id||''));records.push(w);}});}catch(_e){}
+    master.widgets=records.filter(w=>!(typeof safe940IsSessionAdminWidget==='function'&&safe940IsSessionAdminWidget(w))).map(w=>{
+      const cw=safe859CloneForPackage(w,null);if(!cw)return null;try{safe842CleanClonedWidget(cw);}catch(_e){}cw.sharedVisibility={mode:'single',slideIds:[String(master.id)]};return cw;
+    }).filter(Boolean);
+    master.transferMeta=Object.assign({},master.transferMeta||{},{originKind:'group-master',originKey:String(safe859CurrentSessionId())+'|group-master:'+String(ownerW.data&&ownerW.data.groupSetId||''),sourceGroupWidgetId:String(ownerW.id||''),groupSetId:String(ownerW.data&&ownerW.data.groupSetId||'')});
+    return master;
+  }catch(err){try{console.warn('l1060 mastertavle-klon fejlede',err);}catch(_e){}return null;}
+}
+function safe1060PrepareGroupSet(ownerW,count,titles){
+  ownerW.data=ownerW.data||{};
+  safe1061RepairLegacyEmptyGroups(ownerW);
+  const plan=safe1061GroupPlan(ownerW);
+  count=plan.hasResult?plan.resultCount:Math.max(1,Math.min(40,Number(count)||plan.suggestedCount||1));
+  const defs=safe1059EnsureGroupSet(ownerW,{count:count});
+  (titles||[]).forEach((t,i)=>{if(i<count&&defs[i]&&String(t||'').trim())defs[i].title=String(t).trim();});
+  safe1059EnsureWorkDataset(ownerW);
+  if(plan.hasResult)try{if(typeof safe676SyncGroupsResultDataset==='function')safe676SyncGroupsResultDataset({});}catch(_e){}
+  return defs.slice(0,count);
+}
+function safe1060BuildGroupPackageSlides(ownerW,count,titles){
+  const rec=safe1059FindWidgetRecord(ownerW&&ownerW.id);if(!rec)return null;
+  const plan=safe1061GroupPlan(ownerW);
+  count=plan.hasResult?plan.resultCount:Math.max(1,Math.min(40,Number(count)||plan.suggestedCount||1));
+  const defs=safe1060PrepareGroupSet(ownerW,count,titles);
+  const master=safe1060CloneGroupMasterSlide(ownerW);if(!master)return null;const slides=[master];
+  for(let i=0;i<defs.length;i++){
+    const def=Object.assign({},defs[i]||{});def.roles=Object.assign({},def.roles||{});def.members=Array.isArray(def.members)?def.members.slice():[];
+    const opts={templateIndex:rec.slideIndex,copyWidgets:true,skipSourceWidget:true,copyBackground:true,copyDraw:false};
+    const source={kind:'group',sourceWidgetId:String(ownerW.id||''),sourceSlideIndex:rec.slideIndex,names:[],label:'Grupper'};
+    let sl=(typeof safe827MakeBoardFromTemplate==='function')?safe827MakeBoardFromTemplate(rec.slide,def.title,opts,i+1,source):safe969CopySourceSlideShell(rec.slide,def.title);
+    if(!sl.id)sl.id=(typeof safe861PackageSlideId==='function')?safe861PackageSlideId(i+1):('pkg_group_'+Date.now().toString(36)+'_'+i);
+    safe1059PostprocessNewGroupBoard(sl,def,ownerW);
+    sl.transferMeta=Object.assign({},sl.transferMeta||{},{originKind:'group-board',originKey:String(safe859CurrentSessionId())+'|group:'+String(ownerW.data.groupSetId||'')+'|'+String(def.id||i),sourceGroupWidgetId:String(ownerW.id||''),sourceSlideId:String(rec.slide.id||''),groupSetId:String(ownerW.data.groupSetId||''),groupId:String(def.id||'')});
+    slides.push(sl);
+  }
+  return {slides:slides,defs:defs,groupCount:defs.length,hadResult:plan.hasResult};
+}
+async function safe1060SendGroupSession(ownerW,count,titles,destinationRaw){
+  if(safe1060SendGroupSession._busy)return false;safe1060SendGroupSession._busy=true;
+  try{
+    const to=typeof safe859SessionId==='function'?safe859SessionId(destinationRaw):String(destinationRaw||'').replace(/^#/,'').trim();if(!to){toast('Vælg eller skriv en destinationssession');return false;}const from=safe859CurrentSessionId();if(to===from){toast('Vælg en anden session end den aktuelle');return false;}
+    try{toast('Pakker gruppeforløb…');}catch(_e){}
+    const built=safe1060BuildGroupPackageSlides(ownerW,count,titles);if(!built||!built.slides||!built.slides.length){toast('Kunne ikke bygge gruppepakken');return false;}
+    const source={kind:'group-session',sourceWidgetId:String(ownerW.id||''),label:'GruppeWidget + gruppetavler',key:'groupsession:'+String(ownerW.data.groupSetId||'')};
+    const datasets=safe859PackageDatasets(built.slides,source);const id='pkg_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+    const pkg={packageType:'tavle-session-transfer',formatVersion:2,id:id,createdAt:Date.now(),createdAtText:safe859NowText(),status:'ready',transport:'lokal browserpakke',fromSession:from,fromUrl:safe859SessionUrl(from),toSession:to,toUrl:safe859SessionUrl(to),sourceLabel:'Gruppeforløb: '+String(ownerW.title||'Grupper').replace(/^👥\s*/,''),sourceKey:source.key,sourceCount:built.slides.length,options:{kind:'group-session',groupSetId:String(ownerW.data.groupSetId||''),groupCount:Number(built.groupCount)||0,includesMasterBoard:true,groupsAlreadyFormed:!!built.hadResult},slides:built.slides,datasets:datasets,media:[],notes:['Skabelontavlen med GruppeWidget og tilknyttede data følger med som master. Kun de '+built.groupCount+' aktive gruppetavler følger med.']};
+    try{const refs=safe861MediaRefsFromObject({slides:pkg.slides,datasets:pkg.datasets});pkg.media=await safe861PackageMediaRefs(refs,{includeDataUrl:false});pkg.mediaRefCount=refs.length;pkg.mediaPackedCount=(pkg.media||[]).length;pkg.mediaStorage='local-media-ref';}catch(_e){pkg.media=[];}
+    const stored=safe859WritePackage(pkg);try{safe859UpsertSessionListNote(pkg.toSession,'Sendt gruppeforløb med '+built.groupCount+' gruppetavler fra '+safe859SessionLabel(pkg.fromSession)+' · '+safe859NowText(),pkg.toUrl,true);}catch(_e){}
+    try{safe868RememberSessionRelation(pkg.fromSession,pkg.toSession,'send');safe868UpdateSessionBadge();}catch(_e){}try{safe861AppendTransferLogRows(safe861LogRowsForPackage(pkg,'Sendt',null));}catch(_e){}try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+    safe859ShowPackageReady(pkg,stored);return true;
+  }catch(err){console.error('l1061 send gruppeforløb fejlede',err);try{toast('Kunne ikke sende gruppeforløbet');}catch(_e){}return false;}finally{setTimeout(()=>{safe1060SendGroupSession._busy=false;},900);}
+}
+function safe1059BindModalButton(btn,fn){if(!btn)return;let last=0;const run=e=>{try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}const now=Date.now();if(now-last<350)return;last=now;fn(e);};['pointerup','touchend','click'].forEach(type=>{try{btn.addEventListener(type,run,{capture:true,passive:false});}catch(_e){}});}
+/* l1062: Løbende gruppestruktur. Nye grupper tilføjes append-only, så eksisterende
+   gruppe-ID'er, tavler og gruppearbejde aldrig flyttes eller overskrives. */
+function safe1062GroupStructure(ownerW){
+  ownerW.data=ownerW.data||{};
+  const d=ownerW.data,plan=safe1061GroupPlan(ownerW);
+  let count=Math.max(plan.resultCount,Array.isArray(d.groups)?d.groups.length:0,(Array.isArray(d.groupDefinitions)?d.groupDefinitions:[]).filter(x=>x&&x.active!==false).length);
+  if(!count)count=Math.max(1,plan.suggestedCount||1);
+  const defs=safe1059EnsureGroupSet(ownerW,{count:count});
+  const groups=Array.from({length:count},(_,i)=>safe1061CleanGroupMembers(Array.isArray(d.groups)&&Array.isArray(d.groups[i])?d.groups[i]:(defs[i]&&defs[i].members)||[]));
+  const locks=Array.from({length:count},(_,i)=>!!(Array.isArray(d.groupLocks)&&d.groupLocks[i]));
+  for(let i=0;i<count;i++){defs[i].members=groups[i].slice();defs[i].active=true;defs[i].index=i;defs[i].roles=(defs[i].roles&&typeof defs[i].roles==='object'&&!Array.isArray(defs[i].roles))?defs[i].roles:{};}
+  return {count:count,defs:defs,groups:groups,locks:locks,plan:plan};
+}
+function safe1062FreshGroupId(){return 'group_'+(typeof uid==='function'?uid():(Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)));}
+function safe1062SyncExistingResultDataset(ownerW){
+  try{
+    const d=(ownerW&&ownerW.data)||{};if(!d.groupsResultDatasetId||typeof findDatasetById!=='function')return null;
+    const ds=findDatasetById(d.groupsResultDatasetId);if(!ds)return null;
+    const defs=safe1059EnsureGroupSet(ownerW,{}),groups=Array.isArray(d.groups)?d.groups:[],locks=Array.isArray(d.groupLocks)?d.groupLocks:[];const rows=[];
+    groups.forEach((g,gi)=>safe1061CleanGroupMembers(g).forEach((name,pi)=>rows.push([String(defs[gi]&&defs[gi].title||('Gruppe '+(gi+1))),name,String(pi+1),locks[gi]?'ja':''])));
+    ds.type='groups-results';ds.columns=['Gruppe','Navn','Position','Låst'];ds.rows=rows;ds.sourceWidgetId=String(ownerW.id||'');ds.sourceWidgetTitle=String(ownerW.title||'Grupper');ds.groupSize=Number(d.size)||2;ds.modifiedAt=Date.now();
+    if(typeof updateDatasetInState==='function')updateDatasetInState(ds);
+    try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}
+    return ds;
+  }catch(_e){return null;}
+}
+function safe1062ApplyGroupStructure(ownerW,structure){
+  try{
+    const d=ownerW.data=ownerW.data||{};const groups=(structure.groups||[]).map(g=>safe1061CleanGroupMembers(g));const defs=structure.defs||[];
+    d.groups=groups;d.groupLocks=Array.from({length:groups.length},(_,i)=>!!(structure.locks&&structure.locks[i]));d.groupDefinitions=defs;d.groupStructureExplicit=true;d.groupsVisible=true;d.listHidden=true;d._groupsAddBlank=false;
+    for(let i=0;i<defs.length;i++){if(!defs[i])continue;defs[i].active=i<groups.length;defs[i].index=i;if(i<groups.length)defs[i].members=groups[i].slice();}
+    if(Array.isArray(d.names)&&d.names.length&&groups.length)d.size=Math.max(1,Math.ceil(d.names.length/groups.length));
+    safe1062SyncExistingResultDataset(ownerW);safe1059RefreshLinkedGroupBoards(ownerW,{});
+    try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+    return true;
+  }catch(err){try{console.warn('l1062 kunne ikke gemme gruppestruktur',err);}catch(_e){}return false;}
+}
+function safe1062CopyTasksToGroup(ownerW,fromDef,toDef){
+  try{
+    const ds=safe1059EnsureWorkDataset(ownerW);if(!ds)return 0;const now=new Date().toLocaleString('da-DK');let n=0;
+    (ds.rows||[]).slice().forEach(row=>{const type=String(row&&row[2]||'');if(String(row&&row[0]||'')!==String(fromDef.id||'')||!['Opgave','Spørgsmål'].includes(type))return;ds.rows.push([String(toDef.id||''),String(toDef.title||'Gruppe'),type,String(row[3]||''),String(row[4]||''),now,String(row[6]||''),'groupnote_'+(typeof uid==='function'?uid():Date.now().toString(36))]);n++;});
+    if(n){ds.modifiedAt=Date.now();if(typeof updateDatasetInState==='function')updateDatasetInState(ds);try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}}
+    return n;
+  }catch(_e){return 0;}
+}
+function safe1062OpenAddGroup(ownerW){
+  try{
+    const st=safe1062GroupStructure(ownerW),newCount=st.count+1,total=st.plan.participantCount||0,suggested=total?Math.ceil(total/newCount):Number(ownerW.data.size)||2;const defaultTitle='Gruppe '+newCount;
+    showModal(`<div class="safe1059GroupModal"><h2>Opret en ny gruppe</h2><p>Den nye gruppe får sit eget gruppe-ID, Gruppekort og gruppetavle. De eksisterende grupper, tavler, noter og svar ændres ikke.</p><label>Gruppens titel<input id="safe1062NewGroupTitle" value="${esc(defaultTitle)}"></label><div class="safe1062GroupSummary">${total?`${total} elever fordelt på ${newCount} grupper svarer til cirka ${suggested} personer pr. gruppe. Feltet <b>Personer pr. gruppe</b> i GruppeWidgetten ændres derfor til ${suggested}.`:'Gruppen oprettes tom og kan få medlemmer senere fra GruppeWidgetten.'}</div><div class="safe1059Actions"><button type="button" id="safe1062CreateGroup">Opret gruppe og tavle</button><button type="button" id="safe1062CancelGroup">Luk</button></div></div>`);
+    safe1059BindModalButton(document.getElementById('safe1062CancelGroup'),()=>closeModal());
+    safe1059BindModalButton(document.getElementById('safe1062CreateGroup'),()=>{
+      const title=String(document.getElementById('safe1062NewGroupTitle').value||defaultTitle).trim()||defaultTitle;const fresh=safe1062GroupStructure(ownerW),idx=fresh.count;
+      fresh.groups.push([]);fresh.locks.push(false);fresh.defs[idx]={id:safe1062FreshGroupId(),title:title,roles:{},members:[],active:true,index:idx};
+      safe1062ApplyGroupStructure(ownerW,fresh);closeModal();safe1059CreateOrUpdateGroupBoards(ownerW,fresh.groups.length,fresh.defs.map(d=>d&&d.title||''));
+    });
+  }catch(err){try{console.warn('l1062 ny gruppe fejlede',err);toast('Kunne ikke oprette en ny gruppe');}catch(_e){}}
+}
+function safe1062OpenSplitGroup(ownerW){
+  try{
+    const st=safe1062GroupStructure(ownerW),candidates=st.groups.map((g,i)=>({i:i,members:g})).filter(x=>x.members.length>=2);
+    if(!candidates.length){toast('Der skal være mindst én gruppe med to medlemmer for at dele den');return;}
+    const options=candidates.map(x=>`<option value="${x.i}">${esc(st.defs[x.i]&&st.defs[x.i].title||('Gruppe '+(x.i+1)))} · ${x.members.length} medlemmer</option>`).join('');
+    showModal(`<div class="safe1059GroupModal"><h2>Del en gruppe i to</h2><p>Vælg den eksisterende gruppe og de medlemmer, der skal flyttes til den nye gruppe. Den oprindelige gruppes ID, tavle, noter og svar bevares.</p><label>Gruppe<select id="safe1062SplitSource">${options}</select></label><label>Den nye gruppes titel<input id="safe1062SplitTitle" value="Gruppe ${st.count+1}"></label><div id="safe1062SplitSummary" class="safe1062GroupSummary"></div><div id="safe1062SplitMembers" class="safe1062MemberPicker"></div><label class="safe1062MemberChoice"><input id="safe1062CopyTasks" type="checkbox" checked><span>Kopiér gruppens opgaver og spørgsmål til den nye gruppe. Svar, kommentarer og arbejdsnoter kopieres ikke.</span></label><div class="safe1059Actions"><button type="button" id="safe1062DoSplit">Del gruppe og opret tavle</button><button type="button" id="safe1062CancelSplit">Luk</button></div></div>`);
+    const sourceEl=document.getElementById('safe1062SplitSource'),membersEl=document.getElementById('safe1062SplitMembers'),summaryEl=document.getElementById('safe1062SplitSummary');
+    function renderMembers(){const i=Number(sourceEl.value)||0,group=st.groups[i]||[];membersEl.innerHTML=group.map((name,mi)=>`<label class="safe1062MemberChoice"><input type="checkbox" data-mi="${mi}"><span>${esc(name)}</span></label>`).join('');summaryEl.textContent='Vælg mindst ét medlem, men ikke alle. De valgte flyttes til den nye gruppe.';}
+    sourceEl.addEventListener('change',renderMembers);renderMembers();
+    safe1059BindModalButton(document.getElementById('safe1062CancelSplit'),()=>closeModal());
+    safe1059BindModalButton(document.getElementById('safe1062DoSplit'),()=>{
+      const current=safe1062GroupStructure(ownerW),sourceIndex=Number(sourceEl.value)||0,sourceMembers=current.groups[sourceIndex]||[];const selected=new Set(Array.from(membersEl.querySelectorAll('input[type="checkbox"]:checked')).map(x=>Number(x.dataset.mi)));
+      if(!selected.size){toast('Vælg mindst ét medlem til den nye gruppe');return;}if(selected.size>=sourceMembers.length){toast('Der skal blive mindst ét medlem i den oprindelige gruppe');return;}
+      const moved=sourceMembers.filter((_,i)=>selected.has(i)),remaining=sourceMembers.filter((_,i)=>!selected.has(i)),idx=current.count,title=String(document.getElementById('safe1062SplitTitle').value||('Gruppe '+(idx+1))).trim()||('Gruppe '+(idx+1));const sourceDef=current.defs[sourceIndex];const roles={};
+      moved.forEach(name=>{const key=safe1059Norm(name);if(sourceDef&&sourceDef.roles&&sourceDef.roles[key]!=null){roles[key]=sourceDef.roles[key];delete sourceDef.roles[key];}});
+      current.groups[sourceIndex]=remaining;current.groups.push(moved);current.locks.push(false);current.defs[idx]={id:safe1062FreshGroupId(),title:title,roles:roles,members:moved.slice(),active:true,index:idx};if(sourceDef)sourceDef.members=remaining.slice();
+      const copyTasks=!!document.getElementById('safe1062CopyTasks').checked;safe1062ApplyGroupStructure(ownerW,current);if(copyTasks)safe1062CopyTasksToGroup(ownerW,sourceDef,current.defs[idx]);closeModal();safe1059CreateOrUpdateGroupBoards(ownerW,current.groups.length,current.defs.map(d=>d&&d.title||''));
+    });
+  }catch(err){try{console.warn('l1062 del gruppe fejlede',err);toast('Kunne ikke dele gruppen');}catch(_e){}}
+}
+function safe1059OpenGroupBoards(ownerW){
+  try{
+    ownerW.data=ownerW.data||{};
+    const repaired=safe1061RepairLegacyEmptyGroups(ownerW);
+    let plan=safe1061GroupPlan(ownerW);
+    let initial=Math.min(40,Math.max(1,plan.count||1));
+    let defs=safe1059EnsureGroupSet(ownerW,{count:initial});
+    const curId=(typeof safe1020CurrentSessionId==='function')?safe1020CurrentSessionId():safe859CurrentSessionId();let sessions=[];try{sessions=(typeof safe1020KnownSessionIds==='function'?safe1020KnownSessionIds():[]).filter(id=>String(id)!==String(curId));}catch(_e){}const defaultSession=sessions[0]||'__new__';const sessionOptions=sessions.map(id=>`<option value="${esc(id)}" ${id===defaultSession?'selected':''}>${esc(typeof safe1020SessionLabel==='function'?safe1020SessionLabel(id):safe859SessionLabel(id))}</option>`).join('')+`<option value="__new__" ${defaultSession==='__new__'?'selected':''}>Ny session…</option>`;
+    const resultText=plan.hasResult?`<b>${plan.resultCount} grupper er dannet i GruppeWidgetten</b><span>${plan.participantCount} navne · ${plan.size} personer pr. gruppe. Der bruges præcis de ${plan.resultCount} dannede grupper.</span>`:`<b>Grupperne er ikke dannet endnu</b><span>${plan.participantCount?plan.participantCount+' navne · '+plan.size+' personer pr. gruppe giver et forslag på '+plan.suggestedCount+' gruppetavler.':'Der er endnu ingen navneliste. Vælg hvor mange tomme gruppetavler der skal gøres klar.'}</span>`;
+    const countField=plan.hasResult?`<input id="safe1059GroupCount" type="hidden" value="${initial}">`:`<label><b>Antal gruppetavler</b><input id="safe1059GroupCount" type="number" min="1" max="40" value="${initial}"></label><div id="safe1061Estimate" class="safe1061Estimate"></div>`;
+    const html=`<div class="safe1059GroupModal"><h2>Gruppetavler</h2><p>Den aktuelle tavle bruges som skabelon. GruppeWidgetten bliver master, og Gruppekortene følger senere ændringer i medlemmer, roller og gruppetitler. Efter oprettelsen kan du bruge + Gruppe eller Del direkte i GruppeWidgetten.</p><div class="safe1059Meta"><span class="safe1059Pill">Skabelon: ${esc((safe1059FindWidgetRecord(ownerW.id)||{}).slide&&((safe1059FindWidgetRecord(ownerW.id)||{}).slide.title)||'Aktuel tavle')}</span><span class="safe1059Pill">Kilde bevares</span><span class="safe1059Pill">Elevkort → Gruppekort</span></div><div class="safe1061PlanBox">${resultText}</div>${countField}<div class="safe1059Preview"><table><thead><tr><th>#</th><th>Gruppens titel</th><th>Medlemmer</th><th>Status</th></tr></thead><tbody id="safe1059GroupRows"></tbody></table></div><div id="safe1061Surplus" class="safe1059Warn" style="display:none"></div><div class="safe1059SessionBox"><b>Send til anden session</b><p>Sender mastertavlen med GruppeWidget og dens data samt præcis de gruppetavler, der vises ovenfor.</p><div class="safe1059SessionRow"><select id="safe1060TargetSession">${sessionOptions}</select><input id="safe1060NewSession" type="text" placeholder="Nyt sessionsnavn, fx Projektuge" style="display:${defaultSession==='__new__'?'block':'none'}"><button type="button" id="safe1060SendGroupSession">Send</button></div></div><div class="safe1059Actions"><button type="button" id="safe1059CreateBoards">Opret/opdater her</button><button type="button" id="safe1059CloseBoards">Luk</button></div></div>`;
+    showModal(html);
+    const countEl=document.getElementById('safe1059GroupCount'),rowsEl=document.getElementById('safe1059GroupRows'),targetEl=document.getElementById('safe1060TargetSession'),newEl=document.getElementById('safe1060NewSession'),estimateEl=document.getElementById('safe1061Estimate'),surplusEl=document.getElementById('safe1061Surplus'),createBtn=document.getElementById('safe1059CreateBoards'),sendBtn=document.getElementById('safe1060SendGroupSession');
+    function currentTitles(){const out=[];document.querySelectorAll('.safe1059GroupTitleInput').forEach(inp=>{out[Number(inp.dataset.i)||0]=String(inp.value||'').trim();});return out;}
+    function selectedCount(){return plan.hasResult?plan.resultCount:Math.max(1,Math.min(40,Number(countEl&&countEl.value)||plan.suggestedCount||1));}
+    function rebuild(){
+      const keepTitles=currentTitles();const n=selectedCount();defs=safe1059EnsureGroupSet(ownerW,{count:n});
+      keepTitles.forEach((t,i)=>{if(i<n&&defs[i]&&t)defs[i].title=t;});
+      rowsEl.innerHTML=Array.from({length:n},(_,i)=>{const def=defs[i];const hit=safe1059FindGroupBoard(ownerW,def);const members=Array.isArray(def.members)?def.members.length:0;const memberText=members?members+' personer':(plan.hasResult?'Tom gruppe':'Afventer fordeling');return `<tr><td>${i+1}</td><td><input class="safe1059GroupTitleInput" data-i="${i}" value="${esc(def.title||('Gruppe '+(i+1)))}"></td><td>${memberText}</td><td>${hit?'Opdateres':'Ny tavle'}</td></tr>`;}).join('');
+      if(estimateEl&&!plan.hasResult){const per=plan.participantCount?Math.ceil(plan.participantCount/n):0;estimateEl.textContent=plan.participantCount?`${plan.participantCount} navne fordelt på ${n} tavler giver cirka ${per} personer i hver gruppe. GruppeWidgetten står fortsat til ${plan.size} personer pr. gruppe.`:'Tavlerne oprettes tomme. Eleverne kan fordeles senere i GruppeWidgetten.';}
+      const surplus=safe1061SurplusGroupBoards(ownerW,defs.slice(0,n));if(surplusEl){surplusEl.style.display=surplus.length?'block':'none';surplusEl.textContent=surplus.length?`${surplus.length} tidligere gruppetavler ligger uden for det aktuelle antal. De bevares her, men sendes ikke til en anden session.`:'';}
+      if(createBtn)createBtn.textContent=`Opret/opdater ${n} tavler her`;
+      if(sendBtn)sendBtn.textContent=`Send ${n} tavler`;
+    }
+    rebuild();
+    if(repaired)try{toast(repaired+' kunstige tomme grupper blev ryddet');}catch(_e){}
+    if(countEl&&!plan.hasResult)countEl.addEventListener('input',rebuild);
+    if(targetEl)targetEl.addEventListener('change',()=>{if(newEl)newEl.style.display=targetEl.value==='__new__'?'block':'none';});
+    function values(){const n=selectedCount();const titles=Array.from(document.querySelectorAll('.safe1059GroupTitleInput')).map(x=>String(x.value||'').trim());return {n:n,titles:titles};}
+    safe1059BindModalButton(document.getElementById('safe1059CloseBoards'),()=>closeModal());
+    safe1059BindModalButton(createBtn,()=>{const v=values();safe1059CreateOrUpdateGroupBoards(ownerW,v.n,v.titles);});
+    safe1059BindModalButton(sendBtn,()=>{const v=values();let dest=targetEl&&targetEl.value||'';if(dest==='__new__')dest=String(newEl&&newEl.value||'').trim();safe1060SendGroupSession(ownerW,v.n,v.titles,dest);});
+  }catch(err){console.warn('l1061 gruppetavle-preview fejlede',err);try{toast('Kunne ikke åbne gruppetavler');}catch(_e){}}
+}
+function safe1059OpenWorkEditor(cardW,itemId,typeHint){
+  const info=safe1059GroupDefForCard(cardW);if(!info.rec||!info.def){toast('Gruppekilden mangler');return;}
+  const ownerW=info.rec.w,def=info.def;const ds=safe1059EnsureWorkDataset(ownerW);if(!ds)return;
+  let item=safe1059WorkItems(ownerW,def.id).find(x=>String(x.id)===String(itemId||''))||null;
+  const type=String(item&&item.type||typeHint||'Notat');
+  const html=`<div class="safe1059GroupModal"><h2>${item?'Redigér':'Nyt'} gruppearbejde</h2><p>${esc(def.title||'Gruppe')}</p><label>Type<select id="safe1059WorkType"><option ${type==='Opgave'?'selected':''}>Opgave</option><option ${type==='Spørgsmål'?'selected':''}>Spørgsmål</option><option ${type==='Kommentar'?'selected':''}>Kommentar</option><option ${type==='Svar'?'selected':''}>Svar</option><option ${type==='Notat'?'selected':''}>Notat</option></select></label><label>Titel<input id="safe1059WorkTitle" value="${esc(item&&item.title||'')}"></label><label>Tekst<textarea id="safe1059WorkText" rows="8">${esc(item&&item.text||'')}</textarea></label><label>Status<input id="safe1059WorkStatus" value="${esc(item&&item.status||'')}"></label><div class="safe1059Actions">${item?'<button type="button" id="safe1059DeleteWork">Slet</button>':''}<button type="button" id="safe1059SaveWork">Gem</button><button type="button" id="safe1059CloseWork">Luk</button></div></div>`;
+  showModal(html);
+  safe1059BindModalButton(document.getElementById('safe1059CloseWork'),()=>closeModal());
+  safe1059BindModalButton(document.getElementById('safe1059SaveWork'),()=>{const id=String(item&&item.id||((typeof uid==='function')?uid():'note_'+Date.now().toString(36)));const row=[String(def.id),String(def.title||''),String(document.getElementById('safe1059WorkType').value||'Notat'),String(document.getElementById('safe1059WorkTitle').value||'').trim()||'Uden titel',String(document.getElementById('safe1059WorkText').value||''),new Date().toLocaleString('da-DK'),String(document.getElementById('safe1059WorkStatus').value||''),id];if(item)ds.rows[item.rowIndex]=row;else ds.rows.push(row);ds.modifiedAt=Date.now();if(typeof updateDatasetInState==='function')updateDatasetInState(ds);try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}ownerW.data.groupWorkDatasetId=ds.id;cardW.data.groupWorkDatasetId=ds.id;save();closeModal();const rec=safe1059FindWidgetRecord(cardW.id);if(rec&&rec.slideIndex===state.active){const el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(String(cardW.id)):String(cardW.id))+'"]');if(el)fillContent(el,cardW);}toast('Gruppearbejde gemt');});
+  if(item)safe1059BindModalButton(document.getElementById('safe1059DeleteWork'),()=>{ds.rows.splice(item.rowIndex,1);ds.modifiedAt=Date.now();if(typeof updateDatasetInState==='function')updateDatasetInState(ds);save();closeModal();const rec=safe1059FindWidgetRecord(cardW.id);if(rec&&rec.slideIndex===state.active){const el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(String(cardW.id)):String(cardW.id))+'"]');if(el)fillContent(el,cardW);}toast('Notat slettet');});
+}
+function safe1059GroupCardHtml(cardW){
+  const info=safe1059GroupDefForCard(cardW),ownerW=info.rec&&info.rec.w,def=info.def;
+  const tab=String(cardW.data&&cardW.data.groupCardTab||'group');
+  if(!ownerW||!def)return `<div class="safe1059GroupCard"><div class="safe1059GroupCardBody"><div class="safe1059SourceMissing">Gruppekortets kilde kunne ikke findes. Tavlen og eventuelle noter er bevaret.</div></div></div>`;
+
+  const members=Array.isArray(def.members)?def.members:[];
+  const editable=!app.classList.contains('present');
+  const memberHtml=members.length?members.map(name=>{
+    const role=String(def.roles&&def.roles[safe1059Norm(name)]||'');
+    return `<div class="safe1059MemberRow"><span class="safe1059MemberName">${esc(name)}</span>${editable?`<input class="safe1059MemberRoleInput" data-member="${esc(name)}" value="${esc(role)}" placeholder="Rolle i gruppen">`:`<span class="safe1059MemberRole">${esc(role||'Ingen rolle angivet')}</span>`}</div>`;
+  }).join(''):'<div class="safe1059Empty">Gruppen er tom. Fordel eleverne i den tilknyttede GruppeWidget.</div>';
+
+  const items=safe1059WorkItems(ownerW,def.id);
+  const requestedWorkTab=String(cardW.data&&cardW.data.groupWorkTab||'tasks');
+  const workTab=['tasks','comments','answers'].includes(requestedWorkTab)?requestedWorkTab:'tasks';
+  function workCategory(item){
+    const type=safe1059Norm(item&&item.type||'');
+    if(type==='svar')return 'answers';
+    if(type==='opgave'||type==='spørgsmål'||type==='sporgsmal')return 'tasks';
+    return 'comments';
+  }
+  const counts={tasks:0,comments:0,answers:0};
+  items.forEach(item=>{counts[workCategory(item)]++;});
+  const visibleItems=items.filter(item=>workCategory(item)===workTab);
+  const emptyText=workTab==='tasks'?'Ingen opgaver eller spørgsmål endnu.':workTab==='comments'?'Ingen kommentarer eller notater endnu.':'Ingen svar endnu.';
+  const workHtml=visibleItems.length?visibleItems.map(it=>`<button type="button" class="safe1059WorkItem" data-work-id="${esc(it.id)}"><span class="safe1059WorkType">${esc(it.type)}</span><b>${esc(it.title)}</b><span>${esc((it.text||'').slice(0,180))}${(it.text||'').length>180?'…':''}</span></button>`).join(''):`<div class="safe1059Empty">${emptyText}</div>`;
+  const newType=workTab==='tasks'?'Opgave':workTab==='comments'?'Kommentar':'Svar';
+  const newLabel=workTab==='tasks'?'+ Opgave':workTab==='comments'?'+ Kommentar':'+ Svar';
+  const workPanel=`<div class="safe1059GroupTabs safe1066WorkTabs"><button type="button" data-work-tab="tasks" class="${workTab==='tasks'?'active':''}">Opgaver${counts.tasks?' · '+counts.tasks:''}</button><button type="button" data-work-tab="comments" class="${workTab==='comments'?'active':''}">Kommentarer${counts.comments?' · '+counts.comments:''}</button><button type="button" data-work-tab="answers" class="${workTab==='answers'?'active':''}">Svar${counts.answers?' · '+counts.answers:''}</button></div><div class="safe1059WorkList">${workHtml}</div><div class="safe1059WorkActions"><button type="button" class="primary" data-new-work="${newType}">${newLabel}</button><button type="button" class="safe1059OpenWorkData">Data</button></div>`;
+
+  return `<div class="safe1059GroupCard"><div class="safe1059GroupCardHead"><div class="safe1059GroupCardTitle"><h2>${esc(def.title||'Gruppe')}</h2><p>${members.length} ${members.length===1?'medlem':'medlemmer'} · koblet til GruppeWidget</p></div><button type="button" class="safe1059RenameGroup" title="Omdøb gruppe">✎</button></div><div class="safe1059GroupTabs"><button type="button" data-tab="group" class="${tab==='group'?'active':''}">Gruppe</button><button type="button" data-tab="work" class="${tab==='work'?'active':''}">Arbejde${items.length?' · '+items.length:''}</button></div><div class="safe1059GroupCardBody">${tab==='work'?workPanel:`<div class="safe1059MemberList">${memberHtml}</div><div class="safe1059GroupActions"><button type="button" class="primary safe1059GoSourceGroup">Åbn GruppeWidget</button></div>`}</div></div>`;
+}
+function safe1059WireGroupCard(c,cardW){
+  const info=safe1059GroupDefForCard(cardW);if(!info.rec||!info.def)return;const ownerW=info.rec.w,def=info.def;
+  function stop(e){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}}
+  function bind(el,fn){if(!el)return;let last=0;['pointerdown','touchstart','mousedown'].forEach(t=>{try{el.addEventListener(t,e=>{e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();},{capture:true,passive:true});}catch(_e){}});['pointerup','touchend','click'].forEach(t=>{try{el.addEventListener(t,e=>{const now=Date.now();if(now-last<320){stop(e);return;}last=now;stop(e);fn(e);},{capture:true,passive:false});}catch(_e){}});}
+  c.querySelectorAll('[data-tab]').forEach(btn=>bind(btn,()=>{cardW.data.groupCardTab=btn.dataset.tab||'group';fillContent(c.closest('.widget'),cardW);save();}));
+  c.querySelectorAll('[data-work-tab]').forEach(btn=>bind(btn,()=>{cardW.data.groupWorkTab=btn.dataset.workTab||'tasks';fillContent(c.closest('.widget'),cardW);save();}));
+  bind(c.querySelector('.safe1059GoSourceGroup'),()=>{state.active=info.rec.slideIndex;render();setTimeout(()=>{try{select(ownerW.id,{editText:false});}catch(_e){}},40);});
+  bind(c.querySelector('.safe1059RenameGroup'),()=>{showModal(`<div class="safe1059GroupModal"><h2>Omdøb gruppe</h2><input id="safe1059RenameInput" value="${esc(def.title||'Gruppe')}"><div class="safe1059Actions"><button id="safe1059RenameSave">Gem</button><button id="safe1059RenameClose">Luk</button></div></div>`);safe1059BindModalButton(document.getElementById('safe1059RenameClose'),()=>closeModal());safe1059BindModalButton(document.getElementById('safe1059RenameSave'),()=>{const v=String(document.getElementById('safe1059RenameInput').value||'').trim();if(v)def.title=v;safe1059RefreshLinkedGroupBoards(ownerW,{save:true});safe1059RefreshSourceDom(ownerW);closeModal();try{render();}catch(_e){};});});
+  c.querySelectorAll('.safe1059MemberRoleInput').forEach(inp=>{inp.addEventListener('pointerdown',e=>e.stopPropagation(),true);inp.addEventListener('input',()=>{def.roles=def.roles||{};def.roles[safe1059Norm(inp.dataset.member||'')]=String(inp.value||'');save({silent:true});});inp.addEventListener('change',()=>{safe1059RefreshLinkedGroupBoards(ownerW,{save:true});safe1059RefreshSourceDom(ownerW);});});
+  c.querySelectorAll('[data-new-work]').forEach(btn=>bind(btn,()=>safe1059OpenWorkEditor(cardW,'',btn.dataset.newWork||'Notat')));
+  c.querySelectorAll('[data-work-id]').forEach(btn=>bind(btn,()=>safe1059OpenWorkEditor(cardW,btn.dataset.workId||'','Notat')));
+  bind(c.querySelector('.safe1059OpenWorkData'),()=>{const ds=safe1059EnsureWorkDataset(ownerW);if(ds&&typeof safe381OpenDatasetSourceNearWidget==='function')safe381OpenDatasetSourceNearWidget(ds.id,cardW);else toast('Kunne ikke åbne gruppearbejdsdata');});
+}
+try{window.safe1059SyncGroupCardLayout=safe1059SyncGroupCardLayout;window.safe1059OpenGroupBoards=safe1059OpenGroupBoards;}catch(_e){}
+
+function renderGroups(groups,locks=[],ownerW=null){
+  if(!groups||!groups.length)return '<p>Ingen grupper endnu.</p>';
+  const cls=groups.length>4?' groupCompact':'';
+  return groups.map((g,i)=>{
+    const members=Array.isArray(g)?g:[];
+    const locked=!!locks[i];
+    const title=ownerW?safe1059GroupTitle(ownerW,i):('Gruppe '+(i+1));
+    const memberText=members.length?members.map(name=>{const role=ownerW?safe1059GroupRole(ownerW,i,name):'';return esc(name)+(role?`<span class="safe1059RoleTag">${esc(role)}</span>`:'');}).join('<br>'):'<span class="safe1059EmptyGroupLabel">Tom gruppe</span>';
+    return `<div class="groupCard${cls}" data-group-i="${i}"><button type="button" class="groupLock ${locked?'isLocked':''}" data-i="${i}" title="${locked?'Låst: bevares ved ny randomisering':'Åben: blandes med ved ny randomisering'}">${locked?'🔒':'🔓'}</button><b>${esc(title)}</b>${memberText}</div>`;
+  }).join('');
+}
 function drawGroupWheel(canvas,names,rot=0){const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=Math.min(W,H)*.46;ctx.clearRect(0,0,W,H);const list=names&&names.length?names:[];const cols=['#ff6b6b','#ffd93d','#4ade80','#60a5fa','#c084fc','#fb923c'];if(!list.length){ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#eee';ctx.fill();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,.10)';ctx.lineWidth=Math.max(10,W*.018);ctx.stroke();return}list.forEach((name,i)=>{const a1=rot+i*2*Math.PI/list.length,a2=rot+(i+1)*2*Math.PI/list.length;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a1,a2);ctx.closePath();ctx.fillStyle=cols[i%cols.length];ctx.fill();ctx.save();ctx.translate(cx,cy);ctx.rotate((a1+a2)/2);ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle='#111827';ctx.font=`800 ${Math.max(18,Math.min(36,180/list.length+10))}px system-ui`;let label=String(name||'');if(label.length>18)label=label.slice(0,17)+'…';ctx.fillText(label,r-18,0);ctx.restore()});ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(0,0,0,.10)';ctx.lineWidth=Math.max(10,W*.018);ctx.stroke()}
 
 function safe452CreateLinkedGroupsDemoList(ownerW,items,pickName){
@@ -24275,7 +24801,7 @@ function wireGroups(c,w){
       if(!Array.isArray(g))return;
       g.forEach((name,pi)=>{
         const clean=String(name||'').trim();
-        if(clean)rows.push(['Gruppe '+(gi+1),clean,String(pi+1),locks[gi]?'ja':'']);
+        if(clean)rows.push([safe1059GroupTitle(w,gi),clean,String(pi+1),locks[gi]?'ja':'']);
       });
     });
     return rows;
@@ -24432,6 +24958,7 @@ function wireGroups(c,w){
     w.data.groupLocks=Array.from({length:w.data.groups.length},(_,i)=>!!(w.data.groupLocks||[])[i]);
     w.data.listHidden=true;
     w.data.groupsVisible=true;
+    try{safe1059EnsureGroupSet(w,{count:w.data.groups.length});safe1059RefreshLinkedGroupBoards(w,{});}catch(_e){}
     try{safe676SyncGroupsResultDataset({});}catch(_e){}
   }
   function makeNow(){
@@ -24500,6 +25027,7 @@ function wireGroups(c,w){
     if(names.length<=1){names[0]='';}else{names.splice(idx,1);}
     w.data.names=names.map(x=>x.trim()).filter(Boolean);
     w.data.groups=[];w.data.groupLocks=[];w.data.groupsVisible=false;w.data.listHidden=false;
+    try{safe1059EnsureGroupSet(w,{clearMembers:true});safe1059RefreshLinkedGroupBoards(w,{});}catch(_e){}
     if(!safe676LinkedIsGroupsResult())try{safe452WriteLinkedGroupsList(w,w.data.names)}catch(_e){}
     save();rerenderEditor(Math.max(0,idx-1));
   }));
@@ -24511,6 +25039,7 @@ function wireGroups(c,w){
     w.data.names=raw;
     w.data._groupsAddBlank=true;
     w.data.groups=[];w.data.groupLocks=[];w.data.groupsVisible=false;w.data.listHidden=false;
+    try{safe1059EnsureGroupSet(w,{clearMembers:true});safe1059RefreshLinkedGroupBoards(w,{});}catch(_e){}
     if(!safe676LinkedIsGroupsResult())try{safe452WriteLinkedGroupsList(w,w.data.names)}catch(_e){}
     save();
     fillContent(c.closest('.widget'),w);
@@ -24600,6 +25129,9 @@ function wireGroups(c,w){
   c.querySelectorAll('.saveGroupList').forEach(btn=>bindTap(btn,saveGroupListHandler));
   c.querySelectorAll('.exportGroupsCsv').forEach(btn=>bindTap(btn,safe676ExportGroupsCsv));
   c.querySelectorAll('.openGroupsPdf').forEach(btn=>bindTap(btn,safe676OpenGroupsPdf));
+  c.querySelectorAll('.createGroupBoards').forEach(btn=>bindTap(btn,()=>safe1059OpenGroupBoards(w)));
+  c.querySelectorAll('.addGroupAfterBoards').forEach(btn=>bindTap(btn,()=>safe1062OpenAddGroup(w)));
+  c.querySelectorAll('.splitGroupAfterBoards').forEach(btn=>bindTap(btn,()=>safe1062OpenSplitGroup(w)));
 
   // Globalt, men kun som Grupper-ejer: bruges af Tavlens Space→Mere guards.
   window.safe674GroupsOwnsSpace=function(e){
@@ -40394,6 +40926,7 @@ try{window.safe676OpenGroupsPdfWidget=safe676OpenGroupsPdfWidget;}catch(_e){}
 function fillContent(el,w){const c=el.querySelector('.content');c.className='content '+w.type;// --- WIDGET: TEXT / DATASET ---
  if(w.type==='text'){
   w.data=w.data||{};
+  if(w.data.groupCardView===true){c.innerHTML=safe1059GroupCardHtml(w);try{safe1059WireGroupCard(c,w);}catch(_e){}return;}
   if(w.data.studentNoteWidget&&typeof safe977RefreshStudentNoteWidgetText==='function')safe977RefreshStudentNoteWidgetText(w);
   const isDatasetText=!!w.data.datasetId;
   let ds=isDatasetText?findDatasetById(w.data.datasetId):null;
@@ -41553,6 +42086,7 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
 // --- WIDGET: GROUPS ---
  if(w.type==='groups'){
  w.data.names??=[];w.data.size??=2;w.data.groups??=[];w.data.groupLocks??=[];w.data.groupsVisible??=!!(w.data.groups&&w.data.groups.length);
+ try{safe1059EnsureGroupSet(w,{});}catch(_e){}
  try{if(typeof safe452tRefreshGroupsFromLinkedList==='function')safe452tRefreshGroupsFromLinkedList(w);}catch(_e){}
  let safe452GroupsStatusLabel='Liste';
  try{
@@ -41575,6 +42109,9 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
    <div class="groupsRow groupsResultSave groupsIconTopBar">
     <button class="saveGroupList groupsIconBtn" title="Vis/opdater gruppernes DataWidget" aria-label="Vis/opdater gruppernes DataWidget"><span class="groupsBtnIcon">💾</span><span class="groupsBtnText">Data</span></button>
     <button class="openGroupsPdf groupsIconBtn" title="Vis grupper som PDF" aria-label="Vis grupper som PDF"><span class="groupsBtnIcon">📄</span><span class="groupsBtnText">PDF</span></button>
+    <button class="createGroupBoards groupsIconBtn" title="Opret eller opdater gruppetavler med kobling" aria-label="Opret eller opdater gruppetavler med kobling"><span class="groupsBtnIcon">▦</span><span class="groupsBtnText">Tavler</span></button>
+    <button class="addGroupAfterBoards groupsIconBtn" title="Opret en ny tom gruppe og gruppetavle" aria-label="Opret en ny tom gruppe og gruppetavle"><span class="groupsBtnIcon">＋</span><span class="groupsBtnText">Gruppe</span></button>
+    <button class="splitGroupAfterBoards groupsIconBtn" title="Del en eksisterende gruppe i to" aria-label="Del en eksisterende gruppe i to"><span class="groupsBtnIcon">✂</span><span class="groupsBtnText">Del</span></button>
     <button class="exportGroupsCsv groupsIconBtn" title="Eksportér grupper som CSV" aria-label="Eksportér grupper som CSV"><span class="groupsBtnIcon">CSV</span><span class="groupsBtnText">CSV</span></button>
     <button class="showGroupList groupsIconBtn" title="Vis/rediger navneliste" aria-label="Vis/rediger navneliste"><span class="groupsBtnIcon">☰</span><span class="groupsBtnText">Liste</span></button>
     <button class="loadGroupList groupsIconBtn" title="Vælg kilde" aria-label="Vælg kilde"><span class="groupsBtnIcon">🗂️</span><span class="groupsBtnText">Kilde</span></button>
@@ -41582,11 +42119,12 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
    <div class="groupsRow groupsIconTopBar editOnly">
     <button class="saveGroupList groupsIconBtn" title="Gem grupper som datawidget" aria-label="Gem grupper som datawidget"><span class="groupsBtnIcon">💾</span><span class="groupsBtnText">Gem grupper</span></button>
     <button class="toGroups groupsIconBtn" title="Dan grupper" aria-label="Dan grupper"><span class="groupsBtnIcon">👥</span><span class="groupsBtnText">Dan</span></button>
+    <button class="createGroupBoards groupsIconBtn" title="Opret eller opdater gruppetavler med kobling" aria-label="Opret eller opdater gruppetavler med kobling"><span class="groupsBtnIcon">▦</span><span class="groupsBtnText">Tavler</span></button>
     <button class="loadGroupList groupsIconBtn" title="Vælg kilde" aria-label="Vælg kilde"><span class="groupsBtnIcon">🗂️</span><span class="groupsBtnText">Kilde</span></button>
    </div>
    <div class="groupsRow groupsSizeRow editOnly"><label><span class="groupsSizeLabel">Personer pr. gruppe</span><input class="groupSize" type="number" min="1" max="999" value="${w.data.size}"></label><span class="groupsTotalCount">${safe452bCleanNames.length} navne</span></div>
    <div class="groupsNameEditor editOnly safe163OptionEditor"><div class="safe163OptionRows groupOptionRows">${safe452bRows}</div><div class="editTools safe164EditTools"><button type="button" class="groupAddName">+ Tilføj</button></div></div>
-   <div class="groupsResult">${renderGroups(w.data.groups,w.data.groupLocks)}</div>
+   <div class="groupsResult">${renderGroups(w.data.groups,w.data.groupLocks,w)}</div>
   </div>
  </div>`;wireGroups(c,w)}
 // --- WIDGET: WORDCLOUD / SKY ---
@@ -44740,7 +45278,7 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
           setTimeout(()=>{try{if(typeof renderPdfJsWidget==='function'&&pc)renderPdfJsWidget(w,pc);}catch(_e){}},40);
         }catch(_e){}
       }
-      if(drag||res){try{if(typeof safe976SyncStudentAddressCardLayout==='function')safe976SyncStudentAddressCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe977SyncStudentNoteTextLayout==='function')safe977SyncStudentNoteTextLayout(w,{save:false});}catch(_e){} try{if(typeof safe1014SyncStudentNotesReportLayout==='function')safe1014SyncStudentNotesReportLayout(w,{save:false});}catch(_e){} try{save();}catch(_e){}}
+      if(drag||res){try{if(typeof safe976SyncStudentAddressCardLayout==='function')safe976SyncStudentAddressCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1059SyncGroupCardLayout==='function')safe1059SyncGroupCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe977SyncStudentNoteTextLayout==='function')safe977SyncStudentNoteTextLayout(w,{save:false});}catch(_e){} try{if(typeof safe1014SyncStudentNotesReportLayout==='function')safe1014SyncStudentNotesReportLayout(w,{save:false});}catch(_e){} try{save();}catch(_e){}}
       drag=false; res=false;
       document.body.classList.remove('widget-transform-active');
       el.classList.remove('widgetTransforming');
@@ -44853,7 +45391,7 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
     const docRotateEnd=(ev)=>{
       safe455l72FlushRotate();
       clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
-      if(rot){try{if(typeof safe976SyncStudentAddressCardLayout==='function')safe976SyncStudentAddressCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe977SyncStudentNoteTextLayout==='function')safe977SyncStudentNoteTextLayout(w,{save:false});}catch(_e){} try{if(typeof safe1014SyncStudentNotesReportLayout==='function')safe1014SyncStudentNotesReportLayout(w,{save:false});}catch(_e){} save();}
+      if(rot){try{if(typeof safe976SyncStudentAddressCardLayout==='function')safe976SyncStudentAddressCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1059SyncGroupCardLayout==='function')safe1059SyncGroupCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe977SyncStudentNoteTextLayout==='function')safe977SyncStudentNoteTextLayout(w,{save:false});}catch(_e){} try{if(typeof safe1014SyncStudentNotesReportLayout==='function')safe1014SyncStudentNotesReportLayout(w,{save:false});}catch(_e){} save();}
       rot=false; rotHoldDidReset=false;
       document.body.classList.remove('widget-transform-active');
       el.classList.remove('widgetTransforming');
@@ -51084,6 +51622,8 @@ function showQuickHelp(){
     <button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Listewidget">Lister</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="Elevkort">Elevkort</button>
+    <button type="button" class="helpJumpBtn" data-help-jump="GruppeWidget">Grupper</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Sessioner">Sessioner</button>
     <button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button>
     <button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button>
@@ -51158,7 +51698,7 @@ function showQuickHelp(){
               <button class="helpIconItem helpToolBtn" data-help-tool="dataset"><span class="helpIcon">📊</span><span><b>Data</b><small>CSV/Excel · tabel</small></span></button>
               <button class="helpIconItem helpToolBtn" data-help-tool="calendar"><span class="helpIcon">🗓️</span><span><b>Kalender</b><small>dagsplan og uge</small></span></button>
               <button class="helpIconItem helpToolBtn" data-help-tool="wheel"><span class="helpIcon">🎲</span><span><b>Lykkehjulet</b><small>Shift+W · valg</small></span></button>
-              <button class="helpIconItem helpToolBtn" data-help-tool="groups"><span class="helpIcon">👥</span><span><b>Grupper</b><small>Shift+R · hold</small></span></button>
+              <button class="helpIconItem helpToolBtn" data-help-tool="groups"><span class="helpIcon">👥</span><span><b>Grupper</b><small>hold og gruppetavler</small></span></button>
               <button class="helpIconItem helpToolBtn" data-help-tool="poll"><span class="helpIcon">😊</span><span><b>Afstemning</b><small>Shift+X · svar</small></span></button>
               <button class="helpIconItem helpToolBtn" data-help-tool="wordcloud"><span class="helpIcon">☁️</span><span><b>Ordsky</b><small>Shift+S · ord</small></span></button>
               <button class="helpIconItem helpToolBtn" data-help-tool="kahoopardy"><span class="helpIcon">🏆</span><span><b>KaPardy</b><small>Shift+Q · quiz</small></span></button>
@@ -51215,9 +51755,10 @@ function showQuickHelp(){
           <li><b>S</b> laver Tavleshot af den markerede tavle.</li>
           <li><b>G</b> åbner Tavleshots. Marker et punkt og tryk <b>Enter</b> for at gendanne som ny tavle.</li>
           <li><b>Delete/Backspace</b> sletter en almindelig tavle. <b>Cmd/Ctrl + piletaster</b> flytter tavlen i rækkefølgen.</li>
-          <li><b>🧩 Tavlegenerator</b> kan oprette mange tavler på én gang ud fra en ListeWidget, DataWidget eller Medieliste. Den aktuelle tavle kan bruges som skabelon, så widgets, baggrund og grid følger med.</li>
+          <li><b>🧩 Tavlegenerator</b> opretter almindelige tavler ud fra en ListeWidget, DataWidget eller Medieliste. Vælg en skabelontavle, hvis widgets, placeringer, baggrund og grid skal følge med.</li>
+          <li><b>Elevtavler og gruppetavler</b> har deres egne opret-knapper, fordi kort og data skal kobles rigtigt. Brug <b>👥 Opret elevsession</b> i elevdata eller <b>Tavler</b> i GruppeWidgetten.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Elevkort">Elevkort/elevtavler</button><button type="button" class="helpJumpBtn" data-help-jump="GruppeWidget">Gruppetavler</button><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Backup</button></div>
       </div>
     </details>
 
@@ -51228,12 +51769,14 @@ function showQuickHelp(){
           <li><b>D</b> åbner Datakilder. Her kan du se, åbne og omdøbe de lister og datasæt, tavlen bruger.</li>
           <li><b>DataWidget</b> bruges til tabeller, CSV/TSV, Excel, linklister, medielister, KaPardy-spørgsmål, PDF-svar og andre data, der skal kunne genbruges.</li>
           <li><b>CSV og Excel</b> kan hentes ind som DataWidget. Herfra kan du lave en ListeWidget med de kolonner, du vil bruge, fx fornavn + efternavn.</li>
+          <li>Har DataWidgetten elevoplysninger, viser bjælken <b>👤 Elevkort</b> og <b>👥 Opret elevsession</b>. Brug dem, så elevkort, elevnoter og stamdata bliver koblet rigtigt.</li>
+          <li>GruppeWidgetten bruger sin navneliste og sit grupperesultat som kilder. Kilderne bliver ved GruppeWidgetten og kopieres ikke som synlige DataWidgets til hver gruppetavle.</li>
           <li><b>🔗</b> betyder normalt “vis eller skjul den koblede datakilde”. Når en widget har en koblet DataWidget, kan du åbne data ved siden af widgetten uden at miste forbindelsen.</li>
           <li><b>Link/iframe</b> kan bruge linklister. <b>MedieWidgetten</b> kan bruge medielister. Begge lister er almindelige datasæt, som kan åbnes og redigeres som DataWidget.</li>
           <li><b>↑/↓</b> vælger datakilde. <b>Enter</b> eller <b>Space</b> åbner den valgte kilde. <b>E</b> eller <b>F2</b> omdøber.</li>
           <li>Afstemningsdata fra PDF-svar ligger også som DataWidget. Herfra kan du åbne en pæn <b>Resultat-PDF</b> eller koble data til en AfstemningsWidget.</li>
           <li>Hvis data skal sorteres, filtreres eller bruges på en ny måde, kan du sende dem videre til <b>DataRemix</b>.</li>
-          <li>Skal data blive til mange tavler, er det ofte nemmest først at lave en ListeWidget og derefter skifte den til Tavleliste.</li>
+          <li>Til almindelige tavler kan du lave en ListeWidget og bruge Tavlegeneratoren. Til elevtavler bruges <b>👥 Opret elevsession</b>; til gruppetavler bruges <b>Tavler</b> i GruppeWidgetten.</li>
         </ul>
         <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button><button type="button" class="helpJumpBtn" data-help-jump="Listewidget">Listewidget</button><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button><button type="button" class="helpJumpBtn" data-help-jump="PDF, iframe">PDF-widget</button></div>
       </div>
@@ -51252,6 +51795,7 @@ function showQuickHelp(){
           <li><b>− / +</b> ændrer skriftstørrelsen, så listen kan fylde mere eller være nemmere at læse på afstand.</li>
           <li>Når widgetten ikke er valgt, i fokus eller i præsentation, vises den som en rolig liste uden redigeringsfelt.</li>
           <li>Skal listen bruges af Lykkehjulet, Grupper, Ordsky eller andre datawidgets, så åbn den via <b>Datakilder</b> eller send den videre med <b>DataRemix</b>.</li>
+          <li>En navneliste kan kobles til GruppeWidgetten. Dan grupper dér og brug derefter <b>Tavler</b>. Du behøver ikke gøre navnelisten til Tavleliste for at få gruppetavler.</li>
         </ul>
         <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Lykkehjulet">Lykkehjulet/Grupper</button><button type="button" class="helpJumpBtn" data-help-jump="DataRemix">DataRemix</button></div>
       </div>
@@ -51343,15 +51887,39 @@ function showQuickHelp(){
     </details>
 
     <details>
-      <summary>Lykkehjulet og Grupper</summary>
+      <summary>Lykkehjulet, GruppeWidget og gruppetavler</summary>
       <div class="answer">
         <ul class="helpCompactList">
           <li><b>Shift+W</b> opretter Lykkehjulet. Brug det til tilfældige navne, spørgsmål, emner eller aktiviteter.</li>
-          <li><b>Shift+R</b> opretter Grupper. Vælg en liste, angiv personer pr. gruppe og tryk <b>Dan</b>.</li>
-          <li>Begge kan kobles til lister/datakilder, så ændringer i listen kan bruges videre.</li>
-          <li>Når en hjul-/gruppewidget er valgt, bruges <b>Mellemrum</b> til widgettens egen handling.</li>
+          <li><b>Shift+R</b> opretter GruppeWidgetten. Vælg en navneliste, skriv personer pr. gruppe og tryk <b>Dan</b>.</li>
+          <li>Når grupperne er dannet, viser <b>Tavler</b> præcis de grupper, der findes. Den aktuelle tavle bruges som skabelon, og der oprettes eller opdateres én tavle pr. gruppe.</li>
+          <li>GruppeWidgetten bliver stående som master. Flytter du elever, ændrer roller eller omdøber en gruppe, følger de koblede Gruppekort og tavletitler med.</li>
+          <li>Vil du gøre tavlerne klar før elevfordelingen, kan du oprette tomme grupper. Når et rigtigt grupperesultat findes, bruges resultatets antal grupper.</li>
+          <li><b>+ Gruppe</b> opretter én ekstra gruppe og tavle. <b>Del</b> flytter valgte medlemmer til en ny gruppe uden at slette den oprindelige gruppes arbejde.</li>
+          <li>På Gruppekortet viser fanen <b>Gruppe</b> medlemmer og roller. Roller kan skrives direkte. Fanen <b>Arbejde</b> deler indholdet i Opgaver, Kommentarer og Svar.</li>
+          <li>GruppeWidgettens navneliste og resultatdata bliver på mastertavlen. De kopieres ikke som synlige DataWidgets til alle gruppetavler.</li>
+          <li><b>Send til anden session</b> sender mastertavlen, GruppeWidgetten, dens data og de aktuelle gruppetavler som én pakke. Åbn destinationen og godkend <b>Hent tavler</b>.</li>
+          <li>Når en Lykkehjuls- eller GruppeWidget er valgt, bruges <b>Mellemrum</b> til widgettens egen handling.</li>
         </ul>
-        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Prøv værktøjerne">Værktøjer</button></div>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Elevkort">Elevkort/elevtavler</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Tavleoverblik">Tavlegenerator</button><button type="button" class="helpJumpBtn" data-help-jump="Prøv værktøjerne">Værktøjer</button></div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Elevkort, elevtavler og elevnoter</summary>
+      <div class="answer">
+        <ul class="helpCompactList">
+          <li>Hent elevoplysninger ind som en <b>DataWidget</b>, gerne fra CSV eller Excel. Én række bør svare til én elev, og tydelige felter som fornavn og efternavn gør matchningen nemmere.</li>
+          <li><b>👤 Elevkort</b> opretter ét Elevkort på den aktuelle tavle. Kortet matcher normalt tavlens titel med elevens fornavn + efternavn. Finder Tavle ikke et sikkert match, kan du vælge den rigtige elevrække på kortet.</li>
+          <li><b>👥 Opret elevsession</b> viser først en preview og opretter derefter én tavle pr. elev. Kildetavlen og den rå DataWidget bliver stående.</li>
+          <li>Elevtavlerne får tavletitel efter elevens navn, baggrund og grid fra kildetavlen, et koblet Elevkort og en fælles Elevliste til navigation.</li>
+          <li>Flytter, ændrer størrelse eller roterer du ét genereret Elevkort, følger de øvrige Elevkort i samme elevsession med. Hvert kort viser stadig sin egen elev.</li>
+          <li>Elevkortet har fanerne <b>Elev</b>, <b>Mor</b>, <b>Far</b> og <b>Notater</b>. Telefonnumre og mailadresser kan bruges direkte, når de findes i elevdata.</li>
+          <li>I <b>Notater</b> opretter <b>+ Ny note</b> en note til den aktuelle elev. Noterne gemmes i et særskilt Elevnoter-datasæt, så elevstamdata ikke overskrives.</li>
+          <li><b>📒 Alle noter</b> åbner en samlet noteoversigt. <b>Note-rapport</b> laver en læsevenlig rapport for den aktuelle elev.</li>
+          <li><b>Send som pakke</b> kan sende kildedata, elevtavler, Elevliste og eventuelle Elevnoter til en anden session. Åbn destinationen og godkend <b>Hent tavler</b>.</li>
+        </ul>
+        <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">CSV/Excel og data</button><button type="button" class="helpJumpBtn" data-help-jump="Tavleoverblik">Tavleoversigt</button><button type="button" class="helpJumpBtn" data-help-jump="GruppeWidget">Gruppetavler</button><button type="button" class="helpJumpBtn" data-help-jump="Sessioner">Sessioner</button></div>
       </div>
     </details>
 
@@ -51412,7 +51980,7 @@ function showQuickHelp(){
         <ul class="helpCompactList">
           <li>Slip filer oven på tavlen for hurtigt at oprette indhold: billeder, PDF’er, tekstfiler, regneark, kalenderfiler, HTML-filer, lyd/video eller backups.</li>
           <li>Regneark og CSV kan blive til DataWidgets. Kalenderfiler kan bruges i Kalender. Lyd og video kan blive til MedieWidget.</li>
-          <li>Efter import af CSV/Excel kan du lave en ListeWidget ud fra valgte kolonner og bruge listen til at oprette tavler.</li>
+          <li>Efter import af CSV/Excel kan du lave en ListeWidget og bruge Tavlegeneratoren til almindelige tavler. Er det elevdata, kan du i stedet bruge <b>👤 Elevkort</b> eller <b>👥 Opret elevsession</b>. Gruppetavler oprettes fra <b>Tavler</b> i GruppeWidgetten.</li>
           <li>Du kan slippe flere filer på én gang. Hvis en fil ikke kan bruges direkte, ignorerer appen den eller giver besked.</li>
         </ul>
         <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Gem, backup">Gem/backup</button><button type="button" class="helpJumpBtn" data-help-jump="Datakilder">Datakilder</button><button type="button" class="helpJumpBtn" data-help-jump="Medier">Medier/links</button></div>
