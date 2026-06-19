@@ -1,4 +1,5 @@
-<!-- l1073_hjaelp_tema_kontrast_SAFE: Bygger direkte på l1072. Retter kun Hjælpens nye topsektion: sikker kontrast i SmartBoard og de lyse temaer, tydelig hvid tekst i sloganbjælken, læsbar kicker, kompakte Jeg vil-knapper samt blød orddeling i undervisningsforløb. Ingen widgetlogik, sessionsdata, gruppefunktioner, elevfunktioner, PDF-motor, guide-links eller backupformat ændret. -->
+<!-- l1075-max-edit-pdf-links: Bygger direkte på l1074. Maksimeret widget bevares ved skift mellem præsentationsfokus og redigeringsfokus; Hjælp-PDFers offentlige fallback bruger tavle.måns.dk. -->
+<!-- l1074_hjaelp_intro_stram_SAFE: Bygger direkte på l1073. Fjerner kun de bruger-markerede formuleringer i Hjælpens indledning: "Klassen samles om det fælles" fra hovedoverskriften samt hele afsnittet om elevsystem, overvågning og elevernes devices. Ingen øvrig tekst, styling, widgetlogik, sessionsdata, gruppefunktioner, elevfunktioner, PDF-motor, guide-links eller backupformat ændret. -->
 <!-- l1071_gruppekort_live_medlemmer_SAFE: Bygger direkte på l1070. Retter kun den levende forbindelse mellem GruppeWidget og Gruppekort: Gruppekort læser medlemmer fra GruppeWidgettens aktuelle groups-array, kilden findes først via det gemte kildetavle-ID, og gruppeDefinitioner synkroniseres efter en koblet liste/resultat har opdateret GruppeWidgetten. Ingen ændring af gruppedannelsesalgoritme, gruppetavler, roller, Gruppearbejde, sessionpakker, Elevkort eller Hjælp. -->
 <!-- l1070_sessionpakke_afvis_standard_SAFE: Bygger direkte på l1069. Retter kun den eksisterende sessionpakke-ejer: afviste pakker må ikke længere tælle som indgående pakker, og Afvis pakke fjerner pakken fra det globale pakkeindeks/storage. Ryd aktuel session ændres ikke, fordi sessionpakker med vilje ligger globalt mellem sessioner. Gamle afviste pakker ignoreres straks. -->
 <!-- l1069_grupper_touch_demo_SAFE: Bygger direkte på l1068. Retter kun GruppeWidgettens egen touch-ejer og Grupper-demo: pointerup/touchend/click fra samme fingertryk deduplikeres, så Dan grupper ikke straks stopper igen; ældre/demo-GruppeWidgets med navne som tekst normaliseres lokalt til navneliste og groupCount til Personer pr. gruppe; Demoer opretter fremover Grupper med den aktuelle datastruktur. Ingen ændring af gruppedannelsesalgoritme, Gruppekort, gruppetavler, Elevkort, Hjælp eller øvrige widgets. -->
@@ -32334,17 +32335,39 @@ function safe373RefreshBoardChrome(){
   }catch(e){}
 }
 function setFocusMode(mode){
+  // l1075: Et skift mellem præsentationsfokus og redigeringsfokus må ikke
+  // lukke en allerede maksimeret widget. Det giver adgang til Mere-menuen
+  // (fx Hjælp) uden at PDFen eller den øvrige widget bliver lille.
+  const preserveMax=!!(focusMaximized || document.body.classList.contains('focus-maximized'));
+  let preservedMaxId=null;
+  if(preserveMax){
+    try{
+      preservedMaxId=String((UIState&&UIState.maximizedWidgetId)||'')||null;
+      if(!preservedMaxId){
+        const maxEl=document.querySelector('.widget.focusTarget,.widget.maximized');
+        preservedMaxId=maxEl&&maxEl.dataset?String(maxEl.dataset.id||'')||null:null;
+      }
+    }catch(_e){}
+  }
   safe373FreezeWidgetGeometry();
   setTimeout(()=>{try{syncFocusBodyClasses();safe373FreezeWidgetGeometry();}catch(_e){}},0);
   focusMode=mode;
   UIState.focusMode=mode||null;
-  // Normal fokus må aldrig arve maksimeret tilstand.
-  if(mode){
+  // Nyt fokus fra normal tavle starter fortsat uden maksimering. Kun en
+  // allerede aktiv maksimering bevares under selve tilstandsskiftet.
+  if(mode && !preserveMax){
     focusMaximized=false;
     focusMaxReturnMode=null;
     UIState.focusMaximized=false;
     UIState.maximizedWidgetId=null;
     document.body.classList.remove('focus-maximized','maximized-from-edit');
+  }else if(mode && preserveMax){
+    focusMaximized=true;
+    UIState.focusMaximized=true;
+    if(preservedMaxId)UIState.maximizedWidgetId=preservedMaxId;
+    document.body.classList.add('focus-maximized');
+    document.body.classList.toggle('maximized-from-edit',mode==='edit' && !app.classList.contains('present'));
+    focusMaxReturnMode=mode;
   }
   // set global mode for central UI state
   if(mode==='presentation'){
@@ -51391,7 +51414,7 @@ const TAVLE_HELP_PDF_GUIDES=[
   }
 ];
 function tavleHelpPdfLocalPath(item){return 'pdf/hjaelp/'+String((item&&item.file)||'');}
-function tavleHelpPdfGithubPagesUrl(item){return 'https://maans.github.io/Tavle/pdf/hjaelp/'+String((item&&item.file)||'');}
+function tavleHelpPdfGithubPagesUrl(item){return 'https://tavle.xn--mns-ula.dk/pdf/hjaelp/'+String((item&&item.file)||'');}
 function tavleHelpPdfGithubFolderUrl(){return 'https://github.com/maans/Tavle#min-undervisningstavle';}
 function tavleHelpFindPdfGuide(key){
   key=String(key||'').trim();
@@ -51675,9 +51698,8 @@ function showQuickHelp(){
   <div class="helpIntro">
     <div class="helpIdentity">
       <div class="helpIdentityKicker">AL MAGT TIL LÆREREN</div>
-      <h3>Læreren styrer tavlen. Klassen samles om det fælles.</h3>
+      <h3>Læreren styrer tavlen.</h3>
       <p><b>Tavle er lærerens lokale undervisningssystem.</b> Det samler klassens fælles fokus, materialer, værktøjer, data og undervisningsforløb på én fleksibel flade.</p>
-      <p>Tavle er ikke et elevsystem og overvåger ikke elevernes skærme. Elevernes egne devices kan lægges væk, når undervisningen samles om det fælles, og bruges igen, når læreren vurderer, at de gavner arbejdet.</p>
       <p>Tavle er heller ikke et fast slideshow. Du kan flytte indhold, ændre rækkefølge, danne grupper, åbne materialer, samle input og ændre retning, mens undervisningen foregår. Sessioner, tavler, widgets og data gemmes lokalt i denne browser, og du bestemmer selv, hvad der eksporteres, sikkerhedskopieres eller deles.</p>
       <div class="helpIdentityLine">Al magt til læreren - over undervisningsrummet, ikke over eleverne.</div>
     </div>
@@ -59281,7 +59303,17 @@ document.getElementById('present').onclick=()=>{
   }
   try{ applyUIState(); }catch(_e){}
   syncEmergencyExit();
-  if(!app.classList.contains('present') && focusMode==='presentation') setFocusMode(null);
+  // l1075: Hjælpe-PDFer åbner i maksimeret præsentationsfokus. Ved skift
+  // til redigering skal samme widget blive maksimeret, så Mere-menuen og
+  // dens genveje kan bruges. Uden maksimering bevares den tidligere adfærd.
+  const nowPresent=app.classList.contains('present');
+  const maxStillOn=!!(focusMaximized || document.body.classList.contains('focus-maximized'));
+  if(maxStillOn){
+    if(nowPresent && focusMode==='edit')setFocusMode('presentation');
+    else if(!nowPresent && focusMode==='presentation')setFocusMode('edit');
+  }else if(!nowPresent && focusMode==='presentation'){
+    setFocusMode(null);
+  }
   // Do not clear selection when entering presentation.
   // This makes it possible to select in editing → switch to presentation → focus.
   document.activeElement && document.activeElement.blur();
