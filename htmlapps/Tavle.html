@@ -1,3 +1,10 @@
+<!-- l1089_gruppematrix_fuldt_gruppekort_SAFE: Bygger direkte på l1087. Retter kun Gruppekortmatrixens Detaljer-visning: den åbner nu det samme fulde, levende Gruppekort som på en gruppetavle med fanerne Gruppe/Arbejde, roller, Opgaver/Kommentarer/Svar, redigering, Data samt adgang til GruppeWidget og eksisterende gruppetavle. Matrixkortene forbliver kompakte. Forrige/Næste gør det muligt at bladre mellem grupper. Ingen ændring af gruppedannelse, gruppetavleoprettelse, matrixlayout, Elevkort, noter, PDF, Hjælp eller sessionsdata. -->
+<!-- l1087_gruppematrix_kontrast_tavlelink_SAFE: Bygger direkte på l1086. Retter kun Gruppekortmatrixens detaljer og gruppetavlelink: SmartBoard-detaljer får læsbar kontrast, og knapper til gruppetavle vises kun når en faktisk gruppetavle findes via gruppesæt-ID + gruppe-ID eller gyldigt boardId. Eksisterende stale boardId ryddes, og levende kobling til GruppeWidget bevares. Ingen ændring af gruppedannelse, matrixlayout, Elevkort, noter, PDF, Hjælp eller sessionsdata. -->
+<!-- l1086_gruppekortmatrix_tavleikon_SAFE: Bygger direkte på l1085. Tilføjer GruppeWidget → Gruppekortmatrix som et levende overblik med ét kompakt Gruppekort pr. aktiv gruppe på én tavle; matrixen følger medlemmer, roller og gruppetitler fra GruppeWidgetten. Tavler-knappen får et særskilt flertavle-ikon (⧉), mens Matrix beholder gitterikonet (▦). Gruppekortmatrix-kort deltager ikke i gruppetavlernes fælles layoutsynk. Ingen ændring af gruppedannelsesalgoritme, elevmatrix, elevnoter, PDF, Hjælpens hovedtese eller sessionsdata. -->
+<!-- l1085_elevnote_forrest_elevnavn_SAFE: Bygger direkte på l1084. Retter kun Elevnote-Tekstwidgettens ejer: et tryk på note eller titelbjælke vælger og løfter noten foran Elevkortet, også hvis noten allerede er valgt eller låst; titelbjælken viser elevens navn først og derefter notens titel, så enslydende noter kan skelnes. Ingen ændring af notedata, matrix, Elevkort, Redningsbælte, Hjælp, PDF, grupper eller sessioner. -->
+<!-- l1084_elevkort_faner_i_matrixfokus_SAFE: Bygger direkte på l1083. Retter kun Elevkortmatrixens detalje-/fokusvisning: skift mellem Elev, Mor, Far og Notater genrenderes nu gennem fokusvisningens egen ejer i stedet for den almindelige widgets fillContent-vej, og fanebladslinjen holdes synlig i fokus. Ingen ændring af matrixoprettelse, sortering, Redningsbælte, elevdata, noter, Hjælp, PDF, grupper eller sessioner. -->
+<!-- l1083_matrix_redningsbaelte_genflettet_SAFE: Bygger på brugerens seneste l1076_elevdata_demo_SAFE og genfletter den brugertestede Elevkortmatrix/Redningsbælte-linje fra Tavle+Matrix (matrixsøgning og filtre, kompakte matrixkort, detaljer-fokus, matrixregistrering og -genopbygning, automatisk arrangement med fortrydelse samt modal-scroll). Bevarer l1072-l1076-sporets nye Hjælp/guide-links, SmartBoard-kontrast, strammede introduktion, maksimeret skift mellem fokus-tilstande og Elevdata-demo. Ingen ændring af gruppe-, PDF-datasæt-, sessionpakke- eller backupmodeller. -->
+<!-- l1076_elevdata_demo_SAFE: Bygger direkte på l1075. Retter kun Demoer → Data-demo, så den opretter et rigtigt elevstamdatasæt med Fornavn og Efternavn samt kontakt-/værgefelter. Dermed vises DataWidgettens 👤 Elevkort- og 👥 Opret elevsession-knapper, og demoen kan bruges til at afprøve elevkort, elevtavler og Elevliste. Ingen ændring af den almindelige elevdata-genkendelse, elevsession-generator, Elevkort, Hjælp, PDF, grupper eller øvrige demoer. -->
 <!-- l1075-max-edit-pdf-links: Bygger direkte på l1074. Maksimeret widget bevares ved skift mellem præsentationsfokus og redigeringsfokus; Hjælp-PDFers offentlige fallback bruger tavle.måns.dk. -->
 <!-- l1074_hjaelp_intro_stram_SAFE: Bygger direkte på l1073. Fjerner kun de bruger-markerede formuleringer i Hjælpens indledning: "Klassen samles om det fælles" fra hovedoverskriften samt hele afsnittet om elevsystem, overvågning og elevernes devices. Ingen øvrig tekst, styling, widgetlogik, sessionsdata, gruppefunktioner, elevfunktioner, PDF-motor, guide-links eller backupformat ændret. -->
 <!-- l1071_gruppekort_live_medlemmer_SAFE: Bygger direkte på l1070. Retter kun den levende forbindelse mellem GruppeWidget og Gruppekort: Gruppekort læser medlemmer fra GruppeWidgettens aktuelle groups-array, kilden findes først via det gemte kildetavle-ID, og gruppeDefinitioner synkroniseres efter en koblet liste/resultat har opdateret GruppeWidgetten. Ingen ændring af gruppedannelsesalgoritme, gruppetavler, roller, Gruppearbejde, sessionpakker, Elevkort eller Hjælp. -->
@@ -2057,6 +2064,65 @@ body.focus-presentation .modalBackdrop.wheelConfirmBackdrop,
 .rescueChoiceCard:not(.disabled):active{
   transform:scale(.99);
 }
+/* l1076: Matrixredning hører til Redningsbæltets egen modal. */
+.rescueChoiceCard.rescueMatrixChoice{
+  background:#ecfdf5!important;
+  border-color:#10b981!important;
+}
+.rescueChoiceCard.rescueMatrixChoice strong{color:#065f46!important}
+.rescueChoiceCard.rescueMatrixChoice span{color:#14532d!important}
+.rescueChoiceCard.rescueMatrixChoice.active{
+  background:#d1fae5!important;
+  border-color:#059669!important;
+  box-shadow:0 0 0 4px rgba(16,185,129,.2)!important;
+}
+/* l1080: Læselige Redningsbælte-valg. Aktivt valg er lyst; øvrige handlinger har hvid tekst på lilla. */
+#modal .rescueChoiceModal .rescueChoiceCard:not(.active):not(.disabled):not(.rescueMatrixChoice){
+  background:#6657e8!important;
+  border-color:#6657e8!important;
+  color:#fff!important;
+}
+#modal .rescueChoiceModal .rescueChoiceCard:not(.active):not(.disabled):not(.rescueMatrixChoice) strong,
+#modal .rescueChoiceModal .rescueChoiceCard:not(.active):not(.disabled):not(.rescueMatrixChoice) span{
+  color:#fff!important;
+  opacity:1!important;
+}
+#modal .rescueChoiceModal .rescueChoiceCard.active:not(.rescueMatrixChoice){
+  background:#eef2ff!important;
+  border-color:#3b82f6!important;
+  color:#111827!important;
+}
+#modal .rescueChoiceModal .rescueChoiceCard.active:not(.rescueMatrixChoice) strong,
+#modal .rescueChoiceModal .rescueChoiceCard.active:not(.rescueMatrixChoice) span{
+  color:#111827!important;
+  opacity:1!important;
+}
+#modal .rescueChoiceModal .rescueUndoChoice:not(.active){
+  background:#92400e!important;
+  border-color:#b45309!important;
+}
+.rescueMatrixRepairModal{display:grid;gap:14px}
+.rescueMatrixRepairIntro{margin:0;color:#374151;font-weight:750;line-height:1.35}
+.rescueMatrixRepairSummary{
+  display:grid;gap:4px;padding:11px 13px;border-radius:12px;
+  background:#f0fdf4;border:1px solid #86efac;color:#14532d;
+}
+.rescueMatrixRepairSummary strong{font-size:17px}
+.rescueMatrixRepairSummary span{font-size:13px;font-weight:750}
+.rescueMatrixRepairModes{display:grid;gap:9px}
+.rescueMatrixModeCard{
+  display:grid!important;gap:3px!important;text-align:left!important;width:100%!important;
+  margin:0!important;padding:11px 13px!important;border:2px solid #d1d5db!important;
+  border-radius:13px!important;background:#f8fafc!important;color:#111827!important;
+}
+.rescueMatrixModeCard strong{font-size:16px;color:#111827!important}
+.rescueMatrixModeCard span{font-size:13px;line-height:1.3;color:#4b5563!important;font-weight:700}
+.rescueMatrixModeCard.active{
+  border-color:#6d5dfc!important;background:#eef2ff!important;
+  box-shadow:0 0 0 4px rgba(109,93,252,.16)!important;
+}
+.rescueMatrixRepairActions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.rescueMatrixRepairActions button{margin:0!important}
 
 .modal{width:min(640px,90vw);background:white;border-radius:18px;padding:22px;box-shadow:0 25px 55px rgba(0,0,0,.35)}.bgColorBar{
   display:grid;
@@ -16712,6 +16778,227 @@ html[data-tavle-theme="smartboard"] .addressNotesActions .addressNotesAllBtn{
   border:1px solid #60a5fa!important;
 }
 </style>
+
+
+<!-- Genflettet fra den brugertestede Tavle+Matrix-linje. -->
+<style id="l1072-elevkort-soeg-filter-matrix-css">
+/* l1072: Elevvælger og elevkortmatrix. Ligger i Elevkort/DataWidget-ejeren. */
+.addressCardFooterActions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-left:auto}
+.addressCardFooterActions button,.addressCardCompactActions button{border:0;border-radius:999px;padding:7px 10px;background:#475569;color:#fff;font-weight:950;white-space:nowrap;touch-action:manipulation}
+.addressCardFooterActions button[data-safe1072-pick-student],.addressCardCompactActions button[data-safe1072-pick-student]{background:#0f766e}
+.addressCardFooterActions button[data-safe1072-matrix-compact],.addressCardCompactActions button[data-safe1072-matrix-details]{background:#4338ca}
+.widget.datasetTextWidget .chrome .mini [data-act="createAddressMatrixChrome"],.widget[data-dataset-view="true"] .chrome .mini [data-act="createAddressMatrixChrome"]{background:#7c3aed!important;color:#fff!important}
+.addressCardCompact{grid-template-rows:auto minmax(0,1fr) auto;gap:8px;padding:11px}
+.addressCardCompact .addressCardTitle h2{font-size:clamp(18px,2.2vw,27px)}
+.addressCardCompactBody{min-height:0;overflow:auto;display:grid;gap:8px;align-content:start}
+.addressCardCompactMeta{display:flex;gap:6px;flex-wrap:wrap}
+.addressCardCompactPill{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;padding:5px 8px;background:#fff;border:1px solid #cbd5e1;color:#334155;font-size:12px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.addressCardCompactContact{display:grid;gap:6px;padding:8px 9px;border:1px solid #dbe3ef;border-radius:13px;background:rgba(255,255,255,.92)}
+.addressCardCompactContact .addressActions{gap:5px}
+.addressCardCompactActions{display:flex;gap:7px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.safe1072Picker,.safe1072MatrixModal{display:grid;gap:12px;color:#111827}
+.safe1072Picker h2,.safe1072MatrixModal h2{margin:0}
+.safe1072Intro{margin:0;color:#475569;font-weight:800;line-height:1.35}
+.safe1072ControlGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.safe1072ControlGrid label{display:grid;gap:4px;color:#334155;font-size:12px;font-weight:950}
+.safe1072ControlGrid input,.safe1072ControlGrid select,.safe1072Picker input{width:100%;margin:0!important}
+.safe1072Count{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;color:#475569;font-weight:900}
+.safe1072List,.safe1072MatrixPreview{border:1px solid #dbe3ef;border-radius:14px;background:#f8fafc;max-height:min(52vh,470px);overflow:auto}
+.safe1072List{display:grid;gap:0}
+.safe1072StudentPick{width:100%;border:0;border-bottom:1px solid #e2e8f0;border-radius:0!important;background:#fff!important;color:#111827!important;text-align:left;padding:10px 12px!important;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;margin:0!important}
+.safe1072StudentPick:last-child{border-bottom:0}
+.safe1072StudentPick strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.safe1072StudentPick small{color:#64748b;font-weight:850;text-align:right}
+.safe1072MatrixToolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.safe1072MatrixToolbar button{margin:0!important;background:#e2e8f0!important;color:#1e293b!important}
+.safe1072MatrixPreview table{width:100%;border-collapse:collapse;font-size:13px}
+.safe1072MatrixPreview th,.safe1072MatrixPreview td{padding:7px 8px;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:middle}
+.safe1072MatrixPreview th{position:sticky;top:0;z-index:1;background:#eef2ff;color:#334155;font-weight:950}
+.safe1072MatrixPreview input[type="checkbox"]{width:20px;height:20px;margin:0}
+.safe1072ModalActions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.safe1072ModalActions button{margin:0!important}
+.safe1072Empty{padding:14px;color:#64748b;font-weight:850;text-align:center}
+html.theme-smartboard .safe1072List,html.theme-smartboard .safe1072MatrixPreview,html[data-tavle-theme="smartboard"] .safe1072List,html[data-tavle-theme="smartboard"] .safe1072MatrixPreview{background:#fff!important;color:#0f172a!important}
+@media(max-width:720px){.safe1072ControlGrid{grid-template-columns:1fr}.safe1072StudentPick{grid-template-columns:1fr}.safe1072StudentPick small{text-align:left}.addressCardFooterActions{width:100%;justify-content:flex-end}}
+</style>
+
+<style id="l1075-elevkort-matrix-layout-focus-css">
+/* l1075: Læsbar Elevkortmatrix og mellemstor Elevkort-fokus. Ejes af Elevkort/DataWidget-flowet. */
+.safe1075MatrixPlan{
+  display:grid;gap:5px;padding:10px 12px;border:1px solid #c7d2fe;border-radius:14px;
+  background:linear-gradient(135deg,#eef2ff,#f8fafc);color:#1e293b;
+}
+.safe1075MatrixPlan strong{font-size:14px;font-weight:950;line-height:1.25}
+.safe1075MatrixPlan span{font-size:12px;font-weight:820;line-height:1.3;color:#475569}
+.safe1075MatrixPlan.warn{background:#fff7ed;border-color:#fdba74}
+.safe1075MatrixPlan.warn strong{color:#9a3412}
+.safe1075LayoutControls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.safe1075LayoutControls label{display:grid;gap:4px;color:#334155;font-size:12px;font-weight:950}
+.safe1075LayoutControls select,.safe1075LayoutControls input{width:100%;margin:0!important}
+.safe1075CustomPages[hidden]{display:none!important}
+
+.widget.safe1075MatrixCard .chrome{height:30px!important;font-size:12px!important;padding:0 6px!important}
+.widget.safe1075MatrixCard .chrome .mini{gap:3px!important}
+.widget.safe1075MatrixCard .chrome .mini button{padding:3px 6px!important;font-size:11px!important}
+.widget.safe1075MatrixCard .content{height:calc(100% - 30px)!important}
+.widget.safe1075MatrixCard .addressCardCompact{padding:8px!important;gap:6px!important}
+.widget.safe1075MatrixCard .addressCardTitle h2{
+  font-size:clamp(19px,1.8vw,25px)!important;line-height:1.03!important;
+  overflow-wrap:break-word!important;word-break:normal!important;hyphens:auto;
+}
+.widget.safe1075MatrixCard .addressCardTitle .sub{font-size:11px!important;margin-top:2px!important}
+.widget.safe1075MatrixCard .addressCardBadge{padding:5px 7px!important;font-size:11px!important}
+.widget.safe1075MatrixCard .addressCardCompactMeta{gap:4px!important}
+.widget.safe1075MatrixCard .addressCardCompactPill{font-size:10px!important;padding:3px 6px!important}
+.widget.safe1075MatrixCard .addressCardCompactActions{display:grid!important;grid-template-columns:1fr 1fr;gap:6px!important;flex-wrap:nowrap!important}
+.widget.safe1075MatrixCard .addressCardCompactActions button{
+  min-width:0!important;width:100%!important;padding:7px 5px!important;font-size:12px!important;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.widget.safe1075MatrixCard .addressCardCompactContact{padding:6px!important}
+.widget.safe1075MatrixCard .addressCardCompactContact .addressActions{display:none!important}
+.widget.safe1075MatrixCard .addressValue{font-size:11px!important}
+.widget.safe1075MatrixCard .safe1075MatrixTight{grid-template-rows:minmax(0,1fr) auto!important;gap:5px!important}
+.widget.safe1075MatrixCard .safe1075MatrixTight .addressCardHeader{align-items:center!important;min-height:0!important}
+.widget.safe1075MatrixCard .safe1075MatrixTight .addressCardBadge,
+.widget.safe1075MatrixCard .safe1075MatrixTight .addressCardTitle .sub,
+.widget.safe1075MatrixCard .safe1075MatrixTight .addressCardCompactBody{display:none!important}
+.widget.safe1075MatrixCard .safe1075MatrixTight .addressCardTitle h2{
+  font-size:clamp(19px,1.95vw,26px)!important;line-height:1.02!important;
+  display:block!important;overflow:visible!important;
+}
+
+.safe1075AddressFocusBackdrop{
+  position:fixed;inset:0;z-index:1850;display:grid;place-items:center;padding:24px;
+  background:rgba(2,6,23,.58);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  touch-action:manipulation;
+}
+.safe1075AddressFocusPanel{
+  width:min(760px,78vw);height:min(720px,82vh);min-width:min(520px,92vw);min-height:min(470px,78vh);
+  display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:10px;
+  border:1px solid rgba(255,255,255,.5);border-radius:22px;background:#e8edf7;
+  box-shadow:0 30px 80px rgba(0,0,0,.48);color:#111827;overflow:hidden;
+}
+.safe1075AddressFocusTop{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto auto;gap:7px;align-items:center}
+.safe1075AddressFocusTop button{
+  border:0;border-radius:999px;padding:8px 11px;background:#334155;color:#fff;font-weight:950;touch-action:manipulation;
+}
+.safe1075AddressFocusTop button:disabled{opacity:.38}
+.safe1075AddressFocusTitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;font-weight:950;color:#1e293b}
+.safe1075AddressFocusCount{font-size:12px;font-weight:950;color:#64748b;white-space:nowrap}
+.safe1075AddressFocusClose{background:#991b1b!important;min-width:42px}
+.safe1075AddressFocusBody{min-height:0;overflow:hidden;border-radius:16px}
+.safe1075FocusWidget.widget{
+  position:relative!important;inset:auto!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;
+  width:100%!important;height:100%!important;transform:none!important;z-index:auto!important;outline:0!important;
+  border-radius:16px!important;box-shadow:none!important;overflow:hidden!important;background:#fff!important;
+}
+.safe1075FocusWidget .content{height:100%!important;border-radius:16px!important;overflow:hidden!important}
+.safe1075FocusWidget .addressCard{border-radius:16px!important;padding:14px!important}
+/* l1084: fanerne er indhold i matrixens detaljefokus og må aldrig skjules som almindelige widget-controls. */
+.safe1075FocusWidget .addressCardTabs.widget-control{
+  display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+.safe1075FocusWidget [data-safe1072-matrix-compact]{display:none!important}
+.safe1075FocusWidget .addressCardFooter{padding-top:2px}
+html.theme-smartboard .safe1075AddressFocusPanel,
+html[data-tavle-theme="smartboard"] .safe1075AddressFocusPanel{background:#172033!important;border-color:#64748b!important}
+@media(max-width:760px){
+  .safe1075LayoutControls{grid-template-columns:1fr}
+  .safe1075AddressFocusBackdrop{padding:10px}
+  .safe1075AddressFocusPanel{width:94vw;height:88vh;min-width:0;min-height:0;padding:8px}
+  .safe1075AddressFocusTop{grid-template-columns:auto auto minmax(0,1fr) auto auto}
+  .safe1075AddressFocusTitle{display:none}
+  .safe1075AddressFocusTop button{padding:8px 9px}
+}
+</style>
+
+<style id="l1074-modal-scroll-chain-css">
+/* l1074: Alle scrollområder inde i Tavles fælles modal må aflevere
+   videre til modalens egen scroll ved top/bund. */
+#modal.modal,
+.modalBack .modal,
+.modalBackdrop .modal{
+  overflow-y:auto!important;
+  overscroll-behavior-y:auto!important;
+  touch-action:pan-y pinch-zoom!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+#modal.modal *,
+.modalBack .modal *,
+.modalBackdrop .modal *{
+  overscroll-behavior-y:auto!important;
+}
+</style>
+
+
+<style id="l1086-groupmatrix-css">
+.widget[data-type="groups"] .createGroupBoards .groupsBtnIcon{font-size:22px!important;line-height:1}
+.widget[data-type="groups"] .createGroupMatrix{background:#ede9fe!important;color:#4c1d95!important}
+.widget[data-type="groups"] .createGroupMatrix .groupsBtnIcon{font-size:22px!important;line-height:1}
+.safe1086MatrixModal,.safe1086DetailModal{display:grid;gap:12px;color:#0f172a}
+.safe1086MatrixModal h2,.safe1086DetailModal h2{margin:0}.safe1086MatrixModal p,.safe1086DetailModal p{margin:0;line-height:1.4}
+.safe1086MatrixLegend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.safe1086MatrixLegend span,.safe1086MatrixSummary{padding:11px 12px;border:1px solid #cbd5e1;border-radius:13px;background:#f8fafc}
+.safe1086MatrixSummary{display:flex;justify-content:space-between;gap:12px;align-items:center}.safe1086MatrixSummary span{color:#475569;font-weight:800}
+.safe1086MatrixActions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}.safe1086MatrixActions button{margin:0!important}.safe1086MatrixActions .primary{background:#4f46e5!important;color:#fff!important}
+.widget.safe1086GroupMatrixCard .chrome{height:30px!important;padding:0 6px!important;font-size:12px!important}.widget.safe1086GroupMatrixCard .chrome .mini{gap:3px!important}.widget.safe1086GroupMatrixCard .chrome .mini button{padding:3px 6px!important;font-size:11px!important}
+.widget.safe1086GroupMatrixCard .content{height:calc(100% - 30px)!important;overflow:hidden!important}
+.safe1086GroupMatrixCompact{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:7px;padding:10px;background:linear-gradient(180deg,#eef6ff,#fff);color:#0f172a;box-sizing:border-box}
+.safe1086GroupMatrixHead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.safe1086GroupMatrixHead h2{margin:0;font-size:clamp(19px,2vw,26px);line-height:1.05;overflow-wrap:anywhere}.safe1086GroupMatrixHead p{margin:3px 0 0;color:#475569;font-size:12px;font-weight:850}.safe1086GroupMatrixHead>span{font-size:22px;color:#4f46e5}
+.safe1086GroupMatrixMembers{min-height:0;overflow:auto;display:grid;gap:5px;align-content:start}.safe1086MatrixMember{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 8px;border:1px solid #dbe3ef;border-radius:9px;background:#fff;font-size:12px}.safe1086MatrixMember b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.safe1086MatrixMember span{color:#475569;font-size:10px;font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.safe1086GroupMatrixActions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.safe1086GroupMatrixActions button{min-width:0;margin:0!important;padding:7px 5px!important;border:0;border-radius:9px;background:#e2e8f0;color:#0f172a;font-size:10px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.safe1086GroupMatrixActions button:first-child{background:#4f46e5;color:#fff}
+.safe1086MatrixEmpty{padding:12px;text-align:center;color:#64748b;font-weight:850}
+.safe1086DetailModal h3{margin:4px 0 0}.safe1086DetailMembers,.safe1086DetailWorks{display:grid;gap:7px;max-height:30vh;overflow:auto}.safe1086DetailMember{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,.7fr);gap:10px;padding:9px 10px;border:1px solid #dbe3ef;border-radius:10px;background:#fff}.safe1086DetailMember span{color:#475569}.safe1086DetailWork{padding:10px;border:1px solid #dbe3ef;border-radius:10px;background:#fff}.safe1086DetailWork span{font-size:11px;font-weight:950;color:#4f46e5}.safe1086DetailWork b{display:block;margin-top:3px}.safe1086DetailWork p{margin-top:5px;white-space:pre-wrap}
+html.theme-smartboard .safe1086MatrixModal,html.theme-smartboard .safe1086DetailModal,html[data-tavle-theme="smartboard"] .safe1086MatrixModal,html[data-tavle-theme="smartboard"] .safe1086DetailModal{color:#f8fafc}.theme-smartboard .safe1086MatrixLegend span,.theme-smartboard .safe1086MatrixSummary,[data-tavle-theme="smartboard"] .safe1086MatrixLegend span,[data-tavle-theme="smartboard"] .safe1086MatrixSummary{background:#172033;color:#f8fafc;border-color:#52617a}.theme-smartboard .safe1086MatrixSummary span,[data-tavle-theme="smartboard"] .safe1086MatrixSummary span{color:#dbeafe}
+html.theme-smartboard .safe1086DetailMember,html.theme-smartboard .safe1086DetailWork,html[data-tavle-theme="smartboard"] .safe1086DetailMember,html[data-tavle-theme="smartboard"] .safe1086DetailWork{background:#f8fafc!important;color:#0f172a!important;border-color:#94a3b8!important}
+html.theme-smartboard .safe1086DetailMember b,html.theme-smartboard .safe1086DetailWork b,html.theme-smartboard .safe1086DetailWork p,html[data-tavle-theme="smartboard"] .safe1086DetailMember b,html[data-tavle-theme="smartboard"] .safe1086DetailWork b,html[data-tavle-theme="smartboard"] .safe1086DetailWork p{color:#0f172a!important}
+html.theme-smartboard .safe1086DetailMember span,html[data-tavle-theme="smartboard"] .safe1086DetailMember span{color:#334155!important}
+html.theme-smartboard .safe1086DetailWork>span,html[data-tavle-theme="smartboard"] .safe1086DetailWork>span{color:#4338ca!important}
+html.theme-smartboard .safe1086DetailModal .safe1086MatrixEmpty,html[data-tavle-theme="smartboard"] .safe1086DetailModal .safe1086MatrixEmpty{color:#dbeafe!important}
+@media(max-width:720px){.safe1086MatrixLegend{grid-template-columns:1fr}.safe1086MatrixSummary{align-items:flex-start;flex-direction:column}.safe1086DetailMember{grid-template-columns:1fr}}
+</style>
+<style id="l1089-groupmatrix-full-focus-css">
+.safe1089GroupFocusBackdrop{
+  position:fixed;inset:0;z-index:2147483300;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:rgba(2,6,23,.72);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  box-sizing:border-box;touch-action:manipulation
+}
+.safe1089GroupFocusPanel{
+  width:min(940px,94vw);height:min(780px,91vh);min-width:min(680px,92vw);min-height:520px;
+  display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px;padding:10px;border:1px solid #64748b;
+  border-radius:20px;background:#e8eef8;box-shadow:0 28px 90px rgba(0,0,0,.45);box-sizing:border-box;overflow:hidden
+}
+.safe1089GroupFocusTop{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto auto;gap:7px;align-items:center}
+.safe1089GroupFocusTop button{border:0;border-radius:11px;background:#334155;color:#fff;padding:8px 11px;font-weight:950;touch-action:manipulation}
+.safe1089GroupFocusTop button:disabled{opacity:.38}
+.safe1089GroupFocusTitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;font-weight:950;color:#0f172a}
+.safe1089GroupFocusCount{font-size:12px;font-weight:950;color:#475569;white-space:nowrap}
+.safe1089GroupFocusBoard{background:#2563eb!important}.safe1089GroupFocusSource{background:#0f766e!important}.safe1089GroupFocusClose{background:#991b1b!important;min-width:42px}
+.safe1089GroupFocusBody{min-height:0;overflow:hidden;border-radius:16px}
+.safe1089GroupFocusWidget.widget{
+  position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;
+  width:100%!important;height:100%!important;transform:none!important;z-index:auto!important;margin:0!important;
+  border-radius:16px!important;box-shadow:none!important;overflow:hidden!important
+}
+.safe1089GroupFocusWidget>.content{height:100%!important;border-radius:16px!important;overflow:hidden!important}
+.safe1089GroupFocusWidget .safe1059GroupCard{border-radius:16px!important}
+/* Den fulde matrixdetalje skal være brugbar også når appen står i præsentation. */
+.app.present .safe1089GroupFocusBackdrop .safe1059GroupCardHead button{display:inline-flex!important}
+.app.present .safe1089GroupFocusBackdrop .safe1059GroupTabs{display:flex!important}
+.app.present .safe1089GroupFocusBackdrop .safe1059GroupActions,
+.app.present .safe1089GroupFocusBackdrop .safe1059WorkActions{display:flex!important}
+html.theme-smartboard .safe1089GroupFocusPanel,
+html[data-tavle-theme="smartboard"] .safe1089GroupFocusPanel{background:#172033!important;border-color:#64748b!important}
+html.theme-smartboard .safe1089GroupFocusTitle,
+html[data-tavle-theme="smartboard"] .safe1089GroupFocusTitle{color:#f8fafc!important}
+html.theme-smartboard .safe1089GroupFocusCount,
+html[data-tavle-theme="smartboard"] .safe1089GroupFocusCount{color:#dbeafe!important}
+@media(max-width:760px){
+  .safe1089GroupFocusBackdrop{padding:8px}.safe1089GroupFocusPanel{width:96vw;height:92vh;min-width:0;min-height:0;padding:8px}
+  .safe1089GroupFocusTop{grid-template-columns:auto auto minmax(0,1fr) auto auto}.safe1089GroupFocusTitle{display:none}
+  .safe1089GroupFocusTop button{padding:8px 9px}.safe1089GroupFocusSource{display:none}
+}
+</style>
 </head>
 <body>
 
@@ -21105,7 +21392,8 @@ function safe962FindRowForAddressCard(ds,w){
   const sourceIndex=Number(data.sourceRowIndex);
   const sourceKey=safe962NormText(data.sourceRowKey||'');
   if(ownDsId && sourceDsId && ownDsId===sourceDsId && Number.isInteger(sourceIndex) && sourceIndex>=0 && sourceIndex<rows.length){
-    return {row:rows[sourceIndex],index:sourceIndex,reason:'Koblet til elevrække',matches:[]};
+    const directReason=data.addressCardMatrix===true?'Elevkortmatrix':(data.addressCardSelectedManually===true?'Manuelt valgt elev':'Koblet til elevrække');
+    return {row:rows[sourceIndex],index:sourceIndex,reason:directReason,matches:[]};
   }
   if(ownDsId && sourceDsId && ownDsId===sourceDsId && sourceKey){
     const byKey=rows.findIndex(r=>safe962NormText((safe962NameInfo(ds,r)||{}).full)===sourceKey);
@@ -21222,6 +21510,319 @@ function safe964PriorityIndexes(ds,row){
 }
 
 
+
+/* l1072: Søgning i ét Elevkort og filtreret Elevkortmatrix på den aktuelle tavle. */
+function safe1072LocaleCompare(a,b){
+  try{return String(a||'').localeCompare(String(b||''),'da-DK',{sensitivity:'base',numeric:true});}catch(_e){return String(a||'').localeCompare(String(b||''));}
+}
+function safe1072StudentRows(ds){
+  try{
+    if(typeof safe967StudentSessionRowsFromDataset==='function')return safe967StudentSessionRowsFromDataset(ds);
+  }catch(_e){}
+  const out=[];((ds&&ds.rows)||[]).forEach((row,rowIndex)=>{try{const info=safe962NameInfo(ds,row);const name=String(info.full||'').trim();if(name)out.push({rowIndex:rowIndex,name:name,first:String(info.first||'').trim(),last:String(info.last||'').trim(),row:row,rowKey:safe962NormText(name)});}catch(_e){}});return out;
+}
+function safe1072ColumnValue(ds,row,colIndex){try{return colIndex>=0?String(safe962Cell(row,colIndex)||'').trim():'';}catch(_e){return '';}}
+function safe1072FindColumn(ds,patterns,used){
+  try{const cols=Array.isArray(ds&&ds.columns)?ds.columns:[];for(let i=0;i<cols.length;i++){if(used&&used.has(i))continue;const raw=String(cols[i]||'');const norm=safe962NormText(raw);for(const p of patterns){p.lastIndex=0;if(p.test(raw)){p.lastIndex=0;return i;}p.lastIndex=0;if(p.test(norm)){p.lastIndex=0;return i;}}}}catch(_e){}return -1;
+}
+/* l1073: Kontaktgruppelærer 1 og 2 er ét filter, men fortsat to datakolonner. */
+function safe1073FindColumns(ds,patterns,used){
+  const found=[];
+  try{
+    const cols=Array.isArray(ds&&ds.columns)?ds.columns:[];
+    for(let i=0;i<cols.length;i++){
+      if(used&&used.has(i))continue;
+      const raw=String(cols[i]||''),norm=safe962NormText(raw);
+      let matches=false;
+      for(const p of patterns){
+        p.lastIndex=0;if(p.test(raw)){matches=true;p.lastIndex=0;break;}
+        p.lastIndex=0;if(p.test(norm)){matches=true;p.lastIndex=0;break;}
+      }
+      if(matches)found.push(i);
+    }
+  }catch(_e){}
+  return found;
+}
+function safe1073SpecIndexes(spec){
+  try{if(spec&&Array.isArray(spec.indexes)&&spec.indexes.length)return spec.indexes.slice();if(spec&&Number.isInteger(spec.index)&&spec.index>=0)return [spec.index];}catch(_e){}
+  return [];
+}
+function safe1073SpecValuesForRow(ds,row,spec){
+  const values=[],seen=new Set();
+  try{safe1073SpecIndexes(spec).forEach(index=>{const value=safe1072ColumnValue(ds,row,index),key=safe962NormText(value);if(value&&key&&!seen.has(key)){seen.add(key);values.push(value);}});}catch(_e){}
+  return values;
+}
+function safe1072FilterSpecs(ds){
+  const used=new Set(),specs=[];
+  const defs=[
+    {key:'class',label:'Klasse',patterns:[/^klasse$/i,/\bklasse\b/i,/^class$/i,/årgang|aargang/i]},
+    {key:'contact',label:'Kontaktgruppelærer',multi:true,patterns:[/kontakt.*gruppe.*lærer/i,/kontakt.*gruppe.*laerer/i,/kontaktgruppelærer/i,/kontaktgruppelaerer/i,/kontakt.*lærer/i,/kontakt.*laerer/i,/mentor/i,/contact teacher/i]},
+    {key:'gender',label:'Køn',patterns:[/^køn$/i,/^koen$/i,/\bkøn\b/i,/\bkoen\b/i,/gender/i]},
+    {key:'house',label:'Hus',patterns:[/^hus$/i,/studenthouse/i,/studenthus/i,/boafdeling/i,/\bhouse\b/i]},
+    {key:'room',label:'Værelse',patterns:[/værelse/i,/vaerelse/i,/\broom\b/i]}
+  ];
+  defs.forEach(def=>{
+    const indexes=def.multi?safe1073FindColumns(ds,def.patterns,used):[];
+    const index=def.multi?(indexes.length?indexes[0]:-1):safe1072FindColumn(ds,def.patterns,used);
+    if(index<0)return;
+    const activeIndexes=def.multi?indexes:[index];activeIndexes.forEach(i=>used.add(i));
+    const values=[],seen=new Set();
+    ((ds&&ds.rows)||[]).forEach(row=>{activeIndexes.forEach(i=>{const value=safe1072ColumnValue(ds,row,i),key=safe962NormText(value);if(value&&key&&!seen.has(key)){seen.add(key);values.push(value);}});});
+    values.sort(safe1072LocaleCompare);
+    specs.push({key:def.key,label:def.label,index:index,indexes:activeIndexes,column:activeIndexes.map(i=>String((ds.columns||[])[i]||def.label)).join(' + '),values:values});
+  });
+  return specs;
+}
+function safe1072StudentMeta(ds,student,specs){
+  const out={};(specs||safe1072FilterSpecs(ds)).forEach(spec=>{out[spec.key]=safe1073SpecValuesForRow(ds,student.row,spec).join(' · ');});return out;
+}
+function safe1072SortStudents(ds,students,mode,specs){
+  const classSpec=(specs||safe1072FilterSpecs(ds)).find(s=>s.key==='class');
+  return (students||[]).slice().sort((a,b)=>{
+    if(mode==='class-first'&&classSpec){const byClass=safe1072LocaleCompare(safe1072ColumnValue(ds,a.row,classSpec.index),safe1072ColumnValue(ds,b.row,classSpec.index));if(byClass)return byClass;}
+    const af=String(a.first||a.name||''),bf=String(b.first||b.name||'');
+    const byFirst=safe1072LocaleCompare(af,bf);if(byFirst)return byFirst;
+    const byLast=safe1072LocaleCompare(a.last||'',b.last||'');if(byLast)return byLast;
+    return safe1072LocaleCompare(a.name,b.name);
+  });
+}
+function safe1072StudentSearchText(ds,student){
+  try{return safe962NormText([student.name].concat((student.row||[]).map(v=>safe87DecodeCell(v||''))).join(' '));}catch(_e){return safe962NormText(student&&student.name||'');}
+}
+function safe1072AddressCardSlideInfo(w){
+  try{const rec=typeof safe1023WidgetSlideRecord==='function'?safe1023WidgetSlideRecord(w):null;const slideIndex=rec?rec.slideIndex:(Number.isInteger(state.active)?state.active:0);const slideId=(typeof safe588SlideId==='function')?safe588SlideId(slideIndex):String((state.slides&&state.slides[slideIndex]&&state.slides[slideIndex].id)||'');return {slideIndex:slideIndex,slideId:slideId};}catch(_e){return {slideIndex:Number.isInteger(state.active)?state.active:0,slideId:''};}
+}
+function safe1072ApplyManualStudent(ds,w,rowIndex){
+  try{
+    const rows=Array.isArray(ds&&ds.rows)?ds.rows:[];rowIndex=Number(rowIndex);if(!w||!w.data||!Number.isInteger(rowIndex)||rowIndex<0||rowIndex>=rows.length)return false;
+    const info=safe962NameInfo(ds,rows[rowIndex]);const slideInfo=safe1072AddressCardSlideInfo(w);w.data=w.data||{};
+    w.data.datasetId=String(ds.id||'');w.data.sourceDatasetId=String(ds.id||'');w.data.sourceRowIndex=rowIndex;w.data.sourceRowKey=safe962NormText(info.full||'');w.data.addressCardRowIndex=rowIndex;w.data.addressCardMatch='sourceRowIndex';w.data.addressCardSelectedManually=true;
+    if(w.data.studentAddressCardLayoutSync!==true){w.data.sourceWidgetId=String(w.id||'');w.data.sourceSlideId=String(slideInfo.slideId||'');}
+    return true;
+  }catch(_e){return false;}
+}
+function safe1072ResetAddressCardToTitle(ds,w){
+  try{
+    if(!w||!w.data)return false;delete w.data.addressCardSelectedManually;delete w.data.addressCardRowIndex;
+    const title=safe962CurrentSlideTitle();const byTitle=(typeof safe1023FindRowIndexByStudentName==='function')?safe1023FindRowIndexByStudentName(ds,title):-1;
+    if(w.data.studentAddressCardLayoutSync===true&&byTitle>=0){const info=safe962NameInfo(ds,(ds.rows||[])[byTitle]||[]);w.data.sourceRowIndex=byTitle;w.data.sourceRowKey=safe962NormText(info.full||'');w.data.addressCardMatch='sourceRowIndex';}
+    else{delete w.data.sourceRowIndex;delete w.data.sourceRowKey;w.data.addressCardMatch='slideTitle';}
+    return true;
+  }catch(_e){return false;}
+}
+function safe1072OpenStudentPicker(ds,w){
+  try{
+    if(!ds||!w)return false;const specs=safe1072FilterSpecs(ds);const students=safe1072SortStudents(ds,safe1072StudentRows(ds),'first',specs);const classSpec=specs.find(s=>s.key==='class');const houseSpec=specs.find(s=>s.key==='house');
+    const html='<div class="safe1072Picker" id="safe1072Picker"><h2>Vælg elev</h2><p class="safe1072Intro">Søg i navn og alle elevoplysninger. Valget ændrer kun dette Elevkort.</p><input id="safe1072PickerSearch" type="search" autocomplete="off" placeholder="Søg efter navn, klasse, hus, værelse …"><div class="safe1072Count"><span id="safe1072PickerCount"></span></div><div class="safe1072List" id="safe1072PickerList"></div><div class="safe1072ModalActions">'+(w.data&&w.data.addressCardMatrix===true?'':'<button type="button" id="safe1072PickerFollowTitle">Følg tavletitel</button>')+'<button type="button" id="safe1072PickerClose">Luk</button></div></div>';
+    showModal(html);const root=document.getElementById('safe1072Picker'),input=document.getElementById('safe1072PickerSearch'),list=document.getElementById('safe1072PickerList'),count=document.getElementById('safe1072PickerCount');
+    function renderList(){const q=safe962NormText(input&&input.value||'');const hits=students.filter(st=>!q||safe1072StudentSearchText(ds,st).includes(q));if(count)count.textContent=hits.length+' elever';if(list)list.innerHTML=hits.length?hits.map(st=>{const meta=[];if(classSpec){const v=safe1072ColumnValue(ds,st.row,classSpec.index);if(v)meta.push(v);}if(houseSpec){const v=safe1072ColumnValue(ds,st.row,houseSpec.index);if(v)meta.push(v);}return '<button type="button" class="safe1072StudentPick" data-safe1072-row="'+st.rowIndex+'"><strong>'+esc(st.name)+'</strong><small>'+esc(meta.join(' · ')||('Række '+(st.rowIndex+1)))+'</small></button>';}).join(''):'<div class="safe1072Empty">Ingen elever matcher søgningen.</div>';}
+    if(input){input.addEventListener('input',renderList);setTimeout(()=>{try{input.focus({preventScroll:true});}catch(_e){}},30);}renderList();
+    let lastAt=0,lastRow='';function choose(e){const btn=e.target&&e.target.closest&&e.target.closest('[data-safe1072-row]');if(!btn||!root||!root.contains(btn))return;try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}const row=String(btn.getAttribute('data-safe1072-row')||'');const now=Date.now();if(row===lastRow&&now-lastAt<420)return false;lastRow=row;lastAt=now;if(safe1072ApplyManualStudent(ds,w,Number(row))){try{closeModal();save();render();setTimeout(()=>{try{select(w.id,{editText:false});}catch(_e){}try{if(typeof safe1075RefreshAddressFocus==='function')safe1075RefreshAddressFocus(w.id);}catch(_e){}},30);toast('Elevkort viser '+safe962NameInfo(ds,(ds.rows||[])[Number(row)]||[]).full);}catch(_e){}}return false;}
+    ['pointerup','touchend','click'].forEach(type=>{try{root.addEventListener(type,choose,{capture:true,passive:false});}catch(_e){}});
+    const follow=document.getElementById('safe1072PickerFollowTitle');if(follow)follow.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){}safe1072ResetAddressCardToTitle(ds,w);try{closeModal();save();render();setTimeout(()=>select(w.id,{editText:false}),30);}catch(_e){}return false;};
+    const close=document.getElementById('safe1072PickerClose');if(close)close.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){}try{closeModal();}catch(_e){}return false;};return true;
+  }catch(err){try{console.warn('l1072 elevvælger fejlede',err);}catch(_e){}try{toast('Kunne ikke åbne elevvælger');}catch(_e){}return false;}
+}
+function safe1072CompactAddressCardHtml(ds,w,hit,info){
+  try{
+    const specs=safe1072FilterSpecs(ds),meta=safe1072StudentMeta(ds,{row:hit.row},specs),pills=[];['class','contact','gender','house','room'].forEach(key=>{const spec=specs.find(s=>s.key===key),value=meta[key];if(spec&&value)pills.push('<span class="addressCardCompactPill" title="'+esc(spec.label+': '+value)+'">'+esc(spec.label)+': '+esc(value)+'</span>');});
+    const cols=Array.isArray(ds.columns)?ds.columns:[];let phoneI=-1,emailI=-1;for(let i=0;i<cols.length;i++){if(phoneI<0&&safe964IsStudentMobileColumn(cols[i]))phoneI=i;if(emailI<0&&safe964OwnStudentColumn(cols[i])&&safe962IsMailColumn(cols[i]))emailI=i;}
+    const phone=phoneI>=0?safe1072ColumnValue(ds,hit.row,phoneI):'',email=emailI>=0?safe1072ColumnValue(ds,hit.row,emailI):'',actions=[];const tel=safe962PhoneHref(phone,'tel'),sms=safe962PhoneHref(phone,'sms'),mail=safe962MailHref(email);if(tel)actions.push('<a class="addressAction" href="'+esc(tel)+'" data-safe962-contact-link="'+esc(tel)+'">☎ Ring</a>');if(sms)actions.push('<a class="addressAction secondary" href="'+esc(sms)+'" data-safe962-contact-link="'+esc(sms)+'">✉ SMS</a>');if(mail)actions.push('<a class="addressAction" href="'+esc(mail)+'" data-safe962-contact-link="'+esc(mail)+'">✉ Mail</a>');
+    const contact=(phone||email||actions.length)?'<div class="addressCardCompactContact">'+(phone?'<div class="addressValue">'+esc(phone)+'</div>':'')+(email?'<div class="addressValue">'+esc(email)+'</div>':'')+(actions.length?'<div class="addressActions">'+actions.join('')+'</div>':'')+'</div>':'';
+    const density=(w&&w.data&&w.data.addressCardMatrixDensity==='tight')?' safe1075MatrixTight':'';return '<div class="addressCard addressCardCompact'+density+'"><div class="addressCardHeader"><div class="addressCardTitle"><h2>'+esc(info.full||'Elev')+'</h2><div class="sub">'+esc(ds.name||'Datasæt')+' · række '+(hit.index+1)+'</div></div><span class="addressCardBadge">Matrix</span></div><div class="addressCardCompactBody"><div class="addressCardCompactMeta">'+(pills.join('')||'<span class="addressCardCompactPill">Elevkort</span>')+'</div>'+contact+'</div><div class="addressCardCompactActions"><button type="button" data-safe1072-pick-student>🔍 Skift elev</button><button type="button" data-safe1072-matrix-details>⛶ Detaljer</button></div></div>';
+  }catch(_e){return '<div class="addressCard"><div class="addressCardWarn">Kunne ikke vise det kompakte Elevkort.</div></div>';}
+}
+function safe1075MatrixViewport(){
+  try{
+    const el=(typeof app!=='undefined'&&app)?app:document.getElementById('app');
+    const rect=el&&el.getBoundingClientRect?el.getBoundingClientRect():{width:innerWidth||1200,height:innerHeight||800};
+    const left=24,right=24,top=72,bottom=92,gap=12;
+    return {left:left,top:top,width:Math.max(360,Number(rect.width||innerWidth||1200)-left-right),height:Math.max(300,Number(rect.height||innerHeight||800)-top-bottom),gap:gap};
+  }catch(_e){return {left:24,top:72,width:1152,height:636,gap:12};}
+}
+function safe1075FindGrid(count,minW,minH,preferredW,preferredH){
+  count=Math.max(1,Number(count)||1);minW=Math.max(120,Number(minW)||220);minH=Math.max(90,Number(minH)||145);preferredW=Math.max(minW,Number(preferredW)||250);preferredH=Math.max(minH,Number(preferredH)||165);
+  const m=safe1075MatrixViewport();let best=null;
+  for(let cols=1;cols<=Math.min(count,10);cols++){
+    const rows=Math.ceil(count/cols),cardW=(m.width-m.gap*(cols-1))/cols,cardH=(m.height-m.gap*(rows-1))/rows;
+    const fits=cardW>=minW&&cardH>=minH;
+    const scale=Math.min(cardW/preferredW,cardH/preferredH),empty=cols*rows-count;
+    const score=(fits?1000:0)+(Math.min(scale,1.45)*100)-(empty*1.5)+(Math.min(cardW,preferredW)*Math.min(cardH,preferredH))/10000;
+    const rec={cols:cols,rows:rows,cardW:cardW,cardH:cardH,fits:fits,score:score};
+    if(!best||rec.score>best.score)best=rec;
+  }
+  return best;
+}
+function safe1079MatrixGeometry(count,zoom,opts){
+  count=Math.max(1,Number(count)||1);zoom=Math.max(.5,Math.min(1,Number(zoom)||1));opts=opts||{};
+  const m=safe1075MatrixViewport(),region={x:m.left/zoom,y:m.top/zoom,w:m.width/zoom,h:m.height/zoom};
+  const cardW=Math.max(200,Number(opts.cardW)||230),cardH=Math.max(122,Number(opts.cardH)||142),minGap=Math.max(8,Number(opts.minGap)||12),maxGap=Math.max(minGap,Number(opts.maxGap)||48);
+  let best=null;
+  for(let cols=1;cols<=Math.min(count,10);cols++){
+    const rows=Math.ceil(count/cols),needW=cols*cardW+(cols-1)*minGap,needH=rows*cardH+(rows-1)*minGap;
+    const fits=needW<=region.w+.5&&needH<=region.h+.5,empty=cols*rows-count;
+    const ratio=(cols*cardW)/(Math.max(1,rows*cardH)),target=region.w/Math.max(1,region.h),shapePenalty=Math.abs(Math.log(Math.max(.01,ratio/Math.max(.01,target))));
+    const spare=Math.max(0,region.w-needW)+Math.max(0,region.h-needH),score=(fits?10000:0)-shapePenalty*240-empty*8+Math.min(1200,spare)*.05-cols*.05;
+    const rec={cols:cols,rows:rows,cardW:cardW,cardH:cardH,fits:fits,score:score,zoom:zoom,region:region};
+    if(!best||rec.score>best.score)best=rec;
+  }
+  if(!best)return null;
+  const cols=best.cols,rows=best.rows;
+  const rawGapX=cols>1?(region.w-cols*cardW)/(cols-1):0,rawGapY=rows>1?(region.h-rows*cardH)/(rows-1):0;
+  const gapX=cols>1?Math.max(minGap,Math.min(maxGap,rawGapX)):0,gapY=rows>1?Math.max(minGap,Math.min(maxGap,rawGapY)):0;
+  const gridW=cols*cardW+(cols-1)*gapX,gridH=rows*cardH+(rows-1)*gapY,startY=region.y+Math.max(0,(region.h-gridH)/2),slots=[];
+  for(let i=0;i<count;i++){
+    const row=Math.floor(i/cols),col=i%cols,rowCount=Math.min(cols,count-row*cols),rowW=rowCount*cardW+(rowCount-1)*gapX,startX=region.x+Math.max(0,(region.w-rowW)/2);
+    slots.push({x:Math.round(startX+col*(cardW+gapX)),y:Math.round(startY+row*(cardH+gapY)),w:Math.round(cardW),h:Math.round(cardH),rotation:0,density:'tight'});
+  }
+  best.gapX=gapX;best.gapY=gapY;best.slots=slots;best.gridW=gridW;best.gridH=gridH;
+  return best;
+}
+function safe1075RecommendedCapacity(){
+  let capacity=1;
+  for(let n=1;n<=80;n++){const g=safe1079MatrixGeometry(n,1,{cardW:230,cardH:142});if(g&&g.fits)capacity=n;}
+  return Math.max(1,capacity);
+}
+function safe1075BalancedChunks(total,pages){
+  total=Math.max(0,Number(total)||0);pages=Math.max(1,Math.min(total||1,Number(pages)||1));const base=Math.floor(total/pages),extra=total%pages,out=[];
+  for(let i=0;i<pages;i++)out.push(base+(i<extra?1:0));return out;
+}
+function safe1075PlanMatrix(count,mode,customPages){
+  count=Math.max(1,Number(count)||1);mode=String(mode||'recommended');const capacity=safe1075RecommendedCapacity();
+  let pages=mode==='one'?1:(mode==='custom'?Math.max(1,Math.min(count,Number(customPages)||1)):Math.max(1,Math.ceil(count/capacity)));
+  const chunks=safe1075BalancedChunks(count,pages);
+  // Bevar teksten læsbar: brug højeste mulige zoom, og gå ikke automatisk under 75 %.
+  const zooms=mode==='recommended'?[1]:[1,.9,.8,.75,.67,.6,.5];let chosen=null;
+  for(const zoom of zooms){
+    const grids=chunks.map(n=>safe1079MatrixGeometry(n,zoom,{cardW:230,cardH:142}));
+    if(grids.every(g=>g&&g.fits)){chosen={zoom:zoom,grids:grids};break;}
+  }
+  if(!chosen){
+    // Kun ved et tvunget meget tæt layout bruges lidt mindre kort; zoom går aldrig automatisk til 40 %.
+    const zoom=.5,grids=chunks.map(n=>safe1079MatrixGeometry(n,zoom,{cardW:205,cardH:126,minGap:9,maxGap:34}));
+    chosen={zoom:zoom,grids:grids};
+  }
+  const smallestW=Math.min(...chosen.grids.map(g=>g.cardW)),smallestH=Math.min(...chosen.grids.map(g=>g.cardH));
+  const warning=chosen.zoom<.75||chosen.grids.some(g=>!g.fits)||smallestW<215||smallestH<132;
+  return {mode:mode,pages:pages,chunks:chunks,zoom:chosen.zoom,grids:chosen.grids,capacity:capacity,warning:warning,smallestW:smallestW,smallestH:smallestH};
+}
+try{window.safe1079MatrixGeometry=safe1079MatrixGeometry;}catch(_e){}
+function safe1075MatrixPlanText(plan,count){
+  const distribution=plan.chunks.join(' + '),zoom=Math.round(plan.zoom*100);
+  if(plan.pages===1)return {strong:'Anbefaling: 1 tavle · '+plan.grids[0].cols+' × '+plan.grids[0].rows+' · zoom '+zoom+' %',detail:count+' Elevkort fordeles over hele tavlefladen. Hele navnet og begge knapper prioriteres.'};
+  return {strong:'Anbefaling: '+plan.pages+' tavler · '+distribution+' elever · zoom '+zoom+' %',detail:'Kortene fordeles på dedikerede elevkorttavler, før tavlezoom bliver så lav, at navnene bliver svære at læse.'};
+}
+function safe1075CopySlideAppearance(source,target){
+  try{['bg','bgImage','bgImageSource','bgImageTitle','bgImageName','bgImageVersion','bgFit','bgFilter','grid'].forEach(k=>{if(source&&Object.prototype.hasOwnProperty.call(source,k))target[k]=source[k];});target.draw='';}catch(_e){}
+}
+function safe1075MatrixTitle(root,ds){
+  try{
+    const contact=root.querySelector('[data-safe1072-filter="contact"]'),klass=root.querySelector('[data-safe1072-filter="class"]');
+    const selectedText=sel=>sel&&sel.value&&sel.options&&sel.selectedIndex>=0?String(sel.options[sel.selectedIndex].text||'').trim():'';
+    const c=selectedText(contact);if(c)return 'Elevkort · '+c;
+    const k=selectedText(klass);if(k)return 'Elevkort · Klasse '+k;
+  }catch(_e){}
+  return 'Elevkort · '+String(ds&&ds.name||'Elever');
+}
+function safe1075CreateTargetSlides(sourceIndex,pageCount,placement,titleBase){
+  const out=[],source=state.slides&&state.slides[sourceIndex];placement=String(placement||'new');
+  if(placement==='current')out.push(sourceIndex);
+  while(out.length<pageCount){const idx=(typeof safe588InsertNormalSlide==='function')?safe588InsertNormalSlide():-1;if(idx<0)break;const target=state.slides[idx];safe1075CopySlideAppearance(source,target);out.push(idx);}
+  out.forEach((idx,i)=>{const s=state.slides[idx];if(!s)return;s.title=titleBase+(pageCount>1?' · '+(i+1)+'/'+pageCount:'');s.widgets=Array.isArray(s.widgets)?s.widgets:[];});
+  return out;
+}
+function safe1072CreateAddressCardMatrix(ds,sourceW,students,sortMode,options){
+  try{
+    if(!ds||!students||!students.length)return false;options=options||{};const sourceIndex=Number.isInteger(state.active)?state.active:0;const specs=safe1072FilterSpecs(ds);students=safe1072SortStudents(ds,students,sortMode,specs);
+    const plan=safe1075PlanMatrix(students.length,options.layoutMode||'recommended',options.customPages||1);const titleBase=String(options.titleBase||('Elevkort · '+String(ds.name||'Elever'))).slice(0,90);const slideIndexes=safe1075CreateTargetSlides(sourceIndex,plan.pages,options.placement||'new',titleBase);
+    if(slideIndexes.length!==plan.pages)throw new Error('Kunne ikke oprette de nødvendige tavler');
+    const groupId='elevmatrix_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),zoom=plan.zoom||1,matrixWidgetIds=[],matrixSlideIds=[];let offset=0,totalCreated=0;z=(typeof safe969MaxZ==='function')?safe969MaxZ():z;
+    for(let page=0;page<slideIndexes.length;page++){
+      const slideIndex=slideIndexes[page],sl=state.slides[slideIndex],slideId=(typeof safe588SlideId==='function')?safe588SlideId(slideIndex):String(sl.id||''),chunkCount=plan.chunks[page],chunk=students.slice(offset,offset+chunkCount),grid=plan.grids[page];offset+=chunkCount;
+      matrixSlideIds.push(String(slideId||''));
+      sl.addressCardMatrixGroupIds=Array.isArray(sl.addressCardMatrixGroupIds)?sl.addressCardMatrixGroupIds:[];
+      if(!sl.addressCardMatrixGroupIds.includes(groupId))sl.addressCardMatrixGroupIds.push(groupId);
+      const slots=(grid&&Array.isArray(grid.slots))?grid.slots:[];
+      chunk.forEach((student,localIndex)=>{
+        const slot=slots[localIndex]||{x:24+localIndex*242,y:90,w:230,h:142,rotation:0,density:'tight'},id=uid(),cardX=slot.x,cardY=slot.y,cardW=slot.w,cardH=slot.h,density=slot.density||'tight';
+        const w={id:id,type:'text',x:cardX,y:cardY,w:cardW,h:cardH,z:++z,rotation:0,locked:false,title:'👤 Elevkort',data:{text:'',datasetId:String(ds.id||''),datasetView:true,addressCardView:true,sourceType:'address-card',addressCardMatch:'sourceRowIndex',sourceDatasetId:String(ds.id||''),sourceRowIndex:Number(student.rowIndex),sourceRowKey:String(student.rowKey||safe962NormText(student.name)),sourceWidgetId:id,sourceSlideId:slideId,matrixSourceWidgetId:String(sourceW&&sourceW.id||''),addressCardMatrix:true,addressCardMatrixCompact:true,addressCardMatrixExpanded:false,addressCardMatrixDensity:density,addressCardMatrixGroupId:groupId,addressCardMatrixSort:String(sortMode||'first'),addressCardMatrixOrder:totalCreated,addressCardMatrixPage:page,addressCardMatrixPageCount:plan.pages,addressCardMatrixZoom:zoom,addressCardMatrixHomeX:cardX,addressCardMatrixHomeY:cardY,addressCardMatrixHomeW:cardW,addressCardMatrixHomeH:cardH,addressCardMatrixHomeRotation:0,addressCardMatrixHomeSlideId:String(slideId||''),addressCardMatrixHomeRevision:2,addressCardSelectedManually:true,studentAddressCardLayoutSync:false}};
+        try{if(typeof safe588SetVisibility==='function')safe588SetVisibility(w,'single',[slideId]);}catch(_e){w.sharedVisibility={mode:'single',slideIds:[slideId]};}sl.widgets.push(w);matrixWidgetIds.push(id);totalCreated++;
+      });
+    }
+    state.addressCardMatrices=(state.addressCardMatrices&&typeof state.addressCardMatrices==='object'&&!Array.isArray(state.addressCardMatrices))?state.addressCardMatrices:{};
+    state.addressCardMatrices[groupId]={id:groupId,datasetId:String(ds.id||''),sourceWidgetId:String(sourceW&&sourceW.id||''),sort:String(sortMode||'first'),zoom:zoom,widgetIds:matrixWidgetIds.slice(),slideIds:matrixSlideIds.slice(),slideIndexes:slideIndexes.slice(),createdAt:Date.now(),titleBase:titleBase};
+    try{closeModal();state.active=slideIndexes[0];selected=null;if(window.UIState)UIState.selectedWidgetId=null;save();render();setTimeout(()=>{try{if(typeof window.safe453SetBoardZoom==='function')window.safe453SetBoardZoom(plan.zoom);}catch(_e){}setTimeout(()=>{try{toast(totalCreated+' Elevkort oprettet på '+plan.pages+' tavle'+(plan.pages===1?'':'r')+' · '+(sortMode==='class-first'?'Klasse → fornavn':'Fornavn'));}catch(_e){}},80);},40);}catch(_e){}
+    return {count:totalCreated,slides:slideIndexes,plan:plan,groupId:groupId};
+  }catch(err){try{console.warn('l1079 elevkortmatrix fejlede',err);}catch(_e){}try{toast('Kunne ikke oprette elevkortmatrix: '+(err&&err.message?err.message:err));}catch(_e){}return false;}
+}
+function safe1072OpenAddressMatrixModal(ds,sourceW){
+  try{
+    if(!ds||!ds.id)return false;try{if(sourceW&&typeof safe90CommitOpenDatasetEditorForWidget==='function')ds=safe90CommitOpenDatasetEditorForWidget(sourceW)||ds;}catch(_e){}
+    const all=safe1072StudentRows(ds),specs=safe1072FilterSpecs(ds),classSpec=specs.find(s=>s.key==='class');const filtersHtml=specs.map(spec=>'<label>'+esc(spec.label)+'<select data-safe1072-filter="'+esc(spec.key)+'"><option value="">Alle</option>'+spec.values.map(v=>'<option value="'+esc(safe962NormText(v))+'">'+esc(v)+'</option>').join('')+'</select></label>').join('');
+    const html='<div class="safe1072MatrixModal" id="safe1072MatrixModal"><h2>Opret elevkortmatrix</h2><p class="safe1072Intro">Filtrér elevdatasættet og finjustér med flueben. Tavle beregner derefter et læsbart layout, hvor hele navnet og begge knapper prioriteres.</p><div class="safe1072ControlGrid"><label>Søg<input id="safe1072MatrixSearch" type="search" autocomplete="off" placeholder="Navn eller andre elevoplysninger"></label>'+filtersHtml+'<label>Sortering<select id="safe1072MatrixSort"><option value="first">Fornavn</option><option value="class-first" '+(classSpec?'':'disabled')+'>Klasse → fornavn</option></select></label></div><div class="safe1075LayoutControls"><label>Layout<select id="safe1075MatrixMode"><option value="recommended">Anbefalet, læsbart layout</option><option value="one">Alle på én tavle</option><option value="custom">Vælg antal tavler</option></select></label><label>Placering<select id="safe1075MatrixPlacement"><option value="new">Nye elevkorttavler (anbefalet)</option><option value="current">Aktuel tavle + evt. nye</option></select></label><label class="safe1075CustomPages" id="safe1075CustomPages" hidden>Antal tavler<input id="safe1075MatrixPages" type="number" min="1" value="2" inputmode="numeric"></label></div><div class="safe1075MatrixPlan" id="safe1075MatrixPlan"></div><div class="safe1072Count"><span id="safe1072MatrixCount"></span><div class="safe1072MatrixToolbar"><button type="button" id="safe1072MatrixAll">Alle viste</button><button type="button" id="safe1072MatrixNone">Ingen viste</button></div></div><div class="safe1072MatrixPreview"><table><thead><tr><th></th><th>Fornavn / elev</th><th>Klasse</th><th>Øvrigt</th></tr></thead><tbody id="safe1072MatrixRows"></tbody></table></div><div class="safe1072ModalActions"><button type="button" id="safe1072MatrixCreate">Opret elevkort</button><button type="button" id="safe1072MatrixClose">Luk</button></div></div>';
+    showModal(html);
+    const root=document.getElementById('safe1072MatrixModal'),search=document.getElementById('safe1072MatrixSearch'),sort=document.getElementById('safe1072MatrixSort'),body=document.getElementById('safe1072MatrixRows'),count=document.getElementById('safe1072MatrixCount'),create=document.getElementById('safe1072MatrixCreate'),mode=document.getElementById('safe1075MatrixMode'),placement=document.getElementById('safe1075MatrixPlacement'),pagesInput=document.getElementById('safe1075MatrixPages'),customWrap=document.getElementById('safe1075CustomPages'),planBox=document.getElementById('safe1075MatrixPlan'),excluded=new Set();let current=[],currentPlan=null;
+    function currentFilters(){const out={};root.querySelectorAll('[data-safe1072-filter]').forEach(sel=>{if(sel.value)out[sel.getAttribute('data-safe1072-filter')]=String(sel.value);});return out;}
+    function calculate(){const q=safe962NormText(search&&search.value||''),filters=currentFilters();let arr=all.filter(st=>{if(q&&!safe1072StudentSearchText(ds,st).includes(q))return false;for(const key of Object.keys(filters)){const spec=specs.find(s=>s.key===key),values=spec?safe1073SpecValuesForRow(ds,st.row,spec):[];if(!values.some(value=>safe962NormText(value)===filters[key]))return false;}return true;});return safe1072SortStudents(ds,arr,(sort&&sort.value)||'first',specs);}
+    function selectedStudents(){return calculate().filter(st=>!excluded.has(st.rowIndex));}
+    function renderPlan(selectedCount){
+      const layoutMode=String(mode&&mode.value||'recommended'),customPages=Math.max(1,Math.min(selectedCount||1,Number(pagesInput&&pagesInput.value)||1));currentPlan=selectedCount?safe1075PlanMatrix(selectedCount,layoutMode,customPages):null;
+      if(customWrap)customWrap.hidden=layoutMode!=='custom';if(pagesInput){pagesInput.max=String(Math.max(1,selectedCount));if(Number(pagesInput.value)>selectedCount)pagesInput.value=String(Math.max(1,selectedCount));}
+      if(planBox){if(!currentPlan){planBox.classList.remove('warn');planBox.innerHTML='<strong>Vælg mindst én elev</strong><span>Layoutforslaget opdateres automatisk.</span>';}else{const t=safe1075MatrixPlanText(currentPlan,selectedCount),currentPlacement=String(placement&&placement.value||'new');planBox.classList.toggle('warn',!!currentPlan.warning||currentPlacement==='current');planBox.innerHTML='<strong>'+esc(t.strong)+'</strong><span>'+esc(t.detail)+(currentPlacement==='current'?' Den aktuelle tavles eksisterende widgets kan overlappes.':' Kildedata bliver stående på den oprindelige tavle.')+'</span>';}}
+      if(create&&currentPlan)create.textContent='Opret '+selectedCount+' Elevkort på '+currentPlan.pages+' tavle'+(currentPlan.pages===1?'':'r');
+    }
+    function renderRows(){current=calculate();const selectedCount=current.filter(st=>!excluded.has(st.rowIndex)).length;if(count)count.textContent=selectedCount+' valgt af '+current.length+' viste · '+all.length+' elevrækker';if(create)create.disabled=!selectedCount;if(body)body.innerHTML=current.length?current.map(st=>{const meta=safe1072StudentMeta(ds,st,specs),klass=meta.class||'',other=[meta.contact,meta.gender,meta.house,meta.room].filter(Boolean).join(' · ');return '<tr><td><input type="checkbox" data-safe1072-check="'+st.rowIndex+'" '+(excluded.has(st.rowIndex)?'':'checked')+'></td><td><b>'+esc(st.name)+'</b></td><td>'+esc(klass)+'</td><td>'+esc(other)+'</td></tr>';}).join(''):'<tr><td colspan="4" class="safe1072Empty">Ingen elever matcher filtrene.</td></tr>';renderPlan(selectedCount);}
+    root.querySelectorAll('input,select').forEach(el=>{el.addEventListener((el.type==='search'||el.type==='number')?'input':'change',renderRows);});
+    if(body)body.addEventListener('change',e=>{const cb=e.target&&e.target.closest&&e.target.closest('[data-safe1072-check]');if(!cb)return;const row=Number(cb.getAttribute('data-safe1072-check'));if(cb.checked)excluded.delete(row);else excluded.add(row);renderRows();});
+    const allBtn=document.getElementById('safe1072MatrixAll');if(allBtn)allBtn.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){}current.forEach(st=>excluded.delete(st.rowIndex));renderRows();};
+    const noneBtn=document.getElementById('safe1072MatrixNone');if(noneBtn)noneBtn.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){}current.forEach(st=>excluded.add(st.rowIndex));renderRows();};
+    let fired=0;if(create)create.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){}const now=Date.now();if(now-fired<700)return false;fired=now;const picked=selectedStudents();if(!picked.length)return false;create.disabled=true;create.textContent='Opretter…';const opts={layoutMode:String(mode&&mode.value||'recommended'),customPages:Number(pagesInput&&pagesInput.value)||1,placement:String(placement&&placement.value||'new'),titleBase:safe1075MatrixTitle(root,ds)};setTimeout(()=>safe1072CreateAddressCardMatrix(ds,sourceW,picked,(sort&&sort.value)||'first',opts),20);return false;};
+    const close=document.getElementById('safe1072MatrixClose');if(close)close.onclick=e=>{try{e.preventDefault();e.stopPropagation();}catch(_e){}try{closeModal();}catch(_e){}return false;};
+    renderRows();setTimeout(()=>{try{search.focus({preventScroll:true});}catch(_e){}},30);return true;
+  }catch(err){try{console.warn('l1075 matrixmodal fejlede',err);}catch(_e){}try{toast('Kunne ikke åbne elevkortmatrix');}catch(_e){}return false;}
+}
+function safe1075FindWidgetRecordAny(widgetId){
+  try{for(let si=0;si<(state.slides||[]).length;si++){const ws=(state.slides[si]&&state.slides[si].widgets)||[];for(let wi=0;wi<ws.length;wi++){if(ws[wi]&&String(ws[wi].id)===String(widgetId))return {w:ws[wi],slideIndex:si,widgetIndex:wi};}}}catch(_e){}return null;
+}
+function safe1075MatrixFocusRecords(w){
+  const gid=String(w&&w.data&&w.data.addressCardMatrixGroupId||''),out=[];try{(state.slides||[]).forEach((sl,si)=>{if(typeof safe588IsTrashSlide==='function'&&safe588IsTrashSlide(sl))return;((sl&&sl.widgets)||[]).forEach((cw,wi)=>{if(!cw||!cw.data||cw.data.addressCardMatrix!==true)return;if(gid&&String(cw.data.addressCardMatrixGroupId||'')!==gid)return;out.push({w:cw,slideIndex:si,widgetIndex:wi,order:Number.isFinite(Number(cw.data.addressCardMatrixOrder))?Number(cw.data.addressCardMatrixOrder):(si*10000+wi)});});});}catch(_e){}out.sort((a,b)=>a.order-b.order);return out;
+}
+function safe1075AddressFocusProxy(w){
+  const proxy=Object.create(w),target=w.data||(w.data={});
+  try{proxy.data=new Proxy(target,{get(t,p){if(p==='addressCardMatrixExpanded')return true;if(p==='addressCardMatrixCompact')return false;return t[p];},set(t,p,v){if(p==='addressCardMatrixExpanded')return true;t[p]=v;return true;},deleteProperty(t,p){delete t[p];return true;}});}catch(_e){proxy.data=Object.assign({},target,{addressCardMatrixExpanded:true,addressCardMatrixCompact:false});}
+  return proxy;
+}
+function safe1075CloseAddressFocus(){
+  const ctx=window.__safe1075AddressFocus;window.__safe1075AddressFocus=null;try{if(ctx&&ctx.keyHandler)document.removeEventListener('keydown',ctx.keyHandler,true);}catch(_e){}try{const el=document.getElementById('safe1075AddressFocusBackdrop');if(el)el.remove();}catch(_e){}return true;
+}
+function safe1075RenderAddressFocus(){
+  try{
+    const ctx=window.__safe1075AddressFocus;if(!ctx)return false;const rec=safe1075FindWidgetRecordAny(ctx.widgetId);if(!rec||!rec.w){safe1075CloseAddressFocus();return false;}const w=rec.w,ds=findDatasetById(String(w.data&&w.data.datasetId||w.data&&w.data.sourceDatasetId||'')),back=document.getElementById('safe1075AddressFocusBackdrop');if(!ds||!back)return false;
+    const records=safe1075MatrixFocusRecords(w),index=Math.max(0,records.findIndex(r=>String(r.w.id)===String(w.id))),title=back.querySelector('[data-safe1075-focus-title]'),count=back.querySelector('[data-safe1075-focus-count]'),prev=back.querySelector('[data-safe1075-focus-prev]'),next=back.querySelector('[data-safe1075-focus-next]'),content=back.querySelector('[data-safe1075-focus-content]');
+    const hit=safe962FindRowForAddressCard(ds,w),info=hit&&hit.row?safe962NameInfo(ds,hit.row):{full:'Elevkort'};if(title)title.textContent=info.full||'Elevkort';if(count)count.textContent=(index+1)+' / '+records.length;if(prev)prev.disabled=index<=0;if(next)next.disabled=index<0||index>=records.length-1;
+    const focusW=safe1075AddressFocusProxy(w);ctx.focusW=focusW;ctx.records=records;ctx.index=index;if(content){content.innerHTML=safe962AddressCardHtml(ds,focusW);content.querySelectorAll('[data-safe1072-matrix-compact]').forEach(btn=>btn.remove());const noteExit=e=>{try{const t=e.target&&e.target.closest&&e.target.closest('.addressNoteCard,.addressNotesNewBtn,.addressNotesAllBtn');if(t)setTimeout(safe1075CloseAddressFocus,120);}catch(_e){}};content.addEventListener('pointerup',noteExit,true);content.addEventListener('click',noteExit,true);safe962WireAddressCard(content,focusW,ds);}return true;
+  }catch(err){try{console.warn('l1075 Elevkort-fokus render fejlede',err);}catch(_e){}return false;}
+}
+function safe1075StepAddressFocus(delta){
+  try{const ctx=window.__safe1075AddressFocus;if(!ctx)return false;const rec=safe1075FindWidgetRecordAny(ctx.widgetId),records=rec?safe1075MatrixFocusRecords(rec.w):[];let index=records.findIndex(r=>String(r.w.id)===String(ctx.widgetId));const target=records[index+(Number(delta)<0?-1:1)];if(!target)return false;if(target.slideIndex!==state.active){safe1075CloseAddressFocus();state.active=target.slideIndex;selected=null;if(window.UIState)UIState.selectedWidgetId=null;render();save();setTimeout(()=>safe1075OpenAddressCardFocus(target.w.id),60);return true;}ctx.widgetId=target.w.id;return safe1075RenderAddressFocus();}catch(_e){return false;}
+}
+function safe1075BindFocusTap(el,fn){
+  if(!el)return;let last=0;const run=e=>{const now=Date.now();if(now-last<360){try{e.preventDefault();e.stopPropagation();}catch(_e){}return false;}last=now;try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}fn();return false;};['pointerup','touchend','click'].forEach(t=>{try{el.addEventListener(t,run,{capture:true,passive:false});}catch(_e){}});
+}
+function safe1075OpenAddressCardFocus(widgetId){
+  try{
+    const rec=safe1075FindWidgetRecordAny(widgetId);if(!rec||!rec.w||!rec.w.data||rec.w.data.addressCardMatrix!==true)return false;if(rec.slideIndex!==state.active){state.active=rec.slideIndex;render();save();setTimeout(()=>safe1075OpenAddressCardFocus(widgetId),60);return true;}safe1075CloseAddressFocus();
+    const back=document.createElement('div');back.id='safe1075AddressFocusBackdrop';back.className='safe1075AddressFocusBackdrop';back.innerHTML='<div class="safe1075AddressFocusPanel" role="dialog" aria-modal="true" aria-label="Elevkortdetaljer"><div class="safe1075AddressFocusTop"><button type="button" data-safe1075-focus-prev aria-label="Forrige elev">←</button><button type="button" data-safe1075-focus-next aria-label="Næste elev">→</button><strong class="safe1075AddressFocusTitle" data-safe1075-focus-title>Elevkort</strong><span class="safe1075AddressFocusCount" data-safe1075-focus-count></span><button type="button" data-safe1075-focus-close>Luk</button><button type="button" class="safe1075AddressFocusClose" data-safe1075-focus-close aria-label="Luk">×</button></div><div class="safe1075AddressFocusBody"><div class="widget selected safe1075FocusWidget" data-type="text"><div class="content text" data-safe1075-focus-content></div></div></div></div>';
+    const keyHandler=e=>{if((e.key==='Escape'||e.key==='Esc')&&window.__safe1075AddressFocus){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}safe1075CloseAddressFocus();}};window.__safe1075AddressFocus={widgetId:String(widgetId),keyHandler:keyHandler};document.addEventListener('keydown',keyHandler,true);document.body.appendChild(back);
+    back.addEventListener('pointerdown',e=>{if(e.target===back)safe1075CloseAddressFocus();},true);const panel=back.querySelector('.safe1075AddressFocusPanel');if(panel)panel.addEventListener('pointerdown',e=>{try{e.stopPropagation();}catch(_e){}},true);
+    safe1075BindFocusTap(back.querySelector('[data-safe1075-focus-prev]'),()=>safe1075StepAddressFocus(-1));safe1075BindFocusTap(back.querySelector('[data-safe1075-focus-next]'),()=>safe1075StepAddressFocus(1));back.querySelectorAll('[data-safe1075-focus-close]').forEach(btn=>safe1075BindFocusTap(btn,safe1075CloseAddressFocus));return safe1075RenderAddressFocus();
+  }catch(err){try{console.warn('l1075 Elevkort-fokus fejlede',err);}catch(_e){}safe1075CloseAddressFocus();return false;}
+}
+function safe1075RefreshAddressFocus(widgetId){
+  try{const ctx=window.__safe1075AddressFocus;if(!ctx||String(ctx.widgetId)!==String(widgetId))return false;setTimeout(safe1075RenderAddressFocus,30);return true;}catch(_e){return false;}
+}
+try{window.safe1072OpenStudentPicker=safe1072OpenStudentPicker;window.safe1072OpenAddressMatrixModal=safe1072OpenAddressMatrixModal;window.safe1072CreateAddressCardMatrix=safe1072CreateAddressCardMatrix;window.safe1075OpenAddressCardFocus=safe1075OpenAddressCardFocus;window.safe1075CloseAddressFocus=safe1075CloseAddressFocus;window.safe1075RefreshAddressFocus=safe1075RefreshAddressFocus;}catch(_e){}
+
 function safe981ActiveWidgetId(){
   try{if(typeof selected!=='undefined'&&selected!=null&&selected!=='')return String(selected);}catch(_e){}
   try{if(window.UIState){const id=UIState.selectedWidgetId||UIState.focusedWidgetId||UIState.maximizedWidgetId;if(id!=null&&id!=='')return String(id);}}catch(_e){}
@@ -21297,9 +21898,10 @@ function safe962AddressCardHtml(ds,w){
   const hit=safe962FindRowForAddressCard(ds,w);
   if(!hit.row){
     const matchHtml=(hit.matches||[]).map(m=>`<button type="button" data-safe962-pick-row="${m.i}">👤 ${esc(m.name||('Række '+(m.i+1)))}</button>`).join('');
-    return `<div class="addressCard"><div class="addressCardHeader"><div class="addressCardTitle"><h2>Elevkort</h2><div class="sub">${esc(ds.name||'Datasæt')}</div></div><span class="addressCardBadge">Ingen match</span></div><div class="addressCardBody"><div class="addressCardWarn">${esc(hit.reason||'Ingen match')}${matchHtml?'<div class="addressCardMatches">'+matchHtml+'</div>':''}</div></div><div class="addressCardFooter"><span>Matcher normalt tavlens titel med Fornavn + Efternavn.</span><button type="button" class="widget-control" data-safe962-reset-row>Brug tavletitel</button></div></div>`;
+    return `<div class="addressCard"><div class="addressCardHeader"><div class="addressCardTitle"><h2>Elevkort</h2><div class="sub">${esc(ds.name||'Datasæt')}</div></div><span class="addressCardBadge">Ingen match</span></div><div class="addressCardBody"><div class="addressCardWarn">${esc(hit.reason||'Ingen match')}${matchHtml?'<div class="addressCardMatches">'+matchHtml+'</div>':''}</div></div><div class="addressCardFooter"><span>Søg en elev frem eller lad kortet følge tavlens titel.</span><div class="addressCardFooterActions widget-control"><button type="button" data-safe1072-pick-student>🔍 Vælg elev</button><button type="button" data-safe962-reset-row>Brug tavletitel</button></div></div></div>`;
   }
   const row=hit.row, info=safe962NameInfo(ds,row), cols=Array.isArray(ds.columns)?ds.columns:[];
+  if(w&&w.data&&w.data.addressCardMatrix===true&&w.data.addressCardMatrixExpanded!==true&&typeof safe1072CompactAddressCardHtml==='function')return safe1072CompactAddressCardHtml(ds,w,hit,info);
   const skip=new Set([info.firstI,info.lastI,info.fullI].filter(i=>i>=0));
   const priority=safe964PriorityIndexes(ds,row);
   priority.forEach(i=>skip.add(i));
@@ -21323,7 +21925,10 @@ function safe962AddressCardHtml(ds,w){
     far:farSection,
     notater:notesSection
   };
-  return `<div class="addressCard"><div class="addressCardHeader"><div class="addressCardTitle"><h2>${esc(info.full||'Elev')}</h2><div class="sub">${esc(ds.name||'Datasæt')} · række ${hit.index+1}</div></div><span class="addressCardBadge">${esc(hit.reason||'Elevkort')}</span></div><div class="addressCardBody addressCardBodyTabs">${safe978AddressTabBar(active)}<div class="addressCardTabPanel" data-safe978-active-panel="${esc(active)}">${panels[active]||panels.elev}</div></div><div class="addressCardFooter"><span>Data læses fra samme DataWidget. Kontaktfelter er klikbare.</span><button type="button" class="widget-control" data-safe962-reset-row>Brug tavletitel</button></div></div>`;
+  const matrixCard=!!(w&&w.data&&w.data.addressCardMatrix===true);
+  const footerText=matrixCard?'Selvstændigt Elevkort i matrixen. Data læses stadig fra samme DataWidget.':'Data læses fra samme DataWidget. Kontaktfelter er klikbare.';
+  const footerActions=matrixCard?'<button type="button" data-safe1072-pick-student>🔍 Vælg elev</button><button type="button" data-safe1072-matrix-compact>Kompakt</button>':'<button type="button" data-safe1072-pick-student>🔍 Vælg elev</button><button type="button" data-safe962-reset-row>Brug tavletitel</button>';
+  return `<div class="addressCard"><div class="addressCardHeader"><div class="addressCardTitle"><h2>${esc(info.full||'Elev')}</h2><div class="sub">${esc(ds.name||'Datasæt')} · række ${hit.index+1}</div></div><span class="addressCardBadge">${esc(hit.reason||'Elevkort')}</span></div><div class="addressCardBody addressCardBodyTabs">${safe978AddressTabBar(active)}<div class="addressCardTabPanel" data-safe978-active-panel="${esc(active)}">${panels[active]||panels.elev}</div></div><div class="addressCardFooter"><span>${esc(footerText)}</span><div class="addressCardFooterActions widget-control">${footerActions}</div></div></div>`;
 }
 function safe962WireAddressCard(c,w,ds){
   function stopSoft(e){try{e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}}
@@ -21332,7 +21937,19 @@ function safe962WireAddressCard(c,w,ds){
     if(btn.__safe978Bound)return; btn.__safe978Bound=true;
     ['pointerdown','touchstart','mousedown'].forEach(t=>{try{btn.addEventListener(t,stopSoft,{capture:true,passive:true});}catch(_e){}});
     let last=0;
-    const run=e=>{const now=Date.now(); if(now-last<320){stopHard(e);return false;} last=now; stopHard(e); const tab=String(btn.getAttribute('data-safe978-address-tab')||'elev'); w.data=w.data||{}; w.data.addressCardActiveTab=tab; w.data.addressCardTabStickyUntil=Date.now()+1800; try{if(typeof select==='function')select(w.id);}catch(_e){} try{save({silent:true});}catch(_e){} try{fillContent(c.closest('.widget'),w);}catch(_e){try{render();}catch(__e){}} return false;};
+    const run=e=>{const now=Date.now(); if(now-last<320){stopHard(e);return false;} last=now; stopHard(e); const tab=String(btn.getAttribute('data-safe978-address-tab')||'elev'); w.data=w.data||{}; w.data.addressCardActiveTab=tab; w.data.addressCardTabStickyUntil=Date.now()+1800; try{save({silent:true});}catch(_e){}
+      /* l1084: I Elevkortmatrixens syntetiske fokusvisning må faneskift ikke gå gennem
+         den almindelige widgets select/fillContent-vej. Den kan fjerne fokuswrapperens
+         selected/control-tilstand og dermed skjule hele fanebladslinjen. Fokusvisningen
+         ejer sin egen genrendering og bevarer Forrige/Næste samt alle fire faner. */
+      const inMatrixFocus=!!(c&&c.closest&&c.closest('#safe1075AddressFocusBackdrop'));
+      if(inMatrixFocus&&typeof safe1075RenderAddressFocus==='function'){
+        try{safe1075RenderAddressFocus();}catch(_e){}
+        return false;
+      }
+      try{if(typeof select==='function')select(w.id);}catch(_e){}
+      try{fillContent(c.closest('.widget'),w);}catch(_e){try{render();}catch(__e){}}
+      return false;};
     try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
     try{btn.addEventListener('touchend',run,{capture:true,passive:false});}catch(_e){}
     btn.addEventListener('click',run,{capture:true,passive:false});
@@ -21354,18 +21971,23 @@ function safe962WireAddressCard(c,w,ds){
   });
   c.querySelectorAll('[data-safe962-pick-row]').forEach(btn=>{
     let last=0;
-    const run=e=>{const now=Date.now(); if(now-last<360){stopHard(e);return;} last=now; stopHard(e); w.data=w.data||{}; w.data.addressCardRowIndex=Number(btn.getAttribute('data-safe962-pick-row')||-1); try{save({silent:true});}catch(_e){} try{fillContent(c.closest('.widget'),w);}catch(_e){try{render();}catch(__e){}}};
+    const run=e=>{const now=Date.now(); if(now-last<360){stopHard(e);return;} last=now; stopHard(e); const rowIndex=Number(btn.getAttribute('data-safe962-pick-row')||-1); if(typeof safe1072ApplyManualStudent==='function')safe1072ApplyManualStudent(ds,w,rowIndex); else {w.data=w.data||{};w.data.addressCardRowIndex=rowIndex;} try{save({silent:true});}catch(_e){} try{fillContent(c.closest('.widget'),w);}catch(_e){try{render();}catch(__e){}}};
     ['pointerdown','touchstart','mousedown'].forEach(t=>{try{btn.addEventListener(t,stopSoft,{capture:true,passive:true});}catch(_e){}});
     try{btn.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
     try{btn.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
   });
   const reset=c.querySelector('[data-safe962-reset-row]');
   if(reset){
-    const run=e=>{stopHard(e);w.data=w.data||{};delete w.data.addressCardRowIndex;try{save({silent:true});}catch(_e){} try{fillContent(c.closest('.widget'),w);}catch(_e){try{render();}catch(__e){}}};
+    const run=e=>{stopHard(e);if(typeof safe1072ResetAddressCardToTitle==='function')safe1072ResetAddressCardToTitle(ds,w);else {w.data=w.data||{};delete w.data.addressCardRowIndex;}try{save({silent:true});}catch(_e){} try{fillContent(c.closest('.widget'),w);}catch(_e){try{render();}catch(__e){}}};
     ['pointerdown','touchstart','mousedown'].forEach(t=>{try{reset.addEventListener(t,stopSoft,{capture:true,passive:true});}catch(_e){}});
     try{reset.addEventListener('pointerup',run,{capture:true,passive:false});}catch(_e){}
     try{reset.addEventListener('click',run,{capture:true,passive:false});}catch(_e){}
   }
+  c.querySelectorAll('[data-safe1072-pick-student]').forEach(btn=>{
+    if(btn.__safe1072PickerBound)return;btn.__safe1072PickerBound=true;let last=0;const run=e=>{const now=Date.now();if(now-last<380){stopHard(e);return false;}last=now;stopHard(e);if(typeof safe1072OpenStudentPicker==='function')safe1072OpenStudentPicker(ds,w);return false;};['pointerdown','touchstart','mousedown'].forEach(t=>{try{btn.addEventListener(t,stopSoft,{capture:true,passive:true});}catch(_e){}});['pointerup','touchend','click'].forEach(t=>{try{btn.addEventListener(t,run,{capture:true,passive:false});}catch(_e){}});
+  });
+  const details=c.querySelector('[data-safe1072-matrix-details]');if(details){let last=0;const run=e=>{const now=Date.now();if(now-last<380){stopHard(e);return false;}last=now;stopHard(e);try{if(typeof safe1075OpenAddressCardFocus==='function')safe1075OpenAddressCardFocus(w.id);}catch(_e){}return false;};['pointerdown','touchstart','mousedown'].forEach(t=>{try{details.addEventListener(t,stopSoft,{capture:true,passive:true});}catch(_e){}});['pointerup','touchend','click'].forEach(t=>{try{details.addEventListener(t,run,{capture:true,passive:false});}catch(_e){}});}
+  const compact=c.querySelector('[data-safe1072-matrix-compact]');if(compact){let last=0;const run=e=>{const now=Date.now();if(now-last<380){stopHard(e);return false;}last=now;stopHard(e);w.data=w.data||{};w.data.addressCardMatrixExpanded=false;try{save({silent:true});render();setTimeout(()=>select(w.id,{editText:false}),30);}catch(_e){}return false;};['pointerdown','touchstart','mousedown'].forEach(t=>{try{compact.addEventListener(t,stopSoft,{capture:true,passive:true});}catch(_e){}});['pointerup','touchend','click'].forEach(t=>{try{compact.addEventListener(t,run,{capture:true,passive:false});}catch(_e){}});}
   try{if(typeof safe977WireAddressNotes==='function')safe977WireAddressNotes(c,w,ds);}catch(_e){}
 }
 function safe962CreateAddressCardFromDataset(ds,sourceW){
@@ -21407,6 +22029,13 @@ function safe977NoteColumns(){return ['NoteId','SourceDatasetId','SourceRowIndex
 function safe977IsoNow(){try{return new Date().toISOString();}catch(_e){return String(Date.now());}}
 function safe977DateShort(){try{return new Date().toLocaleDateString('da-DK');}catch(_e){return '';}}
 function safe977NoteKey(noteType,title){return safe962NormText(String(noteType||'Note')+' '+String(title||''))||'note';}
+function safe1085StudentNoteBarTitle(elevNavn,noteTitle){
+  try{
+    const elev=String(elevNavn||'').replace(/\s+/g,' ').trim()||'Elev';
+    const note=String(noteTitle||'').replace(/\s+/g,' ').trim();
+    return '📝 '+elev+(note?' · '+note:'');
+  }catch(_e){return '📝 Elevnote';}
+}
 function safe977ColIndex(ds,name){try{return (ds.columns||[]).findIndex(c=>String(c||'')===String(name||''));}catch(_e){return -1;}}
 function safe977GetCell(ds,row,name){try{const i=safe977ColIndex(ds,name);return i>=0?String((row||[])[i]||''):'';}catch(_e){return '';}}
 function safe977SetCell(ds,row,name,value){try{const i=safe977ColIndex(ds,name);if(i<0)return false;while(row.length<(ds.columns||[]).length)row.push('');row[i]=String(value==null?'':value);return true;}catch(_e){return false;}}
@@ -21674,12 +22303,12 @@ function safe977EnsureNoteWidgetsForSession(sourceDs,addressW,baseNote){
       let nw=safe977FindNoteWidget(rec.slide,sourceDs.id,sourceSlideId,templateKey,rowIndex);
       const layout=safe977DefaultNoteLayout(card,existingLayoutWidget||nw);
       if(!nw){
-        nw={id:uid(),type:'text',x:layout.x,y:layout.y,w:layout.w,h:layout.h,z:++z,rotation:layout.rotation||0,locked:false,title:'📝 '+String(note.title||'Elevnote'),data:{text:String(note.text||''),fontSize:24,fs:24,studentNoteWidget:true,noteDatasetId:String(note.noteDs.id),noteId:String(note.noteId),noteTemplateKey:templateKey,noteType:String(note.noteType||''),noteTitle:String(note.title||''),sourceDatasetId:String(sourceDs.id),sourceDatasetName:String(sourceDs.name||''),sourceRowIndex:rowIndex,sourceRowKey:String(note.rowKey||''),sourceSlideId:String(d.sourceSlideId||''),sourceWidgetId:String(d.sourceWidgetId||''),addressCardId:String(card.id||'')}};
+        nw={id:uid(),type:'text',x:layout.x,y:layout.y,w:layout.w,h:layout.h,z:++z,rotation:layout.rotation||0,locked:false,title:safe1085StudentNoteBarTitle(note.elevNavn||info.full,note.title),data:{text:String(note.text||''),fontSize:24,fs:24,studentNoteWidget:true,noteDatasetId:String(note.noteDs.id),noteId:String(note.noteId),noteTemplateKey:templateKey,noteType:String(note.noteType||''),noteTitle:String(note.title||''),studentName:String(note.elevNavn||info.full||''),sourceDatasetId:String(sourceDs.id),sourceDatasetName:String(sourceDs.name||''),sourceRowIndex:rowIndex,sourceRowKey:String(note.rowKey||''),sourceSlideId:String(d.sourceSlideId||''),sourceWidgetId:String(d.sourceWidgetId||''),addressCardId:String(card.id||'')}};
         try{if(typeof safe588SetVisibility==='function')safe588SetVisibility(nw,'single',[(typeof safe588SlideId==='function')?safe588SlideId(rec.slideIndex):String(rec.slide&&rec.slide.id||'')]);}catch(_e){}
         rec.slide.widgets=Array.isArray(rec.slide.widgets)?rec.slide.widgets:[];rec.slide.widgets.push(nw);
       }else{
-        nw.data=Object.assign({},nw.data||{},{text:String(note.text||''),studentNoteWidget:true,noteDatasetId:String(note.noteDs.id),noteId:String(note.noteId),noteTemplateKey:templateKey,noteType:String(note.noteType||''),noteTitle:String(note.title||''),sourceDatasetId:String(sourceDs.id),sourceRowIndex:rowIndex,sourceRowKey:String(note.rowKey||''),sourceSlideId:String(d.sourceSlideId||''),sourceWidgetId:String(d.sourceWidgetId||''),addressCardId:String(card.id||'')});
-        nw.title='📝 '+String(note.title||'Elevnote');
+        nw.data=Object.assign({},nw.data||{},{text:String(note.text||''),studentNoteWidget:true,noteDatasetId:String(note.noteDs.id),noteId:String(note.noteId),noteTemplateKey:templateKey,noteType:String(note.noteType||''),noteTitle:String(note.title||''),studentName:String(note.elevNavn||info.full||''),sourceDatasetId:String(sourceDs.id),sourceRowIndex:rowIndex,sourceRowKey:String(note.rowKey||''),sourceSlideId:String(d.sourceSlideId||''),sourceWidgetId:String(d.sourceWidgetId||''),addressCardId:String(card.id||'')});
+        nw.title=safe1085StudentNoteBarTitle(note.elevNavn||info.full,note.title);
       }
       if(existingLayoutWidget&&String(nw.id)!==String(existingLayoutWidget.id))safe977CopyNoteLayout(existingLayoutWidget,nw);
       if(rec.slideIndex===state.active)currentWidget=nw;
@@ -21736,8 +22365,10 @@ function safe977RefreshStudentNoteWidgetText(w){
     if(!safe977IsStudentNoteWidget(w))return false;
     const ds=findDatasetById(w.data.noteDatasetId); const hit=safe977FindNoteRowById(ds,w.data.noteId); if(!hit)return false;
     w.data.text=safe977GetCell(ds,hit.row,'Tekst');
-    w.data.noteTitle=safe977GetCell(ds,hit.row,'Titel')||w.data.noteTitle||w.title;
+    w.data.noteTitle=safe977GetCell(ds,hit.row,'Titel')||w.data.noteTitle||'Note';
     w.data.noteType=safe977GetCell(ds,hit.row,'Notetype')||w.data.noteType||'';
+    w.data.studentName=safe977GetCell(ds,hit.row,'Elevnavn')||w.data.studentName||'';
+    w.title=safe1085StudentNoteBarTitle(w.data.studentName,w.data.noteTitle);
     return true;
   }catch(_e){return false;}
 }
@@ -23917,7 +24548,7 @@ function safe984DatasetChromeButtons(w){
     // l995: Elevkort/elevsession må kun vises på egentlige elevstamdata.
     // Afledte datasæt som Grupper-lister, grupperesultater og noteoversigter får kun de almindelige dataknapper.
     if(!safe995IsStudentMasterDataset(ds,w))return common;
-    return '<button data-act="createAddressCardChrome" class="safe965AddressCardChrome" title="Opret Elevkort/Adressekort fra dette datasæt">👤</button><button data-act="createStudentSessionChrome" class="safe967StudentSessionChrome" title="Opret elevsession fra dette datasæt">👥</button>'+common;
+    return '<button data-act="createAddressCardChrome" class="safe965AddressCardChrome" title="Opret ét Elevkort fra dette datasæt">👤</button><button data-act="createAddressMatrixChrome" class="safe1072AddressMatrixChrome" title="Søg, filtrér og opret en Elevkortmatrix på denne tavle">▦</button><button data-act="createStudentSessionChrome" class="safe967StudentSessionChrome" title="Opret elevsession fra dette datasæt">👥</button>'+common;
   }catch(_e){return '';}
 }
 
@@ -23930,7 +24561,7 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+((w.type==='text'&&w.data&&w.data.studentNoteWidget)?' studentNoteTextWidget':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':safe984DatasetChromeButtons(w));const boardPanelChromeBtns=(w.type==='text'&&w.data&&(w.data.listType==='boardIndex'||w.data.listType==='boardCheckIndex'))?'<button data-act="boardPanelTitleZoomOut" class="boardPanelChromeZoom" title="Mindre titler i Tavlepanel">−</button><button data-act="boardPanelTitleZoomIn" class="boardPanelChromeZoom" title="Større titler i Tavlepanel">＋</button>':'';const mediaChromeBtns=(w.type==='video')?'<button data-act="mediaListChrome" title="Åbn koblet DataWidget/medieliste – eller vælg liste">🔗</button><button data-act="mediaPickerChrome" title="Vælg/afspil fra medieliste">☰</button><button data-act="mediaSaveChrome" title="Vælg/gem i medieliste">＋</button>':'';const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+((w.type==='text'&&w.data&&w.data.studentNoteWidget)?' studentNoteTextWidget':'')+((w.type==='text'&&w.data&&w.data.addressCardMatrix===true)?' safe1075MatrixCard':'')+((w.type==='text'&&w.data&&w.data.groupCardMatrix===true)?' safe1086GroupMatrixCard':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':safe984DatasetChromeButtons(w));const boardPanelChromeBtns=(w.type==='text'&&w.data&&(w.data.listType==='boardIndex'||w.data.listType==='boardCheckIndex'))?'<button data-act="boardPanelTitleZoomOut" class="boardPanelChromeZoom" title="Mindre titler i Tavlepanel">−</button><button data-act="boardPanelTitleZoomIn" class="boardPanelChromeZoom" title="Større titler i Tavlepanel">＋</button>':'';const mediaChromeBtns=(w.type==='video')?'<button data-act="mediaListChrome" title="Åbn koblet DataWidget/medieliste – eller vælg liste">🔗</button><button data-act="mediaPickerChrome" title="Vælg/afspil fra medieliste">☰</button><button data-act="mediaSaveChrome" title="Vælg/gem i medieliste">＋</button>':'';const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -24193,12 +24824,21 @@ function safe1059RefreshLinkedGroupBoards(ownerW,opts){
       if(si===state.active){try{const titleElLocal=(typeof titleEl!=='undefined'&&titleEl)?titleEl:document.querySelector('.title');if(titleElLocal&&def)titleElLocal.textContent=String(def.title||'Gruppe');}catch(_e){};try{document.querySelectorAll('.widget[data-id]').forEach(el=>{const id=el.dataset.id;const rec=safe1059FindWidgetRecord(id);if(rec&&safe1059IsGroupCard(rec.w)&&typeof fillContent==='function')fillContent(el,rec.w);});}catch(_e){}}
     });
   }catch(_e){}
+  try{if(typeof safe1086SyncGroupMatrices==='function')changed+=safe1086SyncGroupMatrices(ownerW);}catch(_e){}
   if(opts.save){try{save({silent:true});}catch(_e){try{save();}catch(__e){}}}
   return changed;
 }
 function safe1059CopyGroupCardLayout(from,to){try{to.x=Math.round(Number(from.x)||0);to.y=Math.round(Number(from.y)||0);to.w=Math.max(220,Math.round(Number(from.w)||480));to.h=Math.max(180,Math.round(Number(from.h)||420));to.rotation=Number(from.rotation)||0;return true;}catch(_e){return false;}}
 function safe1059SyncGroupCardLayout(master,opts){
-  try{if(!safe1059IsGroupCard(master))return false;const key=String(master.data.groupSetId||'');let n=0;(state.slides||[]).forEach(sl=>((sl&&sl.widgets)||[]).forEach(w=>{if(!safe1059IsGroupCard(w)||String(w.id)===String(master.id)||String(w.data.groupSetId||'')!==key)return;safe1059CopyGroupCardLayout(master,w);try{if(typeof safe976ApplyLayoutToVisibleDom==='function')safe976ApplyLayoutToVisibleDom(w);}catch(_e){}n++;}));if(opts&&opts.save)try{save({silent:true});}catch(_e){}return n;}catch(_e){return false;}
+  try{
+    if(!safe1059IsGroupCard(master)||master.data.groupCardMatrix===true)return false;
+    const key=String(master.data.groupSetId||'');let n=0;
+    (state.slides||[]).forEach(sl=>((sl&&sl.widgets)||[]).forEach(w=>{
+      if(!safe1059IsGroupCard(w)||w.data.groupCardMatrix===true||String(w.id)===String(master.id)||String(w.data.groupSetId||'')!==key)return;
+      safe1059CopyGroupCardLayout(master,w);try{if(typeof safe976ApplyLayoutToVisibleDom==='function')safe976ApplyLayoutToVisibleDom(w);}catch(_e){}n++;
+    }));
+    if(opts&&opts.save)try{save({silent:true});}catch(_e){}return n;
+  }catch(_e){return false;}
 }
 function safe1059PrepareGroupCard(card,def,ownerW,boardId){
   card=card||{}; card.type='text'; card.title='👥 '+String(def.title||'Gruppe'); card.w=Math.max(320,Number(card.w)||520); card.h=Math.max(250,Number(card.h)||440); card.data=card.data||{};
@@ -24417,6 +25057,234 @@ function safe1062OpenSplitGroup(ownerW){
     });
   }catch(err){try{console.warn('l1062 del gruppe fejlede',err);toast('Kunne ikke dele gruppen');}catch(_e){}}
 }
+
+function safe1086GroupMatrixDefs(ownerW){
+  try{
+    const defs=safe1059EnsureGroupSet(ownerW,{}).filter(d=>d&&d.active!==false);
+    return defs.filter((d,i)=>{
+      if(Array.isArray(ownerW&&ownerW.data&&ownerW.data.groups)&&Array.isArray(ownerW.data.groups[i]))d.members=safe1061CleanGroupMembers(ownerW.data.groups[i]);
+      return true;
+    });
+  }catch(_e){return [];}
+}
+function safe1087FindActualGroupBoard(ownerW,def){
+  try{
+    if(!ownerW||!def)return null;
+    const setId=String(ownerW.data&&ownerW.data.groupSetId||'');
+    const groupId=String(def.id||'');
+    const storedBoardId=String(def.boardId||'');
+    let found=null;
+    for(let i=0;i<(state.slides||[]).length;i++){
+      const sl=state.slides[i];if(!sl)continue;
+      const meta=sl.groupBoardMeta||{};
+      const stableMatch=!!(setId&&groupId&&String(meta.groupSetId||'')===setId&&String(meta.groupId||'')===groupId);
+      const idMatch=!!(storedBoardId&&String(sl.id||'')===storedBoardId);
+      if(stableMatch||idMatch){found={slide:sl,index:i};break;}
+    }
+    if(found){
+      const actualId=String(found.slide&&found.slide.id||'');
+      if(actualId&&String(def.boardId||'')!==actualId)def.boardId=actualId;
+      return found;
+    }
+    if(def.boardId)delete def.boardId;
+  }catch(_e){}
+  return null;
+}
+function safe1086GroupMatrixGeometry(count){
+  const zooms=[1,.9,.8,.75,.67,.6,.5];let best=null;
+  for(const zoom of zooms){
+    try{
+      const g=(typeof safe1079MatrixGeometry==='function')?safe1079MatrixGeometry(count,zoom,{cardW:300,cardH:220,minGap:12,maxGap:38}):null;
+      if(g){best=g;if(g.fits)return g;}
+    }catch(_e){}
+  }
+  try{return (typeof safe1079MatrixGeometry==='function')?safe1079MatrixGeometry(count,.5,{cardW:270,cardH:196,minGap:9,maxGap:28}):best;}catch(_e){return best;}
+}
+function safe1086BuildGroupMatrixOnSlide(ownerW,slideIndex){
+  try{
+    const defs=safe1086GroupMatrixDefs(ownerW);if(!defs.length)return null;
+    const sl=state.slides&&state.slides[slideIndex];if(!sl)return null;
+    sl.widgets=Array.isArray(sl.widgets)?sl.widgets:[];
+    if(!sl.id)sl.id='groupmatrixboard_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,6);
+    const slideId=(typeof safe588SlideId==='function')?String(safe588SlideId(slideIndex)||sl.id):String(sl.id);
+    const setId=String(ownerW.data&&ownerW.data.groupSetId||'');
+    const matrixId='groupmatrix_'+setId+'_'+slideId;
+    const geometry=safe1086GroupMatrixGeometry(defs.length);if(!geometry||!Array.isArray(geometry.slots))throw new Error('Matrixlayout kunne ikke beregnes');
+    const previous=new Map();
+    sl.widgets.forEach(w=>{if(safe1059IsGroupCard(w)&&w.data.groupCardMatrix===true&&String(w.data.groupSetId||'')===setId&&!previous.has(String(w.data.groupId||'')))previous.set(String(w.data.groupId||''),w);});
+    const kept=sl.widgets.filter(w=>!(safe1059IsGroupCard(w)&&w.data.groupCardMatrix===true&&String(w.data.groupSetId||'')===setId));
+    let maxZ=0;try{(state.slides||[]).forEach(x=>((x&&x.widgets)||[]).forEach(w=>{maxZ=Math.max(maxZ,Number(w&&w.z)||0);}));}catch(_e){}
+    const cards=[];
+    defs.forEach((def,i)=>{
+      const slot=geometry.slots[i]||{x:30+i*310,y:90,w:300,h:220};
+      let card=previous.get(String(def.id||''));
+      if(!card)card={id:(typeof uid==='function'?uid():'groupmatrix_'+Date.now().toString(36)+'_'+i),type:'text',data:{}};
+      safe1059PrepareGroupCard(card,def,ownerW,slideId);
+      card.x=Number(slot.x)||24;card.y=Number(slot.y)||72;card.w=Number(slot.w)||300;card.h=Number(slot.h)||220;card.rotation=0;card.z=++maxZ;card.locked=false;
+      card.title='👥 '+String(def.title||('Gruppe '+(i+1)));
+      card.data.groupCardMatrix=true;card.data.groupCardMatrixId=matrixId;card.data.groupCardMatrixOrder=i;card.data.groupCardMatrixZoom=Number(geometry.zoom)||1;
+      card.data.groupCardMatrixHomeX=card.x;card.data.groupCardMatrixHomeY=card.y;card.data.groupCardMatrixHomeW=card.w;card.data.groupCardMatrixHomeH=card.h;card.data.groupCardMatrixHomeSlideId=slideId;
+      card.sharedVisibility={mode:'single',slideIds:[slideId]};
+      cards.push(card);
+    });
+    sl.widgets=kept.concat(cards);
+    sl.groupCardMatrixMeta={kind:'live-group-matrix',id:matrixId,groupSetId:setId,sourceGroupWidgetId:String(ownerW.id||''),sourceSlideId:String((safe1059FindWidgetRecord(ownerW.id)||{}).slide&&((safe1059FindWidgetRecord(ownerW.id)||{}).slide.id)||''),zoom:Number(geometry.zoom)||1,updatedAt:Date.now()};
+    state.groupCardMatrices=(state.groupCardMatrices&&typeof state.groupCardMatrices==='object'&&!Array.isArray(state.groupCardMatrices))?state.groupCardMatrices:{};
+    state.groupCardMatrices[matrixId]={id:matrixId,groupSetId:setId,sourceGroupWidgetId:String(ownerW.id||''),slideId:slideId,widgetIds:cards.map(w=>String(w.id||'')),zoom:Number(geometry.zoom)||1,updatedAt:Date.now()};
+    return {slideIndex:slideIndex,slideId:slideId,cards:cards,zoom:Number(geometry.zoom)||1,matrixId:matrixId};
+  }catch(err){try{console.warn('l1086 gruppekortmatrix fejlede',err);}catch(_e){}return null;}
+}
+function safe1086FindGroupMatrixSlide(ownerW){
+  try{const setId=String(ownerW&&ownerW.data&&ownerW.data.groupSetId||'');for(let i=0;i<(state.slides||[]).length;i++){const m=state.slides[i]&&state.slides[i].groupCardMatrixMeta;if(m&&String(m.groupSetId||'')===setId)return i;}}catch(_e){}
+  return -1;
+}
+function safe1086CreateGroupMatrix(ownerW,placement){
+  try{
+    const defs=safe1086GroupMatrixDefs(ownerW);if(!defs.length){toast('Dan grupper først');return false;}
+    const rec=safe1059FindWidgetRecord(ownerW.id);if(!rec){toast('Kunne ikke finde GruppeWidgetten');return false;}
+    let target=-1;placement=String(placement||'new');
+    if(placement==='existing')target=safe1086FindGroupMatrixSlide(ownerW);
+    if(placement==='current')target=Number.isInteger(state.active)?state.active:rec.slideIndex;
+    if(target<0){
+      const title='Gruppekortmatrix · '+String((rec.slide&&rec.slide.title)||'Grupper');
+      if(typeof safe1075CreateTargetSlides==='function')target=(safe1075CreateTargetSlides(rec.slideIndex,1,'new',title)||[])[0];
+      if(!(target>=0)){
+        const sl=safe969CopySourceSlideShell(rec.slide,title);sl.id='groupmatrixboard_'+Date.now().toString(36);let trash=-1;try{trash=(state.slides||[]).findIndex(x=>typeof safe588IsTrashSlide==='function'&&safe588IsTrashSlide(x));}catch(_e){}target=trash>=0?trash:state.slides.length;state.slides.splice(target,0,sl);
+      }
+    }
+    const result=safe1086BuildGroupMatrixOnSlide(ownerW,target);if(!result){toast('Kunne ikke oprette Gruppekortmatrix');return false;}
+    try{closeModal();}catch(_e){}state.active=target;selected=null;if(window.UIState)UIState.selectedWidgetId=null;
+    try{save({silent:true});}catch(_e){try{save();}catch(__e){}}
+    try{render();}catch(_e){}
+    setTimeout(()=>{try{if(typeof window.safe453SetBoardZoom==='function')window.safe453SetBoardZoom(result.zoom);}catch(_e){}try{toast(result.cards.length+' Gruppekort samlet i matrix');}catch(_e){}},60);
+    return true;
+  }catch(err){try{console.warn('l1086 kunne ikke oprette Gruppekortmatrix',err);}catch(_e){}try{toast('Kunne ikke oprette Gruppekortmatrix');}catch(_e){}return false;}
+}
+function safe1086SyncGroupMatrices(ownerW){
+  try{
+    const setId=String(ownerW&&ownerW.data&&ownerW.data.groupSetId||'');if(!setId)return 0;let n=0;
+    (state.slides||[]).forEach((sl,si)=>{const meta=sl&&sl.groupCardMatrixMeta;if(!meta||String(meta.groupSetId||'')!==setId)return;if(safe1086BuildGroupMatrixOnSlide(ownerW,si))n++;});
+    if(n&&Number.isInteger(state.active)){const active=state.slides&&state.slides[state.active];if(active&&active.groupCardMatrixMeta&&String(active.groupCardMatrixMeta.groupSetId||'')===setId)try{render();}catch(_e){}}
+    return n;
+  }catch(_e){return 0;}
+}
+function safe1086OpenGroupMatrix(ownerW){
+  try{
+    ownerW.data=ownerW.data||{};safe1059EnsureGroupSet(ownerW,{});
+    const defs=safe1086GroupMatrixDefs(ownerW);if(!defs.length){toast('Dan grupper først');return false;}
+    const existing=safe1086FindGroupMatrixSlide(ownerW);
+    const html=`<div class="safe1086MatrixModal"><h2>Gruppekortmatrix</h2><p>Saml ét levende Gruppekort pr. gruppe på én tavle. Kortene følger medlemmer, roller og gruppetitler fra GruppeWidgetten.</p><div class="safe1086MatrixLegend"><span><b>⧉ Tavler</b> opretter én tavle pr. gruppe</span><span><b>▦ Matrix</b> samler alle grupper på én tavle</span></div><div class="safe1086MatrixSummary"><b>${defs.length} grupper</b><span>${defs.reduce((n,d)=>n+(Array.isArray(d.members)?d.members.length:0),0)} medlemmer i alt</span></div><div class="safe1086MatrixActions">${existing>=0?'<button type="button" id="safe1086UpdateMatrix" class="primary">Opdatér eksisterende matrix</button>':''}<button type="button" id="safe1086NewMatrix" class="primary">Opret på ny tavle</button><button type="button" id="safe1086CurrentMatrix">Opret på denne tavle</button><button type="button" id="safe1086CloseMatrix">Luk</button></div></div>`;
+    showModal(html);
+    safe1059BindModalButton(document.getElementById('safe1086CloseMatrix'),()=>closeModal());
+    safe1059BindModalButton(document.getElementById('safe1086NewMatrix'),()=>safe1086CreateGroupMatrix(ownerW,'new'));
+    safe1059BindModalButton(document.getElementById('safe1086CurrentMatrix'),()=>safe1086CreateGroupMatrix(ownerW,'current'));
+    safe1059BindModalButton(document.getElementById('safe1086UpdateMatrix'),()=>safe1086CreateGroupMatrix(ownerW,'existing'));
+    return true;
+  }catch(err){try{console.warn('l1086 matrixmodal fejlede',err);}catch(_e){}try{toast('Kunne ikke åbne Gruppekortmatrix');}catch(_e){}return false;}
+}
+function safe1086GroupMatrixCardHtml(cardW,ownerW,def,members){
+  const rows=members.length?members.map(name=>{const role=String(def.roles&&def.roles[safe1059Norm(name)]||'');return `<div class="safe1086MatrixMember"><b>${esc(name)}</b>${role?`<span>${esc(role)}</span>`:''}</div>`;}).join(''):'<div class="safe1086MatrixEmpty">Tom gruppe</div>';
+  const boardHit=safe1087FindActualGroupBoard(ownerW,def);
+  return `<div class="safe1086GroupMatrixCompact"><div class="safe1086GroupMatrixHead"><div><h2>${esc(def.title||'Gruppe')}</h2><p>${members.length} ${members.length===1?'medlem':'medlemmer'}</p></div><span>▦</span></div><div class="safe1086GroupMatrixMembers">${rows}</div><div class="safe1086GroupMatrixActions"><button type="button" class="safe1086GroupMatrixDetails">Detaljer</button>${boardHit?'<button type="button" class="safe1086GroupMatrixBoard">Gruppetavle</button>':''}<button type="button" class="safe1086GroupMatrixSource">GruppeWidget</button></div></div>`;
+}
+function safe1089GroupFocusRecords(cardW){
+  try{
+    const setId=String(cardW&&cardW.data&&cardW.data.groupSetId||''),matrixId=String(cardW&&cardW.data&&cardW.data.groupCardMatrixId||'');
+    const rows=[];
+    (state.slides||[]).forEach((sl,slideIndex)=>((sl&&sl.widgets)||[]).forEach(w=>{
+      if(!safe1059IsGroupCard(w)||!w.data||w.data.groupCardMatrix!==true)return;
+      if(String(w.data.groupSetId||'')!==setId)return;
+      if(matrixId&&String(w.data.groupCardMatrixId||'')!==matrixId)return;
+      rows.push({w:w,slide:sl,slideIndex:slideIndex,order:Number(w.data.groupCardMatrixOrder)||0});
+    }));
+    rows.sort((a,b)=>(a.slideIndex-b.slideIndex)||(a.order-b.order)||String(a.w.title||'').localeCompare(String(b.w.title||''),'da'));
+    return rows;
+  }catch(_e){return [];}
+}
+function safe1089GroupFocusProxy(cardW,ctx){
+  const data=Object.assign({},cardW&&cardW.data||{});
+  data.groupCardMatrix=false;
+  data.groupCardFocusProxy=true;
+  const saved=ctx&&ctx.uiById&&ctx.uiById[String(cardW.id)]||{};
+  data.groupCardTab=String(saved.groupCardTab||data.groupCardTab||'group');
+  data.groupWorkTab=String(saved.groupWorkTab||data.groupWorkTab||'tasks');
+  return Object.assign({},cardW,{data:data});
+}
+function safe1089RememberGroupFocusUi(ctx){
+  try{
+    if(!ctx||!ctx.focusW||!ctx.focusW.data)return;
+    ctx.uiById=ctx.uiById||{};
+    ctx.uiById[String(ctx.widgetId)]={groupCardTab:String(ctx.focusW.data.groupCardTab||'group'),groupWorkTab:String(ctx.focusW.data.groupWorkTab||'tasks')};
+  }catch(_e){}
+}
+function safe1089CloseGroupFocus(){
+  const ctx=window.__safe1089GroupFocus;window.__safe1089GroupFocus=null;
+  try{if(ctx&&ctx.keyHandler)document.removeEventListener('keydown',ctx.keyHandler,true);}catch(_e){}
+  try{const el=document.getElementById('safe1089GroupFocusBackdrop');if(el)el.remove();}catch(_e){}
+  return true;
+}
+function safe1089BindFocusTap(el,fn){
+  if(!el)return;let last=0;
+  function stop(e){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}}
+  ['pointerdown','touchstart','mousedown'].forEach(t=>{try{el.addEventListener(t,e=>{try{e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}},{capture:true,passive:true});}catch(_e){}});
+  ['pointerup','touchend','click'].forEach(t=>{try{el.addEventListener(t,e=>{const now=Date.now();if(now-last<330){stop(e);return;}last=now;stop(e);fn(e);},{capture:true,passive:false});}catch(_e){}});
+}
+function safe1089RenderGroupFocus(){
+  try{
+    const ctx=window.__safe1089GroupFocus;if(!ctx)return false;
+    safe1089RememberGroupFocusUi(ctx);
+    const rec=safe1059FindWidgetRecord(ctx.widgetId),back=document.getElementById('safe1089GroupFocusBackdrop');
+    if(!rec||!rec.w||!back){safe1089CloseGroupFocus();return false;}
+    const cardW=rec.w,info=safe1059GroupDefForCard(cardW),ownerW=info.rec&&info.rec.w,def=info.def;
+    if(!ownerW||!def){safe1089CloseGroupFocus();return false;}
+    const records=safe1089GroupFocusRecords(cardW),index=Math.max(0,records.findIndex(r=>String(r.w.id)===String(cardW.id)));
+    const title=back.querySelector('[data-safe1089-focus-title]'),count=back.querySelector('[data-safe1089-focus-count]'),prev=back.querySelector('[data-safe1089-focus-prev]'),next=back.querySelector('[data-safe1089-focus-next]'),body=back.querySelector('[data-safe1089-focus-body]'),boardBtn=back.querySelector('[data-safe1089-focus-board]');
+    if(title)title.textContent=String(def.title||'Gruppe');if(count)count.textContent=(index+1)+' / '+Math.max(1,records.length);if(prev)prev.disabled=index<=0;if(next)next.disabled=index>=records.length-1;
+    const boardHit=safe1087FindActualGroupBoard(ownerW,def);if(boardBtn){boardBtn.hidden=!boardHit;boardBtn.dataset.slideIndex=boardHit?String(boardHit.index):'';}
+    const focusW=safe1089GroupFocusProxy(cardW,ctx);ctx.focusW=focusW;ctx.records=records;ctx.index=index;
+    if(body){
+      body.innerHTML='<div class="widget selected safe1089GroupFocusWidget" data-type="text"><div class="content text"></div></div>';
+      const widget=body.querySelector('.safe1089GroupFocusWidget');
+      fillContent(widget,focusW);
+    }
+    return true;
+  }catch(err){try{console.warn('l1089 Gruppekort-fokus render fejlede',err);}catch(_e){}return false;}
+}
+function safe1089StepGroupFocus(delta){
+  try{
+    const ctx=window.__safe1089GroupFocus;if(!ctx)return false;safe1089RememberGroupFocusUi(ctx);
+    const rec=safe1059FindWidgetRecord(ctx.widgetId),records=rec?safe1089GroupFocusRecords(rec.w):[];
+    let index=records.findIndex(r=>String(r.w.id)===String(ctx.widgetId));const target=records[index+(Number(delta)<0?-1:1)];if(!target)return false;
+    if(target.slideIndex!==state.active){safe1089CloseGroupFocus();state.active=target.slideIndex;selected=null;if(window.UIState)UIState.selectedWidgetId=null;render();save();setTimeout(()=>safe1089OpenGroupCardFocus(target.w.id),60);return true;}
+    ctx.widgetId=String(target.w.id);return safe1089RenderGroupFocus();
+  }catch(_e){return false;}
+}
+function safe1089OpenGroupCardFocus(widgetId){
+  try{
+    const rec=safe1059FindWidgetRecord(widgetId);if(!rec||!rec.w||!rec.w.data||rec.w.data.groupCardMatrix!==true)return false;
+    if(rec.slideIndex!==state.active){state.active=rec.slideIndex;render();save();setTimeout(()=>safe1089OpenGroupCardFocus(widgetId),60);return true;}
+    safe1089CloseGroupFocus();
+    const back=document.createElement('div');back.id='safe1089GroupFocusBackdrop';back.className='safe1089GroupFocusBackdrop';
+    back.innerHTML='<div class="safe1089GroupFocusPanel" role="dialog" aria-modal="true" aria-label="Gruppekortdetaljer"><div class="safe1089GroupFocusTop"><button type="button" data-safe1089-focus-prev aria-label="Forrige gruppe">←</button><button type="button" data-safe1089-focus-next aria-label="Næste gruppe">→</button><strong class="safe1089GroupFocusTitle" data-safe1089-focus-title>Gruppekort</strong><span class="safe1089GroupFocusCount" data-safe1089-focus-count></span><button type="button" class="safe1089GroupFocusSource" data-safe1089-focus-source>GruppeWidget</button><button type="button" class="safe1089GroupFocusBoard" data-safe1089-focus-board hidden>Gruppetavle</button><button type="button" data-safe1089-focus-close>Luk</button><button type="button" class="safe1089GroupFocusClose" data-safe1089-focus-close aria-label="Luk">×</button></div><div class="safe1089GroupFocusBody" data-safe1089-focus-body></div></div>';
+    const keyHandler=e=>{if((e.key==='Escape'||e.key==='Esc')&&window.__safe1089GroupFocus){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}safe1089CloseGroupFocus();}};
+    window.__safe1089GroupFocus={widgetId:String(widgetId),keyHandler:keyHandler,uiById:{}};document.addEventListener('keydown',keyHandler,true);document.body.appendChild(back);
+    back.addEventListener('pointerdown',e=>{if(e.target===back)safe1089CloseGroupFocus();},true);const panel=back.querySelector('.safe1089GroupFocusPanel');if(panel)panel.addEventListener('pointerdown',e=>{try{e.stopPropagation();}catch(_e){}},true);
+    safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-prev]'),()=>safe1089StepGroupFocus(-1));
+    safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-next]'),()=>safe1089StepGroupFocus(1));
+    back.querySelectorAll('[data-safe1089-focus-close]').forEach(btn=>safe1089BindFocusTap(btn,safe1089CloseGroupFocus));
+    safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-source]'),()=>{const ctx=window.__safe1089GroupFocus,rr=ctx&&safe1059FindWidgetRecord(ctx.widgetId),ii=rr&&safe1059GroupDefForCard(rr.w);if(!ii||!ii.rec)return;const ownerW=ii.rec.w;safe1089CloseGroupFocus();state.active=ii.rec.slideIndex;render();setTimeout(()=>{try{select(ownerW.id,{editText:false});}catch(_e){}},40);});
+    safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-board]'),()=>{const ctx=window.__safe1089GroupFocus,rr=ctx&&safe1059FindWidgetRecord(ctx.widgetId),ii=rr&&safe1059GroupDefForCard(rr.w);if(!ii||!ii.rec||!ii.def)return;const hit=safe1087FindActualGroupBoard(ii.rec.w,ii.def);if(hit){safe1089CloseGroupFocus();state.active=hit.index;render();}else{safe1089RenderGroupFocus();toast('Gruppetavlen findes ikke længere');}});
+    return safe1089RenderGroupFocus();
+  }catch(err){try{console.warn('l1089 Gruppekort-fokus fejlede',err);}catch(_e){}safe1089CloseGroupFocus();return false;}
+}
+function safe1089RefreshGroupFocus(widgetId){
+  try{const ctx=window.__safe1089GroupFocus;if(!ctx||String(ctx.widgetId)!==String(widgetId))return false;setTimeout(safe1089RenderGroupFocus,35);return true;}catch(_e){return false;}
+}
+function safe1086OpenGroupMatrixDetails(cardW){
+  try{return safe1089OpenGroupCardFocus(cardW&&cardW.id);}catch(_e){return false;}
+}
+try{window.safe1089OpenGroupCardFocus=safe1089OpenGroupCardFocus;window.safe1089CloseGroupFocus=safe1089CloseGroupFocus;window.safe1089RefreshGroupFocus=safe1089RefreshGroupFocus;}catch(_e){}
+
 function safe1059OpenGroupBoards(ownerW){
   try{
     ownerW.data=ownerW.data||{};
@@ -24459,8 +25327,8 @@ function safe1059OpenWorkEditor(cardW,itemId,typeHint){
   const html=`<div class="safe1059GroupModal"><h2>${item?'Redigér':'Nyt'} gruppearbejde</h2><p>${esc(def.title||'Gruppe')}</p><label>Type<select id="safe1059WorkType"><option ${type==='Opgave'?'selected':''}>Opgave</option><option ${type==='Spørgsmål'?'selected':''}>Spørgsmål</option><option ${type==='Kommentar'?'selected':''}>Kommentar</option><option ${type==='Svar'?'selected':''}>Svar</option><option ${type==='Notat'?'selected':''}>Notat</option></select></label><label>Titel<input id="safe1059WorkTitle" value="${esc(item&&item.title||'')}"></label><label>Tekst<textarea id="safe1059WorkText" rows="8">${esc(item&&item.text||'')}</textarea></label><label>Status<input id="safe1059WorkStatus" value="${esc(item&&item.status||'')}"></label><div class="safe1059Actions">${item?'<button type="button" id="safe1059DeleteWork">Slet</button>':''}<button type="button" id="safe1059SaveWork">Gem</button><button type="button" id="safe1059CloseWork">Luk</button></div></div>`;
   showModal(html);
   safe1059BindModalButton(document.getElementById('safe1059CloseWork'),()=>closeModal());
-  safe1059BindModalButton(document.getElementById('safe1059SaveWork'),()=>{const id=String(item&&item.id||((typeof uid==='function')?uid():'note_'+Date.now().toString(36)));const row=[String(def.id),String(def.title||''),String(document.getElementById('safe1059WorkType').value||'Notat'),String(document.getElementById('safe1059WorkTitle').value||'').trim()||'Uden titel',String(document.getElementById('safe1059WorkText').value||''),new Date().toLocaleString('da-DK'),String(document.getElementById('safe1059WorkStatus').value||''),id];if(item)ds.rows[item.rowIndex]=row;else ds.rows.push(row);ds.modifiedAt=Date.now();if(typeof updateDatasetInState==='function')updateDatasetInState(ds);try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}ownerW.data.groupWorkDatasetId=ds.id;cardW.data.groupWorkDatasetId=ds.id;save();closeModal();const rec=safe1059FindWidgetRecord(cardW.id);if(rec&&rec.slideIndex===state.active){const el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(String(cardW.id)):String(cardW.id))+'"]');if(el)fillContent(el,cardW);}toast('Gruppearbejde gemt');});
-  if(item)safe1059BindModalButton(document.getElementById('safe1059DeleteWork'),()=>{ds.rows.splice(item.rowIndex,1);ds.modifiedAt=Date.now();if(typeof updateDatasetInState==='function')updateDatasetInState(ds);save();closeModal();const rec=safe1059FindWidgetRecord(cardW.id);if(rec&&rec.slideIndex===state.active){const el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(String(cardW.id)):String(cardW.id))+'"]');if(el)fillContent(el,cardW);}toast('Notat slettet');});
+  safe1059BindModalButton(document.getElementById('safe1059SaveWork'),()=>{const id=String(item&&item.id||((typeof uid==='function')?uid():'note_'+Date.now().toString(36)));const row=[String(def.id),String(def.title||''),String(document.getElementById('safe1059WorkType').value||'Notat'),String(document.getElementById('safe1059WorkTitle').value||'').trim()||'Uden titel',String(document.getElementById('safe1059WorkText').value||''),new Date().toLocaleString('da-DK'),String(document.getElementById('safe1059WorkStatus').value||''),id];if(item)ds.rows[item.rowIndex]=row;else ds.rows.push(row);ds.modifiedAt=Date.now();if(typeof updateDatasetInState==='function')updateDatasetInState(ds);try{if(typeof safe371RefreshDatasetWidgets==='function')safe371RefreshDatasetWidgets(ds);}catch(_e){}ownerW.data.groupWorkDatasetId=ds.id;cardW.data.groupWorkDatasetId=ds.id;save();closeModal();const rec=safe1059FindWidgetRecord(cardW.id);if(rec&&rec.slideIndex===state.active){const el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(String(cardW.id)):String(cardW.id))+'"]');if(el)fillContent(el,cardW);}try{if(typeof safe1089RefreshGroupFocus==='function')safe1089RefreshGroupFocus(cardW.id);}catch(_e){}toast('Gruppearbejde gemt');});
+  if(item)safe1059BindModalButton(document.getElementById('safe1059DeleteWork'),()=>{ds.rows.splice(item.rowIndex,1);ds.modifiedAt=Date.now();if(typeof updateDatasetInState==='function')updateDatasetInState(ds);save();closeModal();const rec=safe1059FindWidgetRecord(cardW.id);if(rec&&rec.slideIndex===state.active){const el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(String(cardW.id)):String(cardW.id))+'"]');if(el)fillContent(el,cardW);}try{if(typeof safe1089RefreshGroupFocus==='function')safe1089RefreshGroupFocus(cardW.id);}catch(_e){}toast('Notat slettet');});
 }
 function safe1059GroupCardHtml(cardW){
   const info=safe1059GroupDefForCard(cardW),ownerW=info.rec&&info.rec.w,def=info.def;
@@ -24468,6 +25336,7 @@ function safe1059GroupCardHtml(cardW){
   if(!ownerW||!def)return `<div class="safe1059GroupCard"><div class="safe1059GroupCardBody"><div class="safe1059SourceMissing">Gruppekortets kilde kunne ikke findes. Tavlen og eventuelle noter er bevaret.</div></div></div>`;
 
   const members=Array.isArray(def.members)?def.members:[];
+  if(cardW.data&&cardW.data.groupCardMatrix===true)return safe1086GroupMatrixCardHtml(cardW,ownerW,def,members);
   const editable=!app.classList.contains('present');
   const memberHtml=members.length?members.map(name=>{
     const role=String(def.roles&&def.roles[safe1059Norm(name)]||'');
@@ -24500,12 +25369,16 @@ function safe1059WireGroupCard(c,cardW){
   function bind(el,fn){if(!el)return;let last=0;['pointerdown','touchstart','mousedown'].forEach(t=>{try{el.addEventListener(t,e=>{e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();},{capture:true,passive:true});}catch(_e){}});['pointerup','touchend','click'].forEach(t=>{try{el.addEventListener(t,e=>{const now=Date.now();if(now-last<320){stop(e);return;}last=now;stop(e);fn(e);},{capture:true,passive:false});}catch(_e){}});}
   c.querySelectorAll('[data-tab]').forEach(btn=>bind(btn,()=>{cardW.data.groupCardTab=btn.dataset.tab||'group';fillContent(c.closest('.widget'),cardW);save();}));
   c.querySelectorAll('[data-work-tab]').forEach(btn=>bind(btn,()=>{cardW.data.groupWorkTab=btn.dataset.workTab||'tasks';fillContent(c.closest('.widget'),cardW);save();}));
-  bind(c.querySelector('.safe1059GoSourceGroup'),()=>{state.active=info.rec.slideIndex;render();setTimeout(()=>{try{select(ownerW.id,{editText:false});}catch(_e){}},40);});
-  bind(c.querySelector('.safe1059RenameGroup'),()=>{showModal(`<div class="safe1059GroupModal"><h2>Omdøb gruppe</h2><input id="safe1059RenameInput" value="${esc(def.title||'Gruppe')}"><div class="safe1059Actions"><button id="safe1059RenameSave">Gem</button><button id="safe1059RenameClose">Luk</button></div></div>`);safe1059BindModalButton(document.getElementById('safe1059RenameClose'),()=>closeModal());safe1059BindModalButton(document.getElementById('safe1059RenameSave'),()=>{const v=String(document.getElementById('safe1059RenameInput').value||'').trim();if(v)def.title=v;safe1059RefreshLinkedGroupBoards(ownerW,{save:true});safe1059RefreshSourceDom(ownerW);closeModal();try{render();}catch(_e){};});});
-  c.querySelectorAll('.safe1059MemberRoleInput').forEach(inp=>{inp.addEventListener('pointerdown',e=>e.stopPropagation(),true);inp.addEventListener('input',()=>{def.roles=def.roles||{};def.roles[safe1059Norm(inp.dataset.member||'')]=String(inp.value||'');save({silent:true});});inp.addEventListener('change',()=>{safe1059RefreshLinkedGroupBoards(ownerW,{save:true});safe1059RefreshSourceDom(ownerW);});});
+  const safe1086GoSource=()=>{try{if(typeof safe1089CloseGroupFocus==='function')safe1089CloseGroupFocus();}catch(_e){}state.active=info.rec.slideIndex;render();setTimeout(()=>{try{select(ownerW.id,{editText:false});}catch(_e){}},40);};
+  bind(c.querySelector('.safe1059GoSourceGroup'),safe1086GoSource);
+  bind(c.querySelector('.safe1086GroupMatrixSource'),safe1086GoSource);
+  bind(c.querySelector('.safe1086GroupMatrixDetails'),()=>safe1086OpenGroupMatrixDetails(cardW));
+  bind(c.querySelector('.safe1086GroupMatrixBoard'),()=>{const hit=safe1087FindActualGroupBoard(ownerW,def);if(hit){state.active=hit.index;render();}else{fillContent(c.closest('.widget'),cardW);toast('Gruppetavlen findes ikke længere');}});
+  bind(c.querySelector('.safe1059RenameGroup'),()=>{showModal(`<div class="safe1059GroupModal"><h2>Omdøb gruppe</h2><input id="safe1059RenameInput" value="${esc(def.title||'Gruppe')}"><div class="safe1059Actions"><button id="safe1059RenameSave">Gem</button><button id="safe1059RenameClose">Luk</button></div></div>`);safe1059BindModalButton(document.getElementById('safe1059RenameClose'),()=>closeModal());safe1059BindModalButton(document.getElementById('safe1059RenameSave'),()=>{const v=String(document.getElementById('safe1059RenameInput').value||'').trim();if(v)def.title=v;safe1059RefreshLinkedGroupBoards(ownerW,{save:true});safe1059RefreshSourceDom(ownerW);closeModal();try{render();}catch(_e){};try{if(typeof safe1089RefreshGroupFocus==='function')safe1089RefreshGroupFocus(cardW.id);}catch(_e){};});});
+  c.querySelectorAll('.safe1059MemberRoleInput').forEach(inp=>{inp.addEventListener('pointerdown',e=>e.stopPropagation(),true);inp.addEventListener('input',()=>{def.roles=def.roles||{};def.roles[safe1059Norm(inp.dataset.member||'')]=String(inp.value||'');save({silent:true});});inp.addEventListener('change',()=>{safe1059RefreshLinkedGroupBoards(ownerW,{save:true});safe1059RefreshSourceDom(ownerW);try{if(typeof safe1089RefreshGroupFocus==='function')safe1089RefreshGroupFocus(cardW.id);}catch(_e){}});});
   c.querySelectorAll('[data-new-work]').forEach(btn=>bind(btn,()=>safe1059OpenWorkEditor(cardW,'',btn.dataset.newWork||'Notat')));
   c.querySelectorAll('[data-work-id]').forEach(btn=>bind(btn,()=>safe1059OpenWorkEditor(cardW,btn.dataset.workId||'','Notat')));
-  bind(c.querySelector('.safe1059OpenWorkData'),()=>{const ds=safe1059EnsureWorkDataset(ownerW);if(ds&&typeof safe381OpenDatasetSourceNearWidget==='function')safe381OpenDatasetSourceNearWidget(ds.id,cardW);else toast('Kunne ikke åbne gruppearbejdsdata');});
+  bind(c.querySelector('.safe1059OpenWorkData'),()=>{const ds=safe1059EnsureWorkDataset(ownerW);try{if(typeof safe1089CloseGroupFocus==='function')safe1089CloseGroupFocus();}catch(_e){}if(ds&&typeof safe381OpenDatasetSourceNearWidget==='function')safe381OpenDatasetSourceNearWidget(ds.id,cardW);else toast('Kunne ikke åbne gruppearbejdsdata');});
 }
 try{window.safe1059SyncGroupCardLayout=safe1059SyncGroupCardLayout;window.safe1059OpenGroupBoards=safe1059OpenGroupBoards;}catch(_e){}
 
@@ -25169,6 +26042,7 @@ function wireGroups(c,w){
   c.querySelectorAll('.exportGroupsCsv').forEach(btn=>bindTap(btn,safe676ExportGroupsCsv));
   c.querySelectorAll('.openGroupsPdf').forEach(btn=>bindTap(btn,safe676OpenGroupsPdf));
   c.querySelectorAll('.createGroupBoards').forEach(btn=>bindTap(btn,()=>safe1059OpenGroupBoards(w)));
+  c.querySelectorAll('.createGroupMatrix').forEach(btn=>bindTap(btn,()=>safe1086OpenGroupMatrix(w)));
   c.querySelectorAll('.addGroupAfterBoards').forEach(btn=>bindTap(btn,()=>safe1062OpenAddGroup(w)));
   c.querySelectorAll('.splitGroupAfterBoards').forEach(btn=>bindTap(btn,()=>safe1062OpenSplitGroup(w)));
 
@@ -30434,23 +31308,42 @@ function safe453kCreateDemoWidget(type,data,title){
 }
 function safe453kCreateDatasetDemo(){
   try{
-    const ds={id:uid(),name:'Demo: elevliste',columns:['Navn','Hold','Note'],rows:[
-      ['Alma','A','Kan hjælpe med oplæsning'],
-      ['Bertram','B','God til gruppearbejde'],
-      ['Clara','A','Vil gerne fremlægge'],
-      ['Emil','C','Har styr på teknik'],
-      ['Freja','B','Kan være ordstyrer']
-    ]};
+    /* l1076: Demoen skal ligne rigtige elevstamdata, så den samme eksisterende
+       genkendelse viser 👤 Elevkort og 👥 Opret elevsession. Data er opdigtede. */
+    const ds={
+      id:uid(),
+      name:'Demo: elevstamdata',
+      type:'csv',
+      demoKind:'student-master',
+      columns:[
+        'Fornavn','Efternavn','Klasse','Mobil','E-mail','Værelse','Elevhus','Fødselsdag',
+        'Relationer-Mor-Navn','Relationer-Mor-Mobil','Relationer-Mor-E-mail',
+        'Relationer-Far-Navn','Relationer-Far-Mobil','Relationer-Far-E-mail','Styrke'
+      ],
+      rows:[
+        ['Alma','Andersen','9A','11 00 00 01','alma.andersen@example.invalid','12','Nord','2010-04-18','Maja Andersen','21 00 00 01','maja.andersen@example.invalid','Lars Andersen','31 00 00 01','lars.andersen@example.invalid','Kan hjælpe med oplæsning'],
+        ['Bertram','Bak','9B','11 00 00 02','bertram.bak@example.invalid','7','Syd','2010-09-03','Sofie Bak','21 00 00 02','sofie.bak@example.invalid','Mikkel Bak','31 00 00 02','mikkel.bak@example.invalid','God til gruppearbejde'],
+        ['Clara','Christensen','9A','11 00 00 03','clara.christensen@example.invalid','18','Nord','2010-01-27','Anna Christensen','21 00 00 03','anna.christensen@example.invalid','Thomas Christensen','31 00 00 03','thomas.christensen@example.invalid','Vil gerne fremlægge'],
+        ['Emil','Eriksen','9C','11 00 00 04','emil.eriksen@example.invalid','4','Vest','2009-12-11','Maria Eriksen','21 00 00 04','maria.eriksen@example.invalid','Henrik Eriksen','31 00 00 04','henrik.eriksen@example.invalid','Har styr på teknik'],
+        ['Freja','Frandsen','9B','','freja.frandsen@example.invalid','15','Syd','2010-06-22','Louise Frandsen','21 00 00 05','louise.frandsen@example.invalid','Peter Frandsen','31 00 00 05','peter.frandsen@example.invalid','Kan være ordstyrer'],
+        ['Ida','Iversen','9C','11 00 00 06','ida.iversen@example.invalid','9','Vest','2010-03-14','Katrine Iversen','21 00 00 06','katrine.iversen@example.invalid','Martin Iversen','31 00 00 06','martin.iversen@example.invalid','God til at samle op']
+      ]
+    };
     updateDatasetInState(ds);
-    const w=addDatasetWidget(ds,{x:160+Math.random()*70,y:140+Math.random()*70});
-    if(w)w.title='📊 Demo: elevliste';
+    const w=addDatasetWidget(ds,{x:120+Math.random()*50,y:120+Math.random()*50});
+    if(w){
+      w.title='📊 Demo: elevstamdata';
+      w.w=Math.max(Number(w.w)||0,820);
+      w.h=Math.max(Number(w.h)||0,480);
+      try{if(typeof fitWidgetToViewport==='function')fitWidgetToViewport(w,{resetRotation:false});}catch(_e){}
+    }
     if(typeof render==='function')render();
     if(w&&typeof select==='function')select(w.id,{editText:false});
     if(typeof save==='function')save();
-    if(typeof toast==='function')toast('Data-demo oprettet');
+    if(typeof toast==='function')toast('Elevdata-demo oprettet – brug 👤 til Elevkort eller 👥 til elevtavler');
   }catch(err){
     console.error(err);
-    safe453kCreateDemoWidget('text',{text:'Navn\tHold\tNote\nAlma\tA\tKan hjælpe\nBertram\tB\tGod til grupper',fontSize:18},'📊 Demo: data');
+    safe453kCreateDemoWidget('text',{text:'Fornavn\tEfternavn\tKlasse\nAlma\tAndersen\t9A\nBertram\tBak\t9B',fontSize:18},'📊 Demo: elevstamdata');
   }
 }
 async function safe455uH45cInstallHtmlApp(appKey){
@@ -30611,7 +31504,7 @@ async function safe455uH45cInstallHtmlApp(appKey){
 function safe453kOpenDemoModal(){
   const demos=[
     ['text','Aa','Tekst-demo','En instruktionstekst til tavlen',()=>safe453kCreateDemoWidget('text',{text:'Dagens opgave\n\n1. Læs teksten\n2. Find tre nøgleord\n3. Tal med sidemanden\n4. Skriv en fælles sætning',fontSize:26},'Aa Demo: instruktion')],
-    ['dataset','📊','Data-demo','En lille elev-/holdliste som datawidget',safe453kCreateDatasetDemo],
+    ['dataset','📊','Elevdata-demo','Elevstamdata klar til Elevkort og elevtavler',safe453kCreateDatasetDemo],
     ['list','☰','Liste-demo','En navneliste klar til hjul og grupper',()=>safe453kCreateDemoWidget('text',{text:'Alma\nBertram\nClara\nEmil\nFreja\nIda\nJohan\nLiva',fontSize:22,kind:'list',listAsset:true},'☰ Demo: navneliste')],
     ['timer','⌛','Timer-demo','En enkel nedtælling til korte aktiviteter',()=>safe453kCreateDemoWidget('timer',{mode:'countdown',minutes:5,seconds:0,title:'Arbejd i 5 minutter'},'⌛ Demo: timer')],
     ['wheel','🎲','Lykkehjulet-demo','Et hjul med små aktivitetstyper',()=>safe453kCreateDemoWidget('wheel',{names:['Forklar begreb','Find eksempel','Stil spørgsmål','Tegn svaret','Arbejd to og to'],original:['Forklar begreb','Find eksempel','Stil spørgsmål','Tegn svaret','Arbejd to og to'],chosen:[]},'🎲 Demo: aktivitetshjul')],
@@ -42181,7 +43074,8 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
    <div class="groupsRow groupsResultSave groupsIconTopBar">
     <button class="saveGroupList groupsIconBtn" title="Vis/opdater gruppernes DataWidget" aria-label="Vis/opdater gruppernes DataWidget"><span class="groupsBtnIcon">💾</span><span class="groupsBtnText">Data</span></button>
     <button class="openGroupsPdf groupsIconBtn" title="Vis grupper som PDF" aria-label="Vis grupper som PDF"><span class="groupsBtnIcon">📄</span><span class="groupsBtnText">PDF</span></button>
-    <button class="createGroupBoards groupsIconBtn" title="Opret eller opdater gruppetavler med kobling" aria-label="Opret eller opdater gruppetavler med kobling"><span class="groupsBtnIcon">▦</span><span class="groupsBtnText">Tavler</span></button>
+    <button class="createGroupBoards groupsIconBtn" title="Opret eller opdater én tavle pr. gruppe" aria-label="Opret eller opdater én tavle pr. gruppe"><span class="groupsBtnIcon">⧉</span><span class="groupsBtnText">Tavler</span></button>
+    <button class="createGroupMatrix groupsIconBtn" title="Opret eller opdater en Gruppekortmatrix" aria-label="Opret eller opdater en Gruppekortmatrix"><span class="groupsBtnIcon">▦</span><span class="groupsBtnText">Matrix</span></button>
     <button class="addGroupAfterBoards groupsIconBtn" title="Opret en ny tom gruppe og gruppetavle" aria-label="Opret en ny tom gruppe og gruppetavle"><span class="groupsBtnIcon">＋</span><span class="groupsBtnText">Gruppe</span></button>
     <button class="splitGroupAfterBoards groupsIconBtn" title="Del en eksisterende gruppe i to" aria-label="Del en eksisterende gruppe i to"><span class="groupsBtnIcon">✂</span><span class="groupsBtnText">Del</span></button>
     <button class="exportGroupsCsv groupsIconBtn" title="Eksportér grupper som CSV" aria-label="Eksportér grupper som CSV"><span class="groupsBtnIcon">CSV</span><span class="groupsBtnText">CSV</span></button>
@@ -42191,7 +43085,8 @@ function fillContent(el,w){const c=el.querySelector('.content');c.className='con
    <div class="groupsRow groupsIconTopBar editOnly">
     <button class="saveGroupList groupsIconBtn" title="Gem grupper som datawidget" aria-label="Gem grupper som datawidget"><span class="groupsBtnIcon">💾</span><span class="groupsBtnText">Gem grupper</span></button>
     <button class="toGroups groupsIconBtn" title="Dan grupper" aria-label="Dan grupper"><span class="groupsBtnIcon">👥</span><span class="groupsBtnText">Dan</span></button>
-    <button class="createGroupBoards groupsIconBtn" title="Opret eller opdater gruppetavler med kobling" aria-label="Opret eller opdater gruppetavler med kobling"><span class="groupsBtnIcon">▦</span><span class="groupsBtnText">Tavler</span></button>
+    <button class="createGroupBoards groupsIconBtn" title="Opret eller opdater én tavle pr. gruppe" aria-label="Opret eller opdater én tavle pr. gruppe"><span class="groupsBtnIcon">⧉</span><span class="groupsBtnText">Tavler</span></button>
+    <button class="createGroupMatrix groupsIconBtn" title="Opret eller opdater en Gruppekortmatrix" aria-label="Opret eller opdater en Gruppekortmatrix"><span class="groupsBtnIcon">▦</span><span class="groupsBtnText">Matrix</span></button>
     <button class="loadGroupList groupsIconBtn" title="Vælg kilde" aria-label="Vælg kilde"><span class="groupsBtnIcon">🗂️</span><span class="groupsBtnText">Kilde</span></button>
    </div>
    <div class="groupsRow groupsSizeRow editOnly"><label><span class="groupsSizeLabel">Personer pr. gruppe</span><input class="groupSize" type="number" min="1" max="999" value="${w.data.size}"></label><span class="groupsTotalCount">${safe452bCleanNames.length} navne</span></div>
@@ -44781,7 +45676,9 @@ function wireWidget(el,w){
    // Text editing should behave like a normal textarea. Do not let the
    // widget-level tryk/selection logic steal focus/cursor from the textarea.
    if(isTextEditingTarget(e.target)){
-     if(selected!==w.id) select(w.id);
+     const isStudentNote=(typeof safe977IsStudentNoteWidget==='function'&&safe977IsStudentNoteWidget(w));
+     if(isStudentNote || selected!==w.id) select(w.id);
+     if(isStudentNote)try{save({silent:true});}catch(_e){}
      layerTap={x:e.clientX,y:e.clientY,t:0,moved:false,ignore:true};
      return;
    }
@@ -44879,6 +45776,20 @@ function wireWidget(el,w){
     createAddressCardChromeBtn.onclick=openAddressCard;
   }
 
+
+
+ const createAddressMatrixChromeBtn=el.querySelector('[data-act=createAddressMatrixChrome]');
+  if(createAddressMatrixChromeBtn){
+    let safe1072LastMatrix=0;
+    const openMatrix=e=>{
+      try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+      const now=Date.now();if(now-safe1072LastMatrix<420)return false;safe1072LastMatrix=now;if(!canEditWidgets())return false;
+      try{w.data=w.data||{};const ds=(typeof safe90CommitOpenDatasetEditorForWidget==='function'?safe90CommitOpenDatasetEditorForWidget(w):null)||(w.data.datasetId?findDatasetById(w.data.datasetId):null);if(ds&&typeof safe1072OpenAddressMatrixModal==='function')safe1072OpenAddressMatrixModal(ds,w);else toast('Kunne ikke finde elevdata til matrixen');}catch(err){try{console.warn(err);}catch(_e){}try{toast('Kunne ikke åbne elevkortmatrix');}catch(_e){}}
+      return false;
+    };
+    ['pointerdown','mousedown','touchstart'].forEach(type=>{try{createAddressMatrixChromeBtn.addEventListener(type,function(e){try{e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}},{capture:true,passive:true});}catch(_e){}});
+    ['pointerup','touchend','click'].forEach(type=>{try{createAddressMatrixChromeBtn.addEventListener(type,openMatrix,{capture:true,passive:false});}catch(_e){}});createAddressMatrixChromeBtn.onclick=openMatrix;
+  }
 
  const createStudentSessionChromeBtn=el.querySelector('[data-act=createStudentSessionChrome]');
   if(createStudentSessionChromeBtn){
@@ -45645,7 +46556,7 @@ function select(id,options={}){
 
   // Valgt widget lægges forrest, så den ikke skjules bag andre widgets.
   // l592: brug max-z blandt alle synlige widgets, så faste og spejlede kan bladres begge veje.
-  if(selectedWidget && !selectedWidget.locked){
+  if(selectedWidget && (!selectedWidget.locked || (typeof safe977IsStudentNoteWidget==='function'&&safe977IsStudentNoteWidget(selectedWidget)))){
     const visible=(typeof safe588WidgetsForCurrentSlide==='function')?safe588WidgetsForCurrentSlide():(slide().widgets||[]);
     const maxZ=Math.max(z,1,...visible.map(x=>Number(x&&x.z)||1));
     selectedWidget.z=maxZ+1;
@@ -48258,6 +49169,101 @@ function wireWheel(c,w){
 }
 function pickFile(accept,cb){fileInput.accept=accept;fileInput.onchange=()=>{const f=fileInput.files[0];if(!f)return;const r=new FileReader();r.onload=()=>cb(r.result,f);r.readAsDataURL(f);fileInput.value=''};fileInput.click()}
 let safe530ModalEscHandler=null;
+let safe1074ModalScrollCleanup=null;
+function safe1074ModalScrollElement(el){
+  try{
+    if(!el||el===modalBack)return false;
+    if(el===modal)return el.scrollHeight>el.clientHeight+1;
+    const cs=getComputedStyle(el),oy=String(cs.overflowY||'');
+    return /^(auto|scroll|overlay)$/.test(oy)&&el.scrollHeight>el.clientHeight+1;
+  }catch(_e){return false;}
+}
+function safe1074ModalScrollChain(target){
+  const chain=[];
+  try{
+    let el=target&&target.nodeType===3?target.parentElement:target;
+    if(el&&el.closest&&!el.closest('#modal'))el=modal;
+    while(el&&el!==modalBack){
+      if(el===modal||safe1074ModalScrollElement(el))chain.push(el);
+      if(el===modal)break;
+      el=el.parentElement;
+    }
+    if(modal&&chain.indexOf(modal)<0)chain.push(modal);
+  }catch(_e){try{if(modal)chain.push(modal);}catch(__e){}}
+  return chain;
+}
+function safe1074ModalCanMove(el,delta){
+  try{
+    if(!el||!delta)return false;
+    const top=Number(el.scrollTop)||0,max=Math.max(0,(Number(el.scrollHeight)||0)-(Number(el.clientHeight)||0));
+    return delta>0?top<max-1:top>1;
+  }catch(_e){return false;}
+}
+function safe1074UnbindModalScroll(){
+  try{if(typeof safe1074ModalScrollCleanup==='function')safe1074ModalScrollCleanup();}catch(_e){}
+  safe1074ModalScrollCleanup=null;
+}
+function safe1074BindModalScroll(){
+  safe1074UnbindModalScroll();
+  try{
+    if(!modal)return;
+    let touch=null;
+    const onTouchStart=e=>{
+      try{
+        if(!e.touches||e.touches.length!==1){touch=null;return;}
+        const t=e.touches[0];
+        touch={x:Number(t.clientX)||0,y:Number(t.clientY)||0,target:e.target};
+      }catch(_e){touch=null;}
+    };
+    const onTouchMove=e=>{
+      try{
+        if(!touch||!e.touches||e.touches.length!==1)return;
+        const t=e.touches[0],x=Number(t.clientX)||0,y=Number(t.clientY)||0;
+        const dx=touch.x-x,delta=touch.y-y;
+        touch.x=x;touch.y=y;
+        if(Math.abs(delta)<.5||Math.abs(dx)>Math.abs(delta)*1.35)return;
+        const chain=safe1074ModalScrollChain(touch.target);
+        const scrollables=chain.filter(safe1074ModalScrollElement);
+        if(!scrollables.length)return;
+        const owner=scrollables.find(el=>safe1074ModalCanMove(el,delta));
+        if(!owner)return;
+        /* Så længe det inderste felt selv kan flytte sig, bruges browserens naturlige scroll.
+           Først ved kanten overtager nærmeste ydre felt — typisk selve modalen. */
+        if(owner===scrollables[0])return;
+        if(e.cancelable)e.preventDefault();
+        e.stopPropagation();
+        owner.scrollTop=(Number(owner.scrollTop)||0)+delta;
+      }catch(_e){}
+    };
+    const onTouchEnd=()=>{touch=null;};
+    const onWheel=e=>{
+      try{
+        const delta=Number(e.deltaY)||0;if(!delta)return;
+        const chain=safe1074ModalScrollChain(e.target);
+        const scrollables=chain.filter(safe1074ModalScrollElement);
+        if(!scrollables.length)return;
+        const owner=scrollables.find(el=>safe1074ModalCanMove(el,delta));
+        if(!owner||owner===scrollables[0])return;
+        if(e.cancelable)e.preventDefault();
+        e.stopPropagation();
+        owner.scrollTop=(Number(owner.scrollTop)||0)+delta;
+      }catch(_e){}
+    };
+    modal.addEventListener('touchstart',onTouchStart,{capture:true,passive:true});
+    modal.addEventListener('touchmove',onTouchMove,{capture:true,passive:false});
+    modal.addEventListener('touchend',onTouchEnd,{capture:true,passive:true});
+    modal.addEventListener('touchcancel',onTouchEnd,{capture:true,passive:true});
+    modal.addEventListener('wheel',onWheel,{capture:true,passive:false});
+    safe1074ModalScrollCleanup=()=>{
+      try{modal.removeEventListener('touchstart',onTouchStart,true);}catch(_e){}
+      try{modal.removeEventListener('touchmove',onTouchMove,true);}catch(_e){}
+      try{modal.removeEventListener('touchend',onTouchEnd,true);}catch(_e){}
+      try{modal.removeEventListener('touchcancel',onTouchEnd,true);}catch(_e){}
+      try{modal.removeEventListener('wheel',onWheel,true);}catch(_e){}
+      touch=null;
+    };
+  }catch(_e){}
+}
 function safe530ModalEscIsEditable(t){
   try{
     if(!t)return false;
@@ -48301,10 +49307,13 @@ function safe530BindModalEsc(){
 function showModal(html){
   modal.classList.toggle('moveWidgetModal',String(html).includes('moveWidgetDialog'));
   modal.innerHTML=html;
+  modal.scrollTop=0;
   modalBack.style.display='flex';
   safe530BindModalEsc();
+  safe1074BindModalScroll();
 }
 function closeModal(){
+  safe1074UnbindModalScroll();
   safe530UnbindModalEsc();
   try{if(window.__safe374BoardOverviewCleanup)window.__safe374BoardOverviewCleanup();}catch(_e){}
   modal.classList.remove('moveWidgetModal');
@@ -52017,7 +53026,7 @@ function showQuickHelp(){
         <ul class="helpCompactList">
           <li><b>Shift+W</b> opretter Lykkehjulet. Brug det til tilfældige navne, spørgsmål, emner eller aktiviteter.</li>
           <li><b>Shift+R</b> opretter GruppeWidgetten. Vælg en navneliste, skriv personer pr. gruppe og tryk <b>Dan</b>.</li>
-          <li>Når grupperne er dannet, viser <b>Tavler</b> præcis de grupper, der findes. Den aktuelle tavle bruges som skabelon, og der oprettes eller opdateres én tavle pr. gruppe.</li>
+          <li>Når grupperne er dannet, opretter <b>⧉ Tavler</b> én tavle pr. gruppe med den aktuelle tavle som skabelon. <b>▦ Matrix</b> samler i stedet ét levende Gruppekort pr. gruppe på én tavle.</li>
           <li>GruppeWidgetten bliver stående som master. Flytter du elever, ændrer roller eller omdøber en gruppe, følger de koblede Gruppekort og tavletitler med.</li>
           <li>Vil du gøre tavlerne klar før elevfordelingen, kan du oprette tomme grupper. Når et rigtigt grupperesultat findes, bruges resultatets antal grupper.</li>
           <li><b>+ Gruppe</b> opretter én ekstra gruppe og tavle. <b>Del</b> flytter valgte medlemmer til en ny gruppe uden at slette den oprindelige gruppes arbejde.</li>
@@ -52035,7 +53044,9 @@ function showQuickHelp(){
       <div class="answer">
         <ul class="helpCompactList">
           <li>Hent elevoplysninger ind som en <b>DataWidget</b>, gerne fra CSV eller Excel. Én række bør svare til én elev, og tydelige felter som fornavn og efternavn gør matchningen nemmere.</li>
-          <li><b>👤 Elevkort</b> opretter ét Elevkort på den aktuelle tavle. Kortet matcher normalt tavlens titel med elevens fornavn + efternavn. Finder Tavle ikke et sikkert match, kan du vælge den rigtige elevrække på kortet.</li>
+          <li><b>👤 Elevkort</b> opretter ét Elevkort på den aktuelle tavle. Brug <b>🔍 Vælg elev</b> på kortet til at søge en anden elev frem uden først at oprette elevtavler. Kortet kan også følge tavlens titel.</li>
+          <li><b>▦ Elevkortmatrix</b> filtrerer elevdata efter fx klasse, kontaktgruppelærer, køn, hus eller værelse. Du kan søge, sætte individuelle flueben og sortere efter <b>Fornavn</b> eller <b>Klasse → fornavn</b>. Tavle foreslår et læsbart layout på én eller flere elevkorttavler. <b>Detaljer</b> åbner Elevkortet i en mellemstor fokusvisning med nedtonet baggrund og Forrige/Næste.</li>
+          <li>Matrixkort viser en kompakt oversigt med hurtige kontaktknapper. Brug <b>Detaljer</b> for det fulde Elevkort med Elev, Mor, Far og Notater.</li>
           <li><b>👥 Opret elevsession</b> viser først en preview og opretter derefter én tavle pr. elev. Kildetavlen og den rå DataWidget bliver stående.</li>
           <li>Elevtavlerne får tavletitel efter elevens navn, baggrund og grid fra kildetavlen, et koblet Elevkort og en fælles Elevliste til navigation.</li>
           <li>Flytter, ændrer størrelse eller roterer du ét genereret Elevkort, følger de øvrige Elevkort i samme elevsession med. Hvert kort viser stadig sin egen elev.</li>
@@ -52079,7 +53090,11 @@ function showQuickHelp(){
           <li><b>Cmd/Ctrl+B</b> vælger en tilfældig baggrund på den aktive tavle.</li>
           <li><b>Shift+G</b> slår grid til/fra.</li>
           <li><b>Zoom-redning:</b> Hold to fingre stille et øjeblik, eller brug <b>Shift+Z</b>, hvis tavlevisningen er zoomet for langt ind.</li>
-          <li><b>Shift+O</b> åbner Redningsbælte, hvis widgets er havnet uden for skærmen, eller tavlen er blevet rodet.</li>
+          <li><b>Shift+O</b> åbner <b>Redningsbælte</b>, hvis noget er havnet uden for skærmen, ligger oven i hinanden, eller tavlen bare er blevet rodet.</li>
+          <li><b>1. Gør alt synligt</b> er den sikre løsning. Den prøver først bare at få tingene tilbage i synsfeltet.</li>
+          <li><b>2. Åbn overblik</b> viser alle widgets kortvarigt, så du kan finde og vælge den, du mangler.</li>
+          <li><b>3. Arrangér tavlen automatisk</b> rydder op ved at lægge de synlige widgets pænt ud på tavlen. Det er ofte den bedste hjælp, hvis mange ting er kommet til at flyde rundt.</li>
+          <li>Hvis du arbejder med mange <b>Elevkort</b> på samme tavle, kan Redningsbæltet også vise <b>Genopbyg Elevkortmatrix</b>. Den forsøger at samle netop Elevkortene igen uden at røre de andre widgets.</li>
           <li><b>Cmd/Ctrl+Delete/Backspace</b> rydder aktiv tavle til papirkurven efter bekræftelse.</li>
         </ul>
         <div class="helpSeeAlso"><b>Se også:</b><button type="button" class="helpJumpBtn" data-help-jump="Navigation">Navigation</button><button type="button" class="helpJumpBtn" data-help-jump="Papirkurv">Papirkurv</button></div>
@@ -59078,58 +60093,178 @@ window.__tavleClearActiveSlideToTrash=clearActiveSlideToTrash;
     return 'Indhold og visning';
   }
 
+  function rFindWidgetRecord(id){
+    const target=String(id||'');
+    if(!target)return null;
+    try{
+      const slides=(state&&Array.isArray(state.slides))?state.slides:[];
+      for(let si=0;si<slides.length;si++){
+        const ws=(slides[si]&&Array.isArray(slides[si].widgets))?slides[si].widgets:[];
+        for(let wi=0;wi<ws.length;wi++)if(ws[wi]&&String(ws[wi].id||'')===target)return {w:ws[wi],slideIndex:si,widgetIndex:wi};
+      }
+    }catch(_e){}
+    return null;
+  }
+  function rVisibleWidgetRecords(){
+    const out=[],seen=new Set();
+    const activeIndex=Number.isInteger(Number(state&&state.active))?Number(state.active):0;
+    const add=(w,slideIndex)=>{
+      if(!w)return;
+      const id=String(w.id||'');
+      if(!id||seen.has(id))return;
+      seen.add(id);
+      out.push({w:w,slideIndex:Number.isInteger(Number(slideIndex))?Number(slideIndex):activeIndex});
+    };
+    try{const src=rCurrentSlide();((src&&src.widgets)||[]).forEach(w=>add(w,activeIndex));}catch(_e){}
+    try{
+      if(typeof safe588CurrentWidgetRecords==='function'){
+        (safe588CurrentWidgetRecords()||[]).forEach(rec=>add(rec&&rec.w,rec&&rec.slideIndex));
+      }
+    }catch(_e){}
+    try{
+      document.querySelectorAll('.widget[data-id]').forEach(el=>{
+        const rec=rFindWidgetRecord(el.dataset&&el.dataset.id);
+        if(rec)add(rec.w,rec.slideIndex);
+      });
+    }catch(_e){}
+    return out;
+  }
+  function rCurrentBoardZoom(){
+    try{if(typeof window.safe453GetBoardZoom==='function')return Number(window.safe453GetBoardZoom())||1;}catch(_e){}
+    return 1;
+  }
+  function rMatrixViewport(){
+    try{
+      if(typeof safe1075MatrixViewport==='function'){
+        const m=safe1075MatrixViewport();
+        if(m&&Number(m.width)>0&&Number(m.height)>0)return {left:Number(m.left)||24,top:Number(m.top)||72,width:Number(m.width),height:Number(m.height),gap:Math.max(10,Number(m.gap)||12)};
+      }
+    }catch(_e){}
+    try{
+      const b=visibleBoardBounds();
+      return {left:Number(b.x)||28,top:Number(b.y)||78,width:Number(b.w)||1100,height:Number(b.h)||620,gap:14};
+    }catch(_e){return {left:24,top:72,width:1152,height:636,gap:14};}
+  }
+  function rAutoMatrixPlan(count){
+    count=Math.max(1,Number(count)||1);
+    const base=rMatrixViewport(),zooms=[1,.9,.8,.75,.67,.6,.5,.4];
+    let fallback=null;
+    for(const zoom of zooms){
+      const region={x:base.left/zoom,y:base.top/zoom,w:base.width/zoom,h:base.height/zoom};
+      let best=null;
+      for(let cols=1;cols<=Math.min(count,12);cols++){
+        const rows=Math.ceil(count/cols),gap=Math.max(10,Math.min(24,base.gap/zoom));
+        const cellW=(region.w-gap*(cols-1))/cols,cellH=(region.h-gap*(rows-1))/rows;
+        if(cellW<=0||cellH<=0)continue;
+        const empty=cols*rows-count;
+        const fit=Math.min(cellW/230,cellH/142);
+        const shapePenalty=Math.abs(Math.log(Math.max(.05,(cellW/cellH)/1.55)));
+        const score=fit*100-shapePenalty*8-empty*1.6;
+        const rec={zoom:zoom,cols:cols,rows:rows,gap:gap,cellW:cellW,cellH:cellH,region:region,score:score,fits:cellW>=175&&cellH>=108};
+        if(!best||rec.score>best.score)best=rec;
+      }
+      if(best){fallback=best;if(best.fits)return best;}
+    }
+    return fallback;
+  }
+  function rNaturalWidgetBox(w,cellW,cellH){
+    const type=String(w&&w.type||'').toLowerCase(),d=(w&&w.data)||{};
+    let prefW=300,prefH=190,minW=145,minH=96;
+    if(d.addressCardMatrix===true||d.addressCardMatrixCompact===true){prefW=230;prefH=142;minW=180;minH=112;}
+    else if(type==='pdf'||type==='video'||type==='html'||type==='link'){prefW=360;prefH=230;minW=170;minH=105;}
+    else if(type==='dataset'||(type==='text'&&d.datasetView)){prefW=350;prefH=220;minW=170;minH=108;}
+    else if(type==='wheel'||type==='timer'||type==='poll'||type==='wordcloud'||type==='image'||type==='groups'){prefW=270;prefH=230;minW=135;minH=110;}
+    else if(type==='text'){prefW=300;prefH=205;minW=150;minH=105;}
+    const maxW=Math.max(90,cellW-12),maxH=Math.max(76,cellH-12),ratio=prefW/prefH;
+    let width=Math.min(prefW,maxW),height=width/ratio;
+    if(height>maxH){height=maxH;width=height*ratio;}
+    if(width<Math.min(minW,maxW)){width=Math.min(minW,maxW);height=Math.min(maxH,width/ratio);}
+    if(height<Math.min(minH,maxH)){height=Math.min(minH,maxH);width=Math.min(maxW,height*ratio);}
+    return {w:Math.max(90,Math.round(width)),h:Math.max(76,Math.round(height))};
+  }
+  function rStoreAutoArrangeSnapshot(sl,records,zoom){
+    if(!sl)return;
+    sl.rescueAutoArrangeSnapshot={
+      version:1,
+      createdAt:Date.now(),
+      zoom:Number(zoom)||1,
+      items:records.map(rec=>({
+        id:String(rec.w&&rec.w.id||''),
+        slideIndex:Number(rec.slideIndex),
+        x:Number(rec.w&&rec.w.x)||0,
+        y:Number(rec.w&&rec.w.y)||0,
+        w:Number(rec.w&&rec.w.w)||300,
+        h:Number(rec.w&&rec.w.h)||200,
+        rotation:Number(rec.w&&rec.w.rotation)||0,
+        z:Number(rec.w&&rec.w.z)||0,
+        locked:!!(rec.w&&rec.w.locked)
+      }))
+    };
+  }
+  function rSortRecordsForMatrix(records){
+    const allMatrix=records.length>1&&records.every(rec=>rec.w&&rec.w.data&&(rec.w.data.addressCardMatrix===true||rec.w.data.addressCardMatrixCompact===true));
+    return records.slice().sort((a,b)=>{
+      if(allMatrix){
+        const ao=Number(a.w&&a.w.data&&a.w.data.addressCardMatrixOrder),bo=Number(b.w&&b.w.data&&b.w.data.addressCardMatrixOrder);
+        if(Number.isFinite(ao)&&Number.isFinite(bo)&&ao!==bo)return ao-bo;
+        const ar=Number(a.w&&a.w.data&&a.w.data.sourceRowIndex),br=Number(b.w&&b.w.data&&b.w.data.sourceRowIndex);
+        if(Number.isFinite(ar)&&Number.isFinite(br)&&ar!==br)return ar-br;
+      }
+      const ay=Number(a.w&&a.w.y)||0,by=Number(b.w&&b.w.y)||0;if(Math.abs(ay-by)>20)return ay-by;
+      const ax=Number(a.w&&a.w.x)||0,bx=Number(b.w&&b.w.x)||0;if(ax!==bx)return ax-bx;
+      return (Number(a.w&&a.w.z)||0)-(Number(b.w&&b.w.z)||0);
+    });
+  }
+  function rRestoreAutoArrange(btn){
+    const sl=rCurrentSlide(),snap=sl&&sl.rescueAutoArrangeSnapshot;
+    if(!snap||!Array.isArray(snap.items)||!snap.items.length){rToast('Der er intet automatisk arrangement at fortryde');rFinish(btn);return false;}
+    let restored=0;
+    snap.items.forEach(item=>{
+      const rec=rFindWidgetRecord(item.id),w=rec&&rec.w;if(!w)return;
+      w.x=item.x;w.y=item.y;w.w=item.w;w.h=item.h;w.rotation=item.rotation;w.z=item.z;w.locked=!!item.locked;restored++;
+    });
+    delete sl.rescueAutoArrangeSnapshot;
+    selected=null;if(window.UIState)UIState.selectedWidgetId=null;
+    try{save({silent:true});render();}catch(_e){}
+    setTimeout(()=>{try{if(typeof window.safe453SetBoardZoom==='function')window.safe453SetBoardZoom(Number(snap.zoom)||1);}catch(_e){}},30);
+    rToast('Gendannede '+restored+' widgets');
+    try{rCloseModal()}catch(_e){}
+    rFinish(btn);return true;
+  }
+  window.__rescueUndoAutoArrange=rRestoreAutoArrange;
+
   window.__rescueAction3=function(btn){
     const src=rCurrentSlide();
-    if(!src || rIsTrash(src)){rToast('Kan ikke lave samlet overblik i papirkurven');rFinish(btn);return;}
-    const widgets=Array.isArray(src.widgets)?src.widgets:[];
-    if(!widgets.length){rToast('Ingen widgets på tavlen');rShowInfo('Samlet overblik','<p>Der blev ikke fundet widgets på den aktuelle tavle.</p>',btn);return;}
+    if(!src||rIsTrash(src)){rToast('Kan ikke arrangere papirkurven');rFinish(btn);return;}
+    const records=rSortRecordsForMatrix(rVisibleWidgetRecords());
+    if(!records.length){rToast('Ingen widgets på tavlen');rShowInfo('Arrangér tavlen automatisk','<p>Der blev ikke fundet widgets på den aktuelle tavle.</p>',btn);return;}
     try{
-      const originIndex=state.active;
-      const trashIdx=ensureTrashBoard();
-      const trash=state.slides[trashIdx];
-      if(!Array.isArray(trash.widgets))trash.widgets=[];
-      const beforeTrashCount=trash.widgets.length;
-      const moved=src.widgets.splice(0);
-      const stamp=Date.now();
-
-      moved.forEach((w,i)=>{
-        w._trashOriginSlideIndex=originIndex;
-        w._trashOriginTitle=src.title||'Tavle';
-        w._trashOriginalX=w.x; w._trashOriginalY=w.y; w._trashOriginalW=w.w; w._trashOriginalH=w.h;
-        w._trashOriginalZ=w.z; w._trashOriginalRotation=w.rotation||0;
-        w._trashDeletedAt=stamp+i;
-        trash.widgets.push(w);
+      const plan=rAutoMatrixPlan(records.length);
+      if(!plan)throw new Error('Intet brugbart layout');
+      rStoreAutoArrangeSnapshot(src,records,rCurrentBoardZoom());
+      const baseZ=Math.max(0,...records.map(rec=>Number(rec.w&&rec.w.z)||0));
+      records.forEach((rec,index)=>{
+        const row=Math.floor(index/plan.cols),col=index%plan.cols,rowCount=Math.min(plan.cols,records.length-row*plan.cols);
+        const rowWidth=rowCount*plan.cellW+(rowCount-1)*plan.gap;
+        const startX=plan.region.x+Math.max(0,(plan.region.w-rowWidth)/2);
+        const cellX=startX+col*(plan.cellW+plan.gap),cellY=plan.region.y+row*(plan.cellH+plan.gap);
+        const box=rNaturalWidgetBox(rec.w,plan.cellW,plan.cellH);
+        rec.w.x=Math.round(cellX+(plan.cellW-box.w)/2);
+        rec.w.y=Math.round(cellY+(plan.cellH-box.h)/2);
+        rec.w.w=box.w;rec.w.h=box.h;rec.w.rotation=0;rec.w.z=baseZ+index+1;
       });
-
-      trashOverviewLayout(trash);
-
-      const restoring=trash.widgets.splice(beforeTrashCount,moved.length);
-      restoring.forEach((w,i)=>{
-        delete w._trashOriginSlideIndex;
-        delete w._trashOriginTitle;
-        delete w._trashOriginalX;
-        delete w._trashOriginalY;
-        delete w._trashOriginalW;
-        delete w._trashOriginalH;
-        delete w._trashOriginalZ;
-        delete w._trashOriginalRotation;
-        delete w._trashDeletedAt;
-        w.locked=false;
-        w.z=i+1;
-      });
-      src.widgets.push(...restoring);
-
-      selected=null;
-      if(window.UIState)UIState.selectedWidgetId=null;
-      state.active=originIndex;
-      render();
-      save({silent:true});
-      rToast('Samlet overblik: '+restoring.length+' widgets');
-      rShowInfo('Samlet overblik','<p><b>'+restoring.length+'</b> widgets er lagt ud på tavlen.</p><p>Du er ikke i papirkurven.</p>',btn);
+      selected=null;if(window.UIState)UIState.selectedWidgetId=null;
+      save({silent:true});render();
+      setTimeout(()=>{try{if(typeof window.safe453SetBoardZoom==='function')window.safe453SetBoardZoom(plan.zoom);}catch(_e){}},35);
+      rToast('Arrangerede '+records.length+' widgets i '+plan.cols+' × '+plan.rows);
+      showModal('<div class="moveWidgetDialog"><h2>Automatisk arrangement</h2><p><b>'+records.length+'</b> widgets er fordelt uden overlap i '+plan.cols+' kolonner × '+plan.rows+' rækker.</p><p>Tavlezoom: <b>'+Math.round(plan.zoom*100)+' %</b>. Widgettyperne har beholdt passende proportioner.</p><div class="moveWidgetActions"><button id="safe1080UndoArrange">Fortryd</button><button id="safe1080KeepArrange">Behold</button></div></div>');
+      const undo=modal.querySelector('#safe1080UndoArrange'),keep=modal.querySelector('#safe1080KeepArrange');
+      if(undo)undo.onclick=()=>{rCloseModal();rRestoreAutoArrange(btn);};
+      if(keep)keep.onclick=()=>{rCloseModal();rFinish(btn);};
     }catch(e){
-      console.error('SAFE267 action 3 failed',e);
-      rToast('Kunne ikke lave samlet overblik');
-      rShowInfo('Samlet overblik','<p>Handlingen kunne ikke udføres.</p>',btn);
+      console.error('l1080 autoarrangement fejlede',e);
+      rToast('Kunne ikke arrangere tavlen automatisk');
+      rShowInfo('Arrangér tavlen automatisk','<p>Handlingen kunne ikke udføres.</p>',btn);
     }
   };
 
@@ -62717,34 +63852,229 @@ document.addEventListener('click',function(e){
     return c;
   }
 
-  function rescueCurrentBoardWidgets(){
-    // SAFE265: Nogle testtilstande kan have DOM-widgets, selvom en direkte slide().widgets-læsning
-    // ikke giver synlig effekt. Derfor samles en deduplikeret liste fra datamodel + DOM/findWidget.
-    const out=[];
-    const seen=new Set();
-    const add=w=>{
-      if(!w)return;
-      const id=String(w.id||'');
-      const key=id||('anon_'+out.length);
-      if(seen.has(key))return;
-      seen.add(key);
-      out.push(w);
-    };
+  function rescueFindWidgetRecordLocal(id){
     try{
-      const s=slide();
-      if(s && !rescueIsTrashSlide(s) && Array.isArray(s.widgets))s.widgets.forEach(add);
+      const target=String(id||'');if(!target)return null;
+      for(let si=0;si<((state&&state.slides)||[]).length;si++){
+        const ws=(state.slides[si]&&state.slides[si].widgets)||[];
+        for(let wi=0;wi<ws.length;wi++)if(ws[wi]&&String(ws[wi].id||'')===target)return {w:ws[wi],slideIndex:si,widgetIndex:wi};
+      }
     }catch(_e){}
+    return null;
+  }
+  function rescueActiveSlideIndex(){
     try{
-      document.querySelectorAll('.widget').forEach(el=>{
-        const id=el.dataset&&el.dataset.id;
-        if(!id)return;
-        let w=null;
-        try{w=(typeof findWidget==='function')?findWidget(id):null}catch(_e){}
-        add(w);
+      const slides=(state&&Array.isArray(state.slides))?state.slides:[];
+      const raw=Number(state&&state.active);
+      if(Number.isInteger(raw)&&raw>=0&&raw<slides.length)return raw;
+      const current=(typeof slide==='function')?slide():null;
+      const byIdentity=slides.indexOf(current);if(byIdentity>=0)return byIdentity;
+      const counts=new Map();
+      document.querySelectorAll('.widget[data-id]').forEach(el=>{const rec=rescueFindWidgetRecordLocal(el.dataset&&el.dataset.id);if(rec)counts.set(rec.slideIndex,(counts.get(rec.slideIndex)||0)+1);});
+      let best=0,bestCount=-1;counts.forEach((count,index)=>{if(count>bestCount){best=index;bestCount=count;}});return best;
+    }catch(_e){return 0;}
+  }
+  function rescueCurrentBoardWidgets(){
+    const out=[],seen=new Set(),activeIndex=rescueActiveSlideIndex();
+    const add=w=>{if(!w)return;const id=String(w.id||''),key=id||('anon_'+out.length);if(seen.has(key))return;seen.add(key);out.push(w);};
+    try{const sl=state&&state.slides&&state.slides[activeIndex];if(sl&&!rescueIsTrashSlide(sl)&&Array.isArray(sl.widgets))sl.widgets.forEach(add);}catch(_e){}
+    try{if(typeof safe588CurrentWidgetRecords==='function')(safe588CurrentWidgetRecords()||[]).forEach(rec=>add(rec&&rec.w));}catch(_e){}
+    try{
+      document.querySelectorAll('.widget[data-id]').forEach(el=>{const id=String(el.dataset&&el.dataset.id||'');if(!id)return;let rec=rescueFindWidgetRecordLocal(id);if(!rec)try{rec=(typeof safe588FindWidgetRecord==='function')?safe588FindWidgetRecord(id):null;}catch(_e){}add(rec&&rec.w);});
+    }catch(_e){}
+    return out;
+  }
+
+  /* l1076: Matrixredning er afgrænset til registrerede Elevkortmatrix-grupper. */
+  function rescueMatrixSlideId(slideIndex){
+    try{return (typeof safe588SlideId==='function')?String(safe588SlideId(slideIndex)||''):String((state.slides&&state.slides[slideIndex]&&state.slides[slideIndex].id)||'');}catch(_e){return '';}
+  }
+  function rescueIsMatrixCard(w){
+    try{
+      const d=w&&w.data;if(!w||!d)return false;
+      const on=v=>v===true||v===1||String(v||'').toLowerCase()==='true'||String(v||'')==='1';
+      if(on(d.addressCardMatrix)||String(d.addressCardMatrixGroupId||'').trim())return true;
+      // Legacy/new compact Elevkort: kompakt matrixvisning er i sig selv en sikker matrixmarkør.
+      if(String(d.sourceType||'')==='address-card'&&on(d.addressCardView)&&on(d.addressCardMatrixCompact))return true;
+      return !!(String(d.matrixSourceWidgetId||'').trim()&&on(d.addressCardMatrixCompact));
+    }catch(_e){return false;}
+  }
+  function rescueMatrixGroupKey(w,slideIndex){
+    try{
+      if(!rescueIsMatrixCard(w))return '';
+      const d=w.data||{},direct=String(d.addressCardMatrixGroupId||'').trim();
+      if(direct)return direct;
+      const sourceDataset=String(d.sourceDatasetId||d.datasetId||'').trim();
+      const sourceWidget=String(d.matrixSourceWidgetId||'').trim();
+      if(sourceDataset||sourceWidget)return 'legacy_matrix_'+sourceDataset+'_'+sourceWidget+'_'+rescueMatrixSlideId(slideIndex);
+      return 'legacy_matrix_'+rescueMatrixSlideId(slideIndex);
+    }catch(_e){return '';}
+  }
+  function rescueMatrixGroupRecords(groupKey){
+    const out=[];
+    try{
+      (state.slides||[]).forEach((sl,slideIndex)=>{
+        if(!sl||rescueIsTrashSlide(sl)||!Array.isArray(sl.widgets))return;
+        sl.widgets.forEach(w=>{if(rescueMatrixGroupKey(w,slideIndex)===groupKey)out.push({w:w,slideIndex:slideIndex,slideId:rescueMatrixSlideId(slideIndex)});});
       });
     }catch(_e){}
     return out;
   }
+  function rescueCurrentMatrixContext(){
+    try{
+      const slides=(state&&Array.isArray(state.slides))?state.slides:[],slideIndex=rescueActiveSlideIndex(),sl=slides[slideIndex];
+      if(!sl||rescueIsTrashSlide(sl))return null;
+      const current=new Map();
+      const addCurrent=(key,w)=>{
+        if(!key||!w)return;
+        if(!current.has(key))current.set(key,[]);
+        if(!current.get(key).some(existing=>String(existing&&existing.id||'')===String(w&&w.id||'')))current.get(key).push(w);
+      };
+      const addRecord=(rec,forcedKey)=>{
+        if(!rec||!rec.w)return;
+        const recSlide=Number.isInteger(Number(rec.slideIndex))?Number(rec.slideIndex):slideIndex;
+        let key=String(forcedKey||rescueMatrixGroupKey(rec.w,recSlide)||'');
+        if(!key){
+          const d=rec.w.data||{},isAddress=String(d.sourceType||'')==='address-card'||d.addressCardView===true;
+          if(!isAddress)return;
+          key='dom_matrix_'+String(d.sourceDatasetId||d.datasetId||'')+'_'+String(d.matrixSourceWidgetId||'')+'_'+rescueMatrixSlideId(recSlide);
+          rec.w.data=rec.w.data||{};rec.w.data.addressCardMatrix=true;rec.w.data.addressCardMatrixGroupId=key;
+        }
+        addCurrent(key,rec.w);
+      };
+
+      // Den fysiske tavle og sharedVisibility-ejeren.
+      rescueCurrentBoardWidgets().forEach(w=>{
+        const rec=rescueFindWidgetRecordLocal(w&&w.id)||{w:w,slideIndex:slideIndex};
+        if(rescueIsMatrixCard(w))addRecord(rec);
+      });
+
+      // l1080: DOM er den afgørende sandhed for hvad brugeren faktisk ser.
+      // safe1075MatrixCard sættes af makeWidget direkte fra addressCardMatrix-data.
+      const domRecords=[];
+      try{
+        document.querySelectorAll('.widget[data-id]').forEach(el=>{
+          const looksMatrix=el.classList.contains('safe1075MatrixCard')||!!el.querySelector('[data-safe1072-matrix-details],[data-safe1072-matrix-compact]');
+          if(!looksMatrix)return;
+          const id=String(el.dataset&&el.dataset.id||'');
+          let rec=rescueFindWidgetRecordLocal(id);
+          if(!rec)try{rec=(typeof safe588FindWidgetRecord==='function')?safe588FindWidgetRecord(id):null;}catch(_e){}
+          if(rec&&rec.w){domRecords.push(rec);addRecord(rec);}
+        });
+      }catch(_e){}
+
+      // Tavlens eget matrixregister.
+      const slideGroups=Array.isArray(sl.addressCardMatrixGroupIds)?sl.addressCardMatrixGroupIds.map(String):[];
+      slideGroups.forEach(groupId=>{
+        rescueMatrixGroupRecords(groupId).forEach(rec=>{
+          if(rec.slideIndex===slideIndex||domRecords.some(d=>String(d.w&&d.w.id||'')===String(rec.w&&rec.w.id||'')))addRecord(rec,groupId);
+        });
+      });
+
+      // Sessionens persistente matrixregister.
+      const registry=(state&&state.addressCardMatrices&&typeof state.addressCardMatrices==='object')?state.addressCardMatrices:{};
+      const currentSlideId=rescueMatrixSlideId(slideIndex);
+      Object.keys(registry).forEach(groupId=>{
+        const meta=registry[groupId]||{},onSlide=(meta.slideIndexes||[]).map(Number).includes(slideIndex)||(meta.slideIds||[]).map(String).includes(String(currentSlideId));
+        if(!onSlide&&!domRecords.length)return;
+        (meta.widgetIds||[]).forEach(id=>{
+          const rec=rescueFindWidgetRecordLocal(id);
+          if(rec&&(rec.slideIndex===slideIndex||domRecords.some(d=>String(d.w&&d.w.id||'')===String(id))))addRecord(rec,groupId);
+        });
+      });
+
+      // Sidste sikre fallback: mindst to viste Elevkort med matrixknappen er en matrix.
+      if(!current.size&&domRecords.length>=2){
+        const first=domRecords[0].w,d=first.data||{},legacy='legacy_dom_matrix_'+String(d.sourceDatasetId||d.datasetId||'')+'_'+currentSlideId;
+        domRecords.forEach(rec=>{rec.w.data=rec.w.data||{};rec.w.data.addressCardMatrix=true;if(!rec.w.data.addressCardMatrixGroupId)rec.w.data.addressCardMatrixGroupId=legacy;addRecord(rec,legacy);});
+        sl.addressCardMatrixGroupIds=Array.isArray(sl.addressCardMatrixGroupIds)?sl.addressCardMatrixGroupIds:[];
+        if(!sl.addressCardMatrixGroupIds.includes(legacy))sl.addressCardMatrixGroupIds.push(legacy);
+      }
+      if(!current.size)return null;
+
+      const groups=[...current.entries()].map(([groupId,currentCards])=>{
+        let records=rescueMatrixGroupRecords(groupId);
+        if(!records.length){const meta=registry[groupId]||{};records=(meta.widgetIds||[]).map(id=>rescueFindWidgetRecordLocal(id)).filter(Boolean).map(rec=>({w:rec.w,slideIndex:rec.slideIndex,slideId:rescueMatrixSlideId(rec.slideIndex)}));}
+        if(!records.length)records=currentCards.map(w=>{const rec=rescueFindWidgetRecordLocal(w.id);return {w:w,slideIndex:rec?rec.slideIndex:slideIndex,slideId:rescueMatrixSlideId(rec?rec.slideIndex:slideIndex)};});
+        const slidesUsed=[...new Set(records.map(r=>r.slideIndex))],first=(records[0]&&records[0].w)||currentCards[0],data=(first&&first.data)||{},meta=registry[groupId]||{},sort=String(data.addressCardMatrixSort||meta.sort||'first');
+        return {groupId:groupId,currentCount:currentCards.length,totalCount:records.length,slideCount:slidesUsed.length,slideIndexes:slidesUsed,sort:sort,zoom:Number(data.addressCardMatrixZoom||meta.zoom)||1,label:String((sl&&sl.title)||meta.titleBase||'Elevkortmatrix')};
+      }).filter(g=>g.totalCount>0).sort((a,b)=>b.currentCount-a.currentCount||b.totalCount-a.totalCount);
+      return groups.length?{groups:groups,primary:groups[0],slideIndex:slideIndex}:null;
+    }catch(err){try{console.warn('l1080 matrixregistrering i Redningsbæltet fejlede',err);}catch(_e){}return null;}
+  }
+  function rescueMatrixLayout(count,zoom){
+    count=Math.max(1,Number(count)||1);zoom=Math.max(.5,Math.min(1,Number(zoom)||1));
+    let grid=null;
+    try{if(typeof window.safe1079MatrixGeometry==='function')grid=window.safe1079MatrixGeometry(count,zoom,{cardW:230,cardH:142});}catch(_e){}
+    if(!grid||!Array.isArray(grid.slots))return null;
+    return {slots:grid.slots,grid:grid,zoom:zoom,density:'tight'};
+  }
+  function rescueMatrixHasHome(w,slideId){
+    try{
+      const d=w&&w.data||{},nums=[d.addressCardMatrixHomeX,d.addressCardMatrixHomeY,d.addressCardMatrixHomeW,d.addressCardMatrixHomeH];
+      if(!nums.every(v=>Number.isFinite(Number(v))))return false;
+      const homeSlide=String(d.addressCardMatrixHomeSlideId||'');
+      return !homeSlide||!slideId||homeSlide===String(slideId);
+    }catch(_e){return false;}
+  }
+  function rescueMatrixHome(w){
+    const d=w&&w.data||{};
+    return {x:Number(d.addressCardMatrixHomeX)||0,y:Number(d.addressCardMatrixHomeY)||0,w:Math.max(120,Number(d.addressCardMatrixHomeW)||240),h:Math.max(90,Number(d.addressCardMatrixHomeH)||160),rotation:Number(d.addressCardMatrixHomeRotation)||0};
+  }
+  function rescueMatrixStoreHome(w,slot,slideId){
+    try{
+      w.data=w.data||{};w.data.addressCardMatrixHomeX=Math.round(slot.x);w.data.addressCardMatrixHomeY=Math.round(slot.y);w.data.addressCardMatrixHomeW=Math.round(slot.w);w.data.addressCardMatrixHomeH=Math.round(slot.h);w.data.addressCardMatrixHomeRotation=Number(slot.rotation)||0;w.data.addressCardMatrixHomeSlideId=String(slideId||'');w.data.addressCardMatrixHomeRevision=1;
+    }catch(_e){}
+  }
+  function rescueRepairMatrixGroup(groupId,mode,btn){
+    try{
+      const records=rescueMatrixGroupRecords(groupId);if(!records.length){toast('Elevkortmatrixen blev ikke fundet');finishRescue(btn);return false;}
+      const bySlide=new Map();records.forEach(rec=>{if(!bySlide.has(rec.slideIndex))bySlide.set(rec.slideIndex,[]);bySlide.get(rec.slideIndex).push(rec);});
+      let repaired=0;let activeZoom=1;
+      bySlide.forEach((cards,slideIndex)=>{
+        cards.sort((a,b)=>Number(a.w&&a.w.data&&a.w.data.addressCardMatrixOrder||0)-Number(b.w&&b.w.data&&b.w.data.addressCardMatrixOrder||0)||Number(a.w&&a.w.data&&a.w.data.sourceRowIndex||0)-Number(b.w&&b.w.data&&b.w.data.sourceRowIndex||0));
+        const slideId=rescueMatrixSlideId(slideIndex),zoom=Math.max(.4,Math.min(1,Number(cards[0]&&cards[0].w&&cards[0].w.data&&cards[0].w.data.addressCardMatrixZoom)||1)),layout=rescueMatrixLayout(cards.length,zoom);if(!layout)return;
+        if(slideIndex===state.active)activeZoom=zoom;
+        const sl=state.slides[slideIndex],matrixIds=new Set(cards.map(r=>String(r.w.id||''))),baseZ=Math.max(0,...((sl&&sl.widgets)||[]).filter(w=>!matrixIds.has(String(w&&w.id||''))).map(w=>Number(w&&w.z)||0));
+        cards.forEach((rec,index)=>{
+          const w=rec.w,slot=layout.slots[index],hasHome=rescueMatrixHasHome(w,slideId),home=hasHome?rescueMatrixHome(w):null;w.data=w.data||{};
+          if(mode==='position'){
+            const target=home||slot;w.x=Math.round(target.x+(home?0:Math.max(0,(target.w-Math.max(120,Number(w.w)||target.w))/2)));w.y=Math.round(target.y+(home?0:Math.max(0,(target.h-Math.max(90,Number(w.h)||target.h))/2)));w.rotation=Number(target.rotation)||0;
+          }else if(mode==='restore'&&home){
+            w.x=Math.round(home.x);w.y=Math.round(home.y);w.w=Math.round(home.w);w.h=Math.round(home.h);w.rotation=Number(home.rotation)||0;
+          }else{
+            w.x=slot.x;w.y=slot.y;w.w=slot.w;w.h=slot.h;w.rotation=0;rescueMatrixStoreHome(w,slot,slideId);
+          }
+          w.data.addressCardMatrixDensity=slot.density;w.data.addressCardMatrixZoom=zoom;w.z=baseZ+index+1;repaired++;
+        });
+      });
+      selected=null;if(window.UIState)UIState.selectedWidgetId=null;
+      try{save({silent:true});render();}catch(_e){}
+      setTimeout(()=>{try{if(typeof window.safe453SetBoardZoom==='function')window.safe453SetBoardZoom(activeZoom);}catch(_e){}},40);
+      try{toast(repaired+' Elevkort lagt tilbage i matrixen')}catch(_e){}
+      finishRescue(btn);return true;
+    }catch(err){console.error('Kunne ikke genopbygge Elevkortmatrix',err);try{toast('Kunne ikke genopbygge Elevkortmatrix')}catch(_e){}finishRescue(btn);return false;}
+  }
+  function rescueOpenMatrixRepairModal(btn,context){
+    context=context||rescueCurrentMatrixContext();
+    if(!context||!context.groups||!context.groups.length){try{toast('Ingen Elevkortmatrix på denne tavle')}catch(_e){}finishRescue(btn);return false;}
+    let mode='restore',keyHandler=null;
+    const options=context.groups.map((g,i)=>'<option value="'+esc(g.groupId)+'" '+(i===0?'selected':'')+'>'+esc(g.label+' · '+g.totalCount+' kort')+'</option>').join('');
+    if(!rescueShowModal('<div class="rescueMatrixRepairModal"><h2>Genopbyg Elevkortmatrix</h2><p class="rescueMatrixRepairIntro">Kun Elevkort fra den valgte matrix flyttes. Andre widgets og andre matrixer berøres ikke.</p>'+(context.groups.length>1?'<label>Matrix<select id="rescueMatrixGroupSelect">'+options+'</select></label>':'<input id="rescueMatrixGroupSelect" type="hidden" value="'+esc(context.primary.groupId)+'">')+'<div class="rescueMatrixRepairSummary" id="rescueMatrixRepairSummary"></div><div class="rescueMatrixRepairModes"><button type="button" class="rescueMatrixModeCard" data-matrix-mode="position"><strong>Ret kun placeringer</strong><span>Flytter kortene tilbage i rækkefølge, men bevarer deres nuværende størrelse.</span></button><button type="button" class="rescueMatrixModeCard active" data-matrix-mode="restore"><strong>Gendan matrixlayout</strong><span>Gendanner matrixens gemte placering, fælles størrelse og rotation. Dette er standardvalget.</span></button><button type="button" class="rescueMatrixModeCard" data-matrix-mode="recalculate"><strong>Genberegn matrixen</strong><span>Beregner et nyt læsbart layout ud fra det aktuelle antal kort og tavlens størrelse.</span></button></div><div class="rescueMatrixRepairActions"><button type="button" id="rescueMatrixRepairCancel">Annuller</button><button type="button" id="rescueMatrixRepairRun">Genopbyg matrix</button></div></div>')){finishRescue(btn);return false;}
+    const select=rescueModalQuery('#rescueMatrixGroupSelect'),summary=rescueModalQuery('#rescueMatrixRepairSummary'),cards=rescueModalQueryAll('[data-matrix-mode]');
+    const currentGroup=()=>context.groups.find(g=>g.groupId===String(select&&select.value||''))||context.primary;
+    const updateSummary=()=>{const g=currentGroup();if(summary)summary.innerHTML='<strong>'+g.totalCount+' Elevkort på '+g.slideCount+' tavle'+(g.slideCount===1?'':'r')+'</strong><span>Sortering: '+(g.sort==='class-first'?'Klasse → fornavn':'Fornavn')+' · Andre widgets berøres ikke.</span>';};
+    const choose=next=>{mode=next;cards.forEach(card=>card.classList.toggle('active',card.getAttribute('data-matrix-mode')===mode));};
+    cards.forEach(card=>card.onclick=()=>choose(String(card.getAttribute('data-matrix-mode')||'restore')));
+    if(select)select.onchange=updateSummary;updateSummary();
+    const cleanup=()=>{if(keyHandler)document.removeEventListener('keydown',keyHandler,true);};
+    const cancel=()=>{cleanup();rescueCloseModal();finishRescue(btn);};
+    const run=()=>{const g=currentGroup();cleanup();rescueCloseModal();setTimeout(()=>rescueRepairMatrixGroup(g.groupId,mode,btn),0);};
+    const cancelBtn=rescueModalQuery('#rescueMatrixRepairCancel'),runBtn=rescueModalQuery('#rescueMatrixRepairRun');if(cancelBtn)cancelBtn.onclick=cancel;if(runBtn)runBtn.onclick=run;
+    keyHandler=e=>{const key=String(e.key||'');if(key==='Escape'||key==='Esc'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();cancel();return false;}if(key==='Enter'&&!(e.target&&e.target.matches&&e.target.matches('select'))){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();run();return false;}};
+    document.addEventListener('keydown',keyHandler,true);return true;
+  }
+
   function rescueConfirmModal(title, bodyHtml, btn){
     try{
       showModal(`<div class="moveWidgetDialog"><h2>${esc(title)}</h2>${bodyHtml}<div class="moveWidgetActions"><button id="rescueConfirmOk">OK</button></div></div>`);
@@ -62867,7 +64197,19 @@ document.addEventListener('click',function(e){
     return els.box?[...els.box.querySelectorAll(sel)]:[];
   }
   function openRescueChoiceModal(btn){
-    let active=1;
+    // l1081: Selve Redningsbæltet skal altid kunne åbne. Matrix-/fortrydelsesopslag er ekstra
+    // information og må derfor aldrig få lov at blokere den grundlæggende modal.
+    let matrixContext=null;
+    try{matrixContext=rescueCurrentMatrixContext();}
+    catch(err){try{console.warn('Matrixopslag blev sprunget over ved åbning af Redningsbæltet',err);}catch(_e){}matrixContext=null;}
+    let activeSlideForUndo=null;
+    try{
+      if(typeof slide==='function')activeSlideForUndo=slide();
+      else if(typeof state!=='undefined'&&state&&Array.isArray(state.slides))activeSlideForUndo=state.slides[Number(state.active)||0]||null;
+    }catch(_e){activeSlideForUndo=null;}
+    const canUndo=!!(activeSlideForUndo&&activeSlideForUndo.rescueAutoArrangeSnapshot&&Array.isArray(activeSlideForUndo.rescueAutoArrangeSnapshot.items)&&activeSlideForUndo.rescueAutoArrangeSnapshot.items.length&&typeof window.__rescueUndoAutoArrange==='function');
+    const choiceOrder=matrixContext?(canUndo?[0,1,2,3,6,4,5]:[0,1,2,3,4,5]):(canUndo?[1,2,3,6,4,5]:[1,2,3,4,5]);
+    let active=choiceOrder[0];
     let keyHandler=null;
     const renderActive=()=>{
       rescueModalQueryAll('.rescueChoiceCard').forEach(card=>{
@@ -62891,129 +64233,56 @@ document.addEventListener('click',function(e){
       rescueCloseModal();
       finishRescue(btn);
     };
-    const execute=(choice)=>{
-      choice=Number(choice)||1;
+    const execute=(rawChoice)=>{
+      let choice=Number(rawChoice);if(!Number.isInteger(choice))choice=1;
       active=choice;
       renderActive();
+      if(choice===0&&matrixContext){
+        cleanup();rescueChoiceOpenGuard=false;rescueCloseModal();setTimeout(()=>rescueOpenMatrixRepairModal(btn,matrixContext),0);return;
+      }
       if(choice===1){
-        cleanup();
-        rescueChoiceOpenGuard=false;
-        rescueCloseModal();
-        setTimeout(()=>runRescueVisibleOnly(btn),0);
-        return;
+        cleanup();rescueChoiceOpenGuard=false;rescueCloseModal();setTimeout(()=>runRescueVisibleOnly(btn),0);return;
       }
       if(choice===2){
-        cleanup();
-        rescueChoiceOpenGuard=false;
-        rescueCloseModal();
-        setTimeout(()=>runRescueVisibleAndSpread(btn),0);
-        return;
+        cleanup();rescueChoiceOpenGuard=false;rescueCloseModal();setTimeout(()=>runRescueVisibleAndSpread(btn),0);return;
       }
       if(choice===3){
-        cleanup();
-        rescueChoiceOpenGuard=false;
-        rescueCloseModal();
-        setTimeout(()=>{ if(window.__rescueAction3) window.__rescueAction3(btn); else toast('Redningshandling 3 blev ikke fundet'); },0);
-        return;
+        cleanup();rescueChoiceOpenGuard=false;rescueCloseModal();setTimeout(()=>{ if(window.__rescueAction3) window.__rescueAction3(btn); else toast('Redningshandling 3 blev ikke fundet'); },0);return;
       }
       if(choice===4){
-        cleanup();
-        rescueChoiceOpenGuard=false;
-        rescueCloseModal();
-        setTimeout(()=>{ if(window.__rescueAction4) window.__rescueAction4(btn); else toast('Redningshandling 4 blev ikke fundet'); },0);
-        return;
+        cleanup();rescueChoiceOpenGuard=false;rescueCloseModal();setTimeout(()=>{ if(window.__rescueAction4) window.__rescueAction4(btn); else toast('Redningshandling 4 blev ikke fundet'); },0);return;
       }
       if(choice===5){
-        cleanup();
-        rescueChoiceOpenGuard=false;
-        rescueCloseModal();
-        setTimeout(()=>{ if(window.__rescueAction5) window.__rescueAction5(btn); else toast('Redningshandling 5 blev ikke fundet'); },0);
-        return;
+        cleanup();rescueChoiceOpenGuard=false;rescueCloseModal();setTimeout(()=>{ if(window.__rescueAction5) window.__rescueAction5(btn); else toast('Redningshandling 5 blev ikke fundet'); },0);return;
+      }
+      if(choice===6&&canUndo){
+        cleanup();rescueChoiceOpenGuard=false;rescueCloseModal();setTimeout(()=>window.__rescueUndoAutoArrange(btn),0);return;
       }
     };
-    if(!rescueShowModal(`<div class="rescueChoiceModal">
-      <h2>Redningsbælte</h2>
-      <p class="rescueChoiceIntro">Vælg hvor kraftigt tavlen skal reddes. Start med den sikre løsning.</p>
-      <div class="rescueChoiceGrid" role="listbox" aria-label="Redningsbælte valg">
-        <button type="button" class="rescueChoiceCard active" data-choice="1" role="option" aria-label="Gør alt synligt">
-          <strong>1. Gør alt synligt</strong>
-          <span>Flytter widgets ind på tavlen uden at ændre layoutet voldsomt.</span>
-        </button>
-        <button type="button" class="rescueChoiceCard" data-choice="2" role="option" aria-label="Åbn overblik">
-          <strong>2. Åbn overblik</strong>
-          <span>Viser alle widgets midlertidigt, så du kan vælge én. Ændrer ikke tavlens layout.</span>
-        </button>
-        <button type="button" class="rescueChoiceCard" data-choice="3" role="option" aria-label="Samlet overblik på tavlen">
-          <strong>3. Samlet overblik på tavlen</strong>
-          <span>Gør alle widgets små og lægger dem ud på samme tavle.</span>
-        </button>
-        <button type="button" class="rescueChoiceCard" data-choice="4" role="option" aria-label="Sortér i 3 tavler">
-          <strong>4. Sortér i 3 tavler</strong>
-          <span>Kopierer widgets til tre tavler: Aktiviteter, Data og tekst, Indhold og visning.</span>
-        </button>
-        <button type="button" class="rescueChoiceCard" data-choice="5" role="option" aria-label="Ryd tavle til papirkurv">
-          <strong>5. Ryd tavle til papirkurv</strong>
-          <span>Åbner ryd-tavle-bekræftelse og flytter widgets til papirkurven.</span>
-        </button>      </div>
-      <div class="rescueChoiceFooter">
-        <p class="note rescueChoiceHelp">1/2/3/4/5 vælger · ↑/↓ skifter · Enter udfører · Esc annullerer</p>
-        <button id="rescueChoiceCancel" type="button">Annuller</button>
-      </div>
-    </div>`)){rescueChoiceOpenGuard=false;return;}
+    const matrixCard=matrixContext?'<button type="button" class="rescueChoiceCard rescueMatrixChoice active" data-choice="0" role="option" aria-label="Genopbyg Elevkortmatrix"><strong>Genopbyg Elevkortmatrix</strong><span>'+matrixContext.primary.totalCount+' kort i matrixen. Gendanner kun Elevkort; andre widgets berøres ikke.</span></button>':'';
+    const undoCard=canUndo?'<button type="button" class="rescueChoiceCard rescueUndoChoice" data-choice="6" role="option" aria-label="Fortryd automatisk arrangement"><strong>Fortryd automatisk arrangement</strong><span>Gendanner position, størrelse, rotation og zoom fra før punkt 3 blev brugt.</span></button>':'';
+    const help=matrixContext?'M/0 genopbygger matrix · 1/2/3/4/5'+(canUndo?'/6':'')+' vælger · ↑/↓ skifter · Enter udfører · Esc annullerer':'1/2/3/4/5'+(canUndo?'/6':'')+' vælger · ↑/↓ skifter · Enter udfører · Esc annullerer';
+    if(!rescueShowModal('<div class="rescueChoiceModal"><h2>Redningsbælte</h2><p class="rescueChoiceIntro">Vælg hvor kraftigt tavlen skal reddes. Start med den sikre løsning.</p><div class="rescueChoiceGrid" role="listbox" aria-label="Redningsbælte valg">'+matrixCard+'<button type="button" class="rescueChoiceCard '+(matrixContext?'':'active')+'" data-choice="1" role="option" aria-label="Gør alt synligt"><strong>1. Gør alt synligt</strong><span>Flytter widgets ind på tavlen uden at ændre layoutet voldsomt.</span></button><button type="button" class="rescueChoiceCard" data-choice="2" role="option" aria-label="Åbn overblik"><strong>2. Åbn overblik</strong><span>Viser alle widgets midlertidigt, så du kan vælge én. Ændrer ikke tavlens layout.</span></button><button type="button" class="rescueChoiceCard" data-choice="3" role="option" aria-label="Arrangér tavlen automatisk"><strong>3. Arrangér tavlen automatisk</strong><span>Fordeler alle viste widgets i et ryddeligt matrixlayout uden overlap og vælger en passende tavlezoom.</span></button>'+undoCard+'<button type="button" class="rescueChoiceCard" data-choice="4" role="option" aria-label="Sortér i 3 tavler"><strong>4. Sortér i 3 tavler</strong><span>Kopierer widgets til tre tavler: Aktiviteter, Data og tekst, Indhold og visning.</span></button><button type="button" class="rescueChoiceCard" data-choice="5" role="option" aria-label="Ryd tavle til papirkurv"><strong>5. Ryd tavle til papirkurv</strong><span>Åbner ryd-tavle-bekræftelse og flytter widgets til papirkurven.</span></button></div><div class="rescueChoiceFooter"><p class="note rescueChoiceHelp">'+help+'</p><button id="rescueChoiceCancel" type="button">Annuller</button></div></div>')){rescueChoiceOpenGuard=false;return;}
     renderActive();
     rescueModalQueryAll('.rescueChoiceCard').forEach(card=>{
-      card.onclick=()=>{
-        const choice=Number(card.dataset.choice)||1;
-        active=choice;
-        renderActive();
-        execute(choice);
-      };
-      card.onpointerenter=()=>{
-        // Hover må ikke ligne valg, men hvis brugeren klikker/toucher bagefter,
-        // er det stadig samme choice der udføres.
-      };
-      card.onkeydown=(e)=>{
-        if(e.key==='Enter'||e.key===' '||e.code==='Space'){
-          e.preventDefault();
-          e.stopPropagation();
-          const choice=Number(card.dataset.choice)||1;
-          active=choice;
-          renderActive();
-          execute(choice);
-        }
-      };
+      card.onclick=()=>{const choice=Number(card.dataset.choice);active=Number.isInteger(choice)?choice:1;renderActive();execute(active);};
+      card.onpointerenter=()=>{};
+      card.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '||e.code==='Space'){e.preventDefault();e.stopPropagation();const choice=Number(card.dataset.choice);active=Number.isInteger(choice)?choice:1;renderActive();execute(active);}};
     });
-    const cancel=rescueModalQuery('#rescueChoiceCancel');
-    if(cancel)cancel.onclick=close;
+    const cancel=rescueModalQuery('#rescueChoiceCancel');if(cancel)cancel.onclick=close;
     keyHandler=(e)=>{
       const key=String(e.key||'');
-      if(key==='Escape'||key==='Esc'){
-        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-        close();
-        return false;
-      }
+      if(key==='Escape'||key==='Esc'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();close();return false;}
       if(key==='ArrowDown'||key==='ArrowUp'){
         e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-        const dir=key==='ArrowDown'?1:-1;
-        active=((active-1+dir+5)%5)+1;
-        renderActive();
-        return false;
+        const dir=key==='ArrowDown'?1:-1,current=Math.max(0,choiceOrder.indexOf(active));active=choiceOrder[(current+dir+choiceOrder.length)%choiceOrder.length];renderActive();return false;
       }
-      if(/^[12345]$/.test(key)){
-        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-        execute(Number(key));
-        return false;
-      }
-      if(key==='Enter'){
-        e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-        execute(active);
-        return false;
-      }
+      if(matrixContext&&(key==='0'||key.toLowerCase()==='m')){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();execute(0);return false;}
+      if(/^[123456]$/.test(key)){if(key==='6'&&!canUndo)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();execute(Number(key));return false;}
+      if(key==='Enter'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();execute(active);return false;}
     };
     document.addEventListener('keydown',keyHandler,true);
-    const els=rescueModalEls();
-    if(els.back)els.back.addEventListener('keydown',keyHandler,true);
-    if(els.box)els.box.addEventListener('keydown',keyHandler,true);
+    const els=rescueModalEls();if(els.back)els.back.addEventListener('keydown',keyHandler,true);if(els.box)els.box.addEventListener('keydown',keyHandler,true);
     setTimeout(()=>{try{renderActive()}catch(_e){}},0);
   }
 
@@ -63043,31 +64312,38 @@ document.addEventListener('click',function(e){
     clearUiFocusAndSelection();
   }
 
-  function openRescueFromButtonEvent(ev){
-    const btn=ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
+  function rescueOpenFromOwner(btn){
+    if(!btn)btn=document.getElementById('rescueWidgets');
     if(!btn)return false;
-    ev.preventDefault();
-    ev.stopPropagation();
-    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
-
-    // SAFE288: Redningsbæltet skal åbne HVER GANG.
-    // Nulstil evt. hængende guard/modal-state før ny åbning.
+    // SAFE288/l1081: Nulstil kun Redningsbæltets egen hængende modaltilstand.
     try{
       rescueChoiceOpenGuard=false;
       const els=rescueModalEls();
-      if(els.box){
-        els.box.classList.remove('moveWidgetModal');
-        els.box.innerHTML='';
-      }
-      if(els.back){
-        els.back.style.display='none';
-      }
+      if(els.box){els.box.classList.remove('moveWidgetModal');els.box.innerHTML='';}
+      if(els.back)els.back.style.display='none';
     }catch(_e){}
+    try{
+      rescueChoiceOpenGuard=true;
+      openRescueChoiceModal(btn);
+      return true;
+    }catch(err){
+      rescueChoiceOpenGuard=false;
+      try{console.error('Redningsbæltet kunne ikke åbnes',err);}catch(_e){}
+      try{toast('Redningsbæltet kunne ikke åbnes');}catch(_e){}
+      try{finishRescue(btn);}catch(_e){}
+      return false;
+    }
+  }
 
-    rescueChoiceOpenGuard=true;
-    openRescueChoiceModal(btn);
+  function openRescueFromButtonEvent(ev){
+    const btn=ev&&ev.target&&ev.target.closest&&ev.target.closest('#rescueWidgets');
+    if(!btn)return false;
+    try{ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}catch(_e){}
+    rescueOpenFromOwner(btn);
     return false;
   }
+  // Samme ejer bruges af tastaturgenvejen og af eventuelle interne kald.
+  window.__tavleOpenRescueBelt=function(){return rescueOpenFromOwner(document.getElementById('rescueWidgets'));};
 
   function safe288SyncTopbarPresentationTools(){
     try{
@@ -63099,6 +64375,19 @@ document.addEventListener('click',function(e){
 
   document.addEventListener('pointerdown',openRescueFromButtonEvent,true);
   document.addEventListener('click',openRescueFromButtonEvent,true);
+  // l1081: Lokal genvejsejer som reserve. Den bruger præcis samme åbnefunktion som knappen.
+  document.addEventListener('keydown',function(e){
+    try{
+      const key=String(e.key||'').toLowerCase();
+      const typing=e.target&&(e.target.isContentEditable||(e.target.matches&&e.target.matches('input,textarea,select,[contenteditable="true"]')));
+      if(typing||!e.shiftKey||e.metaKey||e.ctrlKey||e.altKey||key!=='o')return;
+      const els=rescueModalEls();
+      if(els.back&&getComputedStyle(els.back).display!=='none')return;
+      e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+      rescueOpenFromOwner(document.getElementById('rescueWidgets'));
+      return false;
+    }catch(_e){}
+  },true);
   setTimeout(()=>{
     const btn=document.getElementById('rescueWidgets');
     if(btn&&!btn.__safe227RescueBound){
