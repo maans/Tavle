@@ -181,6 +181,9 @@
 <!-- l1067_roller_direkte_SAFE: Bygger direkte på den fungerende l1066. Retter kun Gruppekortets eksisterende rollefelter: i almindelig redigering vises de straks på Gruppe-fanen, også før kortet har været gennem Arbejde-fanen. Præsentation bevarer passiv rolletekst. Ingen ny handler, ingen ny scriptblok og ingen ændring af data, faner, GruppeWidget, gruppetavler eller sessionoverførsel. -->
 <!-- l1126_relationsoverblik_konkrete_forbindelser_SAFE: Bygger direkte på l1125. Relationsoverblikkets samlede, vage advarsel erstattes af konkrete forbindelseskort med kilde, praktisk konsekvens, anbefalet handling og adgang til den berørte tavle. Tvetydige navne klassificeres som information og tæller ikke som fejl. Ingen relationer repareres eller slettes automatisk, og ingen øvrig app-logik ændres. -->
 <!-- l1185_linkchip_datawidget_OWNER_SAFE: Bygger direkte på brugerens fungerende l1184. Retter kun LinkWidgettens listechip: en koblet linkliste åbnes/skjules som den præcise DataWidget via den eksisterende linkList-ejer; kun en tom chip åbner Links-modalen. ☰, Links-modal, matrix-, tavle-, visnings-, sessionspakke- og datasætlogik ændres ikke. -->
+<!-- l1190_elevkort_koen_dreng_pige_OWNER_SAFE: Bygger direkte på l1189. Retter kun Elevkortets brugerrettede visning af køn: stamdata-værdierne Male og Female vises som Dreng og Pige i det fulde Elevkort og kompakte Elevkortmatrixkort. De oprindelige datasætværdier, filtre, relationer, import og eksport ændres ikke. -->
+<!-- l1191_sessioner_kun_med_tavler_OWNER_SAFE: Bygger direkte på l1190. Datacenterets Sessioner-fane viser kun reelle gemte sessioner med mindst én tavle. Forældreløse sessionsnavne uden tavler fjernes stille fra sessionsregistre, historikspor og TavleSessioner-rækker uden tombstone, så samme navn senere kan bruges igen. Ingen ændring af sessioner med tavler, sessionpakker, backups eller øvrige Datacenter-faner. -->
+<!-- l1192_elevkort_studenthouse_gang_OWNER_SAFE: Bygger direkte på l1191. Retter kun Elevkortets brugerrettede feltnavn: StudentHouse/Studenthouse/Studenthus vises som Gang. Det oprindelige kolonnenavn og alle stamdata, filtre, relationer, import og eksport bevares uændret. -->
 <!doctype html>
 <!-- l1184_opretpanel_viewskift_OWNER_SAFE: Bygger direkte på brugerens fungerende l1182. Skjuler kun den øverste Opret-knap mens det eksisterende opretpanel er åbent, gør panelets egentlige Opret/Send-knap tydeligere og flytter den før resuméteksten. LinkWidgettens eksisterende Link/Iframe-knap får lov at gemme et manuelt visningsvalg på både enkeltåbnede og listegenererede widgets, så datasæt-opfriskning ikke skifter visningen tilbage. Ingen ny eventejer, ingen sen override og ingen ændring af matrix-, tavle-, sessionpakke- eller datasætmodellen. -->
 <!-- l1182_links_matrix_tavler_sessionpakke_OWNER_SAFE: Bygger direkte på l1181. Links-modalens eksisterende ejer får et kompakt Opret-flow: fulde Link/iframe-/MedieWidgets som matrix på én tavle eller én tavle pr. listepunkt. Alle widgets deler samme link-/medieliste-datasæt og peger på egen række. Resultatet kan oprettes lokalt eller sendes append-only som sessionpakke via den eksisterende pakkeejer. Ingen kortmatrix, ingen DataWidget-kopier og ingen ny modal-stack. -->
@@ -21898,15 +21901,114 @@ function safe1169PrettySessionLabel(id,title){
     return raw;
   }catch(_e){return String(title||id||'Session');}
 }
+function safe1191SessionIdFromRegistryItem(item){
+  try{
+    if(typeof item==='string')return safe963CleanSession(item);
+    if(!item||typeof item!=='object')return '';
+    const raw=item.id||item.sessionId||item.title||item.name||item.Titel||item.url||item.URL||'';
+    if(typeof safe1028SessionIdFromAnything==='function')return safe1028SessionIdFromAnything(raw);
+    return safe963CleanSession(raw);
+  }catch(_e){return '';}
+}
+function safe1191FilterSessionRegistryPayload(raw,removeSet){
+  try{
+    const payload=safe963ParseJson(raw||'');
+    if(!payload)return {changed:false,value:null};
+    let changed=false;
+    const keep=function(item){
+      const id=safe1191SessionIdFromRegistryItem(item);
+      const remove=!!(id&&removeSet[safe963CleanSession(id)]);
+      if(remove)changed=true;
+      return !remove;
+    };
+    if(Array.isArray(payload)){
+      const next=payload.filter(keep);
+      return {changed:changed,value:next};
+    }
+    if(Array.isArray(payload.sessions))payload.sessions=payload.sessions.filter(keep);
+    if(Array.isArray(payload.ids))payload.ids=payload.ids.filter(keep);
+    Object.keys(payload).forEach(function(key){
+      if(key==='sessions'||key==='ids'||key==='updatedAt'||key==='version')return;
+      const id=safe963CleanSession(key);
+      if(id&&removeSet[id]){delete payload[key];changed=true;}
+    });
+    if(changed)payload.updatedAt=Date.now();
+    return {changed:changed,value:payload};
+  }catch(_e){return {changed:false,value:null};}
+}
+function safe1191PurgeEmptySessionTraces(ids){
+  try{
+    const removeSet={};
+    (ids||[]).forEach(function(raw){const id=safe963CleanSession(raw);if(id)removeSet[id]=true;});
+    const cleanIds=Object.keys(removeSet);
+    if(!cleanIds.length)return false;
+
+    /* Ingen tombstone: en tom registerpost er ikke en slettet session, og navnet må kunne bruges igen. */
+    cleanIds.forEach(function(id){
+      try{
+        const key=safe963SessionKey(id),raw=localStorage.getItem(key)||'',st=safe963ParseJson(raw);
+        const slides=Array.isArray(st&&st.slides)?st.slides.length:0;
+        if(!st||slides<1)localStorage.removeItem(key);
+      }catch(_e){}
+    });
+
+    const registryKeys=[
+      'maans_tavle_sessions_registry_v1','maans_tavle_all_known_sessions_v1',
+      'maans_tavle_session_history_cache_v1','maans_tavle_session_history_cache_v2',
+      'maans_tavle_persistent_session_history_v1','maans_tavle_simple_session_history_v1',
+      'maans_tavle_session_history_handoff_v1','maans_tavle_session_history_handoff_v2'
+    ];
+    registryKeys.forEach(function(key){
+      try{const hit=safe1191FilterSessionRegistryPayload(localStorage.getItem(key)||'',removeSet);if(hit.changed)localStorage.setItem(key,JSON.stringify(hit.value));}catch(_e){}
+      try{const hit=safe1191FilterSessionRegistryPayload(sessionStorage.getItem(key)||'',removeSet);if(hit.changed)sessionStorage.setItem(key,JSON.stringify(hit.value));}catch(_e){}
+    });
+
+    try{
+      const last=safe963CleanSession(localStorage.getItem('maans_tavle_last_active_session_v1')||'');
+      if(removeSet[last])localStorage.setItem('maans_tavle_last_active_session_v1','standard');
+    }catch(_e){}
+    try{
+      const from=safe963CleanSession(sessionStorage.getItem('maans_tavle_from_session_before_nav_v1')||'');
+      if(removeSet[from])sessionStorage.removeItem('maans_tavle_from_session_before_nav_v1');
+    }catch(_e){}
+
+    /* Fjern de samme spøgelsesrækker fra alle gemte TavleSessioner-datasæt. */
+    try{
+      const base='maans_interaktiv_tavle_v162_test',prefix=base+'__session__',keys=[];
+      for(let i=0;i<localStorage.length;i++){
+        const key=localStorage.key(i)||'';
+        if(key===base||key.indexOf(prefix)===0)keys.push(key);
+      }
+      keys.forEach(function(key){
+        try{
+          const raw=localStorage.getItem(key)||'',st=safe963ParseJson(raw);
+          if(st&&typeof safe963PurgeSessionsFromStateObject==='function'&&safe963PurgeSessionsFromStateObject(st,removeSet))localStorage.setItem(key,JSON.stringify(st));
+        }catch(_e){}
+      });
+    }catch(_e){}
+    try{
+      if(typeof state!=='undefined'&&state&&typeof safe963PurgeSessionsFromStateObject==='function'&&safe963PurgeSessionsFromStateObject(state,removeSet)){
+        if(typeof save==='function')save({silent:true});
+      }
+    }catch(_e){}
+    return true;
+  }catch(_e){return false;}
+}
 function safe1169SessionManagerItems(){
   try{
     const current=safe963CurrentSession();
-    return safe963SessionArray().map(function(meta){
+    const liveCurrentSlides=(typeof state!=='undefined'&&state&&Array.isArray(state.slides))?state.slides.length:0;
+    const items=[],emptyIds=[];
+    safe963SessionArray().forEach(function(meta){
       const id=safe963CleanSession(meta&&meta.id||'standard');
       const sum=safe963SummarizeSession(id);
+      const hasBoard=(id===current&&liveCurrentSlides>0)||!!(sum&&sum.ok&&Number(sum.slides)>0);
+      if(!hasBoard){emptyIds.push(id);return;}
       const lastMs=safe1169SessionLastMs(meta);
-      return {id:id,label:safe1169PrettySessionLabel(id,meta&&meta.title),active:id===current,meta:meta||{},sum:sum,lastMs:lastMs};
+      items.push({id:id,label:safe1169PrettySessionLabel(id,meta&&meta.title),active:id===current,meta:meta||{},sum:sum,lastMs:lastMs});
     });
+    if(emptyIds.length)safe1191PurgeEmptySessionTraces(emptyIds);
+    return items;
   }catch(_e){return [];}
 }
 function safe1169OpenSession(id,opts){
@@ -22040,7 +22142,7 @@ function safe1139DataCenterCounts(){
   let graph={objects:[],relations:[],views:[]};
   try{graph=(state&&state.objectGraph)||graph;}catch(_e){}
   return {
-    sessions:(typeof safe963SessionArray==='function'?safe963SessionArray():[]).length,
+    sessions:(typeof safe1169SessionManagerItems==='function'?safe1169SessionManagerItems():[]).length,
     session:safe1139SessionDatasets().length,
     common:(typeof safe1138CommonDatasets==='function'?safe1138CommonDatasets():[]).length,
     sources:Array.isArray(sources)?sources.length:0,
@@ -23669,9 +23771,21 @@ function safe962PhoneHref(v,mode){
   return (mode==='sms'?'sms:':'tel:')+cleaned;
 }
 function safe962MailHref(v){const raw=String(v||'').trim();return raw&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)?('mailto:'+raw):'';}
+/* l1190: Oversæt kun køn i Elevkortets visning. Stamdata bevares urørt. */
+function safe1190AddressGenderDisplay(colName,value){
+  const raw=String(value||'').trim();
+  if(!raw)return '';
+  const col=safe962NormText(colName||'');
+  if(!/(^|\s)(køn|koen|gender|sex)(\s|$)/i.test(col))return raw;
+  const normalized=safe962NormText(raw).replace(/\s+/g,'');
+  if(normalized==='male')return 'Dreng';
+  if(normalized==='female')return 'Pige';
+  return raw;
+}
 function safe962FieldHtml(label,value,colName,opts){
   opts=opts||{};
   value=String(value||'').trim();
+  const displayValue=safe1190AddressGenderDisplay(colName||label,value);
   const isPhone=safe962IsPhoneColumn(colName||label);
   if(!value){
     if(opts.missingPhonePlaceholder&&isPhone){
@@ -23688,12 +23802,16 @@ function safe962FieldHtml(label,value,colName,opts){
   if(safe962IsMailColumn(colName||label)){
     const mail=safe962MailHref(value); if(mail)actions.push(`<a class="addressAction" href="${esc(mail)}" data-safe962-contact-link="${esc(mail)}">✉ Mail</a>`);
   }
-  const val=actions.length?`<div class="addressActions"><span class="addressValue">${esc(value)}</span>${actions.join('')}</div>`:`<div class="addressValue">${esc(value)}</div>`;
+  const val=actions.length?`<div class="addressActions"><span class="addressValue">${esc(displayValue)}</span>${actions.join('')}</div>`:`<div class="addressValue">${esc(displayValue)}</div>`;
   return `<div class="addressField"><div class="addressLabel">${esc(label)}</div>${val}</div>`;
 }
 function safe962NiceLabel(col){
   col=String(col||'').trim();
-  return col.replace(/^Relationer-/i,'').replace(/-/g,' ').replace(/\bMobi\b/i,'Mobil').replace(/\bE ma\b/i,'E-mail').replace(/\s+/g,' ').trim()||'Felt';
+  const cleaned=col.replace(/^Relationer-/i,'').replace(/-/g,' ').replace(/\bMobi\b/i,'Mobil').replace(/\bE ma\b/i,'E-mail').replace(/\s+/g,' ').trim();
+  /* l1192: Oversæt kun det brugerrettede feltnavn. Stamdatas kolonnenavn bevares urørt. */
+  const normalized=safe962NormText(cleaned).replace(/\s+/g,'');
+  if(normalized==='studenthouse'||normalized==='studenthus')return 'Gang';
+  return cleaned||'Felt';
 }
 function safe962SectionRows(ds,row,filter){
   const cols=Array.isArray(ds&&ds.columns)?ds.columns:[];
@@ -23878,7 +23996,7 @@ function safe1072OpenStudentPicker(ds,w){
 }
 function safe1072CompactAddressCardHtml(ds,w,hit,info){
   try{
-    const specs=safe1072FilterSpecs(ds),meta=safe1072StudentMeta(ds,{row:hit.row},specs),pills=[];['class','contact','gender','house','room'].forEach(key=>{const spec=specs.find(s=>s.key===key),value=meta[key];if(spec&&value)pills.push('<span class="addressCardCompactPill" title="'+esc(spec.label+': '+value)+'">'+esc(spec.label)+': '+esc(value)+'</span>');});
+    const specs=safe1072FilterSpecs(ds),meta=safe1072StudentMeta(ds,{row:hit.row},specs),pills=[];['class','contact','gender','house','room'].forEach(key=>{const spec=specs.find(s=>s.key===key),value=meta[key];if(spec&&value){const shown=key==='gender'?safe1190AddressGenderDisplay(spec.column||spec.label,value):value;pills.push('<span class="addressCardCompactPill" title="'+esc(spec.label+': '+shown)+'">'+esc(spec.label)+': '+esc(shown)+'</span>');}});
     const cols=Array.isArray(ds.columns)?ds.columns:[];let phoneI=-1,emailI=-1;for(let i=0;i<cols.length;i++){if(phoneI<0&&safe964IsStudentMobileColumn(cols[i]))phoneI=i;if(emailI<0&&safe964OwnStudentColumn(cols[i])&&safe962IsMailColumn(cols[i]))emailI=i;}
     const phone=phoneI>=0?safe1072ColumnValue(ds,hit.row,phoneI):'',email=emailI>=0?safe1072ColumnValue(ds,hit.row,emailI):'',actions=[];const tel=safe962PhoneHref(phone,'tel'),sms=safe962PhoneHref(phone,'sms'),mail=safe962MailHref(email);if(tel)actions.push('<a class="addressAction" href="'+esc(tel)+'" data-safe962-contact-link="'+esc(tel)+'">☎ Ring</a>');if(sms)actions.push('<a class="addressAction secondary" href="'+esc(sms)+'" data-safe962-contact-link="'+esc(sms)+'">✉ SMS</a>');if(mail)actions.push('<a class="addressAction" href="'+esc(mail)+'" data-safe962-contact-link="'+esc(mail)+'">✉ Mail</a>');
     const contact=(phone||email||actions.length)?'<div class="addressCardCompactContact">'+(phone?'<div class="addressValue">'+esc(phone)+'</div>':'')+(email?'<div class="addressValue">'+esc(email)+'</div>':'')+(actions.length?'<div class="addressActions">'+actions.join('')+'</div>':'')+'</div>':'';
@@ -68370,7 +68488,7 @@ document.addEventListener('click',function(e){
     });
     widget.classList.add('selected');
     widget.setAttribute('data-selected', 'true');
-    try{if(typeof UIState!=='undefined')UIState.selectedWidgetId=id||null;}catch(_e){}
+    try{if(window.UIState)window.UIState.selectedWidgetId=id||null;}catch(_e){}
     window.__lastSelectedIframeWidget = widget;
   }
 
@@ -70156,7 +70274,7 @@ document.addEventListener('click',function(e){
       if(isOverview()) return;
       let sel=null;
       try{
-        const id=(typeof UIState!=='undefined'&&UIState.selectedWidgetId!=null)?String(UIState.selectedWidgetId):'';
+        const id=window.UIState&&UIState.selectedWidgetId!=null?String(UIState.selectedWidgetId):'';
         if(id)sel=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(id):id.replace(/"/g,'\\"'))+'"]');
       }catch(_e){}
       sel=sel||document.querySelector('.widget.selected:not(.focused):not(.focusTarget)')||document.querySelector('.widget.selected')||document.querySelector('.widget.focused')||document.querySelector('.widget.focusTarget');
@@ -70233,7 +70351,7 @@ document.addEventListener('click',function(e){
           return;
         }
         let sel=null;
-        try{const sid=(typeof UIState!=='undefined'&&UIState.selectedWidgetId!=null)?String(UIState.selectedWidgetId):'';if(sid)sel=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(sid):sid.replace(/"/g,'\\"'))+'"]');}catch(_e){}
+        try{const sid=window.UIState&&UIState.selectedWidgetId!=null?String(UIState.selectedWidgetId):'';if(sid)sel=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(sid):sid.replace(/"/g,'\\"'))+'"]');}catch(_e){}
         sel=sel||document.querySelector('.widget.selected')||document.querySelector('.widget.focused')||document.querySelector('.widget.focusTarget');
         const id=sel && sel.dataset ? String(sel.dataset.id||'') : '';
         if(id && (id!==lastSel || isFocusActive())){
@@ -70261,7 +70379,7 @@ document.addEventListener('click',function(e){
     function topZ(){var m=0;document.querySelectorAll('.widget').forEach(function(w){var z=parseInt(w.style.zIndex||getComputedStyle(w).zIndex||'0',10);if(Number.isFinite(z))m=Math.max(m,z);});return Math.max(m,window.__widgetOverviewTopZ||9000);}
     function front(w){if(!w)return;var z=(window.__widgetOverviewTopZ=topZ()+1);w.style.zIndex=String(z);}
     function currentSelected(){
-      try{var id=(typeof UIState!=='undefined'&&UIState.selectedWidgetId!=null)?String(UIState.selectedWidgetId):'';if(id){var el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(id):id.replace(/"/g,'\\"'))+'"]');if(el)return el;}}catch(_e){}
+      try{var id=window.UIState&&UIState.selectedWidgetId!=null?String(UIState.selectedWidgetId):'';if(id){var el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(id):id.replace(/"/g,'\\"'))+'"]');if(el)return el;}}catch(_e){}
       return document.querySelector('.widget.selected:not(.focused):not(.focusTarget)')||document.querySelector('.widget.selected')||document.querySelector('.widget.focused')||document.querySelector('.widget.focusTarget');
     }
     function syncFocusSelection(){
