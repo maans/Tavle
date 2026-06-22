@@ -1,3 +1,4 @@
+<!-- l1186_elevkort_faner_alle_tilstande_OWNER_SAFE: Bygger direkte på den brugeruploadede Tavle.html/l1185. Retter kun Elevkortets eksisterende faneejer: Elev, Mor, Far og Notater er indholdsnavigation i stedet for widget-controls, så alle fire faner forbliver synlige og klikbare i redigering, præsentation, fokus og maksimeret visning. Den valgte fane bevares på kortet. Ingen elevdata-, note-, matrix-, layout- eller øvrig widgetlogik ændres. -->
 <!-- l1161_dataremix_matrixdedup_OWNER_SAFE: Bygger direkte på l1160. Gendanner kun DataRemix som almindelig Indhold-knap i Mellemrums-menuen og retter Tavler-fanens eksisterende matrixrelationer, så dubletregistreringer kanoniseres efter det allerede beregnede stabile matrix-/widget-/tavle-ID før visning. Ingen Remix-, matrix-, data- eller øvrig menulogik ændres. -->
 <!-- l1160_vinduer_tavlekort_brugernavne_OWNER_SAFE: Vinduer-listen og TavleKort bruger nu samme robuste brugertitel-ejer, så Elevkort vises med elevnavn og Gruppekort med gruppetitel. Bygger direkte på l1159.
 <!-- l1159_minimer_uden_papirkurv_OWNER_SAFE: Bygger direkte på l1157. Tilføjer kun en kort, kendt minimeringsanimation fra TavleKort-widgetten ned til Vinduer-knappen i den nederste værktøjslinje. Widgetten skjules først efter animationen; Vinduer-knappen markerer landingen. Reduced motion respekteres. hiddenWidgetIds-state, permanent sletning, papirkurv, geometri, data og relationer bevares. -->
@@ -16795,10 +16796,12 @@ html[data-tavle-theme="smartboard"] .addressCardEmptyTab{
   .addressCardTabs{grid-template-columns:repeat(2,minmax(0,1fr));}
   .addressCardTab{padding:9px 8px;}
 }
-/* l980: Fanebladslinjen er en del af Elevkortets indhold, ikke kun redigeringsværktøj. */
-.app:not(.present) .widget[data-type="text"] .content .addressCardTabs.widget-control{
+/* l1186: Fanebladslinjen er Elevkortets indholdsnavigation – ikke en widget-control.
+   Den følger derfor kortet i alle visningstilstande. */
+.widget[data-type="text"] .content .addressCardTabs{
   display:grid!important;
   visibility:visible!important;
+  opacity:1!important;
   pointer-events:auto!important;
 }
 </style>
@@ -17023,8 +17026,8 @@ html.theme-smartboard .safe1072List,html.theme-smartboard .safe1072MatrixPreview
 }
 .safe1075FocusWidget .content{height:100%!important;border-radius:16px!important;overflow:hidden!important}
 .safe1075FocusWidget .addressCard{border-radius:16px!important;padding:14px!important}
-/* l1084: fanerne er indhold i matrixens detaljefokus og må aldrig skjules som almindelige widget-controls. */
-.safe1075FocusWidget .addressCardTabs.widget-control{
+/* l1084/l1186: fanerne er indhold i matrixens detaljefokus og forbliver navigérbare. */
+.safe1075FocusWidget .addressCardTabs{
   display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
 }
 .safe1075FocusWidget [data-safe1072-matrix-compact]{display:none!important}
@@ -24143,38 +24146,18 @@ function safe981AddressHasActiveNote(addressW){
 }
 function safe978AddressActiveTab(w){
   try{
+    /* l1186: Elevkortets faner er indholdsnavigation i alle tilstande.
+       Derfor bevares brugerens valgte fane også når kortet er passivt,
+       i præsentation, fokus eller maksimeret visning. */
     const stored=String(w&&w.data&&w.data.addressCardActiveTab||'elev');
-    const tab=/^(elev|mor|far|notater)$/.test(stored)?stored:'elev';
-    /* l980: Når Elevkortet ikke er valgt, skal det fungere som oversigtskort.
-       Hvis sidste aktive fane var Notater, kan controls/noteknapper være skjult i passiv
-       visning, og kortet ser tomt ud. Derfor viser passiv visning altid Elev-fanen,
-       mens valgt/fokuseret Elevkort stadig husker den aktive arbejdsfane. */
-    const id=String(w&&w.id||'');
-    let active=false;
-    try{active=!!(id&&typeof selected!=='undefined'&&String(selected||'')===id);}catch(_e){}
-    try{
-      if(!active&&id&&window.UIState){
-        active=String(UIState.selectedWidgetId||UIState.focusedWidgetId||UIState.maximizedWidgetId||'')===id;
-      }
-    }catch(_e){}
-    try{
-      if(!active&&id&&typeof document!=='undefined'){
-        const escId=(window.CSS&&CSS.escape)?CSS.escape(id):id.replace(/[^a-zA-Z0-9_-]/g,'\\$&');
-        const el=document.querySelector('.widget[data-id="'+escId+'"]');
-        active=!!(el&&(el.classList.contains('selected')||el.classList.contains('focusTarget')||el.classList.contains('maximized')));
-      }
-    }catch(_e){}
-    const stickyUntil=Number(w&&w.data&&w.data.addressCardTabStickyUntil||0)||0;
-    const sticky=stickyUntil&&Date.now()<stickyUntil;
-    const noteActive=(typeof safe981AddressHasActiveNote==='function')?safe981AddressHasActiveNote(w):false;
-    return (active||sticky||noteActive)?tab:'elev';
+    return /^(elev|mor|far|notater)$/.test(stored)?stored:'elev';
   }catch(_e){return 'elev';}
 }
 function safe978TabButton(tab,label,active){
   return '<button type="button" class="addressCardTab '+(active===tab?'active':'')+'" data-safe978-address-tab="'+esc(tab)+'" aria-pressed="'+(active===tab?'true':'false')+'">'+esc(label)+'</button>';
 }
 function safe978AddressTabBar(active){
-  return '<div class="addressCardTabs widget-control" role="tablist" aria-label="Elevkort faner">'+
+  return '<div class="addressCardTabs" role="tablist" aria-label="Elevkort faner">'+
     safe978TabButton('elev','Elev',active)+
     safe978TabButton('mor','Mor',active)+
     safe978TabButton('far','Far',active)+
