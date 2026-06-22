@@ -1,3 +1,6 @@
+<!-- l1189_widgetlag_ensartet_valg_OWNER_SAFE: Bygger direkte på l1188. Samler almindeligt widgetvalg om den eksisterende select-/z-index-ejer, så senest valgte widget ligger øverst uanset mus, touch eller pil op/ned. Fjerner kun Widget-overblikkets faste normaltilstands-z-index, rydder gamle selected/focused-klasser og gemmer den faktiske lagrækkefølge. Fokus/oversigt, widgetgeometri og øvrig app-logik ændres ikke. -->
+<!-- l1188_noterapport_lukker_detaljer_OWNER_SAFE: Bygger direkte på l1187. Retter kun Elevkortmatrixens Detaljer-fokus, så klik på Note-rapport lukker detaljevinduet på samme måde som notekort, + Ny note og Alle noter. Rapportwidget, notedata, matrixnavigation og øvrige Elevkort-funktioner ændres ikke. -->
+<!-- l1187_mediearkiv_brugt_i_cleanup_OWNER_SAFE: Bygger direkte på l1186. Retter kun den aktive IndexedDB-medieoversigt: “Brugt i” viser brugerrettet session + tavletitel, den overflødige Handling-kolonne fjernes, og TiddlyWiki-testkategorier/-knapper fjernes. TiddlyWiki-filer behandles fortsat som almindelige medier; sletning er stadig kun mulig for forældreløse poster. -->
 <!-- l1186_elevkort_faner_alle_tilstande_OWNER_SAFE: Bygger direkte på den brugeruploadede Tavle.html/l1185. Retter kun Elevkortets eksisterende faneejer: Elev, Mor, Far og Notater er indholdsnavigation i stedet for widget-controls, så alle fire faner forbliver synlige og klikbare i redigering, præsentation, fokus og maksimeret visning. Den valgte fane bevares på kortet. Ingen elevdata-, note-, matrix-, layout- eller øvrig widgetlogik ændres. -->
 <!-- l1161_dataremix_matrixdedup_OWNER_SAFE: Bygger direkte på l1160. Gendanner kun DataRemix som almindelig Indhold-knap i Mellemrums-menuen og retter Tavler-fanens eksisterende matrixrelationer, så dubletregistreringer kanoniseres efter det allerede beregnede stabile matrix-/widget-/tavle-ID før visning. Ingen Remix-, matrix-, data- eller øvrig menulogik ændres. -->
 <!-- l1160_vinduer_tavlekort_brugernavne_OWNER_SAFE: Vinduer-listen og TavleKort bruger nu samme robuste brugertitel-ejer, så Elevkort vises med elevnavn og Gruppekort med gruppetitel. Bygger direkte på l1159.
@@ -18223,12 +18226,17 @@ function tavleLinkZoom(w,delta){
     // must NOT keep the whole board in focus mode.
     const hasFocus = !!UIState.focusMode || !!UIState.focusMaximized;
     document.body.classList.toggle('focus-mode', hasFocus);
-    // update widget classes
+    // l1189: selected er den eneste almindelige aktive markering. Et gammelt
+    // focusedWidgetId må ikke efterlade focusTarget/focused på en passiv widget.
+    const selectedId = UIState.selectedWidgetId==null ? '' : String(UIState.selectedWidgetId);
+    const focusedId = hasFocus && UIState.focusedWidgetId!=null ? String(UIState.focusedWidgetId) : '';
+    const maximizedId = UIState.focusMaximized && UIState.maximizedWidgetId!=null ? String(UIState.maximizedWidgetId) : '';
     document.querySelectorAll('.widget').forEach(el=>{
       const id = String(el.dataset.id||'');
-      el.classList.toggle('selected', id && id===String(UIState.selectedWidgetId));
-      el.classList.toggle('focusTarget', id && id===String(UIState.focusedWidgetId));
-      el.classList.toggle('maximized', id && id===String(UIState.maximizedWidgetId));
+      el.classList.toggle('selected', !!(id && selectedId && id===selectedId));
+      el.classList.toggle('focusTarget', !!(id && focusedId && id===focusedId));
+      el.classList.toggle('maximized', !!(id && maximizedId && id===maximizedId));
+      if(!hasFocus)el.classList.remove('focused');
     });
     // update toolbar pin visual state.  Apply both the legacy
     // `toolbarPinned` class on the app element and a newer
@@ -24055,7 +24063,7 @@ function safe1075RenderAddressFocus(){
     const ctx=window.__safe1075AddressFocus;if(!ctx)return false;const rec=safe1075FindWidgetRecordAny(ctx.widgetId);if(!rec||!rec.w){safe1075CloseAddressFocus();return false;}const w=rec.w,ds=findDatasetById(String(w.data&&w.data.datasetId||w.data&&w.data.sourceDatasetId||'')),back=document.getElementById('safe1075AddressFocusBackdrop');if(!ds||!back)return false;
     const records=safe1075MatrixFocusRecords(w),index=Math.max(0,records.findIndex(r=>String(r.w.id)===String(w.id))),title=back.querySelector('[data-safe1075-focus-title]'),count=back.querySelector('[data-safe1075-focus-count]'),prev=back.querySelector('[data-safe1075-focus-prev]'),next=back.querySelector('[data-safe1075-focus-next]'),open=back.querySelector('[data-safe1075-focus-open]'),content=back.querySelector('[data-safe1075-focus-content]');
     const hit=safe962FindRowForAddressCard(ds,w),info=hit&&hit.row?safe962NameInfo(ds,hit.row):{full:'Elevkort'},studentBoard=safe1122FindStudentBoard(w);if(title)title.textContent=info.full||'Elevkort';if(count)count.textContent=(index+1)+' / '+records.length;if(prev)prev.disabled=records.length<=1;if(next)next.disabled=records.length<=1;if(open){open.disabled=!studentBoard;open.textContent=studentBoard?'Åbn elevtavle':'Ingen elevtavle';}
-    const focusW=safe1075AddressFocusProxy(w);ctx.focusW=focusW;ctx.records=records;ctx.index=index;if(content){content.innerHTML=safe962AddressCardHtml(ds,focusW);content.querySelectorAll('[data-safe1072-matrix-compact]').forEach(btn=>btn.remove());const noteExit=e=>{try{const t=e.target&&e.target.closest&&e.target.closest('.addressNoteCard,.addressNotesNewBtn,.addressNotesAllBtn');if(t)setTimeout(safe1075CloseAddressFocus,120);}catch(_e){}};content.addEventListener('pointerup',noteExit,true);content.addEventListener('click',noteExit,true);safe962WireAddressCard(content,focusW,ds);}return true;
+    const focusW=safe1075AddressFocusProxy(w);ctx.focusW=focusW;ctx.records=records;ctx.index=index;if(content){content.innerHTML=safe962AddressCardHtml(ds,focusW);content.querySelectorAll('[data-safe1072-matrix-compact]').forEach(btn=>btn.remove());const noteExit=e=>{try{const t=e.target&&e.target.closest&&e.target.closest('.addressNoteCard,.addressNotesNewBtn,.addressNotesAllBtn,.addressNotesPdfBtn');if(t)setTimeout(safe1075CloseAddressFocus,120);}catch(_e){}};content.addEventListener('pointerup',noteExit,true);content.addEventListener('click',noteExit,true);safe962WireAddressCard(content,focusW,ds);}return true;
   }catch(err){try{console.warn('l1075 Elevkort-fokus render fejlede',err);}catch(_e){}return false;}
 }
 function safe1075StepAddressFocus(delta){
@@ -48073,19 +48081,24 @@ function normalizeWidgetLayers(){
     if(typeof w.z!=='number' || !isFinite(w.z))w.z=1;
   });
 }
-function bringWidgetToFront(w,el){
-  if(!w || app.classList.contains('present') || document.body.classList.contains('focus-mode'))return;
+function bringWidgetToFront(w,el,opts={}){
+  if(!w || app.classList.contains('present') || document.body.classList.contains('focus-mode') || document.body.classList.contains('focus-edit') || document.body.classList.contains('focus-presentation') || document.body.classList.contains('focus-maximized'))return false;
   normalizeWidgetLayers();
   const ws=(typeof safe588WidgetsForCurrentSlide==='function'?safe588WidgetsForCurrentSlide():(slide().widgets||[]));
-  const maxZ=Math.max(1,...ws.map(x=>Number(x.z)||1));
-  w.z=maxZ+1;
-  z=Math.max(z,w.z);
+  const wid=String(w.id||'');
+  const maxOther=Math.max(1,...ws.filter(x=>String(x&&x.id||'')!==wid).map(x=>Number(x&&x.z)||1));
+  const oldZ=Number(w.z)||1;
+  if(oldZ<=maxOther)w.z=maxOther+1;
+  z=Math.max(z,Number(w.z)||1);
   if(el){
     el.style.zIndex=String(w.z);
-    // v129: DOM order matters for iframes/video surfaces in some browsers
+    // v129/l1189: DOM-rækkefølgen følger den gemte z-rækkefølge.
     if(el.parentElement)el.parentElement.appendChild(el);
   }
-  save();
+  if(oldZ!==Number(w.z)||opts.forceSave){
+    try{save({silent:opts.silent!==false});}catch(_e){try{save();}catch(__e){}}
+  }
+  return true;
 }
 
 
@@ -49095,6 +49108,7 @@ function focusTextWidgetEditor(id,selectAll=false){
   },50);
 }
 function select(id,options={}){
+  id=(id==null||id==='')?null:String(id);
   const previous=selected;
   if(previous && String(previous)!==String(id)){
     try{ clearPdfKeyboardControl(); }catch(_e){}
@@ -49103,32 +49117,28 @@ function select(id,options={}){
   UIState.selectedWidgetId=id;
   let selectedWidget=null;
   let selectedEl=null;
+  const focusActive=!!(UIState.focusMode||UIState.focusMaximized||document.body.classList.contains('focus-mode')||document.body.classList.contains('focus-edit')||document.body.classList.contains('focus-presentation')||document.body.classList.contains('focus-maximized'));
   document.querySelectorAll('.widget').forEach(e=>{
-    let on=id&&e.dataset.id===id;
-    e.classList.toggle('selected',!!on);
+    const on=!!(id&&String(e.dataset.id||'')===id);
+    e.classList.toggle('selected',on);
+    // l1189: gamle hjælpeklasser må ikke få en passiv widget til at vinde laget.
+    if(!focusActive)e.classList.remove('focused','focusTarget');
+    else if(!on)e.classList.remove('selected');
     /* l592: en spejlet widget ligger ikke fysisk i slide().widgets.
        Brug derfor findWidget()/sharedVisibility-opslag i stedet for kun den lokale tavle. */
     let w=(typeof findWidget==='function')
       ? findWidget(e.dataset.id)
-      : ((slide().widgets||[]).find(x=>x.id===e.dataset.id));
+      : ((slide().widgets||[]).find(x=>String(x.id)===String(e.dataset.id)));
     if(w){
       e.classList.toggle('locked',!!w.locked);
       if(on){selectedWidget=w;selectedEl=e;}
     }
   });
 
-  // Valgt widget lægges forrest, så den ikke skjules bag andre widgets.
-  // l592: brug max-z blandt alle synlige widgets, så faste og spejlede kan bladres begge veje.
-  if(selectedWidget && (!selectedWidget.locked || (typeof safe977IsStudentNoteWidget==='function'&&safe977IsStudentNoteWidget(selectedWidget)))){
-    const visible=(typeof safe588WidgetsForCurrentSlide==='function')?safe588WidgetsForCurrentSlide():(slide().widgets||[]);
-    const maxZ=Math.max(z,1,...visible.map(x=>Number(x&&x.z)||1));
-    selectedWidget.z=maxZ+1;
-    z=Math.max(z,selectedWidget.z);
-    if(selectedEl){
-      selectedEl.style.zIndex=String(selectedWidget.z);
-      try{ if(selectedEl.parentElement)selectedEl.parentElement.appendChild(selectedEl); }catch(_e){}
-    }
-  }
+  // l1189: alle valgveje (mus, touch og pil op/ned) ender her og bruger
+  // den samme lag-ejer. Lås forhindrer flytning, men ikke at vinduet vises øverst.
+  if(selectedWidget)bringWidgetToFront(selectedWidget,selectedEl,{silent:true});
+
   // Textwidgets must not automatically steal cursor focus just because the
   // widget is selected. Text editing is started only from the textarea itself
   // or explicit creation of a new text widget.
@@ -57976,16 +57986,87 @@ function safe453i124WireMediaMapButtons(){
   });
 }
 function safe453i124OpenIndexedDbMediaMap(){
-  /* SAFE454l: Aktiv oprydningsvisning. Erstatter den gamle rene oversigt,
-     fordi knapper indsat senere ikke blev vist fra den lokale funktionsreference. */
+  /* l1187: Mediearkivet viser brugerrettede session-/tavleplaceringer.
+     TiddlyWiki behandles som almindeligt medie; testkategorier og den tomme
+     Handling-kolonne er fjernet. Sletning ligger fortsat kun ved forældreløse poster. */
   const archive=(window.TavleMediaArchive&&typeof window.TavleMediaArchive.listMedia==='function'&&typeof window.TavleMediaArchive.deleteMedia==='function')?window.TavleMediaArchive:null;
   const escFn=(typeof esc==='function')?esc:function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
   const fmt=(typeof safe453i118FormatBytes==='function')?safe453i118FormatBytes:function(n){n=Number(n)||0;return n>1048576?(n/1048576).toFixed(1)+' MB':(n/1024).toFixed(1)+' KB';};
   function shortId(id){id=String(id||'');return id.length>18?id.slice(0,8)+'…'+id.slice(-6):id;}
-  function isTw(m){var s=[m&&m.kind,m&&m.source,m&&m.name,m&&m.mimeType,m&&m.id].map(function(x){return String(x||'').toLowerCase();}).join(' ');return s.indexOf('tiddlywiki')>=0||s.indexOf('tw-saver')>=0||s.indexOf('html-widget-tiddlywiki-saver')>=0;}
   function usageMap(){try{return safe453i125CombinedMediaUsageMap(safe453i118ScanObjectForStorage(state||{})).usage||{};}catch(_e){return {};}}
   function isUsed(m,usage){return !!(usage&&usage[String(m&&m.id||'')]&&usage[String(m&&m.id||'')].length);}
-  function usedWhere(id,usage){var used=(usage&&usage[String(id)])||[]; if(!used.length)return '—'; return used.slice(0,3).map(function(u){try{return escFn(safe453i118ShortPath(u.path||u.key||'state'));}catch(_e){return escFn(u.path||u.key||'state');}}).join('<br>')+(used.length>3?'<br><small>+'+(used.length-3)+' flere</small>':'');}
+  function currentSessionId(){
+    try{if(typeof safe963CurrentSession==='function')return safe963CurrentSession();}catch(_e){}
+    try{if(typeof TAVLE_SESSION_ID!=='undefined')return String(TAVLE_SESSION_ID||'standard');}catch(_e){}
+    return 'standard';
+  }
+  function sessionLabel(id){
+    try{if(typeof safe963SessionLabel==='function')return safe963SessionLabel(id);}catch(_e){}
+    id=String(id||'standard');return id==='standard'?'Standard':'#'+id;
+  }
+  function sessionIdFromStorageKey(key){
+    key=String(key||'');
+    var base='maans_interaktiv_tavle_v162_test';
+    try{if(typeof TAVLE_BASE_STORAGE_KEY==='string'&&TAVLE_BASE_STORAGE_KEY)base=TAVLE_BASE_STORAGE_KEY;}catch(_e){}
+    if(key===base)return 'standard';
+    var prefix=base+'__session__';
+    if(key.indexOf(prefix)===0){
+      var raw=key.slice(prefix.length);
+      try{return typeof safe963CleanSession==='function'?safe963CleanSession(raw):raw;}catch(_e){return raw||'standard';}
+    }
+    return '';
+  }
+  function stateFromStorageKey(key,sessionId){
+    try{
+      if(sessionId&&sessionId===currentSessionId())return state||null;
+      var raw=localStorage.getItem(String(key||''));
+      return raw?JSON.parse(raw):null;
+    }catch(_e){return null;}
+  }
+  function slideIndexFromPath(path){
+    var m=String(path||'').match(/state\.slides\[(\d+)\]/);
+    return m?Number(m[1]):-1;
+  }
+  function slideTitle(st,index){
+    try{
+      var sl=st&&Array.isArray(st.slides)?st.slides[index]:null;
+      if(!sl)return '';
+      return String(sl.title||sl.name||sl.label||('Tavle '+(index+1))).trim()||('Tavle '+(index+1));
+    }catch(_e){return '';}
+  }
+  function usageLocation(u){
+    var source=String(u&&u.source||'');
+    var path=String(u&&u.path||'');
+    var sid='',st=null,storageKey='';
+    if(source==='aktiv state'||path.indexOf('aktiv state → ')===0){
+      sid=currentSessionId();st=state||null;
+    }else if(source.indexOf('localStorage:')===0){
+      storageKey=source.slice('localStorage:'.length);
+      sid=sessionIdFromStorageKey(storageKey);
+      if(sid)st=stateFromStorageKey(storageKey,sid);
+    }
+    if(sid){
+      var si=slideIndexFromPath(path);
+      var title=si>=0?slideTitle(st,si):'';
+      if(title)return {key:'session:'+sid+'|slide:'+si,label:sessionLabel(sid)+' · '+title,rank:0};
+      return {key:'session:'+sid+'|data',label:sessionLabel(sid)+' · Sessionsdata',rank:1};
+    }
+    return {key:'stored:'+String(storageKey||source||path),label:'Backup eller systemdata',rank:2};
+  }
+  function usedWhere(id,usage){
+    var used=(usage&&usage[String(id)])||[];
+    if(!used.length)return '<span class="safe454lNoUse">Ikke fundet i nogen session</span>';
+    var seen=Object.create(null),locations=[];
+    used.forEach(function(u){
+      var loc=usageLocation(u);
+      if(!loc||seen[loc.key])return;
+      seen[loc.key]=true;locations.push(loc);
+    });
+    locations.sort(function(a,b){return (a.rank-b.rank)||String(a.label).localeCompare(String(b.label),'da');});
+    var shown=locations.slice(0,3).map(function(loc){return escFn(loc.label);});
+    if(locations.length>3)shown.push('<small>+'+(locations.length-3)+' flere placeringer</small>');
+    return shown.join('<br>');
+  }
   function installBack(){
     if(window.__safe454lEsc)window.removeEventListener('keydown',window.__safe454lEsc,true);
     window.__safe454lEsc=function(e){if(!modalBack||modalBack.style.display==='none')return;if(!modal||!modal.querySelector('[data-safe454l-media-map]'))return;if(e.key==='Escape'||e.key==='Esc'){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.removeEventListener('keydown',window.__safe454lEsc,true);window.__safe454lEsc=null;safe453i118OpenStorageOverview();}};
@@ -57996,8 +58077,7 @@ function safe453i124OpenIndexedDbMediaMap(){
     if(!modal)return;
     modal.querySelectorAll('[data-safe454l-back]').forEach(function(btn){btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();} if(window.__safe454lEsc){window.removeEventListener('keydown',window.__safe454lEsc,true);window.__safe454lEsc=null;} safe453i118OpenStorageOverview();};});
     modal.querySelectorAll('[data-safe454l-delete-one]').forEach(function(btn){btn.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();} deleteIds([btn.getAttribute('data-safe454l-delete-one')],'Slet dette forældreløse medie fra IndexedDB?');};});
-    var tw=modal.querySelector('[data-safe454l-delete-tw]'); if(tw)tw.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();} deleteByFilter('tw','Slet forældreløse TiddlyWiki-testkopier fra IndexedDB?');};
-    var all=modal.querySelector('[data-safe454l-delete-orphans]'); if(all)all.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();} deleteByFilter('orphan','Slet ALLE forældreløse medier fra IndexedDB?\n\nDette sletter kun poster uden reference i aktiv state/localStorage.');};
+    var all=modal.querySelector('[data-safe454l-delete-orphans]'); if(all)all.onclick=function(e){if(e){e.preventDefault();e.stopPropagation();} deleteOrphans('Slet ALLE forældreløse medier fra IndexedDB?\n\nDette sletter kun poster uden reference i nogen fundet session, backup eller systemdata.');};
   }
   async function deleteIds(ids,msg){
     ids=(ids||[]).map(String).filter(Boolean);
@@ -58008,38 +58088,38 @@ function safe453i124OpenIndexedDbMediaMap(){
     try{toast('Slettet fra IndexedDB: '+ok+(fail?' · fejl: '+fail:''));}catch(_e){}
     safe453i124OpenIndexedDbMediaMap();
   }
-  async function deleteByFilter(mode,msg){
+  async function deleteOrphans(msg){
     if(!archive)return;
     var mediaList=await archive.listMedia();
     var usage=usageMap();
     var ids=[];
-    (mediaList||[]).forEach(function(m){if(isUsed(m,usage))return;if(mode==='tw'&&isTw(m))ids.push(String(m.id));if(mode==='orphan')ids.push(String(m.id));});
-    if(!ids.length){try{toast(mode==='tw'?'Ingen forældreløse TiddlyWiki-testkopier fundet':'Ingen forældreløse medier fundet');}catch(_e){}return;}
+    (mediaList||[]).forEach(function(m){if(!isUsed(m,usage))ids.push(String(m.id));});
+    if(!ids.length){try{toast('Ingen forældreløse medier fundet');}catch(_e){}return;}
     deleteIds(ids,msg);
   }
   if(!archive){showModal('<h2>IndexedDB-medier</h2><p>TavleMediaArchive/deleteMedia er ikke tilgængelig.</p><button data-safe454l-back>← Tilbage</button>');wire();return;}
-  showModal('<h2>IndexedDB-medier</h2><p>Læser TavleMediaArchive og scanner referencer…</p><button data-safe454l-back>←</button>');
+  showModal('<h2>IndexedDB-medier</h2><p>Læser TavleMediaArchive og finder sessioner og tavler…</p><button data-safe454l-back>←</button>');
   wire();
   archive.listMedia().then(function(mediaList){
     mediaList=Array.isArray(mediaList)?mediaList:[];
     var usage=usageMap();
-    var usedCount=0,orphanCount=0,twOrphanCount=0,total=0,orphanBytes=0,twBytes=0;
-    mediaList.forEach(function(m){var size=Number(m&&m.size)||0;total+=size;if(isUsed(m,usage))usedCount++;else{orphanCount++;orphanBytes+=size;if(isTw(m)){twOrphanCount++;twBytes+=size;}}});
+    var usedCount=0,orphanCount=0,total=0,orphanBytes=0;
+    mediaList.forEach(function(m){var size=Number(m&&m.size)||0;total+=size;if(isUsed(m,usage))usedCount++;else{orphanCount++;orphanBytes+=size;}});
     var rows=mediaList.slice().sort(function(a,b){return (Number(b&&b.size)||0)-(Number(a&&a.size)||0);}).map(function(m){
-      var id=String(m&&m.id||'');var used=isUsed(m,usage);var tw=isTw(m);var status=used?'✅ I brug':(tw?'🧪 TW-test<br><button class="safe454lInlineDelete" data-safe454l-delete-one="'+escFn(id)+'">Slet</button>':'⚪ Forældreløs<br><button class="safe454lInlineDelete" data-safe454l-delete-one="'+escFn(id)+'">Slet</button>');
-      return '<tr class="'+(used?'':'safe454lOrphan')+(tw?' safe454lTw':'')+'"><td>'+status+'</td><td>'+escFn((m&&m.kind)||'media')+' / '+escFn((m&&m.source)||'ukendt')+'</td><td>'+escFn((m&&(m.name||m.id))||'')+'</td><td>'+fmt(m&&m.size)+'</td><td><code title="'+escFn(id)+'">'+escFn(shortId(id))+'</code></td><td>'+usedWhere(id,usage)+'</td><td>'+(used?'—':'<button data-safe454l-delete-one="'+escFn(id)+'">Slet</button>')+'</td></tr>';
+      var id=String(m&&m.id||'');var used=isUsed(m,usage);
+      var status=used?'✅ I brug':'⚪ Forældreløs<br><button class="safe454lInlineDelete" data-safe454l-delete-one="'+escFn(id)+'">Slet</button>';
+      return '<tr class="'+(used?'':'safe454lOrphan')+'"><td>'+status+'</td><td>'+escFn((m&&m.kind)||'media')+' / '+escFn((m&&m.source)||'ukendt')+'</td><td>'+escFn((m&&(m.name||m.id))||'')+'</td><td>'+fmt(m&&m.size)+'</td><td><code title="'+escFn(id)+'">'+escFn(shortId(id))+'</code></td><td>'+usedWhere(id,usage)+'</td></tr>';
     }).join('');
     var html='<h2>IndexedDB-medier</h2>'+ 
       '<div data-safe454l-media-map="1" class="safe454lTop"><button data-safe454l-back>←</button><span>Esc lukker</span></div>'+ 
-      '<p class="safe453Note"><b>Oprydning aktiv:</b> Knapperne sletter kun medier, der ikke er fundet som reference i aktiv state eller localStorage.</p>'+ 
-      '<div class="safe454lActions"><button data-safe454l-delete-tw '+(twOrphanCount?'':'disabled')+'>🧹 Slet TiddlyWiki-testkopier ('+twOrphanCount+' · '+fmt(twBytes)+')</button><button data-safe454l-delete-orphans '+(orphanCount?'':'disabled')+'>🗑️ Slet alle forældreløse medier ('+orphanCount+' · '+fmt(orphanBytes)+')</button></div>'+ 
-      '<div class="safe454lCards"><div><b>IndexedDB-medier</b><span>'+mediaList.length+'</span><small>'+fmt(total)+' i alt</small></div><div><b>I brug</b><span>'+usedCount+'</span><small>fundet som reference</small></div><div><b>Forældreløse</b><span>'+orphanCount+'</span><small>'+fmt(orphanBytes)+'</small></div><div><b>TW-testkopier</b><span>'+twOrphanCount+'</span><small>'+fmt(twBytes)+'</small></div></div>'+ 
-      '<div class="safe454lList"><details open><summary>Alle medier i TavleMediaArchive</summary><table><thead><tr><th>Status</th><th>Type/kilde</th><th>Navn</th><th>Størrelse</th><th>ID</th><th>Fundet brugt her</th><th>Handling</th></tr></thead><tbody>'+(rows||'<tr><td colspan="7">Ingen medier fundet</td></tr>')+'</tbody></table></details></div>'+ 
-      '<style>.safe454lTop{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe454lTop span{font-size:.85rem;color:#526070}.safe454lActions{position:sticky;top:0;z-index:10;display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 12px;padding:10px;background:rgba(255,255,255,.97);border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 6px 18px rgba(15,23,42,.10)}.safe454lActions button{background:#e5e7eb!important;color:#111827!important;font-weight:900!important}.safe454lActions button:first-child{background:#fef3c7!important;color:#78350f!important}.safe454lActions button:disabled{opacity:.45}.safe454lCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}.safe454lCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe454lCards b{display:block}.safe454lCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe454lCards small{display:block;color:#526070}.safe454lList{max-height:50vh;overflow:auto;padding-right:4px}.safe454lList details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe454lList summary{font-weight:800;cursor:pointer}.safe454lList table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:8px}.safe454lList th,.safe454lList td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe454lList code{font-size:.74rem;word-break:break-all}.safe454lOrphan{background:#fffaf0}.safe454lTw{background:#fff7ed}.safe454lInlineDelete,.safe454lList td button{padding:5px 8px!important;border-radius:8px!important;background:#fee2e2!important;color:#991b1b!important;font-weight:900!important}.safe454lList details{margin:6px 0!important;padding:5px 7px!important}.safe454lList table{font-size:.74rem!important;margin-top:4px!important}.safe454lList th,.safe454lList td{padding:3px 5px!important;line-height:1.12!important}.safe454lList code{font-size:.68rem!important}.safe454lInlineDelete,.safe454lList td button{padding:4px 7px!important}@media(max-width:760px){.safe454lCards{grid-template-columns:1fr 1fr}.safe454lActions button,.safe454lTop button{width:100%}.safe454lList{max-height:46vh}.safe454lList table{font-size:.68rem!important}}</style>';
+      '<p class="safe453Note"><b>Oprydning:</b> Forældreløse medier kan slettes her. Medier i brug viser den session og tavle, hvor de er fundet.</p>'+ 
+      '<div class="safe454lActions"><button data-safe454l-delete-orphans '+(orphanCount?'':'disabled')+'>🗑️ Slet alle forældreløse medier ('+orphanCount+' · '+fmt(orphanBytes)+')</button></div>'+ 
+      '<div class="safe454lCards"><div><b>IndexedDB-medier</b><span>'+mediaList.length+'</span><small>'+fmt(total)+' i alt</small></div><div><b>I brug</b><span>'+usedCount+'</span><small>fundet i sessioner eller gemte data</small></div><div><b>Forældreløse</b><span>'+orphanCount+'</span><small>'+fmt(orphanBytes)+'</small></div></div>'+ 
+      '<div class="safe454lList"><details open><summary>Alle medier i TavleMediaArchive</summary><table><thead><tr><th>Status</th><th>Type/kilde</th><th>Navn</th><th>Størrelse</th><th>ID</th><th>Brugt i</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6">Ingen medier fundet</td></tr>')+'</tbody></table></details></div>'+ 
+      '<style>.safe454lTop{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0 10px}.safe454lTop span{font-size:.85rem;color:#526070}.safe454lActions{position:sticky;top:0;z-index:10;display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 12px;padding:10px;background:rgba(255,255,255,.97);border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 6px 18px rgba(15,23,42,.10)}.safe454lActions button{background:#fee2e2!important;color:#991b1b!important;font-weight:900!important}.safe454lActions button:disabled{opacity:.45}.safe454lCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}.safe454lCards>div{background:#f4f7fb;border:1px solid #dbe3ef;border-radius:12px;padding:10px}.safe454lCards b{display:block}.safe454lCards span{display:block;font-size:1.35rem;font-weight:900;margin-top:4px}.safe454lCards small{display:block;color:#526070}.safe454lList{max-height:50vh;overflow:auto;padding-right:4px}.safe454lList details{margin:10px 0;border:1px solid #dbe3ef;border-radius:12px;background:white;padding:8px 10px}.safe454lList summary{font-weight:800;cursor:pointer}.safe454lList table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:8px}.safe454lList th,.safe454lList td{border-top:1px solid #eef2f7;padding:6px;text-align:left;vertical-align:top}.safe454lList code{font-size:.74rem;word-break:break-all}.safe454lOrphan{background:#fffaf0}.safe454lNoUse{color:#64748b;font-weight:800}.safe454lInlineDelete,.safe454lList td button{padding:5px 8px!important;border-radius:8px!important;background:#fee2e2!important;color:#991b1b!important;font-weight:900!important}.safe454lList details{margin:6px 0!important;padding:5px 7px!important}.safe454lList table{font-size:.74rem!important;margin-top:4px!important}.safe454lList th,.safe454lList td{padding:3px 5px!important;line-height:1.12!important}.safe454lList code{font-size:.68rem!important}.safe454lInlineDelete,.safe454lList td button{padding:4px 7px!important}@media(max-width:760px){.safe454lCards{grid-template-columns:1fr 1fr}.safe454lActions button,.safe454lTop button{width:100%}.safe454lList{max-height:46vh}.safe454lList table{font-size:.68rem!important}}</style>';
     showModal(html);wire();
   }).catch(function(err){showModal('<h2>IndexedDB-medier</h2><p>Kunne ikke læse TavleMediaArchive: '+escFn(err&&err.message||err)+'</p><button data-safe454l-back>← Tilbage</button>');wire();});
 }
-
 
 function safe453i133KindForRefKey(key){
   key=String(key||'');
@@ -68273,14 +68353,24 @@ document.addEventListener('click',function(e){
   }
 
   function selectWidget(widget, ev) {
+    const id=widget&&widget.dataset?String(widget.dataset.id||''):'';
+    try{
+      if(id && typeof window.select==='function'){
+        window.select(id,{editText:false});
+        window.__lastSelectedIframeWidget=widget;
+        return;
+      }
+    }catch(_e){}
     try { widget.dispatchEvent(new PointerEvent('pointerdown', {bubbles:true, pointerId: ev.pointerId || 1, clientX: ev.clientX || 0, clientY: ev.clientY || 0})); } catch(e) {}
     try { widget.dispatchEvent(new MouseEvent('mousedown', {bubbles:true, clientX: ev.clientX || 0, clientY: ev.clientY || 0})); } catch(e) {}
     try { widget.click(); } catch(e) {}
     try { widget.focus && widget.focus(); } catch(e) {}
-
+    document.querySelectorAll('.widget').forEach(function(other){
+      if(other!==widget)other.classList.remove('selected','focused','focusTarget');
+    });
     widget.classList.add('selected');
     widget.setAttribute('data-selected', 'true');
-
+    try{if(typeof UIState!=='undefined')UIState.selectedWidgetId=id||null;}catch(_e){}
     window.__lastSelectedIframeWidget = widget;
   }
 
@@ -69675,23 +69765,8 @@ document.addEventListener('click',function(e){
         #widgetCycle.widgetOverviewToggle.active{background:#6d5dfc!important;color:white!important;box-shadow:0 0 0 2px rgba(255,255,255,.14) inset!important}
 
         body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected{z-index:8500!important}
-        body:not(.widgetOverviewMode) .widget.selected,
-        body:not(.widgetOverviewMode) .widget.focused,
-        body:not(.widgetOverviewMode) .widget.focusTarget,
-        body.focus-mode .widget.selected,
-        body.focus-mode .widget.focused,
-        body.focus-mode .widget.focusTarget,
-        body.focus-edit .widget.selected,
-        body.focus-edit .widget.focused,
-        body.focus-edit .widget.focusTarget,
-        body.focus-presentation .widget.selected,
-        body.focus-presentation .widget.focused,
-        body.focus-presentation .widget.focusTarget,
-        body.focus-maximized .widget.selected,
-        body.focus-maximized .widget.focused,
-        body.focus-maximized .widget.focusTarget{
-          z-index:214748000!important;
-        }
+        /* l1189: uden for Widget-overblik bestemmes rækkefølgen af widgettens
+           gemte inline z-index. selected/focused må ikke få samme faste toplag. */
       `;
       document.head.appendChild(st);
     }
@@ -70042,24 +70117,8 @@ document.addEventListener('click',function(e){
           box-shadow:0 0 0 4px rgba(109,93,252,.28),0 20px 48px rgba(0,0,0,.42)!important;
           z-index:214748200!important;
         }
-        /* v5: selected/focused/maximized widget must always win the stack */
-        body:not(.widgetOverviewMode) .widget.selected,
-        body:not(.widgetOverviewMode) .widget.focused,
-        body:not(.widgetOverviewMode) .widget.focusTarget,
-        body.focus-mode:not(.widgetOverviewMode) .widget.selected,
-        body.focus-mode:not(.widgetOverviewMode) .widget.focused,
-        body.focus-mode:not(.widgetOverviewMode) .widget.focusTarget,
-        body.focus-edit:not(.widgetOverviewMode) .widget.selected,
-        body.focus-edit:not(.widgetOverviewMode) .widget.focused,
-        body.focus-edit:not(.widgetOverviewMode) .widget.focusTarget,
-        body.focus-presentation:not(.widgetOverviewMode) .widget.selected,
-        body.focus-presentation:not(.widgetOverviewMode) .widget.focused,
-        body.focus-presentation:not(.widgetOverviewMode) .widget.focusTarget,
-        body.focus-maximized:not(.widgetOverviewMode) .widget.selected,
-        body.focus-maximized:not(.widgetOverviewMode) .widget.focused,
-        body.focus-maximized:not(.widgetOverviewMode) .widget.focusTarget{
-          z-index:214748200!important;
-        }
+        /* l1189: almindeligt widgetvalg bruger den gemte z-rækkefølge.
+           Fokus- og maksimeringstilstandenes egne eksisterende CSS-ejere bevares. */
       `;
       document.head.appendChild(st);
     }
@@ -70095,17 +70154,23 @@ document.addEventListener('click',function(e){
     }
     function normalizeSelectedFocus(){
       if(isOverview()) return;
-      const sel=document.querySelector('.widget.selected:not(.focused):not(.focusTarget)') || document.querySelector('.widget.selected') || document.querySelector('.widget.focused') || document.querySelector('.widget.focusTarget');
+      let sel=null;
+      try{
+        const id=(typeof UIState!=='undefined'&&UIState.selectedWidgetId!=null)?String(UIState.selectedWidgetId):'';
+        if(id)sel=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(id):id.replace(/"/g,'\\"'))+'"]');
+      }catch(_e){}
+      sel=sel||document.querySelector('.widget.selected:not(.focused):not(.focusTarget)')||document.querySelector('.widget.selected')||document.querySelector('.widget.focused')||document.querySelector('.widget.focusTarget');
       if(!sel) return;
+      document.querySelectorAll('.widget').forEach(w=>{
+        if(w!==sel)w.classList.remove('selected','focused','focusTarget');
+      });
       if(isFocusActive()){
-        document.querySelectorAll('.widget').forEach(w=>{
-          if(w!==sel) w.classList.remove('selected','focused','focusTarget');
-        });
         sel.classList.add('selected','focused','focusTarget');
+        setFront(sel);
       }else{
+        sel.classList.remove('focused','focusTarget');
         sel.classList.add('selected');
       }
-      setFront(sel);
     }
     function normalizeOverviewSelection(){
       if(!isOverview()) return;
@@ -70167,7 +70232,9 @@ document.addEventListener('click',function(e){
           normalizeOverviewSelection();
           return;
         }
-        const sel=document.querySelector('.widget.selected') || document.querySelector('.widget.focused') || document.querySelector('.widget.focusTarget');
+        let sel=null;
+        try{const sid=(typeof UIState!=='undefined'&&UIState.selectedWidgetId!=null)?String(UIState.selectedWidgetId):'';if(sid)sel=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(sid):sid.replace(/"/g,'\\"'))+'"]');}catch(_e){}
+        sel=sel||document.querySelector('.widget.selected')||document.querySelector('.widget.focused')||document.querySelector('.widget.focusTarget');
         const id=sel && sel.dataset ? String(sel.dataset.id||'') : '';
         if(id && (id!==lastSel || isFocusActive())){
           lastSel=id;
@@ -70186,20 +70253,23 @@ document.addEventListener('click',function(e){
   ready(function(){
     var app=document.getElementById('app'); var btn=document.getElementById('widgetCycle'); if(!app) return;
     if(!document.getElementById('widget-overview-v6-style')){
-      var st=document.createElement('style'); st.id='widget-overview-v6-style'; st.textContent='body.widgetOverviewMode .widgetOverviewItem{opacity:1!important;filter:none!important;visibility:visible!important} body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected{outline:6px solid #6d5dfc!important;box-shadow:0 0 0 4px rgba(109,93,252,.30),0 22px 52px rgba(0,0,0,.44)!important;z-index:214748250!important} body:not(.widgetOverviewMode) .widget.selected,body:not(.widgetOverviewMode) .widget.focused,body:not(.widgetOverviewMode) .widget.focusTarget{z-index:214748250!important}';
+      var st=document.createElement('style'); st.id='widget-overview-v6-style'; st.textContent='body.widgetOverviewMode .widgetOverviewItem{opacity:1!important;filter:none!important;visibility:visible!important} body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected{outline:6px solid #6d5dfc!important;box-shadow:0 0 0 4px rgba(109,93,252,.30),0 22px 52px rgba(0,0,0,.44)!important;z-index:214748250!important}';
       document.head.appendChild(st);
     }
     function isOverview(){return document.body.classList.contains('widgetOverviewMode')||app.classList.contains('widgetOverviewMode');}
     function isFocus(){return ['focus-mode','focus-edit','focus-presentation','focus-maximized','focusMode'].some(function(c){return document.body.classList.contains(c)||app.classList.contains(c);});}
     function topZ(){var m=0;document.querySelectorAll('.widget').forEach(function(w){var z=parseInt(w.style.zIndex||getComputedStyle(w).zIndex||'0',10);if(Number.isFinite(z))m=Math.max(m,z);});return Math.max(m,window.__widgetOverviewTopZ||9000);}
     function front(w){if(!w)return;var z=(window.__widgetOverviewTopZ=topZ()+1);w.style.zIndex=String(z);}
-    function currentSelected(){return document.querySelector('.widget.selected:not(.focused):not(.focusTarget)')||document.querySelector('.widget.selected')||document.querySelector('.widget.focused')||document.querySelector('.widget.focusTarget');}
+    function currentSelected(){
+      try{var id=(typeof UIState!=='undefined'&&UIState.selectedWidgetId!=null)?String(UIState.selectedWidgetId):'';if(id){var el=document.querySelector('.widget[data-id="'+((window.CSS&&CSS.escape)?CSS.escape(id):id.replace(/"/g,'\\"'))+'"]');if(el)return el;}}catch(_e){}
+      return document.querySelector('.widget.selected:not(.focused):not(.focusTarget)')||document.querySelector('.widget.selected')||document.querySelector('.widget.focused')||document.querySelector('.widget.focusTarget');
+    }
     function syncFocusSelection(){
       if(isOverview()) return;
       var sel=currentSelected(); if(!sel) return;
-      if(isFocus()){document.querySelectorAll('.widget').forEach(function(w){if(w!==sel)w.classList.remove('selected','focused','focusTarget');}); sel.classList.add('selected','focused','focusTarget');}
-      else {document.querySelectorAll('.widget').forEach(function(w){if(w!==sel)w.classList.remove('focused','focusTarget');}); sel.classList.add('selected');}
-      front(sel);
+      document.querySelectorAll('.widget').forEach(function(w){if(w!==sel)w.classList.remove('selected','focused','focusTarget');});
+      if(isFocus()){sel.classList.add('selected','focused','focusTarget');front(sel);}
+      else {sel.classList.remove('focused','focusTarget');sel.classList.add('selected');}
     }
     function cleanOverviewButton(){ if(btn && !isOverview()){btn.classList.remove('active');btn.setAttribute('aria-pressed','false');} }
     cleanOverviewButton();
@@ -70232,7 +70302,7 @@ document.addEventListener('click',function(e){
         'body.widgetOverviewMode .toolbar,body.widgetOverviewMode .toolbarPeek,body.widgetOverviewMode .toolbarPinFloat,body.widgetOverviewMode .drawPanel,#toolbarWakeZone{display:none!important;opacity:0!important;pointer-events:none!important}',
         'body.widgetOverviewMode .title,body.widgetOverviewMode #title{display:block!important;opacity:1!important;visibility:visible!important;pointer-events:none!important;z-index:214748260!important}',
         /* Valgt/fokus/max skal altid ligge øverst udenfor overview. */
-        'body:not(.widgetOverviewMode) .widget.selected,body:not(.widgetOverviewMode) .widget.focused,body:not(.widgetOverviewMode) .widget.focusTarget{z-index:214748250!important}',
+        /* l1189: normaltilstand bruger widgetternes egne gemte z-værdier. */
         'body.widgetOverviewMode .widgetOverviewItem.widgetOverviewSelected{outline:6px solid #6d5dfc!important;box-shadow:0 0 0 4px rgba(109,93,252,.30),0 22px 52px rgba(0,0,0,.44)!important;z-index:214748250!important}'
       ].join('\n');
       document.head.appendChild(st);
@@ -95123,12 +95193,10 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
 #modal .safe454lList td:nth-child(4){width:74px!important;white-space:nowrap!important;}
 #modal .safe454lList th:nth-child(6),
 #modal .safe454lList td:nth-child(6){
-  width:150px!important;
-  white-space:nowrap!important;
-  text-overflow:ellipsis!important;
+  width:210px!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
 }
-#modal .safe454lList th:nth-child(7),
-#modal .safe454lList td:nth-child(7){width:62px!important;text-align:center!important;}
 #modal .safe454lList button{
   padding:5px 8px!important;
   min-height:28px!important;
