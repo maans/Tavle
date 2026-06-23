@@ -2,289 +2,235 @@
 
 ![Min undervisningstavle](README_infografik.png)
 
-En lokal, browserbaseret undervisningstavle til oplæg, aktiviteter, lister, quizzer, grupper, kalender, billeder, tegninger og visuel præsentation.
+**Tavle er lærerens lokale værktøj til at planlægge, organisere og gennemføre undervisning.**
 
-Appen er lavet som en enkel webapp, der kan bruges direkte i browseren — både online og som lokal kopi. Den er tænkt som et fleksibelt værktøj til undervisning, hvor du kan samle indhold, data, medier og aktiviteter ét sted.
+Her kan du samle oplæg, PDF’er, billeder, lister, elevoplysninger, aktiviteter, kalender og noter på tavler, der kan ændres undervejs. Appen bruges direkte i browseren og kræver hverken login eller en central server.
+
+Tavle er ikke et elevadministrations- eller afleveringssystem. Der er ingen elevkonti eller indbygget kommunikation mellem lærer og elever. Materialer kan deles som PDF, billeder og andre filer gennem de tjenester, skolen allerede bruger.
 
 ---
 
 ## Åbn appen
 
 ### Brug appen online
-Åbn appen direkte i browseren:
+
+Åbn Tavle direkte i browseren:
 
 https://maans.github.io/Tavle/
 
 ### Brug appen lokalt
-Hvis du vil have en lokal kopi med `index.html`, README, infografik, manifest og øvrige filer:
+
+Hent en lokal kopi med `index.html`, README, infografik, manifest og øvrige filer:
 
 https://github.com/maans/Tavle/archive/refs/heads/main.zip
 
-Pak ZIP-filen ud og åbn `index.html` i en moderne browser.
+Pak ZIP-filen ud, og åbn `index.html` i en moderne browser.
 
 ---
 
-## Hvad kan appen?
+## Hvad kan du bruge Tavle til?
 
-Appen er bygget op omkring tavler og widgets. Du kan oprette flere tavler, placere widgets frit og skifte mellem redigering, præsentation og fokus alt efter situationen i undervisningen.
+### Planlæg et undervisningsforløb
 
-### 1. Byg tavlen
-Du kan oprette og placere forskelligt indhold direkte på tavlen, bl.a.:
+Du kan oprette flere tavler i samme tavlerum og bruge dem som sider eller arbejdsflader i et forløb.
 
-- tekst
-- noter
-- billeder
-- PDF
-- links
-- YouTube/video
-- HTML/iframe
-- tegning/markering
-- kalender
-- ur og timer
+Et tavlerum kan for eksempel indeholde:
 
-Widgets kan flyttes, ændres i størrelse, roteres og låses efter behov.
+- start og dagsprogram
+- lærerens oplæg
+- instruktioner og opgaver
+- aktiviteter og gruppedannelse
+- billeder, links og PDF’er
+- opsamling og evaluering
+- reserveindhold
 
-### 2. Træk filer direkte ind på tavlen
-Du kan ofte bare slippe filer oven på tavlen. Appen opretter selv widgets for de filtyper, den forstår.
+Indholdet kan flyttes, ændres i størrelse, roteres, låses, skjules og vises igen. Det gør det muligt at tilpasse undervisningen, mens den er i gang, i stedet for at være bundet til en fast præsentation.
 
-Det kan fx være:
+### Gennemfør undervisningen fra samme sted
+
+Når tavlen er klar, kan du skifte fra redigering til en roligere visning:
+
+- **Præsentation** skjuler redigeringsgrejet.
+- **Fokus** fremhæver én widget ad gangen.
+- **Maksimering** lader én widget fylde skærmen.
+- **Tavleskift** fører dig gennem forløbets forskellige tavler.
+
+Du kan derfor bruge samme materiale til forberedelse, fælles visning, forklaring og aktivitet.
+
+---
+
+## Få materialer hurtigt ind
+
+Du kan trække én eller mange filer direkte ind på Tavle. Appen forsøger selv at oprette en passende widget for hver filtype.
+
+Det kan blandt andet være:
 
 - billeder
 - PDF-filer
+- regneark og CSV-filer
 - tekstfiler
-- regneark
-- CSV / TSV
 - kalenderfiler
+- lyd og video
 - backupfiler
 
-Det er praktisk, når du vil bygge en tavle op af eksisterende materiale: opgaver, billeder, programmer, lister, kalenderfiler eller tidligere backups.
+Billeder behandles ét ad gangen, så store billedsamlinger ikke belaster appen unødigt. De kan nedskaleres til en størrelse, der passer til Tavle, mens originalerne kun gemmes, hvis du vælger det.
 
-Du kan også slippe flere filer på én gang, så tavlen hurtigt bliver fyldt med de materialer, du skal bruge.
+Når flere billeder importeres samlet, kan de automatisk lægges ud som en matrix. I **præsentationstilstand** kan et billede åbnes stort ved klik, tryk eller med `Enter`. Her kan du bladre mellem billederne og lukke visningen igen med `Esc`.
 
-Hvis en fil ikke kan bruges direkte, ignorerer appen den eller giver besked — dine eksisterende tavler bliver ikke ødelagt af det.
+PDF’er åbnes som PDF-widgets, mens regneark og CSV-filer kan blive til data, som bruges videre i Tavle.
 
-### 3. Brug billeder og tegninger
-Billeder kan bruges til fotos, skærmbilleder, illustrationer, kort, opgaveark, baggrunde eller billeder taget direkte med kameraet.
+---
 
-Tegnewidgetten kan bruges til hurtige streger, markeringer og små forklaringer. Du kan cirkle noget ind, tegne pile, understrege, lave en skitse eller bygge videre oven på et billede.
+## Arbejd med tavler, lister og data
 
-Gemte tegninger samles i **Mine tegninger**, så du kan hente dem frem igen, tegne videre på dem, sætte dem ind som billede eller bruge dem som baggrund på en tavle.
+Tavle kan bruge navnelister, regneark og andre data som grundlag for undervisningens praktiske organisering.
 
-Det er især nyttigt, hvis du vil genbruge visuelle forklaringer fra time til time, gemme små tavleidéer eller forberede materiale hjemmefra og tage det frem i undervisningen.
+Du kan blandt andet:
 
-### 4. Brug data
-Appen kan arbejde med data og lister, så tavlen ikke kun er visuel, men også praktisk.
+- vise en liste eller et regneark på tavlen
+- bruge samme liste i Grupper eller Lykkehjulet
+- oprette elevkort og elevkortmatricer
+- danne grupper og gruppetavler
+- oprette tavler ud fra en liste
+- samle tavler som TavleKort
+- arbejde med kalenderdata og ICS-filer
 
-Du kan bl.a. bruge:
+Det betyder, at oplysninger ikke behøver at blive skrevet ind på ny, hver gang de skal bruges i en anden sammenhæng.
 
-- datawidget
-- CSV / TSV / Excel
-- gemte lister
-- kalenderdata
-- ICS-kalenderimport
+**Datacenter** giver et samlet overblik over sessioner, datakilder og forbindelser mellem tavler, kort og lister. Det er især nyttigt, når et større undervisningsforløb begynder at rumme mange tavler og data.
 
-Det gør det muligt at genbruge navnelister, holddata, spørgelister, puljer og kalenderinformation direkte i widgets og aktiviteter.
+---
 
-### 5. Kalender
-Kalenderen er til at få dagens, ugens eller månedens aktiviteter ind på tavlen, så programmet kan bruges direkte i undervisningen eller som fælles overblik.
+## Brug aktiviteter i undervisningen
 
-Du kan bruge kalenderen som:
+Tavle rummer flere aktiviteter, som kan bruges direkte i undervisningen:
 
-- enkel dagsplan
+- **KaPardy** til quiz og repetition
+- **Grupper** til gruppedannelse
+- **Lykkehjulet** til tilfældige valg
+- **Afstemning** til fælles respons
+- **Ordsky** til idéer og opsamling
+- **Timer og stopur** til tid og arbejdsperioder
+
+Aktiviteterne kan bruge lister og data, der allerede ligger i Tavle.
+
+---
+
+## Billeder, tegninger og visuelle forklaringer
+
+Billeder kan bruges som fotos, kort, illustrationer, skærmbilleder, opgaveark eller baggrunde.
+
+Du kan også:
+
+- tage billeder med kameraet
+- tegne og markere direkte på tavlen
+- tegne videre på et billede
+- gemme tegninger i **Mine tegninger**
+- bruge en tegning som billede eller baggrund
+- samle mange billeder på samme tavle
+- vise billeder stort i præsentationstilstand
+
+Det gør Tavle velegnet til visuelle forklaringer, gennemgang af elevprodukter, billedserier, kort, modeller og hurtige skitser.
+
+---
+
+## Kalender og planlægning
+
+Kalenderen kan bruges til:
+
+- dagsprogram
 - ugeskema
-- månedskalender
-- liste over kommende aktiviteter
-- program for en weekend, rejse, projektuge eller særlig skoledag
+- månedsoverblik
+- rejser og projektuger
+- arrangementer og særlige skoledage
 
-Du kan oprette aktiviteter direkte i kalenderen eller hente aktiviteter ind fra en kalenderfil, fx fra Viggo eller en anden kalender.
+Du kan oprette aktiviteter direkte eller importere en `.ics`-fil, for eksempel fra skolens kalender. Kalenderdata kan gemmes og bruges videre i Tavle.
 
-Hvis du gemmer kalenderen som datakilde, kan den bruges mere fleksibelt sammen med resten af tavlen og hentes frem igen senere.
+---
 
-### 6. Aktiviteter
-Appen rummer flere interaktive undervisningsaktiviteter:
+## Gem, genbrug og del
 
-- **KaPardy**
-- **Grupper**
-- **Lykkehjulet**
-- **Afstemning**
-- **Ordsky**
-
-De kan bruges til quiz, tilfældig udvælgelse, gruppering, elevrespons og fælles klasseaktiviteter.
-
-### 7. Vis for elever
-Tavlen kan bruges i forskellige visningstilstande, alt efter om du bygger, viser eller fremhæver indhold.
+Tavle gemmer arbejdet lokalt i browseren. Det giver en hurtig og enkel arbejdsform, men betyder også, at du selv skal sørge for backup.
 
 Du kan bruge:
 
-- **Præsentation** – roligere visning uden redigeringsgrej
-- **Fokus** – fremhæver én widget ad gangen
-- **Maksimering** – lader én widget fylde hele skærmen
-- **Tavleskift** – skift mellem flere tavler i samme forløb
+- **Backup** til den aktuelle session
+- **Backup+** når medier og tilknyttede filer skal med
+- **Backup++** til flere sessioner
+- **Sessionpakker** til at flytte udvalgte tavler til en anden session
+- **Papirkurv** til slettede widgets
+- **Gendannelsespunkter** til tidligere tilstande
+- **Tavleshots** til øjebliksbilleder af en tavle
 
-Det gør det nemt at gå fra forberedelse til elevvisning uden at skifte platform.
-
-### 8. Gem og gendan
-Appen har værktøjer til at passe på dit arbejde og genbruge det senere.
-
-Du kan bruge:
-
-- **Backup**
-- **Papirkurv**
-- **Gendannelsespunkter**
-- **Tavleshot**
-
-Det gør det lettere at eksperimentere, fortryde og vende tilbage til tidligere tavlestadier.
+Backupfiler kan gemmes, flyttes til en anden enhed eller deles gennem skolens eksisterende filsystemer.
 
 ---
 
-## Flere tavler i samme fil
+## Lærerens lokale arbejdsrum
 
-Du kan oprette flere tavler i samme projekt og bruge dem som sider i et undervisningsforløb.
+Tavle er først og fremmest lærerens eget undervisningsmiljø.
 
-Det er praktisk, hvis du vil samle fx:
-
-- startside
-- instruktioner
-- aktivitet
-- opsamling
-- materialer
-- reserveindhold
-
-i én samlet tavlefil.
-
----
-
-## Data og lister
-
-Lister og data kan bruges på tværs af flere widgets.
-
-Det betyder fx, at du kan:
-
-- hente en navneliste ind i Lykkehjulet
-- bruge samme data i Grupper
-- arbejde med datawidgets som kilde
-- importere regneark og gemme dem som lister
-- hente kalenderdata ind og bruge dem i tavlen
-
-På den måde kan tavlen fungere både som præsentation og som arbejdsredskab.
-
----
-
-## Kalender og ICS
-
-Kalenderwidgetten kan bruges til at vise og arbejde med aktiviteter og planlægning.
-
-Du kan bl.a.:
-
-- importere `.ics`-filer
-- oprette aktiviteter direkte i kalenderen
-- vise kalenderen som dag, uge, måned eller liste
-- gemme kalenderdata som datawidget
-- bruge kalenderdata videre i tavlen
-- koble tavleindhold til planlagte aktiviteter
-
-Det gør appen anvendelig til programoversigter, ugeplaner, arrangementer, rejser, weekendplaner og undervisningsforløb.
-
----
-
-## Billeder og tegninger
-
-Billed- og tegnefunktionerne gør tavlen mere visuel.
-
-Du kan fx:
-
-- sætte fotos og illustrationer ind på tavlen
-- tage billeder direkte med kameraet
-- bruge billeder som udgangspunkt for forklaringer
-- tegne ovenpå billeder
-- gemme tegninger i Mine tegninger
-- hente gemte tegninger frem igen
-- bruge tegninger som billeder eller baggrunde
-
-Det gør det let at arbejde med visuelle forklaringer, elevidéer, opgavegennemgang, kort, billeder og små skitser direkte på tavlen.
-
----
-
-## Import af filer og medier
-
-En af appens hurtigste arbejdsgange er at trække materiale direkte ind på tavlen.
-
-Du kan slippe én eller flere filer oven på appen, og den forsøger selv at oprette passende widgets for de filtyper, den forstår.
-
-Det kan bruges til hurtigt at få:
-
-- opgavefiler
-- billeder
-- PDF’er
-- regneark
-- navnelister
-- kalenderfiler
-- backupfiler
-
-ind i samme tavleforløb.
-
----
-
-## Gemmes lokalt
-
-Appen arbejder lokalt i browseren.
-
-Det betyder i praksis:
+Det betyder:
 
 - ingen login
-- ingen server nødvendig
-- ingen database nødvendig
-- indhold gemmes i browserens lokale lagring
-- du kan tage backup og åbne tavlefiler igen senere
+- ingen elevkonti
+- ingen central database
+- ingen indbygget aflevering eller beskedsystem
+- indhold og medier gemmes lokalt i browseren
+- læreren bestemmer, hvad der vises, deles og gemmes
 
-Det gør appen enkel at bruge i undervisningssammenhæng og velegnet til lokal og hurtig brug.
+PDF’er, billeder og andre filer kan udleveres eller modtages gennem skolens sædvanlige tjenester. Tavle behøver ikke være en del af elevernes arbejdsproces.
 
 ---
 
-## Backup og gendannelse
+## Hjælp i appen
 
-Du kan gemme dit arbejde som backup og åbne det igen senere.
+Den indbyggede **Hjælp** forklarer de konkrete arbejdsgange, genveje og værktøjer.
 
-Backup er nyttigt, når du vil:
+Her finder du blandt andet hjælp til:
 
-- flytte tavler mellem enheder
-- gemme et undervisningsforløb
-- lave en sikker kopi før du eksperimenterer
-- dele en tavlefil med dig selv eller andre
-- gendanne tidligere arbejde
+- tavler og widgets
+- filimport
+- billeder og stor billedvisning
+- PDF og data
+- elev-, gruppe- og tavlekort
+- aktiviteter
+- sessioner og backup
+- tastatur, touch og præsentation
 
-Appen kan også arbejde med gendannelsespunkter og tavleshots, så du kan vende tilbage til tidligere tavlestadier uden nødvendigvis at overskrive det, du arbejder på nu.
+README-filen er den korte indgang. Hjælp i appen er den praktiske vejledning, når du arbejder.
 
 ---
 
 ## Browserapp og iPad
 
-Pakken indeholder også `manifest.webmanifest` og app-ikoner, så appen fungerer godt som browserapp og kan bruges via fx **“Føj til hjemmeskærm”** på iPad og andre enheder, der understøtter dette.
+Pakken indeholder `manifest.webmanifest` og app-ikoner, så Tavle kan bruges som browserapp og føjes til hjemmeskærmen på iPad og andre enheder, der understøtter det.
 
 ---
 
 ## Filoversigt
 
-Pakken indeholder bl.a.:
+Pakken indeholder blandt andet:
 
 - `index.html` – selve appen
-- `README.md` – denne fil
-- `README_infografik.png` – infografikken til README
+- `README.md` – denne introduktion
+- `README_infografik.png` – infografikken øverst
 - `manifest.webmanifest` – webapp-manifest
 
 ---
 
 ## Kort fortalt
 
-**Min undervisningstavle** samler:
+**Min undervisningstavle** samler lærerens:
 
 - tavler
-- widgets
-- data
-- medier
-- kalender
+- materialer
+- billeder og PDF’er
+- lister og data
+- elev- og gruppeoverblik
 - aktiviteter
+- kalender
 - præsentation
-- backup og gendannelse
+- backup og genbrug
 
-i én lokal webapp, som kan bruges direkte i undervisningen.
+i én lokal browserapp, der kan tilpasses undervisningen, mens den foregår.
