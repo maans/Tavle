@@ -1,3 +1,4 @@
+<!-- l1210_fokus_retour_kort_lightbox_OWNER_SAFE: Bygger direkte på l1209. Elevkort-, Gruppekort- og TavleKortdetaljer samt billed-lightbox forlader midlertidigt aktiv fokus til en ren præsentationsvisning og gendanner ved Luk/Escape den tidligere fokusart på det kort/billede, man endte ved. Navigation til tavle/widget/data annullerer retur. Eksisterende kortnavigation, lightbox-zoom og Escape-ejere bevares. -->
 <!-- l1209_kortdetaljer_esc_en_gang_OWNER_SAFE: Bygger direkte på l1208. Retter kun den eksisterende l805-Escape-ejer, så åbne Gruppekort- og TavleKortdetaljer ejer første Escape på samme måde som Elevkort og billed-lightbox. Ét Escape lukker Detaljer og bevarer matrixkortets valg; ingen ny tastaturhandler. -->
 <!-- l1208_tavlekort_space_vis_skjul_OWNER_SAFE: Bygger direkte på l1207. TavleKort-detaljevisningen ejer nu Mellemrum før Tavlens to tidlige Mere-menu-ejere, men kun når Detaljer er åben og en widgetrække er valgt. Samme eksisterende Vis/Skjul-ejer kaldes; når detaljevisningen er lukket, åbner Mellemrum igen Mere som hidtil. Ingen ny global keydown-handler. -->
 <!-- l1207_kortmatrix_enter_navigation_OWNER_SAFE: Bygger direkte på l1206. Udvider kun de eksisterende kortmatrix- og detaljeejere: Enter åbner Detaljer for valgt Gruppekort/TavleKort i præsentation; Gruppekort bruger op/ned mellem grupper og venstre/højre mellem Gruppe/Arbejde; TavleKort bruger venstre/højre mellem tavler, op/ned i widgetlisten, Mellemrum til Vis/Skjul og Enter til valgt widget eller tavlen. Elevkort, Redningsbælte, lightbox, billedimport og øvrige genveje bevares. -->
@@ -24316,6 +24317,97 @@ function safe1072OpenAddressMatrixModal(ds,sourceW,options){
 function safe1075FindWidgetRecordAny(widgetId){
   try{for(let si=0;si<(state.slides||[]).length;si++){const ws=(state.slides[si]&&state.slides[si].widgets)||[];for(let wi=0;wi<ws.length;wi++){if(ws[wi]&&String(ws[wi].id)===String(widgetId))return {w:ws[wi],slideIndex:si,widgetIndex:wi};}}}catch(_e){}return null;
 }
+/* l1210: Fælles, lokal returmodel for kortdetaljer og billed-lightbox.
+   Den bruges kun af de fire eksisterende visningsejere; ingen ny global tastaturhandler. */
+function safe1210FocusIsActive(){
+  try{
+    return !!((typeof focusMode!=='undefined'&&focusMode) ||
+      (typeof focusMaximized!=='undefined'&&focusMaximized) ||
+      document.body.classList.contains('focus-mode') ||
+      document.body.classList.contains('focus-edit') ||
+      document.body.classList.contains('focus-presentation') ||
+      document.body.classList.contains('focus-maximized'));
+  }catch(_e){return false;}
+}
+function safe1210CurrentFocusMode(){
+  try{
+    if(typeof focusMode!=='undefined'&&(focusMode==='edit'||focusMode==='presentation'))return focusMode;
+    if(document.body.classList.contains('focus-presentation'))return 'presentation';
+    if(document.body.classList.contains('focus-edit'))return 'edit';
+    const a=document.getElementById('app');
+    return a&&a.classList.contains('present')?'presentation':'edit';
+  }catch(_e){return 'edit';}
+}
+function safe1210FindWidgetRecordAny(widgetId){
+  try{
+    const id=String(widgetId||'');if(!id)return null;
+    for(let si=0;si<(state&&state.slides||[]).length;si++){
+      const ws=(state.slides[si]&&state.slides[si].widgets)||[];
+      for(let wi=0;wi<ws.length;wi++)if(ws[wi]&&String(ws[wi].id)===id)return {w:ws[wi],slideIndex:si,widgetIndex:wi};
+    }
+  }catch(_e){}
+  return null;
+}
+function safe1210PrepareFocusReturn(kind,widgetId){
+  try{
+    if(!safe1210FocusIsActive())return null;
+    const a=document.getElementById('app');
+    const ret={
+      kind:String(kind||''),
+      widgetId:String(widgetId||''),
+      slideIndex:Number(state&&state.active)||0,
+      mode:safe1210CurrentFocusMode(),
+      wasPresent:!!(a&&a.classList.contains('present')),
+      maximized:!!((typeof focusMaximized!=='undefined'&&focusMaximized)||document.body.classList.contains('focus-maximized')),
+      restored:false
+    };
+    try{if(ret.maximized&&typeof setFocusMaximized==='function')setFocusMaximized(false);}catch(_e){}
+    try{if(typeof setFocusMode==='function')setFocusMode(null);}catch(_e){}
+    try{
+      if(a&&!a.classList.contains('present')){
+        const p=document.getElementById('present');
+        if(p)p.click();
+        else{a.classList.add('present');if(window.UIState)UIState.mode='presentation';try{applyUIState();}catch(_ui){}}
+      }
+    }catch(_e){}
+    return ret;
+  }catch(_e){return null;}
+}
+function safe1210RestoreFocusReturn(ret,currentWidgetId){
+  try{
+    if(!ret||ret.restored)return false;ret.restored=true;
+    const id=String(currentWidgetId||ret.widgetId||'');
+    const rec=safe1210FindWidgetRecordAny(id);
+    let rerender=false;
+    if(rec&&Number(rec.slideIndex)!==Number(state.active)){
+      state.active=rec.slideIndex;rerender=true;
+      try{selected=null;if(window.UIState)UIState.selectedWidgetId=null;}catch(_e){}
+    }
+    const a=document.getElementById('app');
+    const wantPresent=ret.mode==='presentation';
+    if(a&&a.classList.contains('present')!==wantPresent){
+      const p=document.getElementById('present');
+      if(p)p.click();
+      else{a.classList.toggle('present',wantPresent);if(window.UIState)UIState.mode=wantPresent?'presentation':'editing';try{applyUIState();}catch(_ui){}}
+    }
+    if(rerender){try{render();save({silent:true});}catch(_e){}}
+    setTimeout(function(){
+      try{
+        if(id&&typeof select==='function')select(id,{editText:false});
+        if(typeof setFocusMode==='function')setFocusMode(ret.mode==='presentation'?'presentation':'edit');
+        setTimeout(function(){
+          try{
+            const el=id?document.querySelector('.widget[data-id="'+CSS.escape(id)+'"]'):null;
+            if(el&&typeof setFocusTarget==='function')setFocusTarget(el);
+            if(ret.maximized&&typeof setFocusMaximized==='function')setFocusMaximized(true);
+            try{if(typeof positionFocusExitPrimary==='function')positionFocusExitPrimary();}catch(_e){}
+          }catch(_e){}
+        },0);
+      }catch(_e){}
+    },rerender?70:25);
+    return true;
+  }catch(_e){return false;}
+}
 function safe1075MatrixFocusRecords(w){
   const gid=String(w&&w.data&&w.data.addressCardMatrixGroupId||''),out=[];try{(state.slides||[]).forEach((sl,si)=>{if(typeof safe588IsTrashSlide==='function'&&safe588IsTrashSlide(sl))return;((sl&&sl.widgets)||[]).forEach((cw,wi)=>{if(!cw||!cw.data||cw.data.addressCardMatrix!==true)return;if(gid&&String(cw.data.addressCardMatrixGroupId||'')!==gid)return;out.push({w:cw,slideIndex:si,widgetIndex:wi,order:Number.isFinite(Number(cw.data.addressCardMatrixOrder))?Number(cw.data.addressCardMatrixOrder):(si*10000+wi)});});});}catch(_e){}out.sort((a,b)=>a.order-b.order);return out;
 }
@@ -24329,8 +24421,10 @@ function safe1075AddressFocusProxy(w,ctx){
   });}catch(_e){proxy.data=Object.assign({},target,{addressCardMatrixExpanded:true,addressCardMatrixCompact:false,addressCardActiveTab:validTab(focusCtx&&focusCtx.activeTab||target.addressCardActiveTab)});}
   return proxy;
 }
-function safe1075CloseAddressFocus(){
-  const ctx=window.__safe1075AddressFocus;window.__safe1075AddressFocus=null;try{if(ctx&&ctx.keyHandler)window.removeEventListener('keydown',ctx.keyHandler,true);}catch(_e){}try{const el=document.getElementById('safe1075AddressFocusBackdrop');if(el)el.remove();}catch(_e){}return true;
+function safe1075CloseAddressFocus(opts){
+  const ctx=window.__safe1075AddressFocus;window.__safe1075AddressFocus=null;try{if(ctx&&ctx.keyHandler)window.removeEventListener('keydown',ctx.keyHandler,true);}catch(_e){}try{const el=document.getElementById('safe1075AddressFocusBackdrop');if(el)el.remove();}catch(_e){}
+  if(!(opts&&opts.restore===false)&&ctx&&ctx.returnState)try{safe1210RestoreFocusReturn(ctx.returnState,ctx.widgetId);}catch(_e){}
+  return true;
 }
 function safe1075RenderAddressFocus(){
   try{
@@ -24338,7 +24432,7 @@ function safe1075RenderAddressFocus(){
     const records=safe1075MatrixFocusRecords(w),index=Math.max(0,records.findIndex(r=>String(r.w.id)===String(w.id))),title=back.querySelector('[data-safe1075-focus-title]'),count=back.querySelector('[data-safe1075-focus-count]'),prev=back.querySelector('[data-safe1075-focus-prev]'),next=back.querySelector('[data-safe1075-focus-next]'),open=back.querySelector('[data-safe1075-focus-open]'),content=back.querySelector('[data-safe1075-focus-content]');
     const hit=safe962FindRowForAddressCard(ds,w),info=hit&&hit.row?safe962NameInfo(ds,hit.row):{full:'Elevkort'},studentBoard=safe1122FindStudentBoard(w);if(title)title.textContent=info.full||'Elevkort';if(count)count.textContent=(index+1)+' / '+records.length;if(prev)prev.disabled=records.length<=1;if(next)next.disabled=records.length<=1;if(open){open.disabled=!studentBoard;open.textContent=studentBoard?'Åbn elevtavle':'Ingen elevtavle';}
     if(!/^(elev|mor|far|notater)$/.test(String(ctx.activeTab||'')))ctx.activeTab=safe978AddressActiveTab(w);
-    const focusW=safe1075AddressFocusProxy(w,ctx);ctx.focusW=focusW;ctx.records=records;ctx.index=index;if(content){content.innerHTML=safe962AddressCardHtml(ds,focusW);content.querySelectorAll('[data-safe1072-matrix-compact]').forEach(btn=>btn.remove());const noteExit=e=>{try{const t=e.target&&e.target.closest&&e.target.closest('.addressNoteCard,.addressNotesNewBtn,.addressNotesAllBtn,.addressNotesPdfBtn');if(t)setTimeout(safe1075CloseAddressFocus,120);}catch(_e){}};content.addEventListener('pointerup',noteExit,true);content.addEventListener('click',noteExit,true);safe962WireAddressCard(content,focusW,ds);}return true;
+    const focusW=safe1075AddressFocusProxy(w,ctx);ctx.focusW=focusW;ctx.records=records;ctx.index=index;if(content){content.innerHTML=safe962AddressCardHtml(ds,focusW);content.querySelectorAll('[data-safe1072-matrix-compact]').forEach(btn=>btn.remove());const noteExit=e=>{try{const t=e.target&&e.target.closest&&e.target.closest('.addressNoteCard,.addressNotesNewBtn,.addressNotesAllBtn,.addressNotesPdfBtn');if(t)setTimeout(function(){safe1075CloseAddressFocus({restore:false});},120);}catch(_e){}};content.addEventListener('pointerup',noteExit,true);content.addEventListener('click',noteExit,true);safe962WireAddressCard(content,focusW,ds);}return true;
   }catch(err){try{console.warn('l1075 Elevkort-fokus render fejlede',err);}catch(_e){}return false;}
 }
 function safe1075StepAddressFocus(delta){
@@ -24398,7 +24492,7 @@ function safe1122OpenCurrentStudentTarget(){
   try{
     const ctx=window.__safe1075AddressFocus,rec=ctx&&safe1075FindWidgetRecordAny(ctx.widgetId),hit=rec&&safe1122FindStudentBoard(rec.w);
     if(!hit){try{toast('Der findes ingen elevtavle for dette Elevkort');}catch(_e){}return false;}
-    safe1075CloseAddressFocus();state.active=hit.slideIndex;try{selected=null;if(window.UIState)UIState.selectedWidgetId=null;}catch(_e){}render();
+    safe1075CloseAddressFocus({restore:false});state.active=hit.slideIndex;try{selected=null;if(window.UIState)UIState.selectedWidgetId=null;}catch(_e){}render();
     if(hit.w)setTimeout(()=>{try{select(hit.w.id,{editText:false});}catch(_e){}},45);
     return true;
   }catch(_e){return false;}
@@ -24408,9 +24502,10 @@ function safe1075BindFocusTap(el,fn){
 }
 function safe1075OpenAddressCardFocus(widgetId){
   try{
-    const rec=safe1075FindWidgetRecordAny(widgetId);if(!rec||!rec.w||!rec.w.data||rec.w.data.addressCardMatrix!==true)return false;if(rec.slideIndex!==state.active){state.active=rec.slideIndex;render();save();setTimeout(()=>safe1075OpenAddressCardFocus(widgetId),60);return true;}safe1075CloseAddressFocus();
+    const rec=safe1075FindWidgetRecordAny(widgetId);if(!rec||!rec.w||!rec.w.data||rec.w.data.addressCardMatrix!==true)return false;if(rec.slideIndex!==state.active){state.active=rec.slideIndex;render();save();setTimeout(()=>safe1075OpenAddressCardFocus(widgetId),60);return true;}safe1075CloseAddressFocus({restore:false});
+    const returnState=safe1210PrepareFocusReturn('address',widgetId);
     const back=document.createElement('div');back.id='safe1075AddressFocusBackdrop';back.className='safe1075AddressFocusBackdrop';back.innerHTML='<div class="safe1075AddressFocusPanel" role="dialog" aria-modal="true" aria-label="Elevkortdetaljer"><div class="safe1075AddressFocusTop"><button type="button" data-safe1075-focus-prev aria-label="Forrige elev">↑</button><button type="button" data-safe1075-focus-next aria-label="Næste elev">↓</button><strong class="safe1075AddressFocusTitle" data-safe1075-focus-title>Elevkort</strong><span class="safe1075AddressFocusCount" data-safe1075-focus-count></span><button type="button" class="safe1075AddressFocusOpen" data-safe1075-focus-open>Åbn elevtavle</button><button type="button" data-safe1075-focus-close>Luk</button></div><div class="safe1075AddressFocusBody"><div class="widget selected safe1075FocusWidget" data-type="text"><div class="content text" data-safe1075-focus-content></div></div></div></div>';
-    const keyHandler=e=>{try{if(!window.__safe1075AddressFocus)return;const t=e.target,editable=!!(t&&(t.isContentEditable||(t.closest&&t.closest('input,textarea,select,[contenteditable="true"]'))));if(editable)return;const k=String(e.key||'');if((k==='Enter'||k==='Return')&&e.shiftKey)return;if((k==='Enter'||k==='Return')&&t&&t.closest&&t.closest('button'))return;const owned=(k==='Escape'||k==='Esc'||k==='ArrowLeft'||k==='ArrowRight'||k==='ArrowUp'||k==='ArrowDown'||k==='Enter'||k==='Return');if(!owned)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();if(k==='Escape'||k==='Esc')return safe1075CloseAddressFocus();if(k==='ArrowUp')return safe1075StepAddressFocus(-1);if(k==='ArrowDown')return safe1075StepAddressFocus(1);if(k==='ArrowLeft')return safe1205StepAddressFocusTab(-1);if(k==='ArrowRight')return safe1205StepAddressFocusTab(1);if((k==='Enter'||k==='Return')&&!e.ctrlKey&&!e.metaKey&&!e.altKey)return safe1122OpenCurrentStudentTarget();}catch(_e){}};window.__safe1075AddressFocus={widgetId:String(widgetId),keyHandler:keyHandler,activeTab:safe978AddressActiveTab(rec.w)};try{select(widgetId,{editText:false});}catch(_e){}window.addEventListener('keydown',keyHandler,true);document.body.appendChild(back);
+    const keyHandler=e=>{try{if(!window.__safe1075AddressFocus)return;const t=e.target,editable=!!(t&&(t.isContentEditable||(t.closest&&t.closest('input,textarea,select,[contenteditable="true"]'))));if(editable)return;const k=String(e.key||'');if((k==='Enter'||k==='Return')&&e.shiftKey)return;if((k==='Enter'||k==='Return')&&t&&t.closest&&t.closest('button'))return;const owned=(k==='Escape'||k==='Esc'||k==='ArrowLeft'||k==='ArrowRight'||k==='ArrowUp'||k==='ArrowDown'||k==='Enter'||k==='Return');if(!owned)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();if(k==='Escape'||k==='Esc')return safe1075CloseAddressFocus();if(k==='ArrowUp')return safe1075StepAddressFocus(-1);if(k==='ArrowDown')return safe1075StepAddressFocus(1);if(k==='ArrowLeft')return safe1205StepAddressFocusTab(-1);if(k==='ArrowRight')return safe1205StepAddressFocusTab(1);if((k==='Enter'||k==='Return')&&!e.ctrlKey&&!e.metaKey&&!e.altKey)return safe1122OpenCurrentStudentTarget();}catch(_e){}};window.__safe1075AddressFocus={widgetId:String(widgetId),keyHandler:keyHandler,activeTab:safe978AddressActiveTab(rec.w),returnState:returnState};try{select(widgetId,{editText:false});}catch(_e){}window.addEventListener('keydown',keyHandler,true);document.body.appendChild(back);
     back.addEventListener('pointerdown',e=>{if(e.target===back)safe1075CloseAddressFocus();},true);const panel=back.querySelector('.safe1075AddressFocusPanel');if(panel)panel.addEventListener('pointerdown',e=>{try{e.stopPropagation();}catch(_e){}},true);
     safe1075BindFocusTap(back.querySelector('[data-safe1075-focus-prev]'),()=>safe1075StepAddressFocus(-1));safe1075BindFocusTap(back.querySelector('[data-safe1075-focus-next]'),()=>safe1075StepAddressFocus(1));safe1075BindFocusTap(back.querySelector('[data-safe1075-focus-open]'),safe1122OpenCurrentStudentTarget);back.querySelectorAll('[data-safe1075-focus-close]').forEach(btn=>safe1075BindFocusTap(btn,safe1075CloseAddressFocus));return safe1075RenderAddressFocus();
   }catch(err){try{console.warn('l1075 Elevkort-fokus fejlede',err);}catch(_e){}safe1075CloseAddressFocus();return false;}
@@ -28036,10 +28131,11 @@ function safe1089RememberGroupFocusUi(ctx){
     ctx.uiById[String(ctx.widgetId)]={groupCardTab:String(ctx.focusW.data.groupCardTab||'group'),groupWorkTab:String(ctx.focusW.data.groupWorkTab||'tasks')};
   }catch(_e){}
 }
-function safe1089CloseGroupFocus(){
+function safe1089CloseGroupFocus(opts){
   const ctx=window.__safe1089GroupFocus;window.__safe1089GroupFocus=null;
   try{if(ctx&&ctx.keyHandler)document.removeEventListener('keydown',ctx.keyHandler,true);}catch(_e){}
   try{const el=document.getElementById('safe1089GroupFocusBackdrop');if(el)el.remove();}catch(_e){}
+  if(!(opts&&opts.restore===false)&&ctx&&ctx.returnState)try{safe1210RestoreFocusReturn(ctx.returnState,ctx.widgetId);}catch(_e){}
   return true;
 }
 function safe1089BindFocusTap(el,fn){
@@ -28097,7 +28193,7 @@ function safe1089OpenCurrentGroupTarget(){
     const ctx=window.__safe1089GroupFocus,rr=ctx&&safe1059FindWidgetRecord(ctx.widgetId),ii=rr&&safe1059GroupDefForCard(rr.w);
     if(!ii||!ii.rec||!ii.def)return false;
     const hit=safe1087FindActualGroupBoard(ii.rec.w,ii.def);
-    safe1089CloseGroupFocus();
+    safe1089CloseGroupFocus({restore:false});
     if(hit){state.active=hit.index;selected=null;if(window.UIState)UIState.selectedWidgetId=null;render();save({silent:true});return true;}
     state.active=ii.rec.slideIndex;selected=null;if(window.UIState)UIState.selectedWidgetId=null;render();
     setTimeout(()=>{try{select(ii.rec.w.id,{editText:false});}catch(_e){}},40);
@@ -28108,17 +28204,18 @@ function safe1089OpenGroupCardFocus(widgetId){
   try{
     const rec=safe1059FindWidgetRecord(widgetId);if(!rec||!rec.w||!rec.w.data||rec.w.data.groupCardMatrix!==true)return false;
     if(rec.slideIndex!==state.active){state.active=rec.slideIndex;render();save();setTimeout(()=>safe1089OpenGroupCardFocus(widgetId),60);return true;}
-    safe1089CloseGroupFocus();
+    safe1089CloseGroupFocus({restore:false});
+    const returnState=safe1210PrepareFocusReturn('group',widgetId);
     const back=document.createElement('div');back.id='safe1089GroupFocusBackdrop';back.className='safe1089GroupFocusBackdrop';
     back.innerHTML='<div class="safe1089GroupFocusPanel" role="dialog" aria-modal="true" aria-label="Gruppekortdetaljer"><div class="safe1089GroupFocusTop"><button type="button" data-safe1089-focus-prev aria-label="Forrige gruppe">↑</button><button type="button" data-safe1089-focus-next aria-label="Næste gruppe">↓</button><strong class="safe1089GroupFocusTitle" data-safe1089-focus-title>Gruppekort</strong><span class="safe1089GroupFocusCount" data-safe1089-focus-count></span><button type="button" class="safe1089GroupFocusSource" data-safe1089-focus-source>GruppeWidget</button><button type="button" class="safe1089GroupFocusBoard" data-safe1089-focus-board hidden>Gruppetavle</button><button type="button" data-safe1089-focus-close>Luk</button></div><div class="safe1089GroupFocusBody" data-safe1089-focus-body></div></div>';
     const keyHandler=e=>{try{if(!window.__safe1089GroupFocus)return;const t=e.target,editable=!!(t&&(t.isContentEditable||(t.closest&&t.closest('input,textarea,select,[contenteditable=\"true\"]'))));if(editable)return;const k=String(e.key||'');if((k==='Enter'||k==='Return')&&e.shiftKey)return;if((k==='Enter'||k==='Return')&&t&&t.closest&&t.closest('button'))return;const owned=(k==='Escape'||k==='Esc'||k==='ArrowLeft'||k==='ArrowRight'||k==='ArrowUp'||k==='ArrowDown'||k==='Enter'||k==='Return');if(!owned)return;e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();if(k==='Escape'||k==='Esc')return safe1089CloseGroupFocus();if(k==='ArrowUp')return safe1089StepGroupFocus(-1);if(k==='ArrowDown')return safe1089StepGroupFocus(1);if(k==='ArrowLeft')return safe1207StepGroupFocusTab(-1);if(k==='ArrowRight')return safe1207StepGroupFocusTab(1);if((k==='Enter'||k==='Return')&&!e.ctrlKey&&!e.metaKey&&!e.altKey)return safe1089OpenCurrentGroupTarget();}catch(_e){}};
-    window.__safe1089GroupFocus={widgetId:String(widgetId),keyHandler:keyHandler,uiById:{}};try{select(widgetId,{editText:false});}catch(_e){}document.addEventListener('keydown',keyHandler,true);document.body.appendChild(back);
+    window.__safe1089GroupFocus={widgetId:String(widgetId),keyHandler:keyHandler,uiById:{},returnState:returnState};try{select(widgetId,{editText:false});}catch(_e){}document.addEventListener('keydown',keyHandler,true);document.body.appendChild(back);
     back.addEventListener('pointerdown',e=>{if(e.target===back)safe1089CloseGroupFocus();},true);const panel=back.querySelector('.safe1089GroupFocusPanel');if(panel)panel.addEventListener('pointerdown',e=>{try{e.stopPropagation();}catch(_e){}},true);
     safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-prev]'),()=>safe1089StepGroupFocus(-1));
     safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-next]'),()=>safe1089StepGroupFocus(1));
     back.querySelectorAll('[data-safe1089-focus-close]').forEach(btn=>safe1089BindFocusTap(btn,safe1089CloseGroupFocus));
-    safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-source]'),()=>{const ctx=window.__safe1089GroupFocus,rr=ctx&&safe1059FindWidgetRecord(ctx.widgetId),ii=rr&&safe1059GroupDefForCard(rr.w);if(!ii||!ii.rec)return;const ownerW=ii.rec.w;safe1089CloseGroupFocus();state.active=ii.rec.slideIndex;render();setTimeout(()=>{try{select(ownerW.id,{editText:false});}catch(_e){}},40);});
-    safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-board]'),()=>{const ctx=window.__safe1089GroupFocus,rr=ctx&&safe1059FindWidgetRecord(ctx.widgetId),ii=rr&&safe1059GroupDefForCard(rr.w);if(!ii||!ii.rec||!ii.def)return;const hit=safe1087FindActualGroupBoard(ii.rec.w,ii.def);if(hit){safe1089CloseGroupFocus();state.active=hit.index;render();}else{safe1089RenderGroupFocus();toast('Gruppetavlen findes ikke længere');}});
+    safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-source]'),()=>{const ctx=window.__safe1089GroupFocus,rr=ctx&&safe1059FindWidgetRecord(ctx.widgetId),ii=rr&&safe1059GroupDefForCard(rr.w);if(!ii||!ii.rec)return;const ownerW=ii.rec.w;safe1089CloseGroupFocus({restore:false});state.active=ii.rec.slideIndex;render();setTimeout(()=>{try{select(ownerW.id,{editText:false});}catch(_e){}},40);});
+    safe1089BindFocusTap(back.querySelector('[data-safe1089-focus-board]'),()=>{const ctx=window.__safe1089GroupFocus,rr=ctx&&safe1059FindWidgetRecord(ctx.widgetId),ii=rr&&safe1059GroupDefForCard(rr.w);if(!ii||!ii.rec||!ii.def)return;const hit=safe1087FindActualGroupBoard(ii.rec.w,ii.def);if(hit){safe1089CloseGroupFocus({restore:false});state.active=hit.index;render();}else{safe1089RenderGroupFocus();toast('Gruppetavlen findes ikke længere');}});
     return safe1089RenderGroupFocus();
   }catch(err){try{console.warn('l1089 Gruppekort-fokus fejlede',err);}catch(_e){}safe1089CloseGroupFocus();return false;}
 }
@@ -28214,7 +28311,7 @@ function safe1059WireGroupCard(c,cardW){
   function bind(el,fn){if(!el)return;let last=0;['pointerdown','touchstart','mousedown'].forEach(t=>{try{el.addEventListener(t,e=>{e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();},{capture:true,passive:true});}catch(_e){}});['pointerup','touchend','click'].forEach(t=>{try{el.addEventListener(t,e=>{const now=Date.now();if(now-last<320){stop(e);return;}last=now;stop(e);fn(e);},{capture:true,passive:false});}catch(_e){}});}
   c.querySelectorAll('[data-tab]').forEach(btn=>bind(btn,()=>{cardW.data.groupCardTab=btn.dataset.tab||'group';fillContent(c.closest('.widget'),cardW);save();}));
   c.querySelectorAll('[data-work-tab]').forEach(btn=>bind(btn,()=>{cardW.data.groupWorkTab=btn.dataset.workTab||'tasks';fillContent(c.closest('.widget'),cardW);save();}));
-  const safe1086GoSource=()=>{try{if(typeof safe1089CloseGroupFocus==='function')safe1089CloseGroupFocus();}catch(_e){}state.active=info.rec.slideIndex;render();setTimeout(()=>{try{select(ownerW.id,{editText:false});}catch(_e){}},40);};
+  const safe1086GoSource=()=>{try{if(typeof safe1089CloseGroupFocus==='function')safe1089CloseGroupFocus({restore:false});}catch(_e){}state.active=info.rec.slideIndex;render();setTimeout(()=>{try{select(ownerW.id,{editText:false});}catch(_e){}},40);};
   bind(c.querySelector('.safe1059GoSourceGroup'),safe1086GoSource);
   bind(c.querySelector('.safe1086GroupMatrixSource'),safe1086GoSource);
   bind(c.querySelector('.safe1086GroupMatrixDetails'),()=>safe1086OpenGroupMatrixDetails(cardW));
@@ -28223,7 +28320,7 @@ function safe1059WireGroupCard(c,cardW){
   c.querySelectorAll('.safe1059MemberRoleInput').forEach(inp=>{inp.addEventListener('pointerdown',e=>e.stopPropagation(),true);inp.addEventListener('input',()=>{def.roles=def.roles||{};def.roles[safe1059Norm(inp.dataset.member||'')]=String(inp.value||'');save({silent:true});});inp.addEventListener('change',()=>{safe1059RefreshLinkedGroupBoards(ownerW,{save:true});safe1059RefreshSourceDom(ownerW);try{if(typeof safe1089RefreshGroupFocus==='function')safe1089RefreshGroupFocus(cardW.id);}catch(_e){}});});
   c.querySelectorAll('[data-new-work]').forEach(btn=>bind(btn,()=>safe1059OpenWorkEditor(cardW,'',btn.dataset.newWork||'Notat')));
   c.querySelectorAll('[data-work-id]').forEach(btn=>bind(btn,()=>safe1059OpenWorkEditor(cardW,btn.dataset.workId||'','Notat')));
-  bind(c.querySelector('.safe1059OpenWorkData'),()=>{const ds=safe1059EnsureWorkDataset(ownerW);try{if(typeof safe1089CloseGroupFocus==='function')safe1089CloseGroupFocus();}catch(_e){}if(ds&&typeof safe381OpenDatasetSourceNearWidget==='function')safe381OpenDatasetSourceNearWidget(ds.id,cardW);else toast('Kunne ikke åbne gruppearbejdsdata');});
+  bind(c.querySelector('.safe1059OpenWorkData'),()=>{const ds=safe1059EnsureWorkDataset(ownerW);try{if(typeof safe1089CloseGroupFocus==='function')safe1089CloseGroupFocus({restore:false});}catch(_e){}if(ds&&typeof safe381OpenDatasetSourceNearWidget==='function')safe381OpenDatasetSourceNearWidget(ds.id,cardW);else toast('Kunne ikke åbne gruppearbejdsdata');});
 }
 try{window.safe1059SyncGroupCardLayout=safe1059SyncGroupCardLayout;window.safe1059OpenGroupBoards=safe1059OpenGroupBoards;}catch(_e){}
 
@@ -45054,11 +45151,14 @@ function safe1201EnsureLightbox(){
   }
   function close(){
     if(!st.root.classList.contains('safe1201Open'))return;
+    const current=st.items&&st.items[st.index],returnState=st.returnState||null;
+    st.returnState=null;
     st.root.classList.remove('safe1201Open','safe1201Zoomed','safe1201Dragging');
     document.body.classList.remove('safe1201LightboxOpen');
     st.pointers.clear();st.gesture=null;st.drag=null;st.loadToken++;
     try{st.img.removeAttribute('src');}catch(_e){}
-    try{if(st.previousFocus&&st.previousFocus.focus)st.previousFocus.focus({preventScroll:true});}catch(_e){}
+    if(returnState)try{safe1210RestoreFocusReturn(returnState,current&&current.id);}catch(_e){}
+    else try{if(st.previousFocus&&st.previousFocus.focus)st.previousFocus.focus({preventScroll:true});}catch(_e){}
   }
   function nav(delta){show(st.index+delta);}
   st.close=close;st.show=show;st.nav=nav;st.fit=fit;st.zoomAt=zoomAt;st.toggleActual=toggleActual;
@@ -45145,13 +45245,15 @@ function safe1201EnsureLightbox(){
   return st;
 }
 function safe1201OpenImageLightbox(widgetId){
-  if(!safe1201PresentationActive())return false;
+  const returnState=safe1210PrepareFocusReturn('image',widgetId);
+  if(!safe1201PresentationActive()){if(returnState)safe1210RestoreFocusReturn(returnState,widgetId);return false;}
   const st=safe1201EnsureLightbox(),items=safe1201ImageItems();
-  if(!items.length)return false;
+  if(!items.length){if(returnState)safe1210RestoreFocusReturn(returnState,widgetId);return false;}
   st.items=items;
   let index=items.findIndex(function(x){return String(x.id)===String(widgetId||'');});
   if(index<0)index=0;
   st.previousFocus=document.activeElement;
+  st.returnState=returnState;
   st.root.classList.add('safe1201Open');
   document.body.classList.add('safe1201LightboxOpen');
   st.show(index);
@@ -47628,7 +47730,7 @@ if(w.type==='drawcopy'){
     if(safe1201ViewImg&&!safe1201ViewImg.__safe1201LightboxBound){
       safe1201ViewImg.__safe1201LightboxBound=true;
       safe1201ViewImg.addEventListener('click',function(e){
-        if(!safe1201PresentationActive())return;
+        if(!safe1201PresentationActive()&&!safe1210FocusIsActive())return;
         e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
         safe1201OpenImageLightbox(w.id);
       },true);
@@ -64273,7 +64375,7 @@ function safe1105OpenWidgetFromTavleCard(cardW,widgetId){
     const entries=safe1105TavleCardWidgetEntries(boardId),entry=entries.find(function(x){return String(x.id)===id;});
     if(!entry){toast('Widgetten findes ikke længere på tavlen');return false;}
     if(entry.open===false)safe1106SetTavleCardWidgetOpen(boardId,id,true,{render:false,refreshFocus:false,silent:true});
-    safe1101CloseTavleFocus();state.active=hit.index;try{selected=null;if(window.UIState)UIState.selectedWidgetId=null;}catch(_e){}
+    safe1101CloseTavleFocus({restore:false});state.active=hit.index;try{selected=null;if(window.UIState)UIState.selectedWidgetId=null;}catch(_e){}
     render();try{save({silent:true});}catch(_e){}
     setTimeout(function(){
       try{if(typeof select==='function')select(id,{editText:false});else if(typeof window.select==='function')window.select(id,{editText:false});}catch(_e){}
@@ -64485,7 +64587,7 @@ function safe1111ShowTavleCardDatasetOnSlide(cardW,targetIndex){
 function safe1111OpenTavleCardDataset(cardW){
   try{
     const rec=safe1101FindTavleCardRecord(cardW&&cardW.id),targetIndex=rec?rec.slideIndex:state.active;
-    safe1101CloseTavleFocus();
+    safe1101CloseTavleFocus({restore:false});
     setTimeout(function(){safe1111ShowTavleCardDatasetOnSlide(cardW,targetIndex);},30);
     return true;
   }catch(_e){return false;}
@@ -64511,11 +64613,12 @@ try{
   window.safe1111CloseTavleCardDatasetView=safe1111CloseTavleCardDatasetView;
 }catch(_e){}
 
-function safe1101CloseTavleFocus(){
+function safe1101CloseTavleFocus(opts){
   const ctx=window.__safe1101TavleFocus;window.__safe1101TavleFocus=null;
   try{if(ctx&&ctx.keyHandler)window.removeEventListener('keydown',ctx.keyHandler,true);}catch(_e){}
   try{if(ctx&&ctx.keyHandler)document.removeEventListener('keydown',ctx.keyHandler,true);}catch(_e){}
   try{const el=document.getElementById('safe1101TavleFocusBackdrop');if(el)el.remove();}catch(_e){}
+  if(!(opts&&opts.restore===false)&&ctx&&ctx.returnState)try{safe1210RestoreFocusReturn(ctx.returnState,ctx.widgetId);}catch(_e){}
   return true;
 }
 function safe1101BindFocusTap(el,fn){
@@ -64576,7 +64679,7 @@ function safe1207OpenSelectedTavleFocusTarget(){
   try{
     const ctx=window.__safe1101TavleFocus,rec=ctx&&safe1101FindTavleCardRecord(ctx.widgetId);if(!rec)return false;
     const id=String(ctx.selectedWidgetId||'');if(id)return safe1105OpenWidgetFromTavleCard(rec.w,id);
-    safe1101CloseTavleFocus();return safe1097OpenTavleCardBoard(rec.w);
+    safe1101CloseTavleFocus({restore:false});return safe1097OpenTavleCardBoard(rec.w);
   }catch(_e){return false;}
 }
 function safe1101RenderTavleFocus(){
@@ -64597,7 +64700,7 @@ function safe1101StepTavleFocus(delta){
   try{
     const ctx=window.__safe1101TavleFocus;if(!ctx)return false;const rec=safe1101FindTavleCardRecord(ctx.widgetId),records=rec?safe1101TavleFocusRecords(rec.w):[];
     if(!records.length)return false;const foundIndex=records.findIndex(function(r){return String(r.w.id)===String(ctx.widgetId);});const index=foundIndex>=0?foundIndex:0;const step=Number(delta)<0?-1:1;const target=records[(index+step+records.length)%records.length];if(!target)return false;
-    if(target.slideIndex!==state.active){safe1101CloseTavleFocus();state.active=target.slideIndex;selected=null;if(window.UIState)UIState.selectedWidgetId=null;render();try{save({silent:true});}catch(_e){}setTimeout(function(){safe1101OpenTavleCardFocus(target.w.id);},60);return true;}
+    if(target.slideIndex!==state.active){const carry=ctx.returnState||null;safe1101CloseTavleFocus({restore:false});state.active=target.slideIndex;selected=null;if(window.UIState)UIState.selectedWidgetId=null;render();try{save({silent:true});}catch(_e){}setTimeout(function(){safe1101OpenTavleCardFocus(target.w.id,{returnState:carry});},60);return true;}
     ctx.widgetId=String(target.w.id);ctx.selectedWidgetId='';try{select(ctx.widgetId,{editText:false});}catch(_e){}return safe1101RenderTavleFocus();
   }catch(_e){return false;}
 }
@@ -64831,7 +64934,7 @@ function safe1114OpenTavleCardMatrixSend(cardW){
   try{
     const ctx=safe1114TavleCardMatrixContext(cardW);if(!ctx){toast('TavleKortmatrixen kunne ikke findes');return false;}
     const sessions=safe1114KnownSessionIds(),opts=['<option value="">Vælg session…</option>'].concat(sessions.map(function(id){return '<option value="'+safe827Html(id)+'">'+safe827Html(safe859SessionLabel(id))+'</option>';})).concat(['<option value="__new__">＋ Skriv ny session…</option>']).join('');
-    safe1101CloseTavleFocus();
+    safe1101CloseTavleFocus({restore:false});
     setTimeout(function(){
       showModal('<div class="safe859TransferModal"><h2>📦 Send TavleKortmatrix</h2><div class="safe859TransferBox"><b>'+safe827Html(ctx.boards.length+' tavler + matrix')+'</b><span>'+safe827Html(ctx.title)+'</span><span>Widgets, nødvendige datasæt og eksisterende Tavleshots følger med. Der dannes ingen nye Tavleshots.</span><span>Destinationens Tavleindeks genopbygges fra de importerede tavler.</span></div><label>Destination<select id="safe1114MatrixDestination">'+opts+'</select></label><p id="safe1116MatrixSendStatus" style="min-height:1.4em;margin:4px 0 0;font-weight:850"></p><div class="safe859TransferActions"><button id="safe1114SendMatrixNow" class="primary">Send matrix</button><button id="safe1114SendMatrixCancel">Annuller</button></div></div>');
       const sel=modal.querySelector('#safe1114MatrixDestination'),send=modal.querySelector('#safe1114SendMatrixNow'),cancel=modal.querySelector('#safe1114SendMatrixCancel'),status=modal.querySelector('#safe1116MatrixSendStatus');
@@ -64864,11 +64967,12 @@ function safe1115RepairExistingImportedMatrices(){
 }
 try{[450,1400].forEach(function(ms){setTimeout(safe1115RepairExistingImportedMatrices,ms);});}catch(_e){}
 
-function safe1101OpenTavleCardFocus(widgetId){
+function safe1101OpenTavleCardFocus(widgetId,opts){
   try{
     const rec=safe1101FindTavleCardRecord(widgetId);if(!rec||!rec.w||!rec.w.data||rec.w.data.tavleCardMatrix!==true)return false;
-    if(rec.slideIndex!==state.active){state.active=rec.slideIndex;render();try{save({silent:true});}catch(_e){}setTimeout(function(){safe1101OpenTavleCardFocus(widgetId);},60);return true;}
-    safe1101CloseTavleFocus();
+    if(rec.slideIndex!==state.active){state.active=rec.slideIndex;render();try{save({silent:true});}catch(_e){}setTimeout(function(){safe1101OpenTavleCardFocus(widgetId,opts);},60);return true;}
+    safe1101CloseTavleFocus({restore:false});
+    const returnState=(opts&&opts.returnState)||safe1210PrepareFocusReturn('tavle',widgetId);
     const back=document.createElement('div');back.id='safe1101TavleFocusBackdrop';back.className='safe1101TavleFocusBackdrop';
     back.innerHTML='<div class="safe1101TavleFocusPanel" role="dialog" aria-modal="true" aria-label="TavleKortdetaljer"><div class="safe1101TavleFocusTop"><button type="button" data-safe1101-focus-prev aria-label="Forrige tavle">←</button><button type="button" data-safe1101-focus-next aria-label="Næste tavle">→</button><strong class="safe1101TavleFocusTitle" data-safe1101-focus-title>TavleKort</strong><span class="safe1101TavleFocusCount" data-safe1101-focus-count></span><button type="button" data-safe1114-focus-send>Send matrix</button><button type="button" class="safe1101TavleFocusOpen" data-safe1101-focus-open>Åbn tavle</button><button type="button" data-safe1101-focus-close>Luk</button></div><div class="safe1101TavleFocusBody" data-safe1101-focus-body></div></div>';
     const keyHandler=function(e){
@@ -64892,14 +64996,14 @@ function safe1101OpenTavleCardFocus(widgetId){
       safe1101StepTavleFocus(prevKey?-1:1);
       return false;
     };
-    window.__safe1101TavleFocus={widgetId:String(widgetId),keyHandler:keyHandler,selectedWidgetId:''};try{select(widgetId,{editText:false});}catch(_e){}
+    window.__safe1101TavleFocus={widgetId:String(widgetId),keyHandler:keyHandler,selectedWidgetId:String(opts&&opts.selectedWidgetId||''),returnState:returnState};try{select(widgetId,{editText:false});}catch(_e){}
     window.addEventListener('keydown',keyHandler,true);document.addEventListener('keydown',keyHandler,true);document.body.appendChild(back);
     back.addEventListener('pointerdown',function(e){if(e.target===back)safe1101CloseTavleFocus();},true);const panel=back.querySelector('.safe1101TavleFocusPanel');if(panel)panel.addEventListener('pointerdown',function(e){try{e.stopPropagation();}catch(_e){}},true);
     safe1101BindFocusTap(back.querySelector('[data-safe1101-focus-prev]'),function(){safe1101StepTavleFocus(-1);});
     safe1101BindFocusTap(back.querySelector('[data-safe1101-focus-next]'),function(){safe1101StepTavleFocus(1);});
     safe1101BindFocusTap(back.querySelector('[data-safe1114-focus-send]'),function(){const ctx=window.__safe1101TavleFocus,rr=ctx&&safe1101FindTavleCardRecord(ctx.widgetId);if(rr&&rr.w)safe1114OpenTavleCardMatrixSend(rr.w);});
     safe1101BindFocusTap(back.querySelector('[data-safe1101-focus-close]'),safe1101CloseTavleFocus);
-    safe1101BindFocusTap(back.querySelector('[data-safe1101-focus-open]'),function(){const ctx=window.__safe1101TavleFocus,rr=ctx&&safe1101FindTavleCardRecord(ctx.widgetId);if(!rr)return;safe1101CloseTavleFocus();safe1097OpenTavleCardBoard(rr.w);});
+    safe1101BindFocusTap(back.querySelector('[data-safe1101-focus-open]'),function(){const ctx=window.__safe1101TavleFocus,rr=ctx&&safe1101FindTavleCardRecord(ctx.widgetId);if(!rr)return;safe1101CloseTavleFocus({restore:false});safe1097OpenTavleCardBoard(rr.w);});
     return safe1101RenderTavleFocus();
   }catch(err){try{console.warn('l1101 TavleKort-fokus fejlede',err);}catch(_e){}safe1101CloseTavleFocus();return false;}
 }
@@ -67430,7 +67534,7 @@ document.addEventListener('keydown',e=>{
 
   /* l1203: I præsentation åbner Enter den BilledWidget, som pil op/ned allerede har valgt. */
   if((e.key==='Enter'||e.key==='Return'||e.code==='Enter'||e.code==='NumpadEnter') &&
-     !e.metaKey&&!e.ctrlKey&&!e.altKey&&!e.shiftKey && safe1201PresentationActive()){
+     !e.metaKey&&!e.ctrlKey&&!e.altKey&&!e.shiftKey && (safe1201PresentationActive()||safe1210FocusIsActive())){
     const interactive=t&&t.closest&&t.closest('button,a,input,textarea,select,[contenteditable="true"],[role="button"]');
     if(!interactive){
       const imageId=safe1203SelectedImageWidgetId();
