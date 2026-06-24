@@ -1,3 +1,4 @@
+<!-- l1225_sessionskift_commit_OWNER_SAFE: Bygger direkte på l1224 uden rollback. Retter kun Tavles centrale sessionskift-ejer og Sessionsindeksets kald til den: den nye sessions-URL skrives først synkront ind i browserhistorikken, hvorefter siden genindlæses. Det fjerner Safari/iPad-racet, hvor den valgte række så aktiv ud, men den gamle session blev genindlæst. Sessionsindeks, Backup++, tavler, widgets og fagligt indhold er ellers uændret. -->
 <!-- l1224_sessionsindeks_linkliste_OWNER_SAFE: Bygger direkte på l1223 uden rollback. Retter kun Fællessamlingernes særlige Sessionsindeks-widget: den tunge kort-/tavlegengivelse erstattes af en let, højkontrast linkliste med rigtige sessionlinks, tvungen synlig tekst og fast rækkehøjde. Under flyt/resize skjules kun indexindholdet midlertidigt, så iPad ikke skal repainte 17–31 rækker. Eksisterende sessioner, tavler, Backup++, almindelige HTMLWidgets og øvrig navigation er uændret. -->
 <!-- l1223_sessionsindeks_native_OWNER_SAFE: Bygger direkte på l1222 uden rollback. Retter kun Fællessamlingernes særlige Sessionsindeks-HTMLWidgets og Backup++-resultatmodalens sessionsknapper. Sessionsindekset gengives nu let og direkte i Tavles hoved-DOM i stedet for gennem en træg iframe/postMessage-bro; sessioner og konkrete tavler åbnes via Tavles interne ejer, widgetten låses automatisk op, HTML-tekstknappen virker igen, og importmodalens Åbn session-knapper bruger intern navigation. Almindelige HTMLWidgets, LinkWidgets, øvrig Backup++-import og fagligt indhold er uændret. -->
 <!-- l1222_html_sessionsindeks_repareret_OWNER_SAFE: Bygger direkte på l1221 uden rollback. Retter den særlige Sessionsindeks-HTMLWidget kirurgisk: et fejlformet afsluttende script-tag i de importerede indexdokumenter gav en tom hvid HTMLWidget. Appen genopbygger nu kun widgets markeret sessionIndexWidget, viser reelle sessions og deres tavler og åbner dem gennem Tavles egen interne sessions-/tavlelogik. Eksisterende almindelige HTMLWidgets, LinkWidgets, Backup++ og l1221-resultatmodalen er uændrede. -->
@@ -22358,16 +22359,37 @@ function safe1169OpenSession(id,opts){
   try{
     opts=opts||{};
     id=safe963CleanSession(id)||'standard';
-    if(id===safe963CurrentSession()){try{toast('Sessionen er allerede åben');}catch(_e){}return true;}
+    const from=safe963CurrentSession();
+    if(id===from){try{toast('Sessionen er allerede åben');}catch(_e){}return true;}
     if(!opts.skipSave)try{if(typeof save==='function')save({silent:true});}catch(_e){}
-    try{sessionStorage.setItem('maans_tavle_from_session_before_nav_v1',safe963CurrentSession());}catch(_e){}
+    try{sessionStorage.setItem('maans_tavle_from_session_before_nav_v1',from);}catch(_e){}
+    try{sessionStorage.setItem('maans_tavle_pending_session_nav_v1',id);}catch(_e){}
     try{localStorage.setItem('maans_tavle_last_active_session_v1',id);}catch(_e){}
     try{closeModal();}catch(_e){}
-    setTimeout(function(){
-      try{location.href=safe963SessionUrl(id);setTimeout(function(){try{location.reload();}catch(_e){}},100);}
-      catch(_e){try{location.hash=id;location.reload();}catch(__e){try{toast('Kunne ikke åbne sessionen');}catch(__e2){}}}
-    },20);
-    return true;
+    const target=safe963SessionUrl(id);
+    try{
+      /* Safari på iPad kan genindlæse den gamle hash, hvis href og reload køres i samme navigationstrin.
+         Commit derfor sessionsadressen synkront først; genindlæs derefter det allerede opdaterede dokument. */
+      try{history.replaceState({tavleSession:id,tavleSessionSwitchAt:Date.now()},'',target);}
+      catch(_historyErr){
+        if(id==='standard')location.hash='';
+        else location.hash=encodeURIComponent(id);
+      }
+      setTimeout(function(){
+        try{
+          const committed=safe963CurrentSession();
+          if(committed!==id){
+            try{history.replaceState({tavleSession:id,tavleSessionSwitchAt:Date.now()},'',target);}catch(_e){location.hash=id==='standard'?'':encodeURIComponent(id);}
+          }
+          location.reload();
+        }catch(_reloadErr){
+          try{location.replace(target);}catch(_replaceErr){try{toast('Kunne ikke åbne sessionen');}catch(_toastErr){}}
+        }
+      },80);
+      return true;
+    }catch(_e){
+      try{location.replace(target);return true;}catch(__e){try{toast('Kunne ikke åbne sessionen');}catch(__e2){}return false;}
+    }
   }catch(_e){return false;}
 }
 function safe1169UnmarkDeletedSession(id){
@@ -64280,11 +64302,15 @@ function safe1223OpenSessionTarget(id,boardId){
       return true;
     }
     try{if(typeof save==='function')save({silent:true});}catch(_e){}
-    setTimeout(function(){
-      try{if(typeof safe1169OpenSession==='function'){safe1169OpenSession(id,{skipSave:true});return;}}catch(_e){}
-      try{location.href=(typeof safe963SessionUrl==='function')?safe963SessionUrl(id):('#'+encodeURIComponent(id));setTimeout(function(){try{location.reload();}catch(_e){}},90);}catch(_e){try{toast('Kunne ikke åbne sessionen');}catch(__e){}}
-    },20);
-    return true;
+    try{
+      if(typeof safe1169OpenSession==='function')return !!safe1169OpenSession(id,{skipSave:true});
+    }catch(_e){}
+    try{
+      const target=(typeof safe963SessionUrl==='function')?safe963SessionUrl(id):('#'+encodeURIComponent(id));
+      try{history.replaceState({tavleSession:id,tavleSessionSwitchAt:Date.now()},'',target);}catch(_historyErr){location.hash=id==='standard'?'':encodeURIComponent(id);}
+      setTimeout(function(){try{location.reload();}catch(_reloadErr){try{location.replace(target);}catch(__e){}}},80);
+      return true;
+    }catch(_e){try{toast('Kunne ikke åbne sessionen');}catch(__e){}return false;}
   }catch(err){try{console.warn('l1223 sessionåbning fejlede',err);}catch(_e){}return false;}
 }
 function safe1223InstallIndexCaptureOwner(){
