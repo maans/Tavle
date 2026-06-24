@@ -1,3 +1,16 @@
+<!-- l1224_sessionsindeks_linkliste_OWNER_SAFE: Bygger direkte på l1223 uden rollback. Retter kun Fællessamlingernes særlige Sessionsindeks-widget: den tunge kort-/tavlegengivelse erstattes af en let, højkontrast linkliste med rigtige sessionlinks, tvungen synlig tekst og fast rækkehøjde. Under flyt/resize skjules kun indexindholdet midlertidigt, så iPad ikke skal repainte 17–31 rækker. Eksisterende sessioner, tavler, Backup++, almindelige HTMLWidgets og øvrig navigation er uændret. -->
+<!-- l1223_sessionsindeks_native_OWNER_SAFE: Bygger direkte på l1222 uden rollback. Retter kun Fællessamlingernes særlige Sessionsindeks-HTMLWidgets og Backup++-resultatmodalens sessionsknapper. Sessionsindekset gengives nu let og direkte i Tavles hoved-DOM i stedet for gennem en træg iframe/postMessage-bro; sessioner og konkrete tavler åbnes via Tavles interne ejer, widgetten låses automatisk op, HTML-tekstknappen virker igen, og importmodalens Åbn session-knapper bruger intern navigation. Almindelige HTMLWidgets, LinkWidgets, øvrig Backup++-import og fagligt indhold er uændret. -->
+<!-- l1222_html_sessionsindeks_repareret_OWNER_SAFE: Bygger direkte på l1221 uden rollback. Retter den særlige Sessionsindeks-HTMLWidget kirurgisk: et fejlformet afsluttende script-tag i de importerede indexdokumenter gav en tom hvid HTMLWidget. Appen genopbygger nu kun widgets markeret sessionIndexWidget, viser reelle sessions og deres tavler og åbner dem gennem Tavles egen interne sessions-/tavlelogik. Eksisterende almindelige HTMLWidgets, LinkWidgets, Backup++ og l1221-resultatmodalen er uændrede. -->
+<!-- l1221_backuppp_resultat_laesbar_OWNER_SAFE: Bygger direkte på l1220 uden rollback. Bevarer HTML-sessionsindekset og retter kun Backup++-resultatmodalens sene CSS-ejer: importlisten er nu mørk, kompakt, rullende og læsbar på den lyse modalbaggrund. Ingen Backup++-, sessions- eller widgetlogik ændres. -->
+<!-- l1219_sessionsindeks_hoejkontrast_OWNER_SAFE: Bygger direkte på l1218. Retter kun Sessionsindeksets kontrast på iPad: lyse sessionskort får eksplicit mørk titel og metadata, tydelig blå sessionskode samt grøn markering af aktuel session. Åbne-, søge- og datalogik er uændret. -->
+<!-- l1218_sessionsindeks_laesbar_OWNER_SAFE: Bygger direkte på l1217. Retter kun Sessionsindeksets rækkevisning: interne sessionslinks gengives som robuste knapkort med eksplicit højde, farve og synlighed, så iPad/Safari ikke kollapser dem til ulæselige streger. Data-, søge- og åbningslogik er uændret. -->
+<!-- l1217_sessionsindeks_OWNER_SAFE: Bygger direkte på l1216. Retter kun Session-knappens eksisterende ejer: den åbner nu et komplet sessionsindeks baseret på Datacenterets reelle gemte sessioner med tavler, med menneskelige titler fra sessionens første tavle, teknisk #sessionsnavn, tavle/widget/datasæt-tal, søgning og rigtige klikbare sessionslinks. TavleSessioner-datasættet bevares som intern datakilde, men vises ikke længere som det primære sessions-preview. Lås/layoutsynk fra l1216 er uændret. -->
+<!-- l1216_let_laas_layout_OWNER_SAFE: Bygger direkte på l1215. Retter kirurgisk widgetlås-ejeren, så lås/ulås opdateres lokalt uden render og uden at genindlæse LinkWidget/iframe. Layoutskabeloner anvendes kun én gang pr. indlæst state/template-revision i stedet for ved hver render. Layoutsynk efter reel flyt/resize/rotation er bevaret. -->
+<!-- l1215_layoutfamilier_synk_OWNER_SAFE: Bygger direkte på den bruger-testede l1214. Tilføjer kun en intern layoutfamilie-ejer i Tavles hovedscope: importerede tavler med layoutSyncGroup og widgets med layoutSyncRole deler størrelse, placering og rotation inden for den aktuelle session. Ændres én tagged widget, opdateres samme rolle på de øvrige tavler i familien; layoutskabeloner genanvendes ved render/genåbning. Untaggede tavler, widgetindhold, fokus, KaPardy, Backup++, baggrunde og øvrige workflows er uændrede. -->
+<!-- l1214_komprimeret_sessionslager_OWNER_SAFE: Bygger direkte på l1213. Retter kun Tavles localStorage-ejer for store sessioner: session-state og fælles datasæt komprimeres transparent ved skrivning og udpakkes ved læsning. Eksisterende rå JSON røres ikke ved opstart, men kan komprimeres automatisk ved reel pladsmangel. Backup++, almindelig save/load, sessionnavne, data og widgets er uændrede. -->
+<!-- l1213_backuppp_preview_ejer_OWNER_SAFE: Bygger direkte på l1212. Retter kun Gem/åbn-filimportens Backup++-handoff: når en Backup++ JSON vælges eller droppes, åbnes sessions-previewet som den egentlige importhandling. Den almindelige “Import færdig”-opsummering må ikke tælle filen som færdig eller lukke previewmod795alen. Almindelige JSON-backups og øvrige filtyper er uændrede. -->
+<!-- l1212_ics_type_fastlaast_OWNER_SAFE: Bygger direkte på l1211. Retter kun Gem som fælles data-ejeren: kalenderdata fra ICS eller et eksisterende kalenderdatasæt har nu fast type Fælles kalender, så de ikke kan gemmes som almindeligt datasæt eller Elevstamdata. CSV/Excel-flowets frie typevalg er uændret. -->
+<!-- l1211_ics_faellesdata_backup_OWNER_SAFE: Bygger direkte på den brugeruploadede l1210. Fælles data kan importere ICS direkte; fælles kalenderdatasæt bevarer kalender-typen, kan vælges levende i KalenderWidget og modtager kalenderredigeringer uden lokal dublet. Backup++ medtager de fælles datasæt, som valgte sessioner refererer til, og gendanner/remapper dem sikkert ved import. -->
 <!-- l1210_fokus_retour_kort_lightbox_OWNER_SAFE: Bygger direkte på l1209. Elevkort-, Gruppekort- og TavleKortdetaljer samt billed-lightbox forlader midlertidigt aktiv fokus til en ren præsentationsvisning og gendanner ved Luk/Escape den tidligere fokusart på det kort/billede, man endte ved. Navigation til tavle/widget/data annullerer retur. Eksisterende kortnavigation, lightbox-zoom og Escape-ejere bevares. -->
 <!-- l1209_kortdetaljer_esc_en_gang_OWNER_SAFE: Bygger direkte på l1208. Retter kun den eksisterende l805-Escape-ejer, så åbne Gruppekort- og TavleKortdetaljer ejer første Escape på samme måde som Elevkort og billed-lightbox. Ét Escape lukker Detaljer og bevarer matrixkortets valg; ingen ny tastaturhandler. -->
 <!-- l1208_tavlekort_space_vis_skjul_OWNER_SAFE: Bygger direkte på l1207. TavleKort-detaljevisningen ejer nu Mellemrum før Tavlens to tidlige Mere-menu-ejere, men kun når Detaljer er åben og en widgetrække er valgt. Samme eksisterende Vis/Skjul-ejer kaldes; når detaljevisningen er lukket, åbner Mellemrum igen Mere som hidtil. Ingen ny global keydown-handler. -->
@@ -511,6 +524,134 @@ body.focus-presentation .widget[data-type="pdf"],
   #l739ZoomRescueChip button{min-height:28px;padding:5px 8px;font-size:11px;}
 }
 </style>
+<script id="safe1214-localstorage-compression-owner">
+/* l1214: Kirurgisk lagerejer til store Tavle-sessioner.
+   Kun Tavles egne session-state-nøgler og fælles datasæt komprimeres i localStorage.
+   Resten af appen læser og skriver fortsat almindelig JSON gennem samme Storage-API. */
+(function(){
+  if(window.__safe1214LocalStorageCompressionOwner)return;
+  window.__safe1214LocalStorageCompressionOwner=true;
+  var MARK='~TAVLE_LZW1~';
+  var BASE='maans_interaktiv_tavle_v162_test';
+  var PREFIX=BASE+'__session__';
+  var COMMON='maans_tavle_common_datasets_v1';
+  var proto=window.Storage&&Storage.prototype;
+  if(!proto)return;
+  var nativeGet=proto.getItem,nativeSet=proto.setItem;
+  if(typeof nativeGet!=='function'||typeof nativeSet!=='function')return;
+
+  function isLocal(store){try{return store===window.localStorage;}catch(_e){return false;}}
+  function isTarget(key){key=String(key||'');return key===BASE||key===COMMON||key.indexOf(PREFIX)===0;}
+  function toUtf8Binary(str){
+    if(typeof TextEncoder==='function'){
+      var bytes=new TextEncoder().encode(str),out='',chunk=32768;
+      for(var i=0;i<bytes.length;i+=chunk)out+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk));
+      return out;
+    }
+    try{return unescape(encodeURIComponent(str));}catch(_e){return str;}
+  }
+  function fromUtf8Binary(bin){
+    if(typeof TextDecoder==='function'){
+      var bytes=new Uint8Array(bin.length);
+      for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i)&255;
+      return new TextDecoder().decode(bytes);
+    }
+    try{return decodeURIComponent(escape(bin));}catch(_e){return bin;}
+  }
+  function compress(raw){
+    raw=String(raw==null?'':raw);if(!raw)return '';
+    var input=toUtf8Binary(raw),dict=new Map();
+    for(var i=0;i<256;i++)dict.set(String.fromCharCode(i),i);
+    var CLEAR=32767,LIMIT=32767,next=256,w=input.charAt(0),codes=[];
+    for(i=1;i<input.length;i++){
+      var c=input.charAt(i),wc=w+c;
+      if(dict.has(wc)){w=wc;continue;}
+      codes.push(dict.get(w));
+      if(next<LIMIT)dict.set(wc,next++);
+      else{
+        codes.push(CLEAR);dict.clear();
+        for(var j=0;j<256;j++)dict.set(String.fromCharCode(j),j);
+        next=256;
+      }
+      w=c;
+    }
+    if(w!=='')codes.push(dict.get(w));
+    var out='',chunk=32768;
+    for(i=0;i<codes.length;i+=chunk){
+      var part=codes.slice(i,i+chunk);
+      for(j=0;j<part.length;j++)part[j]+=32;
+      out+=String.fromCharCode.apply(null,part);
+    }
+    return out;
+  }
+  function decompress(data){
+    data=String(data||'');if(!data)return '';
+    var codes=new Uint16Array(data.length);
+    for(var i=0;i<data.length;i++)codes[i]=data.charCodeAt(i)-32;
+    var CLEAR=32767,LIMIT=32767,dict,next,idx=0,w='',parts=[];
+    function reset(){dict=new Array(LIMIT);for(var j=0;j<256;j++)dict[j]=String.fromCharCode(j);next=256;w='';}
+    reset();
+    while(idx<codes.length){
+      var k=codes[idx++];
+      if(k===CLEAR){reset();continue;}
+      var entry;
+      if(k<next&&dict[k]!==undefined)entry=dict[k];
+      else if(k===next&&w!=='')entry=w+w.charAt(0);
+      else throw new Error('Ugyldig komprimeret Tavle-state');
+      parts.push(entry);
+      if(w!==''&&next<LIMIT)dict[next++]=w+entry.charAt(0);
+      w=entry;
+    }
+    return fromUtf8Binary(parts.join(''));
+  }
+  function encodeValue(key,value){
+    var raw=String(value==null?'':value);
+    if(!isTarget(key)||raw.indexOf(MARK)===0||raw.length<4096||!/^[\s]*[\[{]/.test(raw))return raw;
+    try{
+      var packed=compress(raw);
+      if(packed&&MARK.length+packed.length<raw.length*0.90)return MARK+packed;
+    }catch(e){try{console.warn('l1214: komprimering sprang over',key,e);}catch(_e){}}
+    return raw;
+  }
+  function decodeValue(key,value){
+    if(value==null)return value;
+    var raw=String(value);
+    if(!isTarget(key)||raw.indexOf(MARK)!==0)return raw;
+    try{return decompress(raw.slice(MARK.length));}
+    catch(e){try{console.error('l1214: kunne ikke udpakke Tavle-state',key,e);}catch(_e){}return raw;}
+  }
+
+  function quotaLike(e){try{return /quota|exceeded|full|storage/i.test(String((e&&e.name)||'')+' '+String((e&&e.message)||''));}catch(_e){return false;}}
+  var stats={compactedKeys:0,logicalChars:0,storedChars:0,retries:0,marker:MARK};
+  function compactExisting(excludeKey){
+    var changed=0;
+    try{
+      var keys=[];
+      for(var n=0;n<localStorage.length;n++){var key=localStorage.key(n);if(isTarget(key)&&String(key)!==String(excludeKey||''))keys.push(key);}
+      keys.forEach(function(key){
+        var raw=nativeGet.call(localStorage,key);if(raw==null||String(raw).indexOf(MARK)===0)return;
+        var packed=encodeValue(key,raw);
+        if(packed!==raw){nativeSet.call(localStorage,key,packed);changed++;stats.compactedKeys++;}
+      });
+    }catch(e){try{console.warn('l1214: lagerkomprimering ved pladsbehov stoppede',e);}catch(_e){}}
+    return changed;
+  }
+  proto.getItem=function(key){var raw=nativeGet.call(this,key);return isLocal(this)?decodeValue(key,raw):raw;};
+  proto.setItem=function(key,value){
+    var local=isLocal(this),encoded=local?encodeValue(key,value):String(value);
+    try{return nativeSet.call(this,key,encoded);}
+    catch(e){
+      if(local&&isTarget(key)&&quotaLike(e)){
+        compactExisting(key);stats.retries++;
+        return nativeSet.call(this,key,encoded);
+      }
+      throw e;
+    }
+  };
+  window.safe1214StorageCompression={marker:MARK,stats:stats,compress:compress,decompress:decompress,isTargetKey:isTarget,compactExisting:compactExisting};
+})();
+</script>
+
 <script id="l731-zoom-rescue-shift-z">
 /* l731: Shift+Z redder brugeren ud af en indzoomet tavle/PDF-visning.
    Kirurgisk: ingen ændring af l729/l730 gesture-logik, PDF-kantbladring eller formularlag. */
@@ -21026,7 +21167,7 @@ function safe1157UpdateWindowManagerUI(){
     if(!window.__safe1157DocumentBound){window.__safe1157DocumentBound=true;document.addEventListener('pointerdown',function(e){if(window.__safe1157WindowShelfOpen!==true)return;const shelf=document.getElementById('safe1157WindowShelf'),button=document.getElementById('safe1157WindowsBtn');if((shelf&&shelf.contains(e.target))||(button&&button.contains(e.target)))return;safe1157CloseWindowShelf();},true);document.addEventListener('keydown',function(e){if(e.key==='Escape'&&window.__safe1157WindowShelfOpen===true){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}safe1157CloseWindowShelf();}},true);}
   }catch(_e){}
 }
-function render(){const safe1113RemovedViews=safe1113RemoveTechnicalTavleCardDatasetViews();try{if(typeof safe960RepairMisdelegatedLinkMediaWidgets==='function')safe960RepairMisdelegatedLinkMediaWidgets({silent:true});}catch(_e){}try{if(typeof safe1182RefreshGeneratedWidgetsFromDatasets==='function')safe1182RefreshGeneratedWidgetsFromDatasets();}catch(_e){}safe588EnsureSlideIds();try{if(typeof safe1121AutoRefreshTavleCardMatrices==='function')safe1121AutoRefreshTavleCardMatrices();}catch(_e){}try{if(typeof safe1123RebuildObjectGraph==='function')safe1123RebuildObjectGraph({reason:'render'});}catch(_e){}document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=safe134SlideInfoText();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');safe588CurrentWidgetRecords().forEach(rec=>{const w=rec.w;if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w))return;makeWidget(w)});try{safe1157UpdateWindowManagerUI();}catch(_e){}updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0);try{safe834SyncPresentMoreActive();}catch(_e){}if(safe1113RemovedViews){setTimeout(function(){try{save({silent:true});}catch(_e){}},0);}}
+function render(){try{safe1216ApplyLayoutTemplatesOnce();}catch(_e){}const safe1113RemovedViews=safe1113RemoveTechnicalTavleCardDatasetViews();try{if(typeof safe960RepairMisdelegatedLinkMediaWidgets==='function')safe960RepairMisdelegatedLinkMediaWidgets({silent:true});}catch(_e){}try{if(typeof safe1182RefreshGeneratedWidgetsFromDatasets==='function')safe1182RefreshGeneratedWidgetsFromDatasets();}catch(_e){}safe588EnsureSlideIds();try{if(typeof safe1121AutoRefreshTavleCardMatrices==='function')safe1121AutoRefreshTavleCardMatrices();}catch(_e){}try{if(typeof safe1123RebuildObjectGraph==='function')safe1123RebuildObjectGraph({reason:'render'});}catch(_e){}document.querySelectorAll('.widget').forEach(e=>e.remove());document.querySelectorAll('.trashBoardBar,.trashBoardEmptyNote').forEach(e=>e.remove());applyBg();updateGridOverlay();document.getElementById('slideInfo').textContent=safe134SlideInfoText();updateSlidesOverviewVisibility();resizeCanvas();loadDraw(slide().draw||'');safe588CurrentWidgetRecords().forEach(rec=>{const w=rec.w;if(typeof safe381IsHiddenLinkedDataWidget==='function'&&safe381IsHiddenLinkedDataWidget(w))return;makeWidget(w)});try{safe1157UpdateWindowManagerUI();}catch(_e){}updateTrashBoardUI();setTimeout(initDrawLayerAfterRender,0);requestAnimationFrame(initDrawLayerAfterRender);setTimeout(updateContextHints,0);try{safe834SyncPresentMoreActive();}catch(_e){}if(safe1113RemovedViews){setTimeout(function(){try{save({silent:true});}catch(_e){}},0);}}
 /* addWidget(): opretter widget-objekt, fitter til viewport, kalder makeWidget(), select() og save(). Bevar rækkefølgen. */
 function addWidget(type,data={}){safe588EnsureSlideIds();const w={id:uid(),type,x:140+Math.random()*80,y:130+Math.random()*80,w:type==='timer'?860:((type==='wheel'||type==='groups'||type==='wordcloud'||type==='poll'||type==='kahoopardy'||type==='calendar')?860:(type==='dataset'?390:(type==='text'?420:520))),h:type==='timer'?520:(type==='wheel'?560:(type==='calendar'?560:(type==='kahoopardy'?560:(type==='groups'?520:(type==='wordcloud'?430:(type==='poll'?460:(type==='dataset'?260:(type==='link'?230:320)))))))),z:z++,rotation:0,locked:false,title:titles[type]||type,data};safe588SetVisibility(w,'single',[safe588SlideId(state.active)]);fitWidgetToViewport(w);slide().widgets.push(w);makeWidget(w);select(w.id);save();return w}
 const titles={text:'Tekst',html:'HTML',video:'Video',wheel:'Lykkehjulet',groups:'Grupper',wordcloud:'Ordsky',poll:'Afstemning',kahoopardy:'KaPardy',timer:'Timer',calendar:'Kalender',image:'Billede',link:'Link',pdf:'PDF',dataset:'Datasæt'};
@@ -21595,6 +21736,51 @@ function safe1138WriteCommonDataStore(store){
 }
 function safe1138CommonDatasets(){return safe1138ReadCommonDataStore().datasets.filter(function(ds){return !!(ds&&ds.id);});}
 function safe1138FindCommonDataset(id){id=String(id||'');return safe1138CommonDatasets().find(function(ds){return String(ds.id||'')===id;})||null;}
+function safe1138IsCalendarDataset(ds){
+  if(!ds)return false;
+  if(String(ds.commonKind||'')==='calendar'||/calendar/i.test(String(ds.type||'')))return true;
+  const cols=(Array.isArray(ds.columns)?ds.columns:[]).map(function(c){return String(c||'').trim().toLocaleLowerCase('da-DK');});
+  return cols.indexOf('dato')>=0&&cols.indexOf('titel')>=0&&(cols.indexOf('start')>=0||cols.indexOf('slut')>=0||cols.indexOf('status')>=0);
+}
+function safe1138CommonKindLabel(ds){
+  if(ds&&String(ds.commonKind||'')==='student-master')return 'Elevstamdata';
+  if(safe1138IsCalendarDataset(ds))return 'Fælles kalender';
+  return 'Fælles data';
+}
+function safe1211CommonDatasetRevision(ds){
+  if(!ds)return '';
+  const rows=Array.isArray(ds.rows)?ds.rows:[],cols=Array.isArray(ds.columns)?ds.columns:[];
+  return [String(ds.updatedAt||ds.importedAt||0),String(rows.length),String(cols.length),String(rows[0]||''),String(rows[rows.length-1]||'')].join('|');
+}
+function safe1138RefreshCommonCalendarLinks(id){
+  id=String(id||'');
+  const ds=safe1138FindCommonDataset(id);
+  if(!ds||!safe1138IsCalendarDataset(ds))return 0;
+  let events=[];
+  try{events=safe351EventsFromDataset(ds)||[];}catch(_e){events=[];}
+  const revision=safe1211CommonDatasetRevision(ds);
+  let count=0;
+  try{
+    (state.slides||[]).forEach(function(sl){(sl.widgets||[]).forEach(function(w){
+      if(w&&w.type==='calendar'&&w.data&&String(w.data.sourceDatasetId||'')===id){
+        w.data.events=events.map(function(ev){return Object.assign({},ev);});
+        w.data.sourceDatasetName=ds.name||'Fælles kalender';
+        w.data._commonDatasetRevision=revision;
+        count++;
+      }
+    });});
+  }catch(_e){}
+  return count;
+}
+function safe1138WriteCommonDatasetRecord(ds){
+  if(!ds||!ds.id)return null;
+  const store=safe1138ReadCommonDataStore();
+  const i=store.datasets.findIndex(function(x){return x&&String(x.id||'')===String(ds.id||'');});
+  if(i>=0)store.datasets[i]=ds;else store.datasets.push(ds);
+  safe1138WriteCommonDataStore(store);
+  safe1138RefreshCommonCalendarLinks(ds.id);
+  return ds;
+}
 function safe1138SessionCommonLinks(){
   state.sharedDatasetLinks=Array.isArray(state.sharedDatasetLinks)?state.sharedDatasetLinks.map(String).filter(Boolean):[];
   state.sharedDatasetLinks=Array.from(new Set(state.sharedDatasetLinks));
@@ -21606,6 +21792,7 @@ function safe1138SetSessionCommonDatasetLink(id,on){
   const links=safe1138SessionCommonLinks(),i=links.indexOf(id);
   if(on&&i<0)links.push(id);if(!on&&i>=0)links.splice(i,1);
   state.sharedDatasetLinks=links;
+  if(on)try{safe1138RefreshCommonCalendarLinks(id);}catch(_e){}
   try{safe1123RebuildObjectGraph({reason:'shared-data-link'});}catch(_e){}
   save({silent:true});return true;
 }
@@ -21627,7 +21814,9 @@ function safe1138StableStudentId(row,index,source){
   try{return 'elev_'+safe1123Hash(raw);}catch(_e){return 'elev_'+Date.now().toString(36)+'_'+index.toString(36);}
 }
 function safe1138PrepareCommonRecord(ds,config){
-  const src=safe1138CloneDatasetForCommon(ds),now=Date.now(),kind=String(config.kind||'general');
+  const src=safe1138CloneDatasetForCommon(ds),now=Date.now();
+  const requestedKind=String(config.kind||'general');
+  const kind=(requestedKind==='calendar'||safe1138IsCalendarDataset(src))?'calendar':requestedKind;
   let cols=src.columns.slice(),rows=src.rows.map(function(r){return r.slice();}),identityColumn='';
   if(kind==='student-master'){
     const idValue=String(config.idColumn||'__generate__');
@@ -21642,7 +21831,8 @@ function safe1138PrepareCommonRecord(ds,config){
     id:String(config.existingId||('shared_'+((typeof uid==='function')?uid():(Date.now().toString(36)+Math.random().toString(36).slice(2,7))))),
     name:String(config.name||src.name||'Fælles datasæt').trim()||'Fælles datasæt',
     commonKind:kind,
-    type:'shared-dataset',
+    type:kind==='calendar'?'calendar-events':'shared-dataset',
+    sourceType:String(src.type||''),
     columns:cols,
     rows:rows,
     schema:kind==='student-master'?{
@@ -21661,7 +21851,10 @@ function safe1138UpsertCommonDataset(ds,config){
   const record=safe1138PrepareCommonRecord(ds,config||{}),store=safe1138ReadCommonDataStore();
   const i=store.datasets.findIndex(function(x){return x&&String(x.id||'')===String(record.id);});
   if(i>=0)store.datasets[i]=record;else store.datasets.push(record);
-  safe1138WriteCommonDataStore(store);safe1138SetSessionCommonDatasetLink(record.id,true);return record;
+  safe1138WriteCommonDataStore(store);
+  safe1138SetSessionCommonDatasetLink(record.id,true);
+  safe1138RefreshCommonCalendarLinks(record.id);
+  return record;
 }
 function safe1138ColumnOptions(columns,selected,allowGenerate){
   let html=allowGenerate?'<option value="__generate__"'+(selected==='__generate__'?' selected':'')+'>Generér ElevID</option>':'';
@@ -21676,7 +21869,9 @@ function safe1138ReturnAfterCommonFlow(context){
   setTimeout(function(){safe1138OpenCommonDataModal(context);},20);
 }
 function safe1138ConfigureCommonDataset(ds,opts){
-  opts=opts||{};const safe1140ReturnContext=opts.returnContext||null;const existing=opts.existingId?safe1138FindCommonDataset(opts.existingId):null;
+  opts=opts||{};
+  const safe1140ReturnContext=opts.returnContext||null;
+  const existing=opts.existingId?safe1138FindCommonDataset(opts.existingId):null;
   const columns=Array.isArray(ds&&ds.columns)?ds.columns:[],schema=existing&&existing.schema||{};
   const detectedId=safe1138DetectColumn(columns,['ElevID','Elev ID','StudentID','Student ID','Skolemail','E-mail','Email']);
   const detectedFirst=safe1138DetectColumn(columns,['Fornavn','First name','Firstname']);
@@ -21686,79 +21881,75 @@ function safe1138ConfigureCommonDataset(ds,opts){
   const firstDefault=String(schema.firstNameColumn||(detectedFirst>=0?columns[detectedFirst]:''));
   const lastDefault=String(schema.lastNameColumn||(detectedLast>=0?columns[detectedLast]:''));
   const classDefault=String(schema.classColumn||(detectedClass>=0?columns[detectedClass]:''));
-  showModal('<div class="safe1138CommonConfig"><div><h2 style="margin:0">'+(existing?'Opdatér fælles data':'Gem som fælles data')+'</h2><p style="margin:5px 0 0;color:#4b5563;font-weight:700">Datasættet gemmes én gang i browserens fælles register og kan knyttes til flere sessioner.</p></div><div class="safe1138CommonConfigGrid"><label>Navn<input id="safe1138CommonName" value="'+safe1138Esc(existing&&existing.name||ds&&ds.name||opts.sourceName||'Fælles datasæt')+'"></label><label>Type<select id="safe1138CommonKind"><option value="general"'+((existing&&existing.commonKind)!=='student-master'?' selected':'')+'>Almindeligt fælles datasæt</option><option value="student-master"'+((existing&&existing.commonKind)==='student-master'?' selected':'')+'>Elevstamdata</option></select></label></div><div id="safe1138StudentMap" class="safe1138StudentMap"><label>Stabilt elev-ID<select id="safe1138IdColumn">'+safe1138ColumnOptions(columns,idDefault,true)+'</select></label><label>Fornavn<select id="safe1138FirstColumn">'+safe1138ColumnOptions(columns,firstDefault,false)+'</select></label><label>Efternavn<select id="safe1138LastColumn">'+safe1138ColumnOptions(columns,lastDefault,false)+'</select></label><label>Klasse/hold<select id="safe1138ClassColumn">'+safe1138ColumnOptions(columns,classDefault,false)+'</select></label></div><p style="margin:0;color:#64748b;font-size:13px;font-weight:750">'+(ds&&ds.rows?ds.rows.length:0)+' rækker · '+columns.length+' kolonner. Elev-ID bruges senere til sikre forbindelser mellem grupper, elevkort, tavler og sessioner.</p><div class="safe1138CommonFooter"><button id="safe1138ConfigCancel">Annuller</button><button id="safe1138ConfigSave" style="background:#2563eb;color:#fff">Gem fælles data</button></div></div>');
+  const initialKind=String(opts.kind||(existing&&existing.commonKind)||(safe1138IsCalendarDataset(ds)?'calendar':'general'));
+
+  /* l1212: Kalenderdata ejer sin type. Når flowet kommer fra ICS eller et
+     allerede kendt kalenderdatasæt, vises typen som fast tekst i stedet for
+     en vælger. Almindelige CSV-/Excel-datasæt beholder det frie typevalg. */
+  const calendarKindLocked=initialKind==='calendar';
+  const typeField=calendarKindLocked
+    ? '<label>Type<div aria-label="Type: Fælles kalender" style="min-height:44px;display:flex;align-items:center;padding:0 13px;border:1px solid rgba(100,116,139,.38);border-radius:12px;background:rgba(148,163,184,.13);font-weight:850;color:inherit">Fælles kalender</div><input id="safe1138CommonKind" type="hidden" value="calendar"></label>'
+    : '<label>Type<select id="safe1138CommonKind"><option value="general"'+(initialKind==='general'?' selected':'')+'>Almindeligt fælles datasæt</option><option value="calendar"'+(initialKind==='calendar'?' selected':'')+'>Fælles kalender</option><option value="student-master"'+(initialKind==='student-master'?' selected':'')+'>Elevstamdata</option></select></label>';
+
+  showModal('<div class="safe1138CommonConfig"><div><h2 style="margin:0">'+(existing?'Opdatér fælles data':'Gem som fælles data')+'</h2><p style="margin:5px 0 0;color:#4b5563;font-weight:700">Datasættet gemmes én gang i browserens fælles register og kan knyttes til flere sessioner.</p></div><div class="safe1138CommonConfigGrid"><label>Navn<input id="safe1138CommonName" value="'+safe1138Esc(existing&&existing.name||ds&&ds.name||opts.sourceName||'Fælles datasæt')+'"></label>'+typeField+'</div><div id="safe1138StudentMap" class="safe1138StudentMap"><label>Stabilt elev-ID<select id="safe1138IdColumn">'+safe1138ColumnOptions(columns,idDefault,true)+'</select></label><label>Fornavn<select id="safe1138FirstColumn">'+safe1138ColumnOptions(columns,firstDefault,false)+'</select></label><label>Efternavn<select id="safe1138LastColumn">'+safe1138ColumnOptions(columns,lastDefault,false)+'</select></label><label>Klasse/hold<select id="safe1138ClassColumn">'+safe1138ColumnOptions(columns,classDefault,false)+'</select></label></div><p style="margin:0;color:#64748b;font-size:13px;font-weight:750">'+(ds&&ds.rows?ds.rows.length:0)+' rækker · '+columns.length+' kolonner. En fælles kalender kan vælges levende fra KalenderWidget i alle tilknyttede sessioner.</p><div class="safe1138CommonFooter"><button id="safe1138ConfigCancel">Annuller</button><button id="safe1138ConfigSave" style="background:#2563eb;color:#fff">Gem fælles data</button></div></div>');
   const root=document.getElementById('modal');if(!root)return;
   root.style.width='min(760px,94vw)';
   safe1140BindModalNavigation(root,{scrollSelector:'.safe1138CommonConfig',onEscape:function(){safe1138ReturnAfterCommonFlow(safe1140ReturnContext);}});
   const kind=root.querySelector('#safe1138CommonKind'),map=root.querySelector('#safe1138StudentMap');
-  function toggle(){if(map)map.style.display=(kind&&kind.value==='student-master')?'grid':'none';}toggle();if(kind)kind.onchange=toggle;
+  function toggle(){if(map)map.style.display=(kind&&kind.value==='student-master')?'grid':'none';}
+  toggle();
+  if(kind&&kind.tagName==='SELECT')kind.onchange=toggle;
   root.querySelector('#safe1138ConfigCancel').onclick=function(){safe1138ReturnAfterCommonFlow(safe1140ReturnContext);};
   root.querySelector('#safe1138ConfigSave').onclick=function(){
     try{
       const cfg={existingId:existing&&existing.id,existingRecord:existing,name:root.querySelector('#safe1138CommonName').value,kind:kind.value,sourceName:opts.sourceName||ds.sourceName||'',sourceDatasetId:opts.sourceDatasetId||'',idColumn:root.querySelector('#safe1138IdColumn').value,firstNameColumn:root.querySelector('#safe1138FirstColumn').value,lastNameColumn:root.querySelector('#safe1138LastColumn').value,classColumn:root.querySelector('#safe1138ClassColumn').value};
-      const rec=safe1138UpsertCommonDataset(ds,cfg);toast((existing?'Fælles data opdateret: ':'Fælles data gemt: ')+rec.name);safe1138ReturnAfterCommonFlow(safe1140ReturnContext);
+      const rec=safe1138UpsertCommonDataset(ds,cfg);
+      toast((existing?'Fælles data opdateret: ':'Fælles data gemt: ')+rec.name);
+      safe1138ReturnAfterCommonFlow(safe1140ReturnContext);
     }catch(err){console.error(err);toast('Kunne ikke gemme fælles data: '+(err&&err.message?err.message:'ukendt fejl'));}
   };
 }
-function safe1138PickCommonDataFile(existingId,safe1140ReturnContext){
-  /* l1145: iPad/Safari kan miste change-eventet på et løst, ikke-monteret
-     filinput. Filinputtet ejes derfor af dette importflow, monteres skjult i
-     dokumentet og beholdes med en stærk reference, indtil valg/annullering er
-     afsluttet. Selve parser- og gemmevejen er uændret. */
+function safe1138PickCommonDataFile(existingId,safe1140ReturnContext,mode){
+  /* l1211: Fælles data ejer nu også direkte ICS-import. Det samme monterede
+     filinput-flow bevares for iPad/Safari. */
   try{
     const previous=window.__safe1145CommonFileInput;
     if(previous&&previous.parentNode)previous.parentNode.removeChild(previous);
   }catch(_e){}
+  const existing=existingId?safe1138FindCommonDataset(existingId):null;
+  const forceIcs=String(mode||'')==='ics';
+  const calendarExisting=safe1138IsCalendarDataset(existing);
   const input=document.createElement('input');
   input.type='file';
-  input.accept='.csv,.tsv,.txt,.xlsx,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  input.style.position='fixed';
-  input.style.left='-10000px';
-  input.style.top='0';
-  input.style.width='1px';
-  input.style.height='1px';
-  input.style.opacity='0';
+  input.accept=forceIcs?'.ics,text/calendar,application/ics,text/x-vcalendar':(calendarExisting?'.ics,.csv,.tsv,.txt,.xlsx,text/calendar,application/ics,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'.csv,.tsv,.txt,.xlsx,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  input.style.position='fixed';input.style.left='-10000px';input.style.top='0';input.style.width='1px';input.style.height='1px';input.style.opacity='0';
   input.setAttribute('aria-hidden','true');
-  document.body.appendChild(input);
-  window.__safe1145CommonFileInput=input;
+  document.body.appendChild(input);window.__safe1145CommonFileInput=input;
   let settled=false;
-  const cleanup=function(){
-    if(settled)return;
-    settled=true;
-    try{if(input.parentNode)input.parentNode.removeChild(input);}catch(_e){}
-    try{if(window.__safe1145CommonFileInput===input)delete window.__safe1145CommonFileInput;}catch(_e){}
-  };
+  const cleanup=function(){if(settled)return;settled=true;try{if(input.parentNode)input.parentNode.removeChild(input);}catch(_e){}try{if(window.__safe1145CommonFileInput===input)delete window.__safe1145CommonFileInput;}catch(_e){}};
   input.addEventListener('change',async function(){
-    const file=input.files&&input.files[0];
-    if(!file){cleanup();return;}
+    const file=input.files&&input.files[0];if(!file){cleanup();return;}
     try{
       try{toast('Læser '+(file.name||'fil')+' …');}catch(_e){}
       await new Promise(function(resolve){setTimeout(resolve,0);});
-      let ds=null;
-      const name=(file.name||'Fælles datasæt').replace(/\.[^.]+$/,'');
-      if(isLikelyXlsxFile(file))ds=await parseXlsxDatasetFile(file);
+      let ds=null;const name=(file.name||'Fælles datasæt').replace(/\.[^.]+$/,'');
+      const isIcs=forceIcs||(typeof safe416IsIcsFile==='function'&&safe416IsIcsFile(file))||/\.ics$/i.test(file.name||'');
+      if(isIcs){
+        const txt=await readFileAsText(file);
+        const events=safe351EventsFromIcsText(txt,file.name||name);
+        if(!events.length)throw new Error('ICS-filen indeholdt ingen kalenderbegivenheder');
+        ds=(typeof safe354DatasetFromEvents==='function')?safe354DatasetFromEvents(events,name,file.name||name):{id:'ds'+Date.now().toString(36),name:name,type:'calendar-events',columns:['Dato','Start','Slut','Titel','Type','Hold','Sted','Note','Farve','Status'],rows:safe351CsvRowsFromEvents(events),sourceName:file.name||name,importedAt:Date.now()};
+        ds.type='calendar-events';
+      }else if(isLikelyXlsxFile(file))ds=await parseXlsxDatasetFile(file);
       else ds=parseDatasetFromText(await readFileAsText(file),name);
-      if(!ds||!Array.isArray(ds.rows)||!ds.rows.length){
-        toast('Filen indeholdt ingen data');
-        cleanup();
-        return;
-      }
-      ds.name=ds.name||name;
-      ds.sourceName=file.name||name;
+      if(!ds||!Array.isArray(ds.rows)||!ds.rows.length){toast('Filen indeholdt ingen data');cleanup();return;}
+      ds.name=ds.name||name;ds.sourceName=file.name||name;
       cleanup();
-      safe1138ConfigureCommonDataset(ds,{existingId:existingId||'',sourceName:file.name||name,returnContext:safe1140ReturnContext||null});
-    }catch(err){
-      console.error(err);
-      cleanup();
-      toast('Kunne ikke importere fælles data: '+(err&&err.message?err.message:'ukendt fejl'));
-    }
+      safe1138ConfigureCommonDataset(ds,{existingId:existingId||'',sourceName:file.name||name,returnContext:safe1140ReturnContext||null,kind:isIcs?'calendar':''});
+    }catch(err){console.error(err);cleanup();toast('Kunne ikke importere fælles data: '+(err&&err.message?err.message:'ukendt fejl'));}
   },{once:true});
-  input.addEventListener('cancel',cleanup,{once:true});
-  input.value='';
-  try{
-    if(typeof input.showPicker==='function')input.showPicker();
-    else input.click();
-  }catch(_e){input.click();}
+  input.addEventListener('cancel',cleanup,{once:true});input.value='';
+  try{if(typeof input.showPicker==='function')input.showPicker();else input.click();}catch(_e){input.click();}
 }
 function safe1138ChooseSessionDataset(safe1140ReturnContext){
   const list=(Array.isArray(state.datasets)?state.datasets:[]).filter(function(ds){if(!ds||!ds.id)return false;if(typeof safe1144IsInternalRelationDataset==='function'&&safe1144IsInternalRelationDataset(ds))return false;if(typeof safe1146DatasetHasLiveSessionUse==='function'&&!safe1146DatasetHasLiveSessionUse(ds))return false;const n=String(ds.name||'');return !ds.boardIndexDataset&&!/^(TavleSessioner|Sessionpakker|Tavleindeks)$/i.test(n);});
@@ -21771,7 +21962,7 @@ function safe1138ChooseSessionDataset(safe1140ReturnContext){
 function safe1138PreviewCommonDataset(id,safe1140ReturnContext){
   const ds=safe1138FindCommonDataset(id);if(!ds){toast('Det fælles datasæt findes ikke længere');return;}
   const cols=(ds.columns||[]).slice(0,12),rows=(ds.rows||[]).slice(0,40);
-  showModal('<div><div class="safe1138CommonHead"><div><h2>'+safe1138Esc(ds.name)+'</h2><p>'+safe1138Esc(ds.commonKind==='student-master'?'Elevstamdata':'Fælles datasæt')+' · '+(ds.rows||[]).length+' rækker · '+(ds.columns||[]).length+' kolonner</p></div></div><div class="safe1138PreviewWrap"><table class="safe1138PreviewTable"><thead><tr>'+cols.map(function(c){return '<th>'+safe1138Esc(c)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.map(function(r){return '<tr>'+cols.map(function(_,i){return '<td>'+safe1138Esc((r||[])[i])+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div><div class="safe1138CommonFooter"><button id="safe1138PreviewBack">Tilbage</button>'+(ds.commonKind==='student-master'?'<button id="safe1146PreviewUse">Brug data</button>':'')+'<button id="safe1138PreviewUpdate">Opdatér fra fil</button></div></div>');
+  showModal('<div><div class="safe1138CommonHead"><div><h2>'+safe1138Esc(ds.name)+'</h2><p>'+safe1138Esc(safe1138CommonKindLabel(ds))+' · '+(ds.rows||[]).length+' rækker · '+(ds.columns||[]).length+' kolonner</p></div></div><div class="safe1138PreviewWrap"><table class="safe1138PreviewTable"><thead><tr>'+cols.map(function(c){return '<th>'+safe1138Esc(c)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.map(function(r){return '<tr>'+cols.map(function(_,i){return '<td>'+safe1138Esc((r||[])[i])+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div><div class="safe1138CommonFooter"><button id="safe1138PreviewBack">Tilbage</button>'+(ds.commonKind==='student-master'?'<button id="safe1146PreviewUse">Brug data</button>':'')+'<button id="safe1138PreviewUpdate">Opdatér fra fil</button></div></div>');
   const root=document.getElementById('modal');if(!root)return;root.style.width='min(1040px,96vw)';root.querySelector('#safe1138PreviewBack').onclick=function(){safe1138ReturnAfterCommonFlow(safe1140ReturnContext);};const useBtn=root.querySelector('#safe1146PreviewUse');if(useBtn)useBtn.onclick=function(){safe1146UseCommonStudentData(ds.id,safe1140ReturnContext);};root.querySelector('#safe1138PreviewUpdate').onclick=function(){safe1138PickCommonDataFile(ds.id,safe1140ReturnContext);};safe1140BindModalNavigation(root,{scrollSelector:'.safe1138PreviewWrap',onEscape:function(){safe1138ReturnAfterCommonFlow(safe1140ReturnContext);}});
 }
 
@@ -21819,12 +22010,12 @@ function safe1146DatasetHasLiveSessionUse(ds){
 function safe1138OpenCommonDataModal(safe1140ReturnContext){
   safe1140ReturnContext=safe1140ReturnContext||null;
   const items=safe1138CommonDatasets().slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'da');});
-  const rows=items.length?items.map(function(ds){const linked=safe1138SessionUsesCommonDataset(ds.id);return '<article class="safe1138CommonRow"><div><h3>'+safe1138Esc(ds.name||'Fælles datasæt')+'</h3><div class="safe1138CommonMeta"><span>'+safe1138Esc(ds.commonKind==='student-master'?'Elevstamdata':'Fælles data')+'</span><span>'+((ds.rows||[]).length)+' rækker</span><span>'+((ds.columns||[]).length)+' kolonner</span><span>'+safe1138Esc(ds.sourceName||'lokalt register')+'</span></div></div><div class="safe1138CommonRowActions"><button data-common-preview="'+safe1138Esc(ds.id)+'">Vis</button>'+(ds.commonKind==='student-master'?'<button data-common-use="'+safe1138Esc(ds.id)+'">Brug data</button>':'')+'<button data-common-update="'+safe1138Esc(ds.id)+'">Opdatér</button><button class="'+(linked?'safe1138CommonLinked':'')+'" data-common-link="'+safe1138Esc(ds.id)+'">'+(linked?'✓ Tilknyttet':'Brug i session')+'</button></div></article>';}).join(''):'<div class="safe1138CommonEmpty">Der er endnu ingen fælles datasæt. Importér skolens elevstamdata her, eller gør et eksisterende sessionsdatasæt fælles.</div>';
-  showModal('<div class="safe1138CommonDataModal"><div class="safe1138CommonHead"><div><h2>🗂️ Fælles data</h2><p>Datasæt her kan bruges af alle Tavle-sessioner i denne browser. Den aktuelle session gemmer kun en stabil tilknytning.</p></div><div class="safe1138CommonActions"><button id="safe1138ImportFile">Importér CSV/Excel</button><button id="safe1138FromSession">Fra denne session</button></div></div><div class="safe1138CommonList">'+rows+'</div><div class="safe1138CommonFooter"><button id="safe1138CommonClose">Luk</button></div></div>');
+  const rows=items.length?items.map(function(ds){const linked=safe1138SessionUsesCommonDataset(ds.id);return '<article class="safe1138CommonRow"><div><h3>'+safe1138Esc(ds.name||'Fælles datasæt')+'</h3><div class="safe1138CommonMeta"><span>'+safe1138Esc(safe1138CommonKindLabel(ds))+'</span><span>'+((ds.rows||[]).length)+' rækker</span><span>'+((ds.columns||[]).length)+' kolonner</span><span>'+safe1138Esc(ds.sourceName||'lokalt register')+'</span></div></div><div class="safe1138CommonRowActions"><button data-common-preview="'+safe1138Esc(ds.id)+'">Vis</button>'+(ds.commonKind==='student-master'?'<button data-common-use="'+safe1138Esc(ds.id)+'">Brug data</button>':'')+'<button data-common-update="'+safe1138Esc(ds.id)+'">Opdatér</button><button class="'+(linked?'safe1138CommonLinked':'')+'" data-common-link="'+safe1138Esc(ds.id)+'">'+(linked?'✓ Tilknyttet':'Brug i session')+'</button></div></article>';}).join(''):'<div class="safe1138CommonEmpty">Der er endnu ingen fælles datasæt. Importér CSV/Excel eller ICS, eller gør et eksisterende sessionsdatasæt fælles.</div>';
+  showModal('<div class="safe1138CommonDataModal"><div class="safe1138CommonHead"><div><h2>🗂️ Fælles data</h2><p>Datasæt her kan bruges af alle Tavle-sessioner i denne browser. Den aktuelle session gemmer kun en stabil tilknytning.</p></div><div class="safe1138CommonActions"><button id="safe1138ImportFile">Importér CSV/Excel</button><button id="safe1211ImportIcs">Importér ICS</button><button id="safe1138FromSession">Fra denne session</button></div></div><div class="safe1138CommonList">'+rows+'</div><div class="safe1138CommonFooter"><button id="safe1138CommonClose">Luk</button></div></div>');
   const root=document.getElementById('modal');if(!root)return;root.style.width='min(1040px,96vw)';root.style.maxHeight='92vh';
   const safe1140FromCenter=!!(safe1140ReturnContext&&safe1140ReturnContext.fromDataCenter);
   if(safe1140FromCenter){root.dataset.safe1140DataCenterOrigin='common';safe1140AddBackButton(root,function(){safe1140ReturnToDataCenter('common');},root.querySelector('.safe1138CommonHead'));}
-  root.querySelector('#safe1138ImportFile').onclick=function(){safe1138PickCommonDataFile('',safe1140ReturnContext);};root.querySelector('#safe1138FromSession').onclick=function(){safe1138ChooseSessionDataset(safe1140ReturnContext);};root.querySelector('#safe1138CommonClose').onclick=safe1140FromCenter?function(){safe1140ReturnToDataCenter('common');}:closeModal;
+  root.querySelector('#safe1138ImportFile').onclick=function(){safe1138PickCommonDataFile('',safe1140ReturnContext,'data');};const safe1211IcsBtn=root.querySelector('#safe1211ImportIcs');if(safe1211IcsBtn)safe1211IcsBtn.onclick=function(){safe1138PickCommonDataFile('',safe1140ReturnContext,'ics');};root.querySelector('#safe1138FromSession').onclick=function(){safe1138ChooseSessionDataset(safe1140ReturnContext);};root.querySelector('#safe1138CommonClose').onclick=safe1140FromCenter?function(){safe1140ReturnToDataCenter('common');}:closeModal;
   root.querySelectorAll('[data-common-preview]').forEach(function(btn){btn.onclick=function(){safe1138PreviewCommonDataset(btn.dataset.commonPreview,safe1140ReturnContext);};});
   root.querySelectorAll('[data-common-use]').forEach(function(btn){btn.onclick=function(){safe1146UseCommonStudentData(btn.dataset.commonUse,safe1140ReturnContext);};});
   root.querySelectorAll('[data-common-update]').forEach(function(btn){btn.onclick=function(){safe1138PickCommonDataFile(btn.dataset.commonUpdate,safe1140ReturnContext);};});
@@ -22324,8 +22515,8 @@ function safe1139OpenDataCenter(initialTab){
   }).join(''):'<div class="safe1139Empty">Der er endnu ingen sessionsdatasæt.</div>';
   const commonRows=commons.length?commons.map(function(ds){
     const linked=typeof safe1138SessionUsesCommonDataset==='function'&&safe1138SessionUsesCommonDataset(ds.id);
-    return '<article class="safe1139Card safe1139CommonCard"><div><b>'+safe1139DataCenterEsc(safe1151CommonNames[String(ds.id)]||safe1151DatasetDisplayName(ds))+'</b><small>'+safe1139DataCenterEsc(ds.commonKind==='student-master'?'Elevstamdata':'Fælles data')+' · '+((ds.rows||[]).length)+' rækker · '+((ds.columns||[]).length)+' kolonner'+(linked?' · bruges i sessionen':'')+'</small></div><div class="safe1139CommonActions"><button type="button" data-safe1139-common-preview="'+safe1139DataCenterEsc(ds.id)+'">Vis</button>'+(ds.commonKind==='student-master'?'<button type="button" data-safe1139-common-use="'+safe1139DataCenterEsc(ds.id)+'">Brug data</button>':'')+'<button type="button" data-safe1139-common-update="'+safe1139DataCenterEsc(ds.id)+'">Opdatér</button><button type="button" class="'+(linked?'safe1139CommonLinked':'')+'" data-safe1139-common-link="'+safe1139DataCenterEsc(ds.id)+'">'+(linked?'✓ Tilknyttet':'Brug i session')+'</button></div></article>';
-  }).join(''):'<div class="safe1139Empty">Der er endnu ingen fælles datasæt. Importér skolens elevstamdata, eller opret en fælles kopi af et sessionsdatasæt.</div>';
+    return '<article class="safe1139Card safe1139CommonCard"><div><b>'+safe1139DataCenterEsc(safe1151CommonNames[String(ds.id)]||safe1151DatasetDisplayName(ds))+'</b><small>'+safe1139DataCenterEsc(safe1138CommonKindLabel(ds))+' · '+((ds.rows||[]).length)+' rækker · '+((ds.columns||[]).length)+' kolonner'+(linked?' · bruges i sessionen':'')+'</small></div><div class="safe1139CommonActions"><button type="button" data-safe1139-common-preview="'+safe1139DataCenterEsc(ds.id)+'">Vis</button>'+(ds.commonKind==='student-master'?'<button type="button" data-safe1139-common-use="'+safe1139DataCenterEsc(ds.id)+'">Brug data</button>':'')+'<button type="button" data-safe1139-common-update="'+safe1139DataCenterEsc(ds.id)+'">Opdatér</button><button type="button" class="'+(linked?'safe1139CommonLinked':'')+'" data-safe1139-common-link="'+safe1139DataCenterEsc(ds.id)+'">'+(linked?'✓ Tilknyttet':'Brug i session')+'</button></div></article>';
+  }).join(''):'<div class="safe1139Empty">Der er endnu ingen fælles datasæt. Importér CSV/Excel eller ICS, eller opret en fælles kopi af et sessionsdatasæt.</div>';
   const sourceRows=(Array.isArray(sources)&&sources.length)?sources.slice(0,30).map(function(src){return '<article class="safe1139Card safe1139SourceCard"><div><b>'+safe1139DataCenterEsc(src.name||src.type||'Datakilde')+'</b><small>'+safe1139DataCenterEsc(src.type||src.kind||'Datakilde')+' · '+safe1139DataCenterEsc(src.count||'')+'</small></div><span class="safe1139Status">'+safe1139DataCenterEsc(src.usage||'')+'</span></article>';}).join(''):'<div class="safe1139Empty">Der er endnu ingen datakilder at vise.</div>';
   const graph=(state&&state.objectGraph)||{objects:[],relations:[],views:[]};
   const relationSummary='<div class="safe1139Summary"><b>Relationer i den aktuelle session</b><span>'+((graph.objects||[]).length)+' objekter · '+((graph.relations||[]).length)+' forbindelser · '+((graph.views||[]).length)+' visninger</span><p>Relationsoverblikket forklarer, hvordan tavler, grupper, elementer, matricer og data hænger sammen.</p></div>';
@@ -22346,7 +22537,7 @@ function safe1139OpenDataCenter(initialTab){
   '</div><div class="safe1139Body">'+
     '<section class="safe1139Panel" data-safe1139-panel="sessions"><div class="safe1139PanelHead"><div><h3>Sessioner</h3><p>Åbn, opret, omdøb og slet tavlerum i denne browser.</p></div></div><div class="safe1169SessionCreate"><input id="safe1169NewSessionName" type="text" autocomplete="off" placeholder="Ny session, fx Dansk 10A"><button id="safe1169CreateSession" type="button">+ Opret og åbn</button></div><div class="safe1169SessionTools"><input id="safe1169SessionSearch" type="search" placeholder="Søg i sessioner"><select id="safe1169SessionSort"><option value="name">Sortér efter navn</option><option value="last">Senest åbnet</option><option value="size">Største først</option></select></div><div id="safe1169SessionList" class="safe1139List">'+sessionsRows+'</div></section>'+ 
     '<section class="safe1139Panel" data-safe1139-panel="session"><div class="safe1139PanelHead"><div><h3>Sessionsdata</h3><p>Datasæt, der hører til den aktuelle session.</p></div><div class="safe1139Actions"><button id="safe1139NewDataset" type="button">+ DataWidget</button></div></div><div class="safe1139List">'+sessionRows+'</div></section>'+
-    '<section class="safe1139Panel" data-safe1139-panel="common"><div class="safe1139PanelHead"><div><h3>Fælles data</h3><p>Datasæt, der kan bruges af alle sessioner i denne browser.</p></div><div class="safe1139Actions"><button id="safe1139ImportCommon" type="button">Importér CSV/Excel</button><button id="safe1139CommonFromSession" type="button">Fra denne session</button></div></div><div class="safe1139List">'+commonRows+'</div></section>'+
+    '<section class="safe1139Panel" data-safe1139-panel="common"><div class="safe1139PanelHead"><div><h3>Fælles data</h3><p>Datasæt, der kan bruges af alle sessioner i denne browser.</p></div><div class="safe1139Actions"><button id="safe1139ImportCommon" type="button">Importér CSV/Excel</button><button id="safe1211ImportCommonIcs" type="button">Importér ICS</button><button id="safe1139CommonFromSession" type="button">Fra denne session</button></div></div><div class="safe1139List">'+commonRows+'</div></section>'+
     '<section class="safe1139Panel" data-safe1139-panel="sources"><div class="safe1139PanelHead"><div><h3>Datakilder</h3><p>Se og åbn de datasæt og lister, widgets er koblet til.</p></div><div class="safe1139Actions"><button id="safe1139ManageSources" type="button">Åbn datakilder</button></div></div><div class="safe1139List">'+sourceRows+'</div></section>'+
     '<section class="safe1139Panel" data-safe1139-panel="relations"><div class="safe1139PanelHead"><div><h3>Relationer</h3><p>Forstå forbindelserne mellem objekter, tavler og data.</p></div><div class="safe1139Actions"><button id="safe1139OpenRelations" type="button">Åbn Relationsoverblik</button></div></div>'+relationSummary+'</section>'+
   '</div>';
@@ -22390,7 +22581,8 @@ function safe1139OpenDataCenter(initialTab){
   root.querySelector('#safe1139NewDataset').onclick=function(){closeModal();setTimeout(function(){handleTool('dataset');},20);};
   root.querySelectorAll('[data-safe1139-open-dataset]').forEach(function(btn){btn.onclick=function(){safe1139OpenSessionDataset(btn.dataset.safe1139OpenDataset);};});
   const safe1143CommonContext={fromDataCenter:true,returnTab:'common'};
-  root.querySelector('#safe1139ImportCommon').onclick=function(){safe1138PickCommonDataFile('',safe1143CommonContext);};
+  root.querySelector('#safe1139ImportCommon').onclick=function(){safe1138PickCommonDataFile('',safe1143CommonContext,'data');};
+  const safe1211DcIcs=root.querySelector('#safe1211ImportCommonIcs');if(safe1211DcIcs)safe1211DcIcs.onclick=function(){safe1138PickCommonDataFile('',safe1143CommonContext,'ics');};
   root.querySelector('#safe1139CommonFromSession').onclick=function(){safe1138ChooseSessionDataset(safe1143CommonContext);};
   root.querySelectorAll('[data-safe1139-common-preview]').forEach(function(btn){btn.onclick=function(){safe1138PreviewCommonDataset(btn.dataset.safe1139CommonPreview,safe1143CommonContext);};});
   root.querySelectorAll('[data-safe1139-common-use]').forEach(function(btn){btn.onclick=function(){safe1146UseCommonStudentData(btn.dataset.safe1139CommonUse,safe1143CommonContext);};});
@@ -26356,7 +26548,10 @@ function closeImportModalAfterSuccess(){
   }catch(_e){}
 }
 function showImportSummary(results,opts={}){
-  results=(results||[]).filter(Boolean);
+  // l1213: Backup++ er kun afleveret til sit eget sessions-preview her.
+  // Det er endnu ikke en færdig import og må derfor ikke vise den almindelige
+  // importopsummering eller lukke previewmod795alen.
+  results=(results||[]).filter(r=>r && !r.backupPPPreview);
   if(!results.length)return;
   const ok=results.filter(r=>r.ok!==false), bad=results.filter(r=>r.ok===false);
   const groups={};
@@ -27369,8 +27564,8 @@ document.addEventListener('drop',async e=>{
   if(files.length){
     if(!tavleModalIsOpen())openSaveModalForExternalFileDrag();
     const results=await safe417ImportFilesWithIcsChoice(files,{x:140,y:130});
-    const imported=results.filter(res=>res&&res.ok!==false).reduce((sum,res)=>sum+Number(res.count||1),0);
-    toastImportCount(imported);
+    const imported=results.filter(res=>res&&res.ok!==false&&!res.backupPPPreview).reduce((sum,res)=>sum+Number(res.count||1),0);
+    if(!results.some(res=>res&&res.backupPPPreview))toastImportCount(imported);
     showImportSummary(results,{closeModal:true});
     return;
   }
@@ -27391,6 +27586,7 @@ function resetWidgetRotation(w,el){
   try{if(typeof safe976SyncStudentAddressCardLayout==='function')safe976SyncStudentAddressCardLayout(w,{save:false});}catch(_e){}
   try{if(typeof safe977SyncStudentNoteTextLayout==='function')safe977SyncStudentNoteTextLayout(w,{save:false});}catch(_e){}
   try{if(typeof safe1109SyncTavleCardLinkedLayout==='function')safe1109SyncTavleCardLinkedLayout(w,{save:false});}catch(_e){}
+  try{safe1215SyncTaggedLayout(w,{save:false});}catch(_e){}
   save();
   if(typeof toast==='function')toast('Rotation nulstillet');
 }
@@ -27454,7 +27650,138 @@ WIDGET CORE MAP
 - select(id,...): styrer markeret widget og påvirker keyboard, toolbar og focus-flow.
 - addWidget(type,...): opretter nyt widgetobjekt i state. Ændr ikke datamodel uden migrationstest.
 */
-function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+((w.type==='text'&&w.data&&w.data.studentNoteWidget)?' studentNoteTextWidget':'')+((w.type==='text'&&w.data&&w.data.addressCardMatrix===true)?' safe1075MatrixCard':'')+((w.type==='text'&&w.data&&w.data.groupCardMatrix===true)?' safe1086GroupMatrixCard':'')+((w.type==='text'&&w.data&&w.data.tavleCardMatrix===true)?' safe1097TavleCardMatrixCard':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':safe984DatasetChromeButtons(w));const boardPanelChromeBtns=(w.type==='text'&&w.data&&(w.data.listType==='boardIndex'||w.data.listType==='boardCheckIndex'))?'<button data-act="boardPanelTitleZoomOut" class="boardPanelChromeZoom" title="Mindre titler i Tavlepanel">−</button><button data-act="boardPanelTitleZoomIn" class="boardPanelChromeZoom" title="Større titler i Tavlepanel">＋</button>':'';const mediaChromeBtns=(w.type==='video')?'<button data-act="mediaListChrome" title="Åbn koblet DataWidget/medieliste – eller vælg liste">🔗</button><button data-act="mediaPickerChrome" title="Vælg/afspil fra medieliste">☰</button><button data-act="mediaSaveChrome" title="Vælg/gem i medieliste">＋</button>':'';const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
+
+/* l1215: Layoutfamilier ejes i Tavles hovedscope.
+   Kun tavler/widgets med eksplicitte layoutSyncGroup/layoutSyncRole-tags påvirkes. */
+function safe1215LayoutRecord(widgetOrId){
+  try{
+    const id=String((widgetOrId&&widgetOrId.id)||widgetOrId||'');
+    if(!id)return null;
+    for(let si=0;si<(state.slides||[]).length;si++){
+      const sl=state.slides[si];
+      const w=(sl.widgets||[]).find(x=>String(x&&x.id||'')===id);
+      if(w)return {slide:sl,slideIndex:si,w};
+    }
+  }catch(_e){}
+  return null;
+}
+function safe1215LayoutMeta(widgetOrId){
+  try{
+    const rec=safe1215LayoutRecord(widgetOrId);
+    if(!rec||!rec.slide||!rec.w)return null;
+    const group=String(rec.slide.layoutSyncGroup||'').trim();
+    const role=String(rec.w.layoutSyncRole||(rec.w.data&&rec.w.data.layoutSyncRole)||'').trim();
+    if(!rec.slide.layoutSyncEnabled||!group||!role)return null;
+    return {rec,group,role};
+  }catch(_e){return null;}
+}
+function safe1215EnsureLayoutStore(){
+  try{
+    state.layoutTemplates=state.layoutTemplates||{version:1,enabled:true,groups:{}};
+    state.layoutTemplates.version=1;
+    if(state.layoutTemplates.enabled===undefined)state.layoutTemplates.enabled=true;
+    state.layoutTemplates.groups=state.layoutTemplates.groups||{};
+    return state.layoutTemplates;
+  }catch(_e){return null;}
+}
+function safe1215GeometryFromWidget(w){
+  return {
+    x:Number(w&&w.x)||0,
+    y:Number(w&&w.y)||0,
+    w:Math.max(40,Number(w&&w.w)||40),
+    h:Math.max(40,Number(w&&w.h)||40),
+    rotation:Number(w&&w.rotation)||0
+  };
+}
+function safe1215ApplyGeometry(w,g){
+  if(!w||!g)return false;
+  w.x=Number(g.x)||0;
+  w.y=Number(g.y)||0;
+  w.w=Math.max(40,Number(g.w)||40);
+  w.h=Math.max(40,Number(g.h)||40);
+  w.rotation=Number(g.rotation)||0;
+  return true;
+}
+function safe1215SyncTaggedLayout(widgetOrId,opts={}){
+  try{
+    const meta=safe1215LayoutMeta(widgetOrId);
+    const store=safe1215EnsureLayoutStore();
+    if(!meta||!store||store.enabled===false)return false;
+    const groupStore=store.groups[meta.group]||(store.groups[meta.group]={roles:{}});
+    groupStore.roles=groupStore.roles||{};
+    const geometry=safe1215GeometryFromWidget(meta.rec.w);
+    groupStore.roles[meta.role]=geometry;
+    let changed=0;
+    (state.slides||[]).forEach(sl=>{
+      if(!sl||sl.layoutSyncEnabled===false||String(sl.layoutSyncGroup||'')!==meta.group)return;
+      (sl.widgets||[]).forEach(w=>{
+        const role=String(w&& (w.layoutSyncRole||(w.data&&w.data.layoutSyncRole)) ||'');
+        if(role!==meta.role)return;
+        safe1215ApplyGeometry(w,geometry); changed++;
+      });
+    });
+    groupStore.updatedAt=Date.now();
+    groupStore.updatedRole=meta.role;
+    if(opts.render===true && typeof render==='function')render();
+    if(opts.save===true && typeof save==='function')save({silent:true});
+    return changed>0;
+  }catch(err){try{console.warn('l1215 layout sync failed',err);}catch(_e){} return false;}
+}
+function safe1215ApplyLayoutTemplates(){
+  try{
+    const store=state&&state.layoutTemplates;
+    if(!store||store.enabled===false||!store.groups)return false;
+    let changed=0;
+    (state.slides||[]).forEach(sl=>{
+      if(!sl||sl.layoutSyncEnabled===false)return;
+      const group=String(sl.layoutSyncGroup||'');
+      const gs=store.groups[group];
+      if(!group||!gs||!gs.roles)return;
+      (sl.widgets||[]).forEach(w=>{
+        const role=String(w&& (w.layoutSyncRole||(w.data&&w.data.layoutSyncRole)) ||'');
+        const g=gs.roles[role];
+        if(!role||!g)return;
+        const before=[w.x,w.y,w.w,w.h,w.rotation].join('|');
+        safe1215ApplyGeometry(w,g);
+        if(before!==[w.x,w.y,w.w,w.h,w.rotation].join('|'))changed++;
+      });
+    });
+    return changed>0;
+  }catch(err){try{console.warn('l1215 layout apply failed',err);}catch(_e){} return false;}
+}
+
+/* l1216: Undgå at gennemløbe alle tavler ved hver almindelig render.
+   En nyindlæst state eller en reelt ændret layoutskabelon anvendes én gang. */
+function safe1216LayoutTemplateRevision(){
+  try{
+    const store=state&&state.layoutTemplates;
+    if(!store||store.enabled===false)return 'off';
+    const groups=store.groups||{};
+    const bits=Object.keys(groups).sort().map(k=>{
+      const g=groups[k]||{};
+      return k+':'+String(g.updatedAt||0)+':'+Object.keys(g.roles||{}).sort().join(',');
+    });
+    const sid=String((state&&state.sessionMeta&&(state.sessionMeta.sessionId||state.sessionMeta.objectId))||'');
+    return sid+'|'+bits.join('|');
+  }catch(_e){return 'unknown';}
+}
+function safe1216ApplyLayoutTemplatesOnce(){
+  try{
+    if(!state||typeof state!=='object')return false;
+    const rev=safe1216LayoutTemplateRevision();
+    if(state.__safe1216LayoutAppliedRevision===rev)return false;
+    const changed=safe1215ApplyLayoutTemplates();
+    try{
+      Object.defineProperty(state,'__safe1216LayoutAppliedRevision',{
+        value:rev,writable:true,configurable:true,enumerable:false
+      });
+    }catch(_e){state.__safe1216LayoutAppliedRevision=rev;}
+    return changed;
+  }catch(_e){return false;}
+}
+window.__TAVLE_SYNC_TAGGED_LAYOUT__=safe1215SyncTaggedLayout;
+
+function makeWidget(w){const el=document.createElement('div');const linkedDataSourceOpen=!!(w&&w.type==='text'&&w.data&&((w.data.datasetId&&w.data.sourceOpen===true&&((typeof safe381IsLinkedDataWidget==='function'&&safe381IsLinkedDataWidget(w))||(w.data&&w.data.sourceOpenedFromDataSourcesModal===true)))||(w.data.sourceOpenedFromDataSourcesModal===true)));el.className='widget '+(w.type==='image'?'imageWidget':'')+((w.type==='text'&&w.data&&w.data.datasetView)?' datasetTextWidget':'')+((w.type==='text'&&w.data&&w.data.studentNoteWidget)?' studentNoteTextWidget':'')+((w.type==='text'&&w.data&&w.data.addressCardMatrix===true)?' safe1075MatrixCard':'')+((w.type==='text'&&w.data&&w.data.groupCardMatrix===true)?' safe1086GroupMatrixCard':'')+((w.type==='text'&&w.data&&w.data.tavleCardMatrix===true)?' safe1097TavleCardMatrixCard':'')+(linkedDataSourceOpen?' linkedDataSourceOpen':'');el.dataset.id=w.id;el.dataset.type=w.type;if(w.type==='html'&&w.data&&w.data.sessionIndexWidget===true){if(Number(w.data.sessionIndexUnlockVersion||0)<1){w.locked=false;w.data.sessionIndexUnlockVersion=1;}el.classList.add('safe1220SessionIndexHtml','safe1223SessionIndexNative','safe1224SessionIndexLinkList');el.setAttribute('data-safe1220-session-index-html','1');el.setAttribute('data-safe1223-session-index-native','1');}if(w.type==='link'&&w.data&&(w.data.museScore||w.data.viewType==='musescore'))el.dataset.musescore='1';if(w.type==='link'&&w.data&&w.data.view==='iframe'&&w.data.iframeInteractive===true)el.classList.add('linkIframeAutoInteractive');if(w.type==='text'&&w.data&&w.data.datasetView)el.dataset.datasetView='true';el.style.left='0px';el.style.top='0px';el.style.right='auto';el.style.bottom='auto';el.style.width=w.w+'px';el.style.height=w.h+'px';el.style.setProperty('--widget-w', w.w+'px');el.style.setProperty('--widget-h', w.h+'px');el.style.zIndex=w.z;el.style.transform=transformFor(w);const linkEditBtn=w.type==='link'?(((w.data&&w.data.view)==='iframe')?'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="iframe" title="Tilbage til Link-visning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="linkZoomOut" title="Zoom ud">−</button><button data-act="linkZoomIn" title="Zoom ind">＋</button><button data-act="openLink" title="Åbn link i ny fane">↗</button>':'<button data-act="toggleLinkView" class="linkModeToggle" data-mode="link" title="Skift til mini-browser/webvisning">▣</button><button data-act="linkList" title="Vælg linkliste">☰</button><button data-act="openLink" title="Åbn link i ny fane">↗</button><button data-act="editLink" title="Rediger link">✎</button>'):(w.type==='html'?'<button data-act="toggleHtmlView" title="Skift mellem webvisning og tekst">▣</button><button data-act="htmlZoomOut" title="Zoom ud">−</button><button data-act="htmlZoomIn" title="Zoom ind">＋</button><button data-act="downloadHtml" title="Hent HTML/medie">↧</button>':safe984DatasetChromeButtons(w));const boardPanelChromeBtns=(w.type==='text'&&w.data&&(w.data.listType==='boardIndex'||w.data.listType==='boardCheckIndex'))?'<button data-act="boardPanelTitleZoomOut" class="boardPanelChromeZoom" title="Mindre titler i Tavlepanel">−</button><button data-act="boardPanelTitleZoomIn" class="boardPanelChromeZoom" title="Større titler i Tavlepanel">＋</button>':'';const mediaChromeBtns=(w.type==='video')?'<button data-act="mediaListChrome" title="Åbn koblet DataWidget/medieliste – eller vælg liste">🔗</button><button data-act="mediaPickerChrome" title="Vælg/afspil fra medieliste">☰</button><button data-act="mediaSaveChrome" title="Vælg/gem i medieliste">＋</button>':'';const mediaNameBtn=(w.type==='image'||w.type==='drawcopy')?'<button data-act="renameMedia" title="Navngiv billede/tegning">🏷️</button>':'';let widgetTitle=(w.title||titles[w.type]);
 try{
   if(w.type==='calendar'&&w.data&&w.data.mode==='day'&&!w.data.dayExpanded){
     const d=safe364DateFromISO(w.data.dayDate||safe351TodayISO());
@@ -42957,7 +43284,21 @@ function safe353DanishHolidays(y){const easter=safe353EasterDate(Number(y)||new 
 function safe353HolidaysForDate(w,date){safe351NormalizeEvents(w);if(w.data.showHolidays===false)return [];return safe353DanishHolidays(String(date).slice(0,4)).filter(h=>h.date===date).map(h=>Object.assign({id:'holiday-'+h.date+'-'+h.title,start:'',end:'',hold:'',place:'',note:'Dansk mærkedag/helligdag'},h))}
 function safe353VisibleEventsForDate(w,date){return safe351EventsForDate(w,date).concat(safe353HolidaysForDate(w,date))}
 function safe351EventColor(ev){return ev.color||SAFE351_CAL_TYPES[ev.type]||'#4f46e5'}
-function safe351NormalizeEvents(w){w.data=w.data||{};w.data.year=Number(w.data.year)||new Date().getFullYear();w.data.month=Number(w.data.month)||new Date().getMonth()+1;w.data.view=w.data.view||'month';if(w.data.showWeekNumbers===undefined)w.data.showWeekNumbers=true;if(w.data.showHolidays===undefined)w.data.showHolidays=true;w.data.events=Array.isArray(w.data.events)?w.data.events:[];w.data.events=w.data.events.map(ev=>{
+function safe1211RefreshCalendarFromLinkedCommon(w){
+  try{
+    const id=String(w&&w.data&&w.data.sourceDatasetId||'');if(!id)return false;
+    if(typeof safe1138SessionUsesCommonDataset!=='function'||!safe1138SessionUsesCommonDataset(id))return false;
+    const ds=typeof safe1138FindCommonDataset==='function'?safe1138FindCommonDataset(id):null;
+    if(!ds||!safe1138IsCalendarDataset(ds))return false;
+    const revision=safe1211CommonDatasetRevision(ds);
+    if(String(w.data._commonDatasetRevision||'')===revision)return false;
+    w.data.events=(safe351EventsFromDataset(ds)||[]).map(function(ev){return Object.assign({},ev);});
+    w.data.sourceDatasetName=ds.name||'Fælles kalender';
+    w.data._commonDatasetRevision=revision;
+    return true;
+  }catch(_e){return false;}
+}
+function safe351NormalizeEvents(w){w.data=w.data||{};try{safe1211RefreshCalendarFromLinkedCommon(w);}catch(_e){};w.data.year=Number(w.data.year)||new Date().getFullYear();w.data.month=Number(w.data.month)||new Date().getMonth()+1;w.data.view=w.data.view||'month';if(w.data.showWeekNumbers===undefined)w.data.showWeekNumbers=true;if(w.data.showHolidays===undefined)w.data.showHolidays=true;w.data.events=Array.isArray(w.data.events)?w.data.events:[];w.data.events=w.data.events.map(ev=>{
   ev=ev||{};
   const next={id:ev.id||uid(),date:String(ev.date||safe351TodayISO()).slice(0,10),start:String(ev.start||''),end:String(ev.end||''),title:String(ev.title||'Ny aktivitet'),type:String(ev.type||'Andet'),hold:String(ev.hold||''),place:String(ev.place||''),note:String(ev.note||''),color:String(ev.color||''),status:String(ev.status||'planlagt')};
   // SAFE448g: Bevar ekstra kalenderfelter, så Quick add kan linke til tavleøjeblik/tavleshots.
@@ -43131,7 +43472,27 @@ function safe351DecodeIcsText(s){
   const decoded=String(s||'').replace(/\\n/gi,'\n').replace(/\\,/g,',').replace(/\\;/g,';').replace(/\\\\/g,'\\').trim();
   return safe358CleanIcsHtmlText(decoded);
 }
-function safe351EventsFromIcsText(txt,sourceName){const out=[];const raw=safe351UnfoldIcs(txt);raw.split('BEGIN:VEVENT').slice(1).forEach(chunk=>{const part=chunk.split('END:VEVENT')[0]||'';const lines=part.split('\n').map(l=>l.trim()).filter(Boolean);const ds=safe351ParseIcsDate(safe351IcsValue(lines,'DTSTART'));if(!ds||!ds.date)return;const de=safe351ParseIcsDate(safe351IcsValue(lines,'DTEND'));const summary=safe351DecodeIcsText(safe351IcsValue(lines,'SUMMARY'))||'Kalenderaktivitet';const loc=safe351DecodeIcsText(safe351IcsValue(lines,'LOCATION'));const note=safe351DecodeIcsText(safe351IcsValue(lines,'DESCRIPTION'));out.push({id:uid(),date:ds.date,start:ds.time||'',end:(de&&de.date===ds.date)?(de.time||''):'',title:summary,type:'ICS',hold:'',place:loc,note:note+(sourceName?'\nKilde: '+sourceName:''),color:SAFE351_CAL_TYPES.ICS||'#0ea5e9',status:'planlagt'});});return out;}
+function safe351EventsFromIcsText(txt,sourceName){
+  const out=[];const raw=safe351UnfoldIcs(txt);
+  const pushEvent=function(date,start,end,summary,loc,note){out.push({id:uid(),date:date,start:start||'',end:end||'',title:summary,type:'ICS',hold:'',place:loc,note:note+(sourceName?'\nKilde: '+sourceName:''),color:SAFE351_CAL_TYPES.ICS||'#0ea5e9',status:'planlagt'});};
+  raw.split('BEGIN:VEVENT').slice(1).forEach(chunk=>{
+    const part=chunk.split('END:VEVENT')[0]||'';const lines=part.split('\n').map(l=>l.trim()).filter(Boolean);
+    const ds=safe351ParseIcsDate(safe351IcsValue(lines,'DTSTART'));if(!ds||!ds.date)return;
+    const de=safe351ParseIcsDate(safe351IcsValue(lines,'DTEND'));
+    const summary=safe351DecodeIcsText(safe351IcsValue(lines,'SUMMARY'))||'Kalenderaktivitet';
+    const loc=safe351DecodeIcsText(safe351IcsValue(lines,'LOCATION'));
+    const note=safe351DecodeIcsText(safe351IcsValue(lines,'DESCRIPTION'));
+    if(!ds.time&&de&&de.date&&de.date>ds.date){
+      let cur=new Date(ds.date+'T12:00:00'),endDate=new Date(de.date+'T12:00:00'),guard=0;
+      while(cur<endDate&&guard++<370){
+        const date=cur.getFullYear()+'-'+safe351Pad(cur.getMonth()+1)+'-'+safe351Pad(cur.getDate());
+        pushEvent(date,'','',summary,loc,note);
+        cur.setDate(cur.getDate()+1);
+      }
+    }else pushEvent(ds.date,ds.time||'',(de&&de.date===ds.date)?(de.time||''):'',summary,loc,note);
+  });
+  return out;
+}
 function safe351ImportIcsFiles(w,el,mode){
   mode=mode||'calendar';
   const input=document.createElement('input');input.type='file';input.accept='.ics,text/calendar';input.multiple=true;
@@ -44113,7 +44474,9 @@ function safe362DeduplicateCalendarEvents(w){
 }
 function safe368LinkedCalendarDataset(w){
   const id=w&&w.data&&w.data.sourceDatasetId;
-  return id?findDatasetById(id):null;
+  if(!id)return null;
+  try{if(typeof safe1138SessionUsesCommonDataset==='function'&&safe1138SessionUsesCommonDataset(id)&&typeof safe1138FindCommonDataset==='function'){const common=safe1138FindCommonDataset(id);if(common)return common;}}catch(_e){}
+  return findDatasetById(id);
 }
 function safe371RefreshDatasetWidgets(ds){
   if(!ds||!ds.id)return 0;
@@ -44133,18 +44496,20 @@ function safe371RefreshDatasetWidgets(ds){
   return count;
 }
 function safe368WriteCalendarToLinkedDataset(w){
-  const ds=safe368LinkedCalendarDataset(w);
-  if(!ds)return false;
+  const ds=safe368LinkedCalendarDataset(w);if(!ds)return false;
   safe351NormalizeEvents(w);
   const rows=safe351CsvRowsFromEvents(w.data.events);
   ds.columns=['Dato','Start','Slut','Titel','Type','Hold','Sted','Note','Farve','Status'];
-  ds.rows=rows;
+  ds.rows=rows;ds.sourceName=ds.sourceName||w.title||'Kalender';ds.updatedAt=Date.now();
+  const isCommon=typeof safe1138SessionUsesCommonDataset==='function'&&safe1138SessionUsesCommonDataset(ds.id)&&typeof safe1138FindCommonDataset==='function'&&!!safe1138FindCommonDataset(ds.id);
+  if(isCommon){
+    ds.type='calendar-events';ds.commonKind='calendar';
+    safe1138WriteCommonDatasetRecord(ds);
+    w.data._commonDatasetRevision=safe1211CommonDatasetRevision(ds);
+    return true;
+  }
   ds.type=ds.type||'calendar-events';
-  ds.sourceName=ds.sourceName||w.title||'Kalender';
-  ds.updatedAt=Date.now();
-  updateDatasetInState(ds);
-  safe371RefreshDatasetWidgets(ds);
-  return true;
+  updateDatasetInState(ds);safe371RefreshDatasetWidgets(ds);return true;
 }
 function safe368RememberDatasetLink(w,ds){
   if(!w||!ds||!ds.id)return;
@@ -44153,11 +44518,11 @@ function safe368RememberDatasetLink(w,ds){
   w.data.sourceDatasetName=ds.name||'Kalenderdata';
 }
 function safe369CalendarDatasets(){
-  state.datasets=Array.isArray(state.datasets)?state.datasets:[];
-  return state.datasets.filter(ds=>{
-    const cols=(ds.columns||[]).map(c=>String(c||'').toLowerCase().trim());
-    return cols.includes('dato')&&cols.includes('titel')&&(cols.includes('start')||cols.includes('slut')||String(ds.type||'').includes('calendar'));
-  });
+  const out=[],seen=new Set();
+  const add=function(ds){if(!ds||!ds.id||seen.has(String(ds.id)))return;const cols=(ds.columns||[]).map(c=>String(c||'').toLowerCase().trim());if(cols.includes('dato')&&cols.includes('titel')&&(cols.includes('start')||cols.includes('slut')||String(ds.type||'').includes('calendar'))){seen.add(String(ds.id));out.push(ds);}};
+  state.datasets=Array.isArray(state.datasets)?state.datasets:[];state.datasets.forEach(add);
+  try{(safe1138SessionCommonLinks()||[]).forEach(function(id){add(safe1138FindCommonDataset(id));});}catch(_e){}
+  return out;
 }
 function safe369DatasetOptionsHtml(selectedId){
   const dss=safe369CalendarDatasets();
@@ -44248,39 +44613,24 @@ function safe443CalendarDataKey(ds){
 }
 function safe443CollectCalendarDataSources(){
   const found=new Map();
-  const add=(ds,widget,slideName)=>{
-    if(!ds||!Array.isArray(ds.rows)||!ds.rows.length)return;
-    let evCount=0;
-    try{evCount=safe351EventsFromDataset(ds).length;}catch(_e){evCount=0;}
+  const add=(ds,widget,slideName,meta)=>{
+    if(!ds||!Array.isArray(ds.rows))return;
+    let evCount=0;try{evCount=safe351EventsFromDataset(ds).length;}catch(_e){evCount=0;}
     if(!evCount)return;
     const key=safe443CalendarDataKey(ds);
-    if(!found.has(key)){
-      found.set(key,{ds:ds,widgets:[],slides:[],evCount:evCount});
-    }
-    const item=found.get(key);
-    item.evCount=Math.max(item.evCount,evCount);
-    if(widget)item.widgets.push(widget);
-    if(slideName&&item.slides.indexOf(slideName)<0)item.slides.push(slideName);
+    if(!found.has(key))found.set(key,{ds:ds,widgets:[],slides:[],evCount:evCount,isCommon:!!(meta&&meta.isCommon)});
+    const item=found.get(key);item.evCount=Math.max(item.evCount,evCount);item.isCommon=item.isCommon||!!(meta&&meta.isCommon);
+    if(widget)item.widgets.push(widget);if(slideName&&item.slides.indexOf(slideName)<0)item.slides.push(slideName);
   };
-  try{
-    (Array.isArray(state&&state.datasets)?state.datasets:[]).forEach(ds=>add(ds,null,''));
-  }catch(_e){}
+  try{(Array.isArray(state&&state.datasets)?state.datasets:[]).forEach(ds=>add(ds,null,'',{isCommon:false}));}catch(_e){}
+  try{(safe1138SessionCommonLinks()||[]).forEach(function(id){const ds=safe1138FindCommonDataset(id);if(ds)add(ds,null,'',{isCommon:true});});}catch(_e){}
   try{
     (state.slides||[]).forEach((sl,si)=>{
       const slideName=(typeof safeSlideTitle==='function')?safeSlideTitle(sl,si):('Tavle '+(si+1));
-      (sl.widgets||[]).forEach(widget=>{
-        if(widget&&widget.type==='text'&&widget.data){
-          const ds=(typeof datasetForDownloadWidget==='function')?datasetForDownloadWidget(widget):null;
-          if(ds)add(ds,widget,slideName);
-        }
-      });
+      (sl.widgets||[]).forEach(widget=>{if(widget&&widget.type==='text'&&widget.data){const ds=(typeof datasetForDownloadWidget==='function')?datasetForDownloadWidget(widget):null;if(ds)add(ds,widget,slideName,{isCommon:false});}});
     });
   }catch(_e){}
-  return Array.from(found.values()).sort((a,b)=>{
-    const an=String((typeof safe442DisplayDatasetName==='function'?safe442DisplayDatasetName(a.ds):(a.ds&&a.ds.name))||'');
-    const bn=String((typeof safe442DisplayDatasetName==='function'?safe442DisplayDatasetName(b.ds):(b.ds&&b.ds.name))||'');
-    return an.localeCompare(bn,'da');
-  });
+  return Array.from(found.values()).sort((a,b)=>{const an=String((typeof safe442DisplayDatasetName==='function'?safe442DisplayDatasetName(a.ds):(a.ds&&a.ds.name))||'');const bn=String((typeof safe442DisplayDatasetName==='function'?safe442DisplayDatasetName(b.ds):(b.ds&&b.ds.name))||'');return an.localeCompare(bn,'da');});
 }
 function safe448jFormatDatasetTime(ds){
   const raw=ds&&(ds.updatedAt||ds.importedAt||ds.createdAt||ds.time||ds.timestamp);
@@ -44299,7 +44649,7 @@ function safe443DatasetPickerLabel(item){
   const views=item&&item.widgets&&item.widgets.length?item.widgets.length:0;
   const slides=item&&Array.isArray(item.slides)?item.slides.filter(Boolean):[];
   const time=safe448jFormatDatasetTime(ds);
-  const meta=[evs+' aktiviteter',rows+' rækker',views?views+' visning'+(views>1?'er':''):''].filter(Boolean).join(' · ');
+  const meta=[item&&item.isCommon?'Fælles data':'',evs+' aktiviteter',rows+' rækker',views?views+' visning'+(views>1?'er':''):''].filter(Boolean).join(' · ');
   const hint=[time?'Gemt/importeret '+time:'',slides.length?('Findes på '+slides.slice(0,2).join(', ')+(slides.length>2?' …':'')):''].filter(Boolean).join(' · ');
   return `<span class="calDataPickTitle">🗂️ ${esc(name||'Kalenderdata')}</span><span class="calDataPickMeta">${esc(meta)}</span>${hint?`<span class="calDataPickHint">${esc(hint)}</span>`:''}`;
 }
@@ -44317,9 +44667,9 @@ function safe351OpenDataPicker(w,el){
     const d=new Date(w.data.events[0].date+'T12:00:00');
     w.data.year=d.getFullYear();
     w.data.month=d.getMonth()+1;
-    if(ds&&ds.id)w.data.sourceDatasetId=ds.id;
+    if(ds&&ds.id){w.data.sourceDatasetId=ds.id;if(item&&item.isCommon){try{safe1138SetSessionCommonDatasetLink(ds.id,true);}catch(_e){}w.data._commonDatasetRevision=safe1211CommonDatasetRevision(ds);}}
     w.data.sourceDatasetName=(ds&&ds.name)||'Kalenderdata';
-    closeModal();fillContent(el,w);save();toast('Kalenderdata hentet: '+evs.length+' aktiviteter');
+    closeModal();fillContent(el,w);save();toast((item&&item.isCommon?'Fælles kalender koblet: ':'Kalenderdata hentet: ')+evs.length+' aktiviteter');
   });
 }
 
@@ -46621,7 +46971,11 @@ if(w.type==='poll'){
   }
 }
 // --- WIDGET: HTML ---
- if(w.type==='html'){
+ if(w.type==='html'&&w.data&&w.data.sessionIndexWidget===true){
+  w.data=w.data||{};
+  if(typeof safe1223FillSessionIndexWidget==='function')safe1223FillSessionIndexWidget(c,w,el);
+ }
+ else if(w.type==='html'){
   w.data=w.data||{};
   w.data.mode=w.data.mode||'edit';
   const isEdit=w.data.mode==='edit';
@@ -49604,7 +49958,19 @@ const renameMediaBtn=el.querySelector('[data-act=renameMedia]');
     select(w.id,{editText:false});
     safe453i51RenameMediaWidget(w);
   };
-el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.locked;render()};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
+el.querySelector('[data-act=lock]').onclick=e=>{
+  try{
+    e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    if(typeof canEditWidgets==='function'&&!canEditWidgets())return;
+    w.locked=!w.locked;
+    el.classList.toggle('locked',!!w.locked);
+    const btn=e.currentTarget||el.querySelector('[data-act=lock]');
+    if(btn){btn.textContent=w.locked?'🔒':'🔓';btn.title=w.locked?'Lås op':'Lås widget';btn.setAttribute('aria-pressed',w.locked?'true':'false');}
+    try{if(typeof selected!=='undefined'&&String(selected||'')===String(w.id||''))select(w.id,{editText:false});}catch(_e){}
+    try{save({silent:true});}catch(_e){try{save();}catch(_e2){}}
+    try{if(typeof toast==='function')toast(w.locked?'Widget låst':'Widget ulåst');}catch(_e){}
+  }catch(err){try{console.warn('l1216 lock toggle failed',err);}catch(_e){}}
+};el.querySelector('[data-act=move]').onclick=e=>{e.stopPropagation();widgetMoveModal(w)};
  let drag=false,rot=false,res=false,start={}; let rotHoldTimer=null, rotHoldStart=null, rotHoldDidReset=false;
  function safe957BoardGestureScale(){
     try{
@@ -49777,7 +50143,7 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
           setTimeout(()=>{try{if(typeof renderPdfJsWidget==='function'&&pc)renderPdfJsWidget(w,pc);}catch(_e){}},40);
         }catch(_e){}
       }
-      if(drag||res){try{if(typeof safe976SyncStudentAddressCardLayout==='function')safe976SyncStudentAddressCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1059SyncGroupCardLayout==='function')safe1059SyncGroupCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1109SyncTavleCardLinkedLayout==='function')safe1109SyncTavleCardLinkedLayout(w,{save:false});}catch(_e){} try{if(typeof safe977SyncStudentNoteTextLayout==='function')safe977SyncStudentNoteTextLayout(w,{save:false});}catch(_e){} try{if(typeof safe1014SyncStudentNotesReportLayout==='function')safe1014SyncStudentNotesReportLayout(w,{save:false});}catch(_e){} try{save();}catch(_e){}}
+      if(drag||res){try{if(typeof safe976SyncStudentAddressCardLayout==='function')safe976SyncStudentAddressCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1059SyncGroupCardLayout==='function')safe1059SyncGroupCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1109SyncTavleCardLinkedLayout==='function')safe1109SyncTavleCardLinkedLayout(w,{save:false});}catch(_e){} try{if(typeof safe977SyncStudentNoteTextLayout==='function')safe977SyncStudentNoteTextLayout(w,{save:false});}catch(_e){} try{if(typeof safe1014SyncStudentNotesReportLayout==='function')safe1014SyncStudentNotesReportLayout(w,{save:false});}catch(_e){} try{safe1215SyncTaggedLayout(w,{save:false});}catch(_e){} try{save();}catch(_e){}}
       drag=false; res=false;
       document.body.classList.remove('widget-transform-active');
       el.classList.remove('widgetTransforming');
@@ -49890,7 +50256,7 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
     const docRotateEnd=(ev)=>{
       safe455l72FlushRotate();
       clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
-      if(rot){try{if(typeof safe976SyncStudentAddressCardLayout==='function')safe976SyncStudentAddressCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1059SyncGroupCardLayout==='function')safe1059SyncGroupCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1109SyncTavleCardLinkedLayout==='function')safe1109SyncTavleCardLinkedLayout(w,{save:false});}catch(_e){} try{if(typeof safe977SyncStudentNoteTextLayout==='function')safe977SyncStudentNoteTextLayout(w,{save:false});}catch(_e){} try{if(typeof safe1014SyncStudentNotesReportLayout==='function')safe1014SyncStudentNotesReportLayout(w,{save:false});}catch(_e){} save();}
+      if(rot){try{if(typeof safe976SyncStudentAddressCardLayout==='function')safe976SyncStudentAddressCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1059SyncGroupCardLayout==='function')safe1059SyncGroupCardLayout(w,{save:false});}catch(_e){} try{if(typeof safe1109SyncTavleCardLinkedLayout==='function')safe1109SyncTavleCardLinkedLayout(w,{save:false});}catch(_e){} try{if(typeof safe977SyncStudentNoteTextLayout==='function')safe977SyncStudentNoteTextLayout(w,{save:false});}catch(_e){} try{if(typeof safe1014SyncStudentNotesReportLayout==='function')safe1014SyncStudentNotesReportLayout(w,{save:false});}catch(_e){} try{safe1215SyncTaggedLayout(w,{save:false});}catch(_e){} save();}
       rot=false; rotHoldDidReset=false;
       document.body.classList.remove('widget-transform-active');
       el.classList.remove('widgetTransforming');
@@ -49910,7 +50276,7 @@ el.querySelector('[data-act=lock]').onclick=e=>{e.stopPropagation();w.locked=!w.
     if(drag||res){ safe644EndDragResize(evt); if(!rot)return; }
     safe455l72FlushRotate();
     clearTimeout(rotHoldTimer); rotHoldTimer=null; rotHoldStart=null;
-    if(rot){try{if(typeof safe1109SyncTavleCardLinkedLayout==='function')safe1109SyncTavleCardLinkedLayout(w,{save:false});}catch(_e){} save();}
+    if(rot){try{if(typeof safe1109SyncTavleCardLinkedLayout==='function')safe1109SyncTavleCardLinkedLayout(w,{save:false});}catch(_e){} try{safe1215SyncTaggedLayout(w,{save:false});}catch(_e){} save();}
     rot=false; rotHoldDidReset=false;
     document.body.classList.remove('widget-transform-active');
     el.classList.remove('widgetTransforming');
@@ -60669,7 +61035,19 @@ async function importFileFromSaveModal(file,point={x:140,y:130}){
   const name=String(file.name||'').toLowerCase();
   if(/\.(json|tavle|tavlefil)$/i.test(name) || file.type==='application/json'){
     const txt=await readFileAsText(file);
-    return openTavleSaveText(txt,file)?{ok:true,kind:'backup',label:file&&file.name||'Tavlefil åbnet'}:{ok:false,kind:'error',label:'Kunne ikke åbne tavlefilen'};
+    let isBackupPP=false;
+    try{
+      const parsed=JSON.parse(txt);
+      const kind=String((parsed&&(parsed.type||parsed.backupKind||parsed.format))||'').toLowerCase();
+      isBackupPP=kind.indexOf('backup++')>=0 || kind.indexOf('tavle-backup-plus-plus')>=0;
+    }catch(_e){}
+    const opened=openTavleSaveText(txt,file);
+    if(isBackupPP){
+      return opened
+        ? {ok:true,kind:'backup',label:file&&file.name||'Backup++',backupPPPreview:true}
+        : {ok:false,kind:'error',label:'Kunne ikke åbne Backup++-filen'};
+    }
+    return opened?{ok:true,kind:'backup',label:file&&file.name||'Tavlefil åbnet'}:{ok:false,kind:'error',label:'Kunne ikke åbne tavlefilen'};
   }
   if(typeof handleDroppedFile==='function'){
     return await handleDroppedFile(file,point);
@@ -60891,9 +61269,9 @@ function showSaveFileOptions(){
   input.onchange=async()=>{
     const files=Array.from(input.files||[]);
     const results=await safe417ImportFilesWithIcsChoice(files,{x:140,y:130});
-    const imported=results.filter(res=>res&&res.ok!==false).reduce((sum,res)=>sum+Number(res.count||1),0);
+    const imported=results.filter(res=>res&&res.ok!==false&&!res.backupPPPreview).reduce((sum,res)=>sum+Number(res.count||1),0);
     input.value='';
-    toastImportCount(imported);
+    if(!results.some(res=>res&&res.backupPPPreview))toastImportCount(imported);
     showImportSummary(results,{closeModal:true});
   };
   ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{
@@ -60908,8 +61286,8 @@ function showSaveFileOptions(){
     const files=filesFromDataTransfer(e.dataTransfer);
     if(!files.length){toast('Ingen filer fundet');return}
     const results=await safe417ImportFilesWithIcsChoice(files,{x:140,y:130});
-    const imported=results.filter(res=>res&&res.ok!==false).reduce((sum,res)=>sum+Number(res.count||1),0);
-    toastImportCount(imported);
+    const imported=results.filter(res=>res&&res.ok!==false&&!res.backupPPPreview).reduce((sum,res)=>sum+Number(res.count||1),0);
+    if(!results.some(res=>res&&res.backupPPPreview))toastImportCount(imported);
     showImportSummary(results,{closeModal:true});
   });
 }
@@ -63664,10 +64042,415 @@ function safe868OpenTransferLogWidget(){
   try{toast('Kunne ikke åbne overførselslog');}catch(_t){}
   return false;
 }
+function safe1217SessionIndexTitle(item){
+  try{
+    const id=safe963CleanSession(item&&item.id||'standard');
+    const key=safe963SessionKey(id);
+    const raw=localStorage.getItem(key)||'';
+    const st=safe963ParseJson(raw);
+    const metaTitle=String(st&&st.sessionMeta&&(st.sessionMeta.title||st.sessionMeta.name)||'').trim();
+    if(metaTitle&&!/^standard$/i.test(metaTitle)&&metaTitle!==id)return metaTitle;
+    const slides=Array.isArray(st&&st.slides)?st.slides:[];
+    const first=slides.find(function(sl){return sl&&String(sl.title||'').trim();});
+    const firstTitle=String(first&&first.title||'').trim();
+    if(firstTitle&&!/^min undervisningstavle$/i.test(firstTitle))return firstTitle;
+  }catch(_e){}
+  try{return safe1169PrettySessionLabel(item&&item.id||'standard',item&&item.meta&&item.meta.title||item&&item.label||'');}catch(_e){}
+  return String(item&&item.label||item&&item.id||'Session');
+}
+function safe1217SessionIndexItems(){
+  try{
+    const current=safe963CurrentSession();
+    const items=(typeof safe1169SessionManagerItems==='function'?safe1169SessionManagerItems():[]).slice();
+    items.forEach(function(item){item.displayTitle=safe1217SessionIndexTitle(item);});
+    items.sort(function(a,b){
+      if(a.id===current&&b.id!==current)return -1;
+      if(b.id===current&&a.id!==current)return 1;
+      if(a.id==='standard'&&b.id!=='standard')return 1;
+      if(b.id==='standard'&&a.id!=='standard')return -1;
+      return String(a.id||'').localeCompare(String(b.id||''),'da',{numeric:true,sensitivity:'base'});
+    });
+    return items;
+  }catch(_e){return [];}
+}
+function safe1217OpenSessionIndex(){
+  try{
+    const current=safe963CurrentSession();
+    const items=safe1217SessionIndexItems();
+    const rows=items.map(function(item){
+      const id=safe963CleanSession(item.id||'standard');
+      const sum=item.sum||safe963SummarizeSession(id)||{};
+      const active=id===current;
+      const title=String(item.displayTitle||item.label||id);
+      const hash=id==='standard'?'Standard':'#'+id;
+      const stat=String(Number(sum.slides)||0)+' tavler · '+String(Number(sum.widgets)||0)+' widgets · '+String(Number(sum.datasets)||0)+' datasæt · '+safe963FmtBytes(Number(sum.rawBytes)||0);
+      const last=item.lastMs?safe1169FormatDate(item.lastMs):'Ikke registreret';
+      const href=safe963SessionUrl(id);
+      const search=(title+' '+hash+' '+stat).toLocaleLowerCase('da-DK');
+      return '<article class="safe1217SessionCard'+(active?' active':'')+'" data-safe1217-session-row="'+safe963Esc(id)+'" data-safe1217-search="'+safe963Esc(search)+'">'+
+        '<button class="safe1217SessionLink" type="button" data-safe1217-open-session="'+safe963Esc(id)+'" data-safe1217-href="'+safe963Esc(href)+'">'+
+          '<span class="safe1217SessionText"><strong class="safe1217SessionTitle">'+(active?'✓ ':'')+safe963Esc(title)+'</strong><span class="safe1217SessionHash">'+safe963Esc(hash)+'</span><small class="safe1217SessionMeta">'+safe963Esc(stat)+'<br>Senest åbnet: '+safe963Esc(last)+'</small></span>'+
+          '<span class="safe1217SessionOpen">'+(active?'Aktuel':'Åbn')+' →</span>'+
+        '</button></article>';
+    }).join('');
+    const html='<div data-safe1217-session-index="1">'+
+      '<div class="safe1217Head"><div><h2>🧭 Sessionsindeks</h2><p>Alle reelle, gemte sessions med tavler i denne browser. Klik på en session for at åbne den.</p></div><button id="safe1217Close" type="button" aria-label="Luk">×</button></div>'+
+      '<div class="safe1217Tools"><input id="safe1217Search" type="search" placeholder="Søg i '+items.length+' sessions" autocomplete="off"><span id="safe1217Count">'+items.length+' sessions</span></div>'+
+      '<div class="safe1217Rows">'+(rows||'<div class="safe1217Empty">Ingen gemte sessioner med tavler blev fundet.</div>')+'</div>'+
+      '<div class="safe1217New"><input id="safe1217NewName" placeholder="Ny session, fx Historie 9A"><button id="safe1217Create" type="button">+ Opret og åbn</button></div>'+
+      '<div class="safe1217Footer"><button id="safe1217Manage" type="button">Administrer sessioner i Datacenter</button><button id="safe1217CloseBottom" type="button">Luk</button></div>'+
+      '<style>'+safe1217SessionIndexCss()+'</style></div>';
+    showModal(html);
+    const root=document.getElementById('modal')||modal;
+    if(!root)return false;
+    root.classList.add('safe1217SessionIndexModal');
+    const cards=Array.prototype.slice.call(root.querySelectorAll('[data-safe1217-session-row]'));
+    const count=root.querySelector('#safe1217Count');
+    const search=root.querySelector('#safe1217Search');
+    function updateFilter(){
+      const q=String(search&&search.value||'').trim().toLocaleLowerCase('da-DK');
+      let shown=0;
+      cards.forEach(function(card){const ok=!q||String(card.getAttribute('data-safe1217-search')||'').indexOf(q)>=0;card.hidden=!ok;if(ok)shown++;});
+      if(count)count.textContent=shown+' af '+cards.length+' sessions';
+    }
+    if(search){search.addEventListener('input',updateFilter);setTimeout(function(){try{search.focus();}catch(_e){}},80);}
+    root.querySelectorAll('[data-safe1217-open-session]').forEach(function(link){
+      function open(e){
+        try{
+          if(e.type==='click'&&link.__safe1217PointerAt&&Date.now()-link.__safe1217PointerAt<650){e.preventDefault();return;}
+          if(e.type==='pointerup')link.__safe1217PointerAt=Date.now();
+          e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+        }catch(_e){}
+        const id=link.getAttribute('data-safe1217-open-session')||'standard';
+        if(id===current){try{closeModal();}catch(_e){}return false;}
+        return safe1169OpenSession(id);
+      }
+      link.addEventListener('pointerup',open,true);
+      link.addEventListener('click',open,true);
+    });
+    function createSession(){
+      const input=root.querySelector('#safe1217NewName');
+      const raw=String(input&&input.value||'').trim();
+      if(!raw){try{toast('Skriv et sessionsnavn først');}catch(_e){}return;}
+      const id=safe963CleanSession(raw);
+      if(!id){try{toast('Sessionsnavnet kunne ikke bruges');}catch(_e){}return;}
+      safe1169UnmarkDeletedSession(id);
+      safe1169OpenSession(id);
+    }
+    const create=root.querySelector('#safe1217Create');if(create)create.onclick=function(e){e.preventDefault();createSession();};
+    const newName=root.querySelector('#safe1217NewName');if(newName)newName.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();createSession();}});
+    const manage=root.querySelector('#safe1217Manage');if(manage)manage.onclick=function(e){e.preventDefault();try{closeModal();}catch(_e){}setTimeout(function(){safe1139OpenDataCenter('sessions');},20);};
+    [root.querySelector('#safe1217Close'),root.querySelector('#safe1217CloseBottom')].forEach(function(btn){if(btn)btn.onclick=function(e){e.preventDefault();closeModal();};});
+    return true;
+  }catch(err){try{console.warn('l1217 sessionsindeks fejlede',err);}catch(_e){}try{toast('Kunne ikke åbne sessionsindekset');}catch(_t){}return false;}
+}
+function safe1217SessionIndexCss(){return '\n'+
+  '#modal.safe1217SessionIndexModal{width:min(1040px,96vw)!important;height:min(790px,92vh)!important;max-height:92vh!important;padding:0!important;overflow:hidden!important;background:#0f172a!important;color:#f8fafc!important;border:1px solid #475569!important;display:flex!important;flex-direction:column!important}'+
+  '#modal [data-safe1217-session-index]{display:flex!important;flex-direction:column!important;min-height:0!important;height:100%!important;padding:0!important;color:#f8fafc!important}'+
+  '.safe1217Head{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:16px!important;padding:20px 22px 16px!important;border-bottom:1px solid #334155!important}.safe1217Head h2{display:block!important;margin:0!important;font-size:28px!important;line-height:1.15!important;color:#f8fafc!important}.safe1217Head p{display:block!important;margin:5px 0 0!important;color:#cbd5e1!important;font-weight:750!important;line-height:1.35!important}.safe1217Head button{display:block!important;width:46px!important;height:46px!important;min-height:46px!important;border:0!important;border-radius:15px!important;background:#f8fafc!important;color:#0f172a!important;font-size:28px!important;font-weight:900!important}'+
+  '.safe1217Tools{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important;align-items:center!important;padding:14px 22px!important}.safe1217Tools input,.safe1217New input{display:block!important;min-width:0!important;border:1px solid #64748b!important;border-radius:14px!important;background:#f8fafc!important;color:#0f172a!important;padding:12px 14px!important;font-size:16px!important;font-weight:800!important}.safe1217Tools span{display:block!important;color:#cbd5e1!important;font-weight:900!important;white-space:nowrap!important}'+
+  '.safe1217Rows{display:grid!important;grid-auto-rows:max-content!important;align-content:start!important;gap:10px!important;overflow:auto!important;min-height:0!important;padding:0 22px 18px!important;overscroll-behavior:contain!important}.safe1217SessionCard{display:block!important;box-sizing:border-box!important;min-height:88px!important;border:1px solid #94a3b8!important;border-radius:16px!important;background:#f8fafc!important;overflow:hidden!important;visibility:visible!important;opacity:1!important;box-shadow:0 2px 0 rgba(15,23,42,.12)!important}.safe1217SessionCard.active{border:2px solid #22c55e!important;background:#ecfdf5!important}'+
+  '#modal.safe1217SessionIndexModal .safe1217SessionLink{appearance:none!important;-webkit-appearance:none!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:16px!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;min-height:86px!important;margin:0!important;padding:13px 15px!important;border:0!important;border-radius:14px!important;background:#f8fafc!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;text-decoration:none!important;text-align:left!important;font:inherit!important;line-height:1.25!important;visibility:visible!important;opacity:1!important;overflow:visible!important;touch-action:manipulation!important;cursor:pointer!important;text-shadow:none!important}#modal.safe1217SessionIndexModal .safe1217SessionCard.active .safe1217SessionLink{background:#ecfdf5!important;color:#052e16!important;-webkit-text-fill-color:#052e16!important}#modal.safe1217SessionIndexModal .safe1217SessionLink:hover,#modal.safe1217SessionIndexModal .safe1217SessionLink:focus-visible{background:#dbeafe!important;outline:3px solid #2563eb!important;outline-offset:-3px!important}'+
+  '#modal.safe1217SessionIndexModal .safe1217SessionText{display:grid!important;grid-template-rows:auto auto auto!important;min-width:0!important;gap:4px!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;visibility:visible!important;opacity:1!important;text-shadow:none!important}#modal.safe1217SessionIndexModal .safe1217SessionTitle{display:block!important;margin:0!important;font-size:18px!important;line-height:1.25!important;font-weight:950!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;visibility:visible!important;opacity:1!important;text-shadow:none!important}#modal.safe1217SessionIndexModal .safe1217SessionHash{display:block!important;color:#075985!important;-webkit-text-fill-color:#075985!important;font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;font-size:13px!important;font-weight:850!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;visibility:visible!important;opacity:1!important;text-shadow:none!important}#modal.safe1217SessionIndexModal .safe1217SessionMeta{display:block!important;color:#334155!important;-webkit-text-fill-color:#334155!important;font-size:13px!important;font-weight:800!important;line-height:1.35!important;visibility:visible!important;opacity:1!important;text-shadow:none!important}#modal.safe1217SessionIndexModal .safe1217SessionOpen{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;min-width:72px!important;border:1px solid #94a3b8!important;border-radius:999px!important;background:#e2e8f0!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;padding:8px 11px!important;font-size:14px!important;font-weight:950!important;white-space:nowrap!important;visibility:visible!important;opacity:1!important;text-shadow:none!important}#modal.safe1217SessionIndexModal .safe1217SessionCard.active .safe1217SessionTitle{color:#052e16!important;-webkit-text-fill-color:#052e16!important}#modal.safe1217SessionIndexModal .safe1217SessionCard.active .safe1217SessionHash{color:#047857!important;-webkit-text-fill-color:#047857!important}#modal.safe1217SessionIndexModal .safe1217SessionCard.active .safe1217SessionMeta{color:#14532d!important;-webkit-text-fill-color:#14532d!important}#modal.safe1217SessionIndexModal .safe1217SessionCard.active .safe1217SessionOpen{border-color:#16a34a!important;background:#4ade80!important;color:#052e16!important;-webkit-text-fill-color:#052e16!important}'+
+  '.safe1217New{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;padding:14px 22px!important;border-top:1px solid #334155!important}.safe1217New button,.safe1217Footer button{display:block!important;border:0!important;border-radius:13px!important;padding:11px 14px!important;font-weight:950!important;cursor:pointer!important}.safe1217New button{background:#60a5fa!important;color:#082f49!important}.safe1217Footer{display:flex!important;justify-content:space-between!important;gap:10px!important;flex-wrap:wrap!important;padding:0 22px 18px!important}.safe1217Footer button{background:#e2e8f0!important;color:#0f172a!important}.safe1217Empty{display:block!important;padding:22px!important;border:1px dashed #64748b!important;border-radius:16px!important;color:#cbd5e1!important;text-align:center!important;font-weight:850!important}'+
+  '@media(max-width:700px){#modal.safe1217SessionIndexModal{width:97vw!important;height:94vh!important}.safe1217Head{padding:15px!important}.safe1217Head h2{font-size:23px!important}.safe1217Tools{grid-template-columns:1fr!important;padding:12px 15px!important}.safe1217Rows{padding:0 15px 14px!important}.safe1217SessionCard{min-height:96px!important}.safe1217SessionLink{min-height:94px!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:start!important;padding:12px!important}.safe1217SessionTitle{font-size:16px!important}.safe1217SessionOpen{font-size:13px!important;min-width:64px!important}.safe1217New{grid-template-columns:1fr!important;padding:12px 15px!important}.safe1217New button{width:100%!important}.safe1217Footer{padding:0 15px 15px!important}}';}
+
+
+/* l1222: ejer for den særlige Sessionsindeks-HTMLWidget.
+   HTML-dokumentet bygges i Tavles hovedscope, så gamle importer med det fejlformede
+   <\/script>-sluttag repareres uden at almindelige HTMLWidgets berøres. */
+function safe1222SessionIndexScopeTitle(scope){
+  scope=String(scope||'all');
+  if(scope==='autumn')return 'Efterår 2026 · tema-sessioner';
+  if(scope==='spring')return 'Forår 2027 · tema-sessioner';
+  return 'Fællessamlinger 2026–27';
+}
+function safe1222SessionIndexIntro(scope){
+  scope=String(scope||'all');
+  if(scope==='autumn')return 'Importerede tema-sessioner fra skolestart til jul.';
+  if(scope==='spring')return 'Importerede tema-sessioner fra nytår til outro-ugen.';
+  return 'Alle importerede tema-sessioner i årsforløbet.';
+}
+function safe1222BuildSessionIndexHtml(w){
+  const d=(w&&w.data)||{};
+  const cfg={
+    prefix:String(d.sessionIndexPrefix||'faellessamling-26-27-'),
+    scope:String(d.sessionIndexScope||'all'),
+    heading:String(d.sessionIndexHeading||safe1222SessionIndexScopeTitle(d.sessionIndexScope)),
+    intro:String(d.sessionIndexIntro||safe1222SessionIndexIntro(d.sessionIndexScope))
+  };
+  const config=JSON.stringify(cfg).replace(/</g,'\\u003c');
+  return '<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'+
+  '<title>'+String(cfg.heading).replace(/[&<>]/g,function(c){return c==='&'?'&amp;':c==='<'?'&lt;':'&gt;';})+'</title><style>'+
+  ':root{--ink:#0f172a;--muted:#475569;--line:#cbd5e1;--paper:#f8fafc;--blue:#1d4ed8;--blue2:#dbeafe;--green:#15803d;--green2:#dcfce7}'+
+  '*{box-sizing:border-box}html,body{height:100%;margin:0}body{font:700 15px/1.35 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--paper);color:var(--ink);overflow:hidden}'+
+  '.app{height:100%;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto}header{padding:15px 17px 11px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#eff6ff,#f8fafc)}'+
+  'h1{font-size:22px;line-height:1.12;margin:0 0 4px}header p{margin:0;color:var(--muted);font-weight:760}.tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;padding:10px 13px;border-bottom:1px solid var(--line);background:#fff}'+
+  'input{width:100%;border:2px solid #94a3b8;border-radius:11px;padding:9px 11px;font:800 15px system-ui;color:var(--ink);background:#fff}.count{white-space:nowrap;color:var(--muted);font-weight:900}.list{overflow:auto;padding:11px 13px 17px;display:grid;gap:9px;align-content:start;overscroll-behavior:contain}'+
+  '.card{border:1px solid #94a3b8;border-radius:15px;background:#fff;color:var(--ink);box-shadow:0 2px 7px rgba(15,23,42,.08);overflow:hidden}.card.active{border:2px solid var(--green);background:var(--green2)}'+
+  '.session{appearance:none;width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:0;background:transparent;padding:12px 13px;text-align:left;color:var(--ink);cursor:pointer;touch-action:manipulation}.session:hover,.session:focus-visible{outline:3px solid var(--blue);outline-offset:-3px;background:var(--blue2)}'+
+  '.title{display:block;font-size:17px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.code{display:block;margin-top:2px;color:#075985;font:850 12px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meta{display:block;margin-top:5px;color:#334155;font-size:12px;font-weight:800}.open{display:inline-flex;align-items:center;justify-content:center;min-width:66px;border-radius:999px;padding:8px 10px;background:#e2e8f0;font-weight:950}.active .open{background:#4ade80;color:#052e16}'+
+  '.boards{display:flex;flex-wrap:wrap;gap:7px;padding:0 12px 12px}.board{appearance:none;border:1px solid #93c5fd;border-radius:999px;background:#eff6ff;color:#1e3a8a;padding:7px 10px;font:850 12px system-ui;cursor:pointer;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.board:hover,.board:focus-visible{outline:2px solid var(--blue);background:#dbeafe}.empty{padding:24px;border:2px dashed #94a3b8;border-radius:15px;text-align:center;color:var(--muted)}'+
+  'footer{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 13px;border-top:1px solid var(--line);background:#fff;color:var(--muted);font-size:12px}footer button{border:0;border-radius:10px;background:#e2e8f0;color:var(--ink);padding:8px 10px;font-weight:900;cursor:pointer}'+
+  '@media(max-width:560px){header{padding:12px 13px 9px}h1{font-size:19px}.tools{grid-template-columns:1fr}.count{display:none}.list{padding:9px}.session{padding:10px}.title{font-size:15px}footer span{display:none}}'+
+  '</style></head><body><main class="app"><header><h1 id="heading"></h1><p id="intro"></p></header><div class="tools"><input id="search" type="search" placeholder="Søg i sessioner og tavler" autocomplete="off"><span class="count" id="count">Indlæser…</span></div><section class="list" id="list"><div class="empty">Henter de sessioner og tavler, der faktisk findes i Tavle…</div></section><footer><span>Åbner internt i Tavle — ikke som lokal webside.</span><button id="manage" type="button">Administrer sessioner</button></footer></main><script>(function(){'+
+  "'use strict';const CONFIG="+config+";const heading=document.getElementById('heading'),intro=document.getElementById('intro'),list=document.getElementById('list'),search=document.getElementById('search'),count=document.getElementById('count');heading.textContent=CONFIG.heading;intro.textContent=CONFIG.intro;let sessions=[];"+
+  "function numberOf(id){const m=String(id||'').match(/faellessamling-26-27-(\\d{2})-/);return m?Number(m[1]):999}function inScope(s){const n=numberOf(s.id);if(CONFIG.scope==='autumn')return n>=2&&n<=14;if(CONFIG.scope==='spring')return n>=15&&n<=31;return n>=1&&n<=31}function esc(x){return String(x==null?'':x).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]})}"+
+  "function render(){const q=String(search.value||'').trim().toLocaleLowerCase('da-DK');const rows=sessions.filter(inScope).filter(function(s){const boardText=(s.boards||[]).map(function(b){return b.title}).join(' ');return !q||(s.title+' '+s.id+' '+boardText).toLocaleLowerCase('da-DK').includes(q)}).sort(function(a,b){return numberOf(a.id)-numberOf(b.id)});count.textContent=rows.length+' sessioner';if(!rows.length){list.innerHTML='<div class=\"empty\">Ingen matchende, importerede forløbssessioner blev fundet.</div>';return}list.innerHTML=rows.map(function(s){const boards=(s.boards||[]).map(function(b){return '<button type=\"button\" class=\"board\" data-session=\"'+esc(s.id)+'\" data-board=\"'+esc(b.id)+'\" title=\"Åbn tavlen\">'+esc((b.index+1)+'. '+b.title)+'</button>'}).join('');return '<article class=\"card'+(s.active?' active':'')+'\"><button type=\"button\" class=\"session\" data-session=\"'+esc(s.id)+'\"><span><strong class=\"title\">'+(s.active?'✓ ':'')+esc(s.title)+'</strong><span class=\"code\">#'+esc(s.id)+'</span><small class=\"meta\">'+esc(s.slides)+' tavler · '+esc(s.widgets)+' widgets · '+esc(s.datasets)+' datasæt · '+esc(s.sizeLabel)+'</small></span><span class=\"open\">'+(s.active?'Aktuel':'Åbn')+' →</span></button>'+(boards?'<div class=\"boards\">'+boards+'</div>':'')+'</article>'}).join('')}"+
+  "window.addEventListener('message',function(e){const d=e.data&&e.data.tavle_session_index_data;if(!d)return;sessions=Array.isArray(d.sessions)?d.sessions:[];render()});list.addEventListener('click',function(e){const board=e.target.closest('[data-board]');if(board){parent.postMessage({tavle_session_index_open:{id:board.dataset.session,boardId:board.dataset.board}},'*');return}const session=e.target.closest('.session[data-session]');if(session)parent.postMessage({tavle_session_index_open:{id:session.dataset.session}},'*')});search.addEventListener('input',render);document.getElementById('manage').addEventListener('click',function(){parent.postMessage({tavle_session_index_manage:true},'*')});function request(){parent.postMessage({tavle_session_index_request:{prefix:CONFIG.prefix,scope:CONFIG.scope}},'*')}request();setTimeout(request,400);setTimeout(request,1400);})();<\/script></body></html>";
+}
+function safe1222EnsureSessionIndexHtml(w){
+  try{
+    if(!w||w.type!=='html'||!w.data||w.data.sessionIndexWidget!==true)return false;
+    const currentVersion=Number(w.data.sessionIndexHtmlVersion||0)||0;
+    const oldHtml=String(w.data.html||'');
+    const broken=!oldHtml||oldHtml.indexOf('tavle_session_index_request')<0||oldHtml.indexOf('tavle_session_index_data')<0;
+    const needsSourceRepair=broken||currentVersion<3;
+    let changed=false;
+    if(needsSourceRepair){w.data.html=safe1222BuildSessionIndexHtml(w);changed=true;}
+    if(w.data.mode!=='preview'&&w.data.mode!=='edit'){w.data.mode='preview';changed=true;}
+    const zoom=Math.max(.7,Math.min(1.4,Number(w.data.htmlZoom||1)));
+    if(Number(w.data.htmlZoom||1)!==zoom){w.data.htmlZoom=zoom;changed=true;}else w.data.htmlZoom=zoom;
+    if(currentVersion!==3){w.data.sessionIndexHtmlVersion=3;changed=true;}
+    if(Number(w.data.sessionIndexUnlockVersion||0)<1){w.locked=false;w.data.sessionIndexUnlockVersion=1;changed=true;}
+    w.data.name=String(w.data.name||'Faellessamlinger_2026-27_sessionsindeks.html');
+    if(!String(w.title||'').trim()||/^htmlwidget$/i.test(String(w.title||'').trim())){w.title=safe1222SessionIndexScopeTitle(w.data.sessionIndexScope);changed=true;}
+    if(w.data.srcMediaRef||w.data.__previewUrl||w.data.twMode||w.data.isTiddlyWiki){delete w.data.srcMediaRef;delete w.data.__previewUrl;delete w.data.twMode;delete w.data.isTiddlyWiki;changed=true;}
+    if(changed&&!window.__safe1222SessionIndexRepairSaveQueued){window.__safe1222SessionIndexRepairSaveQueued=true;setTimeout(function(){try{save({silent:true});}catch(_e){}window.__safe1222SessionIndexRepairSaveQueued=false;},80);}
+    return changed;
+  }catch(_e){return false;}
+}
+
+function safe1223Esc(value){
+  return String(value==null?'':value).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c;});
+}
+function safe1223SessionNumber(id){
+  const m=String(id||'').match(/faellessamling-26-27-(\d{2})-/);return m?Number(m[1]):999;
+}
+function safe1223SessionInScope(session,scope){
+  const n=safe1223SessionNumber(session&&session.id);scope=String(scope||'all');
+  if(scope==='autumn')return n>=2&&n<=14;
+  if(scope==='spring')return n>=15&&n<=31;
+  return n>=1&&n<=31;
+}
+function safe1223EnsureIndexStyle(){
+  try{
+    const old=document.getElementById('safe1223-session-index-native-css');if(old)old.remove();
+    if(document.getElementById('safe1224-session-index-linklist-css'))return;
+    const st=document.createElement('style');st.id='safe1224-session-index-linklist-css';st.textContent=`
+.widget.safe1223SessionIndexNative .content{overflow:hidden!important;background:#f8fafc!important;color:#0f172a!important;contain:layout paint style!important;isolation:isolate!important}
+.widget.safe1223SessionIndexNative .safe1224IndexApp{box-sizing:border-box!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;display:grid!important;grid-template-rows:auto auto minmax(0,1fr) auto!important;background:#f8fafc!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;font-size:calc(13px * var(--safe1224-index-scale,1))!important;line-height:1.25!important;contain:layout paint style!important}
+.widget.safe1223SessionIndexNative .safe1224IndexHead{box-sizing:border-box!important;display:block!important;padding:10px 12px 8px!important;border-bottom:1px solid #cbd5e1!important;background:linear-gradient(135deg,#eff6ff,#f8fafc)!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important}
+.widget.safe1223SessionIndexNative .safe1224IndexHead strong{display:block!important;margin:0 0 2px!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;font-size:1.25em!important;line-height:1.1!important;font-weight:950!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.widget.safe1223SessionIndexNative .safe1224IndexHead span{display:block!important;color:#475569!important;-webkit-text-fill-color:#475569!important;font-size:.92em!important;font-weight:800!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.widget.safe1223SessionIndexNative .safe1224IndexTools{box-sizing:border-box!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important;padding:8px 10px!important;border-bottom:1px solid #cbd5e1!important;background:#fff!important}
+.widget.safe1223SessionIndexNative .safe1224IndexSearch{box-sizing:border-box!important;display:block!important;width:100%!important;min-width:0!important;height:36px!important;margin:0!important;border:2px solid #94a3b8!important;border-radius:9px!important;padding:6px 9px!important;background:#fff!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;font:800 1em system-ui,-apple-system,sans-serif!important;opacity:1!important;visibility:visible!important}
+.widget.safe1223SessionIndexNative .safe1224IndexCount{display:block!important;color:#334155!important;-webkit-text-fill-color:#334155!important;font-weight:950!important;white-space:nowrap!important;opacity:1!important;visibility:visible!important}
+.widget.safe1223SessionIndexNative .safe1224IndexList{box-sizing:border-box!important;min-width:0!important;min-height:0!important;overflow:auto!important;display:block!important;padding:7px 9px 10px!important;background:#f8fafc!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;contain:layout paint style!important}
+.widget.safe1223SessionIndexNative .safe1224Row{box-sizing:border-box!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:stretch!important;width:100%!important;min-width:0!important;min-height:54px!important;height:auto!important;margin:0 0 7px!important;border:1px solid #94a3b8!important;border-radius:11px!important;background:#fff!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;overflow:hidden!important;opacity:1!important;visibility:visible!important;box-shadow:0 1px 3px rgba(15,23,42,.08)!important}
+.widget.safe1223SessionIndexNative .safe1224Row.active{border:2px solid #16a34a!important;background:#ecfdf5!important}
+.widget.safe1223SessionIndexNative a.safe1224SessionLink{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;justify-content:center!important;width:100%!important;min-width:0!important;min-height:52px!important;height:auto!important;margin:0!important;padding:7px 9px!important;border:0!important;border-radius:0!important;background:transparent!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;text-decoration:none!important;text-align:left!important;font:inherit!important;font-size:1em!important;line-height:1.18!important;opacity:1!important;visibility:visible!important;cursor:pointer!important;touch-action:manipulation!important}
+.widget.safe1223SessionIndexNative a.safe1224SessionLink:hover,.widget.safe1223SessionIndexNative a.safe1224SessionLink:focus-visible{background:#dbeafe!important;outline:3px solid #2563eb!important;outline-offset:-3px!important}
+.widget.safe1223SessionIndexNative .safe1224Title{box-sizing:border-box!important;display:block!important;min-width:0!important;margin:0!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;font-size:1.04em!important;line-height:1.18!important;font-weight:950!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;opacity:1!important;visibility:visible!important}
+.widget.safe1223SessionIndexNative .safe1224Meta{box-sizing:border-box!important;display:block!important;min-width:0!important;margin-top:3px!important;color:#475569!important;-webkit-text-fill-color:#475569!important;font-size:.82em!important;line-height:1.15!important;font-weight:800!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;opacity:1!important;visibility:visible!important}
+.widget.safe1223SessionIndexNative .safe1224Open{box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:70px!important;min-height:52px!important;height:auto!important;margin:0!important;padding:7px 9px!important;border-left:1px solid #cbd5e1!important;background:#e0f2fe!important;color:#0c4a6e!important;-webkit-text-fill-color:#0c4a6e!important;font-size:.94em!important;line-height:1!important;font-weight:950!important;white-space:nowrap!important;opacity:1!important;visibility:visible!important;pointer-events:none!important}
+.widget.safe1223SessionIndexNative .safe1224Row.active .safe1224Open{background:#4ade80!important;color:#052e16!important;-webkit-text-fill-color:#052e16!important}
+.widget.safe1223SessionIndexNative .safe1224IndexFoot{box-sizing:border-box!important;display:flex!important;justify-content:space-between!important;gap:8px!important;align-items:center!important;padding:7px 9px!important;border-top:1px solid #cbd5e1!important;background:#fff!important;color:#475569!important;-webkit-text-fill-color:#475569!important;font-size:.82em!important;font-weight:800!important}
+.widget.safe1223SessionIndexNative .safe1224Manage{box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:32px!important;margin:0!important;border:0!important;border-radius:8px!important;background:#e2e8f0!important;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;padding:6px 9px!important;font:950 1em system-ui,-apple-system,sans-serif!important;cursor:pointer!important;touch-action:manipulation!important;opacity:1!important;visibility:visible!important}
+.widget.safe1223SessionIndexNative .safe1224Empty{box-sizing:border-box!important;display:block!important;padding:18px!important;border:2px dashed #94a3b8!important;border-radius:11px!important;background:#fff!important;color:#475569!important;-webkit-text-fill-color:#475569!important;text-align:center!important;font-weight:850!important}
+.widget.safe1223SessionIndexNative .safe1223IndexEditor{height:100%!important;display:grid!important;grid-template-rows:auto minmax(0,1fr)!important;background:#fff!important}.widget.safe1223SessionIndexNative .safe1223EditorNote{padding:8px 10px!important;background:#fffbeb!important;border-bottom:1px solid #facc15!important;color:#713f12!important;-webkit-text-fill-color:#713f12!important;font-size:12px!important;font-weight:850!important}.widget.safe1223SessionIndexNative .safe1223IndexEditor textarea{box-sizing:border-box!important;width:100%!important;height:100%!important;min-height:0!important;resize:none!important;border:0!important;outline:0!important;padding:11px!important;background:#fff!important;color:#111827!important;-webkit-text-fill-color:#111827!important;font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace!important;tab-size:2!important}
+.widget.safe1223SessionIndexNative [data-act="htmlZoomOut"],.widget.safe1223SessionIndexNative [data-act="htmlZoomIn"]{display:inline-flex!important}
+.widget.safe1223SessionIndexNative.widgetTransforming .safe1224IndexApp{display:none!important;visibility:hidden!important}
+.widget.safe1223SessionIndexNative.widgetTransforming .content::after{content:"Flytter sessionsindeks…"!important;display:grid!important;place-items:center!important;color:#e5e7eb!important;-webkit-text-fill-color:#e5e7eb!important;font-weight:950!important;background:#111827!important}
+@media(max-width:680px){.widget.safe1223SessionIndexNative .safe1224IndexTools{grid-template-columns:1fr!important}.widget.safe1223SessionIndexNative .safe1224IndexCount{display:none!important}.widget.safe1223SessionIndexNative .safe1224IndexFoot span{display:none!important}.widget.safe1223SessionIndexNative .safe1224Open{min-width:60px!important}}
+`;
+    document.head.appendChild(st);
+  }catch(_e){}
+}
+
+function safe1223OpenSessionTarget(id,boardId){
+  try{
+    id=(typeof safe963CleanSession==='function')?safe963CleanSession(id||''):String(id||'');
+    boardId=String(boardId||'');if(!id)return false;
+    if(boardId&&typeof safe1222SelectBoardBeforeOpen==='function')safe1222SelectBoardBeforeOpen(id,boardId);
+    const current=(typeof safe963CurrentSession==='function')?safe963CurrentSession():'standard';
+    if(id===current){
+      if(boardId){try{toast('Tavlen er åbnet');}catch(_e){}}
+      else try{toast('Sessionen er allerede åben');}catch(_e){}
+      return true;
+    }
+    try{if(typeof save==='function')save({silent:true});}catch(_e){}
+    setTimeout(function(){
+      try{if(typeof safe1169OpenSession==='function'){safe1169OpenSession(id,{skipSave:true});return;}}catch(_e){}
+      try{location.href=(typeof safe963SessionUrl==='function')?safe963SessionUrl(id):('#'+encodeURIComponent(id));setTimeout(function(){try{location.reload();}catch(_e){}},90);}catch(_e){try{toast('Kunne ikke åbne sessionen');}catch(__e){}}
+    },20);
+    return true;
+  }catch(err){try{console.warn('l1223 sessionåbning fejlede',err);}catch(_e){}return false;}
+}
+function safe1223InstallIndexCaptureOwner(){
+  if(window.__safe1223IndexCaptureOwner)return;
+  window.__safe1223IndexCaptureOwner=true;
+  let down=null,lastHandledAt=0;
+  function closestTarget(e){
+    try{return e&&e.target&&e.target.closest&&e.target.closest('[data-safe1223-session],[data-l951-open-imported-session]');}catch(_e){return null;}
+  }
+  function stop(e){try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}}
+  window.addEventListener('pointerdown',function(e){
+    const btn=closestTarget(e);if(!btn)return;
+    down={btn:btn,x:Number(e.clientX)||0,y:Number(e.clientY)||0,t:Date.now()};
+  },true);
+  window.addEventListener('pointerup',function(e){
+    const btn=closestTarget(e);if(!btn||!down||down.btn!==btn)return;
+    const moved=Math.hypot((Number(e.clientX)||0)-down.x,(Number(e.clientY)||0)-down.y)>9;
+    const old=Date.now()-down.t>1200;down=null;if(moved||old)return;
+    stop(e);lastHandledAt=Date.now();
+    const id=btn.getAttribute('data-safe1223-session')||btn.getAttribute('data-l951-open-imported-session')||'';
+    const boardId=btn.getAttribute('data-safe1223-board')||'';
+    safe1223OpenSessionTarget(id,boardId);
+  },true);
+  window.addEventListener('click',function(e){
+    const btn=closestTarget(e);if(!btn)return;
+    if(Date.now()-lastHandledAt<700){stop(e);return;}
+    stop(e);lastHandledAt=Date.now();
+    const id=btn.getAttribute('data-safe1223-session')||btn.getAttribute('data-l951-open-imported-session')||'';
+    const boardId=btn.getAttribute('data-safe1223-board')||'';
+    safe1223OpenSessionTarget(id,boardId);
+  },true);
+}
+safe1223InstallIndexCaptureOwner();
+
+function safe1223FillSessionIndexWidget(c,w,el){
+  try{
+    safe1223EnsureIndexStyle();
+    safe1222EnsureSessionIndexHtml(w);
+    w.data=w.data||{};
+    const mode=(w.data.mode==='edit')?'edit':'preview';
+    if(mode==='edit'){
+      c.innerHTML='<div class="safe1223IndexEditor"><div class="safe1223EditorNote">Levende sessionsindeks: Kildeteksten kan redigeres, mens den normale visning henter sessionerne direkte fra Tavle.</div><textarea spellcheck="false">'+safe1223Esc(w.data.html||'')+'</textarea></div>';
+      const ta=c.querySelector('textarea');
+      if(ta){
+        ta.addEventListener('pointerdown',function(e){try{select(w.id,{editText:false});}catch(_e){}e.stopPropagation();});
+        ta.addEventListener('click',function(e){e.stopPropagation();});
+        ta.addEventListener('input',function(e){w.data.html=e.target.value;try{save({silent:true});}catch(_e){}});
+        ta.addEventListener('blur',function(){try{save({silent:true});}catch(_e){}});
+        ta.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();ta.blur();try{select(w.id,{editText:false});}catch(_e){}}});
+      }
+      return true;
+    }
+    const prefix=String(w.data.sessionIndexPrefix||'faellessamling-26-27-');
+    const scope=String(w.data.sessionIndexScope||'all');
+    const payload=(typeof safe1220SessionIndexPayload==='function')?safe1220SessionIndexPayload(prefix):{sessions:[]};
+    const sessions=(Array.isArray(payload&&payload.sessions)?payload.sessions:[]).filter(function(s){return safe1223SessionInScope(s,scope);}).sort(function(a,b){return safe1223SessionNumber(a&&a.id)-safe1223SessionNumber(b&&b.id);});
+    const heading=String(w.data.sessionIndexHeading||safe1222SessionIndexScopeTitle(scope));
+    const intro=String(w.data.sessionIndexIntro||safe1222SessionIndexIntro(scope));
+    const zoom=Math.max(.75,Math.min(1.35,Number(w.data.htmlZoom||1)));
+    const rows=sessions.map(function(s){
+      const href=(typeof safe963SessionUrl==='function')?safe963SessionUrl(s.id):('#'+encodeURIComponent(s.id));
+      const title=String(s.title||s.id||'Session');
+      const meta=String(s.slides||0)+' tavler · '+String(s.widgets||0)+' widgets · #'+String(s.id||'');
+      return '<div class="safe1224Row'+(s.active?' active':'')+'" data-safe1224-row="1" data-safe1224-search="'+safe1223Esc((title+' '+s.id).toLocaleLowerCase('da-DK'))+'"><a class="safe1224SessionLink" href="'+safe1223Esc(href)+'" data-safe1223-session="'+safe1223Esc(s.id)+'" title="Åbn '+safe1223Esc(title)+'"><span class="safe1224Title">'+(s.active?'✓ ':'')+safe1223Esc(title)+'</span><span class="safe1224Meta">'+safe1223Esc(meta)+'</span></a><span class="safe1224Open">'+(s.active?'Aktuel':'Åbn →')+'</span></div>';
+    }).join('');
+    c.innerHTML='<div class="safe1224IndexApp" style="--safe1224-index-scale:'+zoom+'"><div class="safe1224IndexHead"><strong>'+safe1223Esc(heading)+'</strong><span>'+safe1223Esc(intro)+'</span></div><div class="safe1224IndexTools"><input class="safe1224IndexSearch" type="search" placeholder="Søg i sessionerne" autocomplete="off"><span class="safe1224IndexCount">'+sessions.length+' sessioner</span></div><div class="safe1224IndexList">'+(rows||'<div class="safe1224Empty">Ingen importerede forløbssessioner blev fundet i denne browser.</div>')+'</div><div class="safe1224IndexFoot"><span>Tryk på en række for at åbne sessionen.</span><button type="button" class="safe1224Manage">Administrer sessioner</button></div></div>';
+    const search=c.querySelector('.safe1224IndexSearch'),count=c.querySelector('.safe1224IndexCount'),rowEls=Array.prototype.slice.call(c.querySelectorAll('[data-safe1224-row]'));
+    function filter(){
+      const q=String(search&&search.value||'').trim().toLocaleLowerCase('da-DK');let shown=0;
+      rowEls.forEach(function(row){const ok=!q||String(row.getAttribute('data-safe1224-search')||'').indexOf(q)>=0;row.hidden=!ok;if(ok)shown++;});
+      if(count)count.textContent=q?(shown+' af '+rowEls.length):(rowEls.length+' sessioner');
+    }
+    if(search){search.addEventListener('input',filter);search.addEventListener('pointerdown',function(e){e.stopPropagation();});search.addEventListener('click',function(e){e.stopPropagation();});}
+    c.querySelectorAll('a[data-safe1223-session]').forEach(function(link){
+      link.addEventListener('click',function(e){
+        try{e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}catch(_e){}
+        safe1223OpenSessionTarget(String(link.getAttribute('data-safe1223-session')||''),'');
+      },{capture:true,passive:false});
+    });
+    const manage=c.querySelector('.safe1224Manage');if(manage){manage.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();try{safe1139OpenDataCenter('sessions');}catch(_e){try{safe1169OpenSessionManager();}catch(__e){}}});}
+    return true;
+  }catch(err){
+    try{console.warn('l1224 sessionsindeks-linkliste fejlede',err);}catch(_e){}
+    c.innerHTML='<div class="safe1224Empty">Sessionsindekset kunne ikke læses. Åbn Datacenter → Sessioner.</div>';
+    return false;
+  }
+}
+
+function safe1222SessionState(id){
+  try{
+    id=(typeof safe963CleanSession==='function')?safe963CleanSession(id):String(id||'standard');
+    if(id===(typeof safe963CurrentSession==='function'?safe963CurrentSession():'standard')&&typeof state!=='undefined'&&state)return state;
+    const raw=localStorage.getItem(safe963SessionKey(id))||'';
+    return safe963ParseJson(raw);
+  }catch(_e){return null;}
+}
+function safe1222SessionBoards(id){
+  try{
+    const st=safe1222SessionState(id);const slides=Array.isArray(st&&st.slides)?st.slides:[];
+    return slides.map(function(sl,index){return {id:String(sl&&sl.id||''),title:String(sl&&sl.title||('Tavle '+(index+1))),index:index};}).filter(function(b){return b.id&&!/papirkurv|trash/i.test(b.title);});
+  }catch(_e){return [];}
+}
+function safe1222SelectBoardBeforeOpen(id,boardId){
+  try{
+    id=safe963CleanSession(id||'standard');boardId=String(boardId||'');if(!boardId)return false;
+    if(id===safe963CurrentSession()){
+      const idx=(state.slides||[]).findIndex(function(sl){return String(sl&&sl.id||'')===boardId;});
+      if(idx<0)return false;state.active=idx;try{render();}catch(_e){}try{save({silent:true});}catch(_e){}return true;
+    }
+    const key=safe963SessionKey(id),raw=localStorage.getItem(key)||'',st=safe963ParseJson(raw);if(!st||!Array.isArray(st.slides))return false;
+    const idx=st.slides.findIndex(function(sl){return String(sl&&sl.id||'')===boardId;});if(idx<0)return false;
+    st.active=idx;localStorage.setItem(key,JSON.stringify(st));return true;
+  }catch(_e){return false;}
+}
+
+/* l1220/l1222: intern bridge mellem den særlige Sessionsindeks-HTMLWidget og Tavles sessionslager. */
+function safe1220SessionIndexFrameRecord(source){
+  try{
+    const frames=document.querySelectorAll('.widget.safe1220SessionIndexHtml iframe');
+    for(let i=0;i<frames.length;i++){
+      const frame=frames[i];if(frame.contentWindow!==source)continue;
+      const el=frame.closest('.widget[data-id]');if(!el)return null;
+      const id=String(el.dataset.id||'');let w=null;
+      try{const rec=(typeof safe588FindWidgetRecord==='function')?safe588FindWidgetRecord(id):null;w=rec&&rec.w;}catch(_e){}
+      if(!w){try{w=findWidget(id);}catch(_e){}}
+      if(!w||w.type!=='html'||!w.data||w.data.sessionIndexWidget!==true)return null;
+      return {frame:frame,el:el,w:w};
+    }
+  }catch(_e){}return null;
+}
+function safe1220SessionIndexPayload(prefix){
+  try{
+    const current=(typeof safe963CurrentSession==='function')?safe963CurrentSession():'standard';const p=String(prefix||'').trim();
+    const src=(typeof safe1217SessionIndexItems==='function')?safe1217SessionIndexItems():[];
+    const sessions=src.filter(function(item){const id=String(item&&item.id||'');return !p||id.indexOf(p)===0;}).map(function(item){
+      const id=(typeof safe963CleanSession==='function')?safe963CleanSession(item&&item.id||'standard'):String(item&&item.id||'standard');
+      const sum=item&&item.sum||((typeof safe963SummarizeSession==='function')?safe963SummarizeSession(id):{})||{};
+      const title=(typeof safe1217SessionIndexTitle==='function')?safe1217SessionIndexTitle(item):String(item&&item.label||id);
+      const bytes=Number(sum.rawBytes||item&&item.sizeBytes||0)||0,lastMs=Number(item&&item.lastMs||0)||0,boards=safe1222SessionBoards(id);
+      return {id:id,title:String(title||id),active:id===current,slides:boards.length||Number(sum.slides||0)||0,widgets:Number(sum.widgets||0)||0,datasets:Number(sum.datasets||0)||0,sizeBytes:bytes,sizeLabel:(typeof safe963FmtBytes==='function')?safe963FmtBytes(bytes):(bytes<1024?bytes+' B':Math.round(bytes/1024)+' KB'),lastMs:lastMs,lastLabel:lastMs&&typeof safe1169FormatDate==='function'?safe1169FormatDate(lastMs):'Ikke registreret',boards:boards};
+    });
+    return {current:current,prefix:p,sessions:sessions,updatedAt:Date.now()};
+  }catch(_e){return {current:'standard',prefix:String(prefix||''),sessions:[],updatedAt:Date.now()};}
+}
+function safe1220HandleSessionIndexMessage(e){
+  try{
+    const rec=safe1220SessionIndexFrameRecord(e&&e.source);if(!rec)return;const msg=e&&e.data;if(!msg||typeof msg!=='object')return;const cfg=rec.w.data||{};
+    if(msg.tavle_session_index_request){const request=msg.tavle_session_index_request||{},prefix=String(cfg.sessionIndexPrefix||request.prefix||'');e.source.postMessage({tavle_session_index_data:safe1220SessionIndexPayload(prefix)},'*');return;}
+    if(msg.tavle_session_index_open){
+      const request=msg.tavle_session_index_open||{},id=(typeof safe963CleanSession==='function')?safe963CleanSession(request.id||''):String(request.id||''),boardId=String(request.boardId||''),prefix=String(cfg.sessionIndexPrefix||'');
+      if(!id||(prefix&&id.indexOf(prefix)!==0))return;const exists=safe1220SessionIndexPayload(prefix).sessions.some(function(s){return s.id===id;});if(!exists){try{toast('Sessionen findes ikke i denne browser');}catch(_e){}return;}
+      if(boardId)safe1222SelectBoardBeforeOpen(id,boardId);
+      if(id===safe963CurrentSession()){try{toast(boardId?'Tavlen er åbnet':'Sessionen er allerede åben');}catch(_e){}return;}
+      try{if(typeof save==='function')save({silent:true});}catch(_e){}
+      setTimeout(function(){try{safe1169OpenSession(id);}catch(_e){try{safe868OpenSession(id);}catch(__e){}}},20);return;
+    }
+    if(msg.tavle_session_index_manage){try{safe1139OpenDataCenter('sessions');}catch(_e){try{safe1169OpenSessionManager();}catch(__e){}}}
+  }catch(err){try{console.warn('l1222 HTML-sessionsindeks bridge fejlede',err);}catch(_e){}}
+}
+if(!window.__safe1220SessionIndexBridgeBound){
+  window.__safe1220SessionIndexBridgeBound=true;window.addEventListener('message',safe1220HandleSessionIndexMessage,false);
+  try{const style=document.createElement('style');style.id='safe1220-session-index-html-css';style.textContent='.widget.safe1220SessionIndexHtml .htmlShield{display:none!important;pointer-events:none!important}.widget.safe1220SessionIndexHtml .htmlFrameWrap,.widget.safe1220SessionIndexHtml .htmlBox{background:#f8fafc!important}.widget.safe1220SessionIndexHtml .htmlFrameWrap iframe{pointer-events:auto!important}.widget.safe1220SessionIndexHtml .content{overflow:hidden!important}';document.head.appendChild(style);}catch(_e){}
+}
+
 function safe868OpenSessionListWidget(){
-  try{const ds=safe859EnsureSessionListDataset(); if(ds&&safe868FindOrOpenDatasetWidget(ds))return true;}catch(_e){}
-  try{toast('Kunne ikke åbne sessionslisten');}catch(_t){}
-  return false;
+  return safe1217OpenSessionIndex();
 }
 function safe868EnsureSessionBadge(){
   let b=document.getElementById('safe868SessionBadge');
@@ -92870,21 +93653,7 @@ body:has(.app.present) #safe868SessionBadge{
     rows.sort(function(a,b){var ia=cleanSession(a[0]),ib=cleanSession(b[0]); if(ia===here&&ib!==here)return -1; if(ib===here&&ia!==here)return 1; return String(b[4]||b[3]||'').localeCompare(String(a[4]||a[3]||''),'da');});
     return rows;
   }
-  function openSessionsModal(){
-    try{
-      var here=currentSession(); var rows=sessionRows();
-      var htmlRows=rows.map(function(r){var id=cleanSession(r[0]); var active=id===here; var note=String(r[2]||''); var when=String(r[4]||r[3]||''); return '<div class="safe889SessionRow '+(active?'active':'')+'" data-session-row="'+esc(id)+'"><div><div class="title">'+(active?'● ':'')+esc(label(id))+(active?' <span style="font-size:12px;color:#2563eb">aktiv</span>':'')+'</div><small>'+esc(note||'Tavle-session')+(when?' · '+esc(when):'')+'</small></div><button type="button" class="safe889SessionGo" data-session-go="'+esc(id)+'">'+(active?'Genåbn':'Åbn')+'</button></div>';}).join('')||'<p>Ingen sessionshistorik endnu.</p>';
-      showModal('<div class="safe889SessionModal"><div class="safe889SessionHead"><div><h2>🧭 Sessioner</h2><p>Vælg en eksisterende session, eller skriv navnet på en ny. Aktiv session står øverst.</p></div></div><div class="safe889SessionRows">'+htmlRows+'</div><div class="safe889SessionNew"><input id="safe889NewSessionName" placeholder="Ny session, fx Uge-26 eller Dansk-eksamen"><button id="safe889CreateSession" type="button">Opret/åbn</button></div><div class="safe889SessionFooter"><button id="safe889OpenSessionData" type="button">Åbn sessionsdata</button><button id="safe889CloseSessions" type="button">Luk</button></div></div>');
-      var root=document.getElementById('modal')||modal;
-      root.querySelectorAll('[data-session-go],[data-session-row]').forEach(function(el){el.addEventListener('click',function(e){try{e.preventDefault();e.stopPropagation();}catch(_e){} var id=el.getAttribute('data-session-go')||el.getAttribute('data-session-row'); if(id)goSession(id);},true);});
-      var inp=root.querySelector('#safe889NewSessionName'), create=root.querySelector('#safe889CreateSession');
-      function createGo(){var v=cleanSession(inp&&inp.value||''); if(!v){try{toast('Skriv et sessionsnavn først');}catch(_e){} return;} goSession(v);}
-      if(create)create.onclick=function(e){e.preventDefault();createGo();};
-      if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();createGo();}},true);
-      var data=root.querySelector('#safe889OpenSessionData'); if(data)data.onclick=function(e){e.preventDefault(); try{closeModal();}catch(_e){} setTimeout(function(){try{var ds=ensureCanonicalDataset(); if(ds&&typeof addDatasetWidget==='function'){var hit=(typeof safe450FindDataWidgetByDatasetId==='function')?safe450FindDataWidgetByDatasetId(ds.id):null; if(hit&&hit.w){try{hit.w.hidden=false;hit.w.data=hit.w.data||{};hit.w.data.sourceOpen=true;}catch(_e){} render(); setTimeout(function(){select(hit.w.id,{editText:false});},30);} else {var w=addDatasetWidget(ds,{x:Math.max(24,innerWidth*.08),y:Math.max(80,innerHeight*.12)}); if(w){w.title='📊 '+CANON; w.data=w.data||{}; w.data.datasetView=true;} render();}}}catch(_x){}},20);};
-      var close=root.querySelector('#safe889CloseSessions'); if(close)close.onclick=function(e){e.preventDefault();closeModal();};
-    }catch(err){try{console.warn('l889 sessionsmodal fejl',err);}catch(_e){} }
-  }
+  function openSessionsModal(){try{return safe1217OpenSessionIndex();}catch(_e){try{return safe868OpenSessionListWidget();}catch(__e){return false;}}}
   window.safe889OpenSessionsModal=openSessionsModal;
   function updateBadge(){
     try{
@@ -93025,21 +93794,7 @@ body:has(.app.present) #safe868SessionBadge{
       var log=b.querySelector('[data-l890-log]'); if(log)log.onclick=function(e){e.preventDefault();e.stopPropagation(); try{if(typeof safe868OpenTransferLogWidget==='function')safe868OpenTransferLogWidget();}catch(_e){}};
     }catch(_e){}
   }
-  function openSessionsModal(){
-    try{
-      var here=activeSession();
-      var htmlRows=rows().map(function(r){var id=cleanSession(r[0]); var active=id===here; var note=String(r[2]||'Tavle-session'); var when=String(r[4]||r[3]||''); return '<div class="safe889SessionRow '+(active?'active':'')+'" data-l890-row="'+esc(id)+'"><div><div class="title">'+(active?'● ':'')+esc(label(id))+(active?' <span style="font-size:12px;color:#2563eb">aktiv</span>':'')+'</div><small>'+esc(note)+(when?' · '+esc(when):'')+'</small></div><button type="button" class="safe889SessionGo" data-l890-go-session="'+esc(id)+'">'+(active?'Genåbn':'Åbn')+'</button></div>';}).join('')||'<p>Ingen sessionshistorik endnu.</p>';
-      showModal('<div class="safe889SessionModal"><div class="safe889SessionHead"><div><h2>🧭 Sessioner</h2><p>Aktiv session står øverst. Vælg en eksisterende session, eller skriv navnet på en ny.</p></div></div><div class="safe889SessionRows">'+htmlRows+'</div><div class="safe889SessionNew"><input id="safe890NewSessionName" placeholder="Ny session, fx Uge-26 eller Dansk-eksamen"><button id="safe890CreateSession" type="button">Opret/åbn</button></div><div class="safe889SessionFooter"><button id="safe890OpenSessionData" type="button">Åbn sessionsdata</button><button id="safe890CloseSessions" type="button">Luk</button></div></div>');
-      var root=document.getElementById('modal')||modal;
-      root.querySelectorAll('[data-l890-go-session],[data-l890-row]').forEach(function(el){el.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var id=el.getAttribute('data-l890-go-session')||el.getAttribute('data-l890-row');if(id)goSession(id);},true);});
-      var inp=root.querySelector('#safe890NewSessionName'), create=root.querySelector('#safe890CreateSession');
-      function createGo(){var v=cleanSession(inp&&inp.value||''); if(!v){try{toast('Skriv et sessionsnavn først');}catch(_e){} return;} goSession(v);}
-      if(create)create.onclick=function(e){e.preventDefault();createGo();};
-      if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();createGo();}},true);
-      var data=root.querySelector('#safe890OpenSessionData'); if(data)data.onclick=function(e){e.preventDefault(); try{closeModal();}catch(_e){} setTimeout(function(){try{var ds=canonicalDataset(); if(ds&&typeof addDatasetWidget==='function'){var w=addDatasetWidget(ds,{x:Math.max(24,innerWidth*.08),y:Math.max(80,innerHeight*.12)}); if(w){w.title='📊 '+CANON; w.data=w.data||{}; w.data.datasetView=true;} try{render();}catch(_e){}}}catch(_x){}},20);};
-      var close=root.querySelector('#safe890CloseSessions'); if(close)close.onclick=function(e){e.preventDefault();closeModal();};
-    }catch(err){try{console.warn('l890 sessionsmodal fejl',err);}catch(_e){}}
-  }
+  function openSessionsModal(){try{return safe1217OpenSessionIndex();}catch(_e){try{return safe868OpenSessionListWidget();}catch(__e){return false;}}}
   function refreshHelpPicker(){
     try{
       var root=document.getElementById('modal'); if(!root)return;
@@ -94796,6 +95551,7 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
 
   var BASE_KEY='maans_interaktiv_tavle_v162_test';
   var SESSION_PREFIX=BASE_KEY+'__session__';
+  var COMMON_DATA_KEY='maans_tavle_common_datasets_v1';
   var REG_KEYS=[
     'maans_tavle_sessions_registry_v1',
     'maans_tavle_all_known_sessions_v1',
@@ -95290,6 +96046,19 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
     return out;
   }
 
+  function collectCommonDataStoreForSessions(sessionItems,warnings){
+    var wanted={};
+    (sessionItems||[]).forEach(function(item){
+      var links=item&&item.state&&Array.isArray(item.state.sharedDatasetLinks)?item.state.sharedDatasetLinks:[];
+      links.forEach(function(id){id=String(id||'').trim();if(id)wanted[id]=true;});
+    });
+    var source={version:1,datasets:[],updatedAt:0};
+    try{var parsed=JSON.parse(localStorage.getItem(COMMON_DATA_KEY)||'null');if(parsed&&Array.isArray(parsed.datasets))source=parsed;}catch(_e){warnings.push('Fælles data kunne ikke læses.');}
+    var byId={};(source.datasets||[]).forEach(function(ds){if(ds&&ds.id)byId[String(ds.id)]=ds;});
+    var datasets=[];Object.keys(wanted).forEach(function(id){if(byId[id]){try{datasets.push(JSON.parse(JSON.stringify(byId[id])));}catch(_e){datasets.push(byId[id]);}}else warnings.push('Fælles datasæt mangler i browseren: '+id);});
+    return {version:1,datasets:datasets,updatedAt:source.updatedAt||0};
+  }
+
   async function buildBackup(ids,allSessions){
     ids=(ids||[]).map(clean).filter(Boolean);
     var warnings=[];
@@ -95314,21 +96083,24 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
     });
     var mediaArchive=await collectMediaArchive(sessionItems,warnings);
     var drawingsArchive=await collectDrawingsArchive(warnings);
+    var commonDataStore=collectCommonDataStoreForSessions(sessionItems,warnings);
     var payload={
       app:'maans-interaktiv-tavle',
       format:'tavle-backup-plus-plus',
       backupKind:'Backup++',
-      backupVersion:1,
+      backupVersion:2,
       created:new Date().toISOString(),
       sourceSession:currentSession(),
       baseStorageKey:BASE_KEY,
-      notes:'Backup++: samlet eksport af valgte sessions med tavle-state og de lokale medie-/PDF-filer, som sessionerne peger på, når de findes i denne browsers TavleMediaArchive/IndexedDB.',
+      notes:'Backup++: samlet eksport af valgte sessions, deres refererede fælles data og de lokale medie-/PDF-filer, som sessionerne peger på, når de findes i browserens Tavle-lagre.',
       selectedSessionIds:ids,
       allKnownSessions:(allSessions||[]).map(function(s){return {id:s.id,title:s.title,url:s.url,hasData:!!s.hasData,sizeBytes:Number(s.sizeBytes)||0,note:s.note||'',sources:(s.sources||[]).slice()};}),
       sessions:sessionItems,
       mediaArchive:mediaArchive,
       mediaManifest:mediaArchive.map(function(m){return {id:m.id,kind:m.kind,name:m.name,mimeType:m.mimeType,size:m.size,source:m.source,refSessions:m.refSessions};}),
       drawingsArchive:drawingsArchive,
+      commonDataStore:commonDataStore,
+      commonDatasetManifest:(commonDataStore.datasets||[]).map(function(ds){return {id:ds.id,name:ds.name,commonKind:ds.commonKind||'',type:ds.type||'',rows:(ds.rows||[]).length,columns:(ds.columns||[]).length};}),
       registryPayloads:collectRegistryPayloads(),
       warnings:warnings
     };
@@ -95344,7 +96116,7 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
       widgets+=Number(s.summary&&s.summary.widgets)||0;
       datasets+=Number(s.summary&&s.summary.datasets)||0;
     });
-    return sessions.length+' sessions · '+withState+' med tavledata · '+slides+' tavler · '+widgets+' widgets · '+datasets+' datasæt · '+(payload.mediaArchive||[]).length+' medier';
+    return sessions.length+' sessions · '+withState+' med tavledata · '+slides+' tavler · '+widgets+' widgets · '+datasets+' sessionsdatasæt · '+(((payload.commonDataStore||{}).datasets)||[]).length+' fælles datasæt · '+(payload.mediaArchive||[]).length+' medier';
   }
 
   function offerDownload(payload,backToChooser){
@@ -95358,7 +96130,7 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
     show('<h2>Backup++ klar</h2>'
       +'<p><b>'+h(summaryText(payload))+'</b><br><span class="backupPPFinishedSize">Færdig Backup++-fil: '+h(formatBytes(finishedSize))+'</span></p>'
       +(warnings.length?'<p class="backupPPWarn">Advarsler: '+h(warnings.length)+'. Se JSON-teksten for detaljer.</p>':'')
-      +'<p class="backupPPMuted">Backup++ ændrer ikke noget i appen. Filen er tænkt som arkiv/flyttefil for flere sessions og medtager lokale medier/PDF’er fra browserens Tavle-arkiv, når de findes.</p>'
+      +'<p class="backupPPMuted">Backup++ ændrer ikke noget i appen. Filen er tænkt som arkiv/flyttefil for flere sessions og medtager refererede fælles data samt lokale medier/PDF’er fra browserens Tavle-arkiv, når de findes.</p>'
       +'<div class="backupPPActions">'
       +(url?'<a id="l946DownloadBackupPP" download="'+h(filename)+'" href="'+h(url)+'" class="backupPPDownload">Hent Backup++</a>':'')
       +'<button id="l946CopyBackupPP">Kopiér JSON</button>'
@@ -95456,7 +96228,7 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
     }).join('');
     var exportableCount=sessions.filter(function(s){return s.__backupPPExportable;}).length;
     show('<h2>Backup++</h2>'
-      +'<p class="backupPPIntro"><b>Backup++ gemmer valgte sessions og de lokale filer, som sessionerne peger på.</b><br>Hvis en session kun er en registrering uden tavledata i denne browser, kan den ikke sikkerhedskopieres herfra.</p>'
+      +'<p class="backupPPIntro"><b>Backup++ gemmer valgte sessions, deres fælles data og de lokale filer, som sessionerne peger på.</b><br>Hvis en session kun er en registrering uden tavledata i denne browser, kan den ikke sikkerhedskopieres herfra.</p>'
       +'<div class="backupPPTop"><button id="backupPPAll">Alle med data</button><button id="backupPPNone" class="secondary">Ingen</button><span id="backupPPChoiceSummary"></span></div>'
       +'<div class="backupPPList">'+(rows||'<p>Ingen sessions fundet.</p>')+'</div>'
       +'<div class="backupPPActions"><button id="backupPPExportSelected">Gem valgte som Backup++</button><button id="backupPPExportAll">Gem alle med data</button><button id="backupPPClose" class="secondaryClose">Luk</button></div>'
@@ -95769,6 +96541,7 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
   window.__l951BackupPPTextImportAndCopyStatus=true;
   var BASE='maans_interaktiv_tavle_v162_test';
   var PREFIX=BASE+'__session__';
+  var COMMON_DATA_KEY='maans_tavle_common_datasets_v1';
   var REG1='maans_tavle_sessions_registry_v1';
   var REG2='maans_tavle_all_known_sessions_v1';
 
@@ -95841,6 +96614,34 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
   function parseMaybeState(raw){
     try{var p=typeof raw==='string'?JSON.parse(raw):raw;var s=p&&p.state?p.state:p;return !!(s&&Array.isArray(s.slides));}catch(_e){return false;}
   }
+  function cloneJson(v){try{return JSON.parse(JSON.stringify(v));}catch(_e){return v;}}
+  function readCommonStore(){try{var s=JSON.parse(localStorage.getItem(COMMON_DATA_KEY)||'null');if(s&&Array.isArray(s.datasets))return s;}catch(_e){}return {version:1,datasets:[],updatedAt:0};}
+  function commonComparable(ds){return {name:ds&&ds.name||'',commonKind:ds&&ds.commonKind||'',type:ds&&ds.type||'',columns:ds&&ds.columns||[],rows:ds&&ds.rows||[],schema:ds&&ds.schema||{}};}
+  function commonEqual(a,b){try{return JSON.stringify(commonComparable(a))===JSON.stringify(commonComparable(b));}catch(_e){return false;}}
+  function uniqueCommonId(existing){var base='shared_import_'+stamp().replace(/[^0-9A-Za-z_-]/g,'_'),id=base,n=2;while(existing[id])id=base+'_'+(n++);return id;}
+  function replaceIdsDeep(value,map,seen){
+    if(typeof value==='string'&&Object.prototype.hasOwnProperty.call(map,value))return map[value];
+    if(!value||typeof value!=='object')return value;
+    seen=seen||[];if(seen.indexOf(value)>=0)return value;seen.push(value);
+    if(Array.isArray(value)){for(var i=0;i<value.length;i++)value[i]=replaceIdsDeep(value[i],map,seen);return value;}
+    Object.keys(value).forEach(function(k){value[k]=replaceIdsDeep(value[k],map,seen);});return value;
+  }
+  function prepareCommonImport(pack,stateObjects,mode){
+    var source=(pack&&pack.commonDataStore&&Array.isArray(pack.commonDataStore.datasets))?pack.commonDataStore.datasets:(Array.isArray(pack&&pack.commonDatasets)?pack.commonDatasets:[]);
+    var required={};(stateObjects||[]).forEach(function(st){(st&&Array.isArray(st.sharedDatasetLinks)?st.sharedDatasetLinks:[]).forEach(function(id){id=String(id||'');if(id)required[id]=true;});});
+    var store=readCommonStore(),existing={};(store.datasets||[]).forEach(function(ds){if(ds&&ds.id)existing[String(ds.id)]=ds;});
+    var sourceById={};source.forEach(function(ds){if(ds&&ds.id)sourceById[String(ds.id)]=ds;});
+    var map={},info={imported:0,reused:0,overwritten:0,remapped:0,missing:[]};
+    Object.keys(required).forEach(function(oldId){
+      var incoming=sourceById[oldId];if(!incoming){info.missing.push(oldId);map[oldId]=oldId;return;}
+      var current=existing[oldId];
+      if(!current){var fresh=cloneJson(incoming);store.datasets.push(fresh);existing[oldId]=fresh;map[oldId]=oldId;info.imported++;return;}
+      if(commonEqual(current,incoming)){map[oldId]=oldId;info.reused++;return;}
+      if(mode==='overwrite'){var repl=cloneJson(incoming),ix=store.datasets.findIndex(function(x){return x&&String(x.id)===oldId;});if(ix>=0)store.datasets[ix]=repl;existing[oldId]=repl;map[oldId]=oldId;info.overwritten++;return;}
+      var newId=uniqueCommonId(existing),copy=cloneJson(incoming);copy.id=newId;copy.name=String(copy.name||'Fælles data')+' (importeret)';copy.updatedAt=nowMs();store.datasets.push(copy);existing[newId]=copy;map[oldId]=newId;info.imported++;info.remapped++;
+    });
+    store.version=1;store.updatedAt=nowMs();return {store:store,map:map,info:info};
+  }
   function isBackupPP(obj){
     try{return !!(obj&&String(obj.type||obj.backupKind||'').toLowerCase().replace(/\s+/g,'')==='tavlebackup++'.toLowerCase().replace(/\s+/g,'') || obj&&String(obj.type||obj.backupKind||'').toLowerCase().indexOf('backup++')>=0);}
     catch(_e){return false;}
@@ -95871,13 +96672,31 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
     return id;
   }
   function renderSuccess(rows,mode,archiveInfo){
-    var list=rows.map(function(r){return '<li><b>'+esc(label(r.id))+'</b> <a href="'+esc(sessionUrl(r.id))+'">åbn session</a></li>';}).join('');
+    var list=rows.map(function(r){return '<li><b>'+esc(label(r.id))+'</b> <button type="button" class="l951OpenImportedSession" data-l951-open-imported-session="'+esc(r.id)+'">åbn session</button></li>';}).join('');
     var bits=[];
     if(archiveInfo&&archiveInfo.media)bits.push(esc(String(archiveInfo.media))+' lokale medier');
     if(archiveInfo&&archiveInfo.drawings)bits.push(esc(String(archiveInfo.drawings))+' tegninger');
-    var archiveText=bits.length?'<p class="l951Ok">Lokalt arkiv importeret: '+bits.join(' · ')+'</p>':'';
+    if(archiveInfo&&archiveInfo.commonData)bits.push(esc(String(archiveInfo.commonData))+' fælles datasæt');
+    if(archiveInfo&&archiveInfo.commonReused)bits.push(esc(String(archiveInfo.commonReused))+' fælles datasæt genbrugt');
+    var archiveText=bits.length?'<p class="l951Ok">Tilknyttede data og lokalt arkiv importeret: '+bits.join(' · ')+'</p>':'';
     show('<h2>Backup++ importeret</h2><p class="l951Ok">'+esc(String(rows.length))+' session(er) er lagt i denne browser. '+(mode==='copy'?'De er importeret som nye kopier.':'De valgte sessions er overskrevet.')+'</p>'+archiveText+'<ul class="l951ImportList">'+list+'</ul><p class="l951Muted">Åbn en importeret session via linket eller via sessionslisten. Den aktuelle tavle ændres ikke, før du skifter/genindlæser session.</p><div class="backupPPActions"><button id="l951Close" type="button">Luk</button></div>');
     var c=document.getElementById('l951Close'); if(c)c.onclick=close;
+    var m=modalEl(),lastOpenAt=0;
+    Array.prototype.slice.call((m||document).querySelectorAll('[data-l951-open-imported-session]')).forEach(function(btn){
+      function openImported(e){
+        stop(e);var now=nowMs();if(now-lastOpenAt<350)return false;lastOpenAt=now;
+        var id=clean(btn.getAttribute('data-l951-open-imported-session')||'standard');
+        try{close();}catch(_e){}
+        setTimeout(function(){
+          try{if(typeof safe1169OpenSession==='function'){safe1169OpenSession(id);return;}}catch(_e){}
+          try{location.href=sessionUrl(id);setTimeout(function(){location.reload();},80);}catch(_e){}
+        },25);
+        return false;
+      }
+      var pointerAt=0;
+      try{btn.addEventListener('pointerup',function(e){pointerAt=nowMs();openImported(e);},{capture:true,passive:false});}catch(_e){}
+      try{btn.addEventListener('click',function(e){if(nowMs()-pointerAt<650){stop(e);return false;}return openImported(e);},{capture:true,passive:false});}catch(_e){}
+    });
     toastMsg('Backup++ importeret');
   }
   async function importArchivesFromPack(pack){
@@ -95901,30 +96720,31 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
     return info;
   }
   function doImport(entries,mode,pack){
-    var chosen=selectedEntries(entries);
-    if(!chosen.length){toastMsg('Vælg mindst én session');return;}
-    if(mode==='overwrite'){
-      var names=chosen.map(function(e){return label(e.id);}).join(', ');
-      if(!confirm('Overskriv disse sessioner fra Backup++?\n\n'+names+'\n\nDen aktuelle visning ændres først, når sessionen åbnes/genindlæses.'))return;
-    }
-    show('<h2>Backup++ import</h2><p>Importerer valgte sessions…</p>');
+    var chosen=selectedEntries(entries);if(!chosen.length){toastMsg('Vælg mindst én session');return;}
+    if(mode==='overwrite'){var names=chosen.map(function(e){return label(e.id);}).join(', ');if(!confirm('Overskriv disse sessioner fra Backup++?\n\n'+names+'\n\nDen aktuelle visning ændres først, når sessionen åbnes/genindlæses.'))return;}
+    show('<h2>Backup++ import</h2><p>Importerer valgte sessions og fælles data…</p>');
     setTimeout(async function(){
+      var previousCommon=null,previousSessions={};
       try{
-        var archiveInfo=await importArchivesFromPack(pack);
-        var imported=[];
-        chosen.forEach(function(en){
-          if(!parseMaybeState(en.payload))throw new Error('Sessionen '+label(en.id)+' indeholder ikke gyldige tavledata.');
-          var id=(mode==='copy')?uniqueCopyId(en.id):clean(en.id);
-          localStorage.setItem(keyFor(id),en.payload);
-          imported.push({id:id,note:mode==='copy'?'Importeret kopi fra Backup++':'Gendannet fra Backup++',created:nowText(),last:nowText(),createdMs:nowMs(),lastMs:nowMs()});
-        });
-        writeRegistryWith(imported);
-        try{if(window.safe955RefreshTavleSessionerGlobal)window.safe955RefreshTavleSessionerGlobal({render:true});}catch(_sync){}
+        var archiveInfo=await importArchivesFromPack(pack),states=[];
+        chosen.forEach(function(en){var st=JSON.parse(en.payload);if(st&&st.state)st=st.state;if(!st||!Array.isArray(st.slides))throw new Error('Sessionen '+label(en.id)+' indeholder ikke gyldige tavledata.');states.push(st);});
+        var commonPlan=prepareCommonImport(pack,states,mode);
+        states.forEach(function(st){replaceIdsDeep(st,commonPlan.map);});
+        previousCommon=localStorage.getItem(COMMON_DATA_KEY);
+        var writes=[];
+        chosen.forEach(function(en,i){var id=(mode==='copy')?uniqueCopyId(en.id):clean(en.id),key=keyFor(id);previousSessions[key]=localStorage.getItem(key);writes.push({id:id,key:key,payload:JSON.stringify(states[i])});});
+        localStorage.setItem(COMMON_DATA_KEY,JSON.stringify(commonPlan.store));
+        writes.forEach(function(w){localStorage.setItem(w.key,w.payload);});
+        var imported=writes.map(function(w){return {id:w.id,note:mode==='copy'?'Importeret kopi fra Backup++':'Gendannet fra Backup++',created:nowText(),last:nowText(),createdMs:nowMs(),lastMs:nowMs()};});
+        archiveInfo.commonData=commonPlan.info.imported+commonPlan.info.overwritten;
+        archiveInfo.commonReused=commonPlan.info.reused;
+        writeRegistryWith(imported);try{if(window.safe955RefreshTavleSessionerGlobal)window.safe955RefreshTavleSessionerGlobal({render:true});}catch(_sync){}
         renderSuccess(imported,mode,archiveInfo);
+        if(commonPlan.info.missing.length)toastMsg('Importeret, men '+commonPlan.info.missing.length+' fælles datasæt manglede i Backup++');
       }catch(e){
+        try{if(previousCommon==null)localStorage.removeItem(COMMON_DATA_KEY);else localStorage.setItem(COMMON_DATA_KEY,previousCommon);Object.keys(previousSessions).forEach(function(k){if(previousSessions[k]==null)localStorage.removeItem(k);else localStorage.setItem(k,previousSessions[k]);});}catch(_rollback){}
         show('<h2>Backup++ import fejlede</h2><p>'+esc(e&&e.message?e.message:'Ukendt fejl')+'</p><div class="backupPPActions"><button id="l951Back" type="button">Tilbage</button><button id="l951Close" type="button" class="secondaryClose">Luk</button></div>');
-        var b=document.getElementById('l951Back'); if(b)b.onclick=function(){renderImportChooser(entries,pack);};
-        var c=document.getElementById('l951Close'); if(c)c.onclick=close;
+        var b=document.getElementById('l951Back');if(b)b.onclick=function(){renderImportChooser(entries,pack);};var c=document.getElementById('l951Close');if(c)c.onclick=close;
       }
     },30);
   }
@@ -95934,7 +96754,7 @@ body[data-tavle-theme="smartboard"] #modal .helpHintToggleRow input#helpStartupT
     if(!entries.length){show('<h2>Backup++</h2><p>Backup++-teksten blev læst, men den indeholder ingen sessionsdata.</p><button id="l951Close" type="button">Luk</button>');var x=document.getElementById('l951Close');if(x)x.onclick=close;return;}
     var bad=entries.filter(function(e){return !e.ok;}).length;
     var rows=entries.map(function(e,i){return '<label class="l951SessionRow"><input type="checkbox" data-l951-session-check="'+i+'" '+(e.ok?'checked':'disabled')+'> <span><b>'+esc(e.title||label(e.id))+'</b><small>#'+esc(e.id)+' · '+(e.ok?'klar':'ugyldige tavledata')+(e.exists?' · findes allerede':'')+' · '+esc(String(Math.round((e.sizeBytes||0)/1024)))+' KB</small></span></label>';}).join('');
-    show('<h2>Importer Backup++</h2><p class="backupPPIntro">Backup++ indeholder '+esc(String(entries.length))+' session(er). Vælg hvad der skal lægges ind i denne browser.</p>'+(bad?'<p class="l951Warn">'+esc(String(bad))+' session(er) springes over, fordi de ikke indeholder gyldige tavledata.</p>':'')+'<div class="backupPPTop"><button id="l951All" type="button">Alle</button><button id="l951None" type="button" class="secondary">Ingen</button><span id="l951Summary"></span></div><div class="backupPPList l951List">'+rows+'</div><p class="l951Muted"><b>Anbefalet:</b> Importér som nye kopier. Så bliver intet eksisterende overskrevet.</p><div class="backupPPActions"><button id="l951ImportCopy" type="button">Importer som nye kopier</button><button id="l951ImportOverwrite" type="button" class="secondary">Overskriv valgte</button><button id="l951Close" type="button" class="secondaryClose">Luk</button></div>');
+    show('<h2>Importer Backup++</h2><p class="backupPPIntro">Backup++ indeholder '+esc(String(entries.length))+' session(er) og '+esc(String((((pack||{}).commonDataStore||{}).datasets||[]).length))+' fælles datasæt. Vælg hvad der skal lægges ind i denne browser.</p>'+(bad?'<p class="l951Warn">'+esc(String(bad))+' session(er) springes over, fordi de ikke indeholder gyldige tavledata.</p>':'')+'<div class="backupPPTop"><button id="l951All" type="button">Alle</button><button id="l951None" type="button" class="secondary">Ingen</button><span id="l951Summary"></span></div><div class="backupPPList l951List">'+rows+'</div><p class="l951Muted"><b>Anbefalet:</b> Importér som nye kopier. Så bliver intet eksisterende overskrevet.</p><div class="backupPPActions"><button id="l951ImportCopy" type="button">Importer som nye kopier</button><button id="l951ImportOverwrite" type="button" class="secondary">Overskriv valgte</button><button id="l951Close" type="button" class="secondaryClose">Luk</button></div>');
     var m=modalEl();
     function boxes(){return Array.prototype.slice.call((m||document).querySelectorAll('[data-l951-session-check]'));}
     function summary(){var bs=boxes(),n=bs.filter(function(x){return x.checked&&!x.disabled;}).length;var s=document.getElementById('l951Summary');if(s)s.textContent=n+' valgt';}
@@ -96873,6 +97693,114 @@ body[data-tavle-theme="smartboard"] #modal.safe1124RelationModal .safe1124Relati
 html.theme-smartboard #modal.safe1124RelationModal #safe1127Theme,
 html[data-tavle-theme="smartboard"] #modal.safe1124RelationModal #safe1127Theme,
 body[data-tavle-theme="smartboard"] #modal.safe1124RelationModal #safe1127Theme{background:#0ea5e9!important;color:#082f49!important;border:1px solid #7dd3fc!important}
+</style>
+
+
+
+<style id="l1221-backuppp-result-owner-css">
+/* l1221: Kirurgisk rettelse direkte på l1220.
+   Backup++-resultatmodalen har lys baggrund, så den arvede hvide resultattekst var ulæselig.
+   Kun resultatlistens layout og kontrast ejes her. Ingen import- eller sessionslogik ændres. */
+#modal .l951ImportList{
+  list-style:none!important;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:7px!important;
+  width:100%!important;
+  max-width:100%!important;
+  max-height:min(48vh,460px)!important;
+  overflow:auto!important;
+  box-sizing:border-box!important;
+  margin:12px 0!important;
+  padding:2px 5px 2px 0!important;
+  color:#0f172a!important;
+  background:transparent!important;
+  font-weight:800!important;
+  line-height:1.22!important;
+  text-shadow:none!important;
+  scrollbar-gutter:stable!important;
+  overscroll-behavior:contain!important;
+}
+#modal .l951ImportList li{
+  list-style:none!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-width:0!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:9px 10px!important;
+  border:1px solid #cbd5e1!important;
+  border-radius:12px!important;
+  background:#f8fafc!important;
+  color:#0f172a!important;
+  opacity:1!important;
+  visibility:visible!important;
+  text-shadow:none!important;
+}
+#modal .l951ImportList li::marker{content:""!important;}
+#modal .l951ImportList li b{
+  display:block!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  color:#0f172a!important;
+  opacity:1!important;
+  visibility:visible!important;
+  font-weight:950!important;
+  text-shadow:none!important;
+}
+#modal .l951ImportList li a,
+#modal .l951ImportList li .l951OpenImportedSession{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:34px!important;
+  padding:7px 11px!important;
+  border:1px solid #93c5fd!important;
+  border-radius:999px!important;
+  background:#dbeafe!important;
+  color:#1e3a8a!important;
+  opacity:1!important;
+  visibility:visible!important;
+  font-weight:950!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  text-decoration:none!important;
+  text-shadow:none!important;
+  touch-action:manipulation!important;
+}
+#modal .l951ImportList li a:hover,
+#modal .l951ImportList li a:focus-visible,
+#modal .l951ImportList li .l951OpenImportedSession:hover,
+#modal .l951ImportList li .l951OpenImportedSession:focus-visible{
+  background:#bfdbfe!important;
+  border-color:#60a5fa!important;
+  color:#172554!important;
+  outline:2px solid #2563eb!important;
+  outline-offset:2px!important;
+}
+#modal .l951ImportList + .l951Muted{
+  color:#1e293b!important;
+  background:#f8fafc!important;
+  border-color:#cbd5e1!important;
+  text-shadow:none!important;
+}
+#modal .l951ImportList + .l951Muted + .backupPPActions{
+  margin-top:8px!important;
+  padding-top:0!important;
+}
+@media(max-width:720px){
+  #modal .l951ImportList{max-height:min(46vh,420px)!important;}
+  #modal .l951ImportList li{
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:7px!important;
+  }
+  #modal .l951ImportList li a,#modal .l951ImportList li .l951OpenImportedSession{justify-self:start!important;}
+}
 </style>
 
 </body></html>
